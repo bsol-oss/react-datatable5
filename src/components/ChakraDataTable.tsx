@@ -18,15 +18,21 @@ import {
   Thead,
   Tr,
   Text,
+  Input,
 } from "@chakra-ui/react";
 import { Table as ITable, flexRender } from "@tanstack/react-table";
+import React, { useRef } from "react";
 
 interface ChakraDataTable<T> {
   table: ITable<T>;
   hasFooter: boolean;
 }
 
-const ChakraDataTable = <T,>({ table, hasFooter }: ChakraDataTable<T>) => {
+const ChakraDataTable = <T,>({
+  table,
+  hasFooter,
+  refreshData,
+}: ChakraDataTable<T>) => {
   console.log(table.getState().sorting, "dogpasjdpfo");
   return (
     <>
@@ -65,45 +71,122 @@ const ChakraDataTable = <T,>({ table, hasFooter }: ChakraDataTable<T>) => {
           </PopoverContent>
         </Popover>
       </Flex>
+      {table.getLeafHeaders().map((header) => {
+        console.log(header.column.getFilterValue(), "okgspokpsor");
+        return (
+          <>
+            {header.column.getCanFilter() && (
+              <>
+              <Text>{header.column.id}</Text>
+                <Input
+                  value={header.column.getFilterValue()}
+                  onChange={(e) => {
+                    console.log(e, "gifdogj");
+                    header.column.setFilterValue(e.target.value);
+                    // console.log(value,"sdoafo")
+                    // header.column.setFilterValue(value);
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    refreshData();
+                  }}
+                >
+                  Filter
+                </Button>
+              </>
+            )}
+          </>
+        );
+      })}
 
       <Grid overflowX={"scroll"} overflowY={"auto"}>
         <Table variant="simple">
           <Thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={crypto.randomUUID()} style={{ columnSpan: "all" }}>
-                {headerGroup.headers.map((header) => (
-                  <Th key={crypto.randomUUID()} colSpan={header.colSpan}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    {header.column.getCanSort() && (
-                      <>
-                        <Button
-                          onClick={(e) => {
-                            const func =
-                              header.column.getToggleSortingHandler();
-                            if (func === undefined) {
-                              return;
-                            }
-                            func(e);
-                          }}
-                        >
-                          Toggle Sort
-                        </Button>
-                        <Text>
-                          {header.column.getIsSorted() ? "Sorted" : "Not Sort"}
-                          
-                        </Text>
-                        {header.column.getNextSortingOrder() === false && <Text>To No sort</Text>}
-                        {header.column.getNextSortingOrder() === 'asc' && <Text>To asc</Text>}
-                        {header.column.getNextSortingOrder() === 'desc' && <Text>To desc</Text>}
-                      </>
-                    )}
-                  </Th>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  console.log(header.column.getFilterValue(), "okgspokpsor");
+                  return (
+                    <Th
+                      key={crypto.randomUUID()}
+                      colSpan={header.colSpan}
+                      width={`${header.getSize()}px`}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      {header.column.getCanSort() && (
+                        <>
+                          <Button
+                            onClick={(e) => {
+                              const func =
+                                header.column.getToggleSortingHandler();
+                              if (func === undefined) {
+                                return;
+                              }
+                              func(e);
+                            }}
+                          >
+                            Toggle Sort
+                          </Button>
+                          <Text>
+                            {header.column.getIsSorted()
+                              ? "Sorted"
+                              : "Not Sort"}
+                          </Text>
+                          {header.column.getNextSortingOrder() === false && (
+                            <Text>To No sort</Text>
+                          )}
+                          {header.column.getNextSortingOrder() === "asc" && (
+                            <Text>To asc</Text>
+                          )}
+                          {header.column.getNextSortingOrder() === "desc" && (
+                            <Text>To desc</Text>
+                          )}
+                        </>
+                      )}
+
+                      {/* {header.column.getCanFilter() && (
+                        <>
+                          <Input
+                            value={ header.column.getFilterValue()}
+                            onChange={(value) => {
+                              console.log(e, "gifdogj");
+                              header.column.setFilterValue(e.target.value);
+                            // console.log(value,"sdoafo")
+                            // header.column.setFilterValue(value);
+                            }}
+                          />
+                          <Button
+                            onClick={() => {
+                              refreshData();
+                            }}
+                          >
+                            Filter
+                          </Button>
+                        </>
+                      )} */}
+                      <Box
+                        padding={"1rem 0"}
+                        borderRight={
+                          header.column.getIsResizing()
+                            ? "1rem solid black"
+                            : "0.5rem solid grey"
+                        }
+                        {...{
+                          onDoubleClick: () => header.column.resetSize(),
+                          onMouseDown: header.getResizeHandler(),
+                          onTouchStart: header.getResizeHandler(),
+                        }}
+                      />
+                      {}
+                    </Th>
+                  );
+                })}
               </Tr>
             ))}
           </Thead>
@@ -111,7 +194,10 @@ const ChakraDataTable = <T,>({ table, hasFooter }: ChakraDataTable<T>) => {
             {table.getRowModel().rows.map((row) => (
               <Tr key={crypto.randomUUID()}>
                 {row.getVisibleCells().map((cell) => (
-                  <Td key={crypto.randomUUID()}>
+                  <Td
+                    key={crypto.randomUUID()}
+                    width={`${cell.column.getSize()}px`}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Td>
                 ))}

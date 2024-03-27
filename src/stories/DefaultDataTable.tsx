@@ -8,9 +8,13 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   SortingState,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
 import useDataFromUrl from "../components/useDataFromUrl";
 import { useEffect, useState } from "react";
+import React from "react";
+
+
 
 interface GetChatRecordsResult {
   success: boolean;
@@ -34,6 +38,7 @@ interface ChatRecord {
 
 const DefaultDataTable = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]) // can set initial column filter state here
 
   const [pagination, setPagination] = useState({
     pageIndex: 0, //initial page index
@@ -55,6 +60,11 @@ const DefaultDataTable = () => {
       sorting: JSON.stringify(
         sorting.length > 0
           ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
+          : {}
+      ),
+      where: JSON.stringify(
+        columnFilters.length > 0
+          ? { [columnFilters[0].id] : columnFilters[0].value}
           : {}
       ),
     },
@@ -169,18 +179,27 @@ const DefaultDataTable = () => {
     manualSorting: true,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    columnResizeMode: 'onChange',
     state: {
       pagination,
       sorting,
+      columnFilters,
+    },
+    defaultColumn: {
+      size: 100, //starting column size
+      minSize: 50, //enforced during column resizing
+      maxSize: 1000, //enforced during column resizing
     },
   });
+
   console.log(pagination, sorting, "dsgj");
   useEffect(() => {
     refreshData();
   }, [pagination, sorting]);
   return (
     <ChakraProvider theme={theme}>
-      <ChakraDataTable table={table} hasFooter={true} />
+      <ChakraDataTable table={table} hasFooter={true} refreshData={refreshData} />
     </ChakraProvider>
   );
 };
