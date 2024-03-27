@@ -27,9 +27,18 @@ interface ChakraDataTable<T> {
 }
 
 const ChakraDataTable = <T,>({ table, hasFooter }: ChakraDataTable<T>) => {
+  console.log(table.getState().sorting, "dogpasjdpfo");
   return (
     <>
       <Flex justifyContent={"flex-end"}>
+        {JSON.stringify(table.getState().sorting)}
+        <Button
+          onClick={() => {
+            table.resetSorting();
+          }}
+        >
+          Reset Sorting
+        </Button>
         <Popover placement="bottom-end">
           <PopoverTrigger>
             <Button>Edit View</Button>
@@ -56,6 +65,7 @@ const ChakraDataTable = <T,>({ table, hasFooter }: ChakraDataTable<T>) => {
           </PopoverContent>
         </Popover>
       </Flex>
+
       <Grid overflowX={"scroll"} overflowY={"auto"}>
         <Table variant="simple">
           <Thead>
@@ -69,6 +79,29 @@ const ChakraDataTable = <T,>({ table, hasFooter }: ChakraDataTable<T>) => {
                           header.column.columnDef.header,
                           header.getContext()
                         )}
+                    {header.column.getCanSort() && (
+                      <>
+                        <Button
+                          onClick={(e) => {
+                            const func =
+                              header.column.getToggleSortingHandler();
+                            if (func === undefined) {
+                              return;
+                            }
+                            func(e);
+                          }}
+                        >
+                          Toggle Sort
+                        </Button>
+                        <Text>
+                          {header.column.getIsSorted() ? "Sorted" : "Not Sort"}
+                          
+                        </Text>
+                        {header.column.getNextSortingOrder() === false && <Text>To No sort</Text>}
+                        {header.column.getNextSortingOrder() === 'asc' && <Text>To asc</Text>}
+                        {header.column.getNextSortingOrder() === 'desc' && <Text>To desc</Text>}
+                      </>
+                    )}
                   </Th>
                 ))}
               </Tr>

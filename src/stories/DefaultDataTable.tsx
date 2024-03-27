@@ -7,6 +7,7 @@ import {
   useReactTable,
   getCoreRowModel,
   getPaginationRowModel,
+  SortingState,
 } from "@tanstack/react-table";
 import useDataFromUrl from "../components/useDataFromUrl";
 import { useEffect, useState } from "react";
@@ -32,6 +33,8 @@ interface ChatRecord {
 }
 
 const DefaultDataTable = () => {
+  const [sorting, setSorting] = useState<SortingState>([]);
+
   const [pagination, setPagination] = useState({
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
@@ -46,9 +49,14 @@ const DefaultDataTable = () => {
     },
     params: {
       pagination: JSON.stringify({
-        offset: pagination.pageIndex *  pagination.pageSize,
+        offset: pagination.pageIndex * pagination.pageSize,
         rows: pagination.pageSize,
       }),
+      sorting: JSON.stringify(
+        sorting.length > 0
+          ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
+          : {}
+      ),
     },
   });
 
@@ -158,16 +166,18 @@ const DefaultDataTable = () => {
     getCoreRowModel: getCoreRowModel(),
     // getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true,
-    onPaginationChange: (setterFunction) => {
-      setPagination(setterFunction);
-      refreshData();
-    },
+    manualSorting: true,
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
     state: {
       pagination,
+      sorting,
     },
   });
-  console.log(pagination, "dsgj");
-useEffect(()=>{refreshData()},[pagination])
+  console.log(pagination, sorting, "dsgj");
+  useEffect(() => {
+    refreshData();
+  }, [pagination, sorting]);
   return (
     <ChakraProvider theme={theme}>
       <ChakraDataTable table={table} hasFooter={true} />
