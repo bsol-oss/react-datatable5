@@ -150,26 +150,7 @@ const ChakraDataTable = <T,>({
                         </>
                       )}
 
-                      {/* {header.column.getCanFilter() && (
-                        <>
-                          <Input
-                            value={ header.column.getFilterValue()}
-                            onChange={(value) => {
-                              console.log(e, "gifdogj");
-                              header.column.setFilterValue(e.target.value);
-                            // console.log(value,"sdoafo")
-                            // header.column.setFilterValue(value);
-                            }}
-                          />
-                          <Button
-                            onClick={() => {
-                              refreshData();
-                            }}
-                          >
-                            Filter
-                          </Button>
-                        </>
-                      )} */}
+                      {header.column.getIsFiltered() ? <Text>Filtered</Text>: <Text>Not Filtered</Text>  }
                       <Box
                         padding={"1rem 0"}
                         borderRight={
