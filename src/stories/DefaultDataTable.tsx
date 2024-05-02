@@ -13,6 +13,7 @@ import {
 import useDataFromUrl from "../components/useDataFromUrl";
 import { useEffect, useState } from "react";
 import React from "react";
+import { TextCell } from "../components/TextCell";
 
 
 
@@ -101,6 +102,7 @@ const DefaultDataTable = () => {
         // }),
         columnHelper.accessor("session_id", {
           cell: (props) => {
+            // return <TextCell>{props.row.original.session_id}</TextCell>;
             return <span>{props.row.original.session_id}</span>;
           },
           header: () => <span>Session Id</span>,
@@ -108,19 +110,21 @@ const DefaultDataTable = () => {
         }),
         columnHelper.accessor("last_user_message", {
           cell: (props) => {
+            // return <TextCell>{props.row.original.last_user_message}</TextCell>;
             return <span>{props.row.original.last_user_message}</span>;
           },
+          
           header: () => <span>User Message</span>,
           footer: (props) => props.column.id,
         }),
         // Accessor Column
-        // columnHelper.accessor("start_time", {
-        //   cell: (props) => {
-        //     return <DateCell date={props.row.original.start_time} />;
-        //   },
-        //   header: () => <span>Start Time</span>,
-        //   footer: (props) => props.column.id,
-        // }),
+        columnHelper.accessor("total_token", {
+          cell: (props) => {
+            return  <span>{props.row.original.total_token}</span>;
+          },
+          header: () => <span>Total Token</span>,
+          footer: (props) => props.column.id,
+        }),
         // Accessor Column
         // columnHelper.accessor((row) => row.end_time, {
         //   id: "end_time",
