@@ -37,49 +37,49 @@ const TableHeader = ({ canResize }: TableHeaderProps) => {
                 colSpan={header.colSpan}
                 width={`${header.getSize()}px`}
               >
-                <Flex justifyContent={"space-between"}>
-                  <Flex>
+                <Flex alignItems={"center"} gap={"0.5rem"} padding={"0.5rem"}>
+                  <Box>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-                    {header.column.getCanSort() && (
-                      <>
+                  </Box>
+                  {header.column.getCanSort() && (
+                    <>
+                      <Button
+                        onClick={(e) => {
+                          header.column.toggleSorting();
+                        }}
+                      >
+                        {header.column.getNextSortingOrder() === false && (
+                          // <Text>To No sort</Text>
+                          <ChevronUpIcon />
+                        )}
+                        {header.column.getNextSortingOrder() === "asc" && (
+                          // <Text>To asc</Text>
+                          <UpDownIcon />
+                        )}
+                        {header.column.getNextSortingOrder() === "desc" && (
+                          // <Text>To desc</Text>
+                          <ChevronDownIcon />
+                        )}
+                      </Button>
+
+                      {header.column.getIsSorted() && (
                         <Button
                           onClick={(e) => {
-                            header.column.toggleSorting();
+                            header.column.clearSorting();
                           }}
                         >
-                          {header.column.getNextSortingOrder() === false && (
-                            // <Text>To No sort</Text>
-                            <ChevronUpIcon />
-                          )}
-                          {header.column.getNextSortingOrder() === "asc" && (
-                            // <Text>To asc</Text>
-                            <UpDownIcon />
-                          )}
-                          {header.column.getNextSortingOrder() === "desc" && (
-                            // <Text>To desc</Text>
-                            <ChevronDownIcon />
-                          )}
+                          <CloseIcon />
                         </Button>
+                      )}
+                    </>
+                  )}
 
-                        {header.column.getIsSorted() && (
-                          <Button
-                            onClick={(e) => {
-                              header.column.clearSorting();
-                            }}
-                          >
-                            <CloseIcon />
-                          </Button>
-                        )}
-                      </>
-                    )}
-
-                    {header.column.getIsFiltered() && <MdFilterListAlt />}
-                  </Flex>
+                  {header.column.getIsFiltered() && <MdFilterListAlt />}
                   {canResize && (
                     <Box
                       borderRight={
