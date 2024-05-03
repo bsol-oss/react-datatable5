@@ -1,20 +1,22 @@
-import { Thead, Tr, Th, Button, Text, Box, Flex, Grid } from "@chakra-ui/react";
-import { ColumnFaceting, flexRender } from "@tanstack/react-table";
+import { Box, Button, Flex, Th, Thead, Tr } from "@chakra-ui/react";
+import { flexRender } from "@tanstack/react-table";
+import { MdFilterListAlt } from "react-icons/md";
+
 // import { Box } from "framer-motion";
-import { useDataTable } from "./useDataTable";
 import {
-  ChevronUpIcon,
   ChevronDownIcon,
-  UpDownIcon,
+  ChevronUpIcon,
   CloseIcon,
+  UpDownIcon,
 } from "@chakra-ui/icons";
+import { useDataTable } from "./useDataTable";
 
 interface TableHeaderProps {
   canResize?: boolean;
 }
 
 const TableHeader = ({ canResize }: TableHeaderProps) => {
-  const table = useDataTable().table;
+  const { table } = useDataTable();
   return (
     <Thead>
       {table.getHeaderGroups().map((headerGroup) => (
@@ -27,12 +29,6 @@ const TableHeader = ({ canResize }: TableHeaderProps) => {
               onTouchStart: header.getResizeHandler(),
               cursor: "col-resize",
             };
-            // console.log(header.getSize(), "gjidsaoig");
-            console.log(
-              header,
-              header.column.getNextSortingOrder(),
-              "dfksopdfoht"
-            );
 
             return (
               <Th
@@ -82,11 +78,7 @@ const TableHeader = ({ canResize }: TableHeaderProps) => {
                       </>
                     )}
 
-                    {header.column.getIsFiltered() ? (
-                      <Text>Filtered</Text>
-                    ) : (
-                      <Text>Not Filtered</Text>
-                    )}
+                    {header.column.getIsFiltered() && <MdFilterListAlt />}
                   </Flex>
                   {canResize && (
                     <Box
