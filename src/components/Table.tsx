@@ -26,7 +26,7 @@ interface TableProps {
 const Table = ({ children }: TableProps) => {
   const { table } = useDataTable();
   return (
-    <Container maxW="100%" overflowY={'scroll'}>
+    <Container maxW="100%" overflowY={"scroll"}>
       <ChakraTable width={table.getCenterTotalSize()} variant="simple">
         {children}
       </ChakraTable>

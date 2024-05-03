@@ -14,7 +14,7 @@ export const TableFooter = () => {
                 ? null
                 : flexRender(
                     header.column.columnDef.footer,
-                    header.getContext()
+                    header.getContext(),
                   )}
             </Th>
           ))}

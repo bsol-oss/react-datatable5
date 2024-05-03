@@ -11,7 +11,7 @@ const TableCards = () => {
       {table.getRowModel().rows.map((row) => {
         return (
           <Card key={crypto.randomUUID()}>
-            <CardBody display={'flex'} flexFlow={'column'} gap={'0.5rem'}>
+            <CardBody display={"flex"} flexFlow={"column"} gap={"0.5rem"}>
               {row.getVisibleCells().map((cell) => {
                 console.log(cell, "fkgodsokg");
                 return (
@@ -20,7 +20,7 @@ const TableCards = () => {
                     <Box>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </Box>
                   </Box>

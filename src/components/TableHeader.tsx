@@ -43,7 +43,7 @@ const TableHeader = ({ canResize }: TableHeaderProps) => {
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </Box>
                   {header.column.getCanSort() && (

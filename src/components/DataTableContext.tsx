@@ -9,5 +9,5 @@ interface DataTableContext<T> {
 
 export const TableContext = createContext<DataTableContext<any>>({
   table: undefined,
-  refreshData: ()=>{}
+  refreshData: () => {},
 });

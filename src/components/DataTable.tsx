@@ -25,7 +25,6 @@ interface DataTableProps {
 }
 
 const DataTable = ({ columns, url, children }: DataTableProps) => {
-
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]); // can set initial column filter state here
   const [pagination, setPagination] = useState({
@@ -48,14 +47,14 @@ const DataTable = ({ columns, url, children }: DataTableProps) => {
       sorting: JSON.stringify(
         sorting.length > 0
           ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
-          : {}
+          : {},
       ),
       where: JSON.stringify(
         columnFilters.reduce((accumulator, filter) => {
           const obj: any = {};
           obj[filter.id] = filter.value;
           return { ...accumulator, ...obj };
-        }, {})
+        }, {}),
       ),
     },
   });

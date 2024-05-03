@@ -1,20 +1,18 @@
 // import React from 'react';
-import { Box, ChakraProvider, theme } from "@chakra-ui/react";
+import { ChakraProvider, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import DataTable from "../components/DataTable";
-import { PageSizeControl } from "../components/PageSizeControl";
-import TableBody from "../components/TableBody";
-import TablePagination from "../components/TablePagination";
-import TableFooter from "../components/TableFooter";
-import Table from "../components/Table";
-import TableHeader from "../components/TableHeader";
-import TableFilter from "../components/TableFilter";
-import { ResetSortingButton } from "../components/ResetSortingButton";
 import { EditViewButton } from "../components/EditViewButton";
-import { TextCell } from "../components/TextCell";
+import { PageSizeControl } from "../components/PageSizeControl";
 import { ResetFilteringButton } from "../components/ResetFilteringButton";
-import TableCards from "../components/TableCards";
-import TableCardContainer from "../components/TableCardContainer";
+import { ResetSortingButton } from "../components/ResetSortingButton";
+import Table from "../components/Table";
+import TableBody from "../components/TableBody";
+import TableFilter from "../components/TableFilter";
+import TableFooter from "../components/TableFooter";
+import TableHeader from "../components/TableHeader";
+import TablePagination from "../components/TablePagination";
+import { TextCell } from "../components/TextCell";
 
 interface GetChatRecordsResult {
   success: boolean;
@@ -41,7 +39,7 @@ interface RowActionsProps {
 }
 
 const RowActions = ({ row }: RowActionsProps) => {
-  return <>no actions</>;
+  return <>has no actions</>;
 };
 
 const TableViewShowcase = () => {
@@ -103,9 +101,6 @@ const TableViewShowcase = () => {
           <TableBody />
           <TableFooter />
         </Table>
-        <TableCardContainer>
-          <TableCards />
-        </TableCardContainer>
         <PageSizeControl />
         <TablePagination />
       </DataTable>

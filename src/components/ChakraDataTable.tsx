@@ -22,13 +22,13 @@ import {
 } from "@chakra-ui/react";
 import { Table as ITable, flexRender } from "@tanstack/react-table";
 // import React, { useRef } from "react";
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties } from "react";
 import {
   Column,
   ColumnDef,
   getCoreRowModel,
   useReactTable,
-} from '@tanstack/react-table'
+} from "@tanstack/react-table";
 
 interface ChakraDataTable<T> {
   table: ITable<T>;
@@ -36,27 +36,26 @@ interface ChakraDataTable<T> {
 }
 
 const getCommonPinningStyles = (column: Column<any>): CSSProperties => {
-  const isPinned = column.getIsPinned()
+  const isPinned = column.getIsPinned();
   const isLastLeftPinnedColumn =
-    isPinned === 'left' && column.getIsLastColumn('left')
+    isPinned === "left" && column.getIsLastColumn("left");
   const isFirstRightPinnedColumn =
-    isPinned === 'right' && column.getIsFirstColumn('right')
+    isPinned === "right" && column.getIsFirstColumn("right");
 
   return {
     boxShadow: isLastLeftPinnedColumn
-      ? '-4px 0 4px -4px gray inset'
+      ? "-4px 0 4px -4px gray inset"
       : isFirstRightPinnedColumn
-        ? '4px 0 4px -4px gray inset'
+        ? "4px 0 4px -4px gray inset"
         : undefined,
-    left: isPinned === 'left' ? `${column.getStart('left')}px` : undefined,
-    right: isPinned === 'right' ? `${column.getAfter('right')}px` : undefined,
+    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
+    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
     opacity: isPinned ? 0.95 : 1,
-    position: isPinned ? 'sticky' : 'relative',
+    position: isPinned ? "sticky" : "relative",
     width: column.getSize(),
     zIndex: isPinned ? 1 : 0,
-  }
-}
-
+  };
+};
 
 const ChakraDataTable = <T,>({
   table,
@@ -142,13 +141,13 @@ const ChakraDataTable = <T,>({
                       key={crypto.randomUUID()}
                       colSpan={header.colSpan}
                       width={`${header.getSize()}px`}
-                      style={{...getCommonPinningStyles(header.column)}}
+                      style={{ ...getCommonPinningStyles(header.column) }}
                     >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.column.getCanSort() && (
                         <>
@@ -230,7 +229,7 @@ const ChakraDataTable = <T,>({
                         ? null
                         : flexRender(
                             header.column.columnDef.footer,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </Th>
                   ))}

@@ -15,8 +15,6 @@ import { useEffect, useState } from "react";
 import React from "react";
 import { TextCell } from "../components/TextCell";
 
-
-
 interface GetChatRecordsResult {
   success: boolean;
   results: ChatRecord[];
@@ -39,7 +37,7 @@ interface ChatRecord {
 
 const DefaultDataTable = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]) // can set initial column filter state here
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]); // can set initial column filter state here
 
   const [pagination, setPagination] = useState({
     pageIndex: 0, //initial page index
@@ -61,12 +59,12 @@ const DefaultDataTable = () => {
       sorting: JSON.stringify(
         sorting.length > 0
           ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
-          : {}
+          : {},
       ),
       where: JSON.stringify(
         columnFilters.length > 0
-          ? { [columnFilters[0].id] : columnFilters[0].value}
-          : {}
+          ? { [columnFilters[0].id]: columnFilters[0].value }
+          : {},
       ),
     },
   });
@@ -113,14 +111,14 @@ const DefaultDataTable = () => {
             // return <TextCell>{props.row.original.last_user_message}</TextCell>;
             return <span>{props.row.original.last_user_message}</span>;
           },
-          
+
           header: () => <span>User Message</span>,
           footer: (props) => props.column.id,
         }),
         // Accessor Column
         columnHelper.accessor("total_token", {
           cell: (props) => {
-            return  <span>{props.row.original.total_token}</span>;
+            return <span>{props.row.original.total_token}</span>;
           },
           header: () => <span>Total Token</span>,
           footer: (props) => props.column.id,
@@ -184,7 +182,7 @@ const DefaultDataTable = () => {
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    columnResizeMode: 'onChange',
+    columnResizeMode: "onChange",
     state: {
       pagination,
       sorting,
@@ -203,7 +201,11 @@ const DefaultDataTable = () => {
   }, [pagination, sorting]);
   return (
     <ChakraProvider theme={theme}>
-      <ChakraDataTable table={table} hasFooter={true} refreshData={refreshData} />
+      <ChakraDataTable
+        table={table}
+        hasFooter={true}
+        refreshData={refreshData}
+      />
     </ChakraProvider>
   );
 };
