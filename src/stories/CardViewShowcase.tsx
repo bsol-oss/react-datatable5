@@ -1,20 +1,15 @@
 // import React from 'react';
-import { Box, ChakraProvider, theme } from "@chakra-ui/react";
+import { ButtonGroup, ChakraProvider, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import DataTable from "../components/DataTable";
-import { PageSizeControl } from "../components/PageSizeControl";
-import TableBody from "../components/TableBody";
-import TablePagination from "../components/TablePagination";
-import TableFooter from "../components/TableFooter";
-import Table from "../components/Table";
-import TableHeader from "../components/TableHeader";
-import TableFilter from "../components/TableFilter";
-import { ResetSortingButton } from "../components/ResetSortingButton";
+import { EditFilterButton } from "../components/EditFilterButton";
+import { EditSortingButton } from "../components/EditSortingButton";
 import { EditViewButton } from "../components/EditViewButton";
-import { TextCell } from "../components/TextCell";
-import { ResetFilteringButton } from "../components/ResetFilteringButton";
-import TableCards from "../components/TableCards";
+import { PageSizeControl } from "../components/PageSizeControl";
 import TableCardContainer from "../components/TableCardContainer";
+import TableCards from "../components/TableCards";
+import TablePagination from "../components/TablePagination";
+import { TextCell } from "../components/TextCell";
 
 interface ChatRecordResult {
   success: boolean;
@@ -94,10 +89,12 @@ const CardViewShowcase = () => {
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
       >
-        <EditViewButton />
-        <ResetSortingButton />
-        <TableFilter />
-        <ResetFilteringButton />
+        <ButtonGroup isAttached>
+          <EditViewButton />
+          <EditFilterButton />
+          <EditSortingButton />
+        </ButtonGroup>
+
         <TableCardContainer>
           <TableCards />
         </TableCardContainer>
