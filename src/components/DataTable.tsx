@@ -40,12 +40,10 @@ const DataTable = ({ columns, url, children }: DataTableProps) => {
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]); // can set initial column filter state here
-
   const [pagination, setPagination] = useState({
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
   });
-  console.log(sorting,"skaodpkas")
   const { data, loading, hasError, refreshData } = useDataFromUrl({
     url: url,
     defaultData: {
@@ -65,9 +63,11 @@ const DataTable = ({ columns, url, children }: DataTableProps) => {
           : {}
       ),
       where: JSON.stringify(
-        columnFilters.length > 0
-          ? { [columnFilters[0].id]: columnFilters[0].value }
-          : {}
+        columnFilters.reduce((accumulator, filter) => {
+          const obj: any = {};
+          obj[filter.id] = filter.value;
+          return { ...accumulator, ...obj };
+        }, {})
       ),
     },
   });
@@ -96,16 +96,14 @@ const DataTable = ({ columns, url, children }: DataTableProps) => {
 
   useEffect(() => {
     refreshData();
-  }, [pagination, sorting]);
+  }, [pagination, sorting, columnFilters]);
 
   return (
-    
-      <TableContext.Provider
-        value={{ table: { ...table }, refreshData: refreshData }}
-      >
-        {children}
-      </TableContext.Provider>
-
+    <TableContext.Provider
+      value={{ table: { ...table }, refreshData: refreshData }}
+    >
+      {children}
+    </TableContext.Provider>
   );
 };
 
