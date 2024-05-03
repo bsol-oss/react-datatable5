@@ -1,30 +1,30 @@
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 import {
-  Button,
   Checkbox,
   Flex,
   FormControl,
+  IconButton,
   Popover,
   PopoverArrow,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
 } from "@chakra-ui/react";
+import { IoMdEye } from "react-icons/io";
 
 export const EditViewButton = () => {
   const { table } = useContext(TableContext);
   return (
     <Popover placement="bottom-end">
       <PopoverTrigger>
-        <Button>Edit View</Button>
+        <IconButton aria-label="view" icon={<IoMdEye />} />
       </PopoverTrigger>
       <PopoverContent width={"auto"}>
         <PopoverArrow />
         <PopoverBody>
           <Flex flexFlow={"column"} gap={"1rem"}>
             {table.getAllLeafColumns().map((column) => {
-              console.log(column, "dsfjsaidfijo");
               return (
                 <FormControl key={crypto.randomUUID()} width={"auto"}>
                   <Checkbox

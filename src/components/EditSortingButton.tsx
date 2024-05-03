@@ -24,7 +24,7 @@ export const EditSortingButton = () => {
       <PopoverContent width={"auto"}>
         <PopoverArrow />
         <PopoverBody>
-          <Flex flexFlow={"column"} gap={"1rem"}>
+          <Flex flexFlow={"column"} gap={"0.25rem"}>
             <TableSorter />
             <ResetSortingButton />
           </Flex>
