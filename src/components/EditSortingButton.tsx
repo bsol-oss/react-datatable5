@@ -1,12 +1,12 @@
 import {
-    Flex,
-    IconButton,
-    Popover,
-    PopoverArrow,
-    PopoverBody,
-    PopoverContent,
-    PopoverTrigger,
-    Tooltip,
+  Flex,
+  IconButton,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Tooltip,
 } from "@chakra-ui/react";
 import { MdOutlineSort } from "react-icons/md";
 import ResetSortingButton from "./ResetSortingButton";
@@ -33,6 +33,5 @@ const EditSortingButton = () => {
     </Popover>
   );
 };
-
 
 export default EditSortingButton;

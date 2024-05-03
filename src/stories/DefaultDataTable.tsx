@@ -50,12 +50,12 @@ const DefaultDataTable = () => {
       sorting: JSON.stringify(
         sorting.length > 0
           ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
-          : {}
+          : {},
       ),
       where: JSON.stringify(
         columnFilters.length > 0
           ? { [columnFilters[0].id]: columnFilters[0].value }
-          : {}
+          : {},
       ),
     },
   });

@@ -43,6 +43,4 @@ const EditViewButton = () => {
   );
 };
 
-
-
 export default EditViewButton;

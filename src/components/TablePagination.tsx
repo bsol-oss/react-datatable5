@@ -1,5 +1,10 @@
 import { Button, ButtonGroup, IconButton } from "@chakra-ui/react";
-import { MdArrowBack, MdArrowForward, MdFirstPage, MdLastPage } from "react-icons/md";
+import {
+  MdArrowBack,
+  MdArrowForward,
+  MdFirstPage,
+  MdLastPage,
+} from "react-icons/md";
 import { useDataTable } from "./useDataTable";
 
 interface PaginationProps {}
