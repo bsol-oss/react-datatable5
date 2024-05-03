@@ -20,6 +20,7 @@ import { Container, Table } from "@chakra-ui/react";
 
 interface DataTableProps {
   children: ReactNode;
+  url: string;
   columns: Column[];
 }
 
