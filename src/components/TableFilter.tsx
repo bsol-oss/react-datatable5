@@ -1,4 +1,4 @@
-import { Input, Text, Button } from "@chakra-ui/react";
+import { Input, Text, Box } from "@chakra-ui/react";
 import { useDataTable } from "./useDataTable";
 
 const TableFilter = () => {
@@ -10,7 +10,7 @@ const TableFilter = () => {
         return (
           <>
             {header.column.getCanFilter() && (
-              <>
+              <Box>
                 <Text>{header.column.id}</Text>
                 <Input
                   value={
@@ -22,7 +22,7 @@ const TableFilter = () => {
                     header.column.setFilterValue(e.target.value);
                   }}
                 />
-              </>
+              </Box>
             )}
           </>
         );
