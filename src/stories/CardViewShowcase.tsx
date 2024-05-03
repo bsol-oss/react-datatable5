@@ -12,8 +12,11 @@ import TableFilter from "../components/TableFilter";
 import { ResetSortingButton } from "../components/ResetSortingButton";
 import { EditViewButton } from "../components/EditViewButton";
 import { TextCell } from "../components/TextCell";
+import { ResetFilteringButton } from "../components/ResetFilteringButton";
+import TableCards from "../components/TableCards";
+import TableCardContainer from "../components/TableCardContainer";
 
-interface GetChatRecordsResult {
+interface ChatRecordResult {
   success: boolean;
   results: ChatRecord[];
   count: number;
@@ -33,11 +36,15 @@ interface ChatRecord {
   last_update: string;
 }
 
-const RowActions = ({ row }) => {
+interface RowActionsProps {
+  row: ChatRecord;
+}
+
+const RowActions = ({ row }: RowActionsProps) => {
   return <>no actions</>;
 };
 
-const DataTableShowcase = () => {
+const CardViewShowcase = () => {
   const columnHelper = createColumnHelper<ChatRecord>();
 
   const columns: ColumnDef<ChatRecord>[] = [
@@ -45,8 +52,9 @@ const DataTableShowcase = () => {
     columnHelper.display({
       id: "actions",
       header: () => <span>Actions</span>,
-      cell: (props) => <RowActions row={props.row} />,
+      cell: (props) => <RowActions row={props.row.original} />,
     }),
+
     // Grouping Column
     columnHelper.group({
       header: "Information",
@@ -74,7 +82,7 @@ const DataTableShowcase = () => {
           },
           header: () => <span>Total Token</span>,
           footer: (props) => props.column.id,
-          sortDescFirst: false
+          sortDescFirst: false,
         }),
       ],
     }),
@@ -82,7 +90,6 @@ const DataTableShowcase = () => {
 
   return (
     <ChakraProvider theme={theme}>
-      {/* <Box maxWidth="100rem"> */}
       <DataTable
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
@@ -90,19 +97,15 @@ const DataTableShowcase = () => {
         <EditViewButton />
         <ResetSortingButton />
         <TableFilter />
-
-        <Table>
-          <TableHeader />
-          <TableBody />
-          <TableFooter />
-        </Table>
-
+        <ResetFilteringButton />
+        <TableCardContainer>
+          <TableCards />
+        </TableCardContainer>
         <PageSizeControl />
         <TablePagination />
       </DataTable>
-      {/* </Box> */}
     </ChakraProvider>
   );
 };
 
-export default DataTableShowcase;
+export default CardViewShowcase;
