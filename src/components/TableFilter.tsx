@@ -20,8 +20,6 @@ const TableFilter = () => {
                   }
                   onChange={(e) => {
                     header.column.setFilterValue(e.target.value);
-                    // console.log(value,"sdoafo")
-                    // header.column.setFilterValue(value);
                   }}
                 />
               </>
@@ -29,14 +27,6 @@ const TableFilter = () => {
           </>
         );
       })}
-
-      <Button
-        onClick={() => {
-          table.resetColumnFilters();
-        }}
-      >
-        Reset Filtering
-      </Button>
     </>
   );
 };
