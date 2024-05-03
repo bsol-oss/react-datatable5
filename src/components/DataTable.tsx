@@ -25,19 +25,6 @@ interface DataTableProps {
 }
 
 const DataTable = ({ columns, url, children }: DataTableProps) => {
-  //   const [selectedRows, setSelectedRows] = useState({});
-  //   const [totalCount, setTotalCount] = useState<number>(0);
-  //   // const [tableWidth, setTableWidth] = useState<number>(0);
-  //   const [isLoading, setIsLoading] = useState<boolean>(false);
-  //   const [error, setError] = useState<string>('');
-  //   const [filterTerm, setFilterTerm] = useState<FilterInterface>({
-  //     offset: offset,
-  //     rows: rows,
-  //     field: '',
-  //     sort: '',
-  //     searchTerm: '',
-  //     individualSearchTerm: {},
-  //   });
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]); // can set initial column filter state here
