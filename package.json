@@ -1,7 +1,6 @@
 {
-  "name": "chakra-datatable",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@bsol-oss/react-datatable4",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
