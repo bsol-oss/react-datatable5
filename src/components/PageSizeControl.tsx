@@ -1,8 +1,15 @@
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 
-export const PageSizeControl = () => {
+export interface PageSizeControl {
+  pageSizes?: number[];
+}
+
+export const PageSizeControl = ({
+  pageSizes = [10, 20, 30, 40, 50],
+}: PageSizeControl) => {
   const { table } = useContext(TableContext);
+
   return (
     <select
       value={table.getState().pagination.pageSize}
@@ -10,7 +17,7 @@ export const PageSizeControl = () => {
         table.setPageSize(Number(e.target.value));
       }}
     >
-      {[10, 20, 30, 40, 50].map((pageSize) => (
+      {pageSizes.map((pageSize) => (
         <option key={pageSize} value={pageSize}>
           {pageSize}
         </option>
