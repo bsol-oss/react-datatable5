@@ -1,13 +1,13 @@
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 
-export interface PageSizeControl {
+export interface PageSizeControlProps {
   pageSizes?: number[];
 }
 
-export const PageSizeControl = ({
+const PageSizeControl = ({
   pageSizes = [10, 20, 30, 40, 50],
-}: PageSizeControl) => {
+}: PageSizeControlProps) => {
   const { table } = useContext(TableContext);
 
   return (
@@ -25,3 +25,5 @@ export const PageSizeControl = ({
     </select>
   );
 };
+
+export default PageSizeControl;

@@ -22,7 +22,6 @@ const TableHeader = ({ canResize }: TableHeaderProps) => {
       {table.getHeaderGroups().map((headerGroup) => (
         <Tr key={crypto.randomUUID()} style={{ columnSpan: "all" }}>
           {headerGroup.headers.map((header) => {
-            console.log(header.column.getFilterValue(), "okgspokpsor");
             const resizeProps = {
               onClick: () => header.column.resetSize(),
               onMouseDown: header.getResizeHandler(),

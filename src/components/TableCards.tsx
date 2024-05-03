@@ -13,7 +13,6 @@ const TableCards = () => {
           <Card key={crypto.randomUUID()}>
             <CardBody display={"flex"} flexFlow={"column"} gap={"0.5rem"}>
               {row.getVisibleCells().map((cell) => {
-                console.log(cell, "fkgodsokg");
                 return (
                   <Box>
                     <Text>{`${cell.column.id}: `}</Text>

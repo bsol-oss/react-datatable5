@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 import { Button } from "@chakra-ui/react";
 
-export const ResetFilteringButton = () => {
+const ResetFilteringButton = () => {
   const { table } = useContext(TableContext);
   return (
     <Button
@@ -14,3 +14,5 @@ export const ResetFilteringButton = () => {
     </Button>
   );
 };
+
+export default ResetFilteringButton;

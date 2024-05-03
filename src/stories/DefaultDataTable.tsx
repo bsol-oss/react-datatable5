@@ -1,26 +1,17 @@
 // import React from 'react';
-import { Box, ChakraProvider, theme } from "@chakra-ui/react";
-import ChakraDataTable from "../components/ChakraDataTable";
+import { ChakraProvider, theme } from "@chakra-ui/react";
 import {
-  createColumnHelper,
   ColumnDef,
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-  SortingState,
   ColumnFiltersState,
+  createColumnHelper,
+  getCoreRowModel,
+  SortingState,
+  useReactTable,
 } from "@tanstack/react-table";
-import useDataFromUrl from "../components/useDataFromUrl";
 import { useEffect, useState } from "react";
-import React from "react";
-import { TextCell } from "../components/TextCell";
+import ChakraDataTable from "../components/ChakraDataTable";
+import useDataFromUrl from "../components/useDataFromUrl";
 
-interface GetChatRecordsResult {
-  success: boolean;
-  results: ChatRecord[];
-  count: number;
-  filterCount: number;
-}
 interface ChatRecord {
   session_id: string;
   last_user_message: string;
@@ -59,12 +50,12 @@ const DefaultDataTable = () => {
       sorting: JSON.stringify(
         sorting.length > 0
           ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
-          : {},
+          : {}
       ),
       where: JSON.stringify(
         columnFilters.length > 0
           ? { [columnFilters[0].id]: columnFilters[0].value }
-          : {},
+          : {}
       ),
     },
   });
@@ -83,24 +74,8 @@ const DefaultDataTable = () => {
       header: "Information",
       footer: (props) => props.column.id,
       columns: [
-        // Accessor Column
-        // columnHelper.accessor("meeting_id", {
-        //   cell: (props) => {
-        //     const meeting_id = props.row.original.meeting_id;
-        //     const meeting = meetings.find(({ id }) => {
-        //       return id === meeting_id;
-        //     });
-        //     if (!meeting) {
-        //       return <span>Meeting Not Found</span>;
-        //     }
-        //     return <span>{meeting.name}</span>;
-        //   },
-        //   header: () => <span>Meeting</span>,
-        //   footer: (props) => props.column.id,
-        // }),
         columnHelper.accessor("session_id", {
           cell: (props) => {
-            // return <TextCell>{props.row.original.session_id}</TextCell>;
             return <span>{props.row.original.session_id}</span>;
           },
           header: () => <span>Session Id</span>,
@@ -108,7 +83,6 @@ const DefaultDataTable = () => {
         }),
         columnHelper.accessor("last_user_message", {
           cell: (props) => {
-            // return <TextCell>{props.row.original.last_user_message}</TextCell>;
             return <span>{props.row.original.last_user_message}</span>;
           },
 
@@ -123,53 +97,8 @@ const DefaultDataTable = () => {
           header: () => <span>Total Token</span>,
           footer: (props) => props.column.id,
         }),
-        // Accessor Column
-        // columnHelper.accessor((row) => row.end_time, {
-        //   id: "end_time",
-        //   cell: (props) => {
-        //     return <DateCell date={props.row.original.end_time} />;
-        //   },
-        //   header: () => <span>End Time</span>,
-        //   footer: (props) => props.column.id,
-        // }),
-        // // Accessor Column
-        // columnHelper.accessor((row) => row.max_timeslots_per_day, {
-        //   id: "max_timeslots_per_day",
-        //   cell: (info) => info.getValue(),
-        //   header: () => <span>Max Timesolots Per Day</span>,
-        //   footer: (props) => props.column.id,
-        // }),
-        // // Accessor Column
-        // columnHelper.accessor((row) => row.max_days_per_round, {
-        //   id: "max_days_per_round",
-        //   cell: (info) => info.getValue(),
-        //   header: () => <span>Max Day Per Round</span>,
-        //   footer: (props) => props.column.id,
-        // }),
       ],
     }),
-    // Grouping Column
-    // columnHelper.group({
-    //   header: "More Info",
-    //   footer: (props) => props.column.id,
-    //   columns: [
-    //     columnHelper.accessor("created_at", {
-    //       header: () => <span>Created At</span>,
-    //       footer: (props) => props.column.id,
-    //       cell: (props) => {
-    //         return <DateCell date={props.row.original.created_at} />;
-    //       },
-    //     }),
-    //     // Accessor Column
-    //     columnHelper.accessor("updated_at", {
-    //       header: () => <span>Updated At</span>,
-    //       footer: (props) => props.column.id,
-    //       cell: (props) => {
-    //         return <DateCell date={props.row.original.updated_at} />;
-    //       },
-    //     }),
-    //   ],
-    // }),
   ];
 
   const table = useReactTable({
@@ -195,7 +124,6 @@ const DefaultDataTable = () => {
     },
   });
 
-  console.log(pagination, sorting, "dsgj");
   useEffect(() => {
     refreshData();
   }, [pagination, sorting]);

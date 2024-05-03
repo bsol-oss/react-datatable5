@@ -1,6 +1,6 @@
 import { Tooltip, Text } from "@chakra-ui/react";
 
-export const TextCell = ({ label, children }: any) => {
+const TextCell = ({ label, children }: any) => {
   return (
     <Tooltip label={label}>
       <Text
@@ -14,3 +14,5 @@ export const TextCell = ({ label, children }: any) => {
     </Tooltip>
   );
 };
+
+export default TextCell;

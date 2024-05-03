@@ -62,7 +62,6 @@ const ChakraDataTable = <T,>({
   hasFooter,
   refreshData,
 }: ChakraDataTable<T>) => {
-  console.log(table.getState().sorting, "dogpasjdpfo");
   return (
     <>
       <Flex justifyContent={"flex-end"}>
@@ -83,7 +82,6 @@ const ChakraDataTable = <T,>({
             <PopoverBody>
               <Flex flexFlow={"column"} gap={"1rem"}>
                 {table.getAllLeafColumns().map((column) => {
-                  console.log(column, "dsfjsaidfijo");
                   return (
                     <FormControl key={crypto.randomUUID()} width={"auto"}>
                       <Checkbox
@@ -101,7 +99,6 @@ const ChakraDataTable = <T,>({
         </Popover>
       </Flex>
       {table.getLeafHeaders().map((header) => {
-        console.log(header.column.getFilterValue(), "okgspokpsor");
         return (
           <>
             {header.column.getCanFilter() && (
@@ -110,10 +107,7 @@ const ChakraDataTable = <T,>({
                 <Input
                   value={header.column.getFilterValue()}
                   onChange={(e) => {
-                    console.log(e, "gifdogj");
                     header.column.setFilterValue(e.target.value);
-                    // console.log(value,"sdoafo")
-                    // header.column.setFilterValue(value);
                   }}
                 />
                 <Button
@@ -135,7 +129,6 @@ const ChakraDataTable = <T,>({
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={crypto.randomUUID()} style={{ columnSpan: "all" }}>
                 {headerGroup.headers.map((header) => {
-                  console.log(header.column.getFilterValue(), "okgspokpsor");
                   return (
                     <Th
                       key={crypto.randomUUID()}

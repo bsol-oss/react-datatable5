@@ -12,7 +12,6 @@ const TableCardContainer = ({
     <Grid
       gridTemplateColumns={["1fr", "1fr 1fr", "1fr 1fr 1fr"]}
       gap={"0.5rem"}
-      padding={"0.5rem"}
       {...props}
     >
       {children}

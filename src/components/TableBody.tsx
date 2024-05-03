@@ -1,8 +1,7 @@
+import { Tbody, Td, Tr } from "@chakra-ui/table";
+import { flexRender } from "@tanstack/react-table";
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
-import { Tbody, Td, Tr, Table } from "@chakra-ui/table";
-import { flexRender } from "@tanstack/react-table";
-// import { flexRender } from "@tanstack/react-table";
 
 const TableBody = () => {
   const { table } = useContext(TableContext);
