@@ -199,15 +199,19 @@ const TextCell = ({ label, children }) => {
     return (jsxRuntime.jsx(react$1.Tooltip, { label: label, children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }) }));
 };
 
-exports.DataTable = DataTable;
-exports.EditViewButton = EditViewButton;
-exports.PageSizeControl = PageSizeControl;
-exports.ResetFilteringButton = ResetFilteringButton;
-exports.ResetSortingButton = ResetSortingButton;
-exports.Table = Table;
-exports.TableBody = TableBody;
-exports.TableFilter = TableFilter;
-exports.TableFooter = TableFooter;
-exports.TableHeader = TableHeader;
-exports.TablePagination = TablePagination;
-exports.TextCell = TextCell;
+var index = {
+    DataTable,
+    EditViewButton,
+    PageSizeControl,
+    ResetFilteringButton,
+    ResetSortingButton,
+    Table,
+    TableBody,
+    TableFilter,
+    TableFooter,
+    TableHeader,
+    TablePagination,
+    TextCell,
+};
+
+module.exports = index;

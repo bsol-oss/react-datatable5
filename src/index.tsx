@@ -11,7 +11,7 @@ import TableHeader from "./components/TableHeader";
 import TablePagination from "./components/TablePagination";
 import TextCell from "./components/TextCell";
 
-export {
+export default {
   DataTable,
   EditViewButton,
   PageSizeControl,
