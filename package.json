@@ -1,9 +1,10 @@
 {
-  "name": "@bsol-oss/react-datatable4",
+  "name": "@bsol-oss/react-datatable5",
   "version": "1.0.0",
   "type": "module",
+  "main": "dist/index.js",
   "repository": "https://github.com/bsol-oss/react-datatable5.git",
-  "homepage": "https://github.com/bsol-oss/react-datatabl5#react-datatable",
+  "homepage": "https://github.com/bsol-oss/react-datatabl5#react-datatable5",
   "author": "screw123",
   "license": "MIT",
   "keywords": [
@@ -11,7 +12,7 @@
     "react-table",
     "@chakra-ui/react",
     "react-icons"
-],
+  ],
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
