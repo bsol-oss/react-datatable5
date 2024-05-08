@@ -1,27 +1,12 @@
-import DataTable from "./components/DataTable";
-import EditViewButton from "./components/EditViewButton";
-import PageSizeControl from "./components/PageSizeControl";
-import ResetFilteringButton from "./components/ResetFilteringButton";
-import ResetSortingButton from "./components/ResetSortingButton";
-import Table from "./components/Table";
-import TableBody from "./components/TableBody";
-import TableFilter from "./components/TableFilter";
-import TableFooter from "./components/TableFooter";
-import TableHeader from "./components/TableHeader";
-import TablePagination from "./components/TablePagination";
-import TextCell from "./components/TextCell";
-
-export default {
-  DataTable,
-  EditViewButton,
-  PageSizeControl,
-  ResetFilteringButton,
-  ResetSortingButton,
-  Table,
-  TableBody,
-  TableFilter,
-  TableFooter,
-  TableHeader,
-  TablePagination,
-  TextCell,
-};
+export * from "./components/DataTable";
+export * from "./components/EditViewButton";
+export * from "./components/PageSizeControl";
+export * from "./components/ResetFilteringButton";
+export * from "./components/ResetSortingButton";
+export * from "./components/Table";
+export * from "./components/TableBody";
+export * from "./components/TableFilter";
+export * from "./components/TableFooter";
+export * from "./components/TableHeader";
+export * from "./components/TablePagination";
+export * from "./components/TextCell";

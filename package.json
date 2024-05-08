@@ -3,6 +3,7 @@
   "version": "1.0.4",
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/bsol-oss/react-datatable5.git",
   "homepage": "https://github.com/bsol-oss/react-datatabl5#react-datatable5",
   "author": "screw123",
