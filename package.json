@@ -15,8 +15,8 @@
   ],
   "exports": {
     ".": {
-      "types": "./build/lib/index.d.ts",
-      "default": "./build/lib/index.js"
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },
