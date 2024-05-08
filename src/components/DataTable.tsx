@@ -18,20 +18,36 @@ import {
 import useDataFromUrl from "./useDataFromUrl";
 import { Container, Table } from "@chakra-ui/react";
 
-interface DataTableProps {
+interface DataTableProps<T> {
   children: ReactNode;
   url: string;
-  columns: Column[];
+  columns: Column<T>[];
 }
 
-const DataTable = ({ columns, url, children }: DataTableProps) => {
+interface Result<T> {
+  results: T[];
+}
+
+interface DataResponse<T> extends Result<T> {
+  success: boolean;
+  count: number;
+  filterCount: number;
+}
+
+const DataTable = <TData,>({
+  columns,
+  url,
+  children,
+}: DataTableProps<TData>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]); // can set initial column filter state here
   const [pagination, setPagination] = useState({
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
   });
-  const { data, loading, hasError, refreshData } = useDataFromUrl({
+  const { data, loading, hasError, refreshData } = useDataFromUrl<
+    DataResponse<TData>
+  >({
     url: url,
     defaultData: {
       success: false,
@@ -47,18 +63,18 @@ const DataTable = ({ columns, url, children }: DataTableProps) => {
       sorting: JSON.stringify(
         sorting.length > 0
           ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
-          : {},
+          : {}
       ),
       where: JSON.stringify(
         columnFilters.reduce((accumulator, filter) => {
           const obj: any = {};
           obj[filter.id] = filter.value;
           return { ...accumulator, ...obj };
-        }, {}),
+        }, {})
       ),
     },
   });
-  const table = useReactTable({
+  const table = useReactTable<TData>({
     data: data.results,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
