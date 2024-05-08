@@ -11,7 +11,7 @@ var md = require('react-icons/md');
 var icons = require('@chakra-ui/icons');
 
 const TableContext = react.createContext({
-    table: undefined,
+    table: {},
     refreshData: () => { },
 });
 
@@ -44,7 +44,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     return { data, loading, hasError, refreshData };
 };
 
-const DataTable = ({ columns, url, children }) => {
+const DataTable = ({ columns, url, children, }) => {
     const [sorting, setSorting] = react.useState([]);
     const [columnFilters, setColumnFilters] = react.useState([]); // can set initial column filter state here
     const [pagination, setPagination] = react.useState({
@@ -190,7 +190,7 @@ const TableHeader = ({ canResize }) => {
             }) }, crypto.randomUUID()))) }));
 };
 
-const TablePagination = (props) => {
+const TablePagination = ({}) => {
     const { firstPage, getCanPreviousPage, previousPage, getState, nextPage, getCanNextPage, lastPage, } = useDataTable().table;
     return (jsxRuntime.jsxs(react$1.ButtonGroup, { isAttached: true, children: [jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdFirstPage, {}), onClick: () => firstPage(), disabled: !getCanPreviousPage(), "aria-label": "first-page" }), jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdArrowBack, {}), onClick: () => previousPage(), disabled: !getCanPreviousPage(), "aria-label": "previous-page" }), jsxRuntime.jsx(react$1.Button, { onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => nextPage(), disabled: !getCanNextPage(), "aria-label": "next-page", children: jsxRuntime.jsx(md.MdArrowForward, {}) }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => lastPage(), disabled: !getCanNextPage(), "aria-label": "last-page", children: jsxRuntime.jsx(md.MdLastPage, {}) })] }));
 };
