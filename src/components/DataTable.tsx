@@ -16,19 +16,18 @@ import {
   Column,
 } from "@tanstack/react-table";
 import useDataFromUrl from "./useDataFromUrl";
-import { Container, Table } from "@chakra-ui/react";
 
-interface DataTableProps<T> {
+export interface DataTableProps<T> {
   children: ReactNode;
   url: string;
   columns: Column<T>[];
 }
 
-interface Result<T> {
+export interface Result<T> {
   results: T[];
 }
 
-interface DataResponse<T> extends Result<T> {
+export interface DataResponse<T> extends Result<T> {
   success: boolean;
   count: number;
   filterCount: number;

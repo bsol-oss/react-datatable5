@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/icons";
 import { useDataTable } from "./useDataTable";
 
-interface TableHeaderProps {
+export interface TableHeaderProps {
   canResize?: boolean;
 }
 

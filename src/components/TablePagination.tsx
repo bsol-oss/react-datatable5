@@ -7,8 +7,9 @@ import {
 } from "react-icons/md";
 import { useDataTable } from "./useDataTable";
 
-interface PaginationProps {}
-const TablePagination = (props: PaginationProps) => {
+export interface PaginationProps {}
+
+const TablePagination = ({}: PaginationProps) => {
   const {
     firstPage,
     getCanPreviousPage,

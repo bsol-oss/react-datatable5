@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Table as ChakraTable, Container } from "@chakra-ui/react";
 import { useDataTable } from "./useDataTable";
 
-interface TableProps {
+export interface TableProps {
   children: ReactNode;
 }
 
