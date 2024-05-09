@@ -1,15 +1,15 @@
 // import React from 'react';
 import { ButtonGroup, ChakraProvider, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import DataTable from "../components/DataTable";
-import EditFilterButton from "../components/EditFilterButton";
-import EditSortingButton from "../components/EditSortingButton";
-import EditViewButton from "../components/EditViewButton";
-import PageSizeControl from "../components/PageSizeControl";
-import TableCardContainer from "../components/TableCardContainer";
-import TableCards from "../components/TableCards";
-import TablePagination from "../components/TablePagination";
-import TextCell from "../components/TextCell";
+import { DataTable } from "../components/DataTable";
+import { EditFilterButton } from "../components/EditFilterButton";
+import { EditSortingButton } from "../components/EditSortingButton";
+import { EditViewButton } from "../components/EditViewButton";
+import { PageSizeControl } from "../components/PageSizeControl";
+import { TableCardContainer } from "../components/TableCardContainer";
+import { TableCards } from "../components/TableCards";
+import { TablePagination } from "../components/TablePagination";
+import { TextCell } from "../components/TextCell";
 
 interface ChatRecord {
   session_id: string;
