@@ -1,7 +1,7 @@
 import { Input, Text, Box } from "@chakra-ui/react";
 import { useDataTable } from "./useDataTable";
 
-const TableFilter = () => {
+export const TableFilter = () => {
   const { table } = useDataTable();
 
   return (
@@ -31,4 +31,3 @@ const TableFilter = () => {
   );
 };
 
-export default TableFilter;

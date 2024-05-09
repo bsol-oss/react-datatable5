@@ -15,7 +15,7 @@ export interface TableHeaderProps {
   canResize?: boolean;
 }
 
-const TableHeader = ({ canResize }: TableHeaderProps) => {
+export const TableHeader = ({ canResize }: TableHeaderProps) => {
   const { table } = useDataTable();
   return (
     <Thead>
@@ -103,4 +103,3 @@ const TableHeader = ({ canResize }: TableHeaderProps) => {
   );
 };
 
-export default TableHeader;

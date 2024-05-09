@@ -15,7 +15,7 @@ import {
   SortingState,
   Column,
 } from "@tanstack/react-table";
-import useDataFromUrl from "./useDataFromUrl";
+import { useDataFromUrl } from "./useDataFromUrl";
 
 export interface DataTableProps<T> {
   children: ReactNode;
@@ -109,4 +109,3 @@ const DataTable = <TData,>({
   );
 };
 
-export default DataTable;

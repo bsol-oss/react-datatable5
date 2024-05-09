@@ -3,7 +3,7 @@ import { flexRender } from "@tanstack/react-table";
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 
-const TableBody = () => {
+export const TableBody = () => {
   const { table } = useContext(TableContext);
   return (
     <Tbody>
@@ -20,4 +20,3 @@ const TableBody = () => {
   );
 };
 
-export default TableBody;

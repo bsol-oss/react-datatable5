@@ -3,7 +3,7 @@ import { flexRender } from "@tanstack/react-table";
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 
-const TableCards = () => {
+export const TableCards = () => {
   const { table } = useContext(TableContext);
 
   return (
@@ -33,4 +33,3 @@ const TableCards = () => {
   );
 };
 
-export default TableCards;

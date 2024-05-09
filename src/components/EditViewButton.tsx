@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { IoMdEye } from "react-icons/io";
 
-const EditViewButton = () => {
+export const EditViewButton = () => {
   const { table } = useContext(TableContext);
   return (
     <Popover placement="bottom-end">
@@ -43,4 +43,3 @@ const EditViewButton = () => {
   );
 };
 
-export default EditViewButton;

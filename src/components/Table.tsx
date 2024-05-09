@@ -6,7 +6,7 @@ export interface TableProps {
   children: ReactNode;
 }
 
-const Table = ({ children }: TableProps) => {
+export const Table = ({ children }: TableProps) => {
   const { table } = useDataTable();
   return (
     <Container maxW="100%" overflowY={"scroll"}>
@@ -17,4 +17,3 @@ const Table = ({ children }: TableProps) => {
   );
 };
 
-export default Table;

@@ -7,7 +7,7 @@ import {
 import { Button, Flex, Text } from "@chakra-ui/react";
 import { useDataTable } from "./useDataTable";
 
-const TableSorter = () => {
+export const TableSorter = () => {
   const { table } = useDataTable();
 
   return (
@@ -58,5 +58,3 @@ const TableSorter = () => {
     </>
   );
 };
-
-export default TableSorter;

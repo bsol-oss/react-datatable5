@@ -9,7 +9,7 @@ import { useDataTable } from "./useDataTable";
 
 export interface PaginationProps {}
 
-const TablePagination = ({}: PaginationProps) => {
+export const TablePagination = ({}: PaginationProps) => {
   const {
     firstPage,
     getCanPreviousPage,
@@ -55,4 +55,3 @@ const TablePagination = ({}: PaginationProps) => {
   );
 };
 
-export default TablePagination;

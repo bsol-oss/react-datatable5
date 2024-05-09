@@ -9,10 +9,10 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { MdOutlineSort } from "react-icons/md";
-import ResetSortingButton from "./ResetSortingButton";
-import TableSorter from "./TableSorter";
+import { ResetSortingButton } from "./ResetSortingButton";
+import { TableSorter } from "./TableSorter";
 
-const EditSortingButton = () => {
+export const EditSortingButton = () => {
   return (
     <Popover placement="bottom-end">
       <Tooltip label="Filter">
@@ -33,5 +33,3 @@ const EditSortingButton = () => {
     </Popover>
   );
 };
-
-export default EditSortingButton;

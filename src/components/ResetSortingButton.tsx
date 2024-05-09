@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 import { Button } from "@chakra-ui/react";
 
-const ResetSortingButton = () => {
+export const ResetSortingButton = () => {
   const { table } = useContext(TableContext);
   return (
     <Button
@@ -14,5 +14,3 @@ const ResetSortingButton = () => {
     </Button>
   );
 };
-
-export default ResetSortingButton;

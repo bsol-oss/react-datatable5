@@ -1,7 +1,7 @@
 import { Table } from "@tanstack/react-table";
 import { createContext } from "react";
 
-interface DataTableContext<T> {
+export interface DataTableContext<T> {
   table: Table<T>;
   refreshData: () => void;
 }

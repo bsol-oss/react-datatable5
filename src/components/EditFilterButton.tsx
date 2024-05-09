@@ -9,10 +9,10 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { MdFilterAlt } from "react-icons/md";
-import ResetFilteringButton from "./ResetFilteringButton";
-import TableFilter from "./TableFilter";
+import { ResetFilteringButton } from "./ResetFilteringButton";
+import { TableFilter } from "./TableFilter";
 
-const EditFilterButton = () => {
+export const EditFilterButton = () => {
   return (
     <Popover placement="bottom-end">
       <Tooltip label="Filter">
@@ -34,4 +34,3 @@ const EditFilterButton = () => {
   );
 };
 
-export default EditFilterButton;

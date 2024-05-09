@@ -1,20 +1,20 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-interface useDataFromUrlReturn<T> {
+export interface useDataFromUrlReturn<T> {
   data: T;
   loading: boolean;
   hasError: boolean;
   refreshData: () => void;
 }
 
-interface useDataFromUrlProps<T> {
+export interface useDataFromUrlProps<T> {
   url: string;
   params?: object;
   defaultData: T;
 }
 
-const useDataFromUrl = <T,>({
+export const useDataFromUrl = <T,>({
   url,
   params = {},
   defaultData,
@@ -49,4 +49,3 @@ const useDataFromUrl = <T,>({
   return { data, loading, hasError, refreshData };
 };
 
-export default useDataFromUrl;

@@ -1,10 +1,10 @@
 import { Grid } from "@chakra-ui/react";
 
-interface TableCardContainerProps {
+export interface TableCardContainerProps {
   children: JSX.Element;
 }
 
-const TableCardContainer = ({
+export const TableCardContainer = ({
   children,
   ...props
 }: TableCardContainerProps) => {
@@ -18,5 +18,3 @@ const TableCardContainer = ({
     </Grid>
   );
 };
-
-export default TableCardContainer;

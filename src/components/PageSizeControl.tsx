@@ -5,7 +5,7 @@ export interface PageSizeControlProps {
   pageSizes?: number[];
 }
 
-const PageSizeControl = ({
+export const PageSizeControl = ({
   pageSizes = [10, 20, 30, 40, 50],
 }: PageSizeControlProps) => {
   const { table } = useContext(TableContext);
@@ -26,4 +26,3 @@ const PageSizeControl = ({
   );
 };
 
-export default PageSizeControl;
