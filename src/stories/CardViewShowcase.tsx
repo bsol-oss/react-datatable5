@@ -9,6 +9,7 @@ import { PageSizeControl } from "../components/PageSizeControl";
 import { TableCardContainer } from "../components/TableCardContainer";
 import { TableCards } from "../components/TableCards";
 import { TablePagination } from "../components/TablePagination";
+import { TableSelector } from "../components/TableSelector";
 import { TextCell } from "../components/TextCell";
 
 interface ChatRecord {
@@ -36,7 +37,7 @@ const RowActions = ({ row }: RowActionsProps) => {
 const CardViewShowcase = () => {
   const columnHelper = createColumnHelper<ChatRecord>();
 
-  const columns: ColumnDef<ChatRecord>[] = [
+  const columns: ColumnDef<ChatRecord, unknown>[] = [
     // Display Column
     columnHelper.display({
       id: "actions",
@@ -58,7 +59,11 @@ const CardViewShowcase = () => {
         }),
         columnHelper.accessor("last_user_message", {
           cell: (props) => {
-            return <TextCell>{props.row.original.last_user_message}</TextCell>;
+            return (
+              <TextCell label={props.row.original.last_user_message}>
+                {props.row.original.last_user_message}
+              </TextCell>
+            );
           },
 
           header: () => <span>User Message</span>,
@@ -89,7 +94,7 @@ const CardViewShowcase = () => {
           <EditFilterButton />
           <EditSortingButton />
         </ButtonGroup>
-
+        <TableSelector />
         <TableCardContainer>
           <TableCards />
         </TableCardContainer>

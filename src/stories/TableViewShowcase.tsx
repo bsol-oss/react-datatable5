@@ -54,14 +54,22 @@ const TableViewShowcase = () => {
       columns: [
         columnHelper.accessor("session_id", {
           cell: (props) => {
-            return <TextCell>{props.row.original.session_id}</TextCell>;
+            return (
+              <TextCell label={props.row.original.session_id}>
+                {props.row.original.session_id}
+              </TextCell>
+            );
           },
           header: () => <span>Session Id</span>,
           footer: (props) => props.column.id,
         }),
         columnHelper.accessor("last_user_message", {
           cell: (props) => {
-            return <TextCell>{props.row.original.last_user_message}</TextCell>;
+            return (
+              <TextCell label={props.row.original.last_user_message}>
+                {props.row.original.last_user_message}
+              </TextCell>
+            );
           },
 
           header: () => <span>User Message</span>,
