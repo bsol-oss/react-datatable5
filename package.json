@@ -20,9 +20,9 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/index.mjs",
-      "default": "./dist/index.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mts",
+      "default": "./dist/index.ts"
     },
     "./package.json": "./package.json"
   },
@@ -67,6 +67,7 @@
     "eslint-plugin-react-refresh": "^0.4.6",
     "eslint-plugin-storybook": "^0.8.0",
     "prettier": "3.2.5",
+    "rollup-plugin-dts": "^6.1.0",
     "storybook": "^8.0.4",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
