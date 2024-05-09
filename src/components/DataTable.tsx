@@ -1,20 +1,13 @@
-import React, { ReactNode, useEffect, useState } from "react";
-// import { Box, Container } from "@chakra-ui/react";
+import { ReactNode, useEffect, useState } from "react";
 
-// import {
-//   FilterContext,
-//   TableStatusContext,
-// } from "./globalpartials/GlobalContext";
-// import { FilterInterface } from "../const/types";
-// import Footer from "./Footer";
-import { TableContext } from "./DataTableContext";
 import {
-  useReactTable,
-  getCoreRowModel,
-  ColumnFiltersState,
-  SortingState,
   ColumnDef,
+  ColumnFiltersState,
+  getCoreRowModel,
+  SortingState,
+  useReactTable,
 } from "@tanstack/react-table";
+import { TableContext } from "./DataTableContext";
 import { useDataFromUrl } from "./useDataFromUrl";
 
 export interface DataTableProps<T> {
