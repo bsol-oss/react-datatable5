@@ -13,14 +13,17 @@ import {
   getCoreRowModel,
   ColumnFiltersState,
   SortingState,
-  Column,
+  ColumnDef,
 } from "@tanstack/react-table";
 import { useDataFromUrl } from "./useDataFromUrl";
 
 export interface DataTableProps<T> {
   children: ReactNode;
   url: string;
-  columns: Column<T>[];
+  columns: ColumnDef<T, unknown>[];
+  enableRowSelection?: boolean;
+  enableMultiRowSelection?: boolean;
+  enableSubRowSelection?: boolean;
 }
 
 export interface Result<T> {
@@ -36,6 +39,9 @@ export interface DataResponse<T> extends Result<T> {
 export const DataTable = <TData,>({
   columns,
   url,
+  enableRowSelection = true,
+  enableMultiRowSelection = true,
+  enableSubRowSelection = true,
   children,
 }: DataTableProps<TData>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -44,6 +50,8 @@ export const DataTable = <TData,>({
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
   });
+  const [rowSelection, setRowSelection] = useState({});
+
   const { data, loading, hasError, refreshData } = useDataFromUrl<
     DataResponse<TData>
   >({
@@ -77,23 +85,27 @@ export const DataTable = <TData,>({
     data: data.results,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
-    // getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true,
     manualSorting: true,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     columnResizeMode: "onChange",
+    onRowSelectionChange: setRowSelection,
     state: {
       pagination,
       sorting,
       columnFilters,
+      rowSelection,
     },
     defaultColumn: {
       size: 10, //starting column size
       minSize: 10, //enforced during column resizing
       maxSize: 10000, //enforced during column resizing
     },
+    enableRowSelection: enableRowSelection,
+    enableMultiRowSelection: enableMultiRowSelection,
+    enableSubRowSelection: enableSubRowSelection,
   });
 
   useEffect(() => {
@@ -108,4 +120,3 @@ export const DataTable = <TData,>({
     </TableContext.Provider>
   );
 };
-

@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Th, Thead, Tr } from "@chakra-ui/react";
+import { Box, Button, Checkbox, Flex, Th, Thead, Tr } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
 import { MdFilterListAlt } from "react-icons/md";
 
@@ -21,6 +21,15 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
     <Thead>
       {table.getHeaderGroups().map((headerGroup) => (
         <Tr key={crypto.randomUUID()} style={{ columnSpan: "all" }}>
+          <Th padding={"0.5rem"}>
+            <Checkbox
+              {...{
+                isChecked: table.getIsAllRowsSelected(),
+                // indeterminate: table.getIsSomeRowsSelected(),
+                onChange: table.getToggleAllRowsSelectedHandler(),
+              }}
+            ></Checkbox>
+          </Th>
           {headerGroup.headers.map((header) => {
             const resizeProps = {
               onClick: () => header.column.resetSize(),
@@ -42,7 +51,7 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext(),
+                          header.getContext()
                         )}
                   </Box>
                   {header.column.getCanSort() && (
@@ -102,4 +111,3 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
     </Thead>
   );
 };
-
