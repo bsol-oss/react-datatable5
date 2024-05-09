@@ -11,7 +11,7 @@ import { TableContext } from "./DataTableContext";
 import { useDataFromUrl } from "./useDataFromUrl";
 
 export interface DataTableProps<T> {
-  children: ReactNode;
+  children: JSX.Element | JSX.Element[];
   url: string;
   columns: ColumnDef<T, unknown>[];
   enableRowSelection?: boolean;
