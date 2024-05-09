@@ -44,13 +44,14 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     return { data, loading, hasError, refreshData };
 };
 
-const DataTable = ({ columns, url, children, }) => {
+const DataTable = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
     const [sorting, setSorting] = react.useState([]);
     const [columnFilters, setColumnFilters] = react.useState([]); // can set initial column filter state here
     const [pagination, setPagination] = react.useState({
         pageIndex: 0, //initial page index
         pageSize: 10, //default page size
     });
+    const [rowSelection, setRowSelection] = react.useState({});
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -78,23 +79,27 @@ const DataTable = ({ columns, url, children, }) => {
         data: data.results,
         columns: columns,
         getCoreRowModel: reactTable.getCoreRowModel(),
-        // getPaginationRowModel: getPaginationRowModel(),
         manualPagination: true,
         manualSorting: true,
         onPaginationChange: setPagination,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         columnResizeMode: "onChange",
+        onRowSelectionChange: setRowSelection,
         state: {
             pagination,
             sorting,
             columnFilters,
+            rowSelection,
         },
         defaultColumn: {
             size: 10, //starting column size
             minSize: 10, //enforced during column resizing
             maxSize: 10000, //enforced during column resizing
         },
+        enableRowSelection: enableRowSelection,
+        enableMultiRowSelection: enableMultiRowSelection,
+        enableSubRowSelection: enableSubRowSelection,
     });
     react.useEffect(() => {
         refreshData();
@@ -178,7 +183,14 @@ const Table = ({ children }) => {
 
 const TableBody = () => {
     const { table: table$1 } = react.useContext(TableContext);
-    return (jsxRuntime.jsx(table.Tbody, { children: table$1.getRowModel().rows.map((row) => (jsxRuntime.jsx(table.Tr, { children: row.getVisibleCells().map((cell) => (jsxRuntime.jsx(table.Td, { width: `${cell.column.getSize()}px`, children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID()))) }, crypto.randomUUID()))) }));
+    console.log(table$1.getSelectedRowModel().rows, "jfaisodij");
+    return (jsxRuntime.jsx(table.Tbody, { children: table$1.getRowModel().rows.map((row) => {
+            console.log(row.getIsSelected(), row, "lghrpl");
+            return (jsxRuntime.jsxs(table.Tr, { children: [jsxRuntime.jsx(table.Td, { padding: "0.5rem", children: jsxRuntime.jsx(react$1.Checkbox, { isChecked: row.getIsSelected(),
+                            disabled: !row.getCanSelect(),
+                            // indeterminate: row.getIsSomeSelected(),
+                            onChange: row.getToggleSelectedHandler() }) }), row.getVisibleCells().map((cell) => (jsxRuntime.jsx(table.Td, { padding: "0.5rem", width: `${cell.column.getSize()}px`, children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID())))] }, crypto.randomUUID()));
+        }) }));
 };
 
 const TableCardContainer = ({ children, ...props }) => {
@@ -188,9 +200,12 @@ const TableCardContainer = ({ children, ...props }) => {
 const TableCards = () => {
     const { table } = react.useContext(TableContext);
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getRowModel().rows.map((row) => {
-            return (jsxRuntime.jsx(react$1.Card, { children: jsxRuntime.jsx(react$1.CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: row.getVisibleCells().map((cell) => {
-                        return (jsxRuntime.jsxs(react$1.Box, { children: [jsxRuntime.jsx(react$1.Text, { children: `${cell.column.id}: ` }), jsxRuntime.jsx(react$1.Box, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) })] }));
-                    }) }) }, crypto.randomUUID()));
+            return (jsxRuntime.jsx(react$1.Card, { children: jsxRuntime.jsxs(react$1.CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [jsxRuntime.jsx(react$1.Checkbox, { isChecked: row.getIsSelected(),
+                            disabled: !row.getCanSelect(),
+                            // indeterminate: row.getIsSomeSelected(),
+                            onChange: row.getToggleSelectedHandler() }), row.getVisibleCells().map((cell) => {
+                            return (jsxRuntime.jsxs(react$1.Box, { children: [jsxRuntime.jsx(react$1.Text, { children: `${cell.column.id}: ` }), jsxRuntime.jsx(react$1.Box, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) })] }));
+                        })] }) }, crypto.randomUUID()));
         }) }));
 };
 
@@ -203,29 +218,31 @@ const TableFooter = () => {
 
 const TableHeader = ({ canResize }) => {
     const { table } = useDataTable();
-    return (jsxRuntime.jsx(react$1.Thead, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsx(react$1.Tr, { style: { columnSpan: "all" }, children: headerGroup.headers.map((header) => {
-                const resizeProps = {
-                    onClick: () => header.column.resetSize(),
-                    onMouseDown: header.getResizeHandler(),
-                    onTouchStart: header.getResizeHandler(),
-                    cursor: "col-resize",
-                };
-                return (jsxRuntime.jsx(react$1.Th, { padding: "0rem", colSpan: header.colSpan, width: `${header.getSize()}px`, children: jsxRuntime.jsxs(react$1.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react$1.Box, { children: header.isPlaceholder
-                                    ? null
-                                    : reactTable.flexRender(header.column.columnDef.header, header.getContext()) }), header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsxs(react$1.Button, { onClick: (e) => {
-                                            header.column.toggleSorting();
-                                        }, children: [header.column.getNextSortingOrder() === false && (
-                                            // <Text>To No sort</Text>
-                                            jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getNextSortingOrder() === "asc" && (
-                                            // <Text>To asc</Text>
-                                            jsxRuntime.jsx(icons.UpDownIcon, {})), header.column.getNextSortingOrder() === "desc" && (
-                                            // <Text>To desc</Text>
-                                            jsxRuntime.jsx(icons.ChevronDownIcon, {}))] }), header.column.getIsSorted() && (jsxRuntime.jsx(react$1.Button, { onClick: (e) => {
-                                            header.column.clearSorting();
-                                        }, children: jsxRuntime.jsx(icons.CloseIcon, {}) }))] })), header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}), canResize && (jsxRuntime.jsx(react$1.Box, { borderRight: header.column.getIsResizing()
-                                    ? "0.25rem solid black"
-                                    : "0.25rem solid grey", height: "5rem", width: "5px", userSelect: "none", style: { touchAction: "none" }, ...resizeProps }))] }) }, crypto.randomUUID()));
-            }) }, crypto.randomUUID()))) }));
+    return (jsxRuntime.jsx(react$1.Thead, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsxs(react$1.Tr, { style: { columnSpan: "all" }, children: [jsxRuntime.jsx(react$1.Th, { padding: "0.5rem", children: jsxRuntime.jsx(react$1.Checkbox, { isChecked: table.getIsAllRowsSelected(),
+                        // indeterminate: table.getIsSomeRowsSelected(),
+                        onChange: table.getToggleAllRowsSelectedHandler() }) }), headerGroup.headers.map((header) => {
+                    const resizeProps = {
+                        onClick: () => header.column.resetSize(),
+                        onMouseDown: header.getResizeHandler(),
+                        onTouchStart: header.getResizeHandler(),
+                        cursor: "col-resize",
+                    };
+                    return (jsxRuntime.jsx(react$1.Th, { padding: "0rem", colSpan: header.colSpan, width: `${header.getSize()}px`, children: jsxRuntime.jsxs(react$1.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react$1.Box, { children: header.isPlaceholder
+                                        ? null
+                                        : reactTable.flexRender(header.column.columnDef.header, header.getContext()) }), header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsxs(react$1.Button, { onClick: (e) => {
+                                                header.column.toggleSorting();
+                                            }, children: [header.column.getNextSortingOrder() === false && (
+                                                // <Text>To No sort</Text>
+                                                jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getNextSortingOrder() === "asc" && (
+                                                // <Text>To asc</Text>
+                                                jsxRuntime.jsx(icons.UpDownIcon, {})), header.column.getNextSortingOrder() === "desc" && (
+                                                // <Text>To desc</Text>
+                                                jsxRuntime.jsx(icons.ChevronDownIcon, {}))] }), header.column.getIsSorted() && (jsxRuntime.jsx(react$1.Button, { onClick: (e) => {
+                                                header.column.clearSorting();
+                                            }, children: jsxRuntime.jsx(icons.CloseIcon, {}) }))] })), header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}), canResize && (jsxRuntime.jsx(react$1.Box, { borderRight: header.column.getIsResizing()
+                                        ? "0.25rem solid black"
+                                        : "0.25rem solid grey", height: "5rem", width: "5px", userSelect: "none", style: { touchAction: "none" }, ...resizeProps }))] }) }, crypto.randomUUID()));
+                })] }, crypto.randomUUID()))) }));
 };
 
 const TablePagination = ({}) => {
@@ -234,7 +251,10 @@ const TablePagination = ({}) => {
 };
 
 const TextCell = ({ label, children }) => {
-    return (jsxRuntime.jsx(react$1.Tooltip, { label: label, children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }) }));
+    if (label) {
+        return (jsxRuntime.jsx(react$1.Tooltip, { label: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }) }));
+    }
+    return (jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }));
 };
 
 exports.DataTable = DataTable;

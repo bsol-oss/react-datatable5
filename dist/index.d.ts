@@ -1,13 +1,16 @@
 /// <reference types="react" />
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import { ReactNode } from 'react';
-import { Column } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import * as _tanstack_table_core from '@tanstack/table-core';
 
 interface DataTableProps<T> {
     children: ReactNode;
     url: string;
-    columns: Column<T>[];
+    columns: ColumnDef<T, unknown>[];
+    enableRowSelection?: boolean;
+    enableMultiRowSelection?: boolean;
+    enableSubRowSelection?: boolean;
 }
 interface Result<T> {
     results: T[];
@@ -17,7 +20,7 @@ interface DataResponse<T> extends Result<T> {
     count: number;
     filterCount: number;
 }
-declare const DataTable: <TData>({ columns, url, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTable: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
 
 declare const EditViewButton: () => react_jsx_runtime.JSX.Element;
 
@@ -81,6 +84,10 @@ interface PaginationProps {
 }
 declare const TablePagination: ({}: PaginationProps) => react_jsx_runtime.JSX.Element;
 
-declare const TextCell: ({ label, children }: any) => react_jsx_runtime.JSX.Element;
+interface TextCellProps {
+    label?: string;
+    children: string | number | JSX.Element | JSX.Element[];
+}
+declare const TextCell: ({ label, children }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
-export { type DataResponse, DataTable, type DataTableProps, EditFilterButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TablePagination, type TableProps, TableSorter, TextCell, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, EditFilterButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TablePagination, type TableProps, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };

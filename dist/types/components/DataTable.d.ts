@@ -1,9 +1,12 @@
 import { ReactNode } from "react";
-import { Column } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 export interface DataTableProps<T> {
     children: ReactNode;
     url: string;
-    columns: Column<T>[];
+    columns: ColumnDef<T, unknown>[];
+    enableRowSelection?: boolean;
+    enableMultiRowSelection?: boolean;
+    enableSubRowSelection?: boolean;
 }
 export interface Result<T> {
     results: T[];
@@ -13,4 +16,4 @@ export interface DataResponse<T> extends Result<T> {
     count: number;
     filterCount: number;
 }
-export declare const DataTable: <TData>({ columns, url, children, }: DataTableProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const DataTable: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableProps<TData>) => import("react/jsx-runtime").JSX.Element;

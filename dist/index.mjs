@@ -42,13 +42,14 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     return { data, loading, hasError, refreshData };
 };
 
-const DataTable = ({ columns, url, children, }) => {
+const DataTable = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
     const [sorting, setSorting] = useState([]);
     const [columnFilters, setColumnFilters] = useState([]); // can set initial column filter state here
     const [pagination, setPagination] = useState({
         pageIndex: 0, //initial page index
         pageSize: 10, //default page size
     });
+    const [rowSelection, setRowSelection] = useState({});
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -76,23 +77,27 @@ const DataTable = ({ columns, url, children, }) => {
         data: data.results,
         columns: columns,
         getCoreRowModel: getCoreRowModel(),
-        // getPaginationRowModel: getPaginationRowModel(),
         manualPagination: true,
         manualSorting: true,
         onPaginationChange: setPagination,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         columnResizeMode: "onChange",
+        onRowSelectionChange: setRowSelection,
         state: {
             pagination,
             sorting,
             columnFilters,
+            rowSelection,
         },
         defaultColumn: {
             size: 10, //starting column size
             minSize: 10, //enforced during column resizing
             maxSize: 10000, //enforced during column resizing
         },
+        enableRowSelection: enableRowSelection,
+        enableMultiRowSelection: enableMultiRowSelection,
+        enableSubRowSelection: enableSubRowSelection,
     });
     useEffect(() => {
         refreshData();
@@ -176,7 +181,14 @@ const Table = ({ children }) => {
 
 const TableBody = () => {
     const { table } = useContext(TableContext);
-    return (jsx(Tbody, { children: table.getRowModel().rows.map((row) => (jsx(Tr, { children: row.getVisibleCells().map((cell) => (jsx(Td, { width: `${cell.column.getSize()}px`, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID()))) }, crypto.randomUUID()))) }));
+    console.log(table.getSelectedRowModel().rows, "jfaisodij");
+    return (jsx(Tbody, { children: table.getRowModel().rows.map((row) => {
+            console.log(row.getIsSelected(), row, "lghrpl");
+            return (jsxs(Tr, { children: [jsx(Td, { padding: "0.5rem", children: jsx(Checkbox, { isChecked: row.getIsSelected(),
+                            disabled: !row.getCanSelect(),
+                            // indeterminate: row.getIsSomeSelected(),
+                            onChange: row.getToggleSelectedHandler() }) }), row.getVisibleCells().map((cell) => (jsx(Td, { padding: "0.5rem", width: `${cell.column.getSize()}px`, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID())))] }, crypto.randomUUID()));
+        }) }));
 };
 
 const TableCardContainer = ({ children, ...props }) => {
@@ -186,9 +198,12 @@ const TableCardContainer = ({ children, ...props }) => {
 const TableCards = () => {
     const { table } = useContext(TableContext);
     return (jsx(Fragment, { children: table.getRowModel().rows.map((row) => {
-            return (jsx(Card, { children: jsx(CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: row.getVisibleCells().map((cell) => {
-                        return (jsxs(Box, { children: [jsx(Text, { children: `${cell.column.id}: ` }), jsx(Box, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) })] }));
-                    }) }) }, crypto.randomUUID()));
+            return (jsx(Card, { children: jsxs(CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [jsx(Checkbox, { isChecked: row.getIsSelected(),
+                            disabled: !row.getCanSelect(),
+                            // indeterminate: row.getIsSomeSelected(),
+                            onChange: row.getToggleSelectedHandler() }), row.getVisibleCells().map((cell) => {
+                            return (jsxs(Box, { children: [jsx(Text, { children: `${cell.column.id}: ` }), jsx(Box, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) })] }));
+                        })] }) }, crypto.randomUUID()));
         }) }));
 };
 
@@ -201,29 +216,31 @@ const TableFooter = () => {
 
 const TableHeader = ({ canResize }) => {
     const { table } = useDataTable();
-    return (jsx(Thead, { children: table.getHeaderGroups().map((headerGroup) => (jsx(Tr$1, { style: { columnSpan: "all" }, children: headerGroup.headers.map((header) => {
-                const resizeProps = {
-                    onClick: () => header.column.resetSize(),
-                    onMouseDown: header.getResizeHandler(),
-                    onTouchStart: header.getResizeHandler(),
-                    cursor: "col-resize",
-                };
-                return (jsx(Th, { padding: "0rem", colSpan: header.colSpan, width: `${header.getSize()}px`, children: jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsx(Box, { children: header.isPlaceholder
-                                    ? null
-                                    : flexRender(header.column.columnDef.header, header.getContext()) }), header.column.getCanSort() && (jsxs(Fragment, { children: [jsxs(Button, { onClick: (e) => {
-                                            header.column.toggleSorting();
-                                        }, children: [header.column.getNextSortingOrder() === false && (
-                                            // <Text>To No sort</Text>
-                                            jsx(ChevronUpIcon, {})), header.column.getNextSortingOrder() === "asc" && (
-                                            // <Text>To asc</Text>
-                                            jsx(UpDownIcon, {})), header.column.getNextSortingOrder() === "desc" && (
-                                            // <Text>To desc</Text>
-                                            jsx(ChevronDownIcon, {}))] }), header.column.getIsSorted() && (jsx(Button, { onClick: (e) => {
-                                            header.column.clearSorting();
-                                        }, children: jsx(CloseIcon, {}) }))] })), header.column.getIsFiltered() && jsx(MdFilterListAlt, {}), canResize && (jsx(Box, { borderRight: header.column.getIsResizing()
-                                    ? "0.25rem solid black"
-                                    : "0.25rem solid grey", height: "5rem", width: "5px", userSelect: "none", style: { touchAction: "none" }, ...resizeProps }))] }) }, crypto.randomUUID()));
-            }) }, crypto.randomUUID()))) }));
+    return (jsx(Thead, { children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { style: { columnSpan: "all" }, children: [jsx(Th, { padding: "0.5rem", children: jsx(Checkbox, { isChecked: table.getIsAllRowsSelected(),
+                        // indeterminate: table.getIsSomeRowsSelected(),
+                        onChange: table.getToggleAllRowsSelectedHandler() }) }), headerGroup.headers.map((header) => {
+                    const resizeProps = {
+                        onClick: () => header.column.resetSize(),
+                        onMouseDown: header.getResizeHandler(),
+                        onTouchStart: header.getResizeHandler(),
+                        cursor: "col-resize",
+                    };
+                    return (jsx(Th, { padding: "0rem", colSpan: header.colSpan, width: `${header.getSize()}px`, children: jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsx(Box, { children: header.isPlaceholder
+                                        ? null
+                                        : flexRender(header.column.columnDef.header, header.getContext()) }), header.column.getCanSort() && (jsxs(Fragment, { children: [jsxs(Button, { onClick: (e) => {
+                                                header.column.toggleSorting();
+                                            }, children: [header.column.getNextSortingOrder() === false && (
+                                                // <Text>To No sort</Text>
+                                                jsx(ChevronUpIcon, {})), header.column.getNextSortingOrder() === "asc" && (
+                                                // <Text>To asc</Text>
+                                                jsx(UpDownIcon, {})), header.column.getNextSortingOrder() === "desc" && (
+                                                // <Text>To desc</Text>
+                                                jsx(ChevronDownIcon, {}))] }), header.column.getIsSorted() && (jsx(Button, { onClick: (e) => {
+                                                header.column.clearSorting();
+                                            }, children: jsx(CloseIcon, {}) }))] })), header.column.getIsFiltered() && jsx(MdFilterListAlt, {}), canResize && (jsx(Box, { borderRight: header.column.getIsResizing()
+                                        ? "0.25rem solid black"
+                                        : "0.25rem solid grey", height: "5rem", width: "5px", userSelect: "none", style: { touchAction: "none" }, ...resizeProps }))] }) }, crypto.randomUUID()));
+                })] }, crypto.randomUUID()))) }));
 };
 
 const TablePagination = ({}) => {
@@ -232,7 +249,10 @@ const TablePagination = ({}) => {
 };
 
 const TextCell = ({ label, children }) => {
-    return (jsx(Tooltip, { label: label, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }) }));
+    if (label) {
+        return (jsx(Tooltip, { label: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }) }));
+    }
+    return (jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }));
 };
 
 export { DataTable, EditFilterButton, EditSortingButton, EditViewButton, PageSizeControl, ResetFilteringButton, ResetSortingButton, Table, TableBody, TableCardContainer, TableCards, TableFilter, TableFooter, TableHeader, TablePagination, TableSorter, TextCell, useDataFromUrl, useDataTable };
