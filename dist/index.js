@@ -171,7 +171,7 @@ const EditSortingButton = () => {
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = react.useContext(TableContext);
-    return (jsxRuntime.jsx("select", { value: table.getState().pagination.pageSize, onChange: (e) => {
+    return (jsxRuntime.jsx(react$1.Select, { value: table.getState().pagination.pageSize, onChange: (e) => {
             table.setPageSize(Number(e.target.value));
         }, children: pageSizes.map((pageSize) => (jsxRuntime.jsx("option", { value: pageSize, children: pageSize }, pageSize))) }));
 };

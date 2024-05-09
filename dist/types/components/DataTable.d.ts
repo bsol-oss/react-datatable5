@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
+/// <reference types="react" />
 import { ColumnDef } from "@tanstack/react-table";
 export interface DataTableProps<T> {
-    children: ReactNode;
+    children: JSX.Element | JSX.Element[];
     url: string;
     columns: ColumnDef<T, unknown>[];
     enableRowSelection?: boolean;

@@ -1,11 +1,11 @@
 /// <reference types="react" />
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { ReactNode } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
+import { ReactNode } from 'react';
 import * as _tanstack_table_core from '@tanstack/table-core';
 
 interface DataTableProps<T> {
-    children: ReactNode;
+    children: JSX.Element | JSX.Element[];
     url: string;
     columns: ColumnDef<T, unknown>[];
     enableRowSelection?: boolean;

@@ -2,7 +2,7 @@ import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import axios from 'axios';
-import { Popover, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, FormControl, Checkbox, Button, Box, Text, Input, Tooltip, Container, Table as Table$1, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, ButtonGroup } from '@chakra-ui/react';
+import { Popover, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, FormControl, Checkbox, Button, Box, Text, Input, Tooltip, Select, Container, Table as Table$1, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, ButtonGroup } from '@chakra-ui/react';
 import { IoMdEye } from 'react-icons/io';
 import { MdFilterAlt, MdOutlineSort, MdFilterListAlt, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage } from 'react-icons/md';
 import { ChevronUpIcon, UpDownIcon, ChevronDownIcon, CloseIcon } from '@chakra-ui/icons';
@@ -169,7 +169,7 @@ const EditSortingButton = () => {
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = useContext(TableContext);
-    return (jsx("select", { value: table.getState().pagination.pageSize, onChange: (e) => {
+    return (jsx(Select, { value: table.getState().pagination.pageSize, onChange: (e) => {
             table.setPageSize(Number(e.target.value));
         }, children: pageSizes.map((pageSize) => (jsx("option", { value: pageSize, children: pageSize }, pageSize))) }));
 };
