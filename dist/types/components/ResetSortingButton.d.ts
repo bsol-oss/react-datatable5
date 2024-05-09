@@ -1,2 +1,1 @@
-declare const ResetSortingButton: () => import("react/jsx-runtime").JSX.Element;
-export default ResetSortingButton;
+export declare const ResetSortingButton: () => import("react/jsx-runtime").JSX.Element;

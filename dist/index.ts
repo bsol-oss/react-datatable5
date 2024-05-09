@@ -3,7 +3,7 @@
 var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
 var reactTable = require('@tanstack/react-table');
-var axios = require('axios');
+require('axios');
 var react$1 = require('@chakra-ui/react');
 var io = require('react-icons/io');
 var table = require('@chakra-ui/table');
@@ -14,93 +14,6 @@ const TableContext = react.createContext({
     table: {},
     refreshData: () => { },
 });
-
-const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
-    const [loading, setLoading] = react.useState(true);
-    const [hasError, setHasError] = react.useState(false);
-    const [data, setData] = react.useState(defaultData);
-    const refreshData = async () => {
-        await getData();
-    };
-    const getData = async () => {
-        try {
-            setLoading(true);
-            const { data } = await axios.get(url, { params: params });
-            console.log("get DataFromUrl success", data);
-            setLoading(false);
-            setData(data);
-        }
-        catch (e) {
-            console.log(e);
-            setLoading(false);
-            setHasError(true);
-        }
-    };
-    react.useEffect(() => {
-        getData().catch((e) => {
-            console.error(e);
-        });
-    }, []);
-    return { data, loading, hasError, refreshData };
-};
-
-const DataTable = ({ columns, url, children, }) => {
-    const [sorting, setSorting] = react.useState([]);
-    const [columnFilters, setColumnFilters] = react.useState([]); // can set initial column filter state here
-    const [pagination, setPagination] = react.useState({
-        pageIndex: 0, //initial page index
-        pageSize: 10, //default page size
-    });
-    const { data, loading, hasError, refreshData } = useDataFromUrl({
-        url: url,
-        defaultData: {
-            success: false,
-            results: [],
-            count: 0,
-            filterCount: 0,
-        },
-        params: {
-            pagination: JSON.stringify({
-                offset: pagination.pageIndex * pagination.pageSize,
-                rows: pagination.pageSize,
-            }),
-            sorting: JSON.stringify(sorting.length > 0
-                ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
-                : {}),
-            where: JSON.stringify(columnFilters.reduce((accumulator, filter) => {
-                const obj = {};
-                obj[filter.id] = filter.value;
-                return { ...accumulator, ...obj };
-            }, {})),
-        },
-    });
-    const table = reactTable.useReactTable({
-        data: data.results,
-        columns: columns,
-        getCoreRowModel: reactTable.getCoreRowModel(),
-        // getPaginationRowModel: getPaginationRowModel(),
-        manualPagination: true,
-        manualSorting: true,
-        onPaginationChange: setPagination,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        columnResizeMode: "onChange",
-        state: {
-            pagination,
-            sorting,
-            columnFilters,
-        },
-        defaultColumn: {
-            size: 10, //starting column size
-            minSize: 10, //enforced during column resizing
-            maxSize: 10000, //enforced during column resizing
-        },
-    });
-    react.useEffect(() => {
-        refreshData();
-    }, [pagination, sorting, columnFilters]);
-    return (jsxRuntime.jsx(TableContext.Provider, { value: { table: { ...table }, refreshData: refreshData }, children: children }));
-};
 
 const EditViewButton = () => {
     const { table } = react.useContext(TableContext);
@@ -199,7 +112,6 @@ const TextCell = ({ label, children }) => {
     return (jsxRuntime.jsx(react$1.Tooltip, { label: label, children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }) }));
 };
 
-exports.DataTable = DataTable;
 exports.EditViewButton = EditViewButton;
 exports.PageSizeControl = PageSizeControl;
 exports.ResetFilteringButton = ResetFilteringButton;

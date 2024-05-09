@@ -1,2 +1,1 @@
-declare const TableCards: () => import("react/jsx-runtime").JSX.Element;
-export default TableCards;
+export declare const TableCards: () => import("react/jsx-runtime").JSX.Element;

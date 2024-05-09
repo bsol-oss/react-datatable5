@@ -13,5 +13,4 @@ export interface DataResponse<T> extends Result<T> {
     count: number;
     filterCount: number;
 }
-declare const DataTable: <TData>({ columns, url, children, }: DataTableProps<TData>) => import("react/jsx-runtime").JSX.Element;
-export default DataTable;
+export declare const DataTable: <TData>({ columns, url, children, }: DataTableProps<TData>) => import("react/jsx-runtime").JSX.Element;
