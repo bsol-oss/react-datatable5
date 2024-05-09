@@ -13,7 +13,7 @@ import { useDataFromUrl } from "./useDataFromUrl";
 export interface DataTableProps<T> {
   children: JSX.Element | JSX.Element[];
   url: string;
-  columns: ColumnDef<T, unknown>[];
+  columns: ColumnDef<T, any>[]; // TODO: find the appropriate types
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
