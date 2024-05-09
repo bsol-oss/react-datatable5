@@ -5,7 +5,7 @@ import { Column } from '@tanstack/react-table';
 interface DataTableProps<T> {
     children: ReactNode;
     url: string;
-    columns: Column<T, unknown>[];
+    columns: Column<T>[];
 }
 interface Result<T> {
     results: T[];
