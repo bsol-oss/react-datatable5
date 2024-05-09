@@ -6,9 +6,9 @@ var reactTable = require('@tanstack/react-table');
 var axios = require('axios');
 var react$1 = require('@chakra-ui/react');
 var io = require('react-icons/io');
-var table = require('@chakra-ui/table');
 var md = require('react-icons/md');
 var icons = require('@chakra-ui/icons');
+var table = require('@chakra-ui/table');
 
 const TableContext = react.createContext({
     table: {},
@@ -109,18 +109,31 @@ const EditViewButton = () => {
                             }) }) })] })] }));
 };
 
-const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
-    const { table } = react.useContext(TableContext);
-    return (jsxRuntime.jsx("select", { value: table.getState().pagination.pageSize, onChange: (e) => {
-            table.setPageSize(Number(e.target.value));
-        }, children: pageSizes.map((pageSize) => (jsxRuntime.jsx("option", { value: pageSize, children: pageSize }, pageSize))) }));
-};
-
 const ResetFilteringButton = () => {
     const { table } = react.useContext(TableContext);
     return (jsxRuntime.jsx(react$1.Button, { onClick: () => {
             table.resetColumnFilters();
         }, children: "Reset Filtering" }));
+};
+
+const useDataTable = () => {
+    const { table, refreshData } = react.useContext(TableContext);
+    return { table, refreshData };
+};
+
+const TableFilter = () => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getLeafHeaders().map((header) => {
+            return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanFilter() && (jsxRuntime.jsxs(react$1.Box, { children: [jsxRuntime.jsx(react$1.Text, { children: header.column.id }), jsxRuntime.jsx(react$1.Input, { value: header.column.getFilterValue()
+                                ? String(header.column.getFilterValue())
+                                : "", onChange: (e) => {
+                                header.column.setFilterValue(e.target.value);
+                            } })] })) }));
+        }) }));
+};
+
+const EditFilterButton = () => {
+    return (jsxRuntime.jsxs(react$1.Popover, { placement: "bottom-end", children: [jsxRuntime.jsx(react$1.Tooltip, { label: "Filter", children: jsxRuntime.jsx(react$1.PopoverTrigger, { children: jsxRuntime.jsx(react$1.IconButton, { "aria-label": "filter", icon: jsxRuntime.jsx(md.MdFilterAlt, {}) }) }) }), jsxRuntime.jsxs(react$1.PopoverContent, { width: "auto", children: [jsxRuntime.jsx(react$1.PopoverArrow, {}), jsxRuntime.jsx(react$1.PopoverBody, { children: jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "1rem", children: [jsxRuntime.jsx(TableFilter, {}), jsxRuntime.jsx(ResetFilteringButton, {})] }) })] })] }));
 };
 
 const ResetSortingButton = () => {
@@ -130,9 +143,32 @@ const ResetSortingButton = () => {
         }, children: "Reset Sorting" }));
 };
 
-const useDataTable = () => {
-    const { table, refreshData } = react.useContext(TableContext);
-    return { table, refreshData };
+const TableSorter = () => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsx(jsxRuntime.Fragment, { children: headerGroup.headers.map((header) => {
+                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanSort() && (jsxRuntime.jsxs(react$1.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react$1.Text, { children: header.column.id }), jsxRuntime.jsxs(react$1.Button, { onClick: (e) => {
+                                    header.column.toggleSorting();
+                                }, children: [header.column.getNextSortingOrder() === false && (
+                                    // <Text>To No sort</Text>
+                                    jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getNextSortingOrder() === "asc" && (
+                                    // <Text>To asc</Text>
+                                    jsxRuntime.jsx(icons.UpDownIcon, {})), header.column.getNextSortingOrder() === "desc" && (
+                                    // <Text>To desc</Text>
+                                    jsxRuntime.jsx(icons.ChevronDownIcon, {}))] }), header.column.getIsSorted() && (jsxRuntime.jsx(react$1.Button, { onClick: (e) => {
+                                    header.column.clearSorting();
+                                }, children: jsxRuntime.jsx(icons.CloseIcon, {}) }))] })) }));
+            }) }))) }));
+};
+
+const EditSortingButton = () => {
+    return (jsxRuntime.jsxs(react$1.Popover, { placement: "bottom-end", children: [jsxRuntime.jsx(react$1.Tooltip, { label: "Filter", children: jsxRuntime.jsx(react$1.PopoverTrigger, { children: jsxRuntime.jsx(react$1.IconButton, { "aria-label": "filter", icon: jsxRuntime.jsx(md.MdOutlineSort, {}) }) }) }), jsxRuntime.jsxs(react$1.PopoverContent, { width: "auto", children: [jsxRuntime.jsx(react$1.PopoverArrow, {}), jsxRuntime.jsx(react$1.PopoverBody, { children: jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(TableSorter, {}), jsxRuntime.jsx(ResetSortingButton, {})] }) })] })] }));
+};
+
+const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
+    const { table } = react.useContext(TableContext);
+    return (jsxRuntime.jsx("select", { value: table.getState().pagination.pageSize, onChange: (e) => {
+            table.setPageSize(Number(e.target.value));
+        }, children: pageSizes.map((pageSize) => (jsxRuntime.jsx("option", { value: pageSize, children: pageSize }, pageSize))) }));
 };
 
 const Table = ({ children }) => {
@@ -145,14 +181,16 @@ const TableBody = () => {
     return (jsxRuntime.jsx(table.Tbody, { children: table$1.getRowModel().rows.map((row) => (jsxRuntime.jsx(table.Tr, { children: row.getVisibleCells().map((cell) => (jsxRuntime.jsx(table.Td, { width: `${cell.column.getSize()}px`, children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID()))) }, crypto.randomUUID()))) }));
 };
 
-const TableFilter = () => {
-    const { table } = useDataTable();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getLeafHeaders().map((header) => {
-            return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanFilter() && (jsxRuntime.jsxs(react$1.Box, { children: [jsxRuntime.jsx(react$1.Text, { children: header.column.id }), jsxRuntime.jsx(react$1.Input, { value: header.column.getFilterValue()
-                                ? String(header.column.getFilterValue())
-                                : "", onChange: (e) => {
-                                header.column.setFilterValue(e.target.value);
-                            } })] })) }));
+const TableCardContainer = ({ children, ...props }) => {
+    return (jsxRuntime.jsx(react$1.Grid, { gridTemplateColumns: ["1fr", "1fr 1fr", "1fr 1fr 1fr"], gap: "0.5rem", ...props, children: children }));
+};
+
+const TableCards = () => {
+    const { table } = react.useContext(TableContext);
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getRowModel().rows.map((row) => {
+            return (jsxRuntime.jsx(react$1.Card, { children: jsxRuntime.jsx(react$1.CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: row.getVisibleCells().map((cell) => {
+                        return (jsxRuntime.jsxs(react$1.Box, { children: [jsxRuntime.jsx(react$1.Text, { children: `${cell.column.id}: ` }), jsxRuntime.jsx(react$1.Box, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) })] }));
+                    }) }) }, crypto.randomUUID()));
         }) }));
 };
 
@@ -200,14 +238,21 @@ const TextCell = ({ label, children }) => {
 };
 
 exports.DataTable = DataTable;
+exports.EditFilterButton = EditFilterButton;
+exports.EditSortingButton = EditSortingButton;
 exports.EditViewButton = EditViewButton;
 exports.PageSizeControl = PageSizeControl;
 exports.ResetFilteringButton = ResetFilteringButton;
 exports.ResetSortingButton = ResetSortingButton;
 exports.Table = Table;
 exports.TableBody = TableBody;
+exports.TableCardContainer = TableCardContainer;
+exports.TableCards = TableCards;
 exports.TableFilter = TableFilter;
 exports.TableFooter = TableFooter;
 exports.TableHeader = TableHeader;
 exports.TablePagination = TablePagination;
+exports.TableSorter = TableSorter;
 exports.TextCell = TextCell;
+exports.useDataFromUrl = useDataFromUrl;
+exports.useDataTable = useDataTable;
