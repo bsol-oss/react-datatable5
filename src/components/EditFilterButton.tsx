@@ -14,7 +14,7 @@ import { TableFilter } from "./TableFilter";
 
 export const EditFilterButton = () => {
   return (
-    <Popover placement="bottom-end">
+    <Popover placement="auto">
       <Tooltip label="Filter">
         <PopoverTrigger>
           <IconButton aria-label="filter" icon={<MdFilterAlt />} />

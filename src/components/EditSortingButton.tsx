@@ -14,7 +14,7 @@ import { TableSorter } from "./TableSorter";
 
 export const EditSortingButton = () => {
   return (
-    <Popover placement="bottom-end">
+    <Popover placement="auto">
       <Tooltip label="Filter">
         <PopoverTrigger>
           <IconButton aria-label="filter" icon={<MdOutlineSort />} />

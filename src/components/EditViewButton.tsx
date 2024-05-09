@@ -16,7 +16,7 @@ import { IoMdEye } from "react-icons/io";
 export const EditViewButton = () => {
   const { table } = useContext(TableContext);
   return (
-    <Popover placement="bottom-end">
+    <Popover placement="auto">
       <PopoverTrigger>
         <IconButton aria-label="view" icon={<IoMdEye />} />
       </PopoverTrigger>
