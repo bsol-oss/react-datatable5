@@ -7,7 +7,7 @@ import * as _tanstack_table_core from '@tanstack/table-core';
 interface DataTableProps<T> {
     children: JSX.Element | JSX.Element[];
     url: string;
-    columns: ColumnDef<T, unknown>[];
+    columns: ColumnDef<T, any>[];
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;

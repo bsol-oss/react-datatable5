@@ -3,7 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 export interface DataTableProps<T> {
     children: JSX.Element | JSX.Element[];
     url: string;
-    columns: ColumnDef<T, unknown>[];
+    columns: ColumnDef<T, any>[];
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
