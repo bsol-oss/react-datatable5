@@ -33,7 +33,7 @@ export interface DataResponse<T> extends Result<T> {
   filterCount: number;
 }
 
-const DataTable = <TData,>({
+export const DataTable = <TData,>({
   columns,
   url,
   children,
