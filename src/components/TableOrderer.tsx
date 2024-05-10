@@ -1,14 +1,7 @@
-import {
-  ChevronUpIcon,
-  UpDownIcon,
-  ChevronDownIcon,
-  CloseIcon,
-} from "@chakra-ui/icons";
-import { Flex, Button, Box, Select, Tag, IconButton } from "@chakra-ui/react";
-import { useDataTable } from "./useDataTable";
+import { Box, Button, Flex, IconButton } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { MdArrowDownward } from "react-icons/md";
-import { MdArrowUpward } from "react-icons/md";
+import { MdArrowDownward, MdArrowUpward } from "react-icons/md";
+import { useDataTable } from "./useDataTable";
 interface ColumnOrderChangerProps {
   columns: string[];
 }
