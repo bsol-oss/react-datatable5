@@ -70,7 +70,6 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
                 <Flex
                   alignItems={"center"}
                   gap={"0.5rem"}
-                  padding={"0.5rem"}
                   overflow={"scroll"}
                 >
                   <Box>
