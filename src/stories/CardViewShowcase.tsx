@@ -53,7 +53,7 @@ const CardViewShowcase = () => {
       columns: [
         columnHelper.accessor("session_id", {
           cell: (props) => {
-            return <TextCell>{props.row.original.session_id}</TextCell>;
+            return <TextCell>{`${props.row.original.session_id}`}</TextCell>;
           },
           header: () => <span>Session Id</span>,
           footer: (props) => props.column.id,

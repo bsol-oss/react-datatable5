@@ -99,7 +99,7 @@ const TableViewShowcase = () => {
         <TableFilter />
         <ResetFilteringButton />
         <Table>
-          <TableHeader />
+          <TableHeader canResize/>
           <TableBody />
           <TableFooter />
         </Table>
