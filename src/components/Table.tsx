@@ -9,7 +9,7 @@ export interface TableProps {
 export const Table = ({ children }: TableProps) => {
   const { table } = useDataTable();
   return (
-    <Container maxW="100%" overflowY={"scroll"}>
+    <Container padding={'0rem'} maxW="100%" overflowX={"scroll"}>
       <ChakraTable width={table.getCenterTotalSize()} variant="simple">
         {children}
       </ChakraTable>

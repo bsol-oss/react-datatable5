@@ -17,11 +17,20 @@ export interface TableHeaderProps {
 
 export const TableHeader = ({ canResize }: TableHeaderProps) => {
   const { table } = useDataTable();
+  const SELECTION_BOX_WIDTH = 32;
   return (
     <Thead>
       {table.getHeaderGroups().map((headerGroup) => (
-        <Tr key={crypto.randomUUID()} style={{ columnSpan: "all" }}>
-          <Th padding={"0.5rem"}>
+        <Tr display={"flex"} key={crypto.randomUUID()}>
+          <Th
+            // styling resize and pinning start
+            padding={"0.5rem"}
+            left={`0px`}
+            backgroundColor={"gray.50"}
+            position={"sticky"}
+            zIndex={1}
+            // styling resize and pinning end
+          >
             <Checkbox
               {...{
                 isChecked: table.getIsAllRowsSelected(),
@@ -43,9 +52,27 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
                 padding={"0rem"}
                 key={crypto.randomUUID()}
                 colSpan={header.colSpan}
+                // styling resize and pinning start
+                maxWidth={`${header.getSize()}px`}
                 width={`${header.getSize()}px`}
+                left={
+                  header.column.getIsPinned()
+                    ? `${header.getStart("left") + SELECTION_BOX_WIDTH}px`
+                    : undefined
+                }
+                backgroundColor={
+                  header.column.getIsPinned() ? "gray.50" : undefined
+                }
+                position={header.column.getIsPinned() ? "sticky" : "relative"}
+                zIndex={header.column.getIsPinned() ? 1 : 0}
+                // styling resize and pinning end
               >
-                <Flex alignItems={"center"} gap={"0.5rem"} padding={"0.5rem"}>
+                <Flex
+                  alignItems={"center"}
+                  gap={"0.5rem"}
+                  padding={"0.5rem"}
+                  overflow={"scroll"}
+                >
                   <Box>
                     {header.isPlaceholder
                       ? null
@@ -54,6 +81,20 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
                           header.getContext()
                         )}
                   </Box>
+                  <Button
+                    onClick={() => {
+                      header.column.pin("left");
+                    }}
+                  >
+                    {"<="}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      header.column.pin(false);
+                    }}
+                  >
+                    {"X"}
+                  </Button>
                   {header.column.getCanSort() && (
                     <>
                       <Button
@@ -95,7 +136,10 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
                           ? "0.25rem solid black"
                           : "0.25rem solid grey"
                       }
-                      height={"5rem"}
+                      position={"absolute"}
+                      right={"0"}
+                      top={"0"}
+                      height={"100%"}
                       width={"5px"}
                       userSelect={"none"}
                       style={{ touchAction: "none" }}
