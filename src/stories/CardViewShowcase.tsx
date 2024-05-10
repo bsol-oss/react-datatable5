@@ -3,6 +3,7 @@ import { ButtonGroup, ChakraProvider, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../components/DataTable";
 import { EditFilterButton } from "../components/EditFilterButton";
+import { EditOrderButton } from "../components/EditOrderButton";
 import { EditSortingButton } from "../components/EditSortingButton";
 import { EditViewButton } from "../components/EditViewButton";
 import { PageSizeControl } from "../components/PageSizeControl";
@@ -93,6 +94,7 @@ const CardViewShowcase = () => {
           <EditViewButton />
           <EditFilterButton />
           <EditSortingButton />
+          <EditOrderButton />
         </ButtonGroup>
         <TableSelector />
         <TableCardContainer>
