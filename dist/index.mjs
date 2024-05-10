@@ -50,6 +50,7 @@ const DataTable = ({ columns, url, enableRowSelection = true, enableMultiRowSele
         pageSize: 10, //default page size
     });
     const [rowSelection, setRowSelection] = useState({});
+    const [columnOrder, setColumnOrder] = useState([]);
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -89,6 +90,7 @@ const DataTable = ({ columns, url, enableRowSelection = true, enableMultiRowSele
             sorting,
             columnFilters,
             rowSelection,
+            columnOrder,
         },
         defaultColumn: {
             size: 10, //starting column size
@@ -98,16 +100,22 @@ const DataTable = ({ columns, url, enableRowSelection = true, enableMultiRowSele
         enableRowSelection: enableRowSelection,
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
+        onColumnOrderChange: (state) => {
+            setColumnOrder(state);
+        },
     });
     useEffect(() => {
         refreshData();
     }, [pagination, sorting, columnFilters]);
+    useEffect(() => {
+        setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
+    }, []);
     return (jsx(TableContext.Provider, { value: { table: { ...table }, refreshData: refreshData }, children: children }));
 };
 
 const EditViewButton = () => {
     const { table } = useContext(TableContext);
-    return (jsxs(Popover, { placement: "bottom-end", children: [jsx(PopoverTrigger, { children: jsx(IconButton, { "aria-label": "view", icon: jsx(IoMdEye, {}) }) }), jsxs(PopoverContent, { width: "auto", children: [jsx(PopoverArrow, {}), jsx(PopoverBody, { children: jsx(Flex, { flexFlow: "column", gap: "1rem", children: table.getAllLeafColumns().map((column) => {
+    return (jsxs(Popover, { placement: "auto", children: [jsx(PopoverTrigger, { children: jsx(IconButton, { "aria-label": "view", icon: jsx(IoMdEye, {}) }) }), jsxs(PopoverContent, { width: "auto", children: [jsx(PopoverArrow, {}), jsx(PopoverBody, { children: jsx(Flex, { flexFlow: "column", gap: "1rem", children: table.getAllLeafColumns().map((column) => {
                                 return (jsx(FormControl, { width: "auto", children: jsx(Checkbox, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler(), children: column.id }) }, crypto.randomUUID()));
                             }) }) })] })] }));
 };
@@ -136,7 +144,7 @@ const TableFilter = () => {
 };
 
 const EditFilterButton = () => {
-    return (jsxs(Popover, { placement: "bottom-end", children: [jsx(Tooltip, { label: "Filter", children: jsx(PopoverTrigger, { children: jsx(IconButton, { "aria-label": "filter", icon: jsx(MdFilterAlt, {}) }) }) }), jsxs(PopoverContent, { width: "auto", children: [jsx(PopoverArrow, {}), jsx(PopoverBody, { children: jsxs(Flex, { flexFlow: "column", gap: "1rem", children: [jsx(TableFilter, {}), jsx(ResetFilteringButton, {})] }) })] })] }));
+    return (jsxs(Popover, { placement: "auto", children: [jsx(Tooltip, { label: "Filter", children: jsx(PopoverTrigger, { children: jsx(IconButton, { "aria-label": "filter", icon: jsx(MdFilterAlt, {}) }) }) }), jsxs(PopoverContent, { width: "auto", children: [jsx(PopoverArrow, {}), jsx(PopoverBody, { children: jsxs(Flex, { flexFlow: "column", gap: "1rem", children: [jsx(TableFilter, {}), jsx(ResetFilteringButton, {})] }) })] })] }));
 };
 
 const ResetSortingButton = () => {
@@ -164,7 +172,7 @@ const TableSorter = () => {
 };
 
 const EditSortingButton = () => {
-    return (jsxs(Popover, { placement: "bottom-end", children: [jsx(Tooltip, { label: "Filter", children: jsx(PopoverTrigger, { children: jsx(IconButton, { "aria-label": "filter", icon: jsx(MdOutlineSort, {}) }) }) }), jsxs(PopoverContent, { width: "auto", children: [jsx(PopoverArrow, {}), jsx(PopoverBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) })] })] }));
+    return (jsxs(Popover, { placement: "auto", children: [jsx(Tooltip, { label: "Filter", children: jsx(PopoverTrigger, { children: jsx(IconButton, { "aria-label": "filter", icon: jsx(MdOutlineSort, {}) }) }) }), jsxs(PopoverContent, { width: "auto", children: [jsx(PopoverArrow, {}), jsx(PopoverBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) })] })] }));
 };
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
@@ -209,9 +217,11 @@ const TableCards = () => {
 
 const TableFooter = () => {
     const table = useDataTable().table;
-    return (jsx(Tfoot, { children: table.getFooterGroups().map((footerGroup) => (jsx(Tr$1, { children: footerGroup.headers.map((header) => (jsx(Th, { colSpan: header.colSpan, children: header.isPlaceholder
-                    ? null
-                    : flexRender(header.column.columnDef.footer, header.getContext()) }, crypto.randomUUID()))) }, crypto.randomUUID()))) }));
+    return (jsx(Tfoot, { children: table.getFooterGroups().map((footerGroup) => (jsxs(Tr$1, { children: [jsx(Th, { padding: "0.5rem", children: jsx(Checkbox, { isChecked: table.getIsAllRowsSelected(),
+                        // indeterminate: table.getIsSomeRowsSelected(),
+                        onChange: table.getToggleAllRowsSelectedHandler() }) }), footerGroup.headers.map((header) => (jsx(Th, { colSpan: header.colSpan, children: header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.footer, header.getContext()) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
 };
 
 const TableHeader = ({ canResize }) => {
