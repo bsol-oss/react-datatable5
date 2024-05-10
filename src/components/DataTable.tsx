@@ -44,6 +44,7 @@ export const DataTable = <TData,>({
     pageSize: 10, //default page size
   });
   const [rowSelection, setRowSelection] = useState({});
+  const [columnOrder, setColumnOrder] = useState<string[]>([]);
 
   const { data, loading, hasError, refreshData } = useDataFromUrl<
     DataResponse<TData>
@@ -90,6 +91,7 @@ export const DataTable = <TData,>({
       sorting,
       columnFilters,
       rowSelection,
+      columnOrder,
     },
     defaultColumn: {
       size: 10, //starting column size
@@ -99,11 +101,18 @@ export const DataTable = <TData,>({
     enableRowSelection: enableRowSelection,
     enableMultiRowSelection: enableMultiRowSelection,
     enableSubRowSelection: enableSubRowSelection,
+    onColumnOrderChange: (state) => {
+      setColumnOrder(state);
+    },
   });
 
   useEffect(() => {
     refreshData();
   }, [pagination, sorting, columnFilters]);
+
+  useEffect(() => {
+    setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
+  }, []);
 
   return (
     <TableContext.Provider
