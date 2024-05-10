@@ -3,7 +3,9 @@ import { flexRender } from "@tanstack/react-table";
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 
-export const TableCards = () => {
+export interface TableCardsProps {}
+
+export const TableCards = ({}: TableCardsProps) => {
   const { table } = useContext(TableContext);
 
   return (
@@ -23,13 +25,7 @@ export const TableCards = () => {
               {row.getVisibleCells().map((cell) => {
                 return (
                   <Box>
-                    <Text>{`${cell.column.id}: `}</Text>
-                    <Box>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </Box>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Box>
                 );
               })}
