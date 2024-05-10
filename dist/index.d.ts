@@ -49,7 +49,9 @@ interface TableCardContainerProps {
 }
 declare const TableCardContainer: ({ children, ...props }: TableCardContainerProps) => react_jsx_runtime.JSX.Element;
 
-declare const TableCards: () => react_jsx_runtime.JSX.Element;
+interface TableCardsProps {
+}
+declare const TableCards: ({}: TableCardsProps) => react_jsx_runtime.JSX.Element;
 
 declare const TableFilter: () => react_jsx_runtime.JSX.Element;
 
@@ -90,4 +92,4 @@ interface TextCellProps {
 }
 declare const TextCell: ({ label, children }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
-export { type DataResponse, DataTable, type DataTableProps, EditFilterButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TablePagination, type TableProps, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, EditFilterButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TablePagination, type TableProps, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };

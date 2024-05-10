@@ -205,14 +205,14 @@ const TableCardContainer = ({ children, ...props }) => {
     return (jsxRuntime.jsx(react$1.Grid, { gridTemplateColumns: ["1fr", "1fr 1fr", "1fr 1fr 1fr"], gap: "0.5rem", ...props, children: children }));
 };
 
-const TableCards = () => {
+const TableCards = ({}) => {
     const { table } = react.useContext(TableContext);
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getRowModel().rows.map((row) => {
             return (jsxRuntime.jsx(react$1.Card, { children: jsxRuntime.jsxs(react$1.CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [jsxRuntime.jsx(react$1.Checkbox, { isChecked: row.getIsSelected(),
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
                             onChange: row.getToggleSelectedHandler() }), row.getVisibleCells().map((cell) => {
-                            return (jsxRuntime.jsxs(react$1.Box, { children: [jsxRuntime.jsx(react$1.Text, { children: `${cell.column.id}: ` }), jsxRuntime.jsx(react$1.Box, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) })] }));
+                            return (jsxRuntime.jsx(react$1.Box, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }));
                         })] }) }, crypto.randomUUID()));
         }) }));
 };
