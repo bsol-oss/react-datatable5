@@ -1,5 +1,11 @@
 # React Datatable
 
+## Installation
+
+```bash
+npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
+```
+
 ## Usage
 
 ```tsx
