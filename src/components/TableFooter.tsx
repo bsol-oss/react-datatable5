@@ -56,14 +56,12 @@ export const TableFooter = () => {
               }}
               // styling resize and pinning end
             >
-              <Button variant={"unstyled"}>
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.footer,
-                      header.getContext()
-                    )}
-              </Button>
+              {header.isPlaceholder
+                ? null
+                : flexRender(
+                    header.column.columnDef.footer,
+                    header.getContext()
+                  )}
             </Th>
           ))}
         </Tr>
