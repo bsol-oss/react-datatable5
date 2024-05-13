@@ -1,18 +1,16 @@
-// import React from 'react';
-import { Box, ChakraProvider, theme } from "@chakra-ui/react";
+import { ButtonGroup, ChakraProvider, Flex, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { DataTableServer } from "../components/DataTableServer";
-import { EditViewButton } from "../components/EditViewButton";
-import { PageSizeControl } from "../components/PageSizeControl";
-import { ResetFilteringButton } from "../components/ResetFilteringButton";
-import { ResetSortingButton } from "../components/ResetSortingButton";
-import { Table } from "../components/Table";
-import { TableBody } from "../components/TableBody";
-import { TableFilter } from "../components/TableFilter";
-import { TableFooter } from "../components/TableFooter";
-import { TableHeader } from "../components/TableHeader";
-import { TablePagination } from "../components/TablePagination";
-import { TextCell } from "../components/TextCell";
+import { DataTableServer } from "../../components/DataTableServer";
+import { EditFilterButton } from "../../components/EditFilterButton";
+import { EditOrderButton } from "../../components/EditOrderButton";
+import { EditSortingButton } from "../../components/EditSortingButton";
+import { EditViewButton } from "../../components/EditViewButton";
+import { PageSizeControl } from "../../components/PageSizeControl";
+import { TableCardContainer } from "../../components/TableCardContainer";
+import { TableCards } from "../../components/TableCards";
+import { TablePagination } from "../../components/TablePagination";
+import { TableSelector } from "../../components/TableSelector";
+import { TextCell } from "../../components/TextCell";
 
 interface ChatRecord {
   session_id: string;
@@ -33,13 +31,13 @@ interface RowActionsProps {
 }
 
 const RowActions = ({ row }: RowActionsProps) => {
-  return <>has no actions</>;
+  return <>no actions</>;
 };
 
-const TableViewShowcase = () => {
+const CardViewShowcase = () => {
   const columnHelper = createColumnHelper<ChatRecord>();
 
-  const columns: ColumnDef<ChatRecord>[] = [
+  const columns: ColumnDef<ChatRecord, unknown>[] = [
     // Display Column
     columnHelper.display({
       id: "actions",
@@ -54,11 +52,7 @@ const TableViewShowcase = () => {
       columns: [
         columnHelper.accessor("session_id", {
           cell: (props) => {
-            return (
-              <TextCell label={props.row.original.session_id}>
-                {props.row.original.session_id}
-              </TextCell>
-            );
+            return <TextCell>{`${props.row.original.session_id}`}</TextCell>;
           },
           header: () => <span>Session Id</span>,
           footer: (props) => props.column.id,
@@ -66,15 +60,13 @@ const TableViewShowcase = () => {
         columnHelper.accessor("last_user_message", {
           cell: (props) => {
             return (
-              <Box padding={"0rem"}>
-                <TextCell label={props.row.original.last_user_message}>
-                  {props.row.original.last_user_message}
-                </TextCell>
-              </Box>
+              <TextCell label={props.row.original.last_user_message}>
+                {props.row.original.last_user_message}
+              </TextCell>
             );
           },
-          size: 400,
-          header: () => <Box>User Message</Box>,
+
+          header: () => <span>User Message</span>,
           footer: (props) => props.column.id,
         }),
         // Accessor Column
@@ -96,20 +88,26 @@ const TableViewShowcase = () => {
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
       >
-        <EditViewButton />
-        <ResetSortingButton />
-        <TableFilter />
-        <ResetFilteringButton />
-        <Table>
-          <TableHeader canResize />
-          <TableBody />
-          <TableFooter />
-        </Table>
-        <PageSizeControl />
+        <Flex gap='0.25rem'>
+          <TablePagination />
+          <ButtonGroup isAttached>
+            <EditViewButton />
+            <EditFilterButton />
+            <EditSortingButton />
+          </ButtonGroup>
+          <EditOrderButton />
+          <PageSizeControl />
+          <ButtonGroup isAttached>
+            <TableSelector />
+          </ButtonGroup>
+        </Flex>
+        <TableCardContainer>
+          <TableCards />
+        </TableCardContainer>
         <TablePagination />
       </DataTableServer>
     </ChakraProvider>
   );
 };
 
-export default TableViewShowcase;
+export default CardViewShowcase;
