@@ -1,5 +1,5 @@
 // import React from 'react';
-import { ChakraProvider, theme } from "@chakra-ui/react";
+import { Box, ChakraProvider, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../components/DataTable";
 import { EditViewButton } from "../components/EditViewButton";
@@ -66,13 +66,15 @@ const TableViewShowcase = () => {
         columnHelper.accessor("last_user_message", {
           cell: (props) => {
             return (
-              <TextCell label={props.row.original.last_user_message}>
-                {props.row.original.last_user_message}
-              </TextCell>
+              <Box padding={"0rem"}>
+                <TextCell label={props.row.original.last_user_message}>
+                  {props.row.original.last_user_message}
+                </TextCell>
+              </Box>
             );
           },
 
-          header: () => <span>User Message</span>,
+          header: () => <Box>User Message</Box>,
           footer: (props) => props.column.id,
         }),
         // Accessor Column
@@ -99,7 +101,7 @@ const TableViewShowcase = () => {
         <TableFilter />
         <ResetFilteringButton />
         <Table>
-          <TableHeader canResize/>
+          <TableHeader canResize />
           <TableBody />
           <TableFooter />
         </Table>
