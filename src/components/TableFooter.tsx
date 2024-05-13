@@ -1,4 +1,4 @@
-import { Button, Checkbox, Tfoot, Th, Tr } from "@chakra-ui/react";
+import { Checkbox, Tfoot, Th, Tr } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
 import { useDataTable } from "./useDataTable";
 
@@ -55,6 +55,8 @@ export const TableFooter = () => {
                   : undefined,
               }}
               // styling resize and pinning end
+              display={"flex"}
+              alignItems={"center"}
             >
               {header.isPlaceholder
                 ? null
