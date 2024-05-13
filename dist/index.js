@@ -312,7 +312,9 @@ const TableFooter = () => {
                         backgroundColor: header.column.getIsPinned()
                             ? "gray.700"
                             : undefined,
-                    }, children: header.isPlaceholder
+                    }, 
+                    // styling resize and pinning end
+                    display: "flex", alignItems: "center", children: header.isPlaceholder
                         ? null
                         : reactTable.flexRender(header.column.columnDef.footer, header.getContext()) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
 };
