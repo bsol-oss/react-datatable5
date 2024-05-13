@@ -78,8 +78,6 @@ const TableViewShowcase = () => {
           <TableBody />
           <TableFooter />
         </Table>
-        <PageSizeControl />
-        <TablePagination />
       </DataTable>
     </ChakraProvider>
   );

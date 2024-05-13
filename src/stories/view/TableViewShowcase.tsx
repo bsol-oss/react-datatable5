@@ -1,17 +1,24 @@
 // import React from 'react';
-import { Box, ChakraProvider, theme } from "@chakra-ui/react";
+import {
+  Box,
+  ButtonGroup,
+  ChakraProvider,
+  Flex,
+  theme,
+} from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
+import { EditFilterButton } from "../../components/EditFilterButton";
+import { EditOrderButton } from "../../components/EditOrderButton";
+import { EditSortingButton } from "../../components/EditSortingButton";
 import { EditViewButton } from "../../components/EditViewButton";
 import { PageSizeControl } from "../../components/PageSizeControl";
-import { ResetFilteringButton } from "../../components/ResetFilteringButton";
-import { ResetSortingButton } from "../../components/ResetSortingButton";
 import { Table } from "../../components/Table";
 import { TableBody } from "../../components/TableBody";
-import { TableFilter } from "../../components/TableFilter";
 import { TableFooter } from "../../components/TableFooter";
 import { TableHeader } from "../../components/TableHeader";
 import { TablePagination } from "../../components/TablePagination";
+import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
 
 interface ChatRecord {
@@ -96,10 +103,19 @@ const TableViewShowcase = () => {
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
       >
-        <EditViewButton />
-        <ResetSortingButton />
-        <TableFilter />
-        <ResetFilteringButton />
+        <Flex gap="0.25rem">
+          <TablePagination />
+          <ButtonGroup isAttached>
+            <EditViewButton />
+            <EditFilterButton />
+            <EditSortingButton />
+          </ButtonGroup>
+          <EditOrderButton />
+          <PageSizeControl />
+          <ButtonGroup isAttached>
+            <TableSelector />
+          </ButtonGroup>
+        </Flex>
         <Table>
           <TableHeader canResize />
           <TableBody />

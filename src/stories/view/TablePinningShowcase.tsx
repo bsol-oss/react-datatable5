@@ -1,5 +1,5 @@
 // import React from 'react';
-import { ChakraProvider, theme } from "@chakra-ui/react";
+import { ButtonGroup, ChakraProvider, Flex, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
 import { EditViewButton } from "../../components/EditViewButton";
@@ -13,6 +13,10 @@ import { TableFooter } from "../../components/TableFooter";
 import { TableHeader } from "../../components/TableHeader";
 import { TablePagination } from "../../components/TablePagination";
 import { TextCell } from "../../components/TextCell";
+import { EditFilterButton } from "../../components/EditFilterButton";
+import { EditOrderButton } from "../../components/EditOrderButton";
+import { EditSortingButton } from "../../components/EditSortingButton";
+import { TableSelector } from "../../components/TableSelector";
 
 interface ChatRecord {
   session_id: string;
@@ -116,17 +120,22 @@ const TablePinningShowcase = () => {
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
       >
-        <EditViewButton />
-        <ResetSortingButton />
-        <TableFilter />
-        <ResetFilteringButton />
-        <Table >
-          <TableHeader canResize/>
+        <Flex gap="0.25rem">
+          <TablePagination />
+          <ButtonGroup isAttached>
+            <EditViewButton />
+          </ButtonGroup>
+          <EditOrderButton />
+          <PageSizeControl />
+          <ButtonGroup isAttached>
+            <TableSelector />
+          </ButtonGroup>
+        </Flex>
+        <Table>
+          <TableHeader canResize />
           <TableBody />
           <TableFooter />
         </Table>
-        <PageSizeControl />
-        <TablePagination />
       </DataTableServer>
     </ChakraProvider>
   );
