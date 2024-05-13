@@ -23,7 +23,6 @@ export const TextCell = ({ label, children }: TextCellProps) => {
       >
         <Text
           as="span"
-          overflow="hidden"
           textOverflow={"ellipsis"}
           noOfLines={[1, 2, 3]}
         >
