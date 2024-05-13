@@ -88,14 +88,14 @@ const CardViewShowcase = () => {
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
       >
-        <Flex>
+        <Flex gap='0.25rem'>
           <TablePagination />
           <ButtonGroup isAttached>
             <EditViewButton />
             <EditFilterButton />
             <EditSortingButton />
-            <EditOrderButton />
           </ButtonGroup>
+          <EditOrderButton />
           <PageSizeControl />
           <ButtonGroup isAttached>
             <TableSelector />
@@ -104,7 +104,6 @@ const CardViewShowcase = () => {
         <TableCardContainer>
           <TableCards />
         </TableCardContainer>
-
         <TablePagination />
       </DataTable>
     </ChakraProvider>
