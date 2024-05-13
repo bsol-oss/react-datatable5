@@ -1,5 +1,4 @@
-// import React from 'react';
-import { ButtonGroup, ChakraProvider, theme } from "@chakra-ui/react";
+import { ButtonGroup, ChakraProvider, Flex, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../components/DataTable";
 import { EditFilterButton } from "../components/EditFilterButton";
@@ -89,18 +88,23 @@ const CardViewShowcase = () => {
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
       >
-        <TablePagination />
-        <ButtonGroup isAttached>
-          <EditViewButton />
-          <EditFilterButton />
-          <EditSortingButton />
-          <EditOrderButton />
-        </ButtonGroup>
-        <TableSelector />
+        <Flex>
+          <TablePagination />
+          <ButtonGroup isAttached>
+            <EditViewButton />
+            <EditFilterButton />
+            <EditSortingButton />
+            <EditOrderButton />
+          </ButtonGroup>
+          <PageSizeControl />
+          <ButtonGroup isAttached>
+            <TableSelector />
+          </ButtonGroup>
+        </Flex>
         <TableCardContainer>
           <TableCards />
         </TableCardContainer>
-        <PageSizeControl />
+
         <TablePagination />
       </DataTable>
     </ChakraProvider>
