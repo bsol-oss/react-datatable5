@@ -104,6 +104,7 @@ export const DataTable = <TData,>({
     onColumnOrderChange: (state) => {
       setColumnOrder(state);
     },
+    rowCount: data.filterCount
   });
 
   useEffect(() => {
