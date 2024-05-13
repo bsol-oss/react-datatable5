@@ -10,7 +10,7 @@ import {
 import { TableContext } from "./DataTableContext";
 import { useDataFromUrl } from "./useDataFromUrl";
 
-export interface DataTableProps<T> {
+export interface DataTableServerProps<T> {
   children: JSX.Element | JSX.Element[];
   url: string;
   columns: ColumnDef<T, any>[]; // TODO: find the appropriate types
@@ -36,7 +36,7 @@ export const DataTableServer = <TData,>({
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
   children,
-}: DataTableProps<TData>) => {
+}: DataTableServerProps<TData>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]); // can set initial column filter state here
   const [pagination, setPagination] = useState({
@@ -104,7 +104,7 @@ export const DataTableServer = <TData,>({
     onColumnOrderChange: (state) => {
       setColumnOrder(state);
     },
-    rowCount: data.filterCount
+    rowCount: data.filterCount,
   });
 
   useEffect(() => {
