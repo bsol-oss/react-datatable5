@@ -1,9 +1,8 @@
 import {
-  Button,
-  ButtonGroup,
-  Icon,
-  IconButton,
   Box,
+  Button,
+  Icon,
+  IconButton
 } from "@chakra-ui/react";
 import { useContext } from "react";
 import { IoMdCheckbox } from "react-icons/io";
