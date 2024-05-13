@@ -2,7 +2,7 @@ import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import axios from 'axios';
-import { Popover, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, FormControl, Checkbox, Button, Box, Text, Input, Tooltip, Select, Container, Table as Table$1, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Menu, MenuButton, Portal, MenuList, MenuItem, ButtonGroup } from '@chakra-ui/react';
+import { Popover, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, FormControl, Checkbox, Button, Box, Text, Input, Tooltip, Menu, MenuButton, MenuList, MenuItem, Container, Table as Table$1, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup } from '@chakra-ui/react';
 import { IoMdEye, IoMdClose } from 'react-icons/io';
 import { MdFilterAlt, MdOutlineSort, MdPushPin, MdCancel, MdSort, MdFilterListAlt, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage } from 'react-icons/md';
 import { ChevronUpIcon, UpDownIcon, ChevronDownIcon, CloseIcon } from '@chakra-ui/icons';
@@ -12,6 +12,57 @@ const TableContext = createContext({
     table: {},
     refreshData: () => { },
 });
+
+const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
+    const [sorting, setSorting] = useState([]);
+    const [columnFilters, setColumnFilters] = useState([]); // can set initial column filter state here
+    const [pagination, setPagination] = useState({
+        pageIndex: 0, //initial page index
+        pageSize: 10, //default page size
+    });
+    const [rowSelection, setRowSelection] = useState({});
+    const [columnOrder, setColumnOrder] = useState([]);
+    const table = useReactTable({
+        data: data,
+        columns: columns,
+        getCoreRowModel: getCoreRowModel(),
+        manualPagination: true,
+        manualSorting: true,
+        onPaginationChange: setPagination,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        columnResizeMode: "onChange",
+        onRowSelectionChange: setRowSelection,
+        state: {
+            pagination,
+            sorting,
+            columnFilters,
+            rowSelection,
+            columnOrder,
+        },
+        defaultColumn: {
+            size: 150, //starting column size
+            minSize: 10, //enforced during column resizing
+            maxSize: 10000, //enforced during column resizing
+        },
+        enableRowSelection: enableRowSelection,
+        enableMultiRowSelection: enableMultiRowSelection,
+        enableSubRowSelection: enableSubRowSelection,
+        onColumnOrderChange: (state) => {
+            setColumnOrder(state);
+        },
+        rowCount: data.filterCount,
+    });
+    useEffect(() => {
+        setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
+    }, []);
+    return (jsx(TableContext.Provider, { value: {
+            table: { ...table },
+            refreshData: () => {
+                throw new Error("not implemented");
+            },
+        }, children: children }));
+};
 
 const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     const [loading, setLoading] = useState(true);
@@ -42,7 +93,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     return { data, loading, hasError, refreshData };
 };
 
-const DataTable = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
+const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
     const [sorting, setSorting] = useState([]);
     const [columnFilters, setColumnFilters] = useState([]); // can set initial column filter state here
     const [pagination, setPagination] = useState({
@@ -103,6 +154,7 @@ const DataTable = ({ columns, url, enableRowSelection = true, enableMultiRowSele
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
         },
+        rowCount: data.filterCount,
     });
     useEffect(() => {
         refreshData();
@@ -177,9 +229,7 @@ const EditSortingButton = () => {
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = useContext(TableContext);
-    return (jsx(Select, { value: table.getState().pagination.pageSize, onChange: (e) => {
-            table.setPageSize(Number(e.target.value));
-        }, children: pageSizes.map((pageSize) => (jsx("option", { value: pageSize, children: pageSize }, pageSize))) }));
+    return (jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Button, rightIcon: jsx(ChevronDownIcon, {}), children: table.getState().pagination.pageSize }), jsx(MenuList, { children: pageSizes.map((pageSize) => (jsx(MenuItem, { onClick: () => { table.setPageSize(Number(pageSize)); }, children: pageSize }))) })] }) }));
 };
 
 const Table = ({ children }) => {
@@ -260,9 +310,9 @@ const TableFooter = () => {
                         backgroundColor: header.column.getIsPinned()
                             ? "gray.700"
                             : undefined,
-                    }, children: jsx(Button, { variant: "unstyled", children: header.isPlaceholder
-                            ? null
-                            : flexRender(header.column.columnDef.footer, header.getContext()) }) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
+                    }, children: header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.footer, header.getContext()) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
 };
 
 const TableHeader = ({ canResize }) => {
@@ -319,7 +369,7 @@ const TableHeader = ({ canResize }) => {
 
 const TablePagination = ({}) => {
     const { firstPage, getCanPreviousPage, previousPage, getState, nextPage, getCanNextPage, lastPage, } = useDataTable().table;
-    return (jsxs(ButtonGroup, { isAttached: true, children: [jsx(IconButton, { icon: jsx(MdFirstPage, {}), onClick: () => firstPage(), disabled: !getCanPreviousPage(), "aria-label": "first-page" }), jsx(IconButton, { icon: jsx(MdArrowBack, {}), onClick: () => previousPage(), disabled: !getCanPreviousPage(), "aria-label": "previous-page" }), jsx(Button, { onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsx(IconButton, { onClick: () => nextPage(), disabled: !getCanNextPage(), "aria-label": "next-page", children: jsx(MdArrowForward, {}) }), jsx(IconButton, { onClick: () => lastPage(), disabled: !getCanNextPage(), "aria-label": "last-page", children: jsx(MdLastPage, {}) })] }));
+    return (jsxs(ButtonGroup, { isAttached: true, children: [jsx(IconButton, { icon: jsx(MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page" }), jsx(IconButton, { icon: jsx(MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page" }), jsx(Button, { onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsx(IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", children: jsx(MdArrowForward, {}) }), jsx(IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", children: jsx(MdLastPage, {}) })] }));
 };
 
 const TextCell = ({ label, children }) => {
@@ -329,4 +379,4 @@ const TextCell = ({ label, children }) => {
     return (jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }));
 };
 
-export { DataTable, EditFilterButton, EditSortingButton, EditViewButton, PageSizeControl, ResetFilteringButton, ResetSortingButton, Table, TableBody, TableCardContainer, TableCards, TableFilter, TableFooter, TableHeader, TablePagination, TableSorter, TextCell, useDataFromUrl, useDataTable };
+export { DataTable, DataTableServer, EditFilterButton, EditSortingButton, EditViewButton, PageSizeControl, ResetFilteringButton, ResetSortingButton, Table, TableBody, TableCardContainer, TableCards, TableFilter, TableFooter, TableHeader, TablePagination, TableSorter, TextCell, useDataFromUrl, useDataTable };

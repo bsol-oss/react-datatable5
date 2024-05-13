@@ -1,4 +1,5 @@
 export * from "./components/DataTable";
+export * from "./components/DataTableServer";
 export * from "./components/EditViewButton";
 export * from "./components/EditFilterButton";
 export * from "./components/EditSortingButton";

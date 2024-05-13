@@ -15,6 +15,57 @@ const TableContext = react.createContext({
     refreshData: () => { },
 });
 
+const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
+    const [sorting, setSorting] = react.useState([]);
+    const [columnFilters, setColumnFilters] = react.useState([]); // can set initial column filter state here
+    const [pagination, setPagination] = react.useState({
+        pageIndex: 0, //initial page index
+        pageSize: 10, //default page size
+    });
+    const [rowSelection, setRowSelection] = react.useState({});
+    const [columnOrder, setColumnOrder] = react.useState([]);
+    const table = reactTable.useReactTable({
+        data: data,
+        columns: columns,
+        getCoreRowModel: reactTable.getCoreRowModel(),
+        manualPagination: true,
+        manualSorting: true,
+        onPaginationChange: setPagination,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        columnResizeMode: "onChange",
+        onRowSelectionChange: setRowSelection,
+        state: {
+            pagination,
+            sorting,
+            columnFilters,
+            rowSelection,
+            columnOrder,
+        },
+        defaultColumn: {
+            size: 150, //starting column size
+            minSize: 10, //enforced during column resizing
+            maxSize: 10000, //enforced during column resizing
+        },
+        enableRowSelection: enableRowSelection,
+        enableMultiRowSelection: enableMultiRowSelection,
+        enableSubRowSelection: enableSubRowSelection,
+        onColumnOrderChange: (state) => {
+            setColumnOrder(state);
+        },
+        rowCount: data.filterCount,
+    });
+    react.useEffect(() => {
+        setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
+    }, []);
+    return (jsxRuntime.jsx(TableContext.Provider, { value: {
+            table: { ...table },
+            refreshData: () => {
+                throw new Error("not implemented");
+            },
+        }, children: children }));
+};
+
 const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     const [loading, setLoading] = react.useState(true);
     const [hasError, setHasError] = react.useState(false);
@@ -44,7 +95,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     return { data, loading, hasError, refreshData };
 };
 
-const DataTable = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
+const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
     const [sorting, setSorting] = react.useState([]);
     const [columnFilters, setColumnFilters] = react.useState([]); // can set initial column filter state here
     const [pagination, setPagination] = react.useState({
@@ -105,6 +156,7 @@ const DataTable = ({ columns, url, enableRowSelection = true, enableMultiRowSele
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
         },
+        rowCount: data.filterCount,
     });
     react.useEffect(() => {
         refreshData();
@@ -179,9 +231,7 @@ const EditSortingButton = () => {
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = react.useContext(TableContext);
-    return (jsxRuntime.jsx(react$1.Select, { value: table.getState().pagination.pageSize, onChange: (e) => {
-            table.setPageSize(Number(e.target.value));
-        }, children: pageSizes.map((pageSize) => (jsxRuntime.jsx("option", { value: pageSize, children: pageSize }, pageSize))) }));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(react$1.Menu, { children: [jsxRuntime.jsx(react$1.MenuButton, { as: react$1.Button, rightIcon: jsxRuntime.jsx(icons.ChevronDownIcon, {}), children: table.getState().pagination.pageSize }), jsxRuntime.jsx(react$1.MenuList, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(react$1.MenuItem, { onClick: () => { table.setPageSize(Number(pageSize)); }, children: pageSize }))) })] }) }));
 };
 
 const Table = ({ children }) => {
@@ -262,9 +312,9 @@ const TableFooter = () => {
                         backgroundColor: header.column.getIsPinned()
                             ? "gray.700"
                             : undefined,
-                    }, children: jsxRuntime.jsx(react$1.Button, { variant: "unstyled", children: header.isPlaceholder
-                            ? null
-                            : reactTable.flexRender(header.column.columnDef.footer, header.getContext()) }) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
+                    }, children: header.isPlaceholder
+                        ? null
+                        : reactTable.flexRender(header.column.columnDef.footer, header.getContext()) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
 };
 
 const TableHeader = ({ canResize }) => {
@@ -321,7 +371,7 @@ const TableHeader = ({ canResize }) => {
 
 const TablePagination = ({}) => {
     const { firstPage, getCanPreviousPage, previousPage, getState, nextPage, getCanNextPage, lastPage, } = useDataTable().table;
-    return (jsxRuntime.jsxs(react$1.ButtonGroup, { isAttached: true, children: [jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdFirstPage, {}), onClick: () => firstPage(), disabled: !getCanPreviousPage(), "aria-label": "first-page" }), jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdArrowBack, {}), onClick: () => previousPage(), disabled: !getCanPreviousPage(), "aria-label": "previous-page" }), jsxRuntime.jsx(react$1.Button, { onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => nextPage(), disabled: !getCanNextPage(), "aria-label": "next-page", children: jsxRuntime.jsx(md.MdArrowForward, {}) }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => lastPage(), disabled: !getCanNextPage(), "aria-label": "last-page", children: jsxRuntime.jsx(md.MdLastPage, {}) })] }));
+    return (jsxRuntime.jsxs(react$1.ButtonGroup, { isAttached: true, children: [jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page" }), jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page" }), jsxRuntime.jsx(react$1.Button, { onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", children: jsxRuntime.jsx(md.MdArrowForward, {}) }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", children: jsxRuntime.jsx(md.MdLastPage, {}) })] }));
 };
 
 const TextCell = ({ label, children }) => {
@@ -332,6 +382,7 @@ const TextCell = ({ label, children }) => {
 };
 
 exports.DataTable = DataTable;
+exports.DataTableServer = DataTableServer;
 exports.EditFilterButton = EditFilterButton;
 exports.EditSortingButton = EditSortingButton;
 exports.EditViewButton = EditViewButton;

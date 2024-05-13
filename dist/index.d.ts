@@ -6,6 +6,16 @@ import * as _tanstack_table_core from '@tanstack/table-core';
 
 interface DataTableProps<T> {
     children: JSX.Element | JSX.Element[];
+    data: T[];
+    columns: ColumnDef<T, any>[];
+    enableRowSelection?: boolean;
+    enableMultiRowSelection?: boolean;
+    enableSubRowSelection?: boolean;
+}
+declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
+
+interface DataTableServerProps<T> {
+    children: JSX.Element | JSX.Element[];
     url: string;
     columns: ColumnDef<T, any>[];
     enableRowSelection?: boolean;
@@ -20,7 +30,7 @@ interface DataResponse<T> extends Result<T> {
     count: number;
     filterCount: number;
 }
-declare const DataTable: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
 declare const EditViewButton: () => react_jsx_runtime.JSX.Element;
 
@@ -92,4 +102,4 @@ interface TextCellProps {
 }
 declare const TextCell: ({ label, children }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
-export { type DataResponse, DataTable, type DataTableProps, EditFilterButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TablePagination, type TableProps, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, EditFilterButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TablePagination, type TableProps, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
