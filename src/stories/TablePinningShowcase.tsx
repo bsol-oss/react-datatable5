@@ -1,7 +1,7 @@
 // import React from 'react';
 import { ChakraProvider, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { DataTable } from "../components/DataTable";
+import { DataTableServer } from "../components/DataTableServer";
 import { EditViewButton } from "../components/EditViewButton";
 import { PageSizeControl } from "../components/PageSizeControl";
 import { ResetFilteringButton } from "../components/ResetFilteringButton";
@@ -112,7 +112,7 @@ const TablePinningShowcase = () => {
   ];
   return (
     <ChakraProvider theme={theme}>
-      <DataTable
+      <DataTableServer
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
       >
@@ -127,7 +127,7 @@ const TablePinningShowcase = () => {
         </Table>
         <PageSizeControl />
         <TablePagination />
-      </DataTable>
+      </DataTableServer>
     </ChakraProvider>
   );
 };
