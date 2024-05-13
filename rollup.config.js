@@ -13,7 +13,7 @@ export default [
         format: "es",
       },
     ],
-    plugins: [typescript()],
+    plugins: [typescript({ exclude: "./src/stories/**/*" })],
   },
   {
     input: "./dist/types/index.d.ts",
