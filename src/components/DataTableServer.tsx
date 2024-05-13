@@ -29,7 +29,7 @@ export interface DataResponse<T> extends Result<T> {
   filterCount: number;
 }
 
-export const DataTable = <TData,>({
+export const DataTableServer = <TData,>({
   columns,
   url,
   enableRowSelection = true,
