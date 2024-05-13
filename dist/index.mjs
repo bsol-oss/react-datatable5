@@ -2,9 +2,9 @@ import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import axios from 'axios';
-import { Popover, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, FormControl, Checkbox, Button, Box, Text, Input, Tooltip, Select, Container, Table as Table$1, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, ButtonGroup } from '@chakra-ui/react';
-import { IoMdEye } from 'react-icons/io';
-import { MdFilterAlt, MdOutlineSort, MdFilterListAlt, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage } from 'react-icons/md';
+import { Popover, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, FormControl, Checkbox, Button, Box, Text, Input, Tooltip, Select, Container, Table as Table$1, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Menu, MenuButton, Portal, MenuList, MenuItem, ButtonGroup } from '@chakra-ui/react';
+import { IoMdEye, IoMdClose } from 'react-icons/io';
+import { MdFilterAlt, MdOutlineSort, MdPushPin, MdCancel, MdSort, MdFilterListAlt, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage } from 'react-icons/md';
 import { ChevronUpIcon, UpDownIcon, ChevronDownIcon, CloseIcon } from '@chakra-ui/icons';
 import { Tbody, Tr, Td } from '@chakra-ui/table';
 
@@ -93,7 +93,7 @@ const DataTable = ({ columns, url, enableRowSelection = true, enableMultiRowSele
             columnOrder,
         },
         defaultColumn: {
-            size: 100, //starting column size
+            size: 150, //starting column size
             minSize: 10, //enforced during column resizing
             maxSize: 10000, //enforced during column resizing
         },
@@ -190,11 +190,19 @@ const Table = ({ children }) => {
 const TableBody = () => {
     const { table } = useContext(TableContext);
     return (jsx(Tbody, { children: table.getRowModel().rows.map((row) => {
-            return (jsxs(Tr, { display: "flex", children: [jsx(Td
+            return (jsxs(Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, children: [jsx(Td
                     // styling resize and pinning start
                     , { 
                         // styling resize and pinning start
-                        padding: "0.5rem", left: `0px`, backgroundColor: "gray.50", position: "sticky", zIndex: 1, children: jsx(Checkbox, { isChecked: row.getIsSelected(),
+                        padding: "0.5rem", ...(table.getIsSomeColumnsPinned("left")
+                            ? {
+                                left: `0px`,
+                                backgroundColor: "gray.50",
+                                position: "sticky",
+                                zIndex: 1,
+                                _dark: { backgroundColor: "gray.700" },
+                            }
+                            : {}), children: jsx(Checkbox, { isChecked: row.getIsSelected(),
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
                             onChange: row.getToggleSelectedHandler() }) }), row.getVisibleCells().map((cell) => {
@@ -202,7 +210,11 @@ const TableBody = () => {
                             // styling resize and pinning start
                             maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, left: cell.column.getIsPinned()
                                 ? `${cell.column.getStart("left") + 32}px`
-                                : undefined, backgroundColor: cell.column.getIsPinned() ? "gray.50" : "whitealpha.900", position: cell.column.getIsPinned() ? "sticky" : "relative", zIndex: cell.column.getIsPinned() ? 1 : -1, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID()));
+                                : undefined, backgroundColor: cell.column.getIsPinned() ? "gray.50" : undefined, position: cell.column.getIsPinned() ? "sticky" : "relative", zIndex: cell.column.getIsPinned() ? 1 : 0, _dark: {
+                                backgroundColor: cell.column.getIsPinned()
+                                    ? "gray.700"
+                                    : undefined,
+                            }, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID()));
                     })] }, crypto.randomUUID()));
         }) }));
 };
@@ -230,15 +242,27 @@ const TableFooter = () => {
                 // styling resize and pinning start
                 , { 
                     // styling resize and pinning start
-                    padding: "0.5rem", left: `0px`, backgroundColor: "gray.50", position: "sticky", zIndex: 1, children: jsx(Checkbox, { isChecked: table.getIsAllRowsSelected(),
+                    padding: "0.5rem", ...(table.getIsSomeColumnsPinned("left")
+                        ? {
+                            left: `0px`,
+                            backgroundColor: "gray.50",
+                            position: "sticky",
+                            zIndex: 1,
+                            _dark: { backgroundColor: "gray.700" },
+                        }
+                        : {}), children: jsx(Checkbox, { isChecked: table.getIsAllRowsSelected(),
                         // indeterminate: table.getIsSomeRowsSelected(),
                         onChange: table.getToggleAllRowsSelectedHandler() }) }), footerGroup.headers.map((header) => (jsx(Th, { padding: "0rem", colSpan: header.colSpan, 
                     // styling resize and pinning start
                     maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
                         ? `${header.getStart("left") + SELECTION_BOX_WIDTH}px`
-                        : undefined, backgroundColor: header.column.getIsPinned() ? "gray.50" : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : 0, children: header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.footer, header.getContext()) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
+                        : undefined, backgroundColor: header.column.getIsPinned() ? "gray.50" : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : undefined, _dark: {
+                        backgroundColor: header.column.getIsPinned()
+                            ? "gray.700"
+                            : undefined,
+                    }, children: jsx(Button, { variant: "unstyled", children: header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.footer, header.getContext()) }) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
 };
 
 const TableHeader = ({ canResize }) => {
@@ -248,7 +272,15 @@ const TableHeader = ({ canResize }) => {
                 // styling resize and pinning start
                 , { 
                     // styling resize and pinning start
-                    padding: "0.5rem", left: `0px`, backgroundColor: "gray.50", position: "sticky", zIndex: 1, children: jsx(Checkbox, { isChecked: table.getIsAllRowsSelected(),
+                    padding: "0.5rem", ...(table.getIsSomeColumnsPinned("left")
+                        ? {
+                            left: `0px`,
+                            backgroundColor: "gray.50",
+                            position: "sticky",
+                            zIndex: 1,
+                            _dark: { backgroundColor: "gray.700" },
+                        }
+                        : {}), children: jsx(Checkbox, { isChecked: table.getIsAllRowsSelected(),
                         // indeterminate: table.getIsSomeRowsSelected(),
                         onChange: table.getToggleAllRowsSelectedHandler() }) }), headerGroup.headers.map((header) => {
                     const resizeProps = {
@@ -257,29 +289,31 @@ const TableHeader = ({ canResize }) => {
                         onTouchStart: header.getResizeHandler(),
                         cursor: "col-resize",
                     };
-                    return (jsx(Th, { padding: "0rem", colSpan: header.colSpan, 
+                    return (jsxs(Th, { padding: "0rem", colSpan: header.colSpan, 
                         // styling resize and pinning start
                         maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
                             ? `${header.getStart("left") + SELECTION_BOX_WIDTH}px`
-                            : undefined, backgroundColor: header.column.getIsPinned() ? "gray.50" : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : 0, children: jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", overflow: "scroll", children: [jsx(Box, { children: header.isPlaceholder
-                                        ? null
-                                        : flexRender(header.column.columnDef.header, header.getContext()) }), jsx(Button, { onClick: () => {
-                                        header.column.pin("left");
-                                    }, children: "<=" }), jsx(Button, { onClick: () => {
-                                        header.column.pin(false);
-                                    }, children: "X" }), header.column.getCanSort() && (jsxs(Fragment, { children: [jsxs(Button, { onClick: (e) => {
-                                                header.column.toggleSorting();
-                                            }, children: [header.column.getNextSortingOrder() === false && (
-                                                // <Text>To No sort</Text>
-                                                jsx(ChevronUpIcon, {})), header.column.getNextSortingOrder() === "asc" && (
-                                                // <Text>To asc</Text>
-                                                jsx(UpDownIcon, {})), header.column.getNextSortingOrder() === "desc" && (
-                                                // <Text>To desc</Text>
-                                                jsx(ChevronDownIcon, {}))] }), header.column.getIsSorted() && (jsx(Button, { onClick: (e) => {
-                                                header.column.clearSorting();
-                                            }, children: jsx(CloseIcon, {}) }))] })), header.column.getIsFiltered() && jsx(MdFilterListAlt, {}), canResize && (jsx(Box, { borderRight: header.column.getIsResizing()
-                                        ? "0.25rem solid black"
-                                        : "0.25rem solid grey", position: "absolute", right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, ...resizeProps }))] }) }, crypto.randomUUID()));
+                            : undefined, backgroundColor: header.column.getIsPinned() ? "gray.50" : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : undefined, _dark: {
+                            backgroundColor: header.column.getIsPinned()
+                                ? "gray.700"
+                                : undefined,
+                        }, 
+                        // styling resize and pinning end
+                        display: "grid", children: [jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Box, display: "flex", alignItems: "center", justifyContent: "start", _hover: { backgroundColor: "gray.100" }, _dark: { _hover: { backgroundColor: "gray.700" } }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                                                        ? null
+                                                        : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (jsx(UpDownIcon, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
+                                                            header.column.pin("left");
+                                                        }, children: "Pin Column" })), header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdCancel, {}), onClick: () => {
+                                                            header.column.pin(false);
+                                                        }, children: "Cancel Pin" })), header.column.getCanSort() && (jsxs(Fragment, { children: [jsx(MenuItem, { icon: jsx(MdSort, {}), onClick: () => {
+                                                                    header.column.toggleSorting();
+                                                                }, children: "Toggle Sorting" }), header.column.getIsSorted() && (jsx(MenuItem, { icon: jsx(IoMdClose, {}), onClick: () => {
+                                                                    header.column.clearSorting();
+                                                                }, children: "Clear Sorting" }))] }))] }) })] }) }), header.column.getIsFiltered() && jsx(MdFilterListAlt, {}), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "absolute", right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
+                                    borderRightColor: header.column.getIsResizing()
+                                        ? "gray.700"
+                                        : "gray.400",
+                                }, ...resizeProps }))] }, crypto.randomUUID()));
                 })] }, crypto.randomUUID()))) }));
 };
 
@@ -290,7 +324,7 @@ const TablePagination = ({}) => {
 
 const TextCell = ({ label, children }) => {
     if (label) {
-        return (jsx(Tooltip, { label: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }) }));
+        return (jsx(Tooltip, { label: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", children: jsx(Text, { as: "span", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }) }));
     }
     return (jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }));
 };
