@@ -24,13 +24,13 @@ export const TablePagination = ({}: PaginationProps) => {
       <IconButton
         icon={<MdFirstPage />}
         onClick={() => firstPage()}
-        disabled={!getCanPreviousPage()}
+        isDisabled={!getCanPreviousPage()}
         aria-label={"first-page"}
       ></IconButton>
       <IconButton
         icon={<MdArrowBack />}
         onClick={() => previousPage()}
-        disabled={!getCanPreviousPage()}
+        isDisabled={!getCanPreviousPage()}
         aria-label={"previous-page"}
       ></IconButton>
       <Button onClick={() => {}} disabled={!getCanPreviousPage()}>
@@ -39,14 +39,14 @@ export const TablePagination = ({}: PaginationProps) => {
 
       <IconButton
         onClick={() => nextPage()}
-        disabled={!getCanNextPage()}
+        isDisabled={!getCanNextPage()}
         aria-label={"next-page"}
       >
         <MdArrowForward />
       </IconButton>
       <IconButton
         onClick={() => lastPage()}
-        disabled={!getCanNextPage()}
+        isDisabled={!getCanNextPage()}
         aria-label={"last-page"}
       >
         <MdLastPage />
