@@ -94,7 +94,7 @@ export const DataTable = <TData,>({
       columnOrder,
     },
     defaultColumn: {
-      size: 100, //starting column size
+      size: 150, //starting column size
       minSize: 10, //enforced during column resizing
       maxSize: 10000, //enforced during column resizing
     },
