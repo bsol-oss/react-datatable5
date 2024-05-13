@@ -1,6 +1,13 @@
+import { ChevronDownIcon } from "@chakra-ui/icons";
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList
+} from "@chakra-ui/react";
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
-import { Select } from "@chakra-ui/react";
 
 export interface PageSizeControlProps {
   pageSizes?: number[];
@@ -12,17 +19,19 @@ export const PageSizeControl = ({
   const { table } = useContext(TableContext);
 
   return (
-    <Select
-      value={table.getState().pagination.pageSize}
-      onChange={(e) => {
-        table.setPageSize(Number(e.target.value));
-      }}
-    >
-      {pageSizes.map((pageSize) => (
-        <option key={pageSize} value={pageSize}>
-          {pageSize}
-        </option>
-      ))}
-    </Select>
+    <>
+      <Menu>
+        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+          {table.getState().pagination.pageSize}
+        </MenuButton>
+        <MenuList>
+          {pageSizes.map((pageSize) => (
+            <MenuItem onClick={()=>{ table.setPageSize(Number(pageSize));}}>
+              {pageSize}
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Menu>
+    </>
   );
 };
