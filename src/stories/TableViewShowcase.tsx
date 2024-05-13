@@ -73,7 +73,7 @@ const TableViewShowcase = () => {
               </Box>
             );
           },
-
+          size: 400,
           header: () => <Box>User Message</Box>,
           footer: (props) => props.column.id,
         }),
