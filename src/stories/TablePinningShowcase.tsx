@@ -74,8 +74,8 @@ const TablePinningShowcase = () => {
           </TextCell>
         );
       },
-
       header: () => <span>last_system_response</span>,
+      size: 400,
       footer: (props) => props.column.id,
     }),
     columnHelper.display({
