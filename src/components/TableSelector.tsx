@@ -13,7 +13,7 @@ import { SelectAllRowsToggle } from "./SelectAllRowsToggle";
 export const TableSelector = () => {
   const { table } = useContext(TableContext);
   return (
-    <ButtonGroup isAttached>
+    <>
       {table.getSelectedRowModel().rows.length > 0 && (
         <Button onClick={() => {}} display={"flex"} gap="0.25rem">
           <Box
@@ -32,6 +32,6 @@ export const TableSelector = () => {
           aria-label={"reset selection"}
         ></IconButton>
       )}
-    </ButtonGroup>
+    </>
   );
 };
