@@ -1,6 +1,6 @@
-import { Checkbox, Tfoot, Th, Tr } from "@chakra-ui/react";
-import { useDataTable } from "./useDataTable";
+import { Button, Checkbox, Tfoot, Th, Tr } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
+import { useDataTable } from "./useDataTable";
 
 export const TableFooter = () => {
   const table = useDataTable().table;
@@ -12,10 +12,15 @@ export const TableFooter = () => {
           <Th
             // styling resize and pinning start
             padding={"0.5rem"}
-            left={`0px`}
-            backgroundColor={"gray.50"}
-            position={"sticky"}
-            zIndex={1}
+            {...(table.getIsSomeColumnsPinned("left")
+              ? {
+                  left: `0px`,
+                  backgroundColor: "gray.50",
+                  position: "sticky",
+                  zIndex: 1,
+                  _dark: { backgroundColor: "gray.700" },
+                }
+              : {})}
             // styling resize and pinning end
           >
             <Checkbox
@@ -43,15 +48,22 @@ export const TableFooter = () => {
                 header.column.getIsPinned() ? "gray.50" : undefined
               }
               position={header.column.getIsPinned() ? "sticky" : "relative"}
-              zIndex={header.column.getIsPinned() ? 1 : 0}
+              zIndex={header.column.getIsPinned() ? 1 : undefined}
+              _dark={{
+                backgroundColor: header.column.getIsPinned()
+                  ? "gray.700"
+                  : undefined,
+              }}
               // styling resize and pinning end
             >
-              {header.isPlaceholder
-                ? null
-                : flexRender(
-                    header.column.columnDef.footer,
-                    header.getContext()
-                  )}
+              <Button variant={"unstyled"}>
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.footer,
+                      header.getContext()
+                    )}
+              </Button>
             </Th>
           ))}
         </Tr>
