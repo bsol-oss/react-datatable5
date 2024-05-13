@@ -32,17 +32,22 @@ npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
   columns={columns}
   url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
 >
-  <TablePagination />
-  <ButtonGroup isAttached>
-    <EditViewButton />
-    <EditFilterButton />
-    <EditSortingButton />
-  </ButtonGroup>
-
+  <Flex gap="0.25rem">
+    <TablePagination />
+    <ButtonGroup isAttached>
+      <EditViewButton />
+      <EditFilterButton />
+      <EditSortingButton />
+    </ButtonGroup>
+    <EditOrderButton />
+    <PageSizeControl />
+    <ButtonGroup isAttached>
+      <TableSelector />
+    </ButtonGroup>
+  </Flex>
   <TableCardContainer>
     <TableCards />
   </TableCardContainer>
-  <PageSizeControl />
   <TablePagination />
 </DataTable>
 ```
