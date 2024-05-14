@@ -81,7 +81,7 @@ const TableViewShowcase = () => {
           },
           size: 400,
           header: () => <Box>User Message</Box>,
-          footer: (props) => props.column.id,
+          footer:  () => <Box>User Message</Box>,
         }),
         // Accessor Column
         columnHelper.accessor("total_token", {
@@ -89,7 +89,7 @@ const TableViewShowcase = () => {
             return <TextCell>{props.row.original.total_token}</TextCell>;
           },
           header: () => <span>Total Token</span>,
-          footer: (props) => props.column.id,
+          footer:  () => <span>Total Token</span>,
           sortDescFirst: false,
         }),
       ],
