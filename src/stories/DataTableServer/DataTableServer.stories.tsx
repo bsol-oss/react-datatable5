@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import TableViewShowcase from "../DataTable/TableViewShowcase";
+import TableViewShowcase from "./TableViewShowcase";
 import CardViewShowcase from "./CardViewShowcase";
 import TablePinningShowcase from "./TablePinningShowcase";
 
