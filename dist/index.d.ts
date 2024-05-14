@@ -32,11 +32,13 @@ interface DataResponse<T> extends Result<T> {
 }
 declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
-declare const EditViewButton: () => react_jsx_runtime.JSX.Element;
-
 declare const EditFilterButton: () => react_jsx_runtime.JSX.Element;
 
+declare const EditOrderButton: () => react_jsx_runtime.JSX.Element;
+
 declare const EditSortingButton: () => react_jsx_runtime.JSX.Element;
+
+declare const EditViewButton: () => react_jsx_runtime.JSX.Element;
 
 interface PageSizeControlProps {
     pageSizes?: number[];
@@ -44,6 +46,8 @@ interface PageSizeControlProps {
 declare const PageSizeControl: ({ pageSizes, }: PageSizeControlProps) => react_jsx_runtime.JSX.Element;
 
 declare const ResetFilteringButton: () => react_jsx_runtime.JSX.Element;
+
+declare const ResetSelectionButton: () => react_jsx_runtime.JSX.Element;
 
 declare const ResetSortingButton: () => react_jsx_runtime.JSX.Element;
 
@@ -72,7 +76,19 @@ interface TableHeaderProps {
 }
 declare const TableHeader: ({ canResize }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
 
+declare const TableOrderer: () => react_jsx_runtime.JSX.Element;
+
+interface PaginationProps {
+}
+declare const TablePagination: ({}: PaginationProps) => react_jsx_runtime.JSX.Element;
+
 declare const TableSorter: () => react_jsx_runtime.JSX.Element;
+
+interface TextCellProps {
+    label?: string;
+    children: string | number | JSX.Element | JSX.Element[];
+}
+declare const TextCell: ({ label, children }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
 interface useDataFromUrlReturn<T> {
     data: T;
@@ -92,14 +108,4 @@ declare const useDataTable: () => {
     refreshData: () => void;
 };
 
-interface PaginationProps {
-}
-declare const TablePagination: ({}: PaginationProps) => react_jsx_runtime.JSX.Element;
-
-interface TextCellProps {
-    label?: string;
-    children: string | number | JSX.Element | JSX.Element[];
-}
-declare const TextCell: ({ label, children }: TextCellProps) => react_jsx_runtime.JSX.Element;
-
-export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, EditFilterButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TablePagination, type TableProps, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };

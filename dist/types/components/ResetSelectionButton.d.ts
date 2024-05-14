@@ -1,1 +1,1 @@
-export declare const ResetSortingButton: () => import("react/jsx-runtime").JSX.Element;
+export declare const ResetSelectionButton: () => import("react/jsx-runtime").JSX.Element;

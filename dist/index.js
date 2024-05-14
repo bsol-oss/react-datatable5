@@ -5,9 +5,9 @@ var reactTable = require('@tanstack/react-table');
 var react = require('react');
 var axios = require('axios');
 var react$1 = require('@chakra-ui/react');
-var io = require('react-icons/io');
 var md = require('react-icons/md');
 var icons = require('@chakra-ui/icons');
+var io = require('react-icons/io');
 var table = require('@chakra-ui/table');
 
 const TableContext = react.createContext({
@@ -142,13 +142,6 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     return (jsxRuntime.jsx(TableContext.Provider, { value: { table: { ...table }, refreshData: refreshData }, children: children }));
 };
 
-const EditViewButton = () => {
-    const { table } = react.useContext(TableContext);
-    return (jsxRuntime.jsxs(react$1.Popover, { placement: "auto", children: [jsxRuntime.jsx(react$1.PopoverTrigger, { children: jsxRuntime.jsx(react$1.IconButton, { "aria-label": "view", icon: jsxRuntime.jsx(io.IoMdEye, {}) }) }), jsxRuntime.jsxs(react$1.PopoverContent, { width: "auto", children: [jsxRuntime.jsx(react$1.PopoverArrow, {}), jsxRuntime.jsx(react$1.PopoverBody, { children: jsxRuntime.jsx(react$1.Flex, { flexFlow: "column", gap: "1rem", children: table.getAllLeafColumns().map((column) => {
-                                return (jsxRuntime.jsx(react$1.FormControl, { width: "auto", children: jsxRuntime.jsx(react$1.Checkbox, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler(), children: column.id }) }, crypto.randomUUID()));
-                            }) }) })] })] }));
-};
-
 const ResetFilteringButton = () => {
     const { table } = react.useContext(TableContext);
     return (jsxRuntime.jsx(react$1.Button, { onClick: () => {
@@ -174,6 +167,53 @@ const TableFilter = () => {
 
 const EditFilterButton = () => {
     return (jsxRuntime.jsxs(react$1.Popover, { placement: "auto", children: [jsxRuntime.jsx(react$1.Tooltip, { label: "Filter", children: jsxRuntime.jsx(react$1.PopoverTrigger, { children: jsxRuntime.jsx(react$1.IconButton, { "aria-label": "filter", icon: jsxRuntime.jsx(md.MdFilterAlt, {}) }) }) }), jsxRuntime.jsxs(react$1.PopoverContent, { width: "auto", children: [jsxRuntime.jsx(react$1.PopoverArrow, {}), jsxRuntime.jsx(react$1.PopoverBody, { children: jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "1rem", children: [jsxRuntime.jsx(TableFilter, {}), jsxRuntime.jsx(ResetFilteringButton, {})] }) })] })] }));
+};
+
+const ColumnOrderChanger = ({ columns }) => {
+    const [order, setOrder] = react.useState([]);
+    const [originalOrder, setOriginalOrder] = react.useState([]);
+    const { table } = useDataTable();
+    const handleChangeOrder = (startIndex, endIndex) => {
+        const newOrder = Array.from(order);
+        const [removed] = newOrder.splice(startIndex, 1);
+        newOrder.splice(endIndex, 0, removed);
+        setOrder(newOrder);
+    };
+    react.useEffect(() => {
+        setOrder(columns);
+    }, [columns]);
+    react.useEffect(() => {
+        if (originalOrder.length > 0) {
+            return;
+        }
+        if (columns.length <= 0) {
+            return;
+        }
+        setOriginalOrder(columns);
+    }, [columns]);
+    return (jsxRuntime.jsxs(react$1.Flex, { gap: "0.5rem", flexFlow: "column", children: [jsxRuntime.jsx(react$1.Flex, { gap: "0.5rem", flexFlow: "column", children: order.map((column, index) => (jsxRuntime.jsxs(react$1.Flex, { gap: "0.25rem", alignItems: "center", justifyContent: "center", children: [jsxRuntime.jsx(react$1.IconButton, { onClick: () => {
+                                const prevIndex = index - 1;
+                                if (prevIndex >= 0) {
+                                    handleChangeOrder(index, prevIndex);
+                                }
+                            }, disabled: index === 0, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowUpward, {}) }), column, jsxRuntime.jsx(react$1.IconButton, { onClick: () => {
+                                const nextIndex = index + 1;
+                                if (nextIndex < order.length) {
+                                    handleChangeOrder(index, nextIndex);
+                                }
+                            }, disabled: index === order.length - 1, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowDownward, {}) })] }, column))) }), jsxRuntime.jsxs(react$1.Box, { children: [jsxRuntime.jsx(react$1.Button, { onClick: () => {
+                            table.setColumnOrder(order);
+                        }, children: "Apply" }), jsxRuntime.jsx(react$1.Button, { onClick: () => {
+                            table.setColumnOrder(originalOrder);
+                        }, children: "Reset" })] })] }));
+};
+const TableOrderer = () => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
+};
+
+const EditOrderButton = () => {
+    return (jsxRuntime.jsxs(react$1.Popover, { placement: "auto", children: [jsxRuntime.jsx(react$1.Tooltip, { label: "Change Order", children: jsxRuntime.jsx(react$1.PopoverTrigger, { children: jsxRuntime.jsx(react$1.IconButton, { "aria-label": "filter", icon: jsxRuntime.jsx(md.MdOutlineMoveDown, {}) }) }) }), jsxRuntime.jsxs(react$1.PopoverContent, { width: "auto", children: [jsxRuntime.jsx(react$1.PopoverArrow, {}), jsxRuntime.jsx(react$1.PopoverBody, { children: jsxRuntime.jsx(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: jsxRuntime.jsx(TableOrderer, {}) }) })] })] }));
 };
 
 const ResetSortingButton = () => {
@@ -204,9 +244,23 @@ const EditSortingButton = () => {
     return (jsxRuntime.jsxs(react$1.Popover, { placement: "auto", children: [jsxRuntime.jsx(react$1.Tooltip, { label: "Filter", children: jsxRuntime.jsx(react$1.PopoverTrigger, { children: jsxRuntime.jsx(react$1.IconButton, { "aria-label": "filter", icon: jsxRuntime.jsx(md.MdOutlineSort, {}) }) }) }), jsxRuntime.jsxs(react$1.PopoverContent, { width: "auto", children: [jsxRuntime.jsx(react$1.PopoverArrow, {}), jsxRuntime.jsx(react$1.PopoverBody, { children: jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(TableSorter, {}), jsxRuntime.jsx(ResetSortingButton, {})] }) })] })] }));
 };
 
+const EditViewButton = () => {
+    const { table } = react.useContext(TableContext);
+    return (jsxRuntime.jsxs(react$1.Popover, { placement: "auto", children: [jsxRuntime.jsx(react$1.PopoverTrigger, { children: jsxRuntime.jsx(react$1.IconButton, { "aria-label": "view", icon: jsxRuntime.jsx(io.IoMdEye, {}) }) }), jsxRuntime.jsxs(react$1.PopoverContent, { width: "auto", children: [jsxRuntime.jsx(react$1.PopoverArrow, {}), jsxRuntime.jsx(react$1.PopoverBody, { children: jsxRuntime.jsx(react$1.Flex, { flexFlow: "column", gap: "1rem", children: table.getAllLeafColumns().map((column) => {
+                                return (jsxRuntime.jsx(react$1.FormControl, { width: "auto", children: jsxRuntime.jsx(react$1.Checkbox, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler(), children: column.id }) }, crypto.randomUUID()));
+                            }) }) })] })] }));
+};
+
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = react.useContext(TableContext);
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(react$1.Menu, { children: [jsxRuntime.jsx(react$1.MenuButton, { as: react$1.Button, rightIcon: jsxRuntime.jsx(icons.ChevronDownIcon, {}), children: table.getState().pagination.pageSize }), jsxRuntime.jsx(react$1.MenuList, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(react$1.MenuItem, { onClick: () => { table.setPageSize(Number(pageSize)); }, children: pageSize }))) })] }) }));
+};
+
+const ResetSelectionButton = () => {
+    const { table } = react.useContext(TableContext);
+    return (jsxRuntime.jsx(react$1.Button, { onClick: () => {
+            table.resetRowSelection();
+        }, children: "Reset Selection" }));
 };
 
 const Table = ({ children }) => {
@@ -361,10 +415,12 @@ const TextCell = ({ label, children }) => {
 exports.DataTable = DataTable;
 exports.DataTableServer = DataTableServer;
 exports.EditFilterButton = EditFilterButton;
+exports.EditOrderButton = EditOrderButton;
 exports.EditSortingButton = EditSortingButton;
 exports.EditViewButton = EditViewButton;
 exports.PageSizeControl = PageSizeControl;
 exports.ResetFilteringButton = ResetFilteringButton;
+exports.ResetSelectionButton = ResetSelectionButton;
 exports.ResetSortingButton = ResetSortingButton;
 exports.Table = Table;
 exports.TableBody = TableBody;
@@ -373,6 +429,7 @@ exports.TableCards = TableCards;
 exports.TableFilter = TableFilter;
 exports.TableFooter = TableFooter;
 exports.TableHeader = TableHeader;
+exports.TableOrderer = TableOrderer;
 exports.TablePagination = TablePagination;
 exports.TableSorter = TableSorter;
 exports.TextCell = TextCell;
