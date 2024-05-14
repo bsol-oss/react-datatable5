@@ -8,6 +8,7 @@ export const SelectAllRowsToggle = () => {
   return (
     <Tooltip label={table.getIsAllRowsSelected() ? "Clear All" : "Select All"}>
       <IconButton
+        variant={"ghost"}
         aria-label={table.getIsAllRowsSelected() ? "Clear All" : "Select All"}
         icon={
           table.getIsAllRowsSelected() ? <MdClear /> : <MdOutlineChecklist />
@@ -15,7 +16,7 @@ export const SelectAllRowsToggle = () => {
         onClick={(event) => {
           table.getToggleAllRowsSelectedHandler()(event);
         }}
-      ></IconButton>
+      />
     </Tooltip>
   );
 };

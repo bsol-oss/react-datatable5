@@ -7,6 +7,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { TableContext } from "./DataTableContext";
+import { useEffect, useState } from "react";
 
 export interface DataTableProps<T> {
   children: JSX.Element | JSX.Element[];
@@ -25,6 +26,7 @@ export const DataTable = <TData,>({
   enableSubRowSelection = true,
   children,
 }: DataTableProps<TData>) => {
+  const [columnOrder, setColumnOrder] = useState<string[]>([]);
   const table = useReactTable<TData>({
     data: data,
     columns: columns,
@@ -37,11 +39,21 @@ export const DataTable = <TData,>({
       minSize: 10, //enforced during column resizing
       maxSize: 10000, //enforced during column resizing
     },
+    state: {
+      columnOrder,
+    },
+    onColumnOrderChange: (state) => {
+      setColumnOrder(state);
+    },
     enableRowSelection: enableRowSelection,
     enableMultiRowSelection: enableMultiRowSelection,
     enableSubRowSelection: enableSubRowSelection,
     columnResizeMode: "onChange",
   });
+
+  useEffect(() => {
+    setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
+  }, []);
 
   return (
     <TableContext.Provider

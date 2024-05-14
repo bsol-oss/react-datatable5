@@ -17,7 +17,11 @@ export const EditSortingButton = () => {
     <Popover placement="auto">
       <Tooltip label="Filter">
         <PopoverTrigger>
-          <IconButton aria-label="filter" icon={<MdOutlineSort />} />
+          <IconButton
+            aria-label="filter"
+            variant={"ghost"}
+            icon={<MdOutlineSort />}
+          />
         </PopoverTrigger>
       </Tooltip>
 

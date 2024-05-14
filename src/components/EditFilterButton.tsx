@@ -17,7 +17,11 @@ export const EditFilterButton = () => {
     <Popover placement="auto">
       <Tooltip label="Filter">
         <PopoverTrigger>
-          <IconButton aria-label="filter" icon={<MdFilterAlt />} />
+          <IconButton
+            aria-label="filter"
+            variant={"ghost"}
+            icon={<MdFilterAlt />}
+          />
         </PopoverTrigger>
       </Tooltip>
 
@@ -33,4 +37,3 @@ export const EditFilterButton = () => {
     </Popover>
   );
 };
-

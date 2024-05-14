@@ -1,5 +1,3 @@
-import { useContext } from "react";
-import { TableContext } from "./DataTableContext";
 import {
   Checkbox,
   Flex,
@@ -11,14 +9,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@chakra-ui/react";
+import { useContext } from "react";
 import { IoMdEye } from "react-icons/io";
+import { TableContext } from "./DataTableContext";
 
 export const EditViewButton = () => {
   const { table } = useContext(TableContext);
   return (
     <Popover placement="auto">
       <PopoverTrigger>
-        <IconButton aria-label="view" icon={<IoMdEye />} />
+        <IconButton aria-label="view" variant={"ghost"} icon={<IoMdEye />} />
       </PopoverTrigger>
       <PopoverContent width={"auto"}>
         <PopoverArrow />
@@ -42,4 +42,3 @@ export const EditViewButton = () => {
     </Popover>
   );
 };
-

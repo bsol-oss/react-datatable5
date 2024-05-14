@@ -16,7 +16,11 @@ export const EditOrderButton = () => {
     <Popover placement="auto">
       <Tooltip label="Change Order">
         <PopoverTrigger>
-          <IconButton aria-label="filter" icon={<MdOutlineMoveDown />} />
+          <IconButton
+            aria-label="filter"
+            variant={"ghost"}
+            icon={<MdOutlineMoveDown />}
+          />
         </PopoverTrigger>
       </Tooltip>
 

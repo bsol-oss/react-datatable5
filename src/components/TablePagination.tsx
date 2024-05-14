@@ -26,14 +26,20 @@ export const TablePagination = ({}: PaginationProps) => {
         onClick={() => firstPage()}
         isDisabled={!getCanPreviousPage()}
         aria-label={"first-page"}
+        variant={"ghost"}
       ></IconButton>
       <IconButton
         icon={<MdArrowBack />}
         onClick={() => previousPage()}
         isDisabled={!getCanPreviousPage()}
         aria-label={"previous-page"}
+        variant={"ghost"}
       ></IconButton>
-      <Button onClick={() => {}} disabled={!getCanPreviousPage()}>
+      <Button
+        variant={"ghost"}
+        onClick={() => {}}
+        disabled={!getCanPreviousPage()}
+      >
         {getState().pagination.pageIndex + 1}
       </Button>
 
@@ -41,6 +47,7 @@ export const TablePagination = ({}: PaginationProps) => {
         onClick={() => nextPage()}
         isDisabled={!getCanNextPage()}
         aria-label={"next-page"}
+        variant={"ghost"}
       >
         <MdArrowForward />
       </IconButton>
@@ -48,10 +55,10 @@ export const TablePagination = ({}: PaginationProps) => {
         onClick={() => lastPage()}
         isDisabled={!getCanNextPage()}
         aria-label={"last-page"}
+        variant={"ghost"}
       >
         <MdLastPage />
       </IconButton>
     </ButtonGroup>
   );
 };
-
