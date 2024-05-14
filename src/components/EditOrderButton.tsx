@@ -8,8 +8,6 @@ import {
   PopoverTrigger,
   Tooltip,
 } from "@chakra-ui/react";
-import { ResetSortingButton } from "./ResetSortingButton";
-import { TableSorter } from "./TableSorter";
 import { MdOutlineMoveDown } from "react-icons/md";
 import { TableOrderer } from "./TableOrderer";
 
