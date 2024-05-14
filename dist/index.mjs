@@ -1,6 +1,6 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
+import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 import { createContext, useState, useEffect, useContext } from 'react';
-import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import axios from 'axios';
 import { Popover, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, FormControl, Checkbox, Button, Box, Text, Input, Tooltip, Menu, MenuButton, MenuList, MenuItem, Container, Table as Table$1, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup } from '@chakra-ui/react';
 import { IoMdEye, IoMdClose } from 'react-icons/io';
@@ -14,32 +14,13 @@ const TableContext = createContext({
 });
 
 const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
-    const [sorting, setSorting] = useState([]);
-    const [columnFilters, setColumnFilters] = useState([]); // can set initial column filter state here
-    const [pagination, setPagination] = useState({
-        pageIndex: 0, //initial page index
-        pageSize: 10, //default page size
-    });
-    const [rowSelection, setRowSelection] = useState({});
-    const [columnOrder, setColumnOrder] = useState([]);
     const table = useReactTable({
         data: data,
         columns: columns,
         getCoreRowModel: getCoreRowModel(),
-        manualPagination: true,
-        manualSorting: true,
-        onPaginationChange: setPagination,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        columnResizeMode: "onChange",
-        onRowSelectionChange: setRowSelection,
-        state: {
-            pagination,
-            sorting,
-            columnFilters,
-            rowSelection,
-            columnOrder,
-        },
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
         defaultColumn: {
             size: 150, //starting column size
             minSize: 10, //enforced during column resizing
@@ -48,14 +29,8 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         enableRowSelection: enableRowSelection,
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
-        onColumnOrderChange: (state) => {
-            setColumnOrder(state);
-        },
-        rowCount: data.filterCount,
+        columnResizeMode: "onChange",
     });
-    useEffect(() => {
-        setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
-    }, []);
     return (jsx(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: () => {

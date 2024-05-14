@@ -1,8 +1,8 @@
 'use strict';
 
 var jsxRuntime = require('react/jsx-runtime');
-var react = require('react');
 var reactTable = require('@tanstack/react-table');
+var react = require('react');
 var axios = require('axios');
 var react$1 = require('@chakra-ui/react');
 var io = require('react-icons/io');
@@ -16,32 +16,13 @@ const TableContext = react.createContext({
 });
 
 const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
-    const [sorting, setSorting] = react.useState([]);
-    const [columnFilters, setColumnFilters] = react.useState([]); // can set initial column filter state here
-    const [pagination, setPagination] = react.useState({
-        pageIndex: 0, //initial page index
-        pageSize: 10, //default page size
-    });
-    const [rowSelection, setRowSelection] = react.useState({});
-    const [columnOrder, setColumnOrder] = react.useState([]);
     const table = reactTable.useReactTable({
         data: data,
         columns: columns,
         getCoreRowModel: reactTable.getCoreRowModel(),
-        manualPagination: true,
-        manualSorting: true,
-        onPaginationChange: setPagination,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        columnResizeMode: "onChange",
-        onRowSelectionChange: setRowSelection,
-        state: {
-            pagination,
-            sorting,
-            columnFilters,
-            rowSelection,
-            columnOrder,
-        },
+        getFilteredRowModel: reactTable.getFilteredRowModel(),
+        getSortedRowModel: reactTable.getSortedRowModel(),
+        getPaginationRowModel: reactTable.getPaginationRowModel(),
         defaultColumn: {
             size: 150, //starting column size
             minSize: 10, //enforced during column resizing
@@ -50,14 +31,8 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         enableRowSelection: enableRowSelection,
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
-        onColumnOrderChange: (state) => {
-            setColumnOrder(state);
-        },
-        rowCount: data.filterCount,
+        columnResizeMode: "onChange",
     });
-    react.useEffect(() => {
-        setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
-    }, []);
     return (jsxRuntime.jsx(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: () => {
