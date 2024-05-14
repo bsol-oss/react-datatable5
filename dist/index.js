@@ -405,6 +405,20 @@ const TablePagination = ({}) => {
     return (jsxRuntime.jsxs(react$1.ButtonGroup, { isAttached: true, children: [jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page" }), jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page" }), jsxRuntime.jsx(react$1.Button, { onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", children: jsxRuntime.jsx(md.MdArrowForward, {}) }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", children: jsxRuntime.jsx(md.MdLastPage, {}) })] }));
 };
 
+const SelectAllRowsToggle = () => {
+    const { table } = react.useContext(TableContext);
+    return (jsxRuntime.jsx(react$1.Tooltip, { label: table.getIsAllRowsSelected() ? "Clear All" : "Select All", children: jsxRuntime.jsx(react$1.IconButton, { "aria-label": table.getIsAllRowsSelected() ? "Clear All" : "Select All", icon: table.getIsAllRowsSelected() ? jsxRuntime.jsx(md.MdClear, {}) : jsxRuntime.jsx(md.MdOutlineChecklist, {}), onClick: (event) => {
+                table.getToggleAllRowsSelectedHandler()(event);
+            } }) }));
+};
+
+const TableSelector = () => {
+    const { table } = react.useContext(TableContext);
+    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [table.getSelectedRowModel().rows.length > 0 && (jsxRuntime.jsxs(react$1.Button, { onClick: () => { }, display: "flex", gap: "0.25rem", children: [jsxRuntime.jsx(react$1.Box, { fontSize: "sm", children: `${table.getSelectedRowModel().rows.length}` }), jsxRuntime.jsx(react$1.Icon, { as: io.IoMdCheckbox })] })), !table.getIsAllPageRowsSelected() && jsxRuntime.jsx(SelectAllRowsToggle, {}), table.getSelectedRowModel().rows.length > 0 && (jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(react$1.Icon, { as: md.MdClear }), onClick: () => {
+                    table.resetRowSelection();
+                }, "aria-label": "reset selection" }))] }));
+};
+
 const TextCell = ({ label, children }) => {
     if (label) {
         return (jsxRuntime.jsx(react$1.Tooltip, { label: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", children: jsxRuntime.jsx(react$1.Text, { as: "span", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }) }));
@@ -431,6 +445,7 @@ exports.TableFooter = TableFooter;
 exports.TableHeader = TableHeader;
 exports.TableOrderer = TableOrderer;
 exports.TablePagination = TablePagination;
+exports.TableSelector = TableSelector;
 exports.TableSorter = TableSorter;
 exports.TextCell = TextCell;
 exports.useDataFromUrl = useDataFromUrl;

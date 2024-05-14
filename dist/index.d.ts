@@ -82,6 +82,8 @@ interface PaginationProps {
 }
 declare const TablePagination: ({}: PaginationProps) => react_jsx_runtime.JSX.Element;
 
+declare const TableSelector: () => react_jsx_runtime.JSX.Element;
+
 declare const TableSorter: () => react_jsx_runtime.JSX.Element;
 
 interface TextCellProps {
@@ -108,4 +110,4 @@ declare const useDataTable: () => {
     refreshData: () => void;
 };
 
-export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, TableSelector, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };

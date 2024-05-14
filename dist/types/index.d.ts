@@ -17,6 +17,7 @@ export * from "./components/TableFooter";
 export * from "./components/TableHeader";
 export * from "./components/TableOrderer";
 export * from "./components/TablePagination";
+export * from "./components/TableSelector";
 export * from "./components/TableSorter";
 export * from "./components/TextCell";
 export * from "./components/useDataFromUrl";

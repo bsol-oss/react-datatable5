@@ -2,10 +2,10 @@ import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
 import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { Button, Box, Text, Input, Popover, Tooltip, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, FormControl, Checkbox, Menu, MenuButton, MenuList, MenuItem, Container, Table as Table$1, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup } from '@chakra-ui/react';
-import { MdFilterAlt, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdPushPin, MdCancel, MdSort, MdFilterListAlt, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage } from 'react-icons/md';
+import { Button, Box, Text, Input, Popover, Tooltip, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, FormControl, Checkbox, Menu, MenuButton, MenuList, MenuItem, Container, Table as Table$1, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Icon } from '@chakra-ui/react';
+import { MdFilterAlt, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdPushPin, MdCancel, MdSort, MdFilterListAlt, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdClear, MdOutlineChecklist } from 'react-icons/md';
 import { ChevronUpIcon, UpDownIcon, ChevronDownIcon, CloseIcon } from '@chakra-ui/icons';
-import { IoMdEye, IoMdClose } from 'react-icons/io';
+import { IoMdEye, IoMdClose, IoMdCheckbox } from 'react-icons/io';
 import { Tbody, Tr, Td } from '@chakra-ui/table';
 
 const TableContext = createContext({
@@ -403,6 +403,20 @@ const TablePagination = ({}) => {
     return (jsxs(ButtonGroup, { isAttached: true, children: [jsx(IconButton, { icon: jsx(MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page" }), jsx(IconButton, { icon: jsx(MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page" }), jsx(Button, { onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsx(IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", children: jsx(MdArrowForward, {}) }), jsx(IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", children: jsx(MdLastPage, {}) })] }));
 };
 
+const SelectAllRowsToggle = () => {
+    const { table } = useContext(TableContext);
+    return (jsx(Tooltip, { label: table.getIsAllRowsSelected() ? "Clear All" : "Select All", children: jsx(IconButton, { "aria-label": table.getIsAllRowsSelected() ? "Clear All" : "Select All", icon: table.getIsAllRowsSelected() ? jsx(MdClear, {}) : jsx(MdOutlineChecklist, {}), onClick: (event) => {
+                table.getToggleAllRowsSelectedHandler()(event);
+            } }) }));
+};
+
+const TableSelector = () => {
+    const { table } = useContext(TableContext);
+    return (jsxs(Fragment, { children: [table.getSelectedRowModel().rows.length > 0 && (jsxs(Button, { onClick: () => { }, display: "flex", gap: "0.25rem", children: [jsx(Box, { fontSize: "sm", children: `${table.getSelectedRowModel().rows.length}` }), jsx(Icon, { as: IoMdCheckbox })] })), !table.getIsAllPageRowsSelected() && jsx(SelectAllRowsToggle, {}), table.getSelectedRowModel().rows.length > 0 && (jsx(IconButton, { icon: jsx(Icon, { as: MdClear }), onClick: () => {
+                    table.resetRowSelection();
+                }, "aria-label": "reset selection" }))] }));
+};
+
 const TextCell = ({ label, children }) => {
     if (label) {
         return (jsx(Tooltip, { label: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", children: jsx(Text, { as: "span", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }) }));
@@ -410,4 +424,4 @@ const TextCell = ({ label, children }) => {
     return (jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }));
 };
 
-export { DataTable, DataTableServer, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, PageSizeControl, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, Table, TableBody, TableCardContainer, TableCards, TableFilter, TableFooter, TableHeader, TableOrderer, TablePagination, TableSorter, TextCell, useDataFromUrl, useDataTable };
+export { DataTable, DataTableServer, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, PageSizeControl, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, Table, TableBody, TableCardContainer, TableCards, TableFilter, TableFooter, TableHeader, TableOrderer, TablePagination, TableSelector, TableSorter, TextCell, useDataFromUrl, useDataTable };
