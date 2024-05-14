@@ -21,21 +21,22 @@ export const TableSorter = () => {
                   <Flex alignItems={"center"} gap={"0.5rem"} padding={"0.5rem"}>
                     <Text>{header.column.id}</Text>
                     <Button
+                      variant={"ghost"}
                       onClick={(e) => {
                         header.column.toggleSorting();
                       }}
                     >
-                      {header.column.getNextSortingOrder() === false && (
+                      {header.column.getIsSorted() === false && (
                         // <Text>To No sort</Text>
-                        <ChevronUpIcon />
-                      )}
-                      {header.column.getNextSortingOrder() === "asc" && (
-                        // <Text>To asc</Text>
                         <UpDownIcon />
                       )}
-                      {header.column.getNextSortingOrder() === "desc" && (
-                        // <Text>To desc</Text>
+                      {header.column.getIsSorted() === "asc" && (
+                        // <Text>To asc</Text>
                         <ChevronDownIcon />
+                      )}
+                      {header.column.getIsSorted() === "desc" && (
+                        // <Text>To desc</Text>
+                        <ChevronUpIcon />
                       )}
                     </Button>
 
