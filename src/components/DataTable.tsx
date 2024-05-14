@@ -1,13 +1,9 @@
-import { useEffect, useState } from "react";
-
 import {
   ColumnDef,
-  ColumnFiltersState,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { TableContext } from "./DataTableContext";
@@ -15,7 +11,7 @@ import { TableContext } from "./DataTableContext";
 export interface DataTableProps<T> {
   children: JSX.Element | JSX.Element[];
   data: T[];
-  columns: ColumnDef<T, any>[]; // TODO: find the appropriate types
+  columns: ColumnDef<T, any>[];
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
@@ -29,15 +25,6 @@ export const DataTable = <TData,>({
   enableSubRowSelection = true,
   children,
 }: DataTableProps<TData>) => {
-  // const [sorting, setSorting] = useState<SortingState>([]);
-  // const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]); // can set initial column filter state here
-  // const [pagination, setPagination] = useState({
-  //   pageIndex: 0, //initial page index
-  //   pageSize: 10, //default page size
-  // });
-  // const [rowSelection, setRowSelection] = useState({});
-  // const [columnOrder, setColumnOrder] = useState<string[]>([]);
-
   const table = useReactTable<TData>({
     data: data,
     columns: columns,
