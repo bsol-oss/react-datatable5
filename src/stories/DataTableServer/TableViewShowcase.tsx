@@ -81,7 +81,7 @@ const TableViewShowcase = () => {
           },
           size: 400,
           header: () => <Box>User Message</Box>,
-          footer:  () => <Box>User Message</Box>,
+          footer: () => <Box>User Message</Box>,
         }),
         // Accessor Column
         columnHelper.accessor("total_token", {
@@ -89,7 +89,7 @@ const TableViewShowcase = () => {
             return <TextCell>{props.row.original.total_token}</TextCell>;
           },
           header: () => <span>Total Token</span>,
-          footer:  () => <span>Total Token</span>,
+          footer: () => <span>Total Token</span>,
           sortDescFirst: false,
         }),
       ],
@@ -107,7 +107,6 @@ const TableViewShowcase = () => {
           <ButtonGroup isAttached>
             <EditViewButton />
             <EditFilterButton />
-            <EditSortingButton />
           </ButtonGroup>
           <EditOrderButton />
           <PageSizeControl />
@@ -120,8 +119,18 @@ const TableViewShowcase = () => {
           <TableBody />
           <TableFooter />
         </Table>
-        <PageSizeControl />
-        <TablePagination />
+        <Flex gap="0.25rem">
+          <TablePagination />
+          <ButtonGroup isAttached>
+            <EditViewButton />
+            <EditFilterButton />
+          </ButtonGroup>
+          <EditOrderButton />
+          <PageSizeControl />
+          <ButtonGroup isAttached>
+            <TableSelector />
+          </ButtonGroup>
+        </Flex>
       </DataTableServer>
     </ChakraProvider>
   );

@@ -1,7 +1,12 @@
-import { Box, ButtonGroup, ChakraProvider, Flex, theme } from "@chakra-ui/react";
+import {
+  Box,
+  ButtonGroup,
+  ChakraProvider,
+  Flex,
+  theme,
+} from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable";
-import { DataTableServer } from "../../components/DataTableServer";
 import { EditFilterButton } from "../../components/EditFilterButton";
 import { EditOrderButton } from "../../components/EditOrderButton";
 import { EditSortingButton } from "../../components/EditSortingButton";
@@ -76,7 +81,7 @@ const CardViewShowcase = () => {
   return (
     <ChakraProvider theme={theme}>
       <DataTable columns={columns} data={data}>
-        <Flex gap='0.25rem'>
+        <Flex gap="0.25rem">
           <TablePagination />
           <ButtonGroup isAttached>
             <EditViewButton />

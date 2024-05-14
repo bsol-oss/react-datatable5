@@ -102,7 +102,6 @@ const TableViewShowcase = () => {
           <ButtonGroup isAttached>
             <EditViewButton />
             <EditFilterButton />
-            <EditSortingButton />
           </ButtonGroup>
           <EditOrderButton />
           <PageSizeControl />
