@@ -8,17 +8,25 @@ npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
 
 ## Usage
 
+### DataTable
+
 ```tsx
-<DataTable
-  columns={columns}
-  url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
->
-  <EditViewButton />
-  <ResetSortingButton />
-  <TableFilter />
-  <ResetFilteringButton />
+<DataTable columns={columns} data={data}>
+  <Flex gap="0.25rem">
+    <TablePagination />
+    <ButtonGroup isAttached>
+      <EditViewButton />
+      <EditFilterButton />
+      <EditSortingButton />
+    </ButtonGroup>
+    <EditOrderButton />
+    <PageSizeControl />
+    <ButtonGroup isAttached>
+      <TableSelector />
+    </ButtonGroup>
+  </Flex>
   <Table>
-    <TableHeader />
+    <TableHeader canResize />
     <TableBody />
     <TableFooter />
   </Table>
@@ -27,8 +35,10 @@ npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
 </DataTable>
 ```
 
+### DataTableServer
+
 ```tsx
-<DataTable
+<DataTableServer
   columns={columns}
   url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
 >
@@ -45,9 +55,12 @@ npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
       <TableSelector />
     </ButtonGroup>
   </Flex>
-  <TableCardContainer>
-    <TableCards />
-  </TableCardContainer>
+  <Table>
+    <TableHeader canResize />
+    <TableBody />
+    <TableFooter />
+  </Table>
+  <PageSizeControl />
   <TablePagination />
-</DataTable>
+</DataTableServer>
 ```
