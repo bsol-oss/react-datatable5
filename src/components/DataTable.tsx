@@ -4,6 +4,9 @@ import {
   ColumnDef,
   ColumnFiltersState,
   getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -26,33 +29,22 @@ export const DataTable = <TData,>({
   enableSubRowSelection = true,
   children,
 }: DataTableProps<TData>) => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]); // can set initial column filter state here
-  const [pagination, setPagination] = useState({
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-  });
-  const [rowSelection, setRowSelection] = useState({});
-  const [columnOrder, setColumnOrder] = useState<string[]>([]);
+  // const [sorting, setSorting] = useState<SortingState>([]);
+  // const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]); // can set initial column filter state here
+  // const [pagination, setPagination] = useState({
+  //   pageIndex: 0, //initial page index
+  //   pageSize: 10, //default page size
+  // });
+  // const [rowSelection, setRowSelection] = useState({});
+  // const [columnOrder, setColumnOrder] = useState<string[]>([]);
 
   const table = useReactTable<TData>({
     data: data,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
-    manualSorting: true,
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    columnResizeMode: "onChange",
-    onRowSelectionChange: setRowSelection,
-    state: {
-      pagination,
-      sorting,
-      columnFilters,
-      rowSelection,
-      columnOrder,
-    },
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     defaultColumn: {
       size: 150, //starting column size
       minSize: 10, //enforced during column resizing
@@ -61,15 +53,8 @@ export const DataTable = <TData,>({
     enableRowSelection: enableRowSelection,
     enableMultiRowSelection: enableMultiRowSelection,
     enableSubRowSelection: enableSubRowSelection,
-    onColumnOrderChange: (state) => {
-      setColumnOrder(state);
-    },
-    rowCount: data.filterCount,
+    columnResizeMode: "onChange",
   });
-
-  useEffect(() => {
-    setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
-  }, []);
 
   return (
     <TableContext.Provider
