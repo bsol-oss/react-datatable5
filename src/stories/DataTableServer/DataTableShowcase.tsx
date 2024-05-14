@@ -1,13 +1,10 @@
-// import React from 'react';
 import { Box, ChakraProvider, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable";
-import { PageSizeControl } from "../../components/PageSizeControl";
 import { Table } from "../../components/Table";
 import { TableBody } from "../../components/TableBody";
 import { TableFooter } from "../../components/TableFooter";
 import { TableHeader } from "../../components/TableHeader";
-import { TablePagination } from "../../components/TablePagination";
 import { TextCell } from "../../components/TextCell";
 import { data, Product } from "../data";
 

@@ -1,4 +1,3 @@
-// import React from 'react';
 import {
   Box,
   ButtonGroup,
@@ -7,7 +6,7 @@ import {
   theme,
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { DataTableServer } from "../../components/DataTableServer";
+import { DataTable } from "../../components/DataTable";
 import { EditFilterButton } from "../../components/EditFilterButton";
 import { EditOrderButton } from "../../components/EditOrderButton";
 import { EditSortingButton } from "../../components/EditSortingButton";
@@ -20,6 +19,7 @@ import { TableHeader } from "../../components/TableHeader";
 import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
+import { data, Product } from "../data";
 
 interface ChatRecord {
   session_id: string;
@@ -44,9 +44,9 @@ const RowActions = ({ row }: RowActionsProps) => {
 };
 
 const TableViewShowcase = () => {
-  const columnHelper = createColumnHelper<ChatRecord>();
+  const columnHelper = createColumnHelper<Product>();
 
-  const columns: ColumnDef<ChatRecord>[] = [
+  const columns: ColumnDef<Product>[] = [
     // Display Column
     columnHelper.display({
       id: "actions",
@@ -59,39 +59,36 @@ const TableViewShowcase = () => {
       header: "Information",
       footer: (props) => props.column.id,
       columns: [
-        columnHelper.accessor("session_id", {
+        columnHelper.accessor("id", {
           cell: (props) => {
-            return (
-              <TextCell label={props.row.original.session_id}>
-                {props.row.original.session_id}
-              </TextCell>
-            );
+            return <TextCell>{props.row.original.id}</TextCell>;
           },
-          header: () => <span>Session Id</span>,
+          header: () => <span>Id</span>,
           footer: (props) => props.column.id,
+          size: 50,
         }),
-        columnHelper.accessor("last_user_message", {
+        columnHelper.accessor("title", {
           cell: (props) => {
             return (
               <Box padding={"0rem"}>
-                <TextCell label={props.row.original.last_user_message}>
-                  {props.row.original.last_user_message}
+                <TextCell label={props.row.original.title}>
+                  {props.row.original.title}
                 </TextCell>
               </Box>
             );
           },
-          size: 400,
-          header: () => <Box>User Message</Box>,
+          header: () => <Box>Title</Box>,
           footer: (props) => props.column.id,
+          size: 100,
         }),
         // Accessor Column
-        columnHelper.accessor("total_token", {
+        columnHelper.accessor("description", {
           cell: (props) => {
-            return <TextCell>{props.row.original.total_token}</TextCell>;
+            return <TextCell>{props.row.original.description}</TextCell>;
           },
-          header: () => <span>Total Token</span>,
+          header: () => <span>Description</span>,
           footer: (props) => props.column.id,
-          sortDescFirst: false,
+          size: 400,
         }),
       ],
     }),
@@ -99,10 +96,7 @@ const TableViewShowcase = () => {
 
   return (
     <ChakraProvider theme={theme}>
-      <DataTableServer
-        columns={columns}
-        url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
-      >
+      <DataTable columns={columns} data={data}>
         <Flex gap="0.25rem">
           <TablePagination />
           <ButtonGroup isAttached>
@@ -123,7 +117,7 @@ const TableViewShowcase = () => {
         </Table>
         <PageSizeControl />
         <TablePagination />
-      </DataTableServer>
+      </DataTable>
     </ChakraProvider>
   );
 };

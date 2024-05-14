@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import DataTableShowcase from "./DataTableShowcase";
-import TableViewShowcase from "../view/TableViewShowcase";
+import CardViewShowcase from "./CardViewShowcase";
+import TableViewShowcase from "./TableViewShowcase";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: "react-datatable/type/DataTable",
+  title: "react-datatable5/DataTable",
   component: TableViewShowcase,
   parameters: {},
 
@@ -14,8 +14,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const DataTable: Story = {
+export const TableView: Story = {
   render: () => {
-    return <DataTableShowcase />;
+    return <TableViewShowcase />;
   },
 };
+
+export const CardView = {
+  render: () => {
+    return <CardViewShowcase />;
+  },
+};
+
