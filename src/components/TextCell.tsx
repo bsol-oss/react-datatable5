@@ -29,7 +29,13 @@ export const TextCell = ({
           }
           placement="auto"
         >
-          <Text as="span" textOverflow={"ellipsis"} noOfLines={noOfLines}>
+          <Text
+            as="span"
+            overflow="hidden"
+            textOverflow={"ellipsis"}
+            wordBreak={"break-all"}
+            noOfLines={noOfLines}
+          >
             {children}
           </Text>
         </Tooltip>
