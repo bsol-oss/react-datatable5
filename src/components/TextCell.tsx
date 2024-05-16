@@ -1,44 +1,51 @@
-import { Tooltip, Text } from "@chakra-ui/react";
+import { Box, Text, Tooltip } from "@chakra-ui/react";
 
 export interface TextCellProps {
   label?: string;
+  noOfLines?: number[];
+  padding?: string;
   children: string | number | JSX.Element | JSX.Element[];
 }
 
-export const TextCell = ({ label, children }: TextCellProps) => {
+export const TextCell = ({
+  label,
+  noOfLines = [1],
+  padding = "0rem",
+  children,
+}: TextCellProps) => {
   if (label) {
     return (
-      <Tooltip
-        label={
-          <Text
-            as="span"
-            overflow="hidden"
-            textOverflow={"ellipsis"}
-            noOfLines={[5]}
-          >
-            {label}
-          </Text>
-        }
-        placement="auto"
-      >
-        <Text
-          as="span"
-          textOverflow={"ellipsis"}
-          noOfLines={[1, 2, 3]}
+      <Box padding={padding}>
+        <Tooltip
+          label={
+            <Text
+              as="span"
+              overflow="hidden"
+              textOverflow={"ellipsis"}
+              noOfLines={[5]}
+            >
+              {label}
+            </Text>
+          }
+          placement="auto"
         >
-          {children}
-        </Text>
-      </Tooltip>
+          <Text as="span" textOverflow={"ellipsis"} noOfLines={noOfLines}>
+            {children}
+          </Text>
+        </Tooltip>
+      </Box>
     );
   }
   return (
-    <Text
-      as="span"
-      overflow="hidden"
-      textOverflow={"ellipsis"}
-      noOfLines={[1, 2, 3]}
-    >
-      {children}
-    </Text>
+    <Box padding={padding}>
+      <Text
+        as="span"
+        overflow="hidden"
+        textOverflow={"ellipsis"}
+        noOfLines={noOfLines}
+      >
+        {children}
+      </Text>
+    </Box>
   );
 };
