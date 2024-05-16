@@ -6,14 +6,15 @@ export interface TableProps {
   children: ReactNode;
 }
 
-export const Table = ({ children }: TableProps) => {
+export const Table = ({ children, ...props }: TableProps) => {
   const { table } = useDataTable();
   return (
-    <Container padding={'0rem'} maxW="100%" overflowX={"scroll"}>
-      <ChakraTable width={table.getCenterTotalSize()} variant="unstyled">
-        {children}
-      </ChakraTable>
-    </Container>
+    <ChakraTable
+      width={table.getCenterTotalSize()}
+      overflowX={"scroll"}
+      {...props}
+    >
+      {children}
+    </ChakraTable>
   );
 };
-
