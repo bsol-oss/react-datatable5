@@ -111,6 +111,13 @@ export const DataTableServer = <TData,>({
       setGlobalFilter(state);
     },
     rowCount: data.filterCount,
+    // for tanstack-table ts bug start
+    filterFns: {
+      fuzzy: () => {
+        return false;
+      },
+    },
+   // for tanstack-table ts bug end
   });
 
   useEffect(() => {
