@@ -45,6 +45,7 @@ export const DataTableServer = <TData,>({
   });
   const [rowSelection, setRowSelection] = useState({});
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const { data, loading, hasError, refreshData } = useDataFromUrl<
     DataResponse<TData>
@@ -73,6 +74,7 @@ export const DataTableServer = <TData,>({
           return { ...accumulator, ...obj };
         }, {})
       ),
+      searching: globalFilter,
     },
   });
   const table = useReactTable<TData>({
@@ -92,6 +94,7 @@ export const DataTableServer = <TData,>({
       columnFilters,
       rowSelection,
       columnOrder,
+      globalFilter,
     },
     defaultColumn: {
       size: 150, //starting column size
@@ -104,12 +107,15 @@ export const DataTableServer = <TData,>({
     onColumnOrderChange: (state) => {
       setColumnOrder(state);
     },
+    onGlobalFilterChange: (state) => {
+      setGlobalFilter(state);
+    },
     rowCount: data.filterCount,
   });
 
   useEffect(() => {
     refreshData();
-  }, [pagination, sorting, columnFilters]);
+  }, [pagination, sorting, columnFilters, globalFilter]);
 
   useEffect(() => {
     setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
@@ -117,7 +123,12 @@ export const DataTableServer = <TData,>({
 
   return (
     <TableContext.Provider
-      value={{ table: { ...table }, refreshData: refreshData }}
+      value={{
+        table: { ...table },
+        refreshData: refreshData,
+        globalFilter,
+        setGlobalFilter,
+      }}
     >
       {children}
     </TableContext.Provider>

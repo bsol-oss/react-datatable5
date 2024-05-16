@@ -19,6 +19,7 @@ export const PageSizeControl = ({
           as={Button}
           variant={"ghost"}
           rightIcon={<ChevronDownIcon />}
+          gap={"0.5rem"}
         >
           {table.getState().pagination.pageSize}
         </MenuButton>
