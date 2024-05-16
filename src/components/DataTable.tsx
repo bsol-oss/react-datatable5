@@ -56,7 +56,7 @@ export const DataTable = <TData,>({
 }: DataTableProps<TData>) => {
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [density, setDensity] = useState<DensityState>("2rem");
+  const [density, setDensity] = useState<DensityState>("1rem");
 
   const table = useReactTable<TData>({
     _features: [DensityFeature],

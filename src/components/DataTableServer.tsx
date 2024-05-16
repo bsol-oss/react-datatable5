@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-table";
 import { TableContext } from "./DataTableContext";
 import { useDataFromUrl } from "./useDataFromUrl";
+import { DensityState } from "./DensityFeature";
 
 export interface DataTableServerProps<T> {
   children: JSX.Element | JSX.Element[];
@@ -53,7 +54,7 @@ export const DataTableServer = <TData,>({
   const [rowSelection, setRowSelection] = useState({});
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
-
+  const [density, setDensity] = useState<DensityState>("1rem");
   const { data, loading, hasError, refreshData } = useDataFromUrl<
     DataResponse<TData>
   >({
@@ -102,6 +103,7 @@ export const DataTableServer = <TData,>({
       rowSelection,
       columnOrder,
       globalFilter,
+      density,
     },
     defaultColumn: {
       size: 150, //starting column size
@@ -124,7 +126,8 @@ export const DataTableServer = <TData,>({
         return false;
       },
     },
-   // for tanstack-table ts bug end
+    // for tanstack-table ts bug end
+    onDensityChange: setDensity,
   });
 
   useEffect(() => {

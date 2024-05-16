@@ -9,7 +9,7 @@ import {
   Portal,
   Th,
   Thead,
-  Tr
+  Tr,
 } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
 import { MdCancel, MdFilterListAlt } from "react-icons/md";
@@ -66,7 +66,7 @@ export const TableHeader = ({
 
             return (
               <Th
-                style={{ padding: "0" }}
+                padding={"0rem"}
                 key={crypto.randomUUID()}
                 colSpan={header.colSpan}
                 // styling resize and pinning start
