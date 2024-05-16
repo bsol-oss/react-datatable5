@@ -1,6 +1,6 @@
 /// <reference types="react" />
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { FilterFn, ColumnDef } from '@tanstack/react-table';
+import { FilterFn, ColumnDef, RowData } from '@tanstack/react-table';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { ReactNode } from 'react';
 import * as _tanstack_table_core from '@tanstack/table-core';
@@ -38,6 +38,11 @@ interface DataResponse<T> extends Result<T> {
     success: boolean;
     count: number;
     filterCount: number;
+}
+declare module "@tanstack/react-table" {
+    interface ColumnMeta<TData extends RowData, TValue> {
+        displayName: string;
+    }
 }
 declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
@@ -97,11 +102,15 @@ declare const TableSelector: () => react_jsx_runtime.JSX.Element;
 
 declare const TableSorter: () => react_jsx_runtime.JSX.Element;
 
+declare const TableViewer: () => react_jsx_runtime.JSX.Element;
+
 interface TextCellProps {
     label?: string;
+    noOfLines?: number[];
+    padding?: string;
     children: string | number | JSX.Element | JSX.Element[];
 }
-declare const TextCell: ({ label, children }: TextCellProps) => react_jsx_runtime.JSX.Element;
+declare const TextCell: ({ label, noOfLines, padding, children, }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
 interface useDataFromUrlReturn<T> {
     data: T;
@@ -123,4 +132,4 @@ declare const useDataTable: () => {
     setGlobalFilter: (filter: string) => void;
 };
 
-export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, TableSelector, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };

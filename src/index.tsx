@@ -20,6 +20,7 @@ export * from "./components/TableOrderer";
 export * from "./components/TablePagination";
 export * from "./components/TableSelector";
 export * from "./components/TableSorter";
+export * from "./components/TableViewer";
 export * from "./components/TextCell";
 export * from "./components/useDataFromUrl";
 export * from "./components/useDataTable";
