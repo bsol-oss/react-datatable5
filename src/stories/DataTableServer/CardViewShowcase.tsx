@@ -1,4 +1,10 @@
-import { ButtonGroup, ChakraProvider, Flex, theme } from "@chakra-ui/react";
+import {
+  Box,
+  ButtonGroup,
+  ChakraProvider,
+  Flex,
+  theme,
+} from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
 import { EditFilterButton } from "../../components/EditFilterButton";
@@ -37,12 +43,15 @@ const RowActions = ({ row }: RowActionsProps) => {
 const CardViewShowcase = () => {
   const columnHelper = createColumnHelper<ChatRecord>();
 
-  const columns: ColumnDef<ChatRecord, unknown>[] = [
+  const columns: ColumnDef<ChatRecord>[] = [
     // Display Column
     columnHelper.display({
       id: "actions",
       header: () => <span>Actions</span>,
       cell: (props) => <RowActions row={props.row.original} />,
+      meta: {
+        displayName: "Actions",
+      },
     }),
 
     // Grouping Column
@@ -52,22 +61,34 @@ const CardViewShowcase = () => {
       columns: [
         columnHelper.accessor("session_id", {
           cell: (props) => {
-            return <TextCell>{`${props.row.original.session_id}`}</TextCell>;
+            return (
+              <TextCell label={props.row.original.session_id}>
+                {props.row.original.session_id}
+              </TextCell>
+            );
           },
-          header: () => <span>Session Id</span>,
-          footer: (props) => props.column.id,
+          header: () => <Box>Session Id</Box>,
+          footer: () => <Box>Session Id</Box>,
+          meta: {
+            displayName: "Session Id",
+          },
         }),
         columnHelper.accessor("last_user_message", {
           cell: (props) => {
             return (
-              <TextCell label={props.row.original.last_user_message}>
-                {props.row.original.last_user_message}
-              </TextCell>
+              <Box padding={"0rem"}>
+                <TextCell label={props.row.original.last_user_message}>
+                  {props.row.original.last_user_message}
+                </TextCell>
+              </Box>
             );
           },
-
-          header: () => <span>User Message</span>,
-          footer: (props) => props.column.id,
+          size: 400,
+          header: () => <Box>User Message</Box>,
+          footer: () => <Box>User Message</Box>,
+          meta: {
+            displayName: "User Message",
+          },
         }),
         // Accessor Column
         columnHelper.accessor("total_token", {
@@ -75,8 +96,11 @@ const CardViewShowcase = () => {
             return <TextCell>{props.row.original.total_token}</TextCell>;
           },
           header: () => <span>Total Token</span>,
-          footer: (props) => props.column.id,
+          footer: () => <span>Total Token</span>,
           sortDescFirst: false,
+          meta: {
+            displayName: "Total Token",
+          },
         }),
       ],
     }),
@@ -88,7 +112,7 @@ const CardViewShowcase = () => {
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
       >
-        <Flex gap='0.25rem'>
+        <Flex gap="0.25rem">
           <TablePagination />
           <ButtonGroup isAttached>
             <EditViewButton />

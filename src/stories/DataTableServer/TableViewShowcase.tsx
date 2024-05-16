@@ -51,6 +51,9 @@ const TableViewShowcase = () => {
       id: "actions",
       header: () => <span>Actions</span>,
       cell: (props) => <RowActions row={props.row.original} />,
+      meta: {
+        displayName: "Actions",
+      },
     }),
 
     // Grouping Column
@@ -66,8 +69,11 @@ const TableViewShowcase = () => {
               </TextCell>
             );
           },
-          header: () => <span>Session Id</span>,
-          footer: (props) => props.column.id,
+          header: () => <Box>Session Id</Box>,
+          footer: () => <Box>Session Id</Box>,
+          meta: {
+            displayName: "Session Id",
+          },
         }),
         columnHelper.accessor("last_user_message", {
           cell: (props) => {
@@ -82,6 +88,9 @@ const TableViewShowcase = () => {
           size: 400,
           header: () => <Box>User Message</Box>,
           footer: () => <Box>User Message</Box>,
+          meta: {
+            displayName: "User Message",
+          },
         }),
         // Accessor Column
         columnHelper.accessor("total_token", {
@@ -91,6 +100,9 @@ const TableViewShowcase = () => {
           header: () => <span>Total Token</span>,
           footer: () => <span>Total Token</span>,
           sortDescFirst: false,
+          meta: {
+            displayName: "Total Token",
+          },
         }),
       ],
     }),

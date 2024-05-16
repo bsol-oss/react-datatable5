@@ -49,7 +49,10 @@ const TablePinningShowcase = () => {
         );
       },
       header: () => <span>Session Id</span>,
-      footer: (props) => props.column.id,
+      footer: () => <span>Session Id</span>,
+      meta: {
+        displayName: "Session Id",
+      },
     }),
     columnHelper.display({
       id: "last_user_message",
@@ -62,7 +65,10 @@ const TablePinningShowcase = () => {
       },
 
       header: () => <span>User Message</span>,
-      footer: (props) => props.column.id,
+      footer: () => <span>User Message</span>,
+      meta: {
+        displayName: "User Message",
+      },
     }),
     columnHelper.display({
       id: "last_system_response",
@@ -73,9 +79,12 @@ const TablePinningShowcase = () => {
           </TextCell>
         );
       },
-      header: () => <span>last_system_response</span>,
+      header: () => <span>System Response</span>,
+      footer: () => <span>System Response</span>,
       size: 400,
-      footer: (props) => props.column.id,
+      meta: {
+        displayName: "System Response",
+      },
     }),
     columnHelper.display({
       id: "last_update",
@@ -86,8 +95,11 @@ const TablePinningShowcase = () => {
           </TextCell>
         );
       },
-      header: () => <span>last_update</span>,
-      footer: (props) => props.column.id,
+      header: () => <span>Last Update</span>,
+      footer: () => <span>Last Update</span>,
+      meta: {
+        displayName: "Last Update",
+      },
     }),
     // display Column
     columnHelper.display({
@@ -96,8 +108,11 @@ const TablePinningShowcase = () => {
         return <TextCell>{props.row.original.total_token}</TextCell>;
       },
       header: () => <span>Total Token</span>,
-      footer: (props) => props.column.id,
+      footer: () => <span>Total Token</span>,
       sortDescFirst: false,
+      meta: {
+        displayName: "Total Token",
+      },
     }),
     columnHelper.display({
       id: "total_prompt_tokens",
@@ -105,8 +120,11 @@ const TablePinningShowcase = () => {
         return <TextCell>{props.row.original.total_prompt_tokens}</TextCell>;
       },
       header: () => <span>Total Prompt Token</span>,
-      footer: (props) => props.column.id,
+      footer: () => <span>Total Prompt Token</span>,
       sortDescFirst: false,
+      meta: {
+        displayName: "Total Prompt Token",
+      },
     }),
   ];
   return (
