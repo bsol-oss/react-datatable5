@@ -23,8 +23,8 @@ export const TableBody = ({
             zIndex={1}
           >
             <Td
+              padding={"0rem"}
               // styling resize and pinning start
-              padding={table.getState().density}
               {...(table.getIsSomeColumnsPinned("left")
                 ? {
                     left: `0px`,
@@ -37,6 +37,7 @@ export const TableBody = ({
               // styling resize and pinning end
             >
               <Checkbox
+                padding={table.getState().density}
                 {...{
                   isChecked: row.getIsSelected(),
                   disabled: !row.getCanSelect(),

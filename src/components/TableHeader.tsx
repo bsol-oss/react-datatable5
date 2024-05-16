@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Checkbox,
   Flex,
   Menu,
@@ -10,7 +9,7 @@ import {
   Portal,
   Th,
   Thead,
-  Tr,
+  Tr
 } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
 import { MdCancel, MdFilterListAlt } from "react-icons/md";
@@ -36,7 +35,6 @@ export const TableHeader = ({
         <Tr display={"flex"} key={crypto.randomUUID()}>
           <Th
             // styling resize and pinning start
-            padding={table.getState().density}
             {...(table.getIsSomeColumnsPinned("left")
               ? {
                   left: `0px`,
@@ -47,8 +45,10 @@ export const TableHeader = ({
                 }
               : {})}
             // styling resize and pinning end
+            padding={"0rem"}
           >
             <Checkbox
+              padding={table.getState().density}
               {...{
                 isChecked: table.getIsAllRowsSelected(),
                 // indeterminate: table.getIsSomeRowsSelected(),
@@ -66,7 +66,7 @@ export const TableHeader = ({
 
             return (
               <Th
-                padding={table.getState().density}
+                style={{ padding: "0" }}
                 key={crypto.randomUUID()}
                 colSpan={header.colSpan}
                 // styling resize and pinning start
@@ -90,92 +90,90 @@ export const TableHeader = ({
                 // styling resize and pinning end
                 display={"grid"}
               >
-                <>
-                  <Menu>
-                    <MenuButton
-                      as={Button}
-                      display={"flex"}
-                      alignItems={"center"}
-                      justifyContent={"start"}
-                      variant={"ghost"}
-                      borderRadius={"0rem"}
-                      padding={"0rem"}
-                    >
-                      <Flex gap="0.5rem" alignItems={"center"}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                        <Box>
-                          {header.column.getCanSort() && (
-                            <>
-                              {header.column.getIsSorted() === false && (
-                                // <UpDownIcon />
-                                <></>
-                              )}
-                              {header.column.getIsSorted() === "asc" && (
-                                <ChevronUpIcon />
-                              )}
-                              {header.column.getIsSorted() === "desc" && (
-                                <ChevronDownIcon />
-                              )}
-                            </>
+                <Menu>
+                  <MenuButton
+                    as={Box}
+                    padding={table.getState().density}
+                    display={"flex"}
+                    alignItems={"center"}
+                    justifyContent={"start"}
+                    borderRadius={"0rem"}
+                    _hover={{ backgroundColor: "gray.100" }}
+                  >
+                    <Flex gap="0.5rem" alignItems={"center"}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
                           )}
-                        </Box>
-                      </Flex>
-                    </MenuButton>
-
-                    <Portal>
-                      <MenuList>
-                        {!header.column.getIsPinned() && (
-                          <MenuItem
-                            icon={<MdPushPin />}
-                            onClick={() => {
-                              header.column.pin("left");
-                            }}
-                          >
-                            Pin Column
-                          </MenuItem>
-                        )}
-                        {header.column.getIsPinned() && (
-                          <MenuItem
-                            icon={<MdCancel />}
-                            onClick={() => {
-                              header.column.pin(false);
-                            }}
-                          >
-                            Cancel Pin
-                          </MenuItem>
-                        )}
+                      <Box>
                         {header.column.getCanSort() && (
                           <>
-                            <MenuItem
-                              icon={<MdSort />}
-                              onClick={() => {
-                                header.column.toggleSorting();
-                              }}
-                            >
-                              Toggle Sorting
-                            </MenuItem>
-
-                            {header.column.getIsSorted() && (
-                              <MenuItem
-                                icon={<IoMdClose />}
-                                onClick={() => {
-                                  header.column.clearSorting();
-                                }}
-                              >
-                                Clear Sorting
-                              </MenuItem>
+                            {header.column.getIsSorted() === false && (
+                              // <UpDownIcon />
+                              <></>
+                            )}
+                            {header.column.getIsSorted() === "asc" && (
+                              <ChevronUpIcon />
+                            )}
+                            {header.column.getIsSorted() === "desc" && (
+                              <ChevronDownIcon />
                             )}
                           </>
                         )}
-                      </MenuList>
-                    </Portal>
-                  </Menu>
-                </>
+                      </Box>
+                    </Flex>
+                  </MenuButton>
+
+                  <Portal>
+                    <MenuList>
+                      {!header.column.getIsPinned() && (
+                        <MenuItem
+                          icon={<MdPushPin />}
+                          onClick={() => {
+                            header.column.pin("left");
+                          }}
+                        >
+                          Pin Column
+                        </MenuItem>
+                      )}
+                      {header.column.getIsPinned() && (
+                        <MenuItem
+                          icon={<MdCancel />}
+                          onClick={() => {
+                            header.column.pin(false);
+                          }}
+                        >
+                          Cancel Pin
+                        </MenuItem>
+                      )}
+                      {header.column.getCanSort() && (
+                        <>
+                          <MenuItem
+                            icon={<MdSort />}
+                            onClick={() => {
+                              header.column.toggleSorting();
+                            }}
+                          >
+                            Toggle Sorting
+                          </MenuItem>
+
+                          {header.column.getIsSorted() && (
+                            <MenuItem
+                              icon={<IoMdClose />}
+                              onClick={() => {
+                                header.column.clearSorting();
+                              }}
+                            >
+                              Clear Sorting
+                            </MenuItem>
+                          )}
+                        </>
+                      )}
+                    </MenuList>
+                  </Portal>
+                </Menu>
 
                 {header.column.getIsFiltered() && <MdFilterListAlt />}
                 {canResize && (

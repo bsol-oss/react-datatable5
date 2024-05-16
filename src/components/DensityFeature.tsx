@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 
 // define types for our new feature's custom state
-export type DensityState = "sm" | "md" | "lg";
+export type DensityState = "1rem" | "2rem" | "4rem";
 export interface DensityTableState {
   density: DensityState;
 }
@@ -58,7 +58,7 @@ export const DensityFeature: TableFeature<any> = {
   // define the new feature's initial state
   getInitialState: (state): DensityTableState => {
     return {
-      density: "md",
+      density: "2rem",
       ...state,
     };
   },
@@ -88,8 +88,13 @@ export const DensityFeature: TableFeature<any> = {
     };
     table.toggleDensity = (value) => {
       table.setDensity((old) => {
-        if (value) return value;
-        return old === "lg" ? "md" : old === "md" ? "sm" : "lg"; //cycle through the 3 options
+        if (old === "1rem") {
+          return "2rem";
+        }
+        if (old === "2rem") {
+          return "4rem";
+        }
+        return "1rem";
       });
     };
   },

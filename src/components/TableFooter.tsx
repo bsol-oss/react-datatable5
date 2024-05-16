@@ -50,7 +50,7 @@ export const TableFooter = ({
           </Th>
           {footerGroup.headers.map((header) => (
             <Th
-              padding={table.getState().density}
+              padding={"0"}
               key={crypto.randomUUID()}
               colSpan={header.colSpan}
               // styling resize and pinning start
@@ -76,13 +76,13 @@ export const TableFooter = ({
             >
               <Menu>
                 <MenuButton
-                  as={Button}
+                  as={Box}
+                  padding={table.getState().density}
                   display={"flex"}
                   alignItems={"center"}
                   justifyContent={"start"}
-                  variant={"ghost"}
                   borderRadius={"0rem"}
-                  padding={"0rem"}
+                  _hover={{ backgroundColor: "gray.100" }}
                 >
                   <Flex gap="0.5rem" alignItems={"center"}>
                     {header.isPlaceholder
