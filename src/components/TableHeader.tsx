@@ -97,9 +97,9 @@ export const TableHeader = ({
                       display={"flex"}
                       alignItems={"center"}
                       justifyContent={"start"}
-                      variant={'ghost'}
-                      borderRadius={'0rem'}
-                      padding={'0rem'}
+                      variant={"ghost"}
+                      borderRadius={"0rem"}
+                      padding={"0rem"}
                     >
                       <Flex gap="0.5rem" alignItems={"center"}>
                         {header.isPlaceholder
