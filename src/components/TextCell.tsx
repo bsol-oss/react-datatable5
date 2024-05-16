@@ -42,6 +42,7 @@ export const TextCell = ({
         as="span"
         overflow="hidden"
         textOverflow={"ellipsis"}
+        wordBreak={"break-all"}
         noOfLines={noOfLines}
       >
         {children}
