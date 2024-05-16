@@ -9,8 +9,8 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable";
 import { EditFilterButton } from "../../components/EditFilterButton";
 import { EditOrderButton } from "../../components/EditOrderButton";
-import { EditSortingButton } from "../../components/EditSortingButton";
 import { EditViewButton } from "../../components/EditViewButton";
+import { GlobalFilter } from "../../components/GlobalFilter";
 import { PageSizeControl } from "../../components/PageSizeControl";
 import { Table } from "../../components/Table";
 import { TableBody } from "../../components/TableBody";
@@ -20,24 +20,9 @@ import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
 import { data, Product } from "../data";
-import { GlobalFilter } from "../../components/GlobalFilter";
-
-interface ChatRecord {
-  session_id: string;
-  last_user_message: string;
-  last_system_response: string;
-  total_token: number;
-  total_prompt_tokens: number;
-  total_completion_tokens: number;
-  total_normalise_tokens: number;
-  chat_type: string;
-  model: string;
-  created_by: string;
-  last_update: string;
-}
 
 interface RowActionsProps {
-  row: ChatRecord;
+  row: Product;
 }
 
 const RowActions = ({ row }: RowActionsProps) => {
