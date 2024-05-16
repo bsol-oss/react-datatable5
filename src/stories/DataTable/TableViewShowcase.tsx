@@ -83,7 +83,7 @@ const TableViewShowcase = () => {
   return (
     <ChakraProvider theme={theme}>
       <DataTable columns={columns} data={data}>
-        <Flex gap="0.25rem">
+        <Flex>
           <TablePagination />
           <ButtonGroup isAttached>
             <EditViewButton />

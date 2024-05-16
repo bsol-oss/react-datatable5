@@ -115,7 +115,7 @@ const TableViewShowcase = () => {
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
       >
-        <Flex gap="0.25rem">
+        <Flex>
           <TablePagination />
           <ButtonGroup isAttached>
             <EditViewButton />
