@@ -1,4 +1,15 @@
-import { Checkbox, Tfoot, Th, Tr } from "@chakra-ui/react";
+import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  Menu,
+  MenuButton,
+  Tfoot,
+  Th,
+  Tr,
+} from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
 import { useDataTable } from "./useDataTable";
 
@@ -61,15 +72,44 @@ export const TableFooter = ({
                   : undefined,
               }}
               // styling resize and pinning end
-              display={"flex"}
-              alignItems={"center"}
+              display={"grid"}
             >
-              {header.isPlaceholder
-                ? null
-                : flexRender(
-                    header.column.columnDef.footer,
-                    header.getContext()
-                  )}
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  display={"flex"}
+                  alignItems={"center"}
+                  justifyContent={"start"}
+                  variant={"ghost"}
+                  borderRadius={"0rem"}
+                  padding={"0rem"}
+                >
+                  <Flex gap="0.5rem" alignItems={"center"}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.footer,
+                          header.getContext()
+                        )}
+                    <Box>
+                      {header.column.getCanSort() && (
+                        <>
+                          {header.column.getIsSorted() === false && (
+                            // <UpDownIcon />
+                            <></>
+                          )}
+                          {header.column.getIsSorted() === "asc" && (
+                            <ChevronUpIcon />
+                          )}
+                          {header.column.getIsSorted() === "desc" && (
+                            <ChevronDownIcon />
+                          )}
+                        </>
+                      )}
+                    </Box>
+                  </Flex>
+                </MenuButton>
+              </Menu>
             </Th>
           ))}
         </Tr>
