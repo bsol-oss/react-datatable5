@@ -5,7 +5,7 @@ import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { ReactNode } from 'react';
 import * as _tanstack_table_core from '@tanstack/table-core';
 
-declare module '@tanstack/react-table' {
+declare module "@tanstack/react-table" {
     interface FilterFns {
         fuzzy: FilterFn<unknown>;
     }
@@ -46,6 +46,8 @@ declare module "@tanstack/react-table" {
 }
 declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
+declare const DensityToggleButton: () => react_jsx_runtime.JSX.Element;
+
 declare const EditFilterButton: () => react_jsx_runtime.JSX.Element;
 
 declare const EditOrderButton: () => react_jsx_runtime.JSX.Element;
@@ -70,9 +72,15 @@ declare const ResetSortingButton: () => react_jsx_runtime.JSX.Element;
 interface TableProps {
     children: ReactNode;
 }
-declare const Table: ({ children }: TableProps) => react_jsx_runtime.JSX.Element;
+declare const Table: ({ children, ...props }: TableProps) => react_jsx_runtime.JSX.Element;
 
-declare const TableBody: () => react_jsx_runtime.JSX.Element;
+interface TableBodyProps {
+    pinnedBgColor?: {
+        light: string;
+        dark: string;
+    };
+}
+declare const TableBody: ({ pinnedBgColor, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
 
 interface TableCardContainerProps {
     children: JSX.Element;
@@ -85,12 +93,22 @@ declare const TableCards: ({}: TableCardsProps) => react_jsx_runtime.JSX.Element
 
 declare const TableFilter: () => react_jsx_runtime.JSX.Element;
 
-declare const TableFooter: () => react_jsx_runtime.JSX.Element;
+interface TableFooterProps {
+    pinnedBgColor?: {
+        light: string;
+        dark: string;
+    };
+}
+declare const TableFooter: ({ pinnedBgColor, }: TableFooterProps) => react_jsx_runtime.JSX.Element;
 
 interface TableHeaderProps {
     canResize?: boolean;
+    pinnedBgColor?: {
+        light: string;
+        dark: string;
+    };
 }
-declare const TableHeader: ({ canResize }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
+declare const TableHeader: ({ canResize, pinnedBgColor, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
 
 declare const TableOrderer: () => react_jsx_runtime.JSX.Element;
 
@@ -132,4 +150,4 @@ declare const useDataTable: () => {
     setGlobalFilter: (filter: string) => void;
 };
 
-export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };

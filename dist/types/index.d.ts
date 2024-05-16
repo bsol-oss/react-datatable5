@@ -1,5 +1,6 @@
 export * from "./components/DataTable";
 export * from "./components/DataTableServer";
+export * from "./components/DensityToggleButton";
 export * from "./components/EditFilterButton";
 export * from "./components/EditOrderButton";
 export * from "./components/EditSortingButton";

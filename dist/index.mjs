@@ -1,9 +1,10 @@
 import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
-import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
+import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 import { createContext, useState, useEffect, useContext } from 'react';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import axios from 'axios';
-import { Button, Box, Text, Input, Popover, Tooltip, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, Switch, Menu, MenuButton, MenuList, MenuItem, Container, Table as Table$1, Checkbox, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Icon } from '@chakra-ui/react';
+import { Tooltip, IconButton, Button, Box, Text, Input, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverBody, Flex, Switch, Menu, MenuButton, MenuList, MenuItem, Table as Table$1, Checkbox, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Icon } from '@chakra-ui/react';
+import { AiOutlineColumnWidth } from 'react-icons/ai';
 import { MdFilterAlt, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdPushPin, MdCancel, MdSort, MdFilterListAlt, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdClear, MdOutlineChecklist } from 'react-icons/md';
 import { UpDownIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon } from '@chakra-ui/icons';
 import { IoMdEye, IoMdClose, IoMdCheckbox } from 'react-icons/io';
@@ -15,6 +16,63 @@ const TableContext = createContext({
     globalFilter: "",
     setGlobalFilter: () => { },
 });
+
+// Reference: https://tanstack.com/table/latest/docs/framework/react/examples/custom-features
+// TypeScript setup for our new feature with all of the same type-safety as stock TanStack Table features
+// end of TS setup!
+// Here is all of the actual javascript code for our new feature
+const DensityFeature = {
+    // define the new feature's initial state
+    getInitialState: (state) => {
+        return {
+            density: "1rem",
+            ...state,
+        };
+    },
+    // define the new feature's default options
+    getDefaultOptions: (table) => {
+        return {
+            enableDensity: true,
+            onDensityChange: makeStateUpdater("density", table),
+        };
+    },
+    // if you need to add a default column definition...
+    // getDefaultColumnDef: <TData extends RowData>(): Partial<ColumnDef<TData>> => {
+    //   return { meta: {} } //use meta instead of directly adding to the columnDef to avoid typescript stuff that's hard to workaround
+    // },
+    // define the new feature's table instance methods
+    createTable: (table) => {
+        table.setDensity = (updater) => {
+            const safeUpdater = (old) => {
+                let newState = functionalUpdate(updater, old);
+                return newState;
+            };
+            return table.options.onDensityChange?.(safeUpdater);
+        };
+        table.toggleDensity = (value) => {
+            table.setDensity((old) => {
+                if (value)
+                    return value;
+                if (old === "0.5rem") {
+                    return "1rem";
+                }
+                if (old === "1rem") {
+                    return "2rem";
+                }
+                return "0.5rem";
+            });
+        };
+    },
+    // if you need to add row instance APIs...
+    // createRow: <TData extends RowData>(row, table): void => {},
+    // if you need to add cell instance APIs...
+    // createCell: <TData extends RowData>(cell, column, row, table): void => {},
+    // if you need to add column instance APIs...
+    // createColumn: <TData extends RowData>(column, table): void => {},
+    // if you need to add header instance APIs...
+    // createHeader: <TData extends RowData>(header, table): void => {},
+};
+//end of custom feature code
 
 // Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
 const fuzzyFilter = (row, columnId, value, addMeta) => {
@@ -29,8 +87,10 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
 };
 const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
     const [columnOrder, setColumnOrder] = useState([]);
-    const [globalFilter, setGlobalFilter] = useState('');
+    const [globalFilter, setGlobalFilter] = useState("");
+    const [density, setDensity] = useState("1rem");
     const table = useReactTable({
+        _features: [DensityFeature],
         data: data,
         columns: columns,
         getCoreRowModel: getCoreRowModel(),
@@ -45,6 +105,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         state: {
             columnOrder,
             globalFilter,
+            density,
         },
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
@@ -53,11 +114,14 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
         columnResizeMode: "onChange",
+        // global filter start
         filterFns: {
-            fuzzy: fuzzyFilter, //define as a filter function that can be used in column definitions
+            fuzzy: fuzzyFilter,
         },
         onGlobalFilterChange: setGlobalFilter,
-        globalFilterFn: 'fuzzy', //apply fuzzy filter to the global filter (most common use case for fuzzy filter)
+        globalFilterFn: "fuzzy",
+        // global filter end
+        onDensityChange: setDensity,
     });
     useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
@@ -111,6 +175,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     const [rowSelection, setRowSelection] = useState({});
     const [columnOrder, setColumnOrder] = useState([]);
     const [globalFilter, setGlobalFilter] = useState("");
+    const [density, setDensity] = useState("1rem");
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -136,6 +201,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         },
     });
     const table = useReactTable({
+        _features: [DensityFeature],
         data: data.results,
         columns: columns,
         getCoreRowModel: getCoreRowModel(),
@@ -153,6 +219,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             rowSelection,
             columnOrder,
             globalFilter,
+            density,
         },
         defaultColumn: {
             size: 150, //starting column size
@@ -176,6 +243,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             },
         },
         // for tanstack-table ts bug end
+        onDensityChange: setDensity,
     });
     useEffect(() => {
         refreshData();
@@ -189,6 +257,13 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             globalFilter,
             setGlobalFilter,
         }, children: children }));
+};
+
+const DensityToggleButton = () => {
+    const { table } = useContext(TableContext);
+    return (jsx(Tooltip, { label: "Toggle Density", children: jsx(IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: jsx(AiOutlineColumnWidth, {}), onClick: (event) => {
+                table.toggleDensity();
+            } }) }));
 };
 
 const ResetFilteringButton = () => {
@@ -345,37 +420,33 @@ const ResetSelectionButton = () => {
         }, children: "Reset Selection" }));
 };
 
-const Table = ({ children }) => {
+const Table = ({ children, ...props }) => {
     const { table } = useDataTable();
-    return (jsx(Container, { padding: '0rem', maxW: "100%", overflowX: "scroll", children: jsx(Table$1, { width: table.getCenterTotalSize(), variant: "unstyled", children: children }) }));
+    return (jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "scroll", ...props, children: children }));
 };
 
-const TableBody = () => {
+const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
     const { table } = useContext(TableContext);
     return (jsx(Tbody, { children: table.getRowModel().rows.map((row) => {
-            return (jsxs(Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, children: [jsx(Td
-                    // styling resize and pinning start
-                    , { 
-                        // styling resize and pinning start
-                        padding: "0.5rem", ...(table.getIsSomeColumnsPinned("left")
+            return (jsxs(Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, children: [jsx(Td, { padding: "0rem", ...(table.getIsSomeColumnsPinned("left")
                             ? {
                                 left: `0px`,
-                                backgroundColor: "gray.50",
+                                backgroundColor: pinnedBgColor.light,
                                 position: "sticky",
                                 zIndex: 1,
-                                _dark: { backgroundColor: "gray.700" },
+                                _dark: { backgroundColor: pinnedBgColor.dark },
                             }
-                            : {}), children: jsx(Checkbox, { isChecked: row.getIsSelected(),
+                            : {}), children: jsx(Checkbox, { padding: table.getState().density, isChecked: row.getIsSelected(),
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
                             onChange: row.getToggleSelectedHandler() }) }), row.getVisibleCells().map((cell) => {
-                        return (jsx(Td, { padding: "0rem", 
+                        return (jsx(Td, { padding: table.getState().density, 
                             // styling resize and pinning start
                             maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, left: cell.column.getIsPinned()
                                 ? `${cell.column.getStart("left") + 32}px`
-                                : undefined, backgroundColor: cell.column.getIsPinned() ? "gray.50" : undefined, position: cell.column.getIsPinned() ? "sticky" : "relative", zIndex: cell.column.getIsPinned() ? 1 : 0, _dark: {
+                                : undefined, backgroundColor: cell.column.getIsPinned() ? pinnedBgColor.light : undefined, position: cell.column.getIsPinned() ? "sticky" : "relative", zIndex: cell.column.getIsPinned() ? 1 : 0, _dark: {
                                 backgroundColor: cell.column.getIsPinned()
-                                    ? "gray.700"
+                                    ? pinnedBgColor.dark
                                     : undefined,
                             }, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID()));
                     })] }, crypto.randomUUID()));
@@ -398,54 +469,56 @@ const TableCards = ({}) => {
         }) }));
 };
 
-const TableFooter = () => {
+const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
     const table = useDataTable().table;
     const SELECTION_BOX_WIDTH = 32;
     return (jsx(Tfoot, { children: table.getFooterGroups().map((footerGroup) => (jsxs(Tr$1, { display: "flex", children: [jsx(Th
                 // styling resize and pinning start
                 , { 
                     // styling resize and pinning start
-                    padding: "0.5rem", ...(table.getIsSomeColumnsPinned("left")
+                    padding: table.getState().density, ...(table.getIsSomeColumnsPinned("left")
                         ? {
                             left: `0px`,
-                            backgroundColor: "gray.50",
+                            backgroundColor: pinnedBgColor.light,
                             position: "sticky",
                             zIndex: 1,
-                            _dark: { backgroundColor: "gray.700" },
+                            _dark: { backgroundColor: pinnedBgColor.dark },
                         }
                         : {}), children: jsx(Checkbox, { isChecked: table.getIsAllRowsSelected(),
                         // indeterminate: table.getIsSomeRowsSelected(),
-                        onChange: table.getToggleAllRowsSelectedHandler() }) }), footerGroup.headers.map((header) => (jsx(Th, { padding: "0rem", colSpan: header.colSpan, 
+                        onChange: table.getToggleAllRowsSelectedHandler() }) }), footerGroup.headers.map((header) => (jsx(Th, { padding: "0", colSpan: header.colSpan, 
                     // styling resize and pinning start
                     maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
                         ? `${header.getStart("left") + SELECTION_BOX_WIDTH}px`
-                        : undefined, backgroundColor: header.column.getIsPinned() ? "gray.50" : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : undefined, _dark: {
+                        : undefined, backgroundColor: header.column.getIsPinned() ? pinnedBgColor.light : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : undefined, _dark: {
                         backgroundColor: header.column.getIsPinned()
-                            ? "gray.700"
+                            ? pinnedBgColor.dark
                             : undefined,
                     }, 
                     // styling resize and pinning end
-                    display: "flex", alignItems: "center", children: header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.footer, header.getContext()) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
+                    display: "grid", children: jsx(Menu, { children: jsx(MenuButton, { as: Box, padding: table.getState().density, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                                        ? null
+                                        : flexRender(header.column.columnDef.footer, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (
+                                                // <UpDownIcon />
+                                                jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }) }) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
 };
 
-const TableHeader = ({ canResize }) => {
+const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
     const { table } = useDataTable();
     const SELECTION_BOX_WIDTH = 32;
     return (jsx(Thead, { children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [jsx(Th
                 // styling resize and pinning start
-                , { 
-                    // styling resize and pinning start
-                    padding: "0.5rem", ...(table.getIsSomeColumnsPinned("left")
+                , { ...(table.getIsSomeColumnsPinned("left")
                         ? {
                             left: `0px`,
-                            backgroundColor: "gray.50",
+                            backgroundColor: pinnedBgColor.light,
                             position: "sticky",
                             zIndex: 1,
-                            _dark: { backgroundColor: "gray.700" },
+                            _dark: { backgroundColor: pinnedBgColor.dark },
                         }
-                        : {}), children: jsx(Checkbox, { isChecked: table.getIsAllRowsSelected(),
+                        : {}), 
+                    // styling resize and pinning end
+                    padding: "0rem", children: jsx(Checkbox, { padding: table.getState().density, isChecked: table.getIsAllRowsSelected(),
                         // indeterminate: table.getIsSomeRowsSelected(),
                         onChange: table.getToggleAllRowsSelectedHandler() }) }), headerGroup.headers.map((header) => {
                     const resizeProps = {
@@ -458,23 +531,25 @@ const TableHeader = ({ canResize }) => {
                         // styling resize and pinning start
                         maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
                             ? `${header.getStart("left") + SELECTION_BOX_WIDTH}px`
-                            : undefined, backgroundColor: header.column.getIsPinned() ? "gray.50" : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : undefined, _dark: {
+                            : undefined, backgroundColor: header.column.getIsPinned() ? pinnedBgColor.light : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : undefined, _dark: {
                             backgroundColor: header.column.getIsPinned()
-                                ? "gray.700"
+                                ? pinnedBgColor.dark
                                 : undefined,
                         }, 
                         // styling resize and pinning end
-                        display: "grid", children: [jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Box, display: "flex", alignItems: "center", justifyContent: "start", _hover: { backgroundColor: "gray.100" }, _dark: { _hover: { backgroundColor: "gray.700" } }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
-                                                        ? null
-                                                        : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (jsx(UpDownIcon, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
-                                                            header.column.pin("left");
-                                                        }, children: "Pin Column" })), header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdCancel, {}), onClick: () => {
-                                                            header.column.pin(false);
-                                                        }, children: "Cancel Pin" })), header.column.getCanSort() && (jsxs(Fragment, { children: [jsx(MenuItem, { icon: jsx(MdSort, {}), onClick: () => {
-                                                                    header.column.toggleSorting();
-                                                                }, children: "Toggle Sorting" }), header.column.getIsSorted() && (jsx(MenuItem, { icon: jsx(IoMdClose, {}), onClick: () => {
-                                                                    header.column.clearSorting();
-                                                                }, children: "Clear Sorting" }))] }))] }) })] }) }), header.column.getIsFiltered() && jsx(MdFilterListAlt, {}), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "absolute", right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
+                        display: "grid", children: [jsxs(Menu, { children: [jsx(MenuButton, { as: Box, padding: table.getState().density, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (
+                                                            // <UpDownIcon />
+                                                            jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
+                                                        header.column.pin("left");
+                                                    }, children: "Pin Column" })), header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdCancel, {}), onClick: () => {
+                                                        header.column.pin(false);
+                                                    }, children: "Cancel Pin" })), header.column.getCanSort() && (jsxs(Fragment, { children: [jsx(MenuItem, { icon: jsx(MdSort, {}), onClick: () => {
+                                                                header.column.toggleSorting();
+                                                            }, children: "Toggle Sorting" }), header.column.getIsSorted() && (jsx(MenuItem, { icon: jsx(IoMdClose, {}), onClick: () => {
+                                                                header.column.clearSorting();
+                                                            }, children: "Clear Sorting" }))] }))] }) })] }), header.column.getIsFiltered() && jsx(MdFilterListAlt, {}), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "absolute", right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
                                     borderRightColor: header.column.getIsResizing()
                                         ? "gray.700"
                                         : "gray.400",
@@ -505,7 +580,7 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, }) => {
     if (label) {
         return (jsx(Box, { padding: padding, children: jsx(Tooltip, { label: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", children: jsx(Text, { as: "span", textOverflow: "ellipsis", noOfLines: noOfLines, children: children }) }) }));
     }
-    return (jsx(Box, { padding: padding, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: noOfLines, children: children }) }));
+    return (jsx(Box, { padding: padding, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, children: children }) }));
 };
 
-export { DataTable, DataTableServer, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, Table, TableBody, TableCardContainer, TableCards, TableFilter, TableFooter, TableHeader, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable };
+export { DataTable, DataTableServer, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, Table, TableBody, TableCardContainer, TableCards, TableFilter, TableFooter, TableHeader, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable };
