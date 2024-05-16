@@ -9,8 +9,8 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
 import { EditFilterButton } from "../../components/EditFilterButton";
 import { EditOrderButton } from "../../components/EditOrderButton";
-import { EditSortingButton } from "../../components/EditSortingButton";
 import { EditViewButton } from "../../components/EditViewButton";
+import { GlobalFilter } from "../../components/GlobalFilter";
 import { PageSizeControl } from "../../components/PageSizeControl";
 import { Table } from "../../components/Table";
 import { TableBody } from "../../components/TableBody";
@@ -113,6 +113,7 @@ const TableViewShowcase = () => {
           <ButtonGroup isAttached>
             <TableSelector />
           </ButtonGroup>
+          <GlobalFilter />
         </Flex>
         <Table>
           <TableHeader canResize />
