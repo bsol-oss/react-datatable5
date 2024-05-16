@@ -1,20 +1,15 @@
 import {
-  Checkbox,
-  Flex,
-  FormControl,
   IconButton,
   Popover,
   PopoverArrow,
   PopoverBody,
   PopoverContent,
-  PopoverTrigger,
+  PopoverTrigger
 } from "@chakra-ui/react";
-import { useContext } from "react";
 import { IoMdEye } from "react-icons/io";
-import { TableContext } from "./DataTableContext";
+import { TableViewer } from "./TableViewer";
 
 export const EditViewButton = () => {
-  const { table } = useContext(TableContext);
   return (
     <Popover placement="auto">
       <PopoverTrigger>
@@ -23,20 +18,7 @@ export const EditViewButton = () => {
       <PopoverContent width={"auto"}>
         <PopoverArrow />
         <PopoverBody>
-          <Flex flexFlow={"column"} gap={"1rem"}>
-            {table.getAllLeafColumns().map((column) => {
-              return (
-                <FormControl key={crypto.randomUUID()} width={"auto"}>
-                  <Checkbox
-                    isChecked={column.getIsVisible()}
-                    onChange={column.getToggleVisibilityHandler()}
-                  >
-                    {column.id}
-                  </Checkbox>
-                </FormControl>
-              );
-            })}
-          </Flex>
+          <TableViewer />
         </PopoverBody>
       </PopoverContent>
     </Popover>

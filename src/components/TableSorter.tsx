@@ -15,11 +15,15 @@ export const TableSorter = () => {
       {table.getHeaderGroups().map((headerGroup) => (
         <>
           {headerGroup.headers.map((header) => {
+            const displayName =
+              header.column.columnDef.meta === undefined
+                ? header.column.id
+                : header.column.columnDef.meta.displayName;
             return (
               <>
                 {header.column.getCanSort() && (
                   <Flex alignItems={"center"} gap={"0.5rem"} padding={"0.5rem"}>
-                    <Text>{header.column.id}</Text>
+                    <Text>{displayName}</Text>
                     <Button
                       variant={"ghost"}
                       onClick={(e) => {

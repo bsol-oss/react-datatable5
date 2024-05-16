@@ -1,4 +1,4 @@
-import { Box, Button, Flex, IconButton } from "@chakra-ui/react";
+import { Button, Flex, IconButton } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { MdArrowDownward, MdArrowUpward } from "react-icons/md";
 import { useDataTable } from "./useDataTable";
@@ -10,6 +10,7 @@ const ColumnOrderChanger = ({ columns }: ColumnOrderChangerProps) => {
   const [order, setOrder] = useState<string[]>([]);
   const [originalOrder, setOriginalOrder] = useState<string[]>([]);
   const { table } = useDataTable();
+
   const handleChangeOrder = (startIndex: number, endIndex: number) => {
     const newOrder = Array.from(order);
     const [removed] = newOrder.splice(startIndex, 1);
@@ -34,12 +35,12 @@ const ColumnOrderChanger = ({ columns }: ColumnOrderChangerProps) => {
   return (
     <Flex gap={"0.5rem"} flexFlow={"column"}>
       <Flex gap={"0.5rem"} flexFlow={"column"}>
-        {order.map((column, index) => (
+        {order.map((columnId, index) => (
           <Flex
-            key={column}
-            gap={"0.25rem"}
+            key={columnId}
+            gap={"0.5rem"}
             alignItems={"center"}
-            justifyContent={"center"}
+            justifyContent={"space-between"}
           >
             <IconButton
               onClick={() => {
@@ -53,7 +54,18 @@ const ColumnOrderChanger = ({ columns }: ColumnOrderChangerProps) => {
             >
               <MdArrowUpward />
             </IconButton>
-            {column}
+            {table
+              .getAllFlatColumns()
+              .filter((column) => {
+                return column.id === columnId;
+              })
+              .map((column) => {
+                const displayName =
+                  column.columnDef.meta === undefined
+                    ? column.id
+                    : column.columnDef.meta.displayName;
+                return <>{displayName}</>;
+              })}
             <IconButton
               onClick={() => {
                 const nextIndex = index + 1;
@@ -69,7 +81,7 @@ const ColumnOrderChanger = ({ columns }: ColumnOrderChangerProps) => {
           </Flex>
         ))}
       </Flex>
-      <Box>
+      <Flex gap={"0.25rem"}>
         <Button
           onClick={() => {
             table.setColumnOrder(order);
@@ -84,13 +96,14 @@ const ColumnOrderChanger = ({ columns }: ColumnOrderChangerProps) => {
         >
           {"Reset"}
         </Button>
-      </Box>
+      </Flex>
     </Flex>
   );
 };
 
 export const TableOrderer = () => {
   const { table } = useDataTable();
+
   return (
     <>
       <ColumnOrderChanger columns={table.getState().columnOrder} />

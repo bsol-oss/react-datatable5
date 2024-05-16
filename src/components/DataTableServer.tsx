@@ -4,6 +4,7 @@ import {
   ColumnDef,
   ColumnFiltersState,
   getCoreRowModel,
+  RowData,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -27,6 +28,12 @@ export interface DataResponse<T> extends Result<T> {
   success: boolean;
   count: number;
   filterCount: number;
+}
+
+declare module "@tanstack/react-table" {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    displayName: string;
+  }
 }
 
 export const DataTableServer = <TData,>({

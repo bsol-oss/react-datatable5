@@ -7,11 +7,15 @@ export const TableFilter = () => {
   return (
     <>
       {table.getLeafHeaders().map((header) => {
+        const displayName =
+          header.column.columnDef.meta === undefined
+            ? header.column.id
+            : header.column.columnDef.meta.displayName;
         return (
           <>
             {header.column.getCanFilter() && (
               <Box>
-                <Text>{header.column.id}</Text>
+                <Text>{displayName}</Text>
                 <Input
                   value={
                     header.column.getFilterValue()
@@ -30,4 +34,3 @@ export const TableFilter = () => {
     </>
   );
 };
-
