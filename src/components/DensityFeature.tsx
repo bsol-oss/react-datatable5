@@ -88,6 +88,7 @@ export const DensityFeature: TableFeature<any> = {
     };
     table.toggleDensity = (value) => {
       table.setDensity((old) => {
+        if (value) return value;
         if (old === "0.5rem") {
           return "1rem";
         }

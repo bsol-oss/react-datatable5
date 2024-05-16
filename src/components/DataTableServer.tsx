@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-table";
 import { TableContext } from "./DataTableContext";
 import { useDataFromUrl } from "./useDataFromUrl";
-import { DensityState } from "./DensityFeature";
+import { DensityFeature, DensityState } from "./DensityFeature";
 
 export interface DataTableServerProps<T> {
   children: JSX.Element | JSX.Element[];
@@ -86,6 +86,7 @@ export const DataTableServer = <TData,>({
     },
   });
   const table = useReactTable<TData>({
+    _features: [DensityFeature],
     data: data.results,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),

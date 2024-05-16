@@ -19,6 +19,7 @@ import { TableHeader } from "../../components/TableHeader";
 import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
+import { DensityToggleButton } from "../../components/DensityToggleButton";
 
 interface ChatRecord {
   session_id: string;
@@ -119,6 +120,7 @@ const TableViewShowcase = () => {
           <ButtonGroup isAttached>
             <EditViewButton />
             <EditFilterButton />
+            <DensityToggleButton />
           </ButtonGroup>
           <EditOrderButton />
           <PageSizeControl />
