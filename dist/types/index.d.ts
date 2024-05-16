@@ -4,6 +4,7 @@ export * from "./components/EditFilterButton";
 export * from "./components/EditOrderButton";
 export * from "./components/EditSortingButton";
 export * from "./components/EditViewButton";
+export * from "./components/GlobalFilter";
 export * from "./components/PageSizeControl";
 export * from "./components/ResetFilteringButton";
 export * from "./components/ResetSelectionButton";

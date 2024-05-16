@@ -40,6 +40,8 @@ declare const EditSortingButton: () => react_jsx_runtime.JSX.Element;
 
 declare const EditViewButton: () => react_jsx_runtime.JSX.Element;
 
+declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
+
 interface PageSizeControlProps {
     pageSizes?: number[];
 }
@@ -108,6 +110,8 @@ declare const useDataFromUrl: <T>({ url, params, defaultData, }: useDataFromUrlP
 declare const useDataTable: () => {
     table: _tanstack_table_core.Table<any>;
     refreshData: () => void;
+    globalFilter: string;
+    setGlobalFilter: (filter: string) => void;
 };
 
-export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, TableSelector, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, TableSelector, TableSorter, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };

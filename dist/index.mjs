@@ -11,6 +11,8 @@ import { Tbody, Tr, Td } from '@chakra-ui/table';
 const TableContext = createContext({
     table: {},
     refreshData: () => { },
+    globalFilter: "",
+    setGlobalFilter: () => { },
 });
 
 const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
@@ -87,6 +89,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     });
     const [rowSelection, setRowSelection] = useState({});
     const [columnOrder, setColumnOrder] = useState([]);
+    const [globalFilter, setGlobalFilter] = useState("");
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -108,6 +111,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
                 obj[filter.id] = filter.value;
                 return { ...accumulator, ...obj };
             }, {})),
+            searching: globalFilter,
         },
     });
     const table = useReactTable({
@@ -127,6 +131,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             columnFilters,
             rowSelection,
             columnOrder,
+            globalFilter,
         },
         defaultColumn: {
             size: 150, //starting column size
@@ -139,15 +144,23 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
         },
+        onGlobalFilterChange: (state) => {
+            setGlobalFilter(state);
+        },
         rowCount: data.filterCount,
     });
     useEffect(() => {
         refreshData();
-    }, [pagination, sorting, columnFilters]);
+    }, [pagination, sorting, columnFilters, globalFilter]);
     useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
     }, []);
-    return (jsx(TableContext.Provider, { value: { table: { ...table }, refreshData: refreshData }, children: children }));
+    return (jsx(TableContext.Provider, { value: {
+            table: { ...table },
+            refreshData: refreshData,
+            globalFilter,
+            setGlobalFilter,
+        }, children: children }));
 };
 
 const ResetFilteringButton = () => {
@@ -158,8 +171,8 @@ const ResetFilteringButton = () => {
 };
 
 const useDataTable = () => {
-    const { table, refreshData } = useContext(TableContext);
-    return { table, refreshData };
+    const { table, refreshData, globalFilter, setGlobalFilter } = useContext(TableContext);
+    return { table, refreshData, globalFilter, setGlobalFilter };
 };
 
 const TableFilter = () => {
@@ -259,9 +272,16 @@ const EditViewButton = () => {
                             }) }) })] })] }));
 };
 
+const GlobalFilter = () => {
+    const { globalFilter, setGlobalFilter } = useDataTable();
+    return (jsx(Input, { value: globalFilter, onChange: (e) => {
+            setGlobalFilter(e.target.value);
+        } }));
+};
+
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = useContext(TableContext);
-    return (jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Button, variant: "ghost", rightIcon: jsx(ChevronDownIcon, {}), children: table.getState().pagination.pageSize }), jsx(MenuList, { children: pageSizes.map((pageSize) => (jsx(MenuItem, { onClick: () => {
+    return (jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Button, variant: "ghost", rightIcon: jsx(ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsx(MenuList, { children: pageSizes.map((pageSize) => (jsx(MenuItem, { onClick: () => {
                             table.setPageSize(Number(pageSize));
                         }, children: pageSize }))) })] }) }));
 };
@@ -436,4 +456,4 @@ const TextCell = ({ label, children }) => {
     return (jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [1, 2, 3], children: children }));
 };
 
-export { DataTable, DataTableServer, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, PageSizeControl, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, Table, TableBody, TableCardContainer, TableCards, TableFilter, TableFooter, TableHeader, TableOrderer, TablePagination, TableSelector, TableSorter, TextCell, useDataFromUrl, useDataTable };
+export { DataTable, DataTableServer, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, Table, TableBody, TableCardContainer, TableCards, TableFilter, TableFooter, TableHeader, TableOrderer, TablePagination, TableSelector, TableSorter, TextCell, useDataFromUrl, useDataTable };

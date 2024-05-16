@@ -13,6 +13,8 @@ var table = require('@chakra-ui/table');
 const TableContext = react.createContext({
     table: {},
     refreshData: () => { },
+    globalFilter: "",
+    setGlobalFilter: () => { },
 });
 
 const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
@@ -89,6 +91,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     });
     const [rowSelection, setRowSelection] = react.useState({});
     const [columnOrder, setColumnOrder] = react.useState([]);
+    const [globalFilter, setGlobalFilter] = react.useState("");
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -110,6 +113,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
                 obj[filter.id] = filter.value;
                 return { ...accumulator, ...obj };
             }, {})),
+            searching: globalFilter,
         },
     });
     const table = reactTable.useReactTable({
@@ -129,6 +133,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             columnFilters,
             rowSelection,
             columnOrder,
+            globalFilter,
         },
         defaultColumn: {
             size: 150, //starting column size
@@ -141,15 +146,23 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
         },
+        onGlobalFilterChange: (state) => {
+            setGlobalFilter(state);
+        },
         rowCount: data.filterCount,
     });
     react.useEffect(() => {
         refreshData();
-    }, [pagination, sorting, columnFilters]);
+    }, [pagination, sorting, columnFilters, globalFilter]);
     react.useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
     }, []);
-    return (jsxRuntime.jsx(TableContext.Provider, { value: { table: { ...table }, refreshData: refreshData }, children: children }));
+    return (jsxRuntime.jsx(TableContext.Provider, { value: {
+            table: { ...table },
+            refreshData: refreshData,
+            globalFilter,
+            setGlobalFilter,
+        }, children: children }));
 };
 
 const ResetFilteringButton = () => {
@@ -160,8 +173,8 @@ const ResetFilteringButton = () => {
 };
 
 const useDataTable = () => {
-    const { table, refreshData } = react.useContext(TableContext);
-    return { table, refreshData };
+    const { table, refreshData, globalFilter, setGlobalFilter } = react.useContext(TableContext);
+    return { table, refreshData, globalFilter, setGlobalFilter };
 };
 
 const TableFilter = () => {
@@ -261,9 +274,16 @@ const EditViewButton = () => {
                             }) }) })] })] }));
 };
 
+const GlobalFilter = () => {
+    const { globalFilter, setGlobalFilter } = useDataTable();
+    return (jsxRuntime.jsx(react$1.Input, { value: globalFilter, onChange: (e) => {
+            setGlobalFilter(e.target.value);
+        } }));
+};
+
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = react.useContext(TableContext);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(react$1.Menu, { children: [jsxRuntime.jsx(react$1.MenuButton, { as: react$1.Button, variant: "ghost", rightIcon: jsxRuntime.jsx(icons.ChevronDownIcon, {}), children: table.getState().pagination.pageSize }), jsxRuntime.jsx(react$1.MenuList, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(react$1.MenuItem, { onClick: () => {
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(react$1.Menu, { children: [jsxRuntime.jsx(react$1.MenuButton, { as: react$1.Button, variant: "ghost", rightIcon: jsxRuntime.jsx(icons.ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsxRuntime.jsx(react$1.MenuList, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(react$1.MenuItem, { onClick: () => {
                             table.setPageSize(Number(pageSize));
                         }, children: pageSize }))) })] }) }));
 };
@@ -444,6 +464,7 @@ exports.EditFilterButton = EditFilterButton;
 exports.EditOrderButton = EditOrderButton;
 exports.EditSortingButton = EditSortingButton;
 exports.EditViewButton = EditViewButton;
+exports.GlobalFilter = GlobalFilter;
 exports.PageSizeControl = PageSizeControl;
 exports.ResetFilteringButton = ResetFilteringButton;
 exports.ResetSelectionButton = ResetSelectionButton;
