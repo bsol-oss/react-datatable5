@@ -2,7 +2,13 @@ import { Checkbox, Tfoot, Th, Tr } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
 import { useDataTable } from "./useDataTable";
 
-export const TableFooter = () => {
+export interface TableFooterProps {
+  pinnedBgColor?: { light: string; dark: string };
+}
+
+export const TableFooter = ({
+  pinnedBgColor = { light: "gray.50", dark: "gray.700" },
+}: TableFooterProps)=> {
   const table = useDataTable().table;
   const SELECTION_BOX_WIDTH = 32;
   return (
@@ -15,10 +21,10 @@ export const TableFooter = () => {
             {...(table.getIsSomeColumnsPinned("left")
               ? {
                   left: `0px`,
-                  backgroundColor: "gray.50",
+                  backgroundColor: pinnedBgColor.dark,
                   position: "sticky",
                   zIndex: 1,
-                  _dark: { backgroundColor: "gray.700" },
+                  _dark: { backgroundColor: pinnedBgColor.dark },
                 }
               : {})}
             // styling resize and pinning end
@@ -45,13 +51,13 @@ export const TableFooter = () => {
                   : undefined
               }
               backgroundColor={
-                header.column.getIsPinned() ? "gray.50" : undefined
+                header.column.getIsPinned() ? pinnedBgColor.dark : undefined
               }
               position={header.column.getIsPinned() ? "sticky" : "relative"}
               zIndex={header.column.getIsPinned() ? 1 : undefined}
               _dark={{
                 backgroundColor: header.column.getIsPinned()
-                  ? "gray.700"
+                  ? pinnedBgColor.dark
                   : undefined,
               }}
               // styling resize and pinning end

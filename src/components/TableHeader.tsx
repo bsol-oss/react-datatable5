@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Checkbox,
   Flex,
   Menu,
@@ -14,15 +15,19 @@ import {
 import { flexRender } from "@tanstack/react-table";
 import { MdCancel, MdFilterListAlt } from "react-icons/md";
 
-import { ChevronDownIcon, ChevronUpIcon, UpDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import { IoMdClose } from "react-icons/io";
 import { MdPushPin, MdSort } from "react-icons/md";
 import { useDataTable } from "./useDataTable";
 export interface TableHeaderProps {
   canResize?: boolean;
+  pinnedBgColor?: { light: string; dark: string };
 }
 
-export const TableHeader = ({ canResize }: TableHeaderProps) => {
+export const TableHeader = ({
+  canResize,
+  pinnedBgColor = { light: "gray.50", dark: "gray.700" },
+}: TableHeaderProps) => {
   const { table } = useDataTable();
   const SELECTION_BOX_WIDTH = 32;
   return (
@@ -35,10 +40,10 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
             {...(table.getIsSomeColumnsPinned("left")
               ? {
                   left: `0px`,
-                  backgroundColor: "gray.50",
+                  backgroundColor: pinnedBgColor.light,
                   position: "sticky",
                   zIndex: 1,
-                  _dark: { backgroundColor: "gray.700" },
+                  _dark: { backgroundColor: pinnedBgColor.dark },
                 }
               : {})}
             // styling resize and pinning end
@@ -73,13 +78,13 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
                     : undefined
                 }
                 backgroundColor={
-                  header.column.getIsPinned() ? "gray.50" : undefined
+                  header.column.getIsPinned() ? pinnedBgColor.light : undefined
                 }
                 position={header.column.getIsPinned() ? "sticky" : "relative"}
                 zIndex={header.column.getIsPinned() ? 1 : undefined}
                 _dark={{
                   backgroundColor: header.column.getIsPinned()
-                    ? "gray.700"
+                    ? pinnedBgColor.dark
                     : undefined,
                 }}
                 // styling resize and pinning end
@@ -88,12 +93,13 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
                 <>
                   <Menu>
                     <MenuButton
-                      as={Box}
+                      as={Button}
                       display={"flex"}
                       alignItems={"center"}
                       justifyContent={"start"}
-                      _hover={{ backgroundColor: "gray.100" }}
-                      _dark={{ _hover: { backgroundColor: "gray.700" } }}
+                      variant={'ghost'}
+                      borderRadius={'0rem'}
+                      padding={'0rem'}
                     >
                       <Flex gap="0.5rem" alignItems={"center"}>
                         {header.isPlaceholder
@@ -106,7 +112,8 @@ export const TableHeader = ({ canResize }: TableHeaderProps) => {
                           {header.column.getCanSort() && (
                             <>
                               {header.column.getIsSorted() === false && (
-                                <UpDownIcon />
+                                // <UpDownIcon />
+                                <></>
                               )}
                               {header.column.getIsSorted() === "asc" && (
                                 <ChevronUpIcon />

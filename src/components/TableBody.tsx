@@ -3,7 +3,14 @@ import { Tbody, Td, Tr } from "@chakra-ui/table";
 import { flexRender } from "@tanstack/react-table";
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
-export const TableBody = () => {
+
+export interface TableBodyProps {
+  pinnedBgColor?: { light: string; dark: string };
+}
+
+export const TableBody = ({
+  pinnedBgColor = { light: "gray.50", dark: "gray.700" },
+}: TableBodyProps) => {
   const { table } = useContext(TableContext);
   return (
     <Tbody>
@@ -21,10 +28,10 @@ export const TableBody = () => {
               {...(table.getIsSomeColumnsPinned("left")
                 ? {
                     left: `0px`,
-                    backgroundColor: "gray.50",
+                    backgroundColor: pinnedBgColor.light,
                     position: "sticky",
                     zIndex: 1,
-                    _dark: { backgroundColor: "gray.700" },
+                    _dark: { backgroundColor: pinnedBgColor.dark },
                   }
                 : {})}
               // styling resize and pinning end
@@ -52,13 +59,13 @@ export const TableBody = () => {
                       : undefined
                   }
                   backgroundColor={
-                    cell.column.getIsPinned() ? "gray.50" : undefined
+                    cell.column.getIsPinned() ? pinnedBgColor.light : undefined
                   }
                   position={cell.column.getIsPinned() ? "sticky" : "relative"}
                   zIndex={cell.column.getIsPinned() ? 1 : 0}
                   _dark={{
                     backgroundColor: cell.column.getIsPinned()
-                      ? "gray.700"
+                      ? pinnedBgColor.dark
                       : undefined,
                   }}
                   // styling resize and pinning end
