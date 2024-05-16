@@ -1,6 +1,7 @@
 import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
 import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 import { createContext, useState, useEffect, useContext } from 'react';
+import { rankItem } from '@tanstack/match-sorter-utils';
 import axios from 'axios';
 import { Button, Box, Text, Input, Popover, Tooltip, PopoverTrigger, IconButton, PopoverContent, PopoverArrow, PopoverBody, Flex, FormControl, Checkbox, Menu, MenuButton, MenuList, MenuItem, Container, Table as Table$1, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Icon } from '@chakra-ui/react';
 import { MdFilterAlt, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdPushPin, MdCancel, MdSort, MdFilterListAlt, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdClear, MdOutlineChecklist } from 'react-icons/md';
@@ -15,8 +16,20 @@ const TableContext = createContext({
     setGlobalFilter: () => { },
 });
 
+// Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
+const fuzzyFilter = (row, columnId, value, addMeta) => {
+    // Rank the item
+    const itemRank = rankItem(row.getValue(columnId), value);
+    // Store the itemRank info
+    addMeta({
+        itemRank,
+    });
+    // Return if the item should be filtered in/out
+    return itemRank.passed;
+};
 const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
     const [columnOrder, setColumnOrder] = useState([]);
+    const [globalFilter, setGlobalFilter] = useState('');
     const table = useReactTable({
         data: data,
         columns: columns,
@@ -31,6 +44,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         },
         state: {
             columnOrder,
+            globalFilter,
         },
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
@@ -39,6 +53,11 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
         columnResizeMode: "onChange",
+        filterFns: {
+            fuzzy: fuzzyFilter, //define as a filter function that can be used in column definitions
+        },
+        onGlobalFilterChange: setGlobalFilter,
+        globalFilterFn: 'fuzzy', //apply fuzzy filter to the global filter (most common use case for fuzzy filter)
     });
     useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
@@ -48,6 +67,8 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             refreshData: () => {
                 throw new Error("not implemented");
             },
+            globalFilter: globalFilter,
+            setGlobalFilter: setGlobalFilter,
         }, children: children }));
 };
 

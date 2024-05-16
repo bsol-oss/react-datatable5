@@ -3,6 +3,7 @@
 var jsxRuntime = require('react/jsx-runtime');
 var reactTable = require('@tanstack/react-table');
 var react = require('react');
+var matchSorterUtils = require('@tanstack/match-sorter-utils');
 var axios = require('axios');
 var react$1 = require('@chakra-ui/react');
 var md = require('react-icons/md');
@@ -17,8 +18,20 @@ const TableContext = react.createContext({
     setGlobalFilter: () => { },
 });
 
+// Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
+const fuzzyFilter = (row, columnId, value, addMeta) => {
+    // Rank the item
+    const itemRank = matchSorterUtils.rankItem(row.getValue(columnId), value);
+    // Store the itemRank info
+    addMeta({
+        itemRank,
+    });
+    // Return if the item should be filtered in/out
+    return itemRank.passed;
+};
 const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
     const [columnOrder, setColumnOrder] = react.useState([]);
+    const [globalFilter, setGlobalFilter] = react.useState('');
     const table = reactTable.useReactTable({
         data: data,
         columns: columns,
@@ -33,6 +46,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         },
         state: {
             columnOrder,
+            globalFilter,
         },
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
@@ -41,6 +55,11 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
         columnResizeMode: "onChange",
+        filterFns: {
+            fuzzy: fuzzyFilter, //define as a filter function that can be used in column definitions
+        },
+        onGlobalFilterChange: setGlobalFilter,
+        globalFilterFn: 'fuzzy', //apply fuzzy filter to the global filter (most common use case for fuzzy filter)
     });
     react.useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
@@ -50,6 +69,8 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             refreshData: () => {
                 throw new Error("not implemented");
             },
+            globalFilter: globalFilter,
+            setGlobalFilter: setGlobalFilter,
         }, children: children }));
 };
 

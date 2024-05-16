@@ -1,9 +1,18 @@
 /// <reference types="react" />
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { ColumnDef } from '@tanstack/react-table';
+import { FilterFn, ColumnDef } from '@tanstack/react-table';
+import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { ReactNode } from 'react';
 import * as _tanstack_table_core from '@tanstack/table-core';
 
+declare module '@tanstack/react-table' {
+    interface FilterFns {
+        fuzzy: FilterFn<unknown>;
+    }
+    interface FilterMeta {
+        itemRank: RankingInfo;
+    }
+}
 interface DataTableProps<T> {
     children: JSX.Element | JSX.Element[];
     data: T[];
