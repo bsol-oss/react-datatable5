@@ -24,7 +24,7 @@ export const TableBody = ({
           >
             <Td
               // styling resize and pinning start
-              padding="0.5rem"
+              padding={table.getState().density}
               {...(table.getIsSomeColumnsPinned("left")
                 ? {
                     left: `0px`,
@@ -48,7 +48,7 @@ export const TableBody = ({
             {row.getVisibleCells().map((cell) => {
               return (
                 <Td
-                  padding="0rem"
+                  padding={table.getState().density}
                   key={crypto.randomUUID()}
                   // styling resize and pinning start
                   maxWidth={`${cell.column.getSize()}px`}

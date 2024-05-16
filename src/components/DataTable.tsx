@@ -7,39 +7,35 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { TableContext } from "./DataTableContext";
 import { useEffect, useState } from "react";
+import { TableContext } from "./DataTableContext";
 
-import {
-  RankingInfo,
-  rankItem,
-  compareItems,
-} from '@tanstack/match-sorter-utils'
+import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
+import { DensityFeature, DensityState } from "./DensityFeature";
 
-declare module '@tanstack/react-table' {
+declare module "@tanstack/react-table" {
   //add fuzzy filter to the filterFns
   interface FilterFns {
-    fuzzy: FilterFn<unknown>
+    fuzzy: FilterFn<unknown>;
   }
   interface FilterMeta {
-    itemRank: RankingInfo
+    itemRank: RankingInfo;
   }
 }
 
 // Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Rank the item
-  const itemRank = rankItem(row.getValue(columnId), value)
+  const itemRank = rankItem(row.getValue(columnId), value);
 
   // Store the itemRank info
   addMeta({
     itemRank,
-  })
+  });
 
   // Return if the item should be filtered in/out
-  return itemRank.passed
-}
-
+  return itemRank.passed;
+};
 
 export interface DataTableProps<T> {
   children: JSX.Element | JSX.Element[];
@@ -59,8 +55,11 @@ export const DataTable = <TData,>({
   children,
 }: DataTableProps<TData>) => {
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
-  const [globalFilter, setGlobalFilter] = useState('')
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [density, setDensity] = useState<DensityState>("md");
+
   const table = useReactTable<TData>({
+    _features: [DensityFeature],
     data: data,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
@@ -75,6 +74,7 @@ export const DataTable = <TData,>({
     state: {
       columnOrder,
       globalFilter,
+      density,
     },
     onColumnOrderChange: (state) => {
       setColumnOrder(state);
@@ -83,11 +83,14 @@ export const DataTable = <TData,>({
     enableMultiRowSelection: enableMultiRowSelection,
     enableSubRowSelection: enableSubRowSelection,
     columnResizeMode: "onChange",
+    // global filter start
     filterFns: {
-      fuzzy: fuzzyFilter, //define as a filter function that can be used in column definitions
+      fuzzy: fuzzyFilter,
     },
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: 'fuzzy', //apply fuzzy filter to the global filter (most common use case for fuzzy filter)
+    globalFilterFn: "fuzzy",
+    // global filter end
+    onDensityChange: setDensity,
   });
 
   useEffect(() => {

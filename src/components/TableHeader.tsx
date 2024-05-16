@@ -36,7 +36,7 @@ export const TableHeader = ({
         <Tr display={"flex"} key={crypto.randomUUID()}>
           <Th
             // styling resize and pinning start
-            padding={"0.5rem"}
+            padding={table.getState().density}
             {...(table.getIsSomeColumnsPinned("left")
               ? {
                   left: `0px`,
@@ -66,7 +66,7 @@ export const TableHeader = ({
 
             return (
               <Th
-                padding={"0rem"}
+                padding={table.getState().density}
                 key={crypto.randomUUID()}
                 colSpan={header.colSpan}
                 // styling resize and pinning start

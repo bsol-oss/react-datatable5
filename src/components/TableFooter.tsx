@@ -19,7 +19,7 @@ export interface TableFooterProps {
 
 export const TableFooter = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
-}: TableFooterProps)=> {
+}: TableFooterProps) => {
   const table = useDataTable().table;
   const SELECTION_BOX_WIDTH = 32;
   return (
@@ -28,11 +28,11 @@ export const TableFooter = ({
         <Tr display={"flex"} key={crypto.randomUUID()}>
           <Th
             // styling resize and pinning start
-            padding={"0.5rem"}
+            padding={table.getState().density}
             {...(table.getIsSomeColumnsPinned("left")
               ? {
                   left: `0px`,
-                  backgroundColor: pinnedBgColor.dark,
+                  backgroundColor: pinnedBgColor.light,
                   position: "sticky",
                   zIndex: 1,
                   _dark: { backgroundColor: pinnedBgColor.dark },
@@ -50,7 +50,7 @@ export const TableFooter = ({
           </Th>
           {footerGroup.headers.map((header) => (
             <Th
-              padding="0rem"
+              padding={table.getState().density}
               key={crypto.randomUUID()}
               colSpan={header.colSpan}
               // styling resize and pinning start
@@ -62,7 +62,7 @@ export const TableFooter = ({
                   : undefined
               }
               backgroundColor={
-                header.column.getIsPinned() ? pinnedBgColor.dark : undefined
+                header.column.getIsPinned() ? pinnedBgColor.light : undefined
               }
               position={header.column.getIsPinned() ? "sticky" : "relative"}
               zIndex={header.column.getIsPinned() ? 1 : undefined}
