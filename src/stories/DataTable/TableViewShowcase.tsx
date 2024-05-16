@@ -20,6 +20,7 @@ import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
 import { data, Product } from "../data";
+import { GlobalFilter } from "../../components/GlobalFilter";
 
 interface ChatRecord {
   session_id: string;
@@ -108,6 +109,7 @@ const TableViewShowcase = () => {
           <ButtonGroup isAttached>
             <TableSelector />
           </ButtonGroup>
+          <GlobalFilter />
         </Flex>
         <Table>
           <TableHeader canResize />

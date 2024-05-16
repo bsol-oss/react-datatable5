@@ -1,5 +1,6 @@
 import {
   ColumnDef,
+  FilterFn,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -8,6 +9,37 @@ import {
 } from "@tanstack/react-table";
 import { TableContext } from "./DataTableContext";
 import { useEffect, useState } from "react";
+
+import {
+  RankingInfo,
+  rankItem,
+  compareItems,
+} from '@tanstack/match-sorter-utils'
+
+declare module '@tanstack/react-table' {
+  //add fuzzy filter to the filterFns
+  interface FilterFns {
+    fuzzy: FilterFn<unknown>
+  }
+  interface FilterMeta {
+    itemRank: RankingInfo
+  }
+}
+
+// Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
+const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+  // Rank the item
+  const itemRank = rankItem(row.getValue(columnId), value)
+
+  // Store the itemRank info
+  addMeta({
+    itemRank,
+  })
+
+  // Return if the item should be filtered in/out
+  return itemRank.passed
+}
+
 
 export interface DataTableProps<T> {
   children: JSX.Element | JSX.Element[];
@@ -27,6 +59,7 @@ export const DataTable = <TData,>({
   children,
 }: DataTableProps<TData>) => {
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
+  const [globalFilter, setGlobalFilter] = useState('')
   const table = useReactTable<TData>({
     data: data,
     columns: columns,
@@ -41,6 +74,7 @@ export const DataTable = <TData,>({
     },
     state: {
       columnOrder,
+      globalFilter,
     },
     onColumnOrderChange: (state) => {
       setColumnOrder(state);
@@ -49,6 +83,11 @@ export const DataTable = <TData,>({
     enableMultiRowSelection: enableMultiRowSelection,
     enableSubRowSelection: enableSubRowSelection,
     columnResizeMode: "onChange",
+    filterFns: {
+      fuzzy: fuzzyFilter, //define as a filter function that can be used in column definitions
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: 'fuzzy', //apply fuzzy filter to the global filter (most common use case for fuzzy filter)
   });
 
   useEffect(() => {
@@ -62,6 +101,8 @@ export const DataTable = <TData,>({
         refreshData: () => {
           throw new Error("not implemented");
         },
+        globalFilter: globalFilter,
+        setGlobalFilter: setGlobalFilter,
       }}
     >
       {children}
