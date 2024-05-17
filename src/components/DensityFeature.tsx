@@ -59,7 +59,7 @@ export const DensityFeature: TableFeature<any> = {
   // define the new feature's initial state
   getInitialState: (state): DensityTableState => {
     return {
-      density: "md",
+      density: "sm",
       ...state,
     };
   },

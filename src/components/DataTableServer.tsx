@@ -9,8 +9,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { TableContext } from "./DataTableContext";
-import { useDataFromUrl } from "./useDataFromUrl";
 import { DensityFeature, DensityState } from "./DensityFeature";
+import { useDataFromUrl } from "./useDataFromUrl";
 
 export interface DataTableServerProps<T> {
   children: JSX.Element | JSX.Element[];
@@ -19,6 +19,7 @@ export interface DataTableServerProps<T> {
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
+  density?: DensityState;
 }
 
 export interface Result<T> {
@@ -43,6 +44,7 @@ export const DataTableServer = <TData,>({
   enableRowSelection = true,
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
+  density = "sm",
   children,
 }: DataTableServerProps<TData>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -54,7 +56,7 @@ export const DataTableServer = <TData,>({
   const [rowSelection, setRowSelection] = useState({});
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [density, setDensity] = useState<DensityState>("sm");
+  const [densityState, setDensity] = useState<DensityState>(density);
   const { data, loading, hasError, refreshData } = useDataFromUrl<
     DataResponse<TData>
   >({
@@ -104,7 +106,7 @@ export const DataTableServer = <TData,>({
       rowSelection,
       columnOrder,
       globalFilter,
-      density,
+      density: densityState
     },
     defaultColumn: {
       size: 150, //starting column size

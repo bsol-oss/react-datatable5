@@ -41,6 +41,7 @@ export interface DataTableProps<T> {
   children: JSX.Element | JSX.Element[];
   data: T[];
   columns: ColumnDef<T, any>[];
+  density?: DensityState; 
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
@@ -52,11 +53,12 @@ export const DataTable = <TData,>({
   enableRowSelection = true,
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
+  density = 'sm',
   children,
 }: DataTableProps<TData>) => {
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [density, setDensity] = useState<DensityState>("sm");
+  const [densityState, setDensity] = useState<DensityState>(density);
 
   const table = useReactTable<TData>({
     _features: [DensityFeature],
@@ -74,7 +76,7 @@ export const DataTable = <TData,>({
     state: {
       columnOrder,
       globalFilter,
-      density,
+      density: densityState,
     },
     onColumnOrderChange: (state) => {
       setColumnOrder(state);
