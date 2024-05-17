@@ -1,9 +1,31 @@
 /// <reference types="react" />
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { FilterFn, ColumnDef, RowData } from '@tanstack/react-table';
+import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef } from '@tanstack/react-table';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { ReactNode } from 'react';
 import * as _tanstack_table_core from '@tanstack/table-core';
+
+type DensityState = "sm" | "md" | "lg";
+interface DensityTableState {
+    density: DensityState;
+}
+interface DensityOptions {
+    enableDensity?: boolean;
+    onDensityChange?: OnChangeFn<DensityState>;
+}
+interface DensityInstance {
+    setDensity: (updater: Updater<DensityState>) => void;
+    toggleDensity: (value?: DensityState) => void;
+    getDensityValue: (value?: DensityState) => number;
+}
+declare module "@tanstack/react-table" {
+    interface TableState extends DensityTableState {
+    }
+    interface TableOptionsResolved<TData extends RowData> extends DensityOptions {
+    }
+    interface Table<TData extends RowData> extends DensityInstance {
+    }
+}
 
 declare module "@tanstack/react-table" {
     interface FilterFns {
@@ -17,11 +39,12 @@ interface DataTableProps<T> {
     children: JSX.Element | JSX.Element[];
     data: T[];
     columns: ColumnDef<T, any>[];
+    density?: DensityState;
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
 }
-declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, density, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DataTableServerProps<T> {
     children: JSX.Element | JSX.Element[];
@@ -30,6 +53,7 @@ interface DataTableServerProps<T> {
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
+    density?: DensityState;
 }
 interface Result<T> {
     results: T[];
@@ -44,7 +68,7 @@ declare module "@tanstack/react-table" {
         displayName: string;
     }
 }
-declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, density, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
 declare const DensityToggleButton: () => react_jsx_runtime.JSX.Element;
 

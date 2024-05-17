@@ -25,7 +25,7 @@ const DensityFeature = {
     // define the new feature's initial state
     getInitialState: (state) => {
         return {
-            density: "md",
+            density: "sm",
             ...state,
         };
     },
@@ -101,10 +101,10 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
     // Return if the item should be filtered in/out
     return itemRank.passed;
 };
-const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
+const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, density = 'sm', children, }) => {
     const [columnOrder, setColumnOrder] = useState([]);
     const [globalFilter, setGlobalFilter] = useState("");
-    const [density, setDensity] = useState("sm");
+    const [densityState, setDensity] = useState(density);
     const table = useReactTable({
         _features: [DensityFeature],
         data: data,
@@ -121,7 +121,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         state: {
             columnOrder,
             globalFilter,
-            density,
+            density: densityState,
         },
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
@@ -181,7 +181,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     return { data, loading, hasError, refreshData };
 };
 
-const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, children, }) => {
+const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, density = "sm", children, }) => {
     const [sorting, setSorting] = useState([]);
     const [columnFilters, setColumnFilters] = useState([]); // can set initial column filter state here
     const [pagination, setPagination] = useState({
@@ -191,7 +191,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     const [rowSelection, setRowSelection] = useState({});
     const [columnOrder, setColumnOrder] = useState([]);
     const [globalFilter, setGlobalFilter] = useState("");
-    const [density, setDensity] = useState("sm");
+    const [densityState, setDensity] = useState(density);
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -235,7 +235,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             rowSelection,
             columnOrder,
             globalFilter,
-            density,
+            density: densityState
         },
         defaultColumn: {
             size: 150, //starting column size

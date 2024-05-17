@@ -1,5 +1,6 @@
 /// <reference types="react" />
 import { ColumnDef, RowData } from "@tanstack/react-table";
+import { DensityState } from "./DensityFeature";
 export interface DataTableServerProps<T> {
     children: JSX.Element | JSX.Element[];
     url: string;
@@ -7,6 +8,7 @@ export interface DataTableServerProps<T> {
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
+    density?: DensityState;
 }
 export interface Result<T> {
     results: T[];
@@ -21,4 +23,4 @@ declare module "@tanstack/react-table" {
         displayName: string;
     }
 }
-export declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, children, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, density, children, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;
