@@ -12,6 +12,7 @@ export const TableBody = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
 }: TableBodyProps) => {
   const { table } = useContext(TableContext);
+  const SELECTION_BOX_WIDTH = 16;
   return (
     <Tbody>
       {table.getRowModel().rows.map((row) => {
@@ -37,7 +38,7 @@ export const TableBody = ({
               // styling resize and pinning end
             >
               <Checkbox
-                padding={table.getState().density}
+                padding={`${table.getDensityValue()}px`}
                 {...{
                   isChecked: row.getIsSelected(),
                   disabled: !row.getCanSelect(),
@@ -49,14 +50,14 @@ export const TableBody = ({
             {row.getVisibleCells().map((cell) => {
               return (
                 <Td
-                  padding={table.getState().density}
+                  padding={`${table.getDensityValue()}px`}
                   key={crypto.randomUUID()}
                   // styling resize and pinning start
                   maxWidth={`${cell.column.getSize()}px`}
                   width={`${cell.column.getSize()}px`}
                   left={
                     cell.column.getIsPinned()
-                      ? `${cell.column.getStart("left") + 32}px`
+                      ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
                       : undefined
                   }
                   backgroundColor={

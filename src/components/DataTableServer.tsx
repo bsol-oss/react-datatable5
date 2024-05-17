@@ -54,7 +54,7 @@ export const DataTableServer = <TData,>({
   const [rowSelection, setRowSelection] = useState({});
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [density, setDensity] = useState<DensityState>("1rem");
+  const [density, setDensity] = useState<DensityState>("sm");
   const { data, loading, hasError, refreshData } = useDataFromUrl<
     DataResponse<TData>
   >({

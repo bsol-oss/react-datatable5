@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 
 // define types for our new feature's custom state
-export type DensityState = "0.5rem" | "1rem" | "2rem";
+export type DensityState = "sm" | "md" | "lg";
 export interface DensityTableState {
   density: DensityState;
 }
@@ -27,6 +27,7 @@ export interface DensityOptions {
 export interface DensityInstance {
   setDensity: (updater: Updater<DensityState>) => void;
   toggleDensity: (value?: DensityState) => void;
+  getDensityValue: (value?: DensityState) => number;
 }
 
 // Use declaration merging to add our new feature APIs and state types to TanStack Table's existing types.
@@ -58,7 +59,7 @@ export const DensityFeature: TableFeature<any> = {
   // define the new feature's initial state
   getInitialState: (state): DensityTableState => {
     return {
-      density: "1rem",
+      density: "md",
       ...state,
     };
   },
@@ -89,14 +90,29 @@ export const DensityFeature: TableFeature<any> = {
     table.toggleDensity = (value) => {
       table.setDensity((old) => {
         if (value) return value;
-        if (old === "0.5rem") {
-          return "1rem";
+        if (old === "sm") {
+          return "md";
         }
-        if (old === "1rem") {
-          return "2rem";
+        if (old === "md") {
+          return "lg";
         }
-        return "0.5rem";
+        return "sm";
       });
+    };
+    table.getDensityValue = (value) => {
+      let density;
+      if (value) {
+        density = value;
+      } else {
+        density = table.getState().density;
+      }
+      if (density === "sm") {
+        return 8;
+      }
+      if (density === "md") {
+        return 16;
+      }
+      return 32;
     };
   },
 

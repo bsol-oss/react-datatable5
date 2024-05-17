@@ -21,14 +21,14 @@ export const TableFooter = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
 }: TableFooterProps) => {
   const table = useDataTable().table;
-  const SELECTION_BOX_WIDTH = 32;
+  const SELECTION_BOX_WIDTH = 16;
   return (
     <Tfoot>
       {table.getFooterGroups().map((footerGroup) => (
         <Tr display={"flex"} key={crypto.randomUUID()}>
           <Th
             // styling resize and pinning start
-            padding={table.getState().density}
+            padding={`${table.getDensityValue()}px`}
             {...(table.getIsSomeColumnsPinned("left")
               ? {
                   left: `0px`,
@@ -58,7 +58,7 @@ export const TableFooter = ({
               width={`${header.getSize()}px`}
               left={
                 header.column.getIsPinned()
-                  ? `${header.getStart("left") + SELECTION_BOX_WIDTH}px`
+                  ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
                   : undefined
               }
               backgroundColor={
@@ -77,7 +77,7 @@ export const TableFooter = ({
               <Menu>
                 <MenuButton
                   as={Box}
-                  padding={table.getState().density}
+                  padding={`${table.getDensityValue()}px`}
                   display={"flex"}
                   alignItems={"center"}
                   justifyContent={"start"}

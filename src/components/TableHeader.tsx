@@ -28,7 +28,7 @@ export const TableHeader = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
 }: TableHeaderProps) => {
   const { table } = useDataTable();
-  const SELECTION_BOX_WIDTH = 32;
+  const SELECTION_BOX_WIDTH = 16;
   return (
     <Thead>
       {table.getHeaderGroups().map((headerGroup) => (
@@ -48,7 +48,7 @@ export const TableHeader = ({
             padding={"0rem"}
           >
             <Checkbox
-              padding={table.getState().density}
+              padding={`${table.getDensityValue()}px`}
               {...{
                 isChecked: table.getIsAllRowsSelected(),
                 // indeterminate: table.getIsSomeRowsSelected(),
@@ -74,7 +74,7 @@ export const TableHeader = ({
                 width={`${header.getSize()}px`}
                 left={
                   header.column.getIsPinned()
-                    ? `${header.getStart("left") + SELECTION_BOX_WIDTH}px`
+                    ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
                     : undefined
                 }
                 backgroundColor={
@@ -93,7 +93,7 @@ export const TableHeader = ({
                 <Menu>
                   <MenuButton
                     as={Box}
-                    padding={table.getState().density}
+                    padding={`${table.getDensityValue()}px`}
                     display={"flex"}
                     alignItems={"center"}
                     justifyContent={"start"}
