@@ -104,7 +104,7 @@ interface TableBodyProps {
         dark: string;
     };
 }
-declare const TableBody: ({ pinnedBgColor, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
+declare const TableBody: <TData>({ pinnedBgColor, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
 
 interface TableCardContainerProps {
     children: JSX.Element;

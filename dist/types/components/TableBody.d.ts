@@ -4,4 +4,4 @@ export interface TableBodyProps {
         dark: string;
     };
 }
-export declare const TableBody: ({ pinnedBgColor, }: TableBodyProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableBody: <TData>({ pinnedBgColor, }: TableBodyProps) => import("react/jsx-runtime").JSX.Element;
