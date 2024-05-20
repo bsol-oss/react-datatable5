@@ -1,30 +1,51 @@
-import { Checkbox } from "@chakra-ui/react";
+import { Box, Checkbox, FormLabel } from "@chakra-ui/react";
 import { Tbody, Td, Tr } from "@chakra-ui/table";
-import { flexRender } from "@tanstack/react-table";
-import { useContext } from "react";
+import { flexRender, Row } from "@tanstack/react-table";
+import { useContext, useState } from "react";
 import { TableContext } from "./DataTableContext";
 
 export interface TableBodyProps {
   pinnedBgColor?: { light: string; dark: string };
 }
 
-export const TableBody = ({
+export const TableBody = <TData,>({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
 }: TableBodyProps) => {
   const { table } = useContext(TableContext);
-  const SELECTION_BOX_WIDTH = 16;
+  const SELECTION_BOX_WIDTH = 20;
+  const [hoveredRow, setHoveredRow] = useState<number>(-1);
+
+  const handleRowHover = (index: number) => {
+    setHoveredRow(index);
+  };
+
+  const isCheckBoxVisible = (
+    current_index: number,
+    current_row: Row<TData>
+  ) => {
+    if (current_row.getIsSelected()) {
+      return true;
+    }
+    if (hoveredRow == current_index) {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <Tbody>
-      {table.getRowModel().rows.map((row) => {
+      {table.getRowModel().rows.map((row, index) => {
         return (
           <Tr
             display={"flex"}
             _hover={{ backgroundColor: "rgba(178,178,178,0.1)" }}
             key={crypto.randomUUID()}
             zIndex={1}
+            onMouseEnter={() => handleRowHover(index)}
+            onMouseLeave={() => handleRowHover(-1)}
           >
             <Td
-              padding={"0rem"}
+              padding={`${table.getDensityValue()}px`}
               // styling resize and pinning start
               {...(table.getIsSomeColumnsPinned("left")
                 ? {
@@ -37,15 +58,30 @@ export const TableBody = ({
                 : {})}
               // styling resize and pinning end
             >
-              <Checkbox
-                padding={`${table.getDensityValue()}px`}
-                {...{
-                  isChecked: row.getIsSelected(),
-                  disabled: !row.getCanSelect(),
-                  // indeterminate: row.getIsSomeSelected(),
-                  onChange: row.getToggleSelectedHandler(),
-                }}
-              ></Checkbox>
+              {!isCheckBoxVisible(index, row) && (
+                <FormLabel margin={"0rem"}>
+                  <Box
+                    width={`${SELECTION_BOX_WIDTH}px`}
+                    height={`${SELECTION_BOX_WIDTH}px`}
+                  >
+                    <span>{index + 1}</span>
+                  </Box>
+                </FormLabel>
+              )}
+              {isCheckBoxVisible(index, row) && (
+                <FormLabel margin={"0rem"}>
+                  <Checkbox
+                    width={`${SELECTION_BOX_WIDTH}px`}
+                    height={`${SELECTION_BOX_WIDTH}px`}
+                    {...{
+                      isChecked: row.getIsSelected(),
+                      disabled: !row.getCanSelect(),
+                      // indeterminate: row.getIsSomeSelected(),
+                      onChange: row.getToggleSelectedHandler(),
+                    }}
+                  />
+                </FormLabel>
+              )}
             </Td>
             {row.getVisibleCells().map((cell) => {
               return (

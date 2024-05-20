@@ -2,6 +2,7 @@ import {
   Box,
   Checkbox,
   Flex,
+  FormLabel,
   Menu,
   MenuButton,
   MenuItem,
@@ -15,6 +16,7 @@ import { flexRender } from "@tanstack/react-table";
 import { MdCancel, MdFilterListAlt } from "react-icons/md";
 
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { MdPushPin, MdSort } from "react-icons/md";
 import { useDataTable } from "./useDataTable";
@@ -28,7 +30,23 @@ export const TableHeader = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
 }: TableHeaderProps) => {
   const { table } = useDataTable();
-  const SELECTION_BOX_WIDTH = 16;
+  const SELECTION_BOX_WIDTH = 20;
+  const [hoveredCheckBox, setHoveredCheckBox] = useState<boolean>(false);
+
+  const handleRowHover = (isHovered: boolean) => {
+    setHoveredCheckBox(isHovered);
+  };
+
+  const isCheckBoxVisible = () => {
+    if (table.getIsAllRowsSelected()) {
+      return true;
+    }
+    if (hoveredCheckBox) {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <Thead>
       {table.getHeaderGroups().map((headerGroup) => (
@@ -45,16 +63,31 @@ export const TableHeader = ({
                 }
               : {})}
             // styling resize and pinning end
-            padding={"0rem"}
+            padding={`${table.getDensityValue()}px`}
+            onMouseEnter={() => handleRowHover(true)}
+            onMouseLeave={() => handleRowHover(false)}
           >
-            <Checkbox
-              padding={`${table.getDensityValue()}px`}
-              {...{
-                isChecked: table.getIsAllRowsSelected(),
-                // indeterminate: table.getIsSomeRowsSelected(),
-                onChange: table.getToggleAllRowsSelectedHandler(),
-              }}
-            ></Checkbox>
+            {isCheckBoxVisible() && (
+              <FormLabel margin={"0rem"}>
+                <Checkbox
+                  width={`${SELECTION_BOX_WIDTH}px`}
+                  height={`${SELECTION_BOX_WIDTH}px`}
+                  {...{
+                    isChecked: table.getIsAllRowsSelected(),
+                    // indeterminate: table.getIsSomeRowsSelected(),
+                    onChange: table.getToggleAllRowsSelectedHandler(),
+                  }}
+                ></Checkbox>
+              </FormLabel>
+            )}
+            {!isCheckBoxVisible() && (
+              <FormLabel margin={"0rem"}>
+                <Box
+                  width={`${SELECTION_BOX_WIDTH}px`}
+                  height={`${SELECTION_BOX_WIDTH}px`}
+                />
+              </FormLabel>
+            )}
           </Th>
           {headerGroup.headers.map((header) => {
             const resizeProps = {
