@@ -1,9 +1,8 @@
 import {
   Box,
-  ButtonGroup,
   ChakraProvider,
   Flex,
-  theme,
+  theme
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable";
@@ -85,15 +84,11 @@ const TableViewShowcase = () => {
       <DataTable columns={columns} data={data}>
         <Flex>
           <TablePagination />
-          <ButtonGroup isAttached>
-            <EditViewButton />
-            <EditFilterButton />
-          </ButtonGroup>
+          <EditViewButton />
+          <EditFilterButton />
           <EditOrderButton />
           <PageSizeControl />
-          <ButtonGroup isAttached>
-            <TableSelector />
-          </ButtonGroup>
+          <TableSelector />
           <GlobalFilter />
         </Flex>
         <Table>
