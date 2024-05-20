@@ -55,6 +55,7 @@ export const TextCell = ({
         textOverflow={"ellipsis"}
         wordBreak={"break-all"}
         noOfLines={noOfLines}
+        {...props}
       >
         {children}
       </Text>
