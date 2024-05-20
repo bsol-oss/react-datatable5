@@ -8,7 +8,17 @@ export interface TableBodyProps {
   pinnedBgColor?: { light: string; dark: string };
 }
 
-export const TableBody = <TData,>({
+export interface TableRowSelectorProps<TData> {
+  index: number;
+  row: Row<TData>;
+  hoveredRow: number;
+  pinnedBgColor?: {
+    light: string;
+    dark: string;
+  };
+}
+
+export const TableBody = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
 }: TableBodyProps) => {
   const { table } = useContext(TableContext);
@@ -17,19 +27,6 @@ export const TableBody = <TData,>({
 
   const handleRowHover = (index: number) => {
     setHoveredRow(index);
-  };
-
-  const isCheckBoxVisible = (
-    current_index: number,
-    current_row: Row<TData>
-  ) => {
-    if (current_row.getIsSelected()) {
-      return true;
-    }
-    if (hoveredRow == current_index) {
-      return true;
-    }
-    return false;
   };
 
   return (
@@ -44,45 +41,7 @@ export const TableBody = <TData,>({
             onMouseEnter={() => handleRowHover(index)}
             onMouseLeave={() => handleRowHover(-1)}
           >
-            <Td
-              padding={`${table.getDensityValue()}px`}
-              // styling resize and pinning start
-              {...(table.getIsSomeColumnsPinned("left")
-                ? {
-                    left: `0px`,
-                    backgroundColor: pinnedBgColor.light,
-                    position: "sticky",
-                    zIndex: 1,
-                    _dark: { backgroundColor: pinnedBgColor.dark },
-                  }
-                : {})}
-              // styling resize and pinning end
-            >
-              {!isCheckBoxVisible(index, row) && (
-                <FormLabel margin={"0rem"}>
-                  <Box
-                    width={`${SELECTION_BOX_WIDTH}px`}
-                    height={`${SELECTION_BOX_WIDTH}px`}
-                  >
-                    <span>{index + 1}</span>
-                  </Box>
-                </FormLabel>
-              )}
-              {isCheckBoxVisible(index, row) && (
-                <FormLabel margin={"0rem"}>
-                  <Checkbox
-                    width={`${SELECTION_BOX_WIDTH}px`}
-                    height={`${SELECTION_BOX_WIDTH}px`}
-                    {...{
-                      isChecked: row.getIsSelected(),
-                      disabled: !row.getCanSelect(),
-                      // indeterminate: row.getIsSomeSelected(),
-                      onChange: row.getToggleSelectedHandler(),
-                    }}
-                  />
-                </FormLabel>
-              )}
-            </Td>
+            <TableRowSelector index={index} row={row} hoveredRow={hoveredRow} />
             {row.getVisibleCells().map((cell) => {
               return (
                 <Td
@@ -116,5 +75,69 @@ export const TableBody = <TData,>({
         );
       })}
     </Tbody>
+  );
+};
+
+const TableRowSelector = <TData,>({
+  index,
+  row,
+  hoveredRow,
+  pinnedBgColor = { light: "gray.50", dark: "gray.700" },
+}: TableRowSelectorProps<TData>) => {
+  const { table } = useContext(TableContext);
+  const SELECTION_BOX_WIDTH = 20;
+  const isCheckBoxVisible = (
+    current_index: number,
+    current_row: Row<TData>
+  ) => {
+    if (current_row.getIsSelected()) {
+      return true;
+    }
+    if (hoveredRow == current_index) {
+      return true;
+    }
+    return false;
+  };
+
+  return (
+    <Td
+      padding={`${table.getDensityValue()}px`}
+      // styling resize and pinning start
+      {...(table.getIsSomeColumnsPinned("left")
+        ? {
+            left: `0px`,
+            backgroundColor: pinnedBgColor.light,
+            position: "sticky",
+            zIndex: 1,
+            _dark: { backgroundColor: pinnedBgColor.dark },
+          }
+        : {})}
+      // styling resize and pinning end
+    >
+      {!isCheckBoxVisible(index, row) && (
+        <FormLabel margin={"0rem"}>
+          <Box
+            width={`${SELECTION_BOX_WIDTH}px`}
+            height={`${SELECTION_BOX_WIDTH}px`}
+          >
+            <span>{index + 1}</span>
+          </Box>
+        </FormLabel>
+      )}
+      {isCheckBoxVisible(index, row) && (
+        <FormLabel margin={"0rem"}>
+          <Checkbox
+            width={`${SELECTION_BOX_WIDTH}px`}
+            height={`${SELECTION_BOX_WIDTH}px`}
+            {...{
+              isChecked: row.getIsSelected(),
+              disabled: !row.getCanSelect(),
+              // indeterminate: row.getIsSomeSelected(),
+              onChange: row.getToggleSelectedHandler(),
+            }}
+          />
+        </FormLabel>
+      )}
+    </Td>
   );
 };
