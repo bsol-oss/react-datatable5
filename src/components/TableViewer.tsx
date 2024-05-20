@@ -7,7 +7,6 @@ export const TableViewer = () => {
   return (
     <Flex flexFlow={"column"} gap={"1rem"}>
       {table.getAllLeafColumns().map((column) => {
-        console.log(column.columnDef.meta, "gokspo");
         const displayName =
           column.columnDef.meta === undefined
             ? column.id
