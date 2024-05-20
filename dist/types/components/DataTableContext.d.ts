@@ -1,7 +1,7 @@
 /// <reference types="react" />
 import { Table } from "@tanstack/react-table";
-export interface DataTableContext<T> {
-    table: Table<T>;
+export interface DataTableContext<TData> {
+    table: Table<TData>;
     refreshData: () => void;
     globalFilter: string;
     setGlobalFilter: (filter: string) => void;

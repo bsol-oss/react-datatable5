@@ -101,7 +101,7 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
     // Return if the item should be filtered in/out
     return itemRank.passed;
 };
-const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, density = 'sm', children, }) => {
+const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, density = "sm", onRowSelect = () => { }, children, }) => {
     const [columnOrder, setColumnOrder] = useState([]);
     const [globalFilter, setGlobalFilter] = useState("");
     const [densityState, setDensity] = useState(density);
@@ -142,6 +142,9 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
     useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
     }, []);
+    useEffect(() => {
+        onRowSelect(table.getState().rowSelection);
+    }, [table.getState().rowSelection]);
     return (jsx(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: () => {
@@ -181,7 +184,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     return { data, loading, hasError, refreshData };
 };
 
-const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, density = "sm", children, }) => {
+const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, density = "sm", onRowSelect = () => { }, children, }) => {
     const [sorting, setSorting] = useState([]);
     const [columnFilters, setColumnFilters] = useState([]); // can set initial column filter state here
     const [pagination, setPagination] = useState({
@@ -235,7 +238,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             rowSelection,
             columnOrder,
             globalFilter,
-            density: densityState
+            density: densityState,
         },
         defaultColumn: {
             size: 150, //starting column size
@@ -267,6 +270,9 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
     }, []);
+    useEffect(() => {
+        onRowSelect(table.getState().rowSelection);
+    }, [table.getState().rowSelection]);
     return (jsx(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: refreshData,
@@ -403,7 +409,6 @@ const EditSortingButton = () => {
 const TableViewer = () => {
     const { table } = useDataTable();
     return (jsx(Flex, { flexFlow: "column", gap: "1rem", children: table.getAllLeafColumns().map((column) => {
-            console.log(column.columnDef.meta, "gokspo");
             const displayName = column.columnDef.meta === undefined
                 ? column.id
                 : column.columnDef.meta.displayName;

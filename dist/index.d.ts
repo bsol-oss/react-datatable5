@@ -1,6 +1,6 @@
 /// <reference types="react" />
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, Row } from '@tanstack/react-table';
+import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, Row } from '@tanstack/react-table';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { ReactNode } from 'react';
 import { TextProps, TooltipProps } from '@chakra-ui/react';
@@ -36,25 +36,27 @@ declare module "@tanstack/react-table" {
         itemRank: RankingInfo;
     }
 }
-interface DataTableProps<T> {
+interface DataTableProps<TData> {
     children: JSX.Element | JSX.Element[];
-    data: T[];
-    columns: ColumnDef<T, any>[];
+    data: TData[];
+    columns: ColumnDef<TData, any>[];
     density?: DensityState;
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
+    onRowSelect?: (rowSelection: RowSelectionState) => void;
 }
-declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, density, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, density, onRowSelect, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
 
-interface DataTableServerProps<T> {
+interface DataTableServerProps<TData> {
     children: JSX.Element | JSX.Element[];
     url: string;
-    columns: ColumnDef<T, any>[];
+    columns: ColumnDef<TData, any>[];
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
     density?: DensityState;
+    onRowSelect?: (row: RowSelectionState) => void;
 }
 interface Result<T> {
     results: T[];
@@ -69,7 +71,7 @@ declare module "@tanstack/react-table" {
         displayName: string;
     }
 }
-declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, density, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, density, onRowSelect, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
 declare const DensityToggleButton: () => react_jsx_runtime.JSX.Element;
 
