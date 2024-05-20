@@ -5,7 +5,8 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
+  RowSelectionState,
+  useReactTable
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { TableContext } from "./DataTableContext";
@@ -37,14 +38,15 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed;
 };
 
-export interface DataTableProps<T> {
+export interface DataTableProps<TData> {
   children: JSX.Element | JSX.Element[];
-  data: T[];
-  columns: ColumnDef<T, any>[];
-  density?: DensityState; 
+  data: TData[];
+  columns: ColumnDef<TData, any>[];
+  density?: DensityState;
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
+  onRowSelect?: (rowSelection: RowSelectionState) => void;
 }
 
 export const DataTable = <TData,>({
@@ -53,7 +55,8 @@ export const DataTable = <TData,>({
   enableRowSelection = true,
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
-  density = 'sm',
+  density = "sm",
+  onRowSelect = () => {},
   children,
 }: DataTableProps<TData>) => {
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
@@ -98,6 +101,10 @@ export const DataTable = <TData,>({
   useEffect(() => {
     setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
   }, []);
+
+  useEffect(() => {
+    onRowSelect(table.getState().rowSelection);
+  }, [table.getState().rowSelection]);
 
   return (
     <TableContext.Provider

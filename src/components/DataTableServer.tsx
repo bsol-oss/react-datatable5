@@ -5,21 +5,23 @@ import {
   ColumnFiltersState,
   getCoreRowModel,
   RowData,
+  RowSelectionState,
   SortingState,
-  useReactTable,
+  useReactTable
 } from "@tanstack/react-table";
 import { TableContext } from "./DataTableContext";
 import { DensityFeature, DensityState } from "./DensityFeature";
 import { useDataFromUrl } from "./useDataFromUrl";
 
-export interface DataTableServerProps<T> {
+export interface DataTableServerProps<TData> {
   children: JSX.Element | JSX.Element[];
   url: string;
-  columns: ColumnDef<T, any>[]; // TODO: find the appropriate types
+  columns: ColumnDef<TData, any>[]; // TODO: find the appropriate types
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
   density?: DensityState;
+  onRowSelect?: (row: RowSelectionState) => void;
 }
 
 export interface Result<T> {
@@ -45,6 +47,7 @@ export const DataTableServer = <TData,>({
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
   density = "sm",
+  onRowSelect = () => {},
   children,
 }: DataTableServerProps<TData>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -106,7 +109,7 @@ export const DataTableServer = <TData,>({
       rowSelection,
       columnOrder,
       globalFilter,
-      density: densityState
+      density: densityState,
     },
     defaultColumn: {
       size: 150, //starting column size
@@ -140,6 +143,10 @@ export const DataTableServer = <TData,>({
   useEffect(() => {
     setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
   }, []);
+
+  useEffect(() => {
+    onRowSelect(table.getState().rowSelection);
+  }, [table.getState().rowSelection]);
 
   return (
     <TableContext.Provider
