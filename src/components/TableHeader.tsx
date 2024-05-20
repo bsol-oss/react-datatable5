@@ -66,9 +66,15 @@ export const TableHeader = ({
             padding={`${table.getDensityValue()}px`}
             onMouseEnter={() => handleRowHover(true)}
             onMouseLeave={() => handleRowHover(false)}
+            display={"grid"}
           >
             {isCheckBoxVisible() && (
-              <FormLabel margin={"0rem"}>
+              <FormLabel
+                margin={"0rem"}
+                display={"grid"}
+                justifyItems={"center"}
+                alignItems={"center"}
+              >
                 <Checkbox
                   width={`${SELECTION_BOX_WIDTH}px`}
                   height={`${SELECTION_BOX_WIDTH}px`}
@@ -81,7 +87,12 @@ export const TableHeader = ({
               </FormLabel>
             )}
             {!isCheckBoxVisible() && (
-              <FormLabel margin={"0rem"}>
+              <FormLabel
+                margin={"0rem"}
+                display={"grid"}
+                justifyItems={"center"}
+                alignItems={"center"}
+              >
                 <Box
                   width={`${SELECTION_BOX_WIDTH}px`}
                   height={`${SELECTION_BOX_WIDTH}px`}

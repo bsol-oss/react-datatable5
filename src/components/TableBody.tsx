@@ -113,9 +113,15 @@ const TableRowSelector = <TData,>({
           }
         : {})}
       // styling resize and pinning end
+      display={"grid"}
     >
       {!isCheckBoxVisible(index, row) && (
-        <FormLabel margin={"0rem"}>
+        <FormLabel
+          margin={"0rem"}
+          display={"grid"}
+          justifyItems={"center"}
+          alignItems={"center"}
+        >
           <Box
             width={`${SELECTION_BOX_WIDTH}px`}
             height={`${SELECTION_BOX_WIDTH}px`}
@@ -125,7 +131,12 @@ const TableRowSelector = <TData,>({
         </FormLabel>
       )}
       {isCheckBoxVisible(index, row) && (
-        <FormLabel margin={"0rem"}>
+        <FormLabel
+          margin={"0rem"}
+          display={"grid"}
+          justifyItems={"center"}
+          alignItems={"center"}
+        >
           <Checkbox
             width={`${SELECTION_BOX_WIDTH}px`}
             height={`${SELECTION_BOX_WIDTH}px`}
