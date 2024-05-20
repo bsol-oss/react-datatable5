@@ -1,10 +1,11 @@
-import { Box, Text, Tooltip } from "@chakra-ui/react";
+import { Box, Text, Tooltip, TooltipProps } from "@chakra-ui/react";
 
 export interface TextCellProps {
   label?: string;
   noOfLines?: number[];
   padding?: string;
   children: string | number | JSX.Element | JSX.Element[];
+  tooltipProps?: TooltipProps;
 }
 
 export const TextCell = ({
@@ -12,6 +13,8 @@ export const TextCell = ({
   noOfLines = [1],
   padding = "0rem",
   children,
+  tooltipProps,
+  ...props
 }: TextCellProps) => {
   if (label) {
     return (
@@ -28,6 +31,7 @@ export const TextCell = ({
             </Text>
           }
           placement="auto"
+          {...tooltipProps}
         >
           <Text
             as="span"
@@ -35,6 +39,7 @@ export const TextCell = ({
             textOverflow={"ellipsis"}
             wordBreak={"break-all"}
             noOfLines={noOfLines}
+            {...props}
           >
             {children}
           </Text>
