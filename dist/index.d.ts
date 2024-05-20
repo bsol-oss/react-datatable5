@@ -3,6 +3,7 @@ import * as react_jsx_runtime from 'react/jsx-runtime';
 import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, Row } from '@tanstack/react-table';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { ReactNode } from 'react';
+import { TooltipProps } from '@chakra-ui/react';
 import * as _tanstack_table_core from '@tanstack/table-core';
 
 type DensityState = "sm" | "md" | "lg";
@@ -160,8 +161,9 @@ interface TextCellProps {
     noOfLines?: number[];
     padding?: string;
     children: string | number | JSX.Element | JSX.Element[];
+    tooltipProps?: TooltipProps;
 }
-declare const TextCell: ({ label, noOfLines, padding, children, }: TextCellProps) => react_jsx_runtime.JSX.Element;
+declare const TextCell: ({ label, noOfLines, padding, children, tooltipProps, ...props }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
 interface useDataFromUrlReturn<T> {
     data: T;

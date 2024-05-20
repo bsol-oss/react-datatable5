@@ -643,9 +643,9 @@ const TableSelector = () => {
                 }, "aria-label": "reset selection" }))] }));
 };
 
-const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, }) => {
+const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipProps, ...props }) => {
     if (label) {
-        return (jsxRuntime.jsx(react$1.Box, { padding: padding, children: jsxRuntime.jsx(react$1.Tooltip, { label: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, children: children }) }) }));
+        return (jsxRuntime.jsx(react$1.Box, { padding: padding, children: jsxRuntime.jsx(react$1.Tooltip, { label: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", ...tooltipProps, children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }) }));
     }
     return (jsxRuntime.jsx(react$1.Box, { padding: padding, children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, children: children }) }));
 };
