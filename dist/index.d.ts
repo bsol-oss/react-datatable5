@@ -1,6 +1,6 @@
 /// <reference types="react" />
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef } from '@tanstack/react-table';
+import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, Row } from '@tanstack/react-table';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { ReactNode } from 'react';
 import * as _tanstack_table_core from '@tanstack/table-core';
@@ -104,7 +104,16 @@ interface TableBodyProps {
         dark: string;
     };
 }
-declare const TableBody: <TData>({ pinnedBgColor, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
+interface TableRowSelectorProps<TData> {
+    index: number;
+    row: Row<TData>;
+    hoveredRow: number;
+    pinnedBgColor?: {
+        light: string;
+        dark: string;
+    };
+}
+declare const TableBody: ({ pinnedBgColor, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
 
 interface TableCardContainerProps {
     children: JSX.Element;
@@ -174,4 +183,4 @@ declare const useDataTable: () => {
     setGlobalFilter: (filter: string) => void;
 };
 
-export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };

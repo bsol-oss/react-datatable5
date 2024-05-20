@@ -450,28 +450,8 @@ const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) 
     const handleRowHover = (index) => {
         setHoveredRow(index);
     };
-    const isCheckBoxVisible = (current_index, current_row) => {
-        if (current_row.getIsSelected()) {
-            return true;
-        }
-        if (hoveredRow == current_index) {
-            return true;
-        }
-        return false;
-    };
     return (jsxRuntime.jsx(table.Tbody, { children: table$1.getRowModel().rows.map((row, index) => {
-            return (jsxRuntime.jsxs(table.Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [jsxRuntime.jsxs(table.Td, { padding: `${table$1.getDensityValue()}px`, ...(table$1.getIsSomeColumnsPinned("left")
-                            ? {
-                                left: `0px`,
-                                backgroundColor: pinnedBgColor.light,
-                                position: "sticky",
-                                zIndex: 1,
-                                _dark: { backgroundColor: pinnedBgColor.dark },
-                            }
-                            : {}), children: [!isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", children: jsxRuntime.jsx(react$1.Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, children: jsxRuntime.jsx("span", { children: index + 1 }) }) })), isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: row.getIsSelected(),
-                                    disabled: !row.getCanSelect(),
-                                    // indeterminate: row.getIsSomeSelected(),
-                                    onChange: row.getToggleSelectedHandler() }) }))] }), row.getVisibleCells().map((cell) => {
+            return (jsxRuntime.jsxs(table.Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [jsxRuntime.jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow }), row.getVisibleCells().map((cell) => {
                         return (jsxRuntime.jsx(table.Td, { padding: `${table$1.getDensityValue()}px`, 
                             // styling resize and pinning start
                             maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, left: cell.column.getIsPinned()
@@ -483,6 +463,33 @@ const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) 
                             }, children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID()));
                     })] }, crypto.randomUUID()));
         }) }));
+};
+const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
+    const { table: table$1 } = react.useContext(TableContext);
+    const SELECTION_BOX_WIDTH = 20;
+    const isCheckBoxVisible = (current_index, current_row) => {
+        if (current_row.getIsSelected()) {
+            return true;
+        }
+        if (hoveredRow == current_index) {
+            return true;
+        }
+        return false;
+    };
+    return (jsxRuntime.jsxs(table.Td, { padding: `${table$1.getDensityValue()}px`, ...(table$1.getIsSomeColumnsPinned("left")
+            ? {
+                left: `0px`,
+                backgroundColor: pinnedBgColor.light,
+                position: "sticky",
+                zIndex: 1,
+                _dark: { backgroundColor: pinnedBgColor.dark },
+            }
+            : {}), 
+        // styling resize and pinning end
+        display: "grid", children: [!isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, children: jsxRuntime.jsx("span", { children: index + 1 }) }) })), isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: row.getIsSelected(),
+                    disabled: !row.getCanSelect(),
+                    // indeterminate: row.getIsSomeSelected(),
+                    onChange: row.getToggleSelectedHandler() }) }))] }));
 };
 
 const TableCardContainer = ({ children, ...props }) => {
@@ -531,9 +538,9 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }
                         }
                         : {}), 
                     // styling resize and pinning end
-                    onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), children: [isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
+                    onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
                                 // indeterminate: table.getIsSomeRowsSelected(),
-                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", children: jsxRuntime.jsx(react$1.Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }))] }), footerGroup.headers.map((header) => (jsxRuntime.jsx(react$1.Th, { padding: "0", colSpan: header.colSpan, 
+                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }))] }), footerGroup.headers.map((header) => (jsxRuntime.jsx(react$1.Th, { padding: "0", colSpan: header.colSpan, 
                     // styling resize and pinning start
                     maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
                         ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
@@ -578,9 +585,9 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                         }
                         : {}), 
                     // styling resize and pinning end
-                    padding: `${table.getDensityValue()}px`, onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), children: [isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
+                    padding: `${table.getDensityValue()}px`, onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
                                 // indeterminate: table.getIsSomeRowsSelected(),
-                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", children: jsxRuntime.jsx(react$1.Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }))] }), headerGroup.headers.map((header) => {
+                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }))] }), headerGroup.headers.map((header) => {
                     const resizeProps = {
                         onClick: () => header.column.resetSize(),
                         onMouseDown: header.getResizeHandler(),
