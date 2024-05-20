@@ -1,6 +1,6 @@
 /// <reference types="react" />
-import { TooltipProps } from "@chakra-ui/react";
-export interface TextCellProps {
+import { TextProps, TooltipProps } from "@chakra-ui/react";
+export interface TextCellProps extends TextProps {
     label?: string;
     noOfLines?: number[];
     padding?: string;

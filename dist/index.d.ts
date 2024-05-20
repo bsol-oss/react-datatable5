@@ -3,7 +3,7 @@ import * as react_jsx_runtime from 'react/jsx-runtime';
 import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, Row } from '@tanstack/react-table';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { ReactNode } from 'react';
-import { TooltipProps } from '@chakra-ui/react';
+import { TextProps, TooltipProps } from '@chakra-ui/react';
 import * as _tanstack_table_core from '@tanstack/table-core';
 
 type DensityState = "sm" | "md" | "lg";
@@ -156,7 +156,7 @@ declare const TableSorter: () => react_jsx_runtime.JSX.Element;
 
 declare const TableViewer: () => react_jsx_runtime.JSX.Element;
 
-interface TextCellProps {
+interface TextCellProps extends TextProps {
     label?: string;
     noOfLines?: number[];
     padding?: string;
