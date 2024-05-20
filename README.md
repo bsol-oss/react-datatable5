@@ -14,15 +14,11 @@ npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
 <DataTable columns={columns} data={data}>
   <Flex>
     <TablePagination />
-    <ButtonGroup isAttached>
-      <EditViewButton />
-      <EditFilterButton />
-    </ButtonGroup>
+    <EditViewButton />
+    <EditFilterButton />
     <EditOrderButton />
     <PageSizeControl />
-    <ButtonGroup isAttached>
-      <TableSelector />
-    </ButtonGroup>
+    <TableSelector />
     <GlobalFilter />
   </Flex>
   <Table>
@@ -44,16 +40,12 @@ npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
 >
   <Flex>
     <TablePagination />
-    <ButtonGroup isAttached>
-      <EditViewButton />
-      <EditFilterButton />
-      <DensityToggleButton />
-    </ButtonGroup>
+    <EditViewButton />
+    <EditFilterButton />
+    <DensityToggleButton />
     <EditOrderButton />
     <PageSizeControl />
-    <ButtonGroup isAttached>
-      <TableSelector />
-    </ButtonGroup>
+    <TableSelector />
     <GlobalFilter />
   </Flex>
   <Table>
@@ -61,17 +53,13 @@ npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
     <TableBody />
     <TableFooter />
   </Table>
-  <Flex gap="0.25rem">
+  <Flex>
     <TablePagination />
-    <ButtonGroup isAttached>
-      <EditViewButton />
-      <EditFilterButton />
-    </ButtonGroup>
+    <EditViewButton />
+    <EditFilterButton />
     <EditOrderButton />
     <PageSizeControl />
-    <ButtonGroup isAttached>
-      <TableSelector />
-    </ButtonGroup>
+    <TableSelector />
   </Flex>
 </DataTableServer>
 ```
