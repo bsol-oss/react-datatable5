@@ -101,10 +101,14 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
     // Return if the item should be filtered in/out
     return itemRank.passed;
 };
-const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, density = "sm", onRowSelect = () => { }, children, }) => {
-    const [columnOrder, setColumnOrder] = useState([]);
-    const [globalFilter, setGlobalFilter] = useState("");
+const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, children, }) => {
+    const [columnOrder, setColumnOrder] = useState(defaultColumnOrder);
+    const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
     const [densityState, setDensity] = useState(density);
+    const [rowSelection, setRowSelection] = useState(defaultRowSelection);
     const table = useReactTable({
         _features: [DensityFeature],
         data: data,
@@ -122,6 +126,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             columnOrder,
             globalFilter,
             density: densityState,
+            rowSelection
         },
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
@@ -138,6 +143,12 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         globalFilterFn: "fuzzy",
         // global filter end
         onDensityChange: setDensity,
+        onRowSelectionChange: setRowSelection,
+        initialState: {
+            columnFilters: defaultColumnFilter,
+            sorting: defaultSorting,
+            pagination: defaultPagination,
+        },
     });
     useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
@@ -184,16 +195,16 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     return { data, loading, hasError, refreshData };
 };
 
-const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, density = "sm", onRowSelect = () => { }, children, }) => {
-    const [sorting, setSorting] = useState([]);
-    const [columnFilters, setColumnFilters] = useState([]); // can set initial column filter state here
-    const [pagination, setPagination] = useState({
-        pageIndex: 0, //initial page index
-        pageSize: 10, //default page size
-    });
-    const [rowSelection, setRowSelection] = useState({});
-    const [columnOrder, setColumnOrder] = useState([]);
-    const [globalFilter, setGlobalFilter] = useState("");
+const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, children, }) => {
+    const [sorting, setSorting] = useState(defaultSorting);
+    const [columnFilters, setColumnFilters] = useState(defaultColumnFilter); // can set initial column filter state here
+    const [pagination, setPagination] = useState(defaultPagination);
+    const [rowSelection, setRowSelection] = useState(defaultRowSelection);
+    const [columnOrder, setColumnOrder] = useState(defaultColumnOrder);
+    const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
     const [densityState, setDensity] = useState(density);
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,

@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import { ColumnDef, RowData, RowSelectionState } from "@tanstack/react-table";
+import { ColumnDef, ColumnFiltersState, RowData, RowSelectionState, SortingState } from "@tanstack/react-table";
 import { DensityState } from "./DensityFeature";
 export interface DataTableServerProps<TData> {
     children: JSX.Element | JSX.Element[];
@@ -8,8 +8,17 @@ export interface DataTableServerProps<TData> {
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
-    density?: DensityState;
     onRowSelect?: (row: RowSelectionState) => void;
+    columnOrder?: string[];
+    columnFilters?: ColumnFiltersState;
+    globalFilter?: string;
+    density?: DensityState;
+    pagination?: {
+        pageIndex: number;
+        pageSize: number;
+    };
+    sorting?: SortingState;
+    rowSelection?: RowSelectionState;
 }
 export interface Result<T> {
     results: T[];
@@ -24,4 +33,4 @@ declare module "@tanstack/react-table" {
         displayName: string;
     }
 }
-export declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, density, onRowSelect, children, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;

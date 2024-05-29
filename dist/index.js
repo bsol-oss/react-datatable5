@@ -103,10 +103,14 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
     // Return if the item should be filtered in/out
     return itemRank.passed;
 };
-const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, density = "sm", onRowSelect = () => { }, children, }) => {
-    const [columnOrder, setColumnOrder] = react.useState([]);
-    const [globalFilter, setGlobalFilter] = react.useState("");
+const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, children, }) => {
+    const [columnOrder, setColumnOrder] = react.useState(defaultColumnOrder);
+    const [globalFilter, setGlobalFilter] = react.useState(defaultGlobalFilter);
     const [densityState, setDensity] = react.useState(density);
+    const [rowSelection, setRowSelection] = react.useState(defaultRowSelection);
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
         data: data,
@@ -124,6 +128,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             columnOrder,
             globalFilter,
             density: densityState,
+            rowSelection
         },
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
@@ -140,6 +145,12 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         globalFilterFn: "fuzzy",
         // global filter end
         onDensityChange: setDensity,
+        onRowSelectionChange: setRowSelection,
+        initialState: {
+            columnFilters: defaultColumnFilter,
+            sorting: defaultSorting,
+            pagination: defaultPagination,
+        },
     });
     react.useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
@@ -186,16 +197,16 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
     return { data, loading, hasError, refreshData };
 };
 
-const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, density = "sm", onRowSelect = () => { }, children, }) => {
-    const [sorting, setSorting] = react.useState([]);
-    const [columnFilters, setColumnFilters] = react.useState([]); // can set initial column filter state here
-    const [pagination, setPagination] = react.useState({
-        pageIndex: 0, //initial page index
-        pageSize: 10, //default page size
-    });
-    const [rowSelection, setRowSelection] = react.useState({});
-    const [columnOrder, setColumnOrder] = react.useState([]);
-    const [globalFilter, setGlobalFilter] = react.useState("");
+const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, children, }) => {
+    const [sorting, setSorting] = react.useState(defaultSorting);
+    const [columnFilters, setColumnFilters] = react.useState(defaultColumnFilter); // can set initial column filter state here
+    const [pagination, setPagination] = react.useState(defaultPagination);
+    const [rowSelection, setRowSelection] = react.useState(defaultRowSelection);
+    const [columnOrder, setColumnOrder] = react.useState(defaultColumnOrder);
+    const [globalFilter, setGlobalFilter] = react.useState(defaultGlobalFilter);
     const [densityState, setDensity] = react.useState(density);
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
