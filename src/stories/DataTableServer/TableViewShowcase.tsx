@@ -20,6 +20,7 @@ import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
 import { DensityToggleButton } from "../../components/DensityToggleButton";
+import { useState } from "react";
 
 interface ChatRecord {
   session_id: string;
@@ -44,6 +45,7 @@ const RowActions = ({ row }: RowActionsProps) => {
 };
 
 const TableViewShowcase = () => {
+  const [selectedRows, setSelectedRows] = useState<ChatRecord[]>([]);
   const columnHelper = createColumnHelper<ChatRecord>();
 
   const columns: ColumnDef<ChatRecord>[] = [
@@ -116,6 +118,10 @@ const TableViewShowcase = () => {
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
         sorting={[{ id: "last_update", desc: true }]}
         pagination={{ pageSize: 25, pageIndex: 0 }}
+        onRowSelect={(data) => {
+          console.log(data, "kvofs");
+          setSelectedRows(data);
+        }}
       >
         <Flex flexFlow={"wrap"}>
           <TablePagination />
@@ -133,6 +139,7 @@ const TableViewShowcase = () => {
           <TableFooter />
         </Table>
       </DataTableServer>
+      <Box>{JSON.stringify(selectedRows)}</Box>
     </ChakraProvider>
   );
 };

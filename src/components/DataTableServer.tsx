@@ -20,7 +20,6 @@ export interface DataTableServerProps<TData> {
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
-  onRowSelect?: (row: RowSelectionState) => void;
   columnOrder?: string[];
   columnFilters?: ColumnFiltersState;
   globalFilter?: string;
@@ -32,6 +31,7 @@ export interface DataTableServerProps<TData> {
   sorting?: SortingState;
   rowSelection?: RowSelectionState;
   loadingComponent?: JSX.Element;
+  onRowSelect?: (row: TData[]) => void;
 }
 
 export interface Result<T> {
@@ -163,8 +163,13 @@ export const DataTableServer = <TData,>({
   }, []);
 
   useEffect(() => {
-    onRowSelect(table.getState().rowSelection);
-  }, [table.getState().rowSelection]);
+    console.log(rowSelection, "fkgoo");
+    const keys = Object.keys(rowSelection);
+    const mapped = keys.map((key) => {
+      return data.results[parseInt(key)];
+    });
+    onRowSelect(mapped);
+  }, [rowSelection]);
 
   return (
     <TableContext.Provider
