@@ -1,12 +1,14 @@
 import {
   ColumnDef,
+  ColumnFiltersState,
   FilterFn,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   RowSelectionState,
-  useReactTable
+  SortingState,
+  useReactTable,
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { TableContext } from "./DataTableContext";
@@ -39,14 +41,23 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 };
 
 export interface DataTableProps<TData> {
-  children: JSX.Element | JSX.Element[];
+  children?: JSX.Element | JSX.Element[];
   data: TData[];
   columns: ColumnDef<TData, any>[];
-  density?: DensityState;
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
   onRowSelect?: (rowSelection: RowSelectionState) => void;
+  columnOrder?: string[];
+  columnFilters?: ColumnFiltersState;
+  globalFilter?: string;
+  density?: DensityState;
+  pagination?: {
+    pageIndex: number;
+    pageSize: number;
+  };
+  sorting?: SortingState;
+  rowSelection?: RowSelectionState;
 }
 
 export const DataTable = <TData,>({
@@ -55,13 +66,23 @@ export const DataTable = <TData,>({
   enableRowSelection = true,
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
-  density = "sm",
   onRowSelect = () => {},
+  columnOrder: defaultColumnOrder = [],
+  columnFilters: defaultColumnFilter = [],
+  density = "sm",
+  globalFilter: defaultGlobalFilter = "",
+  pagination: defaultPagination = {
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+  },
+  sorting: defaultSorting = [],
+  rowSelection: defaultRowSelection = {},
   children,
 }: DataTableProps<TData>) => {
-  const [columnOrder, setColumnOrder] = useState<string[]>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [columnOrder, setColumnOrder] = useState<string[]>(defaultColumnOrder);
+  const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
   const [densityState, setDensity] = useState<DensityState>(density);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>(defaultRowSelection)
 
   const table = useReactTable<TData>({
     _features: [DensityFeature],
@@ -80,6 +101,7 @@ export const DataTable = <TData,>({
       columnOrder,
       globalFilter,
       density: densityState,
+      rowSelection
     },
     onColumnOrderChange: (state) => {
       setColumnOrder(state);
@@ -96,6 +118,12 @@ export const DataTable = <TData,>({
     globalFilterFn: "fuzzy",
     // global filter end
     onDensityChange: setDensity,
+    onRowSelectionChange: setRowSelection,
+    initialState: {
+      columnFilters: defaultColumnFilter,
+      sorting: defaultSorting,
+      pagination: defaultPagination,
+    },
   });
 
   useEffect(() => {

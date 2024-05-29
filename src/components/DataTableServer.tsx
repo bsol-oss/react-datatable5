@@ -7,7 +7,7 @@ import {
   RowData,
   RowSelectionState,
   SortingState,
-  useReactTable
+  useReactTable,
 } from "@tanstack/react-table";
 import { TableContext } from "./DataTableContext";
 import { DensityFeature, DensityState } from "./DensityFeature";
@@ -20,8 +20,17 @@ export interface DataTableServerProps<TData> {
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
-  density?: DensityState;
   onRowSelect?: (row: RowSelectionState) => void;
+  columnOrder?: string[];
+  columnFilters?: ColumnFiltersState;
+  globalFilter?: string;
+  density?: DensityState;
+  pagination?: {
+    pageIndex: number;
+    pageSize: number;
+  };
+  sorting?: SortingState;
+  rowSelection?: RowSelectionState;
 }
 
 export interface Result<T> {
@@ -46,19 +55,27 @@ export const DataTableServer = <TData,>({
   enableRowSelection = true,
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
-  density = "sm",
   onRowSelect = () => {},
-  children,
-}: DataTableServerProps<TData>) => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]); // can set initial column filter state here
-  const [pagination, setPagination] = useState({
+  columnOrder: defaultColumnOrder = [],
+  columnFilters: defaultColumnFilter = [],
+  density = "sm",
+  globalFilter: defaultGlobalFilter = "",
+  pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
-  });
-  const [rowSelection, setRowSelection] = useState({});
-  const [columnOrder, setColumnOrder] = useState<string[]>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
+  },
+  sorting: defaultSorting = [],
+  rowSelection: defaultRowSelection = {},
+  children,
+}: DataTableServerProps<TData>) => {
+  const [sorting, setSorting] = useState<SortingState>(defaultSorting);
+  const [columnFilters, setColumnFilters] =
+    useState<ColumnFiltersState>(defaultColumnFilter); // can set initial column filter state here
+  const [pagination, setPagination] = useState(defaultPagination);
+  const [rowSelection, setRowSelection] =
+    useState<RowSelectionState>(defaultRowSelection);
+  const [columnOrder, setColumnOrder] = useState<string[]>(defaultColumnOrder);
+  const [globalFilter, setGlobalFilter] = useState<string>(defaultGlobalFilter);
   const [densityState, setDensity] = useState<DensityState>(density);
   const { data, loading, hasError, refreshData } = useDataFromUrl<
     DataResponse<TData>
