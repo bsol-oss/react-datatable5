@@ -1,9 +1,4 @@
-import {
-  Box,
-  ChakraProvider,
-  Flex,
-  theme
-} from "@chakra-ui/react";
+import { Box, ChakraProvider, Flex, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable";
 import { EditFilterButton } from "../../components/EditFilterButton";
@@ -64,7 +59,7 @@ const TableViewShowcase = () => {
           },
           header: () => <Box>Title</Box>,
           footer: (props) => props.column.id,
-          size: 100,
+          size: 200,
         }),
         // Accessor Column
         columnHelper.accessor("description", {
@@ -81,7 +76,11 @@ const TableViewShowcase = () => {
 
   return (
     <ChakraProvider theme={theme}>
-      <DataTable columns={columns} data={data}>
+      <DataTable
+        columns={columns}
+        data={data}
+        sorting={[{ id: "title", desc: false }]}
+      >
         <Flex>
           <TablePagination />
           <EditViewButton />

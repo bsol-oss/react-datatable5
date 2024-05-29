@@ -114,6 +114,7 @@ const TableViewShowcase = () => {
       <DataTableServer
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
+        sorting={[{ id: "last_update", desc: true }]}
       >
         <Flex>
           <TablePagination />
