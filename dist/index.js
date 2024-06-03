@@ -200,7 +200,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
 const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
-}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, children, }) => {
+}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, loadingComponent = jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Loading..." }), children, }) => {
     const [sorting, setSorting] = react.useState(defaultSorting);
     const [columnFilters, setColumnFilters] = react.useState(defaultColumnFilter); // can set initial column filter state here
     const [pagination, setPagination] = react.useState(defaultPagination);
@@ -286,12 +286,12 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     react.useEffect(() => {
         onRowSelect(table.getState().rowSelection);
     }, [table.getState().rowSelection]);
-    return (jsxRuntime.jsx(TableContext.Provider, { value: {
+    return (jsxRuntime.jsxs(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: refreshData,
             globalFilter,
             setGlobalFilter,
-        }, children: children }));
+        }, children: [loading && loadingComponent, !loading && children] }));
 };
 
 const DensityToggleButton = () => {

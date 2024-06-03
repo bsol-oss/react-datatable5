@@ -1,4 +1,4 @@
-import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 import { createContext, useState, useEffect, useContext } from 'react';
 import { rankItem } from '@tanstack/match-sorter-utils';
@@ -198,7 +198,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
 const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
-}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, children, }) => {
+}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, loadingComponent = jsx(Fragment, { children: "Loading..." }), children, }) => {
     const [sorting, setSorting] = useState(defaultSorting);
     const [columnFilters, setColumnFilters] = useState(defaultColumnFilter); // can set initial column filter state here
     const [pagination, setPagination] = useState(defaultPagination);
@@ -284,12 +284,12 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     useEffect(() => {
         onRowSelect(table.getState().rowSelection);
     }, [table.getState().rowSelection]);
-    return (jsx(TableContext.Provider, { value: {
+    return (jsxs(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: refreshData,
             globalFilter,
             setGlobalFilter,
-        }, children: children }));
+        }, children: [loading && loadingComponent, !loading && children] }));
 };
 
 const DensityToggleButton = () => {

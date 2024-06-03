@@ -75,6 +75,7 @@ interface DataTableServerProps<TData> {
     };
     sorting?: SortingState;
     rowSelection?: RowSelectionState;
+    loadingComponent?: JSX.Element;
 }
 interface Result<T> {
     results: T[];
@@ -89,7 +90,7 @@ declare module "@tanstack/react-table" {
         displayName: string;
     }
 }
-declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, loadingComponent, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
 declare const DensityToggleButton: () => react_jsx_runtime.JSX.Element;
 

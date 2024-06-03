@@ -19,6 +19,7 @@ export interface DataTableServerProps<TData> {
     };
     sorting?: SortingState;
     rowSelection?: RowSelectionState;
+    loadingComponent?: JSX.Element;
 }
 export interface Result<T> {
     results: T[];
@@ -33,4 +34,4 @@ declare module "@tanstack/react-table" {
         displayName: string;
     }
 }
-export declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, loadingComponent, children, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;
