@@ -193,7 +193,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
         getData().catch((e) => {
             console.error(e);
         });
-    }, []);
+    }, [url]);
     return { data, loading, hasError, refreshData };
 };
 
