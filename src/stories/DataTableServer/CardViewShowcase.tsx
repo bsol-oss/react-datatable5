@@ -111,6 +111,9 @@ const CardViewShowcase = () => {
       <DataTableServer
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
+        loadingComponent={
+          <>Hang tight, our system's got something to share. Be right back!</>
+        }
       >
         <Flex gap="0.25rem">
           <TablePagination />
