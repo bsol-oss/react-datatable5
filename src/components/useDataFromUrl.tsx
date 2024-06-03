@@ -44,7 +44,7 @@ export const useDataFromUrl = <T,>({
     getData().catch((e) => {
       console.error(e);
     });
-  }, []);
+  }, [url]);
 
   return { data, loading, hasError, refreshData };
 };
