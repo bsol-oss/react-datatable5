@@ -167,6 +167,9 @@ export const TableHeader = ({
                           </>
                         )}
                       </Box>
+                      <Box>
+                        {header.column.getIsFiltered() && <MdFilterListAlt />}
+                      </Box>
                     </Flex>
                   </MenuButton>
 
@@ -219,7 +222,6 @@ export const TableHeader = ({
                   </Portal>
                 </Menu>
 
-                {header.column.getIsFiltered() && <MdFilterListAlt />}
                 {canResize && (
                   <Box
                     borderRight={"0.2rem solid"}
