@@ -12,7 +12,6 @@ import {
 import { TableContext } from "./DataTableContext";
 import { DensityFeature, DensityState } from "./DensityFeature";
 import { useDataFromUrl } from "./useDataFromUrl";
-import { VscLoading } from "react-icons/vsc";
 
 export interface DataTableServerProps<TData> {
   children: JSX.Element | JSX.Element[];
@@ -68,7 +67,6 @@ export const DataTableServer = <TData,>({
   },
   sorting: defaultSorting = [],
   rowSelection: defaultRowSelection = {},
-  loadingComponent = <>Loading...</>,
   children,
 }: DataTableServerProps<TData>) => {
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
@@ -175,10 +173,10 @@ export const DataTableServer = <TData,>({
         refreshData: refreshData,
         globalFilter,
         setGlobalFilter,
+        loading: loading,
       }}
     >
-      {loading && loadingComponent}
-      {!loading && children}
+      {children}
     </TableContext.Provider>
   );
 };
