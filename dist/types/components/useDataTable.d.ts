@@ -3,4 +3,5 @@ export declare const useDataTable: () => {
     refreshData: () => void;
     globalFilter: string;
     setGlobalFilter: (filter: string) => void;
+    loading: boolean;
 };

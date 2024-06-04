@@ -90,7 +90,7 @@ declare module "@tanstack/react-table" {
         displayName: string;
     }
 }
-declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, loadingComponent, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
 declare const DensityToggleButton: () => react_jsx_runtime.JSX.Element;
 
@@ -116,9 +116,11 @@ declare const ResetSelectionButton: () => react_jsx_runtime.JSX.Element;
 declare const ResetSortingButton: () => react_jsx_runtime.JSX.Element;
 
 interface TableProps {
+    showLoading?: boolean;
+    loadingComponent?: JSX.Element;
     children: ReactNode;
 }
-declare const Table: ({ children, ...props }: TableProps) => react_jsx_runtime.JSX.Element;
+declare const Table: ({ children, showLoading, loadingComponent, ...props }: TableProps) => react_jsx_runtime.JSX.Element;
 
 interface TableBodyProps {
     pinnedBgColor?: {
@@ -204,6 +206,7 @@ declare const useDataTable: () => {
     refreshData: () => void;
     globalFilter: string;
     setGlobalFilter: (filter: string) => void;
+    loading: boolean;
 };
 
 export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };

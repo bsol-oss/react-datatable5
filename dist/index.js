@@ -17,6 +17,7 @@ const TableContext = react.createContext({
     refreshData: () => { },
     globalFilter: "",
     setGlobalFilter: () => { },
+    loading: false,
 });
 
 // Reference: https://tanstack.com/table/latest/docs/framework/react/examples/custom-features
@@ -165,6 +166,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             },
             globalFilter: globalFilter,
             setGlobalFilter: setGlobalFilter,
+            loading: false
         }, children: children }));
 };
 
@@ -200,7 +202,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
 const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
-}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, loadingComponent = jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Loading..." }), children, }) => {
+}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, children, }) => {
     const [sorting, setSorting] = react.useState(defaultSorting);
     const [columnFilters, setColumnFilters] = react.useState(defaultColumnFilter); // can set initial column filter state here
     const [pagination, setPagination] = react.useState(defaultPagination);
@@ -286,12 +288,13 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     react.useEffect(() => {
         onRowSelect(table.getState().rowSelection);
     }, [table.getState().rowSelection]);
-    return (jsxRuntime.jsxs(TableContext.Provider, { value: {
+    return (jsxRuntime.jsx(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: refreshData,
             globalFilter,
             setGlobalFilter,
-        }, children: [loading && loadingComponent, !loading && children] }));
+            loading: loading,
+        }, children: children }));
 };
 
 const DensityToggleButton = () => {
@@ -309,8 +312,8 @@ const ResetFilteringButton = () => {
 };
 
 const useDataTable = () => {
-    const { table, refreshData, globalFilter, setGlobalFilter } = react.useContext(TableContext);
-    return { table, refreshData, globalFilter, setGlobalFilter };
+    const { table, refreshData, globalFilter, setGlobalFilter, loading } = react.useContext(TableContext);
+    return { table, refreshData, globalFilter, setGlobalFilter, loading };
 };
 
 const TableFilter = () => {
@@ -454,9 +457,12 @@ const ResetSelectionButton = () => {
         }, children: "Reset Selection" }));
 };
 
-const Table = ({ children, ...props }) => {
-    const { table } = useDataTable();
-    return (jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "scroll", ...props, children: children }));
+const Table = ({ children, showLoading = false, loadingComponent = jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Loading..." }), ...props }) => {
+    const { table, loading } = useDataTable();
+    if (showLoading) {
+        return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [loading && loadingComponent, !loading && (jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "scroll", ...props, children: children }))] }));
+    }
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "scroll", ...props, children: children }) }));
 };
 
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
@@ -624,7 +630,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                     ? null
                                                     : reactTable.flexRender(header.column.columnDef.header, header.getContext()), jsxRuntime.jsx(react$1.Box, { children: header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [header.column.getIsSorted() === false && (
                                                             // <UpDownIcon />
-                                                            jsxRuntime.jsx(jsxRuntime.Fragment, {})), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {}))] })) })] }) }), jsxRuntime.jsx(react$1.Portal, { children: jsxRuntime.jsxs(react$1.MenuList, { children: [!header.column.getIsPinned() && (jsxRuntime.jsx(react$1.MenuItem, { icon: jsxRuntime.jsx(md.MdPushPin, {}), onClick: () => {
+                                                            jsxRuntime.jsx(jsxRuntime.Fragment, {})), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {}))] })) }), jsxRuntime.jsx(react$1.Box, { children: header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}) })] }) }), jsxRuntime.jsx(react$1.Portal, { children: jsxRuntime.jsxs(react$1.MenuList, { children: [!header.column.getIsPinned() && (jsxRuntime.jsx(react$1.MenuItem, { icon: jsxRuntime.jsx(md.MdPushPin, {}), onClick: () => {
                                                         header.column.pin("left");
                                                     }, children: "Pin Column" })), header.column.getIsPinned() && (jsxRuntime.jsx(react$1.MenuItem, { icon: jsxRuntime.jsx(md.MdCancel, {}), onClick: () => {
                                                         header.column.pin(false);
@@ -632,7 +638,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                                 header.column.toggleSorting();
                                                             }, children: "Toggle Sorting" }), header.column.getIsSorted() && (jsxRuntime.jsx(react$1.MenuItem, { icon: jsxRuntime.jsx(io.IoMdClose, {}), onClick: () => {
                                                                 header.column.clearSorting();
-                                                            }, children: "Clear Sorting" }))] }))] }) })] }), header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}), canResize && (jsxRuntime.jsx(react$1.Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "absolute", right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
+                                                            }, children: "Clear Sorting" }))] }))] }) })] }), canResize && (jsxRuntime.jsx(react$1.Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "absolute", right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
                                     borderRightColor: header.column.getIsResizing()
                                         ? "gray.700"
                                         : "gray.400",

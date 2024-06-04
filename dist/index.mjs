@@ -1,11 +1,11 @@
-import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
+import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
 import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 import { createContext, useState, useEffect, useContext } from 'react';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import axios from 'axios';
 import { Tooltip, IconButton, Button, Box, Text, Input, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverBody, Flex, Switch, Menu, MenuButton, MenuList, MenuItem, Table as Table$1, FormLabel, Checkbox, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Icon } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
-import { MdFilterAlt, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdPushPin, MdCancel, MdSort, MdFilterListAlt, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdClear, MdOutlineChecklist } from 'react-icons/md';
+import { MdFilterAlt, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdFilterListAlt, MdPushPin, MdCancel, MdSort, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdClear, MdOutlineChecklist } from 'react-icons/md';
 import { UpDownIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon } from '@chakra-ui/icons';
 import { IoMdEye, IoMdClose, IoMdCheckbox } from 'react-icons/io';
 import { Tbody, Tr, Td } from '@chakra-ui/table';
@@ -15,6 +15,7 @@ const TableContext = createContext({
     refreshData: () => { },
     globalFilter: "",
     setGlobalFilter: () => { },
+    loading: false,
 });
 
 // Reference: https://tanstack.com/table/latest/docs/framework/react/examples/custom-features
@@ -163,6 +164,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             },
             globalFilter: globalFilter,
             setGlobalFilter: setGlobalFilter,
+            loading: false
         }, children: children }));
 };
 
@@ -198,7 +200,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
 const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
-}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, loadingComponent = jsx(Fragment, { children: "Loading..." }), children, }) => {
+}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, children, }) => {
     const [sorting, setSorting] = useState(defaultSorting);
     const [columnFilters, setColumnFilters] = useState(defaultColumnFilter); // can set initial column filter state here
     const [pagination, setPagination] = useState(defaultPagination);
@@ -284,12 +286,13 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     useEffect(() => {
         onRowSelect(table.getState().rowSelection);
     }, [table.getState().rowSelection]);
-    return (jsxs(TableContext.Provider, { value: {
+    return (jsx(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: refreshData,
             globalFilter,
             setGlobalFilter,
-        }, children: [loading && loadingComponent, !loading && children] }));
+            loading: loading,
+        }, children: children }));
 };
 
 const DensityToggleButton = () => {
@@ -307,8 +310,8 @@ const ResetFilteringButton = () => {
 };
 
 const useDataTable = () => {
-    const { table, refreshData, globalFilter, setGlobalFilter } = useContext(TableContext);
-    return { table, refreshData, globalFilter, setGlobalFilter };
+    const { table, refreshData, globalFilter, setGlobalFilter, loading } = useContext(TableContext);
+    return { table, refreshData, globalFilter, setGlobalFilter, loading };
 };
 
 const TableFilter = () => {
@@ -452,9 +455,12 @@ const ResetSelectionButton = () => {
         }, children: "Reset Selection" }));
 };
 
-const Table = ({ children, ...props }) => {
-    const { table } = useDataTable();
-    return (jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "scroll", ...props, children: children }));
+const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
+    const { table, loading } = useDataTable();
+    if (showLoading) {
+        return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "scroll", ...props, children: children }))] }));
+    }
+    return (jsx(Fragment, { children: jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "scroll", ...props, children: children }) }));
 };
 
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
@@ -622,7 +628,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                     ? null
                                                     : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (
                                                             // <UpDownIcon />
-                                                            jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
+                                                            jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) }), jsx(Box, { children: header.column.getIsFiltered() && jsx(MdFilterListAlt, {}) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
                                                         header.column.pin("left");
                                                     }, children: "Pin Column" })), header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdCancel, {}), onClick: () => {
                                                         header.column.pin(false);
@@ -630,7 +636,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                                 header.column.toggleSorting();
                                                             }, children: "Toggle Sorting" }), header.column.getIsSorted() && (jsx(MenuItem, { icon: jsx(IoMdClose, {}), onClick: () => {
                                                                 header.column.clearSorting();
-                                                            }, children: "Clear Sorting" }))] }))] }) })] }), header.column.getIsFiltered() && jsx(MdFilterListAlt, {}), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "absolute", right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
+                                                            }, children: "Clear Sorting" }))] }))] }) })] }), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "absolute", right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
                                     borderRightColor: header.column.getIsResizing()
                                         ? "gray.700"
                                         : "gray.400",
