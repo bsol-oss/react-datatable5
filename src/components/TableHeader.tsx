@@ -155,7 +155,6 @@ export const TableHeader = ({
                         {header.column.getCanSort() && (
                           <>
                             {header.column.getIsSorted() === false && (
-                              // <UpDownIcon />
                               <></>
                             )}
                             {header.column.getIsSorted() === "asc" && (

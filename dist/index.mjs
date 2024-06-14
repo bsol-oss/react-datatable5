@@ -1,11 +1,11 @@
-import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 import { createContext, useState, useEffect, useContext } from 'react';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import axios from 'axios';
-import { Tooltip, IconButton, Button, Box, Text, Input, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverBody, Flex, Switch, Menu, MenuButton, MenuList, MenuItem, Table as Table$1, FormLabel, Checkbox, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Icon } from '@chakra-ui/react';
+import { IconButton, Button, Box, Text, Input, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Switch, Menu, MenuButton, MenuList, MenuItem, Table as Table$1, FormLabel, Checkbox, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Icon, Tooltip } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
-import { MdFilterAlt, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdFilterListAlt, MdPushPin, MdCancel, MdSort, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdClear, MdOutlineChecklist } from 'react-icons/md';
+import { MdFilterAlt, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdFilterListAlt, MdPushPin, MdCancel, MdSort, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdOutlineChecklist, MdClear } from 'react-icons/md';
 import { UpDownIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon } from '@chakra-ui/icons';
 import { IoMdEye, IoMdClose, IoMdCheckbox } from 'react-icons/io';
 import { Tbody, Tr, Td } from '@chakra-ui/table';
@@ -127,7 +127,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             columnOrder,
             globalFilter,
             density: densityState,
-            rowSelection
+            rowSelection,
         },
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
@@ -164,7 +164,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             },
             globalFilter: globalFilter,
             setGlobalFilter: setGlobalFilter,
-            loading: false
+            loading: false,
         }, children: children }));
 };
 
@@ -295,18 +295,20 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         }, children: children }));
 };
 
-const DensityToggleButton = () => {
+const DensityToggleButton = ({ text, icon = jsx(AiOutlineColumnWidth, {}), }) => {
     const { table } = useContext(TableContext);
-    return (jsx(Tooltip, { label: "Toggle Density", children: jsx(IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: jsx(AiOutlineColumnWidth, {}), onClick: (event) => {
-                table.toggleDensity();
-            } }) }));
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: icon, onClick: () => {
+                    table.toggleDensity();
+                } })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
+                    table.toggleDensity();
+                }, children: text }))] }));
 };
 
-const ResetFilteringButton = () => {
+const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
     const { table } = useContext(TableContext);
     return (jsx(Button, { onClick: () => {
             table.resetColumnFilters();
-        }, children: "Reset Filtering" }));
+        }, children: text }));
 };
 
 const useDataTable = () => {
@@ -328,8 +330,9 @@ const TableFilter = () => {
         }) }));
 };
 
-const EditFilterButton = () => {
-    return (jsxs(Popover, { placement: "auto", children: [jsx(Tooltip, { label: "Filter", children: jsx(PopoverTrigger, { children: jsx(IconButton, { "aria-label": "filter", variant: "ghost", icon: jsx(MdFilterAlt, {}) }) }) }), jsxs(PopoverContent, { width: "auto", children: [jsx(PopoverArrow, {}), jsx(PopoverBody, { children: jsxs(Flex, { flexFlow: "column", gap: "1rem", children: [jsx(TableFilter, {}), jsx(ResetFilteringButton, {})] }) })] })] }));
+const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsx(MdFilterAlt, {}), }) => {
+    const filterModal = useDisclosure();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: filterModal.onOpen, "aria-label": "filter" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: filterModal.onOpen, children: text })), jsxs(Modal, { isOpen: filterModal.isOpen, onClose: filterModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "1rem", children: [jsx(TableFilter, {}), jsx(ResetFilteringButton, { text: resetText })] }) }), jsx(ModalFooter, { children: jsx(Button, { onClick: filterModal.onClose, children: closeText }) })] })] })] }));
 };
 
 const ColumnOrderChanger = ({ columns }) => {
@@ -385,15 +388,16 @@ const TableOrderer = () => {
     return (jsx(Fragment, { children: jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
 };
 
-const EditOrderButton = () => {
-    return (jsxs(Popover, { placement: "auto", children: [jsx(Tooltip, { label: "Change Order", children: jsx(PopoverTrigger, { children: jsx(IconButton, { "aria-label": "filter", variant: "ghost", icon: jsx(MdOutlineMoveDown, {}) }) }) }), jsxs(PopoverContent, { width: "auto", children: [jsx(PopoverArrow, {}), jsx(PopoverBody, { children: jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: jsx(TableOrderer, {}) }) })] })] }));
+const EditOrderButton = ({ text, icon = jsx(MdOutlineMoveDown, {}), title = "Change Order", }) => {
+    const orderModal = useDisclosure();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: orderModal.onOpen, "aria-label": "change order" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: orderModal.onOpen, children: text })), jsxs(Modal, { isOpen: orderModal.isOpen, onClose: orderModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: jsx(TableOrderer, {}) }) })] })] })] }));
 };
 
-const ResetSortingButton = () => {
+const ResetSortingButton = ({ text = "Reset Sorting", }) => {
     const { table } = useContext(TableContext);
     return (jsx(Button, { onClick: () => {
             table.resetSorting();
-        }, children: "Reset Sorting" }));
+        }, children: text }));
 };
 
 const TableSorter = () => {
@@ -416,8 +420,9 @@ const TableSorter = () => {
             }) }))) }));
 };
 
-const EditSortingButton = () => {
-    return (jsxs(Popover, { placement: "auto", children: [jsx(Tooltip, { label: "Filter", children: jsx(PopoverTrigger, { children: jsx(IconButton, { "aria-label": "filter", variant: "ghost", icon: jsx(MdOutlineSort, {}) }) }) }), jsxs(PopoverContent, { width: "auto", children: [jsx(PopoverArrow, {}), jsx(PopoverBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) })] })] }));
+const EditSortingButton = ({ text, icon = jsx(MdOutlineSort, {}), title = "Edit Sorting", }) => {
+    const sortingModal = useDisclosure();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: sortingModal.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: sortingModal.onOpen, children: text })), jsxs(Modal, { isOpen: sortingModal.isOpen, onClose: sortingModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) })] })] })] }));
 };
 
 const TableViewer = () => {
@@ -430,8 +435,9 @@ const TableViewer = () => {
         }) }));
 };
 
-const EditViewButton = () => {
-    return (jsxs(Popover, { placement: "auto", children: [jsx(PopoverTrigger, { children: jsx(IconButton, { "aria-label": "view", variant: "ghost", icon: jsx(IoMdEye, {}) }) }), jsxs(PopoverContent, { width: "auto", children: [jsx(PopoverArrow, {}), jsx(PopoverBody, { children: jsx(TableViewer, {}) })] })] }));
+const EditViewButton = ({ text, icon = jsx(IoMdEye, {}), title = "Edit View", }) => {
+    const viewModel = useDisclosure();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: viewModel.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: viewModel.onOpen, children: text })), jsxs(Modal, { isOpen: viewModel.isOpen, onClose: viewModel.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(TableViewer, {}) })] })] })] }));
 };
 
 const GlobalFilter = () => {
@@ -448,19 +454,19 @@ const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
                         }, children: pageSize }))) })] }) }));
 };
 
-const ResetSelectionButton = () => {
+const ResetSelectionButton = ({ text = "Reset Selection", }) => {
     const { table } = useContext(TableContext);
     return (jsx(Button, { onClick: () => {
             table.resetRowSelection();
-        }, children: "Reset Selection" }));
+        }, children: text }));
 };
 
 const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
     const { table, loading } = useDataTable();
     if (showLoading) {
-        return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "scroll", ...props, children: children }))] }));
+        return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }))] }));
     }
-    return (jsx(Fragment, { children: jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "scroll", ...props, children: children }) }));
+    return (jsx(Fragment, { children: jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
 };
 
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
@@ -626,9 +632,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                         // styling resize and pinning end
                         display: "grid", children: [jsxs(Menu, { children: [jsx(MenuButton, { as: Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                                     ? null
-                                                    : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (
-                                                            // <UpDownIcon />
-                                                            jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) }), jsx(Box, { children: header.column.getIsFiltered() && jsx(MdFilterListAlt, {}) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
+                                                    : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) }), jsx(Box, { children: header.column.getIsFiltered() && jsx(MdFilterListAlt, {}) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
                                                         header.column.pin("left");
                                                     }, children: "Pin Column" })), header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdCancel, {}), onClick: () => {
                                                         header.column.pin(false);
@@ -649,11 +653,13 @@ const TablePagination = ({}) => {
     return (jsxs(ButtonGroup, { isAttached: true, children: [jsx(IconButton, { icon: jsx(MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost" }), jsx(IconButton, { icon: jsx(MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost" }), jsx(Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsx(IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsx(MdArrowForward, {}) }), jsx(IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsx(MdLastPage, {}) })] }));
 };
 
-const SelectAllRowsToggle = () => {
+const SelectAllRowsToggle = ({ selectAllIcon = jsx(MdOutlineChecklist, {}), clearAllIcon = jsx(MdClear, {}), selectAllText, clearAllText, }) => {
     const { table } = useContext(TableContext);
-    return (jsx(Tooltip, { label: table.getIsAllRowsSelected() ? "Clear All" : "Select All", children: jsx(IconButton, { variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? "Clear All" : "Select All", icon: table.getIsAllRowsSelected() ? jsx(MdClear, {}) : jsx(MdOutlineChecklist, {}), onClick: (event) => {
-                table.getToggleAllRowsSelectedHandler()(event);
-            } }) }));
+    return (jsxs(Fragment, { children: [!!selectAllText === false && (jsx(IconButton, { icon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
+                    table.getToggleAllRowsSelectedHandler()(event);
+                } })), !!selectAllText !== false && (jsx(Button, { leftIcon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", onClick: (event) => {
+                    table.getToggleAllRowsSelectedHandler()(event);
+                }, children: table.getIsAllRowsSelected() ? clearAllText : selectAllText }))] }));
 };
 
 const TableSelector = () => {

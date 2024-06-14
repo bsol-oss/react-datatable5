@@ -1,22 +1,47 @@
-import { IconButton, Tooltip } from "@chakra-ui/react";
-import { useContext } from "react";
+import { Button, IconButton } from "@chakra-ui/react";
+import React, { useContext } from "react";
 import { MdClear, MdOutlineChecklist } from "react-icons/md";
 import { TableContext } from "./DataTableContext";
 
-export const SelectAllRowsToggle = () => {
+export interface SelectAllRowsToggleProps {
+  selectAllIcon: React.ReactElement;
+  clearAllIcon: React.ReactElement;
+  selectAllText: string;
+  clearAllText: string;
+}
+
+export const SelectAllRowsToggle = ({
+  selectAllIcon = <MdOutlineChecklist />,
+  clearAllIcon = <MdClear />,
+  selectAllText,
+  clearAllText,
+}: SelectAllRowsToggleProps) => {
   const { table } = useContext(TableContext);
   return (
-    <Tooltip label={table.getIsAllRowsSelected() ? "Clear All" : "Select All"}>
-      <IconButton
-        variant={"ghost"}
-        aria-label={table.getIsAllRowsSelected() ? "Clear All" : "Select All"}
-        icon={
-          table.getIsAllRowsSelected() ? <MdClear /> : <MdOutlineChecklist />
-        }
-        onClick={(event) => {
-          table.getToggleAllRowsSelectedHandler()(event);
-        }}
-      />
-    </Tooltip>
+    <>
+      {!!selectAllText === false && (
+        <IconButton
+          icon={table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon}
+          variant={"ghost"}
+          aria-label={
+            table.getIsAllRowsSelected() ? clearAllText : selectAllText
+          }
+          onClick={(event) => {
+            table.getToggleAllRowsSelectedHandler()(event);
+          }}
+        />
+      )}
+      {!!selectAllText !== false && (
+        <Button
+          leftIcon={table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon}
+          variant={"ghost"}
+          onClick={(event) => {
+            table.getToggleAllRowsSelectedHandler()(event);
+          }}
+        >
+          {table.getIsAllRowsSelected() ? clearAllText : selectAllText}
+        </Button>
+      )}
+    </>
   );
 };

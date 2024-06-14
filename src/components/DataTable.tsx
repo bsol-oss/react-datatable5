@@ -82,7 +82,8 @@ export const DataTable = <TData,>({
   const [columnOrder, setColumnOrder] = useState<string[]>(defaultColumnOrder);
   const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
   const [densityState, setDensity] = useState<DensityState>(density);
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>(defaultRowSelection)
+  const [rowSelection, setRowSelection] =
+    useState<RowSelectionState>(defaultRowSelection);
 
   const table = useReactTable<TData>({
     _features: [DensityFeature],
@@ -101,7 +102,7 @@ export const DataTable = <TData,>({
       columnOrder,
       globalFilter,
       density: densityState,
-      rowSelection
+      rowSelection,
     },
     onColumnOrderChange: (state) => {
       setColumnOrder(state);
@@ -143,7 +144,7 @@ export const DataTable = <TData,>({
         },
         globalFilter: globalFilter,
         setGlobalFilter: setGlobalFilter,
-        loading: false
+        loading: false,
       }}
     >
       {children}

@@ -1,19 +1,42 @@
-import { IconButton, Tooltip } from "@chakra-ui/react";
-import { useContext } from "react";
-import { TableContext } from "./DataTableContext";
+import { Button, IconButton } from "@chakra-ui/react";
+import React, { useContext } from "react";
 import { AiOutlineColumnWidth } from "react-icons/ai";
-export const DensityToggleButton = () => {
+import { TableContext } from "./DataTableContext";
+
+export interface DensityToggleButtonProps {
+  icon?: React.ReactElement;
+  text?: string;
+}
+
+export const DensityToggleButton = ({
+  text,
+  icon = <AiOutlineColumnWidth />,
+}: DensityToggleButtonProps) => {
   const { table } = useContext(TableContext);
   return (
-    <Tooltip label={"Toggle Density"}>
-      <IconButton
-        variant={"ghost"}
-        aria-label={"Toggle Density"}
-        icon={<AiOutlineColumnWidth />}
-        onClick={(event) => {
-          table.toggleDensity();
-        }}
-      />
-    </Tooltip>
+    <>
+      {!!text === false && (
+        <IconButton
+          variant={"ghost"}
+          aria-label={"Toggle Density"}
+          icon={icon}
+          onClick={() => {
+            table.toggleDensity();
+          }}
+        />
+      )}
+      {!!text !== false && (
+        <Button
+          leftIcon={icon}
+          variant={"ghost"}
+          aria-label={"Toggle Density"}
+          onClick={() => {
+            table.toggleDensity();
+          }}
+        >
+          {text}
+        </Button>
+      )}
+    </>
   );
 };

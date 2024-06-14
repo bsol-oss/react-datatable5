@@ -1,39 +1,63 @@
 import {
+  Button,
   Flex,
   IconButton,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
-  Tooltip,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { MdOutlineSort } from "react-icons/md";
 import { ResetSortingButton } from "./ResetSortingButton";
 import { TableSorter } from "./TableSorter";
 
-export const EditSortingButton = () => {
-  return (
-    <Popover placement="auto">
-      <Tooltip label="Filter">
-        <PopoverTrigger>
-          <IconButton
-            aria-label="filter"
-            variant={"ghost"}
-            icon={<MdOutlineSort />}
-          />
-        </PopoverTrigger>
-      </Tooltip>
+export interface EditSortingButtonProps {
+  title?: string;
+  icon?: React.ReactElement;
+  text?: string;
+}
 
-      <PopoverContent width={"auto"}>
-        <PopoverArrow />
-        <PopoverBody>
-          <Flex flexFlow={"column"} gap={"0.25rem"}>
-            <TableSorter />
-            <ResetSortingButton />
-          </Flex>
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
+export const EditSortingButton = ({
+  text,
+  icon = <MdOutlineSort />,
+  title = "Edit Sorting",
+}: EditSortingButtonProps) => {
+  const sortingModal = useDisclosure();
+  return (
+    <>
+      {!!text === false && (
+        <IconButton
+          icon={icon}
+          variant={"ghost"}
+          onClick={sortingModal.onOpen}
+          aria-label={"change sorting"}
+        />
+      )}
+      {!!text !== false && (
+        <Button leftIcon={icon} variant={"ghost"} onClick={sortingModal.onOpen}>
+          {text}
+        </Button>
+      )}
+      <Modal
+        isOpen={sortingModal.isOpen}
+        onClose={sortingModal.onClose}
+        size={["full", "full", "md", "md"]}
+      >
+        <ModalOverlay />
+        <ModalContent padding={"0 0 1rem 0"}>
+          <ModalHeader>{title}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Flex flexFlow={"column"} gap={"0.25rem"}>
+              <TableSorter />
+              <ResetSortingButton />
+            </Flex>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };

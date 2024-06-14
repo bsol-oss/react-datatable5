@@ -115,19 +115,16 @@ const TableViewShowcase = () => {
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
         sorting={[{ id: "last_update", desc: true }]}
+        pagination={{ pageSize: 25, pageIndex: 0 }}
       >
-        <Flex>
+        <Flex flexFlow={"wrap"}>
           <TablePagination />
-          <ButtonGroup isAttached>
-            <EditViewButton />
-            <EditFilterButton />
-            <DensityToggleButton />
-          </ButtonGroup>
-          <EditOrderButton />
-          <PageSizeControl />
-          <ButtonGroup isAttached>
-            <TableSelector />
-          </ButtonGroup>
+          <EditViewButton text={"View"} />
+          <EditFilterButton text={"Filter"} />
+          <DensityToggleButton text={"Toggle Density"} />
+          <EditOrderButton text={"Order"} />
+          <PageSizeControl pageSizes={[25, 50]} />
+          <TableSelector />
           <GlobalFilter />
         </Flex>
         <Table>
@@ -135,18 +132,6 @@ const TableViewShowcase = () => {
           <TableBody />
           <TableFooter />
         </Table>
-        <Flex gap="0.25rem">
-          <TablePagination />
-          <ButtonGroup isAttached>
-            <EditViewButton />
-            <EditFilterButton />
-          </ButtonGroup>
-          <EditOrderButton />
-          <PageSizeControl />
-          <ButtonGroup isAttached>
-            <TableSelector />
-          </ButtonGroup>
-        </Flex>
       </DataTableServer>
     </ChakraProvider>
   );
