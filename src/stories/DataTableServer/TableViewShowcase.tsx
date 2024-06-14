@@ -1,17 +1,19 @@
 import {
   Box,
-  ButtonGroup,
   ChakraProvider,
   Flex,
-  theme,
+  Text,
+  theme
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
+import { DensityToggleButton } from "../../components/DensityToggleButton";
 import { EditFilterButton } from "../../components/EditFilterButton";
 import { EditOrderButton } from "../../components/EditOrderButton";
 import { EditViewButton } from "../../components/EditViewButton";
 import { GlobalFilter } from "../../components/GlobalFilter";
 import { PageSizeControl } from "../../components/PageSizeControl";
+import { RowCountText } from "../../components/RowCountText";
 import { Table } from "../../components/Table";
 import { TableBody } from "../../components/TableBody";
 import { TableFooter } from "../../components/TableFooter";
@@ -19,7 +21,6 @@ import { TableHeader } from "../../components/TableHeader";
 import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
-import { DensityToggleButton } from "../../components/DensityToggleButton";
 
 interface ChatRecord {
   session_id: string;
@@ -126,6 +127,8 @@ const TableViewShowcase = () => {
           <PageSizeControl pageSizes={[25, 50]} />
           <TableSelector />
           <GlobalFilter />
+          <Text paddingRight={'0.5rem'}>{"Total: "}</Text>
+          <RowCountText />
         </Flex>
         <Table>
           <TableHeader canResize />
