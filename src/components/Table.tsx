@@ -1,8 +1,11 @@
-import { Table as ChakraTable } from "@chakra-ui/react";
+import {
+  Table as ChakraTable,
+  TableProps as ChakraTableProps,
+} from "@chakra-ui/react";
 import { ReactNode } from "react";
 import { useDataTable } from "./useDataTable";
 
-export interface TableProps {
+export interface TableProps extends ChakraTableProps {
   showLoading?: boolean;
   loadingComponent?: JSX.Element;
   children: ReactNode;

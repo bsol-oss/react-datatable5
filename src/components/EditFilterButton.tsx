@@ -36,6 +36,7 @@ export const EditFilterButton = ({
   closeText = "Close",
   resetText = "Reset",
   icon = <MdFilterAlt />,
+  ...props
 }: EditFilterButtonProps) => {
   const filterModal = useDisclosure();
   return (
@@ -46,10 +47,16 @@ export const EditFilterButton = ({
           variant={"ghost"}
           onClick={filterModal.onOpen}
           aria-label={"filter"}
+          {...props}
         />
       )}
       {!!text !== false && (
-        <Button leftIcon={icon} variant={"ghost"} onClick={filterModal.onOpen}>
+        <Button
+          leftIcon={icon}
+          variant={"ghost"}
+          onClick={filterModal.onOpen}
+          {...props}
+        >
           {text}
         </Button>
       )}
