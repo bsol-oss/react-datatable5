@@ -39,7 +39,7 @@ export const DefaultTable = ({ totalText = "Total:", showFilter = false }) => {
         </Table>
       </Flex>
       <Flex gap={"1rem"} alignItems={"center"}>
-        <PageSizeControl pageSizes={[25, 50]} />
+        <PageSizeControl />
         <Flex>
           <Text paddingRight={"0.5rem"}>{totalText}</Text>
           <RowCountText />
