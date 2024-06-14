@@ -1,39 +1,80 @@
 import {
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
   Flex,
   IconButton,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
-  Tooltip,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { MdFilterAlt } from "react-icons/md";
 import { ResetFilteringButton } from "./ResetFilteringButton";
 import { TableFilter } from "./TableFilter";
 
-export const EditFilterButton = () => {
-  return (
-    <Popover placement="auto">
-      <Tooltip label="Filter">
-        <PopoverTrigger>
-          <IconButton
-            aria-label="filter"
-            variant={"ghost"}
-            icon={<MdFilterAlt />}
-          />
-        </PopoverTrigger>
-      </Tooltip>
+export interface EditFilterButtonProps {
+  text?: string;
+  title?: string;
+  closeText?: string;
+  resetText?: string;
+  icon?: React.ReactElement;
+}
 
-      <PopoverContent width={"auto"}>
-        <PopoverArrow />
-        <PopoverBody>
-          <Flex flexFlow={"column"} gap={"1rem"}>
-            <TableFilter />
-            <ResetFilteringButton />
-          </Flex>
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
+export const EditFilterButton = ({
+  text,
+  title = "Edit Filter",
+  closeText = "Close",
+  resetText = "Reset",
+  icon = <MdFilterAlt />,
+}: EditFilterButtonProps) => {
+  const filterModal = useDisclosure();
+  return (
+    <>
+      {!!text === false && (
+        <IconButton
+          icon={icon}
+          variant={"ghost"}
+          onClick={filterModal.onOpen}
+          aria-label={"filter"}
+        />
+      )}
+      {!!text !== false && (
+        <Button leftIcon={icon} variant={"ghost"} onClick={filterModal.onOpen}>
+          {text}
+        </Button>
+      )}
+
+      <Modal
+        isOpen={filterModal.isOpen}
+        onClose={filterModal.onClose}
+        size={["full", "full", "md", "md"]}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>{title}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Flex flexFlow={"column"} gap={"1rem"}>
+              <TableFilter />
+              <ResetFilteringButton text={resetText} />
+            </Flex>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button onClick={filterModal.onClose}>{closeText}</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };

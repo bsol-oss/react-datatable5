@@ -1,26 +1,59 @@
 import {
+  Button,
   IconButton,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
 } from "@chakra-ui/react";
+import React from "react";
 import { IoMdEye } from "react-icons/io";
 import { TableViewer } from "./TableViewer";
 
-export const EditViewButton = () => {
+export interface EditViewButtonProps {
+  text?: string;
+  icon?: React.ReactElement;
+  title?: string;
+}
+
+export const EditViewButton = ({
+  text,
+  icon = <IoMdEye />,
+  title = "Edit View",
+}: EditViewButtonProps) => {
+  const viewModel = useDisclosure();
   return (
-    <Popover placement="auto">
-      <PopoverTrigger>
-        <IconButton aria-label="view" variant={"ghost"} icon={<IoMdEye />} />
-      </PopoverTrigger>
-      <PopoverContent width={"auto"}>
-        <PopoverArrow />
-        <PopoverBody>
-          <TableViewer />
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
+    <>
+      {!!text === false && (
+        <IconButton
+          icon={icon}
+          variant={"ghost"}
+          onClick={viewModel.onOpen}
+          aria-label={"change sorting"}
+        />
+      )}
+      {!!text !== false && (
+        <Button leftIcon={icon} variant={"ghost"} onClick={viewModel.onOpen}>
+          {text}
+        </Button>
+      )}
+      <Modal
+        isOpen={viewModel.isOpen}
+        onClose={viewModel.onClose}
+        size={["full", "full", "md", "md"]}
+      >
+        <ModalOverlay />
+        <ModalContent padding={"0 0 1rem 0"}>
+          <ModalHeader>{title}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <TableViewer />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };

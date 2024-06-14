@@ -2,7 +2,13 @@ import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 import { Button } from "@chakra-ui/react";
 
-export const ResetFilteringButton = () => {
+export interface ResetFilteringButtonProps {
+  text?: string;
+}
+
+export const ResetFilteringButton = ({
+  text = "Reset Filtering",
+}: ResetFilteringButtonProps) => {
   const { table } = useContext(TableContext);
   return (
     <Button
@@ -10,7 +16,7 @@ export const ResetFilteringButton = () => {
         table.resetColumnFilters();
       }}
     >
-      Reset Filtering
+      {text}
     </Button>
   );
 };
