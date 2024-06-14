@@ -13,7 +13,12 @@ import { TablePagination } from "./TablePagination";
 
 export const DefaultTable = ({ totalText = "Total:", showFilter = false }) => {
   return (
-    <Grid templateRows={"auto 1fr auto"} templateColumns={"1fr 1fr"} height={"100%"}>
+    <Grid
+      templateRows={"auto 1fr auto"}
+      templateColumns={"1fr 1fr"}
+      width={"100%"}
+      height={"100%"}
+    >
       <Flex justifyContent={"space-between"} gridColumn={"1 / span 2"}>
         <Box>
           <EditViewButton text={"View"} icon={<MdOutlineViewColumn />} />
@@ -27,17 +32,19 @@ export const DefaultTable = ({ totalText = "Total:", showFilter = false }) => {
           )}
         </Flex>
       </Flex>
-      <Flex
+      <Grid
         overflow={"auto"}
         gridColumn={"1 / span 2"}
-        justifyContent={"center"}
+        margin={"0 auto 0 auto"}
+        width={"100%"}
+        height={"100%"}
       >
-        <Table variant={"striped"} alignSelf={"center"}>
+        <Table variant={"striped"} justifySelf={"center"} alignSelf={"center"}>
           <TableHeader canResize />
           <TableBody />
           <TableFooter />
         </Table>
-      </Flex>
+      </Grid>
       <Flex gap={"1rem"} alignItems={"center"}>
         <PageSizeControl />
         <Flex>
