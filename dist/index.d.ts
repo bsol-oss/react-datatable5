@@ -2,7 +2,7 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnFiltersState, SortingState, Row } from '@tanstack/react-table';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
-import { ReactNode } from 'react';
+import React$1, { ReactNode } from 'react';
 import { TextProps, TooltipProps } from '@chakra-ui/react';
 import * as _tanstack_table_core from '@tanstack/table-core';
 
@@ -92,15 +92,41 @@ declare module "@tanstack/react-table" {
 }
 declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
-declare const DensityToggleButton: () => react_jsx_runtime.JSX.Element;
+interface DensityToggleButtonProps {
+    icon?: React$1.ReactElement;
+    text?: string;
+}
+declare const DensityToggleButton: ({ text, icon, }: DensityToggleButtonProps) => react_jsx_runtime.JSX.Element;
 
-declare const EditFilterButton: () => react_jsx_runtime.JSX.Element;
+interface EditFilterButtonProps {
+    text?: string;
+    title?: string;
+    closeText?: string;
+    resetText?: string;
+    icon?: React.ReactElement;
+}
+declare const EditFilterButton: ({ text, title, closeText, resetText, icon, }: EditFilterButtonProps) => react_jsx_runtime.JSX.Element;
 
-declare const EditOrderButton: () => react_jsx_runtime.JSX.Element;
+interface EditOrderButtonProps {
+    title?: string;
+    icon?: React$1.ReactElement;
+    text?: string;
+}
+declare const EditOrderButton: ({ text, icon, title, }: EditOrderButtonProps) => react_jsx_runtime.JSX.Element;
 
-declare const EditSortingButton: () => react_jsx_runtime.JSX.Element;
+interface EditSortingButtonProps {
+    title?: string;
+    icon?: React.ReactElement;
+    text?: string;
+}
+declare const EditSortingButton: ({ text, icon, title, }: EditSortingButtonProps) => react_jsx_runtime.JSX.Element;
 
-declare const EditViewButton: () => react_jsx_runtime.JSX.Element;
+interface EditViewButtonProps {
+    text?: string;
+    icon?: React$1.ReactElement;
+    title?: string;
+}
+declare const EditViewButton: ({ text, icon, title, }: EditViewButtonProps) => react_jsx_runtime.JSX.Element;
 
 declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
 
@@ -109,11 +135,20 @@ interface PageSizeControlProps {
 }
 declare const PageSizeControl: ({ pageSizes, }: PageSizeControlProps) => react_jsx_runtime.JSX.Element;
 
-declare const ResetFilteringButton: () => react_jsx_runtime.JSX.Element;
+interface ResetFilteringButtonProps {
+    text?: string;
+}
+declare const ResetFilteringButton: ({ text, }: ResetFilteringButtonProps) => react_jsx_runtime.JSX.Element;
 
-declare const ResetSelectionButton: () => react_jsx_runtime.JSX.Element;
+interface ResetSelectionButtonProps {
+    text?: string;
+}
+declare const ResetSelectionButton: ({ text, }: ResetSelectionButtonProps) => react_jsx_runtime.JSX.Element;
 
-declare const ResetSortingButton: () => react_jsx_runtime.JSX.Element;
+interface ResetSortingButtonProps {
+    text?: string;
+}
+declare const ResetSortingButton: ({ text, }: ResetSortingButtonProps) => react_jsx_runtime.JSX.Element;
 
 interface TableProps {
     showLoading?: boolean;
@@ -209,4 +244,4 @@ declare const useDataTable: () => {
     loading: boolean;
 };
 
-export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, DensityToggleButton, type DensityToggleButtonProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableFilter, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableOrderer, TablePagination, type TableProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
