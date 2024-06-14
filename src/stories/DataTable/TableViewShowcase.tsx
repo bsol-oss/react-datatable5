@@ -15,6 +15,7 @@ import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
 import { data, Product } from "../data";
+import { TableComponentRenderer } from "../../components/TableComponentRenderer";
 
 interface RowActionsProps {
   row: Product;
@@ -100,6 +101,11 @@ const TableViewShowcase = () => {
         </Table>
         <PageSizeControl />
         <TablePagination />
+        <TableComponentRenderer
+          render={(table) => {
+            return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
+          }}
+        />
       </DataTable>
     </ChakraProvider>
   );
