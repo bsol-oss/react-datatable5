@@ -362,6 +362,14 @@ const RowCountText = () => {
     return jsxRuntime.jsx(react$1.Text, { children: table.getRowCount() });
 };
 
+const Table = ({ children, showLoading = false, loadingComponent = jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Loading..." }), ...props }) => {
+    const { table, loading } = useDataTable();
+    if (showLoading) {
+        return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [loading && loadingComponent, !loading && (jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }))] }));
+    }
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
+};
+
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
     const { table: table$1 } = react.useContext(TableContext);
     const SELECTION_BOX_WIDTH = 20;
@@ -530,16 +538,8 @@ const TablePagination = ({}) => {
     return (jsxRuntime.jsxs(react$1.ButtonGroup, { isAttached: true, children: [jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost" }), jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost" }), jsxRuntime.jsx(react$1.Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsxRuntime.jsx(md.MdArrowForward, {}) }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsxRuntime.jsx(md.MdLastPage, {}) })] }));
 };
 
-const Table = ({ children, showLoading = false, loadingComponent = jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Loading..." }), ...props }) => {
-    const { table, loading } = useDataTable();
-    if (showLoading) {
-        return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [loading && loadingComponent, !loading && (jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }))] }));
-    }
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
-};
-
-const DefaultTable = ({ totalText = "Total:" }) => {
-    return (jsxRuntime.jsxs(react$1.Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", children: [jsxRuntime.jsxs(react$1.Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsxRuntime.jsx(react$1.Box, { children: jsxRuntime.jsx(EditViewButton, { text: "View" }) }), jsxRuntime.jsxs(react$1.Flex, { gap: "1rem", justifySelf: "end", children: [jsxRuntime.jsx(GlobalFilter, {}), jsxRuntime.jsx(EditFilterButton, { text: "Advanced Filter" })] })] }), jsxRuntime.jsx(react$1.Flex, { overflow: "auto", gridColumn: "1 / span 2", justifyContent: "center", children: jsxRuntime.jsxs(Table, { variant: "striped", alignSelf: "center", children: [jsxRuntime.jsx(TableHeader, { canResize: true }), jsxRuntime.jsx(TableBody, {}), jsxRuntime.jsx(TableFooter, {})] }) }), jsxRuntime.jsxs(react$1.Flex, { gap: "1rem", alignItems: "center", children: [jsxRuntime.jsx(PageSizeControl, { pageSizes: [25, 50] }), jsxRuntime.jsxs(react$1.Flex, { children: [jsxRuntime.jsx(react$1.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] })] }), jsxRuntime.jsx(react$1.Box, { justifySelf: "end", children: jsxRuntime.jsx(TablePagination, {}) })] }));
+const DefaultTable = ({ totalText = "Total:", showFilter = false }) => {
+    return (jsxRuntime.jsxs(react$1.Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", children: [jsxRuntime.jsxs(react$1.Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsxRuntime.jsx(react$1.Box, { children: jsxRuntime.jsx(EditViewButton, { text: "View", icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsx(react$1.Flex, { gap: "1rem", justifySelf: "end", children: showFilter && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(GlobalFilter, {}), jsxRuntime.jsx(EditFilterButton, { text: "Advanced Filter" })] })) })] }), jsxRuntime.jsx(react$1.Flex, { overflow: "auto", gridColumn: "1 / span 2", justifyContent: "center", children: jsxRuntime.jsxs(Table, { variant: "striped", alignSelf: "center", children: [jsxRuntime.jsx(TableHeader, { canResize: true }), jsxRuntime.jsx(TableBody, {}), jsxRuntime.jsx(TableFooter, {})] }) }), jsxRuntime.jsxs(react$1.Flex, { gap: "1rem", alignItems: "center", children: [jsxRuntime.jsx(PageSizeControl, { pageSizes: [25, 50] }), jsxRuntime.jsxs(react$1.Flex, { children: [jsxRuntime.jsx(react$1.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] })] }), jsxRuntime.jsx(react$1.Box, { justifySelf: "end", children: jsxRuntime.jsx(TablePagination, {}) })] }));
 };
 
 const DensityToggleButton = ({ text, icon = jsxRuntime.jsx(ai.AiOutlineColumnWidth, {}), }) => {

@@ -3,8 +3,8 @@ import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, get
 import { createContext, useState, useEffect, useContext } from 'react';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import axios from 'axios';
-import { Button, Box, Text, Input, useDisclosure, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Switch, InputGroup, InputLeftElement, Icon, Menu, MenuButton, MenuList, MenuItem, FormLabel, Checkbox, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Table as Table$1, Grid, Card, CardBody, Tooltip } from '@chakra-ui/react';
-import { MdFilterAlt, MdSearch, MdFilterListAlt, MdPushPin, MdCancel, MdSort, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdOutlineChecklist, MdClear } from 'react-icons/md';
+import { Button, Box, Text, Input, useDisclosure, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Switch, InputGroup, InputLeftElement, Icon, Menu, MenuButton, MenuList, MenuItem, Table as Table$1, FormLabel, Checkbox, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Grid, Card, CardBody, Tooltip } from '@chakra-ui/react';
+import { MdFilterAlt, MdSearch, MdFilterListAlt, MdPushPin, MdCancel, MdSort, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdOutlineViewColumn, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdOutlineChecklist, MdClear } from 'react-icons/md';
 import { IoMdEye, IoMdClose, IoMdCheckbox } from 'react-icons/io';
 import { ChevronDownIcon, ChevronUpIcon, UpDownIcon, CloseIcon } from '@chakra-ui/icons';
 import { Tbody, Tr, Td } from '@chakra-ui/table';
@@ -360,6 +360,14 @@ const RowCountText = () => {
     return jsx(Text, { children: table.getRowCount() });
 };
 
+const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
+    const { table, loading } = useDataTable();
+    if (showLoading) {
+        return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }))] }));
+    }
+    return (jsx(Fragment, { children: jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
+};
+
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
     const { table } = useContext(TableContext);
     const SELECTION_BOX_WIDTH = 20;
@@ -528,16 +536,8 @@ const TablePagination = ({}) => {
     return (jsxs(ButtonGroup, { isAttached: true, children: [jsx(IconButton, { icon: jsx(MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost" }), jsx(IconButton, { icon: jsx(MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost" }), jsx(Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsx(IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsx(MdArrowForward, {}) }), jsx(IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsx(MdLastPage, {}) })] }));
 };
 
-const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
-    const { table, loading } = useDataTable();
-    if (showLoading) {
-        return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }))] }));
-    }
-    return (jsx(Fragment, { children: jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
-};
-
-const DefaultTable = ({ totalText = "Total:" }) => {
-    return (jsxs(Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: "View" }) }), jsxs(Flex, { gap: "1rem", justifySelf: "end", children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: "Advanced Filter" })] })] }), jsx(Flex, { overflow: "auto", gridColumn: "1 / span 2", justifyContent: "center", children: jsxs(Table, { variant: "striped", alignSelf: "center", children: [jsx(TableHeader, { canResize: true }), jsx(TableBody, {}), jsx(TableFooter, {})] }) }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, { pageSizes: [25, 50] }), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
+const DefaultTable = ({ totalText = "Total:", showFilter = false }) => {
+    return (jsxs(Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsx(Flex, { gap: "1rem", justifySelf: "end", children: showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: "Advanced Filter" })] })) })] }), jsx(Flex, { overflow: "auto", gridColumn: "1 / span 2", justifyContent: "center", children: jsxs(Table, { variant: "striped", alignSelf: "center", children: [jsx(TableHeader, { canResize: true }), jsx(TableBody, {}), jsx(TableFooter, {})] }) }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, { pageSizes: [25, 50] }), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
 };
 
 const DensityToggleButton = ({ text, icon = jsx(AiOutlineColumnWidth, {}), }) => {

@@ -93,8 +93,9 @@ declare module "@tanstack/react-table" {
 }
 declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
-declare const DefaultTable: ({ totalText }: {
+declare const DefaultTable: ({ totalText, showFilter }: {
     totalText?: string | undefined;
+    showFilter?: boolean | undefined;
 }) => react_jsx_runtime.JSX.Element;
 
 interface DensityToggleButtonProps {
