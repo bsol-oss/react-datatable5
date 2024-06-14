@@ -101,7 +101,7 @@ const DefaultTableShowcase = () => {
         sorting={[{ id: "last_update", desc: true }]}
         pagination={{ pageSize: 25, pageIndex: 0 }}
       >
-        <DefaultTable />
+        <DefaultTable showFilter={true} />
         <TableComponentRenderer
           render={(table) => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
