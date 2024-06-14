@@ -6,11 +6,11 @@ var react = require('react');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
 var axios = require('axios');
 var react$1 = require('@chakra-ui/react');
-var ai = require('react-icons/ai');
 var md = require('react-icons/md');
-var icons = require('@chakra-ui/icons');
 var io = require('react-icons/io');
+var icons = require('@chakra-ui/icons');
 var table = require('@chakra-ui/table');
+var ai = require('react-icons/ai');
 
 const TableContext = react.createContext({
     table: {},
@@ -297,25 +297,16 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         }, children: children }));
 };
 
-const DensityToggleButton = ({ text, icon = jsxRuntime.jsx(ai.AiOutlineColumnWidth, {}), }) => {
-    const { table } = react.useContext(TableContext);
-    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!text === false && (jsxRuntime.jsx(react$1.IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: icon, onClick: () => {
-                    table.toggleDensity();
-                } })), !!text !== false && (jsxRuntime.jsx(react$1.Button, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
-                    table.toggleDensity();
-                }, children: text }))] }));
-};
-
-const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
-    const { table } = react.useContext(TableContext);
-    return (jsxRuntime.jsx(react$1.Button, { onClick: () => {
-            table.resetColumnFilters();
-        }, children: text }));
-};
-
 const useDataTable = () => {
     const { table, refreshData, globalFilter, setGlobalFilter, loading } = react.useContext(TableContext);
     return { table, refreshData, globalFilter, setGlobalFilter, loading };
+};
+
+const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsx(react$1.Button, { onClick: () => {
+            table.resetColumnFilters();
+        }, children: text }));
 };
 
 const TableFilter = () => {
@@ -332,99 +323,9 @@ const TableFilter = () => {
         }) }));
 };
 
-const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsxRuntime.jsx(md.MdFilterAlt, {}), }) => {
+const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsxRuntime.jsx(md.MdFilterAlt, {}), ...props }) => {
     const filterModal = react$1.useDisclosure();
-    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!text === false && (jsxRuntime.jsx(react$1.IconButton, { icon: icon, variant: "ghost", onClick: filterModal.onOpen, "aria-label": "filter" })), !!text !== false && (jsxRuntime.jsx(react$1.Button, { leftIcon: icon, variant: "ghost", onClick: filterModal.onOpen, children: text })), jsxRuntime.jsxs(react$1.Modal, { isOpen: filterModal.isOpen, onClose: filterModal.onClose, size: ["full", "full", "md", "md"], children: [jsxRuntime.jsx(react$1.ModalOverlay, {}), jsxRuntime.jsxs(react$1.ModalContent, { children: [jsxRuntime.jsx(react$1.ModalHeader, { children: title }), jsxRuntime.jsx(react$1.ModalCloseButton, {}), jsxRuntime.jsx(react$1.ModalBody, { children: jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "1rem", children: [jsxRuntime.jsx(TableFilter, {}), jsxRuntime.jsx(ResetFilteringButton, { text: resetText })] }) }), jsxRuntime.jsx(react$1.ModalFooter, { children: jsxRuntime.jsx(react$1.Button, { onClick: filterModal.onClose, children: closeText }) })] })] })] }));
-};
-
-const ColumnOrderChanger = ({ columns }) => {
-    const [order, setOrder] = react.useState([]);
-    const [originalOrder, setOriginalOrder] = react.useState([]);
-    const { table } = useDataTable();
-    const handleChangeOrder = (startIndex, endIndex) => {
-        const newOrder = Array.from(order);
-        const [removed] = newOrder.splice(startIndex, 1);
-        newOrder.splice(endIndex, 0, removed);
-        setOrder(newOrder);
-    };
-    react.useEffect(() => {
-        setOrder(columns);
-    }, [columns]);
-    react.useEffect(() => {
-        if (originalOrder.length > 0) {
-            return;
-        }
-        if (columns.length <= 0) {
-            return;
-        }
-        setOriginalOrder(columns);
-    }, [columns]);
-    return (jsxRuntime.jsxs(react$1.Flex, { gap: "0.5rem", flexFlow: "column", children: [jsxRuntime.jsx(react$1.Flex, { gap: "0.5rem", flexFlow: "column", children: order.map((columnId, index) => (jsxRuntime.jsxs(react$1.Flex, { gap: "0.5rem", alignItems: "center", justifyContent: "space-between", children: [jsxRuntime.jsx(react$1.IconButton, { onClick: () => {
-                                const prevIndex = index - 1;
-                                if (prevIndex >= 0) {
-                                    handleChangeOrder(index, prevIndex);
-                                }
-                            }, disabled: index === 0, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowUpward, {}) }), table
-                            .getAllFlatColumns()
-                            .filter((column) => {
-                            return column.id === columnId;
-                        })
-                            .map((column) => {
-                            const displayName = column.columnDef.meta === undefined
-                                ? column.id
-                                : column.columnDef.meta.displayName;
-                            return jsxRuntime.jsx(jsxRuntime.Fragment, { children: displayName });
-                        }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => {
-                                const nextIndex = index + 1;
-                                if (nextIndex < order.length) {
-                                    handleChangeOrder(index, nextIndex);
-                                }
-                            }, disabled: index === order.length - 1, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowDownward, {}) })] }, columnId))) }), jsxRuntime.jsxs(react$1.Flex, { gap: "0.25rem", children: [jsxRuntime.jsx(react$1.Button, { onClick: () => {
-                            table.setColumnOrder(order);
-                        }, children: "Apply" }), jsxRuntime.jsx(react$1.Button, { onClick: () => {
-                            table.setColumnOrder(originalOrder);
-                        }, children: "Reset" })] })] }));
-};
-const TableOrderer = () => {
-    const { table } = useDataTable();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
-};
-
-const EditOrderButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineMoveDown, {}), title = "Change Order", }) => {
-    const orderModal = react$1.useDisclosure();
-    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!text === false && (jsxRuntime.jsx(react$1.IconButton, { icon: icon, variant: "ghost", onClick: orderModal.onOpen, "aria-label": "change order" })), !!text !== false && (jsxRuntime.jsx(react$1.Button, { leftIcon: icon, variant: "ghost", onClick: orderModal.onOpen, children: text })), jsxRuntime.jsxs(react$1.Modal, { isOpen: orderModal.isOpen, onClose: orderModal.onClose, size: ["full", "full", "md", "md"], children: [jsxRuntime.jsx(react$1.ModalOverlay, {}), jsxRuntime.jsxs(react$1.ModalContent, { padding: "0 0 1rem 0", children: [jsxRuntime.jsx(react$1.ModalHeader, { children: title }), jsxRuntime.jsx(react$1.ModalCloseButton, {}), jsxRuntime.jsx(react$1.ModalBody, { children: jsxRuntime.jsx(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: jsxRuntime.jsx(TableOrderer, {}) }) })] })] })] }));
-};
-
-const ResetSortingButton = ({ text = "Reset Sorting", }) => {
-    const { table } = react.useContext(TableContext);
-    return (jsxRuntime.jsx(react$1.Button, { onClick: () => {
-            table.resetSorting();
-        }, children: text }));
-};
-
-const TableSorter = () => {
-    const { table } = useDataTable();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsx(jsxRuntime.Fragment, { children: headerGroup.headers.map((header) => {
-                const displayName = header.column.columnDef.meta === undefined
-                    ? header.column.id
-                    : header.column.columnDef.meta.displayName;
-                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanSort() && (jsxRuntime.jsxs(react$1.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react$1.Text, { children: displayName }), jsxRuntime.jsxs(react$1.Button, { variant: "ghost", onClick: (e) => {
-                                    header.column.toggleSorting();
-                                }, children: [header.column.getIsSorted() === false && (
-                                    // <Text>To No sort</Text>
-                                    jsxRuntime.jsx(icons.UpDownIcon, {})), header.column.getIsSorted() === "asc" && (
-                                    // <Text>To asc</Text>
-                                    jsxRuntime.jsx(icons.ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (
-                                    // <Text>To desc</Text>
-                                    jsxRuntime.jsx(icons.ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsxRuntime.jsx(react$1.Button, { onClick: (e) => {
-                                    header.column.clearSorting();
-                                }, children: jsxRuntime.jsx(icons.CloseIcon, {}) }))] })) }));
-            }) }))) }));
-};
-
-const EditSortingButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineSort, {}), title = "Edit Sorting", }) => {
-    const sortingModal = react$1.useDisclosure();
-    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!text === false && (jsxRuntime.jsx(react$1.IconButton, { icon: icon, variant: "ghost", onClick: sortingModal.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsxRuntime.jsx(react$1.Button, { leftIcon: icon, variant: "ghost", onClick: sortingModal.onOpen, children: text })), jsxRuntime.jsxs(react$1.Modal, { isOpen: sortingModal.isOpen, onClose: sortingModal.onClose, size: ["full", "full", "md", "md"], children: [jsxRuntime.jsx(react$1.ModalOverlay, {}), jsxRuntime.jsxs(react$1.ModalContent, { padding: "0 0 1rem 0", children: [jsxRuntime.jsx(react$1.ModalHeader, { children: title }), jsxRuntime.jsx(react$1.ModalCloseButton, {}), jsxRuntime.jsx(react$1.ModalBody, { children: jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(TableSorter, {}), jsxRuntime.jsx(ResetSortingButton, {})] }) })] })] })] }));
+    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!text === false && (jsxRuntime.jsx(react$1.IconButton, { icon: icon, variant: "ghost", onClick: filterModal.onOpen, "aria-label": "filter", ...props })), !!text !== false && (jsxRuntime.jsx(react$1.Button, { leftIcon: icon, variant: "ghost", onClick: filterModal.onOpen, ...props, children: text })), jsxRuntime.jsxs(react$1.Modal, { isOpen: filterModal.isOpen, onClose: filterModal.onClose, size: ["full", "full", "md", "md"], children: [jsxRuntime.jsx(react$1.ModalOverlay, {}), jsxRuntime.jsxs(react$1.ModalContent, { children: [jsxRuntime.jsx(react$1.ModalHeader, { children: title }), jsxRuntime.jsx(react$1.ModalCloseButton, {}), jsxRuntime.jsx(react$1.ModalBody, { children: jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "1rem", children: [jsxRuntime.jsx(TableFilter, {}), jsxRuntime.jsx(ResetFilteringButton, { text: resetText })] }) }), jsxRuntime.jsx(react$1.ModalFooter, { children: jsxRuntime.jsx(react$1.Button, { onClick: filterModal.onClose, children: closeText }) })] })] })] }));
 };
 
 const TableViewer = () => {
@@ -442,33 +343,23 @@ const EditViewButton = ({ text, icon = jsxRuntime.jsx(io.IoMdEye, {}), title = "
     return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!text === false && (jsxRuntime.jsx(react$1.IconButton, { icon: icon, variant: "ghost", onClick: viewModel.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsxRuntime.jsx(react$1.Button, { leftIcon: icon, variant: "ghost", onClick: viewModel.onOpen, children: text })), jsxRuntime.jsxs(react$1.Modal, { isOpen: viewModel.isOpen, onClose: viewModel.onClose, size: ["full", "full", "md", "md"], children: [jsxRuntime.jsx(react$1.ModalOverlay, {}), jsxRuntime.jsxs(react$1.ModalContent, { padding: "0 0 1rem 0", children: [jsxRuntime.jsx(react$1.ModalHeader, { children: title }), jsxRuntime.jsx(react$1.ModalCloseButton, {}), jsxRuntime.jsx(react$1.ModalBody, { children: jsxRuntime.jsx(TableViewer, {}) })] })] })] }));
 };
 
-const GlobalFilter = () => {
+const GlobalFilter = ({ icon = md.MdSearch }) => {
     const { globalFilter, setGlobalFilter } = useDataTable();
-    return (jsxRuntime.jsx(react$1.Input, { value: globalFilter, onChange: (e) => {
-            setGlobalFilter(e.target.value);
-        } }));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react$1.Box, { children: jsxRuntime.jsxs(react$1.InputGroup, { children: [jsxRuntime.jsx(react$1.InputLeftElement, { pointerEvents: "none", children: jsxRuntime.jsx(react$1.Icon, { as: icon, color: "gray.300" }) }), jsxRuntime.jsx(react$1.Input, { value: globalFilter, onChange: (e) => {
+                            setGlobalFilter(e.target.value);
+                        } })] }) }) }));
 };
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
-    const { table } = react.useContext(TableContext);
+    const { table } = useDataTable();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(react$1.Menu, { children: [jsxRuntime.jsx(react$1.MenuButton, { as: react$1.Button, variant: "ghost", rightIcon: jsxRuntime.jsx(icons.ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsxRuntime.jsx(react$1.MenuList, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(react$1.MenuItem, { onClick: () => {
                             table.setPageSize(Number(pageSize));
                         }, children: pageSize }))) })] }) }));
 };
 
-const ResetSelectionButton = ({ text = "Reset Selection", }) => {
+const RowCountText = () => {
     const { table } = react.useContext(TableContext);
-    return (jsxRuntime.jsx(react$1.Button, { onClick: () => {
-            table.resetRowSelection();
-        }, children: text }));
-};
-
-const Table = ({ children, showLoading = false, loadingComponent = jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Loading..." }), ...props }) => {
-    const { table, loading } = useDataTable();
-    if (showLoading) {
-        return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [loading && loadingComponent, !loading && (jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }))] }));
-    }
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
+    return jsxRuntime.jsx(react$1.Text, { children: table.getRowCount() });
 };
 
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
@@ -518,22 +409,6 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
                     disabled: !row.getCanSelect(),
                     // indeterminate: row.getIsSomeSelected(),
                     onChange: row.getToggleSelectedHandler() }) }))] }));
-};
-
-const TableCardContainer = ({ children, ...props }) => {
-    return (jsxRuntime.jsx(react$1.Grid, { gridTemplateColumns: ["1fr", "1fr 1fr", "1fr 1fr 1fr"], gap: "0.5rem", ...props, children: children }));
-};
-
-const TableCards = ({}) => {
-    const { table } = react.useContext(TableContext);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getRowModel().rows.map((row) => {
-            return (jsxRuntime.jsx(react$1.Card, { children: jsxRuntime.jsxs(react$1.CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [jsxRuntime.jsx(react$1.Checkbox, { isChecked: row.getIsSelected(),
-                            disabled: !row.getCanSelect(),
-                            // indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler() }), row.getVisibleCells().map((cell) => {
-                            return (jsxRuntime.jsx(react$1.Box, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }));
-                        })] }) }, crypto.randomUUID()));
-        }) }));
 };
 
 const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
@@ -655,6 +530,147 @@ const TablePagination = ({}) => {
     return (jsxRuntime.jsxs(react$1.ButtonGroup, { isAttached: true, children: [jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost" }), jsxRuntime.jsx(react$1.IconButton, { icon: jsxRuntime.jsx(md.MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost" }), jsxRuntime.jsx(react$1.Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsxRuntime.jsx(md.MdArrowForward, {}) }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsxRuntime.jsx(md.MdLastPage, {}) })] }));
 };
 
+const Table = ({ children, showLoading = false, loadingComponent = jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Loading..." }), ...props }) => {
+    const { table, loading } = useDataTable();
+    if (showLoading) {
+        return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [loading && loadingComponent, !loading && (jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }))] }));
+    }
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react$1.Table, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
+};
+
+const DefaultTable = ({ totalText = "Total:" }) => {
+    return (jsxRuntime.jsxs(react$1.Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", children: [jsxRuntime.jsxs(react$1.Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsxRuntime.jsx(react$1.Box, { children: jsxRuntime.jsx(EditViewButton, { text: "View" }) }), jsxRuntime.jsxs(react$1.Flex, { gap: "1rem", justifySelf: "end", children: [jsxRuntime.jsx(GlobalFilter, {}), jsxRuntime.jsx(EditFilterButton, { text: "Advanced Filter" })] })] }), jsxRuntime.jsx(react$1.Flex, { overflow: "auto", gridColumn: "1 / span 2", justifyContent: "center", children: jsxRuntime.jsxs(Table, { variant: "striped", alignSelf: "center", children: [jsxRuntime.jsx(TableHeader, { canResize: true }), jsxRuntime.jsx(TableBody, {}), jsxRuntime.jsx(TableFooter, {})] }) }), jsxRuntime.jsxs(react$1.Flex, { gap: "1rem", alignItems: "center", children: [jsxRuntime.jsx(PageSizeControl, { pageSizes: [25, 50] }), jsxRuntime.jsxs(react$1.Flex, { children: [jsxRuntime.jsx(react$1.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] })] }), jsxRuntime.jsx(react$1.Box, { justifySelf: "end", children: jsxRuntime.jsx(TablePagination, {}) })] }));
+};
+
+const DensityToggleButton = ({ text, icon = jsxRuntime.jsx(ai.AiOutlineColumnWidth, {}), }) => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!text === false && (jsxRuntime.jsx(react$1.IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: icon, onClick: () => {
+                    table.toggleDensity();
+                } })), !!text !== false && (jsxRuntime.jsx(react$1.Button, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
+                    table.toggleDensity();
+                }, children: text }))] }));
+};
+
+const ColumnOrderChanger = ({ columns }) => {
+    const [order, setOrder] = react.useState([]);
+    const [originalOrder, setOriginalOrder] = react.useState([]);
+    const { table } = useDataTable();
+    const handleChangeOrder = (startIndex, endIndex) => {
+        const newOrder = Array.from(order);
+        const [removed] = newOrder.splice(startIndex, 1);
+        newOrder.splice(endIndex, 0, removed);
+        setOrder(newOrder);
+    };
+    react.useEffect(() => {
+        setOrder(columns);
+    }, [columns]);
+    react.useEffect(() => {
+        if (originalOrder.length > 0) {
+            return;
+        }
+        if (columns.length <= 0) {
+            return;
+        }
+        setOriginalOrder(columns);
+    }, [columns]);
+    return (jsxRuntime.jsxs(react$1.Flex, { gap: "0.5rem", flexFlow: "column", children: [jsxRuntime.jsx(react$1.Flex, { gap: "0.5rem", flexFlow: "column", children: order.map((columnId, index) => (jsxRuntime.jsxs(react$1.Flex, { gap: "0.5rem", alignItems: "center", justifyContent: "space-between", children: [jsxRuntime.jsx(react$1.IconButton, { onClick: () => {
+                                const prevIndex = index - 1;
+                                if (prevIndex >= 0) {
+                                    handleChangeOrder(index, prevIndex);
+                                }
+                            }, disabled: index === 0, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowUpward, {}) }), table
+                            .getAllFlatColumns()
+                            .filter((column) => {
+                            return column.id === columnId;
+                        })
+                            .map((column) => {
+                            const displayName = column.columnDef.meta === undefined
+                                ? column.id
+                                : column.columnDef.meta.displayName;
+                            return jsxRuntime.jsx(jsxRuntime.Fragment, { children: displayName });
+                        }), jsxRuntime.jsx(react$1.IconButton, { onClick: () => {
+                                const nextIndex = index + 1;
+                                if (nextIndex < order.length) {
+                                    handleChangeOrder(index, nextIndex);
+                                }
+                            }, disabled: index === order.length - 1, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowDownward, {}) })] }, columnId))) }), jsxRuntime.jsxs(react$1.Flex, { gap: "0.25rem", children: [jsxRuntime.jsx(react$1.Button, { onClick: () => {
+                            table.setColumnOrder(order);
+                        }, children: "Apply" }), jsxRuntime.jsx(react$1.Button, { onClick: () => {
+                            table.setColumnOrder(originalOrder);
+                        }, children: "Reset" })] })] }));
+};
+const TableOrderer = () => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
+};
+
+const EditOrderButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineMoveDown, {}), title = "Change Order", }) => {
+    const orderModal = react$1.useDisclosure();
+    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!text === false && (jsxRuntime.jsx(react$1.IconButton, { icon: icon, variant: "ghost", onClick: orderModal.onOpen, "aria-label": "change order" })), !!text !== false && (jsxRuntime.jsx(react$1.Button, { leftIcon: icon, variant: "ghost", onClick: orderModal.onOpen, children: text })), jsxRuntime.jsxs(react$1.Modal, { isOpen: orderModal.isOpen, onClose: orderModal.onClose, size: ["full", "full", "md", "md"], children: [jsxRuntime.jsx(react$1.ModalOverlay, {}), jsxRuntime.jsxs(react$1.ModalContent, { padding: "0 0 1rem 0", children: [jsxRuntime.jsx(react$1.ModalHeader, { children: title }), jsxRuntime.jsx(react$1.ModalCloseButton, {}), jsxRuntime.jsx(react$1.ModalBody, { children: jsxRuntime.jsx(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: jsxRuntime.jsx(TableOrderer, {}) }) })] })] })] }));
+};
+
+const ResetSortingButton = ({ text = "Reset Sorting", }) => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsx(react$1.Button, { onClick: () => {
+            table.resetSorting();
+        }, children: text }));
+};
+
+const TableSorter = () => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsx(jsxRuntime.Fragment, { children: headerGroup.headers.map((header) => {
+                const displayName = header.column.columnDef.meta === undefined
+                    ? header.column.id
+                    : header.column.columnDef.meta.displayName;
+                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanSort() && (jsxRuntime.jsxs(react$1.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react$1.Text, { children: displayName }), jsxRuntime.jsxs(react$1.Button, { variant: "ghost", onClick: (e) => {
+                                    header.column.toggleSorting();
+                                }, children: [header.column.getIsSorted() === false && (
+                                    // <Text>To No sort</Text>
+                                    jsxRuntime.jsx(icons.UpDownIcon, {})), header.column.getIsSorted() === "asc" && (
+                                    // <Text>To asc</Text>
+                                    jsxRuntime.jsx(icons.ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (
+                                    // <Text>To desc</Text>
+                                    jsxRuntime.jsx(icons.ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsxRuntime.jsx(react$1.Button, { onClick: (e) => {
+                                    header.column.clearSorting();
+                                }, children: jsxRuntime.jsx(icons.CloseIcon, {}) }))] })) }));
+            }) }))) }));
+};
+
+const EditSortingButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineSort, {}), title = "Edit Sorting", }) => {
+    const sortingModal = react$1.useDisclosure();
+    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!text === false && (jsxRuntime.jsx(react$1.IconButton, { icon: icon, variant: "ghost", onClick: sortingModal.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsxRuntime.jsx(react$1.Button, { leftIcon: icon, variant: "ghost", onClick: sortingModal.onOpen, children: text })), jsxRuntime.jsxs(react$1.Modal, { isOpen: sortingModal.isOpen, onClose: sortingModal.onClose, size: ["full", "full", "md", "md"], children: [jsxRuntime.jsx(react$1.ModalOverlay, {}), jsxRuntime.jsxs(react$1.ModalContent, { padding: "0 0 1rem 0", children: [jsxRuntime.jsx(react$1.ModalHeader, { children: title }), jsxRuntime.jsx(react$1.ModalCloseButton, {}), jsxRuntime.jsx(react$1.ModalBody, { children: jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(TableSorter, {}), jsxRuntime.jsx(ResetSortingButton, {})] }) })] })] })] }));
+};
+
+const ResetSelectionButton = ({ text = "Reset Selection", }) => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsx(react$1.Button, { onClick: () => {
+            table.resetRowSelection();
+        }, children: text }));
+};
+
+const TableCardContainer = ({ children, ...props }) => {
+    return (jsxRuntime.jsx(react$1.Grid, { gridTemplateColumns: ["1fr", "1fr 1fr", "1fr 1fr 1fr"], gap: "0.5rem", ...props, children: children }));
+};
+
+const TableCards = ({}) => {
+    const { table } = react.useContext(TableContext);
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getRowModel().rows.map((row) => {
+            return (jsxRuntime.jsx(react$1.Card, { children: jsxRuntime.jsxs(react$1.CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [jsxRuntime.jsx(react$1.Checkbox, { isChecked: row.getIsSelected(),
+                            disabled: !row.getCanSelect(),
+                            // indeterminate: row.getIsSomeSelected(),
+                            onChange: row.getToggleSelectedHandler() }), row.getVisibleCells().map((cell) => {
+                            return (jsxRuntime.jsx(react$1.Box, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                        })] }) }, crypto.randomUUID()));
+        }) }));
+};
+
+const TableComponentRenderer = ({ render = () => {
+    throw Error("Not Implemented");
+}, }) => {
+    const { table } = useDataTable();
+    return render(table);
+};
+
 const SelectAllRowsToggle = ({ selectAllIcon = jsxRuntime.jsx(md.MdOutlineChecklist, {}), clearAllIcon = jsxRuntime.jsx(md.MdClear, {}), selectAllText, clearAllText, }) => {
     const { table } = react.useContext(TableContext);
     return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!selectAllText === false && (jsxRuntime.jsx(react$1.IconButton, { icon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
@@ -680,6 +696,7 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
 
 exports.DataTable = DataTable;
 exports.DataTableServer = DataTableServer;
+exports.DefaultTable = DefaultTable;
 exports.DensityToggleButton = DensityToggleButton;
 exports.EditFilterButton = EditFilterButton;
 exports.EditOrderButton = EditOrderButton;
@@ -690,10 +707,12 @@ exports.PageSizeControl = PageSizeControl;
 exports.ResetFilteringButton = ResetFilteringButton;
 exports.ResetSelectionButton = ResetSelectionButton;
 exports.ResetSortingButton = ResetSortingButton;
+exports.RowCountText = RowCountText;
 exports.Table = Table;
 exports.TableBody = TableBody;
 exports.TableCardContainer = TableCardContainer;
 exports.TableCards = TableCards;
+exports.TableComponentRenderer = TableComponentRenderer;
 exports.TableFilter = TableFilter;
 exports.TableFooter = TableFooter;
 exports.TableHeader = TableHeader;

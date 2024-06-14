@@ -1,5 +1,6 @@
+import { TableProps as ChakraTableProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
-export interface TableProps {
+export interface TableProps extends ChakraTableProps {
     showLoading?: boolean;
     loadingComponent?: JSX.Element;
     children: ReactNode;

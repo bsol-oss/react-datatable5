@@ -1,14 +1,14 @@
-import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
+import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
 import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 import { createContext, useState, useEffect, useContext } from 'react';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import axios from 'axios';
-import { IconButton, Button, Box, Text, Input, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Switch, Menu, MenuButton, MenuList, MenuItem, Table as Table$1, FormLabel, Checkbox, Grid, Card, CardBody, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Icon, Tooltip } from '@chakra-ui/react';
-import { AiOutlineColumnWidth } from 'react-icons/ai';
-import { MdFilterAlt, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdFilterListAlt, MdPushPin, MdCancel, MdSort, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdOutlineChecklist, MdClear } from 'react-icons/md';
-import { UpDownIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon } from '@chakra-ui/icons';
+import { Button, Box, Text, Input, useDisclosure, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Switch, InputGroup, InputLeftElement, Icon, Menu, MenuButton, MenuList, MenuItem, FormLabel, Checkbox, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Table as Table$1, Grid, Card, CardBody, Tooltip } from '@chakra-ui/react';
+import { MdFilterAlt, MdSearch, MdFilterListAlt, MdPushPin, MdCancel, MdSort, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdOutlineChecklist, MdClear } from 'react-icons/md';
 import { IoMdEye, IoMdClose, IoMdCheckbox } from 'react-icons/io';
+import { ChevronDownIcon, ChevronUpIcon, UpDownIcon, CloseIcon } from '@chakra-ui/icons';
 import { Tbody, Tr, Td } from '@chakra-ui/table';
+import { AiOutlineColumnWidth } from 'react-icons/ai';
 
 const TableContext = createContext({
     table: {},
@@ -295,25 +295,16 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         }, children: children }));
 };
 
-const DensityToggleButton = ({ text, icon = jsx(AiOutlineColumnWidth, {}), }) => {
-    const { table } = useContext(TableContext);
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: icon, onClick: () => {
-                    table.toggleDensity();
-                } })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
-                    table.toggleDensity();
-                }, children: text }))] }));
-};
-
-const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
-    const { table } = useContext(TableContext);
-    return (jsx(Button, { onClick: () => {
-            table.resetColumnFilters();
-        }, children: text }));
-};
-
 const useDataTable = () => {
     const { table, refreshData, globalFilter, setGlobalFilter, loading } = useContext(TableContext);
     return { table, refreshData, globalFilter, setGlobalFilter, loading };
+};
+
+const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
+    const { table } = useDataTable();
+    return (jsx(Button, { onClick: () => {
+            table.resetColumnFilters();
+        }, children: text }));
 };
 
 const TableFilter = () => {
@@ -330,99 +321,9 @@ const TableFilter = () => {
         }) }));
 };
 
-const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsx(MdFilterAlt, {}), }) => {
+const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsx(MdFilterAlt, {}), ...props }) => {
     const filterModal = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: filterModal.onOpen, "aria-label": "filter" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: filterModal.onOpen, children: text })), jsxs(Modal, { isOpen: filterModal.isOpen, onClose: filterModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "1rem", children: [jsx(TableFilter, {}), jsx(ResetFilteringButton, { text: resetText })] }) }), jsx(ModalFooter, { children: jsx(Button, { onClick: filterModal.onClose, children: closeText }) })] })] })] }));
-};
-
-const ColumnOrderChanger = ({ columns }) => {
-    const [order, setOrder] = useState([]);
-    const [originalOrder, setOriginalOrder] = useState([]);
-    const { table } = useDataTable();
-    const handleChangeOrder = (startIndex, endIndex) => {
-        const newOrder = Array.from(order);
-        const [removed] = newOrder.splice(startIndex, 1);
-        newOrder.splice(endIndex, 0, removed);
-        setOrder(newOrder);
-    };
-    useEffect(() => {
-        setOrder(columns);
-    }, [columns]);
-    useEffect(() => {
-        if (originalOrder.length > 0) {
-            return;
-        }
-        if (columns.length <= 0) {
-            return;
-        }
-        setOriginalOrder(columns);
-    }, [columns]);
-    return (jsxs(Flex, { gap: "0.5rem", flexFlow: "column", children: [jsx(Flex, { gap: "0.5rem", flexFlow: "column", children: order.map((columnId, index) => (jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifyContent: "space-between", children: [jsx(IconButton, { onClick: () => {
-                                const prevIndex = index - 1;
-                                if (prevIndex >= 0) {
-                                    handleChangeOrder(index, prevIndex);
-                                }
-                            }, disabled: index === 0, "aria-label": "", children: jsx(MdArrowUpward, {}) }), table
-                            .getAllFlatColumns()
-                            .filter((column) => {
-                            return column.id === columnId;
-                        })
-                            .map((column) => {
-                            const displayName = column.columnDef.meta === undefined
-                                ? column.id
-                                : column.columnDef.meta.displayName;
-                            return jsx(Fragment, { children: displayName });
-                        }), jsx(IconButton, { onClick: () => {
-                                const nextIndex = index + 1;
-                                if (nextIndex < order.length) {
-                                    handleChangeOrder(index, nextIndex);
-                                }
-                            }, disabled: index === order.length - 1, "aria-label": "", children: jsx(MdArrowDownward, {}) })] }, columnId))) }), jsxs(Flex, { gap: "0.25rem", children: [jsx(Button, { onClick: () => {
-                            table.setColumnOrder(order);
-                        }, children: "Apply" }), jsx(Button, { onClick: () => {
-                            table.setColumnOrder(originalOrder);
-                        }, children: "Reset" })] })] }));
-};
-const TableOrderer = () => {
-    const { table } = useDataTable();
-    return (jsx(Fragment, { children: jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
-};
-
-const EditOrderButton = ({ text, icon = jsx(MdOutlineMoveDown, {}), title = "Change Order", }) => {
-    const orderModal = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: orderModal.onOpen, "aria-label": "change order" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: orderModal.onOpen, children: text })), jsxs(Modal, { isOpen: orderModal.isOpen, onClose: orderModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: jsx(TableOrderer, {}) }) })] })] })] }));
-};
-
-const ResetSortingButton = ({ text = "Reset Sorting", }) => {
-    const { table } = useContext(TableContext);
-    return (jsx(Button, { onClick: () => {
-            table.resetSorting();
-        }, children: text }));
-};
-
-const TableSorter = () => {
-    const { table } = useDataTable();
-    return (jsx(Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsx(Fragment, { children: headerGroup.headers.map((header) => {
-                const displayName = header.column.columnDef.meta === undefined
-                    ? header.column.id
-                    : header.column.columnDef.meta.displayName;
-                return (jsx(Fragment, { children: header.column.getCanSort() && (jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsx(Text, { children: displayName }), jsxs(Button, { variant: "ghost", onClick: (e) => {
-                                    header.column.toggleSorting();
-                                }, children: [header.column.getIsSorted() === false && (
-                                    // <Text>To No sort</Text>
-                                    jsx(UpDownIcon, {})), header.column.getIsSorted() === "asc" && (
-                                    // <Text>To asc</Text>
-                                    jsx(ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (
-                                    // <Text>To desc</Text>
-                                    jsx(ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsx(Button, { onClick: (e) => {
-                                    header.column.clearSorting();
-                                }, children: jsx(CloseIcon, {}) }))] })) }));
-            }) }))) }));
-};
-
-const EditSortingButton = ({ text, icon = jsx(MdOutlineSort, {}), title = "Edit Sorting", }) => {
-    const sortingModal = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: sortingModal.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: sortingModal.onOpen, children: text })), jsxs(Modal, { isOpen: sortingModal.isOpen, onClose: sortingModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) })] })] })] }));
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: filterModal.onOpen, "aria-label": "filter", ...props })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: filterModal.onOpen, ...props, children: text })), jsxs(Modal, { isOpen: filterModal.isOpen, onClose: filterModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "1rem", children: [jsx(TableFilter, {}), jsx(ResetFilteringButton, { text: resetText })] }) }), jsx(ModalFooter, { children: jsx(Button, { onClick: filterModal.onClose, children: closeText }) })] })] })] }));
 };
 
 const TableViewer = () => {
@@ -440,33 +341,23 @@ const EditViewButton = ({ text, icon = jsx(IoMdEye, {}), title = "Edit View", })
     return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: viewModel.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: viewModel.onOpen, children: text })), jsxs(Modal, { isOpen: viewModel.isOpen, onClose: viewModel.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(TableViewer, {}) })] })] })] }));
 };
 
-const GlobalFilter = () => {
+const GlobalFilter = ({ icon = MdSearch }) => {
     const { globalFilter, setGlobalFilter } = useDataTable();
-    return (jsx(Input, { value: globalFilter, onChange: (e) => {
-            setGlobalFilter(e.target.value);
-        } }));
+    return (jsx(Fragment, { children: jsx(Box, { children: jsxs(InputGroup, { children: [jsx(InputLeftElement, { pointerEvents: "none", children: jsx(Icon, { as: icon, color: "gray.300" }) }), jsx(Input, { value: globalFilter, onChange: (e) => {
+                            setGlobalFilter(e.target.value);
+                        } })] }) }) }));
 };
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
-    const { table } = useContext(TableContext);
+    const { table } = useDataTable();
     return (jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Button, variant: "ghost", rightIcon: jsx(ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsx(MenuList, { children: pageSizes.map((pageSize) => (jsx(MenuItem, { onClick: () => {
                             table.setPageSize(Number(pageSize));
                         }, children: pageSize }))) })] }) }));
 };
 
-const ResetSelectionButton = ({ text = "Reset Selection", }) => {
+const RowCountText = () => {
     const { table } = useContext(TableContext);
-    return (jsx(Button, { onClick: () => {
-            table.resetRowSelection();
-        }, children: text }));
-};
-
-const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
-    const { table, loading } = useDataTable();
-    if (showLoading) {
-        return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }))] }));
-    }
-    return (jsx(Fragment, { children: jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
+    return jsx(Text, { children: table.getRowCount() });
 };
 
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
@@ -516,22 +407,6 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
                     disabled: !row.getCanSelect(),
                     // indeterminate: row.getIsSomeSelected(),
                     onChange: row.getToggleSelectedHandler() }) }))] }));
-};
-
-const TableCardContainer = ({ children, ...props }) => {
-    return (jsx(Grid, { gridTemplateColumns: ["1fr", "1fr 1fr", "1fr 1fr 1fr"], gap: "0.5rem", ...props, children: children }));
-};
-
-const TableCards = ({}) => {
-    const { table } = useContext(TableContext);
-    return (jsx(Fragment, { children: table.getRowModel().rows.map((row) => {
-            return (jsx(Card, { children: jsxs(CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [jsx(Checkbox, { isChecked: row.getIsSelected(),
-                            disabled: !row.getCanSelect(),
-                            // indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler() }), row.getVisibleCells().map((cell) => {
-                            return (jsx(Box, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }));
-                        })] }) }, crypto.randomUUID()));
-        }) }));
 };
 
 const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
@@ -653,6 +528,147 @@ const TablePagination = ({}) => {
     return (jsxs(ButtonGroup, { isAttached: true, children: [jsx(IconButton, { icon: jsx(MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost" }), jsx(IconButton, { icon: jsx(MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost" }), jsx(Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsx(IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsx(MdArrowForward, {}) }), jsx(IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsx(MdLastPage, {}) })] }));
 };
 
+const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
+    const { table, loading } = useDataTable();
+    if (showLoading) {
+        return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }))] }));
+    }
+    return (jsx(Fragment, { children: jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
+};
+
+const DefaultTable = ({ totalText = "Total:" }) => {
+    return (jsxs(Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: "View" }) }), jsxs(Flex, { gap: "1rem", justifySelf: "end", children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: "Advanced Filter" })] })] }), jsx(Flex, { overflow: "auto", gridColumn: "1 / span 2", justifyContent: "center", children: jsxs(Table, { variant: "striped", alignSelf: "center", children: [jsx(TableHeader, { canResize: true }), jsx(TableBody, {}), jsx(TableFooter, {})] }) }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, { pageSizes: [25, 50] }), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
+};
+
+const DensityToggleButton = ({ text, icon = jsx(AiOutlineColumnWidth, {}), }) => {
+    const { table } = useDataTable();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: icon, onClick: () => {
+                    table.toggleDensity();
+                } })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
+                    table.toggleDensity();
+                }, children: text }))] }));
+};
+
+const ColumnOrderChanger = ({ columns }) => {
+    const [order, setOrder] = useState([]);
+    const [originalOrder, setOriginalOrder] = useState([]);
+    const { table } = useDataTable();
+    const handleChangeOrder = (startIndex, endIndex) => {
+        const newOrder = Array.from(order);
+        const [removed] = newOrder.splice(startIndex, 1);
+        newOrder.splice(endIndex, 0, removed);
+        setOrder(newOrder);
+    };
+    useEffect(() => {
+        setOrder(columns);
+    }, [columns]);
+    useEffect(() => {
+        if (originalOrder.length > 0) {
+            return;
+        }
+        if (columns.length <= 0) {
+            return;
+        }
+        setOriginalOrder(columns);
+    }, [columns]);
+    return (jsxs(Flex, { gap: "0.5rem", flexFlow: "column", children: [jsx(Flex, { gap: "0.5rem", flexFlow: "column", children: order.map((columnId, index) => (jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifyContent: "space-between", children: [jsx(IconButton, { onClick: () => {
+                                const prevIndex = index - 1;
+                                if (prevIndex >= 0) {
+                                    handleChangeOrder(index, prevIndex);
+                                }
+                            }, disabled: index === 0, "aria-label": "", children: jsx(MdArrowUpward, {}) }), table
+                            .getAllFlatColumns()
+                            .filter((column) => {
+                            return column.id === columnId;
+                        })
+                            .map((column) => {
+                            const displayName = column.columnDef.meta === undefined
+                                ? column.id
+                                : column.columnDef.meta.displayName;
+                            return jsx(Fragment, { children: displayName });
+                        }), jsx(IconButton, { onClick: () => {
+                                const nextIndex = index + 1;
+                                if (nextIndex < order.length) {
+                                    handleChangeOrder(index, nextIndex);
+                                }
+                            }, disabled: index === order.length - 1, "aria-label": "", children: jsx(MdArrowDownward, {}) })] }, columnId))) }), jsxs(Flex, { gap: "0.25rem", children: [jsx(Button, { onClick: () => {
+                            table.setColumnOrder(order);
+                        }, children: "Apply" }), jsx(Button, { onClick: () => {
+                            table.setColumnOrder(originalOrder);
+                        }, children: "Reset" })] })] }));
+};
+const TableOrderer = () => {
+    const { table } = useDataTable();
+    return (jsx(Fragment, { children: jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
+};
+
+const EditOrderButton = ({ text, icon = jsx(MdOutlineMoveDown, {}), title = "Change Order", }) => {
+    const orderModal = useDisclosure();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: orderModal.onOpen, "aria-label": "change order" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: orderModal.onOpen, children: text })), jsxs(Modal, { isOpen: orderModal.isOpen, onClose: orderModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: jsx(TableOrderer, {}) }) })] })] })] }));
+};
+
+const ResetSortingButton = ({ text = "Reset Sorting", }) => {
+    const { table } = useDataTable();
+    return (jsx(Button, { onClick: () => {
+            table.resetSorting();
+        }, children: text }));
+};
+
+const TableSorter = () => {
+    const { table } = useDataTable();
+    return (jsx(Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsx(Fragment, { children: headerGroup.headers.map((header) => {
+                const displayName = header.column.columnDef.meta === undefined
+                    ? header.column.id
+                    : header.column.columnDef.meta.displayName;
+                return (jsx(Fragment, { children: header.column.getCanSort() && (jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsx(Text, { children: displayName }), jsxs(Button, { variant: "ghost", onClick: (e) => {
+                                    header.column.toggleSorting();
+                                }, children: [header.column.getIsSorted() === false && (
+                                    // <Text>To No sort</Text>
+                                    jsx(UpDownIcon, {})), header.column.getIsSorted() === "asc" && (
+                                    // <Text>To asc</Text>
+                                    jsx(ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (
+                                    // <Text>To desc</Text>
+                                    jsx(ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsx(Button, { onClick: (e) => {
+                                    header.column.clearSorting();
+                                }, children: jsx(CloseIcon, {}) }))] })) }));
+            }) }))) }));
+};
+
+const EditSortingButton = ({ text, icon = jsx(MdOutlineSort, {}), title = "Edit Sorting", }) => {
+    const sortingModal = useDisclosure();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: sortingModal.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: sortingModal.onOpen, children: text })), jsxs(Modal, { isOpen: sortingModal.isOpen, onClose: sortingModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) })] })] })] }));
+};
+
+const ResetSelectionButton = ({ text = "Reset Selection", }) => {
+    const { table } = useDataTable();
+    return (jsx(Button, { onClick: () => {
+            table.resetRowSelection();
+        }, children: text }));
+};
+
+const TableCardContainer = ({ children, ...props }) => {
+    return (jsx(Grid, { gridTemplateColumns: ["1fr", "1fr 1fr", "1fr 1fr 1fr"], gap: "0.5rem", ...props, children: children }));
+};
+
+const TableCards = ({}) => {
+    const { table } = useContext(TableContext);
+    return (jsx(Fragment, { children: table.getRowModel().rows.map((row) => {
+            return (jsx(Card, { children: jsxs(CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [jsx(Checkbox, { isChecked: row.getIsSelected(),
+                            disabled: !row.getCanSelect(),
+                            // indeterminate: row.getIsSomeSelected(),
+                            onChange: row.getToggleSelectedHandler() }), row.getVisibleCells().map((cell) => {
+                            return (jsx(Box, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                        })] }) }, crypto.randomUUID()));
+        }) }));
+};
+
+const TableComponentRenderer = ({ render = () => {
+    throw Error("Not Implemented");
+}, }) => {
+    const { table } = useDataTable();
+    return render(table);
+};
+
 const SelectAllRowsToggle = ({ selectAllIcon = jsx(MdOutlineChecklist, {}), clearAllIcon = jsx(MdClear, {}), selectAllText, clearAllText, }) => {
     const { table } = useContext(TableContext);
     return (jsxs(Fragment, { children: [!!selectAllText === false && (jsx(IconButton, { icon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
@@ -676,4 +692,4 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
     return (jsx(Box, { padding: padding, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }));
 };
 
-export { DataTable, DataTableServer, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, Table, TableBody, TableCardContainer, TableCards, TableFilter, TableFooter, TableHeader, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable };
+export { DataTable, DataTableServer, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponentRenderer, TableFilter, TableFooter, TableHeader, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable };

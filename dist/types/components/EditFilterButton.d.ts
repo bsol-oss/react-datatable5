@@ -6,4 +6,4 @@ export interface EditFilterButtonProps {
     resetText?: string;
     icon?: React.ReactElement;
 }
-export declare const EditFilterButton: ({ text, title, closeText, resetText, icon, }: EditFilterButtonProps) => import("react/jsx-runtime").JSX.Element;
+export declare const EditFilterButton: ({ text, title, closeText, resetText, icon, ...props }: EditFilterButtonProps) => import("react/jsx-runtime").JSX.Element;
