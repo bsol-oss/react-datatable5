@@ -1,7 +1,7 @@
 import { Button, IconButton } from "@chakra-ui/react";
-import React, { useContext } from "react";
+import React from "react";
 import { AiOutlineColumnWidth } from "react-icons/ai";
-import { TableContext } from "./DataTableContext";
+import { useDataTable } from "./useDataTable";
 
 export interface DensityToggleButtonProps {
   icon?: React.ReactElement;
@@ -12,7 +12,7 @@ export const DensityToggleButton = ({
   text,
   icon = <AiOutlineColumnWidth />,
 }: DensityToggleButtonProps) => {
-  const { table } = useContext(TableContext);
+  const { table } = useDataTable();
   return (
     <>
       {!!text === false && (
