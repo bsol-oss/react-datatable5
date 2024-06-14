@@ -363,7 +363,7 @@ const RowCountText = () => {
 const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
     const { table, loading } = useDataTable();
     if (showLoading) {
-        return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }))] }));
+        return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflow: "auto", ...props, children: children }))] }));
     }
     return (jsx(Fragment, { children: jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
 };
@@ -537,7 +537,7 @@ const TablePagination = ({}) => {
 };
 
 const DefaultTable = ({ totalText = "Total:", showFilter = false }) => {
-    return (jsxs(Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", height: "100%", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsx(Flex, { gap: "1rem", justifySelf: "end", children: showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: "Advanced Filter" })] })) })] }), jsx(Flex, { overflow: "auto", gridColumn: "1 / span 2", justifyContent: "center", children: jsxs(Table, { variant: "striped", alignSelf: "center", children: [jsx(TableHeader, { canResize: true }), jsx(TableBody, {}), jsx(TableFooter, {})] }) }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, {}), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
+    return (jsxs(Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsx(Flex, { gap: "1rem", justifySelf: "end", children: showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: "Advanced Filter" })] })) })] }), jsx(Flex, { overflow: "auto", gridColumn: "1 / span 2", justifyContent: "center", children: jsxs(Table, { variant: "striped", alignSelf: "center", children: [jsx(TableHeader, { canResize: true }), jsx(TableBody, {}), jsx(TableFooter, {})] }) }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, {}), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
 };
 
 const DensityToggleButton = ({ text, icon = jsx(AiOutlineColumnWidth, {}), }) => {
