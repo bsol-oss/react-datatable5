@@ -1,10 +1,4 @@
-import {
-  Box,
-  ChakraProvider,
-  Flex,
-  Text,
-  theme
-} from "@chakra-ui/react";
+import { Box, ChakraProvider, Flex, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
 import { DensityToggleButton } from "../../components/DensityToggleButton";
@@ -21,6 +15,7 @@ import { TableHeader } from "../../components/TableHeader";
 import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
+import { TableComponentRenderer } from "../../components/TableComponentRenderer";
 
 interface ChatRecord {
   session_id: string;
@@ -127,7 +122,7 @@ const TableViewShowcase = () => {
           <PageSizeControl pageSizes={[25, 50]} />
           <TableSelector />
           <GlobalFilter />
-          <Text paddingRight={'0.5rem'}>{"Total: "}</Text>
+          <Text paddingRight={"0.5rem"}>{"Total: "}</Text>
           <RowCountText />
         </Flex>
         <Table>
@@ -135,6 +130,11 @@ const TableViewShowcase = () => {
           <TableBody />
           <TableFooter />
         </Table>
+        <TableComponentRenderer
+          render={(table) => {
+            return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
+          }}
+        />
       </DataTableServer>
     </ChakraProvider>
   );
