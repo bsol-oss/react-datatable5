@@ -29,4 +29,3 @@ export * from "./components/TableComponentRenderer";
 export * from "./components/TextCell";
 export * from "./components/useDataFromUrl";
 export * from "./components/useDataTable";
-

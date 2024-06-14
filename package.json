@@ -6,7 +6,7 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "repository": "https://github.com/bsol-oss/react-datatable5.git",
-  "homepage": "https://github.com/bsol-oss/react-datatabl5#react-datatable5",
+  "homepage": "https://github.com/bsol-oss/react-datatable5#react-datatable5",
   "author": "screw123",
   "license": "MIT",
   "keywords": [
