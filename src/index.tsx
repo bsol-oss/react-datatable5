@@ -10,6 +10,7 @@ export * from "./components/PageSizeControl";
 export * from "./components/ResetFilteringButton";
 export * from "./components/ResetSelectionButton";
 export * from "./components/ResetSortingButton";
+export * from "./components/RowCountText";
 export * from "./components/Table";
 export * from "./components/TableBody";
 export * from "./components/TableCardContainer";
@@ -25,4 +26,3 @@ export * from "./components/TableViewer";
 export * from "./components/TextCell";
 export * from "./components/useDataFromUrl";
 export * from "./components/useDataTable";
-
