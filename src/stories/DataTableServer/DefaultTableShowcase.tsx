@@ -102,6 +102,9 @@ const DefaultTableShowcase = () => {
         pagination={{ pageSize: 25, pageIndex: 0 }}
       >
         <DefaultTable showFilter={true} />
+        <Box width="400px" height={"400px"}>
+          <DefaultTable showFilter={true} />
+        </Box>
         <TableComponentRenderer
           render={(table) => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
