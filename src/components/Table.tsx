@@ -25,7 +25,7 @@ export const Table = ({
         {!loading && (
           <ChakraTable
             width={table.getCenterTotalSize()}
-            overflowX={"auto"}
+            overflow={"auto"}
             {...props}
           >
             {children}

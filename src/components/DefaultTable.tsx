@@ -13,11 +13,7 @@ import { TablePagination } from "./TablePagination";
 
 export const DefaultTable = ({ totalText = "Total:", showFilter = false }) => {
   return (
-    <Grid
-      templateRows={"auto 1fr auto"}
-      templateColumns={"1fr 1fr"}
-      height={"100%"}
-    >
+    <Grid templateRows={"auto 1fr auto"} templateColumns={"1fr 1fr"}>
       <Flex justifyContent={"space-between"} gridColumn={"1 / span 2"}>
         <Box>
           <EditViewButton text={"View"} icon={<MdOutlineViewColumn />} />
