@@ -12,7 +12,6 @@ import { TableHeader } from "../../components/TableHeader";
 import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
-import { TableComponentRenderer } from "../../components/TableComponentRenderer";
 
 interface ChatRecord {
   session_id: string;

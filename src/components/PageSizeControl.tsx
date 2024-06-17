@@ -25,6 +25,7 @@ export const PageSizeControl = ({
         <MenuList>
           {pageSizes.map((pageSize) => (
             <MenuItem
+              key={crypto.randomUUID()}
               onClick={() => {
                 table.setPageSize(Number(pageSize));
               }}

@@ -6,7 +6,7 @@ export interface TableRendererProps<TData> {
   render: (render: Table<TData>) => React.ReactElement;
 }
 
-export const TableComponentRenderer = <TData,>({
+export const TableComponent = <TData,>({
   render = () => {
     throw Error("Not Implemented");
   },

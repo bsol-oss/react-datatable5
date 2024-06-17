@@ -15,7 +15,7 @@ import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
 import { data, Product } from "../data";
-import { TableComponentRenderer } from "../../components/TableComponentRenderer";
+import { TableComponent } from "../../components/TableComponent";
 
 interface RowActionsProps {
   row: Product;
@@ -101,7 +101,7 @@ const TableViewShowcase = () => {
         </Table>
         <PageSizeControl />
         <TablePagination />
-        <TableComponentRenderer
+        <TableComponent
           render={(table) => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
           }}
