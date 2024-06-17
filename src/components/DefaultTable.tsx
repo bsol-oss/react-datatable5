@@ -14,6 +14,7 @@ import { TablePagination } from "./TablePagination";
 export interface DefaultTableProps {
   totalText?: string;
   showFilter?: boolean;
+  showFooter?: boolean;
   fitTableWidth?: boolean;
   fitTableHeight?: boolean;
   isMobile?: boolean;
@@ -22,6 +23,7 @@ export interface DefaultTableProps {
 export const DefaultTable = ({
   totalText = "Total:",
   showFilter = false,
+  showFooter = false,
   fitTableWidth = false,
   fitTableHeight = false,
   isMobile = false,
@@ -34,11 +36,12 @@ export const DefaultTable = ({
       height={fitTableHeight ? "fit-content" : "100%"}
       justifySelf={"center"}
       alignSelf={"center"}
+      gap={"0.5rem"}
     >
       <Flex justifyContent={"space-between"} gridColumn={"1 / span 2"}>
         <Box>
           <EditViewButton
-            text={isMobile ? "View" : undefined}
+            text={isMobile ? undefined : "View"}
             icon={<MdOutlineViewColumn />}
           />
         </Box>
@@ -47,7 +50,7 @@ export const DefaultTable = ({
             <>
               <GlobalFilter />
               <EditFilterButton
-                text={isMobile ? "Advanced Filter" : undefined}
+                text={isMobile ? undefined : "Advanced Filter"}
               />
             </>
           )}
@@ -62,7 +65,7 @@ export const DefaultTable = ({
         <Table variant={"striped"}>
           <TableHeader canResize />
           <TableBody />
-          <TableFooter />
+          {showFooter && <TableFooter />}
         </Table>
       </Box>
       <Flex gap={"1rem"} alignItems={"center"}>
