@@ -96,11 +96,12 @@ declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enabl
 interface DefaultTableProps {
     totalText?: string;
     showFilter?: boolean;
+    showFooter?: boolean;
     fitTableWidth?: boolean;
     fitTableHeight?: boolean;
     isMobile?: boolean;
 }
-declare const DefaultTable: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
+declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
 
 interface DensityToggleButtonProps {
     icon?: React$1.ReactElement;
