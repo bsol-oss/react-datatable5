@@ -11,40 +11,60 @@ import { TableFooter } from "./TableFooter";
 import { TableHeader } from "./TableHeader";
 import { TablePagination } from "./TablePagination";
 
-export const DefaultTable = ({ totalText = "Total:", showFilter = false }) => {
+export interface DefaultTableProps {
+  totalText?: string;
+  showFilter?: boolean;
+  fitTableWidth?: boolean;
+  fitTableHeight?: boolean;
+  isMobile?: boolean;
+}
+
+export const DefaultTable = ({
+  totalText = "Total:",
+  showFilter = false,
+  fitTableWidth = false,
+  fitTableHeight = false,
+  isMobile = false,
+}: DefaultTableProps) => {
   return (
     <Grid
       templateRows={"auto 1fr auto"}
       templateColumns={"1fr 1fr"}
-      width={"100%"}
-      height={"100%"}
+      width={fitTableWidth ? "fit-content" : "100%"}
+      height={fitTableHeight ? "fit-content" : "100%"}
+      justifySelf={"center"}
+      alignSelf={"center"}
     >
       <Flex justifyContent={"space-between"} gridColumn={"1 / span 2"}>
         <Box>
-          <EditViewButton text={"View"} icon={<MdOutlineViewColumn />} />
+          <EditViewButton
+            text={isMobile ? "View" : undefined}
+            icon={<MdOutlineViewColumn />}
+          />
         </Box>
         <Flex gap={"1rem"} justifySelf={"end"}>
           {showFilter && (
             <>
               <GlobalFilter />
-              <EditFilterButton text={"Advanced Filter"} />
+              <EditFilterButton
+                text={isMobile ? "Advanced Filter" : undefined}
+              />
             </>
           )}
         </Flex>
       </Flex>
-      <Grid
+      <Box
         overflow={"auto"}
         gridColumn={"1 / span 2"}
-        margin={"0 auto 0 auto"}
         width={"100%"}
         height={"100%"}
       >
-        <Table variant={"striped"} justifySelf={"center"} alignSelf={"center"}>
+        <Table variant={"striped"}>
           <TableHeader canResize />
           <TableBody />
           <TableFooter />
         </Table>
-      </Grid>
+      </Box>
       <Flex gap={"1rem"} alignItems={"center"}>
         <PageSizeControl />
         <Flex>
