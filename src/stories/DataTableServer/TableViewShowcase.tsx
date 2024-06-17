@@ -15,7 +15,7 @@ import { TableHeader } from "../../components/TableHeader";
 import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
-import { TableComponentRenderer } from "../../components/TableComponentRenderer";
+import { TableComponent } from "../../components/TableComponent";
 
 interface ChatRecord {
   session_id: string;
@@ -130,7 +130,7 @@ const TableViewShowcase = () => {
           <TableBody />
           <TableFooter />
         </Table>
-        <TableComponentRenderer
+        <TableComponent
           render={(table) => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
           }}
