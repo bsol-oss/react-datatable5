@@ -2,7 +2,7 @@ import { Box, ChakraProvider, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
 import { DefaultTable } from "../../components/DefaultTable";
-import { TableComponentRenderer } from "../../components/TableComponentRenderer";
+import { TableComponent } from "../../components/TableComponent";
 import { TextCell } from "../../components/TextCell";
 
 interface ChatRecord {
@@ -105,7 +105,24 @@ const DefaultTableShowcase = () => {
         <Box width="400px" height={"400px"}>
           <DefaultTable showFilter={true} />
         </Box>
-        <TableComponentRenderer
+        <Box width="2400px" height={"2400px"}>
+          <DefaultTable showFilter={true} />
+        </Box>
+
+        <Text> {"fitTable={true}"}</Text>
+
+        <Box width="400px" height={"400px"}>
+          <DefaultTable showFilter={true} fitTableWidth={true} />
+        </Box>
+        <Box width="2400px" height={"2400px"}>
+          <DefaultTable
+            showFilter={true}
+            fitTableWidth={true}
+            fitTableHeight={true}
+          />
+        </Box>
+
+        <TableComponent
           render={(table) => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
           }}
