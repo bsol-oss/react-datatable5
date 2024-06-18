@@ -434,12 +434,12 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
 
 const TableFilterTags = () => {
     const { table } = useDataTable();
-    return (jsx(Flex, { gap: "0.5rem", flexFlow: 'wrap', children: table.getState().columnFilters.map(({ id, value }, index) => {
-            return (jsxs(Tag, { children: [`${id}: ${value}`, jsx(IconButton, { size: "xs", icon: jsx(CloseIcon, {}), onClick: () => {
+    return (jsx(Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }, index) => {
+            return (jsxs(Tag, { display: "flex", gap: "0.5rem", alignItems: "center", children: [jsx(Text, { children: `${id}: ${value}` }), jsx(IconButton, { size: "xs", variant: "ghost", icon: jsx(CloseIcon, {}), onClick: () => {
                             table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
                                 return curIndex != index;
                             }));
-                        }, "aria-label": "" })] }));
+                        }, "aria-label": "remove filter" })] }));
         }) }));
 };
 

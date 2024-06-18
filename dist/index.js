@@ -436,12 +436,12 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
 
 const TableFilterTags = () => {
     const { table } = useDataTable();
-    return (jsxRuntime.jsx(react$1.Flex, { gap: "0.5rem", flexFlow: 'wrap', children: table.getState().columnFilters.map(({ id, value }, index) => {
-            return (jsxRuntime.jsxs(react$1.Tag, { children: [`${id}: ${value}`, jsxRuntime.jsx(react$1.IconButton, { size: "xs", icon: jsxRuntime.jsx(icons.CloseIcon, {}), onClick: () => {
+    return (jsxRuntime.jsx(react$1.Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }, index) => {
+            return (jsxRuntime.jsxs(react$1.Tag, { display: "flex", gap: "0.5rem", alignItems: "center", children: [jsxRuntime.jsx(react$1.Text, { children: `${id}: ${value}` }), jsxRuntime.jsx(react$1.IconButton, { size: "xs", variant: "ghost", icon: jsxRuntime.jsx(icons.CloseIcon, {}), onClick: () => {
                             table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
                                 return curIndex != index;
                             }));
-                        }, "aria-label": "" })] }));
+                        }, "aria-label": "remove filter" })] }));
         }) }));
 };
 
