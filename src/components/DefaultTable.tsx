@@ -7,6 +7,7 @@ import { PageSizeControl } from "./PageSizeControl";
 import { RowCountText } from "./RowCountText";
 import { Table } from "./Table";
 import { TableBody } from "./TableBody";
+import { TableFilterTags } from "./TableFilterTags";
 import { TableFooter } from "./TableFooter";
 import { TableHeader } from "./TableHeader";
 import { TablePagination } from "./TablePagination";
@@ -30,7 +31,7 @@ export const DefaultTable = ({
 }: DefaultTableProps) => {
   return (
     <Grid
-      templateRows={"auto 1fr auto"}
+      templateRows={"auto auto 1fr auto"}
       templateColumns={"1fr 1fr"}
       width={fitTableWidth ? "fit-content" : "100%"}
       height={fitTableHeight ? "fit-content" : "100%"}
@@ -55,6 +56,9 @@ export const DefaultTable = ({
             </>
           )}
         </Flex>
+      </Flex>
+      <Flex gridColumn={"1 / span 2"}>
+        <TableFilterTags />
       </Flex>
       <Box
         overflow={"auto"}
