@@ -434,6 +434,17 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
                     onChange: row.getToggleSelectedHandler() }) }))] }));
 };
 
+const TableFilterTags = () => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsx(react$1.Flex, { gap: "0.5rem", flexFlow: 'wrap', children: table.getState().columnFilters.map(({ id, value }, index) => {
+            return (jsxRuntime.jsxs(react$1.Tag, { children: [`${id}: ${value}`, jsxRuntime.jsx(react$1.IconButton, { size: "xs", icon: jsxRuntime.jsx(icons.CloseIcon, {}), onClick: () => {
+                            table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
+                                return curIndex != index;
+                            }));
+                        }, "aria-label": "" })] }));
+        }) }));
+};
+
 const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
     const table = useDataTable().table;
     const SELECTION_BOX_WIDTH = 20;
@@ -554,7 +565,7 @@ const TablePagination = ({}) => {
 };
 
 const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, }) => {
-    return (jsxRuntime.jsxs(react$1.Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxRuntime.jsxs(react$1.Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsxRuntime.jsx(react$1.Box, { children: jsxRuntime.jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsx(react$1.Flex, { gap: "1rem", justifySelf: "end", children: showFilter && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(GlobalFilter, {}), jsxRuntime.jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })) })] }), jsxRuntime.jsx(react$1.Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: jsxRuntime.jsxs(Table, { variant: "striped", children: [jsxRuntime.jsx(TableHeader, { canResize: true }), jsxRuntime.jsx(TableBody, {}), showFooter && jsxRuntime.jsx(TableFooter, {})] }) }), jsxRuntime.jsxs(react$1.Flex, { gap: "1rem", alignItems: "center", children: [jsxRuntime.jsx(PageSizeControl, {}), jsxRuntime.jsxs(react$1.Flex, { children: [jsxRuntime.jsx(react$1.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] })] }), jsxRuntime.jsx(react$1.Box, { justifySelf: "end", children: jsxRuntime.jsx(TablePagination, {}) })] }));
+    return (jsxRuntime.jsxs(react$1.Grid, { templateRows: "auto auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxRuntime.jsxs(react$1.Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsxRuntime.jsx(react$1.Box, { children: jsxRuntime.jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsx(react$1.Flex, { gap: "1rem", justifySelf: "end", children: showFilter && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(GlobalFilter, {}), jsxRuntime.jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })) })] }), jsxRuntime.jsx(react$1.Flex, { gridColumn: "1 / span 2", children: jsxRuntime.jsx(TableFilterTags, {}) }), jsxRuntime.jsx(react$1.Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: jsxRuntime.jsxs(Table, { variant: "striped", children: [jsxRuntime.jsx(TableHeader, { canResize: true }), jsxRuntime.jsx(TableBody, {}), showFooter && jsxRuntime.jsx(TableFooter, {})] }) }), jsxRuntime.jsxs(react$1.Flex, { gap: "1rem", alignItems: "center", children: [jsxRuntime.jsx(PageSizeControl, {}), jsxRuntime.jsxs(react$1.Flex, { children: [jsxRuntime.jsx(react$1.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] })] }), jsxRuntime.jsx(react$1.Box, { justifySelf: "end", children: jsxRuntime.jsx(TablePagination, {}) })] }));
 };
 
 const DensityToggleButton = ({ text, icon = jsxRuntime.jsx(ai.AiOutlineColumnWidth, {}), }) => {
@@ -684,17 +695,6 @@ const TableComponent = ({ render = () => {
 }, }) => {
     const { table } = useDataTable();
     return render(table);
-};
-
-const TableFilterTags = () => {
-    const { table } = useDataTable();
-    return (jsxRuntime.jsx(react$1.Flex, { gap: "0.5rem", flexFlow: 'wrap', children: table.getState().columnFilters.map(({ id, value }, index) => {
-            return (jsxRuntime.jsxs(react$1.Tag, { children: [`${id}: ${value}`, jsxRuntime.jsx(react$1.IconButton, { size: "xs", icon: jsxRuntime.jsx(icons.CloseIcon, {}), onClick: () => {
-                            table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
-                                return curIndex != index;
-                            }));
-                        }, "aria-label": "" })] }));
-        }) }));
 };
 
 const SelectAllRowsToggle = ({ selectAllIcon = jsxRuntime.jsx(md.MdOutlineChecklist, {}), clearAllIcon = jsxRuntime.jsx(md.MdClear, {}), selectAllText, clearAllText, }) => {

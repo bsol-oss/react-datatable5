@@ -3,12 +3,12 @@ import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, get
 import { createContext, useState, useEffect, useContext } from 'react';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import axios from 'axios';
-import { Button, Box, Text, Input, useDisclosure, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Grid, Icon, Switch, InputGroup, InputLeftElement, Menu, MenuButton, MenuList, MenuItem, Table as Table$1, FormLabel, Checkbox, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Card, CardBody, Tag, Tooltip } from '@chakra-ui/react';
+import { Button, Box, Text, Input, useDisclosure, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Grid, Icon, Switch, InputGroup, InputLeftElement, Menu, MenuButton, MenuList, MenuItem, Table as Table$1, FormLabel, Checkbox, Tag, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Card, CardBody, Tooltip } from '@chakra-ui/react';
 import { MdFilterAlt, MdSearch, MdFilterListAlt, MdPushPin, MdCancel, MdSort, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdOutlineViewColumn, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdOutlineChecklist, MdClear } from 'react-icons/md';
 import { IoMdEye, IoMdClose, IoMdCheckbox } from 'react-icons/io';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { FaGripLinesVertical } from 'react-icons/fa';
-import { ChevronDownIcon, ChevronUpIcon, UpDownIcon, CloseIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, CloseIcon, ChevronUpIcon, UpDownIcon } from '@chakra-ui/icons';
 import { Tbody, Tr, Td } from '@chakra-ui/table';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 
@@ -432,6 +432,17 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
                     onChange: row.getToggleSelectedHandler() }) }))] }));
 };
 
+const TableFilterTags = () => {
+    const { table } = useDataTable();
+    return (jsx(Flex, { gap: "0.5rem", flexFlow: 'wrap', children: table.getState().columnFilters.map(({ id, value }, index) => {
+            return (jsxs(Tag, { children: [`${id}: ${value}`, jsx(IconButton, { size: "xs", icon: jsx(CloseIcon, {}), onClick: () => {
+                            table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
+                                return curIndex != index;
+                            }));
+                        }, "aria-label": "" })] }));
+        }) }));
+};
+
 const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
     const table = useDataTable().table;
     const SELECTION_BOX_WIDTH = 20;
@@ -552,7 +563,7 @@ const TablePagination = ({}) => {
 };
 
 const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, }) => {
-    return (jsxs(Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsx(Flex, { gap: "1rem", justifySelf: "end", children: showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })) })] }), jsx(Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: jsxs(Table, { variant: "striped", children: [jsx(TableHeader, { canResize: true }), jsx(TableBody, {}), showFooter && jsx(TableFooter, {})] }) }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, {}), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
+    return (jsxs(Grid, { templateRows: "auto auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsx(Flex, { gap: "1rem", justifySelf: "end", children: showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })) })] }), jsx(Flex, { gridColumn: "1 / span 2", children: jsx(TableFilterTags, {}) }), jsx(Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: jsxs(Table, { variant: "striped", children: [jsx(TableHeader, { canResize: true }), jsx(TableBody, {}), showFooter && jsx(TableFooter, {})] }) }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, {}), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
 };
 
 const DensityToggleButton = ({ text, icon = jsx(AiOutlineColumnWidth, {}), }) => {
@@ -682,17 +693,6 @@ const TableComponent = ({ render = () => {
 }, }) => {
     const { table } = useDataTable();
     return render(table);
-};
-
-const TableFilterTags = () => {
-    const { table } = useDataTable();
-    return (jsx(Flex, { gap: "0.5rem", flexFlow: 'wrap', children: table.getState().columnFilters.map(({ id, value }, index) => {
-            return (jsxs(Tag, { children: [`${id}: ${value}`, jsx(IconButton, { size: "xs", icon: jsx(CloseIcon, {}), onClick: () => {
-                            table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
-                                return curIndex != index;
-                            }));
-                        }, "aria-label": "" })] }));
-        }) }));
 };
 
 const SelectAllRowsToggle = ({ selectAllIcon = jsx(MdOutlineChecklist, {}), clearAllIcon = jsx(MdClear, {}), selectAllText, clearAllText, }) => {
