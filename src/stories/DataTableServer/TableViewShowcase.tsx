@@ -16,6 +16,7 @@ import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
 import { TableComponent } from "../../components/TableComponent";
+import { TableFilterTags } from "../../components/TableFilterTags";
 
 interface ChatRecord {
   session_id: string;
@@ -124,6 +125,7 @@ const TableViewShowcase = () => {
           <GlobalFilter />
           <Text paddingRight={"0.5rem"}>{"Total: "}</Text>
           <RowCountText />
+          <TableFilterTags />
         </Flex>
         <Table>
           <TableHeader canResize />
