@@ -122,6 +122,14 @@ const DefaultTableShowcase = () => {
           />
         </Box>
 
+        <Box width="2400px" height={"2400px"}>
+          <DefaultTable
+            showFilter={true}
+            fitTableWidth={true}
+            fitTableHeight={true}
+          />
+        </Box>
+
         <TableComponent
           render={(table) => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
