@@ -8,6 +8,8 @@ var axios = require('axios');
 var react$1 = require('@chakra-ui/react');
 var md = require('react-icons/md');
 var io = require('react-icons/io');
+var reactBeautifulDnd = require('react-beautiful-dnd');
+var fa = require('react-icons/fa');
 var icons = require('@chakra-ui/icons');
 var table = require('@chakra-ui/table');
 var ai = require('react-icons/ai');
@@ -330,12 +332,25 @@ const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", re
 
 const TableViewer = () => {
     const { table } = useDataTable();
-    return (jsxRuntime.jsx(react$1.Flex, { flexFlow: "column", gap: "1rem", children: table.getAllLeafColumns().map((column) => {
-            const displayName = column.columnDef.meta === undefined
-                ? column.id
-                : column.columnDef.meta.displayName;
-            return (jsxRuntime.jsxs(react$1.Flex, { flexFlow: "row", gap: "0.5rem", alignItems: "center", children: [jsxRuntime.jsx(react$1.Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }), displayName] }));
-        }) }));
+    const columns = table.getAllLeafColumns();
+    const [columnOrder, setColumnOrder] = react.useState(columns.map((column, index) => {
+        return column.id;
+    }));
+    const handleDragEnd = (result) => {
+        if (!result.destination)
+            return;
+        const newColumnOrder = Array.from(columnOrder);
+        const [removed] = newColumnOrder.splice(result.source.index, 1);
+        newColumnOrder.splice(result.destination.index, 0, removed);
+        setColumnOrder(newColumnOrder);
+        table.setColumnOrder(newColumnOrder);
+    };
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(reactBeautifulDnd.DragDropContext, { onDragEnd: handleDragEnd, children: jsxRuntime.jsx(reactBeautifulDnd.Droppable, { droppableId: "columns", children: (provided) => (jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "0.5rem", ref: provided.innerRef, ...provided.droppableProps, children: [columns.map((column, i) => {
+                            const displayName = column.columnDef.meta === undefined
+                                ? column.id
+                                : column.columnDef.meta.displayName;
+                            return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(reactBeautifulDnd.Draggable, { draggableId: column.id, index: i, children: (provided) => (jsxRuntime.jsxs(react$1.Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsxRuntime.jsx(react$1.Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "auto 0 auto 0", children: jsxRuntime.jsx(react$1.Icon, { as: fa.FaGripLinesVertical, color: "gray.400" }) }), jsxRuntime.jsxs(react$1.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsxs(react$1.Box, { children: [" ", displayName] }), jsxRuntime.jsx(react$1.Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] })) }, column.id) }));
+                        }), provided.placeholder] })) }) }) }));
 };
 
 const EditViewButton = ({ text, icon = jsxRuntime.jsx(io.IoMdEye, {}), title = "Edit View", }) => {
@@ -671,6 +686,17 @@ const TableComponent = ({ render = () => {
     return render(table);
 };
 
+const TableFilterTags = () => {
+    const { table } = useDataTable();
+    return (jsxRuntime.jsx(react$1.Flex, { gap: "0.5rem", flexFlow: 'wrap', children: table.getState().columnFilters.map(({ id, value }, index) => {
+            return (jsxRuntime.jsxs(react$1.Tag, { children: [`${id}: ${value}`, jsxRuntime.jsx(react$1.IconButton, { size: "xs", icon: jsxRuntime.jsx(icons.CloseIcon, {}), onClick: () => {
+                            table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
+                                return curIndex != index;
+                            }));
+                        }, "aria-label": "" })] }));
+        }) }));
+};
+
 const SelectAllRowsToggle = ({ selectAllIcon = jsxRuntime.jsx(md.MdOutlineChecklist, {}), clearAllIcon = jsxRuntime.jsx(md.MdClear, {}), selectAllText, clearAllText, }) => {
     const { table } = react.useContext(TableContext);
     return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!selectAllText === false && (jsxRuntime.jsx(react$1.IconButton, { icon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
@@ -714,6 +740,7 @@ exports.TableCardContainer = TableCardContainer;
 exports.TableCards = TableCards;
 exports.TableComponent = TableComponent;
 exports.TableFilter = TableFilter;
+exports.TableFilterTags = TableFilterTags;
 exports.TableFooter = TableFooter;
 exports.TableHeader = TableHeader;
 exports.TableOrderer = TableOrderer;

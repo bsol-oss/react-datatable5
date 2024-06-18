@@ -3,9 +3,11 @@ import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, get
 import { createContext, useState, useEffect, useContext } from 'react';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import axios from 'axios';
-import { Button, Box, Text, Input, useDisclosure, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Switch, InputGroup, InputLeftElement, Icon, Menu, MenuButton, MenuList, MenuItem, Table as Table$1, FormLabel, Checkbox, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Grid, Card, CardBody, Tooltip } from '@chakra-ui/react';
+import { Button, Box, Text, Input, useDisclosure, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Grid, Icon, Switch, InputGroup, InputLeftElement, Menu, MenuButton, MenuList, MenuItem, Table as Table$1, FormLabel, Checkbox, Tfoot, Tr as Tr$1, Th, Thead, Portal, ButtonGroup, Card, CardBody, Tag, Tooltip } from '@chakra-ui/react';
 import { MdFilterAlt, MdSearch, MdFilterListAlt, MdPushPin, MdCancel, MdSort, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdOutlineViewColumn, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdOutlineChecklist, MdClear } from 'react-icons/md';
 import { IoMdEye, IoMdClose, IoMdCheckbox } from 'react-icons/io';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { FaGripLinesVertical } from 'react-icons/fa';
 import { ChevronDownIcon, ChevronUpIcon, UpDownIcon, CloseIcon } from '@chakra-ui/icons';
 import { Tbody, Tr, Td } from '@chakra-ui/table';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
@@ -328,12 +330,25 @@ const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", re
 
 const TableViewer = () => {
     const { table } = useDataTable();
-    return (jsx(Flex, { flexFlow: "column", gap: "1rem", children: table.getAllLeafColumns().map((column) => {
-            const displayName = column.columnDef.meta === undefined
-                ? column.id
-                : column.columnDef.meta.displayName;
-            return (jsxs(Flex, { flexFlow: "row", gap: "0.5rem", alignItems: "center", children: [jsx(Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }), displayName] }));
-        }) }));
+    const columns = table.getAllLeafColumns();
+    const [columnOrder, setColumnOrder] = useState(columns.map((column, index) => {
+        return column.id;
+    }));
+    const handleDragEnd = (result) => {
+        if (!result.destination)
+            return;
+        const newColumnOrder = Array.from(columnOrder);
+        const [removed] = newColumnOrder.splice(result.source.index, 1);
+        newColumnOrder.splice(result.destination.index, 0, removed);
+        setColumnOrder(newColumnOrder);
+        table.setColumnOrder(newColumnOrder);
+    };
+    return (jsx(Fragment, { children: jsx(DragDropContext, { onDragEnd: handleDragEnd, children: jsx(Droppable, { droppableId: "columns", children: (provided) => (jsxs(Flex, { flexFlow: "column", gap: "0.5rem", ref: provided.innerRef, ...provided.droppableProps, children: [columns.map((column, i) => {
+                            const displayName = column.columnDef.meta === undefined
+                                ? column.id
+                                : column.columnDef.meta.displayName;
+                            return (jsx(Fragment, { children: jsx(Draggable, { draggableId: column.id, index: i, children: (provided) => (jsxs(Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsx(Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "auto 0 auto 0", children: jsx(Icon, { as: FaGripLinesVertical, color: "gray.400" }) }), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Box, { children: [" ", displayName] }), jsx(Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] })) }, column.id) }));
+                        }), provided.placeholder] })) }) }) }));
 };
 
 const EditViewButton = ({ text, icon = jsx(IoMdEye, {}), title = "Edit View", }) => {
@@ -669,6 +684,17 @@ const TableComponent = ({ render = () => {
     return render(table);
 };
 
+const TableFilterTags = () => {
+    const { table } = useDataTable();
+    return (jsx(Flex, { gap: "0.5rem", flexFlow: 'wrap', children: table.getState().columnFilters.map(({ id, value }, index) => {
+            return (jsxs(Tag, { children: [`${id}: ${value}`, jsx(IconButton, { size: "xs", icon: jsx(CloseIcon, {}), onClick: () => {
+                            table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
+                                return curIndex != index;
+                            }));
+                        }, "aria-label": "" })] }));
+        }) }));
+};
+
 const SelectAllRowsToggle = ({ selectAllIcon = jsx(MdOutlineChecklist, {}), clearAllIcon = jsx(MdClear, {}), selectAllText, clearAllText, }) => {
     const { table } = useContext(TableContext);
     return (jsxs(Fragment, { children: [!!selectAllText === false && (jsx(IconButton, { icon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
@@ -692,4 +718,4 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
     return (jsx(Box, { padding: padding, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }));
 };
 
-export { DataTable, DataTableServer, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableFilter, TableFooter, TableHeader, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable };
+export { DataTable, DataTableServer, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, GlobalFilter, PageSizeControl, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableFilter, TableFilterTags, TableFooter, TableHeader, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable };
