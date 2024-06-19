@@ -102,6 +102,33 @@ const TableViewShowcase = () => {
             displayName: "Total Token",
           },
         }),
+        // Accessor Column
+        columnHelper.accessor("model", {
+          cell: (props) => {
+            return <TextCell>{props.row.original.model}</TextCell>;
+          },
+          header: () => <span>Model</span>,
+          footer: () => <span>Model</span>,
+          sortDescFirst: false,
+          meta: {
+            displayName: "Model",
+            filterVariant: "select",
+            filterOptions: ["gpt4", "gpt35"],
+          },
+        }),
+        columnHelper.accessor("total_completion_tokens", {
+          cell: (props) => {
+            return (
+              <TextCell>{props.row.original.total_completion_tokens}</TextCell>
+            );
+          },
+          header: () => <span>total_completion_tokens</span>,
+          footer: () => <span>total_completion_tokens</span>,
+          sortDescFirst: false,
+          meta: {
+            filterVariant: "range",
+          },
+        }),
       ],
     }),
   ];

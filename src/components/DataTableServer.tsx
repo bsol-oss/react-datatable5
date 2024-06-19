@@ -46,7 +46,7 @@ export interface DataResponse<T> extends Result<T> {
 
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData extends RowData, TValue> {
-    displayName: string;
+    displayName?: string;
   }
 }
 
