@@ -78,17 +78,15 @@ export const TableFooter = ({
               </FormLabel>
             )}
             {!isCheckBoxVisible() && (
-              <FormLabel
+              <Box
+                as="span"
                 margin={"0rem"}
                 display={"grid"}
                 justifyItems={"center"}
                 alignItems={"center"}
-              >
-                <Box
-                  width={`${SELECTION_BOX_WIDTH}px`}
-                  height={`${SELECTION_BOX_WIDTH}px`}
-                />
-              </FormLabel>
+                width={`${SELECTION_BOX_WIDTH}px`}
+                height={`${SELECTION_BOX_WIDTH}px`}
+              />
             )}
           </Th>
           {footerGroup.headers.map((header) => (
