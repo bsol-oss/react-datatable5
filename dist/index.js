@@ -271,7 +271,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         onGlobalFilterChange: (state) => {
             setGlobalFilter(state);
         },
-        rowCount: data.filterCount,
+        rowCount: data.count,
         // for tanstack-table ts bug start
         filterFns: {
             fuzzy: () => {
@@ -311,17 +311,43 @@ const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
         }, children: text }));
 };
 
+function Filter({ column }) {
+    const { filterVariant } = column.columnDef.meta ?? {};
+    const displayName = column.columnDef.meta?.displayName ?? column.id;
+    const filterOptions = column.columnDef.meta?.filterOptions ?? [];
+    if (column.columns.length > 0) {
+        return (jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react$1.Text, { children: displayName }), column.columns.map((column) => {
+                    return jsxRuntime.jsx(Filter, { column: column });
+                })] }));
+    }
+    if (filterVariant === "select") {
+        return (jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react$1.Text, { children: displayName }), jsxRuntime.jsx(react$1.Select, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", placeholder: "Select option", onChange: (e) => {
+                        column.setFilterValue(e.target.value);
+                    }, children: filterOptions.map((option) => {
+                        return jsxRuntime.jsx("option", { value: option, children: option });
+                    }) })] }));
+    }
+    if (filterVariant === "range") {
+        const filterValue = column.getFilterValue() ?? [
+            undefined,
+            undefined,
+        ];
+        console.log(column.getFilterValue(), "sgr");
+        const [min, max] = filterValue;
+        return (jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react$1.Text, { children: displayName }), jsxRuntime.jsxs(react$1.Flex, { gap: "0.25rem", children: [jsxRuntime.jsx(react$1.Input, { type: "number", placeholder: "min", value: min, onChange: (e) => {
+                                column.setFilterValue([Number(e.target.value), max]);
+                            } }), jsxRuntime.jsx(react$1.Input, { type: "number", placeholder: "max", value: max, onChange: (e) => {
+                                column.setFilterValue([min, Number(e.target.value)]);
+                            } })] })] }));
+    }
+    return (jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react$1.Text, { children: displayName }), jsxRuntime.jsx(react$1.Input, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", onChange: (e) => {
+                    column.setFilterValue(e.target.value);
+                } })] }));
+}
 const TableFilter = () => {
     const { table } = useDataTable();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getLeafHeaders().map((header) => {
-            const displayName = header.column.columnDef.meta === undefined
-                ? header.column.id
-                : header.column.columnDef.meta.displayName;
-            return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanFilter() && (jsxRuntime.jsxs(react$1.Box, { children: [jsxRuntime.jsx(react$1.Text, { children: displayName }), jsxRuntime.jsx(react$1.Input, { value: header.column.getFilterValue()
-                                ? String(header.column.getFilterValue())
-                                : "", onChange: (e) => {
-                                header.column.setFilterValue(e.target.value);
-                            } })] })) }));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getAllColumns().map((column) => {
+            return jsxRuntime.jsx(Filter, { column: column });
         }) }));
 };
 
@@ -428,7 +454,7 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
             }
             : {}), 
         // styling resize and pinning end
-        display: "grid", children: [!isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, children: jsxRuntime.jsx("span", { children: index + 1 }) }) })), isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: row.getIsSelected(),
+        display: "grid", children: [!isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, children: index + 1 })), isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: row.getIsSelected(),
                     disabled: !row.getCanSelect(),
                     // indeterminate: row.getIsSomeSelected(),
                     onChange: row.getToggleSelectedHandler() }) }))] }));
@@ -477,7 +503,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }
                     // styling resize and pinning end
                     onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
                                 // indeterminate: table.getIsSomeRowsSelected(),
-                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }))] }), footerGroup.headers.map((header) => (jsxRuntime.jsx(react$1.Th, { padding: "0", colSpan: header.colSpan, 
+                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react$1.Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] }), footerGroup.headers.map((header) => (jsxRuntime.jsx(react$1.Th, { padding: "0", colSpan: header.colSpan, 
                     // styling resize and pinning start
                     maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
                         ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
@@ -524,7 +550,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                     // styling resize and pinning end
                     padding: `${table.getDensityValue()}px`, onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
                                 // indeterminate: table.getIsSomeRowsSelected(),
-                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }))] }), headerGroup.headers.map((header) => {
+                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react$1.Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] }), headerGroup.headers.map((header) => {
                     const resizeProps = {
                         onClick: () => header.column.resetSize(),
                         onMouseDown: header.getResizeHandler(),
@@ -543,7 +569,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                         // styling resize and pinning end
                         display: "grid", children: [jsxRuntime.jsxs(react$1.Menu, { children: [jsxRuntime.jsx(react$1.MenuButton, { as: react$1.Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxRuntime.jsxs(react$1.Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                                     ? null
-                                                    : reactTable.flexRender(header.column.columnDef.header, header.getContext()), jsxRuntime.jsx(react$1.Box, { children: header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [header.column.getIsSorted() === false && (jsxRuntime.jsx(jsxRuntime.Fragment, {})), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {}))] })) }), jsxRuntime.jsx(react$1.Box, { children: header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}) })] }) }), jsxRuntime.jsx(react$1.Portal, { children: jsxRuntime.jsxs(react$1.MenuList, { children: [!header.column.getIsPinned() && (jsxRuntime.jsx(react$1.MenuItem, { icon: jsxRuntime.jsx(md.MdPushPin, {}), onClick: () => {
+                                                    : reactTable.flexRender(header.column.columnDef.header, header.getContext()), jsxRuntime.jsx(react$1.Box, { children: header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [header.column.getIsSorted() === false && jsxRuntime.jsx(jsxRuntime.Fragment, {}), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {}))] })) }), jsxRuntime.jsx(react$1.Box, { children: header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}) })] }) }), jsxRuntime.jsx(react$1.Portal, { children: jsxRuntime.jsxs(react$1.MenuList, { children: [!header.column.getIsPinned() && (jsxRuntime.jsx(react$1.MenuItem, { icon: jsxRuntime.jsx(md.MdPushPin, {}), onClick: () => {
                                                         header.column.pin("left");
                                                     }, children: "Pin Column" })), header.column.getIsPinned() && (jsxRuntime.jsx(react$1.MenuItem, { icon: jsxRuntime.jsx(md.MdCancel, {}), onClick: () => {
                                                         header.column.pin(false);
@@ -715,9 +741,9 @@ const TableSelector = () => {
 
 const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipProps, ...props }) => {
     if (label) {
-        return (jsxRuntime.jsx(react$1.Box, { padding: padding, children: jsxRuntime.jsx(react$1.Tooltip, { label: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", ...tooltipProps, children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }) }));
+        return (jsxRuntime.jsx(react$1.Flex, { alignItems: "center", height: "100%", padding: padding, children: jsxRuntime.jsx(react$1.Tooltip, { label: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", ...tooltipProps, children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }) }));
     }
-    return (jsxRuntime.jsx(react$1.Box, { padding: padding, children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }));
+    return (jsxRuntime.jsx(react$1.Flex, { alignItems: "center", height: "100%", padding: padding, children: jsxRuntime.jsx(react$1.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }));
 };
 
 exports.DataTable = DataTable;

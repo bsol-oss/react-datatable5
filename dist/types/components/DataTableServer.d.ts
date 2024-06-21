@@ -31,7 +31,7 @@ export interface DataResponse<T> extends Result<T> {
 }
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData extends RowData, TValue> {
-        displayName: string;
+        displayName?: string;
     }
 }
 export declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;

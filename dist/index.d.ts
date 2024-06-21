@@ -88,7 +88,7 @@ interface DataResponse<T> extends Result<T> {
 }
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData extends RowData, TValue> {
-        displayName: string;
+        displayName?: string;
     }
 }
 declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
@@ -203,6 +203,12 @@ interface TableRendererProps<TData> {
 }
 declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) => React$1.ReactElement<any, string | React$1.JSXElementConstructor<any>>;
 
+declare module "@tanstack/react-table" {
+    interface ColumnMeta<TData extends RowData, TValue> {
+        filterVariant?: "text" | "range" | "select";
+        filterOptions?: string[];
+    }
+}
 declare const TableFilter: () => react_jsx_runtime.JSX.Element;
 
 declare const TableFilterTags: () => react_jsx_runtime.JSX.Element;
