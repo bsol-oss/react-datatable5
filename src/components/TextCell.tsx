@@ -1,4 +1,10 @@
-import { Box, Text, TextProps, Tooltip, TooltipProps } from "@chakra-ui/react";
+import {
+  Flex,
+  Text,
+  TextProps,
+  Tooltip,
+  TooltipProps
+} from "@chakra-ui/react";
 
 export interface TextCellProps extends TextProps {
   label?: string;
@@ -18,7 +24,7 @@ export const TextCell = ({
 }: TextCellProps) => {
   if (label) {
     return (
-      <Box padding={padding}>
+      <Flex alignItems={"center"} height={"100%"} padding={padding}>
         <Tooltip
           label={
             <Text
@@ -44,11 +50,11 @@ export const TextCell = ({
             {children}
           </Text>
         </Tooltip>
-      </Box>
+      </Flex>
     );
   }
   return (
-    <Box padding={padding}>
+    <Flex alignItems={"center"} height={"100%"} padding={padding}>
       <Text
         as="span"
         overflow="hidden"
@@ -59,6 +65,6 @@ export const TextCell = ({
       >
         {children}
       </Text>
-    </Box>
+    </Flex>
   );
 };

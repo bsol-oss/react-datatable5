@@ -46,7 +46,7 @@ export interface DataResponse<T> extends Result<T> {
 
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData extends RowData, TValue> {
-    displayName: string;
+    displayName?: string;
   }
 }
 
@@ -143,7 +143,7 @@ export const DataTableServer = <TData,>({
     onGlobalFilterChange: (state) => {
       setGlobalFilter(state);
     },
-    rowCount: data.filterCount,
+    rowCount: data.count,
     // for tanstack-table ts bug start
     filterFns: {
       fuzzy: () => {

@@ -116,19 +116,17 @@ const TableRowSelector = <TData,>({
       display={"grid"}
     >
       {!isCheckBoxVisible(index, row) && (
-        <FormLabel
+        <Box
+          as="span"
           margin={"0rem"}
           display={"grid"}
           justifyItems={"center"}
           alignItems={"center"}
+          width={`${SELECTION_BOX_WIDTH}px`}
+          height={`${SELECTION_BOX_WIDTH}px`}
         >
-          <Box
-            width={`${SELECTION_BOX_WIDTH}px`}
-            height={`${SELECTION_BOX_WIDTH}px`}
-          >
-            <span>{index + 1}</span>
-          </Box>
-        </FormLabel>
+          {index + 1}
+        </Box>
       )}
       {isCheckBoxVisible(index, row) && (
         <FormLabel

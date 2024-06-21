@@ -1,35 +1,99 @@
-import { Input, Text, Box } from "@chakra-ui/react";
+import { Flex, Input, Select, Text } from "@chakra-ui/react";
+import { Column, RowData } from "@tanstack/react-table";
 import { useDataTable } from "./useDataTable";
+
+declare module "@tanstack/react-table" {
+  //allows us to define custom properties for our columns
+  interface ColumnMeta<TData extends RowData, TValue> {
+    filterVariant?: "text" | "range" | "select";
+    filterOptions?: string[];
+  }
+}
+
+function Filter({ column }: { column: Column<any, unknown> }) {
+  const { filterVariant } = column.columnDef.meta ?? {};
+  const displayName = column.columnDef.meta?.displayName ?? column.id;
+  const filterOptions = column.columnDef.meta?.filterOptions ?? [];
+  if (column.columns.length > 0) {
+    return (
+      <Flex flexFlow={"column"} gap="0.25rem">
+        <Text>{displayName}</Text>
+        {column.columns.map((column) => {
+          return <Filter column={column} />;
+        })}
+      </Flex>
+    );
+  }
+  if (filterVariant === "select") {
+    return (
+      <Flex flexFlow={"column"} gap="0.25rem">
+        <Text>{displayName}</Text>
+        <Select
+          value={column.getFilterValue() ? String(column.getFilterValue()) : ""}
+          placeholder="Select option"
+          onChange={(e) => {
+            column.setFilterValue(e.target.value);
+          }}
+        >
+          {filterOptions.map((option: string) => {
+            return <option value={option}>{option}</option>;
+          })}
+        </Select>
+      </Flex>
+    );
+  }
+  if (filterVariant === "range") {
+    const filterValue = (column.getFilterValue() as number[]) ?? [
+      undefined,
+      undefined,
+    ];
+    console.log(column.getFilterValue(), "sgr");
+    const [min, max] = filterValue;
+    return (
+      <Flex flexFlow={"column"} gap="0.25rem">
+        <Text>{displayName}</Text>
+        <Flex gap="0.25rem">
+          <Input
+            type="number"
+            placeholder="min"
+            value={min}
+            onChange={(e) => {
+              column.setFilterValue([Number(e.target.value), max]);
+            }}
+          />
+          <Input
+            type="number"
+            placeholder="max"
+            value={max}
+            onChange={(e) => {
+              column.setFilterValue([min, Number(e.target.value)]);
+            }}
+          />
+        </Flex>
+      </Flex>
+    );
+  }
+
+  return (
+    <Flex flexFlow={"column"} gap="0.25rem">
+      <Text>{displayName}</Text>
+      <Input
+        value={column.getFilterValue() ? String(column.getFilterValue()) : ""}
+        onChange={(e) => {
+          column.setFilterValue(e.target.value);
+        }}
+      />
+    </Flex>
+  );
+}
 
 export const TableFilter = () => {
   const { table } = useDataTable();
 
   return (
     <>
-      {table.getLeafHeaders().map((header) => {
-        const displayName =
-          header.column.columnDef.meta === undefined
-            ? header.column.id
-            : header.column.columnDef.meta.displayName;
-        return (
-          <>
-            {header.column.getCanFilter() && (
-              <Box>
-                <Text>{displayName}</Text>
-                <Input
-                  value={
-                    header.column.getFilterValue()
-                      ? String(header.column.getFilterValue())
-                      : ""
-                  }
-                  onChange={(e) => {
-                    header.column.setFilterValue(e.target.value);
-                  }}
-                />
-              </Box>
-            )}
-          </>
-        );
+      {table.getAllColumns().map((column) => {
+        return <Filter column={column}></Filter>;
       })}
     </>
   );

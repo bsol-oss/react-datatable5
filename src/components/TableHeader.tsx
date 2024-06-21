@@ -87,17 +87,15 @@ export const TableHeader = ({
               </FormLabel>
             )}
             {!isCheckBoxVisible() && (
-              <FormLabel
+              <Box
+                as="span"
                 margin={"0rem"}
                 display={"grid"}
                 justifyItems={"center"}
                 alignItems={"center"}
-              >
-                <Box
-                  width={`${SELECTION_BOX_WIDTH}px`}
-                  height={`${SELECTION_BOX_WIDTH}px`}
-                />
-              </FormLabel>
+                width={`${SELECTION_BOX_WIDTH}px`}
+                height={`${SELECTION_BOX_WIDTH}px`}
+              ></Box>
             )}
           </Th>
           {headerGroup.headers.map((header) => {
@@ -154,9 +152,7 @@ export const TableHeader = ({
                       <Box>
                         {header.column.getCanSort() && (
                           <>
-                            {header.column.getIsSorted() === false && (
-                              <></>
-                            )}
+                            {header.column.getIsSorted() === false && <></>}
                             {header.column.getIsSorted() === "asc" && (
                               <ChevronUpIcon />
                             )}

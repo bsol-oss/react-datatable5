@@ -1,4 +1,11 @@
-import { Box, ChakraProvider, Flex, Text, theme } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  ChakraProvider,
+  extendTheme,
+  Flex,
+  Text
+} from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
 import { DensityToggleButton } from "../../components/DensityToggleButton";
@@ -10,13 +17,13 @@ import { PageSizeControl } from "../../components/PageSizeControl";
 import { RowCountText } from "../../components/RowCountText";
 import { Table } from "../../components/Table";
 import { TableBody } from "../../components/TableBody";
+import { TableComponent } from "../../components/TableComponent";
+import { TableFilterTags } from "../../components/TableFilterTags";
 import { TableFooter } from "../../components/TableFooter";
 import { TableHeader } from "../../components/TableHeader";
 import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
-import { TableComponent } from "../../components/TableComponent";
-import { TableFilterTags } from "../../components/TableFilterTags";
 
 interface ChatRecord {
   session_id: string;
@@ -37,8 +44,37 @@ interface RowActionsProps {
 }
 
 const RowActions = ({ row }: RowActionsProps) => {
-  return <>has no actions</>;
+  return (
+    <>
+      <Button>Some Action</Button>
+    </>
+  );
 };
+
+export const extendedTheme = extendTheme({
+  components: {
+    Table: {
+      baseStyle: {
+        // define the part you're going to style
+        th: {
+          // fontFamily: "mono", // change the font family
+          textTransform: "none",
+          letterSpacing: "unstyled",
+        },
+        td: {
+          fontSize: "10px",
+        },
+      },
+    },
+    Button: {
+      variants: {
+        solid: {
+          fontSize: "10px",
+        },
+      },
+    },
+  },
+});
 
 const TableViewShowcase = () => {
   const columnHelper = createColumnHelper<ChatRecord>();
@@ -76,11 +112,9 @@ const TableViewShowcase = () => {
         columnHelper.accessor("last_user_message", {
           cell: (props) => {
             return (
-              <Box padding={"0rem"}>
-                <TextCell label={props.row.original.last_user_message}>
-                  {props.row.original.last_user_message}
-                </TextCell>
-              </Box>
+              <TextCell label={props.row.original.last_user_message}>
+                {props.row.original.last_user_message}
+              </TextCell>
             );
           },
           size: 400,
@@ -102,12 +136,39 @@ const TableViewShowcase = () => {
             displayName: "Total Token",
           },
         }),
+        // Accessor Column
+        columnHelper.accessor("model", {
+          cell: (props) => {
+            return <TextCell>{props.row.original.model}</TextCell>;
+          },
+          header: () => <span>Model</span>,
+          footer: () => <span>Model</span>,
+          sortDescFirst: false,
+          meta: {
+            displayName: "Model",
+            filterVariant: "select",
+            filterOptions: ["gpt4", "gpt35"],
+          },
+        }),
+        columnHelper.accessor("total_completion_tokens", {
+          cell: (props) => {
+            return (
+              <TextCell>{props.row.original.total_completion_tokens}</TextCell>
+            );
+          },
+          header: () => <span>total_completion_tokens</span>,
+          footer: () => <span>total_completion_tokens</span>,
+          sortDescFirst: false,
+          meta: {
+            filterVariant: "range",
+          },
+        }),
       ],
     }),
   ];
 
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider theme={extendedTheme}>
       <DataTableServer
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
