@@ -1,10 +1,4 @@
-import {
-  Box,
-  ChakraProvider,
-  Flex,
-  Text,
-  theme
-} from "@chakra-ui/react";
+import { Box, ChakraProvider, Flex, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable";
 import { EditFilterButton } from "../../components/EditFilterButton";
@@ -104,6 +98,7 @@ const TableViewShowcase = () => {
         columns={columns}
         data={data}
         sorting={[{ id: "title", desc: false }]}
+        columnVisibility={{ description: false }}
       >
         <Flex>
           <TablePagination />

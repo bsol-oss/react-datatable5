@@ -4,7 +4,7 @@ import {
   ChakraProvider,
   extendTheme,
   Flex,
-  Text
+  Text,
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
@@ -103,7 +103,7 @@ const TableViewShowcase = () => {
               </TextCell>
             );
           },
-          header: () => <Box>Session Id</Box>,
+          header: () => <Box color={"blue.400"}>Session Id</Box>,
           footer: () => <Box>Session Id</Box>,
           meta: {
             displayName: "Session Id",
@@ -174,6 +174,7 @@ const TableViewShowcase = () => {
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
         sorting={[{ id: "last_update", desc: true }]}
         pagination={{ pageSize: 25, pageIndex: 0 }}
+        columnVisibility={{ total_completion_tokens: false }}
       >
         <Flex flexFlow={"wrap"}>
           <TablePagination />
