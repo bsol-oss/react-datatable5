@@ -8,6 +8,7 @@ import {
   RowSelectionState,
   SortingState,
   useReactTable,
+  VisibilityState,
 } from "@tanstack/react-table";
 import { TableContext } from "./DataTableContext";
 import { DensityFeature, DensityState } from "./DensityFeature";
@@ -32,6 +33,7 @@ export interface DataTableServerProps<TData> {
   sorting?: SortingState;
   rowSelection?: RowSelectionState;
   loadingComponent?: JSX.Element;
+  columnVisibility?: VisibilityState;
 }
 
 export interface Result<T> {
@@ -67,6 +69,7 @@ export const DataTableServer = <TData,>({
   },
   sorting: defaultSorting = [],
   rowSelection: defaultRowSelection = {},
+  columnVisibility: defaultColumnVisibility = {},
   children,
 }: DataTableServerProps<TData>) => {
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
@@ -78,6 +81,9 @@ export const DataTableServer = <TData,>({
   const [columnOrder, setColumnOrder] = useState<string[]>(defaultColumnOrder);
   const [globalFilter, setGlobalFilter] = useState<string>(defaultGlobalFilter);
   const [densityState, setDensity] = useState<DensityState>(density);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    defaultColumnVisibility
+  );
   const { data, loading, hasError, refreshData } = useDataFromUrl<
     DataResponse<TData>
   >({
@@ -128,6 +134,7 @@ export const DataTableServer = <TData,>({
       columnOrder,
       globalFilter,
       density: densityState,
+      columnVisibility,
     },
     defaultColumn: {
       size: 150, //starting column size
@@ -152,6 +159,7 @@ export const DataTableServer = <TData,>({
     },
     // for tanstack-table ts bug end
     onDensityChange: setDensity,
+    onColumnVisibilityChange: setColumnVisibility,
   });
 
   useEffect(() => {
