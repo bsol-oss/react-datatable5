@@ -107,11 +107,12 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
 const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
-}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, children, }) => {
+}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, columnVisibility: defaultColumnVisibility = {}, children, }) => {
     const [columnOrder, setColumnOrder] = useState(defaultColumnOrder);
     const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
     const [densityState, setDensity] = useState(density);
     const [rowSelection, setRowSelection] = useState(defaultRowSelection);
+    const [columnVisibility, setColumnVisibility] = useState(defaultColumnVisibility);
     const table = useReactTable({
         _features: [DensityFeature],
         data: data,
@@ -130,6 +131,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             globalFilter,
             density: densityState,
             rowSelection,
+            columnVisibility,
         },
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
@@ -147,6 +149,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         // global filter end
         onDensityChange: setDensity,
         onRowSelectionChange: setRowSelection,
+        onColumnVisibilityChange: setColumnVisibility,
         initialState: {
             columnFilters: defaultColumnFilter,
             sorting: defaultSorting,
@@ -202,7 +205,7 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
 const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
-}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, children, }) => {
+}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, columnVisibility: defaultColumnVisibility = {}, children, }) => {
     const [sorting, setSorting] = useState(defaultSorting);
     const [columnFilters, setColumnFilters] = useState(defaultColumnFilter); // can set initial column filter state here
     const [pagination, setPagination] = useState(defaultPagination);
@@ -210,6 +213,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     const [columnOrder, setColumnOrder] = useState(defaultColumnOrder);
     const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
     const [densityState, setDensity] = useState(density);
+    const [columnVisibility, setColumnVisibility] = useState(defaultColumnVisibility);
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -254,6 +258,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             columnOrder,
             globalFilter,
             density: densityState,
+            columnVisibility,
         },
         defaultColumn: {
             size: 150, //starting column size
@@ -278,6 +283,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         },
         // for tanstack-table ts bug end
         onDensityChange: setDensity,
+        onColumnVisibilityChange: setColumnVisibility,
     });
     useEffect(() => {
         refreshData();

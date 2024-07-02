@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import { ColumnDef, ColumnFiltersState, FilterFn, RowSelectionState, SortingState } from "@tanstack/react-table";
+import { ColumnDef, ColumnFiltersState, FilterFn, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { RankingInfo } from "@tanstack/match-sorter-utils";
 import { DensityState } from "./DensityFeature";
 declare module "@tanstack/react-table" {
@@ -28,5 +28,6 @@ export interface DataTableProps<TData> {
     };
     sorting?: SortingState;
     rowSelection?: RowSelectionState;
+    columnVisibility?: VisibilityState;
 }
-export declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, columnVisibility: defaultColumnVisibility, children, }: DataTableProps<TData>) => import("react/jsx-runtime").JSX.Element;

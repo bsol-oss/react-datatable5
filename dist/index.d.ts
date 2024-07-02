@@ -1,6 +1,6 @@
 /// <reference types="react" />
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnFiltersState, SortingState, Row, Table as Table$1 } from '@tanstack/react-table';
+import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnFiltersState, SortingState, VisibilityState, Row, Table as Table$1 } from '@tanstack/react-table';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import React$1, { ReactNode } from 'react';
 import * as react_icons_lib from 'react-icons/lib';
@@ -55,8 +55,9 @@ interface DataTableProps<TData> {
     };
     sorting?: SortingState;
     rowSelection?: RowSelectionState;
+    columnVisibility?: VisibilityState;
 }
-declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, columnVisibility: defaultColumnVisibility, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DataTableServerProps<TData> {
     children: JSX.Element | JSX.Element[];
@@ -77,6 +78,7 @@ interface DataTableServerProps<TData> {
     sorting?: SortingState;
     rowSelection?: RowSelectionState;
     loadingComponent?: JSX.Element;
+    columnVisibility?: VisibilityState;
 }
 interface Result<T> {
     results: T[];
@@ -91,7 +93,7 @@ declare module "@tanstack/react-table" {
         displayName?: string;
     }
 }
-declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, columnVisibility: defaultColumnVisibility, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DefaultTableProps {
     totalText?: string;
