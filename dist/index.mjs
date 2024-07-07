@@ -708,13 +708,13 @@ const TableCardContainer = ({ children, ...props }) => {
     return (jsx(Grid, { gridTemplateColumns: ["1fr", "1fr 1fr", "1fr 1fr 1fr"], gap: "0.5rem", ...props, children: children }));
 };
 
-const TableCards = ({}) => {
+const TableCards = ({ isSelectable = false }) => {
     const { table } = useContext(TableContext);
     return (jsx(Fragment, { children: table.getRowModel().rows.map((row) => {
-            return (jsx(Card, { children: jsxs(CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [jsx(Checkbox, { isChecked: row.getIsSelected(),
+            return (jsx(Card, { children: jsxs(CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [isSelectable && (jsx(Checkbox, { isChecked: row.getIsSelected(),
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler() }), row.getVisibleCells().map((cell) => {
+                            onChange: row.getToggleSelectedHandler() })), row.getVisibleCells().map((cell) => {
                             return (jsx(Box, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }));
                         })] }) }, crypto.randomUUID()));
         }) }));

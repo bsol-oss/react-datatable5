@@ -4,7 +4,7 @@ import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, C
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import React$1, { ReactNode } from 'react';
 import * as react_icons_lib from 'react-icons/lib';
-import { TableProps as TableProps$1, TextProps, TooltipProps } from '@chakra-ui/react';
+import { TableProps as TableProps$1, GridProps, TextProps, TooltipProps } from '@chakra-ui/react';
 import * as _tanstack_table_core from '@tanstack/table-core';
 
 type DensityState = "sm" | "md" | "lg";
@@ -191,14 +191,15 @@ interface TableRowSelectorProps<TData> {
 }
 declare const TableBody: ({ pinnedBgColor, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
 
-interface TableCardContainerProps {
+interface TableCardContainerProps extends GridProps {
     children: JSX.Element;
 }
 declare const TableCardContainer: ({ children, ...props }: TableCardContainerProps) => react_jsx_runtime.JSX.Element;
 
 interface TableCardsProps {
+    isSelectable?: boolean;
 }
-declare const TableCards: ({}: TableCardsProps) => react_jsx_runtime.JSX.Element;
+declare const TableCards: ({ isSelectable }: TableCardsProps) => react_jsx_runtime.JSX.Element;
 
 interface TableRendererProps<TData> {
     render: (render: Table$1<TData>) => React$1.ReactElement;
