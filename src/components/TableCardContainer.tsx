@@ -1,6 +1,6 @@
-import { Grid } from "@chakra-ui/react";
+import { Grid, GridProps } from "@chakra-ui/react";
 
-export interface TableCardContainerProps {
+export interface TableCardContainerProps extends GridProps {
   children: JSX.Element;
 }
 

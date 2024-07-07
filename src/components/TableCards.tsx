@@ -1,11 +1,13 @@
-import { Card, CardBody, Text, Box, Checkbox } from "@chakra-ui/react";
+import { Box, Card, CardBody, Checkbox } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 
-export interface TableCardsProps {}
+export interface TableCardsProps {
+  isSelectable?: boolean;
+}
 
-export const TableCards = ({}: TableCardsProps) => {
+export const TableCards = ({ isSelectable = false }: TableCardsProps) => {
   const { table } = useContext(TableContext);
 
   return (
@@ -14,14 +16,16 @@ export const TableCards = ({}: TableCardsProps) => {
         return (
           <Card key={crypto.randomUUID()}>
             <CardBody display={"flex"} flexFlow={"column"} gap={"0.5rem"}>
-              <Checkbox
-                {...{
-                  isChecked: row.getIsSelected(),
-                  disabled: !row.getCanSelect(),
-                  // indeterminate: row.getIsSomeSelected(),
-                  onChange: row.getToggleSelectedHandler(),
-                }}
-              ></Checkbox>
+              {isSelectable && (
+                <Checkbox
+                  {...{
+                    isChecked: row.getIsSelected(),
+                    disabled: !row.getCanSelect(),
+                    // indeterminate: row.getIsSomeSelected(),
+                    onChange: row.getToggleSelectedHandler(),
+                  }}
+                ></Checkbox>
+              )}
               {row.getVisibleCells().map((cell) => {
                 return (
                   <Box>
