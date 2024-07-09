@@ -28,7 +28,7 @@ export const TableCards = ({ isSelectable = false }: TableCardsProps) => {
               )}
               {row.getVisibleCells().map((cell) => {
                 return (
-                  <Box>
+                  <Box key={crypto.randomUUID()}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Box>
                 );
