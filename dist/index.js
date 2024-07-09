@@ -717,7 +717,7 @@ const TableCards = ({ isSelectable = false }) => {
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
                             onChange: row.getToggleSelectedHandler() })), row.getVisibleCells().map((cell) => {
-                            return (jsxRuntime.jsx(react$1.Box, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                            return (jsxRuntime.jsx(react$1.Box, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID()));
                         })] }) }, crypto.randomUUID()));
         }) }));
 };
