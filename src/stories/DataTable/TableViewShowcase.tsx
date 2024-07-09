@@ -16,6 +16,8 @@ import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
 import { data, Product } from "../data";
+import { RowSelector } from "../../components/RowSelector";
+import { MultipleRowSelector } from "../../components/MultipleRowSelector";
 
 interface RowActionsProps {
   row: Product;
@@ -122,6 +124,17 @@ const TableViewShowcase = () => {
           render={(table) => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
           }}
+        />
+
+        <RowSelector
+          columnId={"title"}
+          value={undefined}
+          onChange={undefined}
+        />
+        <MultipleRowSelector
+          columnId={"title"}
+          value={undefined}
+          onChange={undefined}
         />
       </DataTable>
     </ChakraProvider>
