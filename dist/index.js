@@ -162,7 +162,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
     }, []);
     react.useEffect(() => {
-        onRowSelect(table.getState().rowSelection);
+        onRowSelect(table.getState().rowSelection, data);
     }, [table.getState().rowSelection]);
     return (jsxRuntime.jsx(TableContext.Provider, { value: {
             table: { ...table },
@@ -294,7 +294,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
     }, []);
     react.useEffect(() => {
-        onRowSelect(table.getState().rowSelection);
+        onRowSelect(table.getState().rowSelection, data.results);
     }, [table.getState().rowSelection]);
     return (jsxRuntime.jsx(TableContext.Provider, { value: {
             table: { ...table },

@@ -8,7 +8,7 @@ export interface DataTableServerProps<TData> {
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
-    onRowSelect?: (row: RowSelectionState) => void;
+    onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
     columnOrder?: string[];
     columnFilters?: ColumnFiltersState;
     globalFilter?: string;
