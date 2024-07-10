@@ -21,7 +21,7 @@ export interface DataTableServerProps<TData> {
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
-  onRowSelect?: (row: RowSelectionState) => void;
+  onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
   columnOrder?: string[];
   columnFilters?: ColumnFiltersState;
   globalFilter?: string;
@@ -171,7 +171,7 @@ export const DataTableServer = <TData,>({
   }, []);
 
   useEffect(() => {
-    onRowSelect(table.getState().rowSelection);
+    onRowSelect(table.getState().rowSelection, data.results);
   }, [table.getState().rowSelection]);
 
   return (
