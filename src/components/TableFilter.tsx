@@ -14,6 +14,7 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   const { filterVariant } = column.columnDef.meta ?? {};
   const displayName = column.columnDef.meta?.displayName ?? column.id;
   const filterOptions = column.columnDef.meta?.filterOptions ?? [];
+
   if (column.columns.length > 0) {
     return (
       <Flex flexFlow={"column"} gap="0.25rem">
@@ -23,6 +24,9 @@ function Filter({ column }: { column: Column<any, unknown> }) {
         })}
       </Flex>
     );
+  }
+  if (!column.getCanFilter()) {
+    return <></>;
   }
   if (filterVariant === "select") {
     return (
