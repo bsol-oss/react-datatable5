@@ -12,11 +12,15 @@ export interface useDataFromUrlProps<T> {
   url: string;
   params?: object;
   defaultData: T;
+  disableFirstFetch?: boolean;
+  onFetchSuccess?: (data: T) => void;
 }
 
 export const useDataFromUrl = <T,>({
   url,
   params = {},
+  disableFirstFetch = false,
+  onFetchSuccess = () => {},
   defaultData,
 }: useDataFromUrlProps<T>): useDataFromUrlReturn<T> => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -30,7 +34,8 @@ export const useDataFromUrl = <T,>({
     try {
       setLoading(true);
       const { data } = await axios.get<T>(url, { params: params });
-      console.log("get DataFromUrl success", data);
+      console.debug("get DataFromUrl success", data);
+      onFetchSuccess(data);
       setLoading(false);
       setData(data);
     } catch (e) {
@@ -41,6 +46,9 @@ export const useDataFromUrl = <T,>({
   };
 
   useEffect(() => {
+    if (disableFirstFetch) {
+      return;
+    }
     getData().catch((e) => {
       console.error(e);
     });
@@ -48,4 +56,3 @@ export const useDataFromUrl = <T,>({
 
   return { data, loading, hasError, refreshData };
 };
-

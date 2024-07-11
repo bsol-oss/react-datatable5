@@ -113,6 +113,7 @@ export const DataTableServer = <TData,>({
       ),
       searching: globalFilter,
     },
+    disableFirstFetch: true,
   });
   const table = useReactTable<TData>({
     _features: [DensityFeature],
