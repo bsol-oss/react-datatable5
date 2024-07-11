@@ -64,7 +64,7 @@ const ColumnOrderChanger = ({ columns }: ColumnOrderChangerProps) => {
                   column.columnDef.meta === undefined
                     ? column.id
                     : column.columnDef.meta.displayName;
-                return <>{displayName}</>;
+                return <span key={column.id}>{displayName}</span>;
               })}
             <IconButton
               onClick={() => {

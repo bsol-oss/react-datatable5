@@ -9,7 +9,12 @@ export const TableFilterTags = () => {
     <Flex gap={"0.5rem"} flexFlow={"wrap"}>
       {table.getState().columnFilters.map(({ id, value }, index) => {
         return (
-          <Tag display={"flex"} gap={"0.5rem"} alignItems={"center"}>
+          <Tag
+            key={`${id}-${value}`}
+            display={"flex"}
+            gap={"0.5rem"}
+            alignItems={"center"}
+          >
             <Text>{`${id}: ${value}`}</Text>
             <IconButton
               size={"xs"}

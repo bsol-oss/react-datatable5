@@ -41,42 +41,37 @@ export const TableViewer = () => {
                     ? column.id
                     : column.columnDef.meta.displayName;
                 return (
-                  <>
-                    <Draggable
-                      key={column.id}
-                      draggableId={column.id}
-                      index={i}
-                    >
-                      {(provided) => (
-                        <Grid
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          templateColumns={"auto 1fr"}
-                          gap="0.5rem"
+                  <Draggable key={column.id} draggableId={column.id} index={i}>
+                    {(provided) => (
+                      <Grid
+                        key={column.id}
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        templateColumns={"auto 1fr"}
+                        gap="0.5rem"
+                        alignItems={"center"}
+                      >
+                        <Flex
+                          {...provided.dragHandleProps}
+                          alignItems={"center"}
+                          padding={"auto 0 auto 0"}
+                        >
+                          {/* <FaGripLinesVertical /> */}
+                          <Icon as={FaGripLinesVertical} color={"gray.400"} />
+                        </Flex>
+                        <Flex
+                          justifyContent={"space-between"}
                           alignItems={"center"}
                         >
-                          <Flex
-                            {...provided.dragHandleProps}
-                            alignItems={"center"}
-                            padding={"auto 0 auto 0"}
-                          >
-                            {/* <FaGripLinesVertical /> */}
-                            <Icon as={FaGripLinesVertical} color={"gray.400"} />
-                          </Flex>
-                          <Flex
-                            justifyContent={"space-between"}
-                            alignItems={"center"}
-                          >
-                            <Box> {displayName}</Box>
-                            <Switch
-                              isChecked={column.getIsVisible()}
-                              onChange={column.getToggleVisibilityHandler()}
-                            />
-                          </Flex>
-                        </Grid>
-                      )}
-                    </Draggable>
-                  </>
+                          <Box> {displayName}</Box>
+                          <Switch
+                            isChecked={column.getIsVisible()}
+                            onChange={column.getToggleVisibilityHandler()}
+                          />
+                        </Flex>
+                      </Grid>
+                    )}
+                  </Draggable>
                 );
               })}
               {provided.placeholder}

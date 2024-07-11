@@ -17,10 +17,10 @@ function Filter({ column }: { column: Column<any, unknown> }) {
 
   if (column.columns.length > 0) {
     return (
-      <Flex flexFlow={"column"} gap="0.25rem">
+      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
         <Text>{displayName}</Text>
         {column.columns.map((column) => {
-          return <Filter column={column} />;
+          return <Filter key={column.id} column={column} />;
         })}
       </Flex>
     );
@@ -30,7 +30,7 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   }
   if (filterVariant === "select") {
     return (
-      <Flex flexFlow={"column"} gap="0.25rem">
+      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
         <Text>{displayName}</Text>
         <Select
           value={column.getFilterValue() ? String(column.getFilterValue()) : ""}
@@ -40,7 +40,11 @@ function Filter({ column }: { column: Column<any, unknown> }) {
           }}
         >
           {filterOptions.map((option: string) => {
-            return <option value={option}>{option}</option>;
+            return (
+              <option key={`${option}`} value={option}>
+                {option}
+              </option>
+            );
           })}
         </Select>
       </Flex>
@@ -51,12 +55,11 @@ function Filter({ column }: { column: Column<any, unknown> }) {
       undefined,
       undefined,
     ];
-    console.log(column.getFilterValue(), "sgr");
     const [min, max] = filterValue;
     return (
-      <Flex flexFlow={"column"} gap="0.25rem">
+      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
         <Text>{displayName}</Text>
-        <Flex gap="0.25rem">
+        <Flex gap="0.5rem">
           <Input
             type="number"
             placeholder="min"
@@ -79,7 +82,7 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   }
 
   return (
-    <Flex flexFlow={"column"} gap="0.25rem">
+    <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
       <Text>{displayName}</Text>
       <Input
         value={column.getFilterValue() ? String(column.getFilterValue()) : ""}
@@ -97,7 +100,7 @@ export const TableFilter = () => {
   return (
     <>
       {table.getAllColumns().map((column) => {
-        return <Filter column={column}></Filter>;
+        return <Filter key={column.id} column={column}></Filter>;
       })}
     </>
   );
