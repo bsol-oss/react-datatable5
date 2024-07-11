@@ -39,7 +39,7 @@ export const useDataFromUrl = <T,>({
       setLoading(false);
       setData(data);
     } catch (e) {
-      console.log(e);
+      console.log("Error", e);
       setLoading(false);
       setHasError(true);
     }
