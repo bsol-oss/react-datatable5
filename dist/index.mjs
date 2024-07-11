@@ -173,7 +173,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         }, children: children }));
 };
 
-const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
+const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSuccess = () => { }, defaultData, }) => {
     const [loading, setLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [data, setData] = useState(defaultData);
@@ -184,17 +184,21 @@ const useDataFromUrl = ({ url, params = {}, defaultData, }) => {
         try {
             setLoading(true);
             const { data } = await axios.get(url, { params: params });
-            console.log("get DataFromUrl success", data);
+            console.debug("get DataFromUrl success", data);
+            onFetchSuccess(data);
             setLoading(false);
             setData(data);
         }
         catch (e) {
-            console.log(e);
+            console.log("Error", e);
             setLoading(false);
             setHasError(true);
         }
     };
     useEffect(() => {
+        if (disableFirstFetch) {
+            return;
+        }
         getData().catch((e) => {
             console.error(e);
         });
@@ -237,6 +241,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             }, {})),
             searching: globalFilter,
         },
+        disableFirstFetch: true,
     });
     const table = useReactTable({
         _features: [DensityFeature],
@@ -321,8 +326,8 @@ function Filter({ column }) {
     const filterOptions = column.columnDef.meta?.filterOptions ?? [];
     if (column.columns.length > 0) {
         return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), column.columns.map((column) => {
-                    return jsx(Filter, { column: column });
-                })] }));
+                    return jsx(Filter, { column: column }, column.id);
+                })] }, column.id));
     }
     if (!column.getCanFilter()) {
         return jsx(Fragment, {});
@@ -331,30 +336,29 @@ function Filter({ column }) {
         return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(Select, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", placeholder: "Select option", onChange: (e) => {
                         column.setFilterValue(e.target.value);
                     }, children: filterOptions.map((option) => {
-                        return jsx("option", { value: option, children: option });
-                    }) })] }));
+                        return (jsx("option", { value: option, children: option }, `${option}`));
+                    }) })] }, column.id));
     }
     if (filterVariant === "range") {
         const filterValue = column.getFilterValue() ?? [
             undefined,
             undefined,
         ];
-        console.log(column.getFilterValue(), "sgr");
         const [min, max] = filterValue;
-        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsxs(Flex, { gap: "0.25rem", children: [jsx(Input, { type: "number", placeholder: "min", value: min, onChange: (e) => {
+        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsxs(Flex, { gap: "0.5rem", children: [jsx(Input, { type: "number", placeholder: "min", value: min, onChange: (e) => {
                                 column.setFilterValue([Number(e.target.value), max]);
                             } }), jsx(Input, { type: "number", placeholder: "max", value: max, onChange: (e) => {
                                 column.setFilterValue([min, Number(e.target.value)]);
-                            } })] })] }));
+                            } })] })] }, column.id));
     }
     return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(Input, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", onChange: (e) => {
                     column.setFilterValue(e.target.value);
-                } })] }));
+                } })] }, column.id));
 }
 const TableFilter = () => {
     const { table } = useDataTable();
     return (jsx(Fragment, { children: table.getAllColumns().map((column) => {
-            return jsx(Filter, { column: column });
+            return jsx(Filter, { column: column }, column.id);
         }) }));
 };
 
@@ -382,7 +386,7 @@ const TableViewer = () => {
                             const displayName = column.columnDef.meta === undefined
                                 ? column.id
                                 : column.columnDef.meta.displayName;
-                            return (jsx(Fragment, { children: jsx(Draggable, { draggableId: column.id, index: i, children: (provided) => (jsxs(Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsx(Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "auto 0 auto 0", children: jsx(Icon, { as: FaGripLinesVertical, color: "gray.400" }) }), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Box, { children: [" ", displayName] }), jsx(Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] })) }, column.id) }));
+                            return (jsx(Draggable, { draggableId: column.id, index: i, children: (provided) => (jsxs(Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsx(Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "auto 0 auto 0", children: jsx(Icon, { as: FaGripLinesVertical, color: "gray.400" }) }), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Box, { children: [" ", displayName] }), jsx(Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] }, column.id)) }, column.id));
                         }), provided.placeholder] })) }) }) }));
 };
 
@@ -474,7 +478,7 @@ const TableFilterTags = () => {
                             table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
                                 return curIndex != index;
                             }));
-                        }, "aria-label": "remove filter" })] }));
+                        }, "aria-label": "remove filter" })] }, `${id}-${value}`));
         }) }));
 };
 
@@ -646,7 +650,7 @@ const ColumnOrderChanger = ({ columns }) => {
                             const displayName = column.columnDef.meta === undefined
                                 ? column.id
                                 : column.columnDef.meta.displayName;
-                            return jsx(Fragment, { children: displayName });
+                            return jsx("span", { children: displayName }, column.id);
                         }), jsx(IconButton, { onClick: () => {
                                 const nextIndex = index + 1;
                                 if (nextIndex < order.length) {

@@ -264,8 +264,10 @@ interface useDataFromUrlProps<T> {
     url: string;
     params?: object;
     defaultData: T;
+    disableFirstFetch?: boolean;
+    onFetchSuccess?: (data: T) => void;
 }
-declare const useDataFromUrl: <T>({ url, params, defaultData, }: useDataFromUrlProps<T>) => useDataFromUrlReturn<T>;
+declare const useDataFromUrl: <T>({ url, params, disableFirstFetch, onFetchSuccess, defaultData, }: useDataFromUrlProps<T>) => useDataFromUrlReturn<T>;
 
 declare const useDataTable: () => {
     table: _tanstack_table_core.Table<any>;
