@@ -324,6 +324,9 @@ function Filter({ column }) {
                     return jsx(Filter, { column: column });
                 })] }));
     }
+    if (!column.getCanFilter()) {
+        return jsx(Fragment, {});
+    }
     if (filterVariant === "select") {
         return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(Select, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", placeholder: "Select option", onChange: (e) => {
                         column.setFilterValue(e.target.value);

@@ -326,6 +326,9 @@ function Filter({ column }) {
                     return jsxRuntime.jsx(Filter, { column: column });
                 })] }));
     }
+    if (!column.getCanFilter()) {
+        return jsxRuntime.jsx(jsxRuntime.Fragment, {});
+    }
     if (filterVariant === "select") {
         return (jsxRuntime.jsxs(react$1.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react$1.Text, { children: displayName }), jsxRuntime.jsx(react$1.Select, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", placeholder: "Select option", onChange: (e) => {
                         column.setFilterValue(e.target.value);
