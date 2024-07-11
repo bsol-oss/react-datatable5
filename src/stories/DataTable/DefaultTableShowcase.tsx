@@ -60,6 +60,61 @@ const DefaultTableShowcase = () => {
           footer: (props) => props.column.id,
           size: 400,
         }),
+        // Accessor Column
+        columnHelper.accessor("price", {
+          cell: (props) => {
+            return <TextCell>{props.row.original.price}</TextCell>;
+          },
+          header: () => <span>Price</span>,
+          footer: () => <span>Price</span>,
+          size: 80,
+        }),
+        // Accessor Column
+        columnHelper.accessor("discountPercentage", {
+          cell: (props) => {
+            return <TextCell>{props.row.original.discountPercentage}</TextCell>;
+          },
+          header: () => <span>Discount %</span>,
+          footer: () => <span>Discount %</span>,
+          size: 120,
+          enableColumnFilter: false
+        }),
+        // Accessor Column
+        columnHelper.accessor("rating", {
+          cell: (props) => {
+            return <TextCell>{props.row.original.rating}</TextCell>;
+          },
+          header: () => <span>Rating</span>,
+          footer: () => <span>Rating</span>,
+          size: 80,
+        }),
+        // Accessor Column
+        columnHelper.accessor("stock", {
+          cell: (props) => {
+            return <TextCell>{props.row.original.stock}</TextCell>;
+          },
+          header: () => <span>Stock</span>,
+          footer: () => <span>Stock</span>,
+          size: 80,
+        }),
+        // Accessor Column
+        columnHelper.accessor("brand", {
+          cell: (props) => {
+            return <TextCell>{props.row.original.brand}</TextCell>;
+          },
+          header: () => <span>Brand</span>,
+          footer: () => <span>Brand</span>,
+          size: 160,
+        }),
+        // Accessor Column
+        columnHelper.accessor("category", {
+          cell: (props) => {
+            return <TextCell>{props.row.original.category}</TextCell>;
+          },
+          header: () => <span>Category</span>,
+          footer: () => <span>Category</span>,
+          size: 160,
+        }),
       ],
     }),
   ];

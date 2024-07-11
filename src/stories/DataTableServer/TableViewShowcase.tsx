@@ -135,6 +135,7 @@ const TableViewShowcase = () => {
           meta: {
             displayName: "Total Token",
           },
+          enableColumnFilter:false
         }),
         // Accessor Column
         columnHelper.accessor("model", {
@@ -160,6 +161,7 @@ const TableViewShowcase = () => {
           footer: () => <span>total_completion_tokens</span>,
           sortDescFirst: false,
           meta: {
+            displayName: "Total Completetion Token",
             filterVariant: "range",
           },
         }),
