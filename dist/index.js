@@ -467,7 +467,7 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
             }
             : {}), 
         // styling resize and pinning end
-        display: "grid", children: [!isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, children: index + 1 })), isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: row.getIsSelected(),
+        display: "grid", children: [!isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` })), isCheckBoxVisible(index, row) && (jsxRuntime.jsx(react$1.FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react$1.Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: row.getIsSelected(),
                     disabled: !row.getCanSelect(),
                     // indeterminate: row.getIsSomeSelected(),
                     onChange: row.getToggleSelectedHandler() }) }))] }));
