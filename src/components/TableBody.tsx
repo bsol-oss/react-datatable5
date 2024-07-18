@@ -125,7 +125,7 @@ const TableRowSelector = <TData,>({
           width={`${SELECTION_BOX_WIDTH}px`}
           height={`${SELECTION_BOX_WIDTH}px`}
         >
-          {index + 1}
+          
         </Box>
       )}
       {isCheckBoxVisible(index, row) && (
