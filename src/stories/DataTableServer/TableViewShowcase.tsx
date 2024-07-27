@@ -24,6 +24,8 @@ import { TableHeader } from "../../components/TableHeader";
 import { TablePagination } from "../../components/TablePagination";
 import { TableSelector } from "../../components/TableSelector";
 import { TextCell } from "../../components/TextCell";
+import { ReloadButton } from "../../components/TableReloadButton";
+import { FilterOptions } from "../../components/FilterOptions";
 
 interface ChatRecord {
   session_id: string;
@@ -135,7 +137,7 @@ const TableViewShowcase = () => {
           meta: {
             displayName: "Total Token",
           },
-          enableColumnFilter:false
+          enableColumnFilter: false,
         }),
         // Accessor Column
         columnHelper.accessor("model", {
@@ -186,7 +188,9 @@ const TableViewShowcase = () => {
           <EditOrderButton text={"Order"} />
           <PageSizeControl pageSizes={[25, 50]} />
           <TableSelector />
+          <ReloadButton />
           <GlobalFilter />
+          <FilterOptions column="model" />
           <Text paddingRight={"0.5rem"}>{"Total: "}</Text>
           <RowCountText />
           <TableFilterTags />

@@ -1,24 +1,12 @@
-import { Box, Flex, Grid, Text } from "@chakra-ui/react";
-import { MdOutlineViewColumn } from "react-icons/md";
-import { EditFilterButton } from "./EditFilterButton";
-import { EditViewButton } from "./EditViewButton";
-import { GlobalFilter } from "./GlobalFilter";
-import { PageSizeControl } from "./PageSizeControl";
-import { RowCountText } from "./RowCountText";
+import { FilterOptionsProps } from "./FilterOptions";
 import { Table } from "./Table";
 import { TableBody } from "./TableBody";
-import { TableFilterTags } from "./TableFilterTags";
+import { TableControls, TableControlsProps } from "./TableControls";
 import { TableFooter } from "./TableFooter";
 import { TableHeader } from "./TableHeader";
-import { TablePagination } from "./TablePagination";
 
-export interface DefaultTableProps {
-  totalText?: string;
-  showFilter?: boolean;
+export interface DefaultTableProps extends TableControlsProps {
   showFooter?: boolean;
-  fitTableWidth?: boolean;
-  fitTableHeight?: boolean;
-  isMobile?: boolean;
 }
 
 export const DefaultTable = ({
@@ -28,60 +16,26 @@ export const DefaultTable = ({
   fitTableWidth = false,
   fitTableHeight = false,
   isMobile = false,
+  filterOptions = [],
+  showFilterTags = false,
+  showFilterName = false,
 }: DefaultTableProps) => {
   return (
-    <Grid
-      templateRows={"auto auto 1fr auto"}
-      templateColumns={"1fr 1fr"}
-      width={fitTableWidth ? "fit-content" : "100%"}
-      height={fitTableHeight ? "fit-content" : "100%"}
-      justifySelf={"center"}
-      alignSelf={"center"}
-      gap={"0.5rem"}
+    <TableControls
+      totalText={totalText}
+      showFilter={showFilter}
+      fitTableWidth={fitTableWidth}
+      fitTableHeight={fitTableHeight}
+      isMobile={isMobile}
+      filterOptions={filterOptions}
+      showFilterName={showFilterName}
+      showFilterTags={showFilterTags}
     >
-      <Flex justifyContent={"space-between"} gridColumn={"1 / span 2"}>
-        <Box>
-          <EditViewButton
-            text={isMobile ? undefined : "View"}
-            icon={<MdOutlineViewColumn />}
-          />
-        </Box>
-        <Flex gap={"1rem"} justifySelf={"end"}>
-          {showFilter && (
-            <>
-              <GlobalFilter />
-              <EditFilterButton
-                text={isMobile ? undefined : "Advanced Filter"}
-              />
-            </>
-          )}
-        </Flex>
-      </Flex>
-      <Flex gridColumn={"1 / span 2"}>
-        <TableFilterTags />
-      </Flex>
-      <Box
-        overflow={"auto"}
-        gridColumn={"1 / span 2"}
-        width={"100%"}
-        height={"100%"}
-      >
-        <Table variant={"striped"}>
-          <TableHeader canResize />
-          <TableBody />
-          {showFooter && <TableFooter />}
-        </Table>
-      </Box>
-      <Flex gap={"1rem"} alignItems={"center"}>
-        <PageSizeControl />
-        <Flex>
-          <Text paddingRight={"0.5rem"}>{totalText}</Text>
-          <RowCountText />
-        </Flex>
-      </Flex>
-      <Box justifySelf={"end"}>
-        <TablePagination />
-      </Box>
-    </Grid>
+      <Table variant={"striped"}>
+        <TableHeader canResize />
+        <TableBody />
+        {showFooter && <TableFooter />}
+      </Table>
+    </TableControls>
   );
 };

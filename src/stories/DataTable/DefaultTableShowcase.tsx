@@ -77,7 +77,7 @@ const DefaultTableShowcase = () => {
           header: () => <span>Discount %</span>,
           footer: () => <span>Discount %</span>,
           size: 120,
-          enableColumnFilter: false
+          enableColumnFilter: false,
         }),
         // Accessor Column
         columnHelper.accessor("rating", {
@@ -105,6 +105,11 @@ const DefaultTableShowcase = () => {
           header: () => <span>Brand</span>,
           footer: () => <span>Brand</span>,
           size: 160,
+          meta: {
+            displayName: "Brand",
+            filterVariant: "select",
+            filterOptions: ["Apple", "Huawei"],
+          },
         }),
         // Accessor Column
         columnHelper.accessor("category", {
@@ -114,6 +119,18 @@ const DefaultTableShowcase = () => {
           header: () => <span>Category</span>,
           footer: () => <span>Category</span>,
           size: 160,
+          meta: {
+            displayName: "Brand",
+            filterVariant: "select",
+            filterOptions: [
+              "fragrances",
+              "groceries",
+              "home-decoration",
+              "laptops",
+              "skincare",
+              "smartphones",
+            ],
+          },
         }),
       ],
     }),
@@ -126,33 +143,25 @@ const DefaultTableShowcase = () => {
         data={data}
         sorting={[{ id: "title", desc: false }]}
       >
-        <DefaultTable showFilter={true} />
+        <DefaultTable showFilter showFilterName showFilterTags filterOptions={["category","brand"]} />
         <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter={true} />
+          <DefaultTable showFilter />
         </Box>
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter={true} />
+          <DefaultTable showFilter />
         </Box>
 
         <Text> {"fitTable={true}"}</Text>
 
         <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter={true} fitTableWidth={true} />
+          <DefaultTable showFilter fitTableWidth />
         </Box>
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable
-            showFilter={true}
-            fitTableWidth={true}
-            fitTableHeight={true}
-          />
+          <DefaultTable showFilter fitTableWidth fitTableHeight />
         </Box>
 
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable
-            showFilter={true}
-            fitTableWidth={true}
-            fitTableHeight={true}
-          />
+          <DefaultTable showFilter fitTableWidth fitTableHeight />
         </Box>
 
         <TableComponent

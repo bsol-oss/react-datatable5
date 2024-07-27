@@ -27,6 +27,10 @@ export * from "./components/TableSelector";
 export * from "./components/TableSorter";
 export * from "./components/TableViewer";
 export * from "./components/TextCell";
+export * from "./components/FilterOptions";
+export * from "./components/TableControls";
+export * from "./components/TableLoadingComponent";
+export * from "./components/TableReloadButton";
 export * from "./components/useDataFromUrl";
 export * from "./components/useDataTable";
 
