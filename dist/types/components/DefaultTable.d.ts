@@ -1,9 +1,5 @@
-export interface DefaultTableProps {
-    totalText?: string;
-    showFilter?: boolean;
+import { TableControlsProps } from "./TableControls";
+export interface DefaultTableProps extends TableControlsProps {
     showFooter?: boolean;
-    fitTableWidth?: boolean;
-    fitTableHeight?: boolean;
-    isMobile?: boolean;
 }
-export declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, }: DefaultTableProps) => import("react/jsx-runtime").JSX.Element;
+export declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, }: DefaultTableProps) => import("react/jsx-runtime").JSX.Element;
