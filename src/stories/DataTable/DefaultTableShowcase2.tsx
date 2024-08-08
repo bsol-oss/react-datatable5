@@ -62,6 +62,39 @@ const DefaultTableShowcase2 = () => {
             filterVariant: "boolean",
           },
         }),
+        columnHelper.accessor("hire_date", {
+          cell: (props) => {
+            return <TextCell>{props.row.original.hire_date}</TextCell>;
+          },
+          header: () => <span>hire_date</span>,
+          footer: () => <span>hire_date</span>,
+          size: 100,
+          filterFn: (row, col, filterValue) => {
+            console.log(filterValue);
+            return true;
+          },
+          meta: {
+            filterVariant: "dateRange",
+          },
+        }),
+
+        columnHelper.accessor("university", {
+          cell: (props) => {
+            return <TextCell>{props.row.original.university}</TextCell>;
+          },
+          header: () => <span>university</span>,
+          footer: () => <span>university</span>,
+          size: 100,
+          filterFn: (row, col, filterValue) => {
+            return true;
+          },
+          meta: {
+            filterVariant: "custom",
+            renderFilter: (state, updater) => {
+              return <>custom filter</>;
+            },
+          },
+        }),
       ],
     }),
   ];

@@ -1,5 +1,6 @@
 import { Flex, Input, Select, Text } from "@chakra-ui/react";
 import { Column, RowData } from "@tanstack/react-table";
+import { DateRangeFilter } from "../Filter/DateRangeFilter";
 import RangeFilter from "../Filter/RangeFilter";
 import { TagFilter } from "../Filter/TagFilter";
 import { useDataTable } from "./useDataTable";
@@ -7,7 +8,17 @@ import { useDataTable } from "./useDataTable";
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
-    filterVariant?: "text" | "range" | "select" | "tag" | "boolean";
+    /**
+     * @note you should provide a proper `filterfn` to handle the filtering when choosing 'boolean', 'dateRange' and 'custom'
+     */
+    filterVariant?:
+      | "text"
+      | "range"
+      | "select"
+      | "tag"
+      | "boolean"
+      | "dateRange"
+      | "custom";
     filterOptions?: string[];
     filterRangeConfig?: {
       min: number;
@@ -15,6 +26,7 @@ declare module "@tanstack/react-table" {
       step: number;
       defaultValue: [number, number];
     };
+    renderFilter?: (column: Column<TData>) => JSX.Element;
   }
 }
 
@@ -117,6 +129,40 @@ function Filter({ column }: { column: Column<any, unknown> }) {
         step={step}
       />
     );
+  }
+
+  if (filterVariant === "dateRange") {
+    const [start, end] = (column.getFilterValue() as [string, string]) ?? [
+      "",
+      "",
+    ];
+    return (
+      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
+        <Text>{displayName}</Text>
+        <DateRangeFilter
+          startDate={start}
+          endDate={end}
+          setStartDate={function (value: string): void {
+            column.setFilterValue((state: [string, string] | undefined) => {
+              return [value, (state ?? ["", ""])[1]];
+            });
+          }}
+          setEndDate={function (value: string): void {
+            column.setFilterValue((state: [string, string]) => {
+              return [(state ?? ["", ""])[0], value];
+            });
+          }}
+        />
+      </Flex>
+    );
+  }
+
+  if (filterVariant === "custom") {
+    const renderFilter = column.columnDef.meta?.renderFilter;
+    if (renderFilter === undefined) {
+      throw new Error("renderFilter is undefined");
+    }
+    return <>{renderFilter(column)}</>;
   }
 
   return (
