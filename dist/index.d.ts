@@ -1,6 +1,6 @@
 /// <reference types="react" />
-import * as react_jsx_runtime from 'react/jsx-runtime';
 import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnFiltersState, SortingState, VisibilityState, Row, Table as Table$1, Column } from '@tanstack/react-table';
+import * as react_jsx_runtime from 'react/jsx-runtime';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import React$1, { ReactNode } from 'react';
 import * as react_icons_lib from 'react-icons/lib';
@@ -87,11 +87,6 @@ interface DataResponse<T> extends Result<T> {
     success: boolean;
     count: number;
     filterCount: number;
-}
-declare module "@tanstack/react-table" {
-    interface ColumnMeta<TData extends RowData, TValue> {
-        displayName?: string;
-    }
 }
 declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, columnVisibility: defaultColumnVisibility, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
@@ -219,22 +214,6 @@ interface TableRendererProps<TData> {
 }
 declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) => React$1.ReactElement<any, string | React$1.JSXElementConstructor<any>>;
 
-declare module "@tanstack/react-table" {
-    interface ColumnMeta<TData extends RowData, TValue> {
-        /**
-         * @note you should provide a proper `filterfn` to handle the filtering when choosing `boolean`, `dateRange` and `custom`
-         */
-        filterVariant?: "text" | "range" | "select" | "tag" | "boolean" | "dateRange" | "custom";
-        filterOptions?: string[];
-        filterRangeConfig?: {
-            min: number;
-            max: number;
-            step: number;
-            defaultValue: [number, number];
-        };
-        renderFilter?: (column: Column<TData>) => JSX.Element;
-    }
-}
 declare const TableFilter: () => react_jsx_runtime.JSX.Element;
 
 declare const TableFilterTags: () => react_jsx_runtime.JSX.Element;
@@ -309,5 +288,23 @@ declare const useDataTable: () => {
     setGlobalFilter: (filter: string) => void;
     loading: boolean;
 };
+
+declare module "@tanstack/react-table" {
+    interface ColumnMeta<TData extends RowData, TValue> {
+        displayName?: string;
+        /**
+         * @note you should provide a proper `filterfn` to handle the filtering when choosing `boolean`, `dateRange` and `custom`
+         */
+        filterVariant?: "text" | "range" | "select" | "tag" | "boolean" | "dateRange" | "custom";
+        filterOptions?: string[];
+        filterRangeConfig?: {
+            min: number;
+            max: number;
+            step: number;
+            defaultValue: [number, number];
+        };
+        renderFilter?: (column: Column<TData>) => JSX.Element;
+    }
+}
 
 export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, FilterOptions, type FilterOptionsProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, TablePagination, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
