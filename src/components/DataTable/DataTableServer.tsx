@@ -46,12 +46,6 @@ export interface DataResponse<T> extends Result<T> {
   filterCount: number;
 }
 
-declare module "@tanstack/react-table" {
-  interface ColumnMeta<TData extends RowData, TValue> {
-    displayName?: string;
-  }
-}
-
 export const DataTableServer = <TData,>({
   columns,
   url,

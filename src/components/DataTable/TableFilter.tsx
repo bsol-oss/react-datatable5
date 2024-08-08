@@ -1,34 +1,9 @@
 import { Flex, Input, Select, Text } from "@chakra-ui/react";
-import { Column, RowData } from "@tanstack/react-table";
+import { Column } from "@tanstack/react-table";
 import { DateRangeFilter } from "../Filter/DateRangeFilter";
 import RangeFilter from "../Filter/RangeFilter";
 import { TagFilter } from "../Filter/TagFilter";
 import { useDataTable } from "./useDataTable";
-
-declare module "@tanstack/react-table" {
-  //allows us to define custom properties for our columns
-  interface ColumnMeta<TData extends RowData, TValue> {
-    /**
-     * @note you should provide a proper `filterfn` to handle the filtering when choosing `boolean`, `dateRange` and `custom`
-     */
-    filterVariant?:
-      | "text"
-      | "range"
-      | "select"
-      | "tag"
-      | "boolean"
-      | "dateRange"
-      | "custom";
-    filterOptions?: string[];
-    filterRangeConfig?: {
-      min: number;
-      max: number;
-      step: number;
-      defaultValue: [number, number];
-    };
-    renderFilter?: (column: Column<TData>) => JSX.Element;
-  }
-}
 
 function Filter({ column }: { column: Column<any, unknown> }) {
   const { filterVariant } = column.columnDef.meta ?? {};
