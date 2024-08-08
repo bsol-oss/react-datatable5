@@ -1,6 +1,6 @@
 /// <reference types="react" />
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnFiltersState, SortingState, VisibilityState, Row, Table as Table$1 } from '@tanstack/react-table';
+import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnFiltersState, SortingState, VisibilityState, Row, Table as Table$1, Column } from '@tanstack/react-table';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import React$1, { ReactNode } from 'react';
 import * as react_icons_lib from 'react-icons/lib';
@@ -221,8 +221,18 @@ declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) =>
 
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData extends RowData, TValue> {
-        filterVariant?: "text" | "range" | "select";
+        /**
+         * @note you should provide a proper `filterfn` to handle the filtering when choosing `boolean`, `dateRange` and `custom`
+         */
+        filterVariant?: "text" | "range" | "select" | "tag" | "boolean" | "dateRange" | "custom";
         filterOptions?: string[];
+        filterRangeConfig?: {
+            min: number;
+            max: number;
+            step: number;
+            defaultValue: [number, number];
+        };
+        renderFilter?: (column: Column<TData>) => JSX.Element;
     }
 }
 declare const TableFilter: () => react_jsx_runtime.JSX.Element;
