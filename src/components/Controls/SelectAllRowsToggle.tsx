@@ -1,7 +1,7 @@
 import { Button, IconButton } from "@chakra-ui/react";
 import React, { useContext } from "react";
 import { MdClear, MdOutlineChecklist } from "react-icons/md";
-import { TableContext } from "./DataTableContext";
+import { TableContext } from "./DataTable/DataTableContext";
 
 export interface SelectAllRowsToggleProps {
   selectAllIcon: React.ReactElement;

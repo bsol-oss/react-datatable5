@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { Button, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
-import { useDataTable } from "./useDataTable";
+import { useDataTable } from "../DataTable/useDataTable";
 
 export interface PageSizeControlProps {
   pageSizes?: number[];

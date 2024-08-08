@@ -4,14 +4,14 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
 import { EditOrderButton } from "../../components/EditOrderButton";
 import { EditViewButton } from "../../components/EditViewButton";
-import { PageSizeControl } from "../../components/PageSizeControl";
-import { Table } from "../../components/Table";
-import { TableBody } from "../../components/TableBody";
-import { TableFooter } from "../../components/TableFooter";
-import { TableHeader } from "../../components/TableHeader";
-import { TablePagination } from "../../components/TablePagination";
-import { TableSelector } from "../../components/TableSelector";
-import { TextCell } from "../../components/TextCell";
+import { PageSizeControl } from "../../components/Controls/PageSizeControl";
+import { Table } from "../../components/DataTable/Table";
+import { TableBody } from "../../components/DataTable/TableBody";
+import { TableFooter } from "../../components/DataTable/TableFooter";
+import { TableHeader } from "../../components/DataTable/TableHeader";
+import { TablePagination } from "../../components/DataTable/TablePagination";
+import { TableSelector } from "../../components/DataTable/TableSelector";
+import { TextCell } from "../../components/DataTable/TextCell";
 
 interface ChatRecord {
   session_id: string;

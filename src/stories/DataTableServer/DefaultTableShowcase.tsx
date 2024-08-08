@@ -2,8 +2,8 @@ import { Box, ChakraProvider, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTableServer } from "../../components/DataTableServer";
 import { DefaultTable } from "../../components/DefaultTable";
-import { TableComponent } from "../../components/TableComponent";
-import { TextCell } from "../../components/TextCell";
+import { TableComponent } from "../../components/DataTable/TableComponent";
+import { TextCell } from "../../components/DataTable/TextCell";
 
 interface ChatRecord {
   session_id: string;

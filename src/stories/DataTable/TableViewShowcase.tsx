@@ -1,20 +1,20 @@
 import { Box, ChakraProvider, Flex, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { DataTable } from "../../components/DataTable";
+import { DataTable } from "../../components/DataTable/DataTable";
 import { EditFilterButton } from "../../components/EditFilterButton";
 import { EditOrderButton } from "../../components/EditOrderButton";
 import { EditViewButton } from "../../components/EditViewButton";
 import { GlobalFilter } from "../../components/GlobalFilter";
-import { PageSizeControl } from "../../components/PageSizeControl";
+import { PageSizeControl } from "../../components/Controls/PageSizeControl";
 import { RowCountText } from "../../components/RowCountText";
-import { Table } from "../../components/Table";
-import { TableBody } from "../../components/TableBody";
-import { TableComponent } from "../../components/TableComponent";
-import { TableFooter } from "../../components/TableFooter";
-import { TableHeader } from "../../components/TableHeader";
-import { TablePagination } from "../../components/TablePagination";
-import { TableSelector } from "../../components/TableSelector";
-import { TextCell } from "../../components/TextCell";
+import { Table } from "../../components/DataTable/Table";
+import { TableBody } from "../../components/DataTable/TableBody";
+import { TableComponent } from "../../components/DataTable/TableComponent";
+import { TableFooter } from "../../components/DataTable/TableFooter";
+import { TableHeader } from "../../components/DataTable/TableHeader";
+import { TablePagination } from "../../components/DataTable/TablePagination";
+import { TableSelector } from "../../components/DataTable/TableSelector";
+import { TextCell } from "../../components/DataTable/TextCell";
 import { data, Product } from "../data";
 
 interface RowActionsProps {

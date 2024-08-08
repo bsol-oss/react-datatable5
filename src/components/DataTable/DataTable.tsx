@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { TableContext } from "./DataTableContext";
 
 import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
-import { DensityFeature, DensityState } from "./DensityFeature";
+import { DensityFeature, DensityState } from "../Controls/DensityFeature";
 
 declare module "@tanstack/react-table" {
   //add fuzzy filter to the filterFns

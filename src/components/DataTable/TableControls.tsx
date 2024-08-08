@@ -3,7 +3,7 @@ import { MdOutlineViewColumn } from "react-icons/md";
 import { EditFilterButton } from "./EditFilterButton";
 import { EditViewButton } from "./EditViewButton";
 import { GlobalFilter } from "./GlobalFilter";
-import { PageSizeControl } from "./PageSizeControl";
+import { PageSizeControl } from "../Controls/PageSizeControl";
 import { RowCountText } from "./RowCountText";
 import { TableFilterTags } from "./TableFilterTags";
 import { TablePagination } from "./TablePagination";
