@@ -2,12 +2,19 @@ import { Flex, Input, Select, Text } from "@chakra-ui/react";
 import { Column, RowData } from "@tanstack/react-table";
 import { useDataTable } from "./useDataTable";
 import RangeFilter from "../Filter/RangeFilter";
+import { TagFilter } from "../Filter/TagFilter";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
-    filterVariant?: "text" | "range" | "select";
+    filterVariant?: "text" | "range" | "select" | "tag";
     filterOptions?: string[];
+    filterRangeConfig?: {
+      min: number;
+      max: number;
+      step: number;
+      defaultValue: [number, number];
+    };
   }
 }
 
@@ -48,6 +55,20 @@ function Filter({ column }: { column: Column<any, unknown> }) {
             );
           })}
         </Select>
+      </Flex>
+    );
+  }
+  if (filterVariant === "tag") {
+    return (
+      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
+        <Text>{displayName}</Text>
+        <TagFilter
+          availableTags={filterOptions}
+          selectedTags={(column.getFilterValue() ?? []) as string[]}
+          onTagChange={(tag) => {
+            column.setFilterValue(tag);
+          }}
+        />
       </Flex>
     );
   }
