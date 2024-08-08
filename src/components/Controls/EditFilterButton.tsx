@@ -1,12 +1,5 @@
 import {
   Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
   Flex,
   IconButton,
   Modal,
@@ -16,11 +9,10 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  useDisclosure,
+  useDisclosure
 } from "@chakra-ui/react";
 import { MdFilterAlt } from "react-icons/md";
-import { ResetFilteringButton } from "./ResetFilteringButton";
-import { TableFilter } from "./TableFilter";
+import { ResetFilteringButton, TableFilter } from "../../index";
 
 export interface EditFilterButtonProps {
   text?: string;

@@ -1,9 +1,6 @@
 import { Box, ChakraProvider, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { DataTable } from "../../components/DataTable/DataTable";
-import { DefaultTable } from "../../components/DefaultTable";
-import { TableComponent } from "../../components/DataTable/TableComponent";
-import { TextCell } from "../../components/DataTable/TextCell";
+import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
 import { data, Product } from "../data";
 
 interface RowActionsProps {
@@ -143,7 +140,12 @@ const DefaultTableShowcase = () => {
         data={data}
         sorting={[{ id: "title", desc: false }]}
       >
-        <DefaultTable showFilter showFilterName showFilterTags filterOptions={["category","brand"]} />
+        <DefaultTable
+          showFilter
+          showFilterName
+          showFilterTags
+          filterOptions={["category", "brand"]}
+        />
         <Box width="400px" height={"400px"}>
           <DefaultTable showFilter />
         </Box>

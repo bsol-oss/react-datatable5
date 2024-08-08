@@ -10,8 +10,8 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { TableContext } from "./DataTable/DataTableContext";
-import { DensityFeature, DensityState } from "./DensityFeature";
+import { DensityFeature, DensityState } from "../Controls/DensityFeature";
+import { TableContext } from "./DataTableContext";
 import { useDataFromUrl } from "./useDataFromUrl";
 
 export interface DataTableServerProps<TData> {

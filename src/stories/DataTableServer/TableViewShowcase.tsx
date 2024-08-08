@@ -7,25 +7,28 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { DataTableServer } from "../../components/DataTableServer";
-import { DensityToggleButton } from "../../components/DensityToggleButton";
-import { EditFilterButton } from "../../components/EditFilterButton";
-import { EditOrderButton } from "../../components/EditOrderButton";
-import { EditViewButton } from "../../components/EditViewButton";
-import { GlobalFilter } from "../../components/GlobalFilter";
-import { PageSizeControl } from "../../components/Controls/PageSizeControl";
-import { RowCountText } from "../../components/RowCountText";
-import { Table } from "../../components/DataTable/Table";
-import { TableBody } from "../../components/DataTable/TableBody";
-import { TableComponent } from "../../components/DataTable/TableComponent";
-import { TableFilterTags } from "../../components/DataTable/TableFilterTags";
-import { TableFooter } from "../../components/DataTable/TableFooter";
-import { TableHeader } from "../../components/DataTable/TableHeader";
-import { TablePagination } from "../../components/DataTable/TablePagination";
-import { TableSelector } from "../../components/DataTable/TableSelector";
-import { TextCell } from "../../components/DataTable/TextCell";
-import { ReloadButton } from "../../components/DataTable/TableReloadButton";
-import { FilterOptions } from "../../components/FilterOptions";
+
+import {
+  DataTableServer,
+  DensityToggleButton,
+  EditFilterButton,
+  EditOrderButton,
+  EditViewButton,
+  FilterOptions,
+  GlobalFilter,
+  PageSizeControl,
+  ReloadButton,
+  RowCountText,
+  Table,
+  TableBody,
+  TableComponent,
+  TableFilterTags,
+  TableFooter,
+  TableHeader,
+  TablePagination,
+  TableSelector,
+  TextCell,
+} from "../../index";
 
 interface ChatRecord {
   session_id: string;

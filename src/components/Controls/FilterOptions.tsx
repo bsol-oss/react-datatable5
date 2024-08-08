@@ -1,6 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { MdClose } from "react-icons/md";
-import { useDataTable } from "./useDataTable";
+import { useDataTable } from "../../index";
 
 export interface FilterOptionsProps {
   column: string;
@@ -31,8 +31,8 @@ export const FilterOptions = ({ column }: FilterOptionsProps) => {
               table.getColumn(column)?.setFilterValue(option);
             }}
             variant={selected ? "solid" : "outline"}
-            display={'flex'}
-            gap={'0.25rem'}
+            display={"flex"}
+            gap={"0.25rem"}
           >
             {option}
             {selected && <MdClose />}

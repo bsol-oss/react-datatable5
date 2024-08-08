@@ -1,22 +1,24 @@
 import { Box, ChakraProvider, Flex, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { DataTable } from "../../components/DataTable/DataTable";
-import { EditFilterButton } from "../../components/EditFilterButton";
-import { EditOrderButton } from "../../components/EditOrderButton";
-import { EditViewButton } from "../../components/EditViewButton";
-import { GlobalFilter } from "../../components/GlobalFilter";
-import { PageSizeControl } from "../../components/Controls/PageSizeControl";
-import { RowCountText } from "../../components/RowCountText";
-import { Table } from "../../components/DataTable/Table";
-import { TableBody } from "../../components/DataTable/TableBody";
-import { TableComponent } from "../../components/DataTable/TableComponent";
-import { TableFooter } from "../../components/DataTable/TableFooter";
-import { TableHeader } from "../../components/DataTable/TableHeader";
-import { TablePagination } from "../../components/DataTable/TablePagination";
-import { TableSelector } from "../../components/DataTable/TableSelector";
-import { TextCell } from "../../components/DataTable/TextCell";
-import { data, Product } from "../data";
 
+import {
+  DataTable,
+  EditFilterButton,
+  EditOrderButton,
+  EditViewButton,
+  GlobalFilter,
+  PageSizeControl,
+  RowCountText,
+  Table,
+  TableBody,
+  TableComponent,
+  TableFooter,
+  TableHeader,
+  TablePagination,
+  TableSelector,
+  TextCell,
+} from "../../index";
+import { data, Product } from "../data";
 interface RowActionsProps {
   row: Product;
 }

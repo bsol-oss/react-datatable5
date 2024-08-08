@@ -1,5 +1,4 @@
-import { FilterOptionsProps } from "./FilterOptions";
-import { Table } from "./Table";
+import { Table } from "../../index";
 import { TableBody } from "./TableBody";
 import { TableControls, TableControlsProps } from "./TableControls";
 import { TableFooter } from "./TableFooter";

@@ -1,17 +1,19 @@
 import { Box, ChakraProvider, Flex, Table, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable/DataTable";
-import { EditFilterButton } from "../../components/EditFilterButton";
-import { EditOrderButton } from "../../components/EditOrderButton";
-import { EditViewButton } from "../../components/EditViewButton";
-import { GlobalFilter } from "../../components/GlobalFilter";
-import { PageSizeControl } from "../../components/Controls/PageSizeControl";
-import { TableBody } from "../../components/DataTable/TableBody";
-import { TableFooter } from "../../components/DataTable/TableFooter";
-import { TableHeader } from "../../components/DataTable/TableHeader";
-import { TablePagination } from "../../components/DataTable/TablePagination";
-import { TableSelector } from "../../components/DataTable/TableSelector";
-import { TextCell } from "../../components/DataTable/TextCell";
+import {
+  EditFilterButton,
+  EditOrderButton,
+  EditViewButton,
+  GlobalFilter,
+  PageSizeControl,
+  TableBody,
+  TableFooter,
+  TableHeader,
+  TablePagination,
+  TableSelector,
+  TextCell,
+} from "../../index";
 import { data, Product } from "../data";
 
 export default {
@@ -22,7 +24,7 @@ export default {
     columns: { control: { type: "array" } },
     enableRowSelection: { control: { type: "boolean" } },
     enableMultiRowSelection: { control: { type: "boolean" } },
-    enableSubRowSelection: { control: { type: "boolean" }},
+    enableSubRowSelection: { control: { type: "boolean" } },
     onRowSelect: { action: "onRowSelect" },
     columnOrder: { control: { type: "array" } },
     columnFilters: { control: { type: "object" } },

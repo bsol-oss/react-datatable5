@@ -1,5 +1,5 @@
 import { Button } from "@chakra-ui/react";
-import { useDataTable } from "./useDataTable";
+import { useDataTable } from "../../index";
 
 export interface ResetSelectionButtonProps {
   text?: string;

@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { IoMdCheckbox } from "react-icons/io";
 import { MdClear } from "react-icons/md";
 import { TableContext } from "./DataTableContext";
-import { SelectAllRowsToggle } from "./SelectAllRowsToggle";
+import { SelectAllRowsToggle } from "../Controls/SelectAllRowsToggle";
 export const TableSelector = () => {
   const { table } = useContext(TableContext);
   return (

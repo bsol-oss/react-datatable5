@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { IoMdEye } from "react-icons/io";
-import { TableViewer } from "./TableViewer";
+import { TableViewer } from "../../index";
 
 export interface EditViewButtonProps {
   text?: string;

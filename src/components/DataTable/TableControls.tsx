@@ -1,13 +1,15 @@
 import { Box, Flex, Grid, Text } from "@chakra-ui/react";
 import { MdOutlineViewColumn } from "react-icons/md";
-import { EditFilterButton } from "./EditFilterButton";
-import { EditViewButton } from "./EditViewButton";
-import { GlobalFilter } from "./GlobalFilter";
-import { PageSizeControl } from "../Controls/PageSizeControl";
-import { RowCountText } from "./RowCountText";
-import { TableFilterTags } from "./TableFilterTags";
-import { TablePagination } from "./TablePagination";
-import { FilterOptions, FilterOptionsProps } from "./FilterOptions";
+import {
+  EditFilterButton,
+  EditViewButton,
+  FilterOptions,
+  GlobalFilter,
+  PageSizeControl,
+  RowCountText,
+  TableFilterTags,
+  TablePagination,
+} from "../../index";
 
 export interface TableControlsProps {
   totalText?: string;
@@ -60,7 +62,7 @@ export const TableControls = ({
           )}
         </Flex>
       </Flex>
-      <Flex gridColumn={"1 / span 2"} flexFlow={'column'} gap={'0.5rem'}>
+      <Flex gridColumn={"1 / span 2"} flexFlow={"column"} gap={"0.5rem"}>
         {filterOptions.map((column) => {
           return (
             <Flex alignItems={"center"} flexFlow={"wrap"} gap={"0.5rem"}>

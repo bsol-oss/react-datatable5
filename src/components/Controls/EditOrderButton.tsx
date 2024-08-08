@@ -11,7 +11,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { MdOutlineMoveDown } from "react-icons/md";
-import { TableOrderer } from "./TableOrderer";
+import { TableOrderer } from "../../index";
 import React from "react";
 
 export interface EditOrderButtonProps {

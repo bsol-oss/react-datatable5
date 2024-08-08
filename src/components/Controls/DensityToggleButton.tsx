@@ -1,7 +1,7 @@
 import { Button, IconButton } from "@chakra-ui/react";
 import React from "react";
 import { AiOutlineColumnWidth } from "react-icons/ai";
-import { useDataTable } from "./useDataTable";
+import { useDataTable } from "../../index";
 
 export interface DensityToggleButtonProps {
   icon?: React.ReactElement;
