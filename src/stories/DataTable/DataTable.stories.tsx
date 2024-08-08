@@ -14,7 +14,7 @@ import {
   TableSelector,
   TextCell,
 } from "../../index";
-import { data, Product } from "../data";
+import { data, Product } from "../product_data";
 
 export default {
   title: "react-datatable5/DataTable/interactive",

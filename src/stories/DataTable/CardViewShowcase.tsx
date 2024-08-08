@@ -20,7 +20,7 @@ import {
   TextCell,
 } from "../../index";
 
-import { data, Product } from "../data";
+import { data, Product } from "../product_data";
 
 interface RowActionsProps {
   row: Product;

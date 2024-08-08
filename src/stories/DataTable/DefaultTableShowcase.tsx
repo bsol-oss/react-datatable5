@@ -1,7 +1,7 @@
 import { Box, ChakraProvider, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
-import { data, Product } from "../data";
+import { data, Product } from "../product_data";
 
 interface RowActionsProps {
   row: Product;

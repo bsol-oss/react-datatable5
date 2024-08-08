@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import CardViewShowcase from "./CardViewShowcase";
 import TableViewShowcase from "./TableViewShowcase";
 import DefaultTableShowcase from "./DefaultTableShowcase";
+import DefaultTableShowcase2 from "./DefaultTableShowcase2";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -14,6 +15,12 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const DefaultTableView2: Story = {
+  render: () => {
+    return <DefaultTableShowcase2 />;
+  },
+};
 
 export const DefaultTableView: Story = {
   render: () => {
