@@ -13,13 +13,13 @@ import {
   Tr,
 } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
-import { MdCancel, MdFilterListAlt } from "react-icons/md";
+import { MdCancel, MdClear, MdFilterListAlt } from "react-icons/md";
 
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import { useState } from "react";
-import { IoMdClose } from "react-icons/io";
-import { MdPushPin, MdSort } from "react-icons/md";
-import { useDataTable } from "./useDataTable";
+import { GrAscend, GrDescend } from "react-icons/gr";
+import { MdPushPin } from "react-icons/md";
+import { useDataTable } from "../../index";
 export interface TableHeaderProps {
   canResize?: boolean;
   pinnedBgColor?: { light: string; dark: string };
@@ -193,17 +193,39 @@ export const TableHeader = ({
                       {header.column.getCanSort() && (
                         <>
                           <MenuItem
-                            icon={<MdSort />}
+                            icon={<GrAscend />}
                             onClick={() => {
-                              header.column.toggleSorting();
+                              table.setSorting((state) => {
+                                return [
+                                  ...state.filter((column) => {
+                                    return column.id !== header.id;
+                                  }),
+                                  { id: header.id, desc: false },
+                                ];
+                              });
                             }}
                           >
-                            Toggle Sorting
+                            Sort Ascending
+                          </MenuItem>
+                          <MenuItem
+                            icon={<GrDescend />}
+                            onClick={() => {
+                              table.setSorting((state) => {
+                                return [
+                                  ...state.filter((column) => {
+                                    return column.id !== header.id;
+                                  }),
+                                  { id: header.id, desc: true },
+                                ];
+                              });
+                            }}
+                          >
+                            Sort Descending
                           </MenuItem>
 
                           {header.column.getIsSorted() && (
                             <MenuItem
-                              icon={<IoMdClose />}
+                              icon={<MdClear />}
                               onClick={() => {
                                 header.column.clearSorting();
                               }}

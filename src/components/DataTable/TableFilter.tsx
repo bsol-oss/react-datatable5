@@ -1,6 +1,7 @@
 import { Flex, Input, Select, Text } from "@chakra-ui/react";
 import { Column, RowData } from "@tanstack/react-table";
 import { useDataTable } from "./useDataTable";
+import RangeFilter from "../Filter/RangeFilter";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -51,33 +52,29 @@ function Filter({ column }: { column: Column<any, unknown> }) {
     );
   }
   if (filterVariant === "range") {
-    const filterValue = (column.getFilterValue() as number[]) ?? [
+    const filterValue = (column.getFilterValue() as [number, number]) ?? [
       undefined,
       undefined,
     ];
-    const [min, max] = filterValue;
+    const { min, max, step, defaultValue } = column.columnDef.meta
+      ?.filterRangeConfig ?? {
+      min: 0,
+      max: 100,
+      step: 1,
+      defaultValue: [4, 50],
+    };
     return (
-      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
-        <Text>{displayName}</Text>
-        <Flex gap="0.5rem">
-          <Input
-            type="number"
-            placeholder="min"
-            value={min}
-            onChange={(e) => {
-              column.setFilterValue([Number(e.target.value), max]);
-            }}
-          />
-          <Input
-            type="number"
-            placeholder="max"
-            value={max}
-            onChange={(e) => {
-              column.setFilterValue([min, Number(e.target.value)]);
-            }}
-          />
-        </Flex>
-      </Flex>
+      <RangeFilter
+        range={filterValue}
+        setRange={function (value: [number, number]): void {
+          // throw new Error("Function not implemented.");
+          column.setFilterValue(value);
+        }}
+        defaultValue={defaultValue}
+        min={min}
+        max={max}
+        step={step}
+      />
     );
   }
 
