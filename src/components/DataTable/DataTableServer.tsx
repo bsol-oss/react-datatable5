@@ -159,7 +159,7 @@ export const DataTableServer = <TData,>({
 
   useEffect(() => {
     refreshData();
-  }, [pagination, sorting, columnFilters, globalFilter]);
+  }, [pagination, sorting, columnFilters, globalFilter, url]);
 
   useEffect(() => {
     setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
