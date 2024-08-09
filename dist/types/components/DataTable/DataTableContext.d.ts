@@ -6,5 +6,6 @@ export interface DataTableContext<TData> {
     globalFilter: string;
     setGlobalFilter: (filter: string) => void;
     loading: boolean;
+    hasError: boolean;
 }
 export declare const TableContext: import("react").Context<DataTableContext<any>>;

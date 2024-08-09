@@ -1,11 +1,69 @@
 /// <reference types="react" />
 import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnFiltersState, SortingState, VisibilityState, Row, Table as Table$1, Column } from '@tanstack/react-table';
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { RankingInfo } from '@tanstack/match-sorter-utils';
 import React$1, { ReactNode } from 'react';
-import * as react_icons_lib from 'react-icons/lib';
+import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { TableProps as TableProps$1, GridProps, TextProps, TooltipProps } from '@chakra-ui/react';
 import * as _tanstack_table_core from '@tanstack/table-core';
+import * as react_icons_lib from 'react-icons/lib';
+
+interface DensityToggleButtonProps {
+    icon?: React$1.ReactElement;
+    text?: string;
+}
+declare const DensityToggleButton: ({ text, icon, }: DensityToggleButtonProps) => react_jsx_runtime.JSX.Element;
+
+interface EditFilterButtonProps {
+    text?: string;
+    title?: string;
+    closeText?: string;
+    resetText?: string;
+    icon?: React.ReactElement;
+}
+declare const EditFilterButton: ({ text, title, closeText, resetText, icon, ...props }: EditFilterButtonProps) => react_jsx_runtime.JSX.Element;
+
+interface EditOrderButtonProps {
+    title?: string;
+    icon?: React$1.ReactElement;
+    text?: string;
+}
+declare const EditOrderButton: ({ text, icon, title, }: EditOrderButtonProps) => react_jsx_runtime.JSX.Element;
+
+interface EditSortingButtonProps {
+    title?: string;
+    icon?: React.ReactElement;
+    text?: string;
+}
+declare const EditSortingButton: ({ text, icon, title, }: EditSortingButtonProps) => react_jsx_runtime.JSX.Element;
+
+interface EditViewButtonProps {
+    text?: string;
+    icon?: React$1.ReactElement;
+    title?: string;
+}
+declare const EditViewButton: ({ text, icon, title, }: EditViewButtonProps) => react_jsx_runtime.JSX.Element;
+
+interface PageSizeControlProps {
+    pageSizes?: number[];
+}
+declare const PageSizeControl: ({ pageSizes, }: PageSizeControlProps) => react_jsx_runtime.JSX.Element;
+
+interface ResetFilteringButtonProps {
+    text?: string;
+}
+declare const ResetFilteringButton: ({ text, }: ResetFilteringButtonProps) => react_jsx_runtime.JSX.Element;
+
+interface ResetSelectionButtonProps {
+    text?: string;
+}
+declare const ResetSelectionButton: ({ text, }: ResetSelectionButtonProps) => react_jsx_runtime.JSX.Element;
+
+interface ResetSortingButtonProps {
+    text?: string;
+}
+declare const ResetSortingButton: ({ text, }: ResetSortingButtonProps) => react_jsx_runtime.JSX.Element;
+
+declare const RowCountText: () => react_jsx_runtime.JSX.Element;
 
 type DensityState = "sm" | "md" | "lg";
 interface DensityTableState {
@@ -107,73 +165,6 @@ interface DefaultTableProps extends TableControlsProps {
     showFooter?: boolean;
 }
 declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
-
-interface DensityToggleButtonProps {
-    icon?: React$1.ReactElement;
-    text?: string;
-}
-declare const DensityToggleButton: ({ text, icon, }: DensityToggleButtonProps) => react_jsx_runtime.JSX.Element;
-
-interface EditFilterButtonProps {
-    text?: string;
-    title?: string;
-    closeText?: string;
-    resetText?: string;
-    icon?: React.ReactElement;
-}
-declare const EditFilterButton: ({ text, title, closeText, resetText, icon, ...props }: EditFilterButtonProps) => react_jsx_runtime.JSX.Element;
-
-interface EditOrderButtonProps {
-    title?: string;
-    icon?: React$1.ReactElement;
-    text?: string;
-}
-declare const EditOrderButton: ({ text, icon, title, }: EditOrderButtonProps) => react_jsx_runtime.JSX.Element;
-
-interface EditSortingButtonProps {
-    title?: string;
-    icon?: React.ReactElement;
-    text?: string;
-}
-declare const EditSortingButton: ({ text, icon, title, }: EditSortingButtonProps) => react_jsx_runtime.JSX.Element;
-
-interface EditViewButtonProps {
-    text?: string;
-    icon?: React$1.ReactElement;
-    title?: string;
-}
-declare const EditViewButton: ({ text, icon, title, }: EditViewButtonProps) => react_jsx_runtime.JSX.Element;
-
-interface FilterOptionsProps {
-    column: string;
-}
-declare const FilterOptions: ({ column }: FilterOptionsProps) => react_jsx_runtime.JSX.Element;
-
-declare const GlobalFilter: ({ icon }: {
-    icon?: react_icons_lib.IconType | undefined;
-}) => react_jsx_runtime.JSX.Element;
-
-interface PageSizeControlProps {
-    pageSizes?: number[];
-}
-declare const PageSizeControl: ({ pageSizes, }: PageSizeControlProps) => react_jsx_runtime.JSX.Element;
-
-interface ResetFilteringButtonProps {
-    text?: string;
-}
-declare const ResetFilteringButton: ({ text, }: ResetFilteringButtonProps) => react_jsx_runtime.JSX.Element;
-
-interface ResetSelectionButtonProps {
-    text?: string;
-}
-declare const ResetSelectionButton: ({ text, }: ResetSelectionButtonProps) => react_jsx_runtime.JSX.Element;
-
-interface ResetSortingButtonProps {
-    text?: string;
-}
-declare const ResetSortingButton: ({ text, }: ResetSortingButtonProps) => react_jsx_runtime.JSX.Element;
-
-declare const RowCountText: () => react_jsx_runtime.JSX.Element;
 
 interface TableProps extends TableProps$1 {
     showLoading?: boolean;
@@ -287,22 +278,66 @@ declare const useDataTable: () => {
     globalFilter: string;
     setGlobalFilter: (filter: string) => void;
     loading: boolean;
+    hasError: boolean;
 };
+
+interface FilterOptionsProps {
+    column: string;
+}
+declare const FilterOptions: ({ column }: FilterOptionsProps) => react_jsx_runtime.JSX.Element;
+
+declare const GlobalFilter: ({ icon }: {
+    icon?: react_icons_lib.IconType | undefined;
+}) => react_jsx_runtime.JSX.Element;
 
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData extends RowData, TValue> {
+        /**
+         * The display name of the column, used for rendering headers.
+         */
         displayName?: string;
         /**
-         * @note you should provide a proper `filterfn` to handle the filtering when choosing `boolean`, `dateRange` and `custom`
+         * Specifies the type of filter to be used for the column.
+         *
+         * @remarks You should provide a proper `filterfn` to handle filtering when choosing `boolean`, `dateRange`, and `custom`.
+         *
+         * @remarks You should decide `renderFilter` to display filter ui when choosing `custom`.
+         *
+         * Possible values:
+         * - "text": A text input filter.
+         * - "range": A numerical range filter.
+         * - "select": A dropdown select filter.
+         * - "tag": A tag-based filter.
+         * - "boolean": A true/false filter.
+         * - "dateRange": A date range filter.
+         * - "custom": A custom filter function.
          */
         filterVariant?: "text" | "range" | "select" | "tag" | "boolean" | "dateRange" | "custom";
+        /**
+         * Options for the select filter variant, if applicable.
+         */
         filterOptions?: string[];
+        /**
+         * Configuration for the range filter variant, if applicable.
+         *
+         * Properties:
+         * - `min`: Minimum value for the range.
+         * - `max`: Maximum value for the range.
+         * - `step`: Step increment for the range.
+         * - `defaultValue`: Default range values for the filter.
+         */
         filterRangeConfig?: {
             min: number;
             max: number;
             step: number;
             defaultValue: [number, number];
         };
+        /**
+         * A function that renders the filter component for the column.
+         *
+         * @param column - The column for which the filter is being rendered.
+         * @returns A JSX element representing the filter UI.
+         */
         renderFilter?: (column: Column<TData>) => JSX.Element;
     }
 }

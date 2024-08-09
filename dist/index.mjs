@@ -1,18 +1,38 @@
-import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
+import { jsxs, Fragment, jsx } from 'react/jsx-runtime';
+import { IconButton, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Text, Menu, MenuButton, MenuList, MenuItem, Box, FormLabel, Checkbox, Grid, Spinner, Tooltip, Icon, Tfoot, Tr as Tr$1, Th, Thead, Portal, Table as Table$1, Card, CardBody, VStack, FormControl, Input, RangeSlider, RangeSliderTrack, RangeSliderFilledTrack, RangeSliderThumb, WrapItem, Tag, TagLabel, TagCloseButton, Select, ButtonGroup, Switch, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import { AiOutlineColumnWidth } from 'react-icons/ai';
+import { MdFilterAlt, MdOutlineMoveDown, MdOutlineSort, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdArrowUpward, MdArrowDownward, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdOutlineChecklist, MdClose, MdSearch } from 'react-icons/md';
+import { UpDownIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon } from '@chakra-ui/icons';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
 import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
-import { createContext, useState, useEffect, useContext } from 'react';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import axios from 'axios';
-import { Box, FormLabel, Checkbox, Grid, Flex, Text, Tfoot, Tr as Tr$1, Th, Menu, MenuButton, Thead, Portal, MenuList, MenuItem, IconButton, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, InputGroup, InputLeftElement, Icon, Input, Table as Table$1, Card, CardBody, VStack, FormControl, RangeSlider, RangeSliderTrack, RangeSliderFilledTrack, RangeSliderThumb, WrapItem, Tag, TagLabel, TagCloseButton, Select, ButtonGroup, Switch, Tooltip } from '@chakra-ui/react';
 import { Tbody, Tr, Td } from '@chakra-ui/table';
-import { MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdFilterAlt, MdOutlineMoveDown, MdOutlineSort, MdClose, MdSearch, MdArrowUpward, MdArrowDownward, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdOutlineChecklist } from 'react-icons/md';
-import { ChevronUpIcon, ChevronDownIcon, UpDownIcon, CloseIcon } from '@chakra-ui/icons';
+import { BsExclamationCircleFill } from 'react-icons/bs';
 import { GrAscend, GrDescend } from 'react-icons/gr';
-import { AiOutlineColumnWidth } from 'react-icons/ai';
-import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
 import { IoReload } from 'react-icons/io5';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { FaGripLinesVertical } from 'react-icons/fa';
+
+const DensityToggleButton = ({ text, icon = jsx(AiOutlineColumnWidth, {}), }) => {
+    const { table } = useDataTable();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: icon, onClick: () => {
+                    table.toggleDensity();
+                } })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
+                    table.toggleDensity();
+                }, children: text }))] }));
+};
+
+const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsx(MdFilterAlt, {}), ...props }) => {
+    const filterModal = useDisclosure();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: filterModal.onOpen, "aria-label": "filter", ...props })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: filterModal.onOpen, ...props, children: text })), jsxs(Modal, { isOpen: filterModal.isOpen, onClose: filterModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "1rem", children: [jsx(TableFilter, {}), jsx(ResetFilteringButton, { text: resetText })] }) }), jsx(ModalFooter, { children: jsx(Button, { onClick: filterModal.onClose, children: closeText }) })] })] })] }));
+};
+
+const EditOrderButton = ({ text, icon = jsx(MdOutlineMoveDown, {}), title = "Change Order", }) => {
+    const orderModal = useDisclosure();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: orderModal.onOpen, "aria-label": "change order" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: orderModal.onOpen, children: text })), jsxs(Modal, { isOpen: orderModal.isOpen, onClose: orderModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: jsx(TableOrderer, {}) }) })] })] })] }));
+};
 
 const TableContext = createContext({
     table: {},
@@ -20,7 +40,83 @@ const TableContext = createContext({
     globalFilter: "",
     setGlobalFilter: () => { },
     loading: false,
+    hasError: false,
 });
+
+const useDataTable = () => {
+    const { table, refreshData, globalFilter, setGlobalFilter, loading, hasError, } = useContext(TableContext);
+    return {
+        table,
+        refreshData,
+        globalFilter,
+        setGlobalFilter,
+        loading,
+        hasError,
+    };
+};
+
+const TableSorter = () => {
+    const { table } = useDataTable();
+    return (jsx(Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsx(Fragment, { children: headerGroup.headers.map((header) => {
+                const displayName = header.column.columnDef.meta === undefined
+                    ? header.column.id
+                    : header.column.columnDef.meta.displayName;
+                return (jsx(Fragment, { children: header.column.getCanSort() && (jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsx(Text, { children: displayName }), jsxs(Button, { variant: "ghost", onClick: (e) => {
+                                    header.column.toggleSorting();
+                                }, children: [header.column.getIsSorted() === false && (
+                                    // <Text>To No sort</Text>
+                                    jsx(UpDownIcon, {})), header.column.getIsSorted() === "asc" && (
+                                    // <Text>To asc</Text>
+                                    jsx(ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (
+                                    // <Text>To desc</Text>
+                                    jsx(ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsx(Button, { onClick: (e) => {
+                                    header.column.clearSorting();
+                                }, children: jsx(CloseIcon, {}) }))] })) }));
+            }) }))) }));
+};
+
+const EditSortingButton = ({ text, icon = jsx(MdOutlineSort, {}), title = "Edit Sorting", }) => {
+    const sortingModal = useDisclosure();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: sortingModal.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: sortingModal.onOpen, children: text })), jsxs(Modal, { isOpen: sortingModal.isOpen, onClose: sortingModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) })] })] })] }));
+};
+
+const EditViewButton = ({ text, icon = jsx(IoMdEye, {}), title = "Edit View", }) => {
+    const viewModel = useDisclosure();
+    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: viewModel.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: viewModel.onOpen, children: text })), jsxs(Modal, { isOpen: viewModel.isOpen, onClose: viewModel.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(TableViewer, {}) })] })] })] }));
+};
+
+const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
+    const { table } = useDataTable();
+    return (jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Button, variant: "ghost", rightIcon: jsx(ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsx(MenuList, { children: pageSizes.map((pageSize) => (jsx(MenuItem, { onClick: () => {
+                            table.setPageSize(Number(pageSize));
+                        }, children: pageSize }, crypto.randomUUID()))) })] }) }));
+};
+
+const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
+    const { table } = useDataTable();
+    return (jsx(Button, { onClick: () => {
+            table.resetColumnFilters();
+        }, children: text }));
+};
+
+const ResetSelectionButton = ({ text = "Reset Selection", }) => {
+    const { table } = useDataTable();
+    return (jsx(Button, { onClick: () => {
+            table.resetRowSelection();
+        }, children: text }));
+};
+
+const ResetSortingButton = ({ text = "Reset Sorting", }) => {
+    const { table } = useDataTable();
+    return (jsx(Button, { onClick: () => {
+            table.resetSorting();
+        }, children: text }));
+};
+
+const RowCountText = () => {
+    const { table } = useDataTable();
+    return jsx(Text, { children: table.getRowCount() });
+};
 
 // Reference: https://tanstack.com/table/latest/docs/framework/react/examples/custom-features
 // TypeScript setup for our new feature with all of the same type-safety as stock TanStack Table features
@@ -172,6 +268,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             globalFilter: globalFilter,
             setGlobalFilter: setGlobalFilter,
             loading: false,
+            hasError: false,
         }, children: children }));
 };
 
@@ -184,6 +281,7 @@ const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSu
     };
     const getData = async () => {
         try {
+            setHasError(false);
             setLoading(true);
             const { data } = await axios.get(url, { params: params });
             console.debug("get DataFromUrl success", data);
@@ -294,7 +392,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     });
     useEffect(() => {
         refreshData();
-    }, [pagination, sorting, columnFilters, globalFilter]);
+    }, [pagination, sorting, columnFilters, globalFilter, url]);
     useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
     }, []);
@@ -307,6 +405,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             globalFilter,
             setGlobalFilter,
             loading: loading,
+            hasError: hasError,
         }, children: children }));
 };
 
@@ -360,14 +459,10 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
 };
 
 const TableControls = ({ totalText = "Total:", showFilter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsx(Fragment, {}), showFilterName = false, showFilterTags = false, filterOptions = [], }) => {
-    return (jsxs(Grid, { templateRows: "auto auto auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsx(Flex, { gap: "1rem", justifySelf: "end", children: showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })) })] }), jsx(Flex, { gridColumn: "1 / span 2", flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
+    const { loading, hasError } = useDataTable();
+    return (jsxs(Grid, { templateRows: "auto auto auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "1rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { label: "An error occurred while fetching data", children: jsx(Box, { children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) }) })), showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] }))] })] }), jsx(Flex, { gridColumn: "1 / span 2", flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
                     return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxs(Text, { children: [column, ":"] }), jsx(FilterOptions, { column: column })] }));
                 }) }), jsx(Flex, { gridColumn: "1 / span 2", children: showFilterTags && jsx(TableFilterTags, {}) }), jsx(Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: children }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, {}), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
-};
-
-const useDataTable = () => {
-    const { table, refreshData, globalFilter, setGlobalFilter, loading } = useContext(TableContext);
-    return { table, refreshData, globalFilter, setGlobalFilter, loading };
 };
 
 const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
@@ -502,115 +597,6 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
 
 const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, }) => {
     return (jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, children: jsxs(Table, { variant: "striped", children: [jsx(TableHeader, { canResize: true }), jsx(TableBody, {}), showFooter && jsx(TableFooter, {})] }) }));
-};
-
-const DensityToggleButton = ({ text, icon = jsx(AiOutlineColumnWidth, {}), }) => {
-    const { table } = useDataTable();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: icon, onClick: () => {
-                    table.toggleDensity();
-                } })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
-                    table.toggleDensity();
-                }, children: text }))] }));
-};
-
-const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsx(MdFilterAlt, {}), ...props }) => {
-    const filterModal = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: filterModal.onOpen, "aria-label": "filter", ...props })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: filterModal.onOpen, ...props, children: text })), jsxs(Modal, { isOpen: filterModal.isOpen, onClose: filterModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "1rem", children: [jsx(TableFilter, {}), jsx(ResetFilteringButton, { text: resetText })] }) }), jsx(ModalFooter, { children: jsx(Button, { onClick: filterModal.onClose, children: closeText }) })] })] })] }));
-};
-
-const EditOrderButton = ({ text, icon = jsx(MdOutlineMoveDown, {}), title = "Change Order", }) => {
-    const orderModal = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: orderModal.onOpen, "aria-label": "change order" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: orderModal.onOpen, children: text })), jsxs(Modal, { isOpen: orderModal.isOpen, onClose: orderModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: jsx(TableOrderer, {}) }) })] })] })] }));
-};
-
-const TableSorter = () => {
-    const { table } = useDataTable();
-    return (jsx(Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsx(Fragment, { children: headerGroup.headers.map((header) => {
-                const displayName = header.column.columnDef.meta === undefined
-                    ? header.column.id
-                    : header.column.columnDef.meta.displayName;
-                return (jsx(Fragment, { children: header.column.getCanSort() && (jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsx(Text, { children: displayName }), jsxs(Button, { variant: "ghost", onClick: (e) => {
-                                    header.column.toggleSorting();
-                                }, children: [header.column.getIsSorted() === false && (
-                                    // <Text>To No sort</Text>
-                                    jsx(UpDownIcon, {})), header.column.getIsSorted() === "asc" && (
-                                    // <Text>To asc</Text>
-                                    jsx(ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (
-                                    // <Text>To desc</Text>
-                                    jsx(ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsx(Button, { onClick: (e) => {
-                                    header.column.clearSorting();
-                                }, children: jsx(CloseIcon, {}) }))] })) }));
-            }) }))) }));
-};
-
-const EditSortingButton = ({ text, icon = jsx(MdOutlineSort, {}), title = "Edit Sorting", }) => {
-    const sortingModal = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: sortingModal.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: sortingModal.onOpen, children: text })), jsxs(Modal, { isOpen: sortingModal.isOpen, onClose: sortingModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) })] })] })] }));
-};
-
-const EditViewButton = ({ text, icon = jsx(IoMdEye, {}), title = "Edit View", }) => {
-    const viewModel = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: viewModel.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: viewModel.onOpen, children: text })), jsxs(Modal, { isOpen: viewModel.isOpen, onClose: viewModel.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(TableViewer, {}) })] })] })] }));
-};
-
-const FilterOptions = ({ column }) => {
-    const { table } = useDataTable();
-    const tableColumn = table.getColumn(column);
-    const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
-    return (jsx(Fragment, { children: options.map((option) => {
-            const selected = table.getColumn(column)?.getFilterValue() === option;
-            return (jsxs(Button, { size: "sm", onClick: () => {
-                    if (selected) {
-                        table.setColumnFilters((state) => {
-                            return state.filter((filter) => {
-                                return filter.id !== column;
-                            });
-                        });
-                        return;
-                    }
-                    table.getColumn(column)?.setFilterValue(option);
-                }, variant: selected ? "solid" : "outline", display: "flex", gap: "0.25rem", children: [option, selected && jsx(MdClose, {})] }, option));
-        }) }));
-};
-
-const GlobalFilter = ({ icon = MdSearch }) => {
-    const { globalFilter, setGlobalFilter } = useDataTable();
-    return (jsx(Fragment, { children: jsx(Box, { children: jsxs(InputGroup, { children: [jsx(InputLeftElement, { pointerEvents: "none", children: jsx(Icon, { as: icon, color: "gray.300" }) }), jsx(Input, { value: globalFilter, onChange: (e) => {
-                            setGlobalFilter(e.target.value);
-                        } })] }) }) }));
-};
-
-const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
-    const { table } = useDataTable();
-    return (jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Button, variant: "ghost", rightIcon: jsx(ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsx(MenuList, { children: pageSizes.map((pageSize) => (jsx(MenuItem, { onClick: () => {
-                            table.setPageSize(Number(pageSize));
-                        }, children: pageSize }, crypto.randomUUID()))) })] }) }));
-};
-
-const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
-    const { table } = useDataTable();
-    return (jsx(Button, { onClick: () => {
-            table.resetColumnFilters();
-        }, children: text }));
-};
-
-const ResetSelectionButton = ({ text = "Reset Selection", }) => {
-    const { table } = useDataTable();
-    return (jsx(Button, { onClick: () => {
-            table.resetRowSelection();
-        }, children: text }));
-};
-
-const ResetSortingButton = ({ text = "Reset Sorting", }) => {
-    const { table } = useDataTable();
-    return (jsx(Button, { onClick: () => {
-            table.resetSorting();
-        }, children: text }));
-};
-
-const RowCountText = () => {
-    const { table } = useDataTable();
-    return jsx(Text, { children: table.getRowCount() });
 };
 
 const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
@@ -875,6 +861,33 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
         return (jsx(Flex, { alignItems: "center", height: "100%", padding: padding, children: jsx(Tooltip, { label: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", ...tooltipProps, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }) }));
     }
     return (jsx(Flex, { alignItems: "center", height: "100%", padding: padding, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }));
+};
+
+const FilterOptions = ({ column }) => {
+    const { table } = useDataTable();
+    const tableColumn = table.getColumn(column);
+    const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
+    return (jsx(Fragment, { children: options.map((option) => {
+            const selected = table.getColumn(column)?.getFilterValue() === option;
+            return (jsxs(Button, { size: "sm", onClick: () => {
+                    if (selected) {
+                        table.setColumnFilters((state) => {
+                            return state.filter((filter) => {
+                                return filter.id !== column;
+                            });
+                        });
+                        return;
+                    }
+                    table.getColumn(column)?.setFilterValue(option);
+                }, variant: selected ? "solid" : "outline", display: "flex", gap: "0.25rem", children: [option, selected && jsx(MdClose, {})] }, option));
+        }) }));
+};
+
+const GlobalFilter = ({ icon = MdSearch }) => {
+    const { globalFilter, setGlobalFilter } = useDataTable();
+    return (jsx(Fragment, { children: jsx(Box, { children: jsxs(InputGroup, { children: [jsx(InputLeftElement, { pointerEvents: "none", children: jsx(Icon, { as: icon, color: "gray.300" }) }), jsx(Input, { value: globalFilter, onChange: (e) => {
+                            setGlobalFilter(e.target.value);
+                        } })] }) }) }));
 };
 
 export { DataTable, DataTableServer, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable };
