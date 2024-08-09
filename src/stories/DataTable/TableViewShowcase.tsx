@@ -88,6 +88,12 @@ const TableViewShowcase = () => {
           },
           meta: {
             filterVariant: "range",
+            filterRangeConfig: {
+              min:  -15,
+              max: 10000,
+              step: 100,
+              defaultValue: [10,1050]
+            }
           },
         }),
       ],
