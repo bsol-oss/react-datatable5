@@ -153,6 +153,7 @@ export const DataTable = <TData,>({
         globalFilter: globalFilter,
         setGlobalFilter: setGlobalFilter,
         loading: false,
+        hasError: false,
       }}
     >
       {children}

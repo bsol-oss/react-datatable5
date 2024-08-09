@@ -7,6 +7,7 @@ export interface DataTableContext<TData> {
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
   loading: boolean;
+  hasError: boolean;
 }
 
 export const TableContext = createContext<DataTableContext<any>>({
@@ -15,4 +16,5 @@ export const TableContext = createContext<DataTableContext<any>>({
   globalFilter: "",
   setGlobalFilter: () => {},
   loading: false,
+  hasError: false,
 });

@@ -32,6 +32,7 @@ export const useDataFromUrl = <T,>({
 
   const getData = async () => {
     try {
+      setHasError(false);
       setLoading(true);
       const { data } = await axios.get<T>(url, { params: params });
       console.debug("get DataFromUrl success", data);

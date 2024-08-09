@@ -1,4 +1,13 @@
-import { Box, Flex, Grid, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Grid,
+  Icon,
+  Spinner,
+  Text,
+  Tooltip,
+} from "@chakra-ui/react";
+import { BsExclamationCircleFill } from "react-icons/bs";
 import { MdOutlineViewColumn } from "react-icons/md";
 import {
   EditFilterButton,
@@ -9,6 +18,7 @@ import {
   RowCountText,
   TableFilterTags,
   TablePagination,
+  useDataTable,
 } from "../../index";
 
 export interface TableControlsProps {
@@ -34,6 +44,7 @@ export const TableControls = ({
   showFilterTags = false,
   filterOptions = [],
 }: TableControlsProps) => {
+  const { loading, hasError } = useDataTable();
   return (
     <Grid
       templateRows={"auto auto auto 1fr auto"}
@@ -51,7 +62,15 @@ export const TableControls = ({
             icon={<MdOutlineViewColumn />}
           />
         </Box>
-        <Flex gap={"1rem"} justifySelf={"end"}>
+        <Flex gap={"1rem"} alignItems={"center"} justifySelf={"end"}>
+          {loading && <Spinner size={"sm"} />}
+          {hasError && (
+            <Tooltip label="An error occurred while fetching data">
+              <Box>
+              <Icon as={BsExclamationCircleFill} color={"red.400"} />
+              </Box>
+            </Tooltip>
+          )}
           {showFilter && (
             <>
               <GlobalFilter />

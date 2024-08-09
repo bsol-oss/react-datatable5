@@ -177,6 +177,7 @@ export const DataTableServer = <TData,>({
         globalFilter,
         setGlobalFilter,
         loading: loading,
+        hasError: hasError,
       }}
     >
       {children}
