@@ -3,6 +3,7 @@ import TableViewShowcase from "./TableViewShowcase";
 import CardViewShowcase from "./CardViewShowcase";
 import TablePinningShowcase from "./TablePinningShowcase";
 import DefaultTableShowcase from "./DefaultTableShowcase";
+import DefaultTableShowcaseTwo from "./DefaultTableShowcase2";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -19,6 +20,12 @@ type Story = StoryObj<typeof meta>;
 export const DefaultTableView: Story = {
   render: () => {
     return <DefaultTableShowcase />;
+  },
+};
+
+export const DefaultTableView2: Story = {
+  render: () => {
+    return <DefaultTableShowcaseTwo />;
   },
 };
 
