@@ -6,6 +6,7 @@ import {
   theme,
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import { useDataTable } from "../../components/DataTable/useDataTable";
 import {
   DataTableServer,
   EditFilterButton,
@@ -43,6 +44,7 @@ const RowActions = ({ row }: RowActionsProps) => {
 };
 
 const CardViewShowcase = () => {
+  const dataTable = useDataTable();
   const columnHelper = createColumnHelper<ChatRecord>();
 
   const columns: ColumnDef<ChatRecord>[] = [
@@ -113,9 +115,7 @@ const CardViewShowcase = () => {
       <DataTableServer
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
-        loadingComponent={
-          <>Hang tight, our system's got something to share. Be right back!</>
-        }
+        {...dataTable}
       >
         <Flex gap="0.25rem">
           <TablePagination />

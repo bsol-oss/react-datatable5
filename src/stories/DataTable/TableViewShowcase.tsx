@@ -1,6 +1,7 @@
 import { Box, ChakraProvider, Flex, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
+import { useDataTable } from "../../components/DataTable/useDataTable";
 import {
   DataTable,
   EditFilterButton,
@@ -28,8 +29,13 @@ const RowActions = ({ row }: RowActionsProps) => {
 };
 
 const TableViewShowcase = () => {
+  const datatable = useDataTable({
+    default: {
+      sorting: [{ id: "title", desc: false }],
+      columnVisibility: { description: false },
+    },
+  });
   const columnHelper = createColumnHelper<Product>();
-
   const columns: ColumnDef<Product>[] = [
     // Display Column
     columnHelper.display({
@@ -89,11 +95,11 @@ const TableViewShowcase = () => {
           meta: {
             filterVariant: "range",
             filterRangeConfig: {
-              min:  -15,
+              min: -15,
               max: 10000,
               step: 100,
-              defaultValue: [10,1050]
-            }
+              defaultValue: [10, 1050],
+            },
           },
         }),
       ],
@@ -102,12 +108,7 @@ const TableViewShowcase = () => {
 
   return (
     <ChakraProvider theme={theme}>
-      <DataTable
-        columns={columns}
-        data={data}
-        sorting={[{ id: "title", desc: false }]}
-        columnVisibility={{ description: false }}
-      >
+      <DataTable columns={columns} data={data} {...datatable}>
         <Flex>
           <TablePagination />
           <EditViewButton />

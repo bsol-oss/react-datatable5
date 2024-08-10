@@ -6,25 +6,28 @@ import {
   DataTableServer,
   DefaultTable,
   TableComponent,
-  TextCell
+  TextCell,
 } from "../../index";
+import { useDataTable } from "../../components/DataTable/useDataTable";
 
-interface ChatRecord {
-  session_id: string;
-  last_user_message: string;
-  last_system_response: string;
-  total_token: number;
-  total_prompt_tokens: number;
-  total_completion_tokens: number;
-  total_normalise_tokens: number;
-  chat_type: string;
-  model: string;
-  created_by: string;
-  last_update: string;
+export interface Root {
+  count: number;
+  results: ProfileData[];
+}
+
+export interface ProfileData {
+  id: string;
+  table_id: string;
+  person_id: string;
+  data: any;
+  created_by: any;
+  created_at: string;
+  updated_by: any;
+  updated_at: string;
 }
 
 interface RowActionsProps {
-  row: ChatRecord;
+  row: ProfileData;
 }
 
 const RowActions = ({ row }: RowActionsProps) => {
@@ -32,9 +35,14 @@ const RowActions = ({ row }: RowActionsProps) => {
 };
 
 const DefaultTableShowcase2 = () => {
-  const columnHelper = createColumnHelper<ChatRecord>();
+  const dataTable = useDataTable({
+    default: {
+      pagination: { pageSize: 25, pageIndex: 0 },
+    },
+  });
+  const columnHelper = createColumnHelper<ProfileData>();
 
-  const columns: ColumnDef<ChatRecord>[] = [
+  const columns: ColumnDef<ProfileData>[] = [
     columnHelper.display({
       id: "actionsa",
       header: () => <span>Actions A</span>,
@@ -74,7 +82,7 @@ const DefaultTableShowcase2 = () => {
       header: "Information",
       footer: (props) => props.column.id,
       columns: [
-        columnHelper.accessor("session_id", {
+        columnHelper.accessor("data", {
           cell: (props) => {
             return (
               <TextCell label={`${JSON.stringify(props.row.original.data)}`}>
@@ -82,17 +90,17 @@ const DefaultTableShowcase2 = () => {
               </TextCell>
             );
           },
-          header: () => <Box>Session Id</Box>,
-          footer: () => <Box>Session Id</Box>,
+          header: () => <Box>Data</Box>,
+          footer: () => <Box>Data</Box>,
           meta: {
-            displayName: "Session Id",
+            displayName: "Data",
           },
         }),
       ],
     }),
   ];
 
-  const columnv2: ColumnDef<ChatRecord>[] = [
+  const columnv2: ColumnDef<ProfileData>[] = [
     // Display Column
     columnHelper.display({
       id: "actions1",
@@ -124,7 +132,7 @@ const DefaultTableShowcase2 = () => {
       header: "Information",
       footer: (props) => props.column.id,
       columns: [
-        columnHelper.accessor("session_id", {
+        columnHelper.accessor("data", {
           cell: (props) => {
             return (
               <TextCell label={`${JSON.stringify(props.row.original.data)}`}>
@@ -142,20 +150,23 @@ const DefaultTableShowcase2 = () => {
     }),
   ];
 
-  const [selectedId, setSelectedId] = useState();
+  const [selectedId, setSelectedId] = useState<string>();
 
   return (
     <ChakraProvider theme={theme}>
       <Button
         onClick={() => {
           setSelectedId("ea3382be-eb0e-4b72-9a7b-9ec9df7dbf61");
+          dataTable.setColumnVisibility({ actionsa: false });
         }}
       >
         staff profile
       </Button>
+      +
       <Button
         onClick={() => {
           setSelectedId("dc40c86a-7ce6-4835-b9fb-2fd6afa4b909");
+          dataTable.setColumnVisibility({ actions1: false });
         }}
       >
         aad profile
@@ -167,13 +178,14 @@ const DefaultTableShowcase2 = () => {
             : columnv2
         }
         url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
-        sorting={[{ id: "last_update", desc: true }]}
-        pagination={{ pageSize: 25, pageIndex: 0 }}
-        columnVisibility={
-          selectedId == "dc40c86a-7ce6-4835-b9fb-2fd6afa4b909"
-            ? { actionsa: false }
-            : { actions1: false }
-        }
+        // sorting={}
+        // pagination={{ pageSize: 25, pageIndex: 0 }}
+        // columnVisibility={
+        //   selectedId == "dc40c86a-7ce6-4835-b9fb-2fd6afa4b909"
+        //     ? { actionsa: false }
+        //     : { actions1: false }
+        // }
+        {...dataTable}
       >
         <DefaultTable showFilter filterOptions={["model"]} />
         <Box width="400px" height={"400px"}>

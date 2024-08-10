@@ -21,6 +21,7 @@ import {
 } from "../../index";
 
 import { data, Product } from "../product_data";
+import { useDataTable } from "../../components/DataTable/useDataTable";
 
 interface RowActionsProps {
   row: Product;
@@ -31,6 +32,7 @@ const RowActions = ({ row }: RowActionsProps) => {
 };
 
 const CardViewShowcase = () => {
+  const datatable = useDataTable();
   const columnHelper = createColumnHelper<Product>();
 
   const columns: ColumnDef<Product>[] = [
@@ -83,7 +85,7 @@ const CardViewShowcase = () => {
 
   return (
     <ChakraProvider theme={theme}>
-      <DataTable columns={columns} data={data}>
+      <DataTable columns={columns} data={data} {...datatable}>
         <Flex gap="0.25rem">
           <TablePagination />
           <ButtonGroup isAttached>
