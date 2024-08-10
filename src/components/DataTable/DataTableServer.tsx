@@ -4,11 +4,11 @@ import {
   ColumnDef,
   ColumnFiltersState,
   getCoreRowModel,
-  RowData,
+  PaginationState,
   RowSelectionState,
   SortingState,
   useReactTable,
-  VisibilityState,
+  VisibilityState
 } from "@tanstack/react-table";
 import { DensityFeature, DensityState } from "../Controls/DensityFeature";
 import { TableContext } from "./DataTableContext";
@@ -69,7 +69,8 @@ export const DataTableServer = <TData,>({
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] =
     useState<ColumnFiltersState>(defaultColumnFilter); // can set initial column filter state here
-  const [pagination, setPagination] = useState(defaultPagination);
+  const [pagination, setPagination] =
+    useState<PaginationState>(defaultPagination);
   const [rowSelection, setRowSelection] =
     useState<RowSelectionState>(defaultRowSelection);
   const [columnOrder, setColumnOrder] = useState<string[]>(defaultColumnOrder);
