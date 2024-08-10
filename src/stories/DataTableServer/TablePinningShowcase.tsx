@@ -15,7 +15,7 @@ import {
   TableSelector,
   TextCell,
 } from "../../index";
-
+import { useDataTable } from "../../components/DataTable/useDataTable";
 
 interface ChatRecord {
   session_id: string;
@@ -31,17 +31,9 @@ interface ChatRecord {
   last_update: string;
 }
 
-interface RowActionsProps {
-  row: ChatRecord;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
-  return <>has no actions</>;
-};
-
 const TablePinningShowcase = () => {
+  const datatable = useDataTable();
   const columnHelper = createColumnHelper<ChatRecord>();
-
   const columns: ColumnDef<ChatRecord>[] = [
     columnHelper.display({
       id: "session_id",
@@ -136,6 +128,7 @@ const TablePinningShowcase = () => {
       <DataTableServer
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
+        {...datatable}
       >
         <Flex gap="0.25rem">
           <TablePagination />

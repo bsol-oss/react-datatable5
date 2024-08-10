@@ -2,6 +2,7 @@ import { Box, ChakraProvider, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
 import { data, Product } from "../product_data";
+import { useDataTable } from "../../components/DataTable/useDataTable";
 
 interface RowActionsProps {
   row: Product;
@@ -12,6 +13,9 @@ const RowActions = ({ row }: RowActionsProps) => {
 };
 
 const DefaultTableShowcase = () => {
+  const datatable = useDataTable({
+    default: { sorting: [{ id: "title", desc: false }] },
+  });
   const columnHelper = createColumnHelper<Product>();
   const columns: ColumnDef<Product>[] = [
     // Display Column
@@ -135,11 +139,7 @@ const DefaultTableShowcase = () => {
 
   return (
     <ChakraProvider theme={theme}>
-      <DataTable
-        columns={columns}
-        data={data}
-        sorting={[{ id: "title", desc: false }]}
-      >
+      <DataTable columns={columns} data={data} {...datatable}>
         <DefaultTable
           showFilter
           showFilterName

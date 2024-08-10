@@ -19,7 +19,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { GrAscend, GrDescend } from "react-icons/gr";
 import { MdPushPin } from "react-icons/md";
-import { useDataTable } from "../../index";
+import { useDataTableContext } from "../../index";
 export interface TableHeaderProps {
   canResize?: boolean;
   pinnedBgColor?: { light: string; dark: string };
@@ -29,7 +29,7 @@ export const TableHeader = ({
   canResize,
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
 }: TableHeaderProps) => {
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
   const [hoveredCheckBox, setHoveredCheckBox] = useState<boolean>(false);
 

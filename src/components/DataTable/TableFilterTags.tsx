@@ -1,13 +1,13 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import { Flex, IconButton, Tag, Text } from "@chakra-ui/react";
-import { useDataTable } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 export const TableFilterTags = () => {
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
 
   return (
     <Flex gap={"0.5rem"} flexFlow={"wrap"}>
-      {table.getState().columnFilters.map(({ id, value }, index) => {
+      {table.getState().columnFilters.map(({ id, value }) => {
         return (
           <Tag
             key={`${id}-${value}`}
@@ -22,8 +22,8 @@ export const TableFilterTags = () => {
               icon={<CloseIcon />}
               onClick={() => {
                 table.setColumnFilters(
-                  table.getState().columnFilters.filter((value, curIndex) => {
-                    return curIndex != index;
+                  table.getState().columnFilters.filter((filter) => {
+                    return filter.value != value;
                   })
                 );
               }}

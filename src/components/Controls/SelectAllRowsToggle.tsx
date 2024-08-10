@@ -1,22 +1,22 @@
 import { Button, IconButton } from "@chakra-ui/react";
 import React from "react";
 import { MdClear, MdOutlineChecklist } from "react-icons/md";
-import { useDataTable } from "../../index";
+import { useDataTableContext } from "../../index";
 
 export interface SelectAllRowsToggleProps {
-  selectAllIcon: React.ReactElement;
-  clearAllIcon: React.ReactElement;
-  selectAllText: string;
-  clearAllText: string;
+  selectAllIcon?: React.ReactElement;
+  clearAllIcon?: React.ReactElement;
+  selectAllText?: string;
+  clearAllText?: string;
 }
 
 export const SelectAllRowsToggle = ({
   selectAllIcon = <MdOutlineChecklist />,
   clearAllIcon = <MdClear />,
-  selectAllText,
-  clearAllText,
+  selectAllText = "",
+  clearAllText = "",
 }: SelectAllRowsToggleProps) => {
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
   return (
     <>
       {!!selectAllText === false && (

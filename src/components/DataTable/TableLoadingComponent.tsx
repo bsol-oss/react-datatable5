@@ -1,4 +1,4 @@
-import { useDataTable } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 export interface TableLoadingComponentProps {
   render: (loading: boolean) => JSX.Element;
@@ -7,6 +7,6 @@ export interface TableLoadingComponentProps {
 export const TableLoadingComponent = ({
   render,
 }: TableLoadingComponentProps) => {
-  const { loading } = useDataTable();
+  const { loading } = useDataTableContext();
   return <>{render(loading)}</>;
 };

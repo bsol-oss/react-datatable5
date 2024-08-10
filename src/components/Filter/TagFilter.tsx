@@ -1,12 +1,9 @@
 import {
-  Box,
   Flex,
   Tag,
   TagCloseButton,
   TagLabel,
-  VStack,
-  Wrap,
-  WrapItem,
+  WrapItem
 } from "@chakra-ui/react";
 import React from "react";
 

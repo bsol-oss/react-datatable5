@@ -29,6 +29,7 @@ import {
   TableSelector,
   TextCell,
 } from "../../index";
+import { useDataTable } from "../../components/DataTable/useDataTable";
 
 interface ChatRecord {
   session_id: string;
@@ -82,6 +83,13 @@ export const extendedTheme = extendTheme({
 });
 
 const TableViewShowcase = () => {
+  const dataTable = useDataTable({
+    default: {
+      sorting: [{ id: "last_update", desc: true }],
+      pagination: { pageSize: 25, pageIndex: 0 },
+      columnVisibility: { total_completion_tokens: false },
+    },
+  });
   const columnHelper = createColumnHelper<ChatRecord>();
 
   const columns: ColumnDef<ChatRecord>[] = [
@@ -179,9 +187,7 @@ const TableViewShowcase = () => {
       <DataTableServer
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
-        sorting={[{ id: "last_update", desc: true }]}
-        pagination={{ pageSize: 25, pageIndex: 0 }}
-        columnVisibility={{ total_completion_tokens: false }}
+        {...dataTable}
       >
         <Flex flexFlow={"wrap"}>
           <TablePagination />

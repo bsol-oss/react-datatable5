@@ -7,6 +7,7 @@ import {
   TableComponent,
   TextCell,
 } from "../../index";
+import { useDataTable } from "../../components/DataTable/useDataTable";
 
 interface ChatRecord {
   session_id: string;
@@ -31,6 +32,12 @@ const RowActions = ({ row }: RowActionsProps) => {
 };
 
 const DefaultTableShowcase = () => {
+  const dataTable = useDataTable({
+    default: {
+      sorting: [{ id: "last_update", desc: true }],
+      pagination: { pageSize: 25, pageIndex: 0 },
+    },
+  });
   const columnHelper = createColumnHelper<ChatRecord>();
 
   const columns: ColumnDef<ChatRecord>[] = [
@@ -127,8 +134,7 @@ const DefaultTableShowcase = () => {
       <DataTableServer
         columns={columns}
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
-        sorting={[{ id: "last_update", desc: true }]}
-        pagination={{ pageSize: 25, pageIndex: 0 }}
+        {...dataTable}
       >
         <DefaultTable showFilter filterOptions={["model"]} />
         <Box width="400px" height={"400px"}>

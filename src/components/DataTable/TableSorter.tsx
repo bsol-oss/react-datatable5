@@ -5,10 +5,10 @@ import {
   UpDownIcon,
 } from "@chakra-ui/icons";
 import { Button, Flex, Text } from "@chakra-ui/react";
-import { useDataTable } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 export const TableSorter = () => {
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
 
   return (
     <>
@@ -26,27 +26,22 @@ export const TableSorter = () => {
                     <Text>{displayName}</Text>
                     <Button
                       variant={"ghost"}
-                      onClick={(e) => {
+                      onClick={() => {
                         header.column.toggleSorting();
                       }}
                     >
-                      {header.column.getIsSorted() === false && (
-                        // <Text>To No sort</Text>
-                        <UpDownIcon />
-                      )}
+                      {header.column.getIsSorted() === false && <UpDownIcon />}
                       {header.column.getIsSorted() === "asc" && (
-                        // <Text>To asc</Text>
                         <ChevronDownIcon />
                       )}
                       {header.column.getIsSorted() === "desc" && (
-                        // <Text>To desc</Text>
                         <ChevronUpIcon />
                       )}
                     </Button>
 
                     {header.column.getIsSorted() && (
                       <Button
-                        onClick={(e) => {
+                        onClick={() => {
                           header.column.clearSorting();
                         }}
                       >

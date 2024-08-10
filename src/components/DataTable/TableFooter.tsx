@@ -11,7 +11,7 @@ import {
   Tr,
 } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
-import { useDataTable } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 import { useState } from "react";
 
 export interface TableFooterProps {
@@ -21,7 +21,7 @@ export interface TableFooterProps {
 export const TableFooter = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
 }: TableFooterProps) => {
-  const table = useDataTable().table;
+  const table = useDataTableContext().table;
   const SELECTION_BOX_WIDTH = 20;
   const [hoveredCheckBox, setHoveredCheckBox] = useState<boolean>(false);
 

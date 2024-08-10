@@ -36,7 +36,7 @@ export default {
   },
 };
 
-const Template = (args) => {
+const Template = (args: any) => {
   return (
     <ChakraProvider theme={theme}>
       <DataTable {...args}>
@@ -95,7 +95,7 @@ const columns: ColumnDef<Product>[] = [
       columnHelper.accessor("title", {
         cell: (props) => {
           return (
-            <Box padding={"0rem"}>
+            <Box padding="0">
               <TextCell label={props.row.original.title}>
                 {props.row.original.title}
               </TextCell>
