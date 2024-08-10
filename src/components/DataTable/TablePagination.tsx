@@ -5,7 +5,7 @@ import {
   MdFirstPage,
   MdLastPage,
 } from "react-icons/md";
-import { useDataTable } from "./useDataTable";
+import { useDataTableContext } from "./useDataTable";
 
 export interface PaginationProps {}
 
@@ -18,7 +18,7 @@ export const TablePagination = ({}: PaginationProps) => {
     nextPage,
     getCanNextPage,
     lastPage,
-  } = useDataTable().table;
+  } = useDataTableContext().table;
   return (
     <ButtonGroup isAttached>
       <IconButton

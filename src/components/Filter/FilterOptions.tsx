@@ -1,13 +1,13 @@
 import { Button } from "@chakra-ui/react";
 import { MdClose } from "react-icons/md";
-import { useDataTable } from "../../index";
+import { useDataTableContext } from "../../index";
 
 export interface FilterOptionsProps {
   column: string;
 }
 
 export const FilterOptions = ({ column }: FilterOptionsProps) => {
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
   const tableColumn = table.getColumn(column);
   const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
 

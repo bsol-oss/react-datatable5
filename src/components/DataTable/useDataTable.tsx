@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
 
-export const useDataTable = () => {
+export const useDataTableContext = () => {
   const {
     table,
     refreshData,

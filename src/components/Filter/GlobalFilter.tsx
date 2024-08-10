@@ -6,10 +6,10 @@ import {
   InputLeftElement,
 } from "@chakra-ui/react";
 import { MdSearch } from "react-icons/md";
-import { useDataTable } from "../../index";
+import { useDataTableContext } from "../../index";
 
 export const GlobalFilter = ({ icon = MdSearch }) => {
-  const { globalFilter, setGlobalFilter } = useDataTable();
+  const { globalFilter, setGlobalFilter } = useDataTableContext();
 
   return (
     <>

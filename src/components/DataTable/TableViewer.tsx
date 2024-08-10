@@ -2,10 +2,10 @@ import { Box, Flex, Grid, Icon, Switch } from "@chakra-ui/react";
 import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { FaGripLinesVertical } from "react-icons/fa";
-import { useDataTable } from "./useDataTable";
+import { useDataTableContext } from "./useDataTable";
 
 export const TableViewer = () => {
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
   const columns = table.getAllLeafColumns();
   const [columnOrder, setColumnOrder] = useState(
     columns.map((column, index) => {

@@ -1,9 +1,9 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import { Flex, IconButton, Tag, Text } from "@chakra-ui/react";
-import { useDataTable } from "./useDataTable";
+import { useDataTableContext } from "./useDataTable";
 
 export const TableFilterTags = () => {
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
 
   return (
     <Flex gap={"0.5rem"} flexFlow={"wrap"}>

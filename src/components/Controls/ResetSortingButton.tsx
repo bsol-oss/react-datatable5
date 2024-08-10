@@ -1,5 +1,5 @@
 import { Button } from "@chakra-ui/react";
-import { useDataTable } from "../../index";
+import { useDataTableContext } from "../../index";
 
 export interface ResetSortingButtonProps {
   text?: string;
@@ -8,7 +8,7 @@ export interface ResetSortingButtonProps {
 export const ResetSortingButton = ({
   text = "Reset Sorting",
 }: ResetSortingButtonProps) => {
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
   return (
     <Button
       onClick={() => {

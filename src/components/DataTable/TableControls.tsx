@@ -18,7 +18,7 @@ import {
   RowCountText,
   TableFilterTags,
   TablePagination,
-  useDataTable,
+  useDataTableContext,
 } from "../../index";
 
 export interface TableControlsProps {
@@ -44,7 +44,7 @@ export const TableControls = ({
   showFilterTags = false,
   filterOptions = [],
 }: TableControlsProps) => {
-  const { loading, hasError } = useDataTable();
+  const { loading, hasError } = useDataTableContext();
   return (
     <Grid
       templateRows={"auto auto auto 1fr auto"}

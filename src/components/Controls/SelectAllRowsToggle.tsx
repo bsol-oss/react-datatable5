@@ -1,7 +1,7 @@
 import { Button, IconButton } from "@chakra-ui/react";
 import React from "react";
 import { MdClear, MdOutlineChecklist } from "react-icons/md";
-import { useDataTable } from "../../index";
+import { useDataTableContext } from "../../index";
 
 export interface SelectAllRowsToggleProps {
   selectAllIcon: React.ReactElement;
@@ -16,7 +16,7 @@ export const SelectAllRowsToggle = ({
   selectAllText,
   clearAllText,
 }: SelectAllRowsToggleProps) => {
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
   return (
     <>
       {!!selectAllText === false && (

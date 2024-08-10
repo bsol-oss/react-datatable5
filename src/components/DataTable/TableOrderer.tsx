@@ -1,7 +1,7 @@
 import { Button, Flex, IconButton } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { MdArrowDownward, MdArrowUpward } from "react-icons/md";
-import { useDataTable } from "./useDataTable";
+import { useDataTableContext } from "./useDataTable";
 interface ColumnOrderChangerProps {
   columns: string[];
 }
@@ -9,7 +9,7 @@ interface ColumnOrderChangerProps {
 const ColumnOrderChanger = ({ columns }: ColumnOrderChangerProps) => {
   const [order, setOrder] = useState<string[]>([]);
   const [originalOrder, setOriginalOrder] = useState<string[]>([]);
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
 
   const handleChangeOrder = (startIndex: number, endIndex: number) => {
     const newOrder = Array.from(order);
@@ -102,7 +102,7 @@ const ColumnOrderChanger = ({ columns }: ColumnOrderChangerProps) => {
 };
 
 export const TableOrderer = () => {
-  const { table } = useDataTable();
+  const { table } = useDataTableContext();
 
   return (
     <>
