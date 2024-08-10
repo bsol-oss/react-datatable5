@@ -11,7 +11,7 @@ declare module "@tanstack/react-table" {
      * Specifies the type of filter to be used for the column.
      *
      * @remarks You should provide a proper `filterfn` to handle filtering when choosing `boolean`, `dateRange`, and `custom`.
-     * 
+     *
      * @remarks You should decide `renderFilter` to display filter ui when choosing `custom`.
      *
      * Possible values:
@@ -95,6 +95,8 @@ export * from "./components/DataTable/TableSorter";
 export * from "./components/DataTable/TableViewer";
 export * from "./components/DataTable/TextCell";
 export * from "./components/DataTable/useDataFromUrl";
+export * from "./components/DataTable/useDataTable";
 export * from "./components/DataTable/useDataTableContext";
 export * from "./components/Filter/FilterOptions";
 export * from "./components/Filter/GlobalFilter";
+
