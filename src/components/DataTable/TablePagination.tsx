@@ -5,7 +5,7 @@ import {
   MdFirstPage,
   MdLastPage,
 } from "react-icons/md";
-import { useDataTableContext } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 export interface PaginationProps {}
 

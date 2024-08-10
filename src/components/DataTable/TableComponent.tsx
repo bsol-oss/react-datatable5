@@ -1,6 +1,6 @@
 import { Table } from "@tanstack/react-table";
 import React from "react";
-import { useDataTableContext } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 export interface TableRendererProps<TData> {
   render: (render: Table<TData>) => React.ReactElement;

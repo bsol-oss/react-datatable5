@@ -3,7 +3,7 @@ import {
   TableProps as ChakraTableProps,
 } from "@chakra-ui/react";
 import { ReactNode } from "react";
-import { useDataTableContext } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 export interface TableProps extends ChakraTableProps {
   showLoading?: boolean;

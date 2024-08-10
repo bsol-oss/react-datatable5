@@ -11,7 +11,7 @@ import {
   Tr,
 } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
-import { useDataTableContext } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 import { useState } from "react";
 
 export interface TableFooterProps {

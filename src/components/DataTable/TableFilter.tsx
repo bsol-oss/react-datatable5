@@ -3,7 +3,7 @@ import { Column } from "@tanstack/react-table";
 import { DateRangeFilter } from "../Filter/DateRangeFilter";
 import RangeFilter from "../Filter/RangeFilter";
 import { TagFilter } from "../Filter/TagFilter";
-import { useDataTableContext } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 function Filter({ column }: { column: Column<any, unknown> }) {
   const { filterVariant } = column.columnDef.meta ?? {};

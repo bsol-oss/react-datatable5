@@ -1,6 +1,6 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import { Flex, IconButton, Tag, Text } from "@chakra-ui/react";
-import { useDataTableContext } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 export const TableFilterTags = () => {
   const { table } = useDataTableContext();

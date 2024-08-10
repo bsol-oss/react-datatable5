@@ -5,7 +5,7 @@ import {
   UpDownIcon,
 } from "@chakra-ui/icons";
 import { Button, Flex, Text } from "@chakra-ui/react";
-import { useDataTableContext } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 export const TableSorter = () => {
   const { table } = useDataTableContext();

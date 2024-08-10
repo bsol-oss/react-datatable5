@@ -2,7 +2,7 @@ import { Box, Flex, Grid, Icon, Switch } from "@chakra-ui/react";
 import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { FaGripLinesVertical } from "react-icons/fa";
-import { useDataTableContext } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 export const TableViewer = () => {
   const { table } = useDataTableContext();

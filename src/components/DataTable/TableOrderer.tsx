@@ -1,7 +1,7 @@
 import { Button, Flex, IconButton } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { MdArrowDownward, MdArrowUpward } from "react-icons/md";
-import { useDataTableContext } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 interface ColumnOrderChangerProps {
   columns: string[];
 }

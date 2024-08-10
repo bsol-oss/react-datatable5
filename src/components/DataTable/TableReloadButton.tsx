@@ -1,6 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { IoReload } from "react-icons/io5";
-import { useDataTableContext } from "./useDataTable";
+import { useDataTableContext } from "./useDataTableContext";
 
 export interface ReloadButtonProps {
   text?: string;
