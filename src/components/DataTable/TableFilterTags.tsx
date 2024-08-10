@@ -7,7 +7,7 @@ export const TableFilterTags = () => {
 
   return (
     <Flex gap={"0.5rem"} flexFlow={"wrap"}>
-      {table.getState().columnFilters.map(({ id, value }, index) => {
+      {table.getState().columnFilters.map(({ id, value }) => {
         return (
           <Tag
             key={`${id}-${value}`}
@@ -22,8 +22,8 @@ export const TableFilterTags = () => {
               icon={<CloseIcon />}
               onClick={() => {
                 table.setColumnFilters(
-                  table.getState().columnFilters.filter((value, curIndex) => {
-                    return curIndex != index;
+                  table.getState().columnFilters.filter((filter) => {
+                    return filter.value != value;
                   })
                 );
               }}
