@@ -4,17 +4,17 @@ import { MdClear, MdOutlineChecklist } from "react-icons/md";
 import { useDataTableContext } from "../../index";
 
 export interface SelectAllRowsToggleProps {
-  selectAllIcon: React.ReactElement;
-  clearAllIcon: React.ReactElement;
-  selectAllText: string;
-  clearAllText: string;
+  selectAllIcon?: React.ReactElement;
+  clearAllIcon?: React.ReactElement;
+  selectAllText?: string;
+  clearAllText?: string;
 }
 
 export const SelectAllRowsToggle = ({
   selectAllIcon = <MdOutlineChecklist />,
   clearAllIcon = <MdClear />,
-  selectAllText,
-  clearAllText,
+  selectAllText = "",
+  clearAllText = "",
 }: SelectAllRowsToggleProps) => {
   const { table } = useDataTableContext();
   return (
