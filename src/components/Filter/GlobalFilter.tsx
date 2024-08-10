@@ -9,7 +9,7 @@ import { MdSearch } from "react-icons/md";
 import { useDataTableContext } from "../../index";
 
 export const GlobalFilter = ({ icon = MdSearch }) => {
-  const { globalFilter, setGlobalFilter } = useDataTableContext();
+  const { table } = useDataTableContext();
 
   return (
     <>
@@ -19,9 +19,9 @@ export const GlobalFilter = ({ icon = MdSearch }) => {
             <Icon as={icon} color="gray.300" />
           </InputLeftElement>
           <Input
-            value={globalFilter}
+            value={table.getState().globalFilter.globalFilter}
             onChange={(e) => {
-              setGlobalFilter(e.target.value);
+              table.setGlobalFilter(e.target.value);
             }}
           />
         </InputGroup>

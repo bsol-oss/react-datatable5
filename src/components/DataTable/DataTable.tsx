@@ -1,17 +1,21 @@
 import {
   ColumnDef,
   ColumnFiltersState,
+  ColumnOrderState,
   FilterFn,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  GlobalFilterTableState,
+  OnChangeFn,
+  PaginationState,
   RowSelectionState,
   SortingState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { TableContext } from "./DataTableContext";
 
 import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
@@ -49,17 +53,22 @@ export interface DataTableProps<TData> {
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
   onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
-  columnOrder?: string[];
-  columnFilters?: ColumnFiltersState;
-  globalFilter?: string;
-  density?: DensityState;
-  pagination?: {
-    pageIndex: number;
-    pageSize: number;
-  };
-  sorting?: SortingState;
-  rowSelection?: RowSelectionState;
-  columnVisibility?: VisibilityState;
+  columnOrder: ColumnOrderState;
+  columnFilters: ColumnFiltersState;
+  globalFilter: GlobalFilterTableState;
+  density: DensityState;
+  pagination: PaginationState;
+  sorting: SortingState;
+  rowSelection: RowSelectionState;
+  columnVisibility: VisibilityState;
+  setPagination: OnChangeFn<PaginationState>;
+  setSorting: OnChangeFn<SortingState>;
+  setColumnFilters: OnChangeFn<ColumnFiltersState>;
+  setRowSelection: OnChangeFn<RowSelectionState>;
+  setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+  setColumnOrder: OnChangeFn<ColumnOrderState>;
+  setDensity: OnChangeFn<DensityState>;
+  setColumnVisibility: OnChangeFn<VisibilityState>;
 }
 
 export const DataTable = <TData,>({
@@ -69,28 +78,24 @@ export const DataTable = <TData,>({
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
   onRowSelect = () => {},
-  columnOrder: defaultColumnOrder = [],
-  columnFilters: defaultColumnFilter = [],
-  density = "sm",
-  globalFilter: defaultGlobalFilter = "",
-  pagination: defaultPagination = {
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-  },
-  sorting: defaultSorting = [],
-  rowSelection: defaultRowSelection = {},
-  columnVisibility: defaultColumnVisibility = {},
+  columnOrder,
+  columnFilters,
+  columnVisibility,
+  density,
+  globalFilter,
+  pagination,
+  sorting,
+  rowSelection,
+  setPagination,
+  setSorting,
+  setColumnFilters,
+  setRowSelection,
+  setGlobalFilter,
+  setColumnOrder,
+  setDensity,
+  setColumnVisibility,
   children,
 }: DataTableProps<TData>) => {
-  const [columnOrder, setColumnOrder] = useState<string[]>(defaultColumnOrder);
-  const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
-  const [densityState, setDensity] = useState<DensityState>(density);
-  const [rowSelection, setRowSelection] =
-    useState<RowSelectionState>(defaultRowSelection);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    defaultColumnVisibility
-  );
-
   const table = useReactTable<TData>({
     _features: [DensityFeature],
     data: data,
@@ -104,16 +109,6 @@ export const DataTable = <TData,>({
       minSize: 10, //enforced during column resizing
       maxSize: 10000, //enforced during column resizing
     },
-    state: {
-      columnOrder,
-      globalFilter,
-      density: densityState,
-      rowSelection,
-      columnVisibility,
-    },
-    onColumnOrderChange: (state) => {
-      setColumnOrder(state);
-    },
     enableRowSelection: enableRowSelection,
     enableMultiRowSelection: enableMultiRowSelection,
     enableSubRowSelection: enableSubRowSelection,
@@ -122,17 +117,29 @@ export const DataTable = <TData,>({
     filterFns: {
       fuzzy: fuzzyFilter,
     },
-    onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "fuzzy",
-    // global filter end
-    onDensityChange: setDensity,
-    onRowSelectionChange: setRowSelection,
-    onColumnVisibilityChange: setColumnVisibility,
-    initialState: {
-      columnFilters: defaultColumnFilter,
-      sorting: defaultSorting,
-      pagination: defaultPagination,
+    state: {
+      pagination,
+      sorting,
+      columnFilters,
+      rowSelection,
+      columnOrder,
+      globalFilter,
+      density,
+      columnVisibility,
     },
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onRowSelectionChange: setRowSelection,
+    onColumnOrderChange: (state) => {
+      setColumnOrder(state);
+    },
+    onGlobalFilterChange: (state) => {
+      setGlobalFilter(state);
+    },
+    onDensityChange: setDensity,
+    onColumnVisibilityChange: setColumnVisibility,
   });
 
   useEffect(() => {

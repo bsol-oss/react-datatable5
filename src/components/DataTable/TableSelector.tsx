@@ -2,8 +2,8 @@ import { Box, Button, Icon, IconButton } from "@chakra-ui/react";
 import { useContext } from "react";
 import { IoMdCheckbox } from "react-icons/io";
 import { MdClear } from "react-icons/md";
-import { TableContext } from "./DataTableContext";
 import { SelectAllRowsToggle } from "../Controls/SelectAllRowsToggle";
+import { TableContext } from "./DataTableContext";
 export const TableSelector = () => {
   const { table } = useContext(TableContext);
   return (

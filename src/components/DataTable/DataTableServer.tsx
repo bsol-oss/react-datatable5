@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import {
   ColumnDef,
   ColumnFiltersState,
+  ColumnOrderState,
   getCoreRowModel,
+  GlobalFilterTableState,
+  OnChangeFn,
   PaginationState,
   RowSelectionState,
   SortingState,
   useReactTable,
-  VisibilityState
+  VisibilityState,
 } from "@tanstack/react-table";
 import { DensityFeature, DensityState } from "../Controls/DensityFeature";
 import { TableContext } from "./DataTableContext";
@@ -22,18 +25,22 @@ export interface DataTableServerProps<TData> {
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
   onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
-  columnOrder?: string[];
-  columnFilters?: ColumnFiltersState;
-  globalFilter?: string;
-  density?: DensityState;
-  pagination?: {
-    pageIndex: number;
-    pageSize: number;
-  };
-  sorting?: SortingState;
-  rowSelection?: RowSelectionState;
-  loadingComponent?: JSX.Element;
-  columnVisibility?: VisibilityState;
+  columnOrder: ColumnOrderState;
+  columnFilters: ColumnFiltersState;
+  globalFilter: GlobalFilterTableState;
+  density: DensityState;
+  pagination: PaginationState;
+  sorting: SortingState;
+  rowSelection: RowSelectionState;
+  columnVisibility: VisibilityState;
+  setPagination: OnChangeFn<PaginationState>;
+  setSorting: OnChangeFn<SortingState>;
+  setColumnFilters: OnChangeFn<ColumnFiltersState>;
+  setRowSelection: OnChangeFn<RowSelectionState>;
+  setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+  setColumnOrder: OnChangeFn<ColumnOrderState>;
+  setDensity: OnChangeFn<DensityState>;
+  setColumnVisibility: OnChangeFn<VisibilityState>;
 }
 
 export interface Result<T> {
@@ -53,32 +60,24 @@ export const DataTableServer = <TData,>({
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
   onRowSelect = () => {},
-  columnOrder: defaultColumnOrder = [],
-  columnFilters: defaultColumnFilter = [],
-  density = "sm",
-  globalFilter: defaultGlobalFilter = "",
-  pagination: defaultPagination = {
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-  },
-  sorting: defaultSorting = [],
-  rowSelection: defaultRowSelection = {},
-  columnVisibility: defaultColumnVisibility = {},
+  columnOrder,
+  columnFilters,
+  columnVisibility,
+  density,
+  globalFilter,
+  pagination,
+  sorting,
+  rowSelection,
+  setPagination,
+  setSorting,
+  setColumnFilters,
+  setRowSelection,
+  setGlobalFilter,
+  setColumnOrder,
+  setDensity,
+  setColumnVisibility,
   children,
 }: DataTableServerProps<TData>) => {
-  const [sorting, setSorting] = useState<SortingState>(defaultSorting);
-  const [columnFilters, setColumnFilters] =
-    useState<ColumnFiltersState>(defaultColumnFilter); // can set initial column filter state here
-  const [pagination, setPagination] =
-    useState<PaginationState>(defaultPagination);
-  const [rowSelection, setRowSelection] =
-    useState<RowSelectionState>(defaultRowSelection);
-  const [columnOrder, setColumnOrder] = useState<string[]>(defaultColumnOrder);
-  const [globalFilter, setGlobalFilter] = useState<string>(defaultGlobalFilter);
-  const [densityState, setDensity] = useState<DensityState>(density);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    defaultColumnVisibility
-  );
   const { data, loading, hasError, refreshData } = useDataFromUrl<
     DataResponse<TData>
   >({
@@ -106,7 +105,7 @@ export const DataTableServer = <TData,>({
           return { ...accumulator, ...obj };
         }, {})
       ),
-      searching: globalFilter,
+      searching: globalFilter.globalFilter,
     },
     disableFirstFetch: true,
   });
@@ -117,21 +116,7 @@ export const DataTableServer = <TData,>({
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     manualSorting: true,
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     columnResizeMode: "onChange",
-    onRowSelectionChange: setRowSelection,
-    state: {
-      pagination,
-      sorting,
-      columnFilters,
-      rowSelection,
-      columnOrder,
-      globalFilter,
-      density: densityState,
-      columnVisibility,
-    },
     defaultColumn: {
       size: 150, //starting column size
       minSize: 10, //enforced during column resizing
@@ -140,12 +125,28 @@ export const DataTableServer = <TData,>({
     enableRowSelection: enableRowSelection,
     enableMultiRowSelection: enableMultiRowSelection,
     enableSubRowSelection: enableSubRowSelection,
+    state: {
+      pagination,
+      sorting,
+      columnFilters,
+      rowSelection,
+      columnOrder,
+      globalFilter,
+      density,
+      columnVisibility,
+    },
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onRowSelectionChange: setRowSelection,
     onColumnOrderChange: (state) => {
       setColumnOrder(state);
     },
     onGlobalFilterChange: (state) => {
       setGlobalFilter(state);
     },
+    onDensityChange: setDensity,
+    onColumnVisibilityChange: setColumnVisibility,
     rowCount: data.count,
     // for tanstack-table ts bug start
     filterFns: {
@@ -154,8 +155,6 @@ export const DataTableServer = <TData,>({
       },
     },
     // for tanstack-table ts bug end
-    onDensityChange: setDensity,
-    onColumnVisibilityChange: setColumnVisibility,
   });
 
   useEffect(() => {
