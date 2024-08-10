@@ -838,6 +838,52 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
     return (jsxRuntime.jsx(react.Flex, { alignItems: "center", height: "100%", padding: padding, children: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }));
 };
 
+const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: defaultPagination = {
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = { globalFilter: "" }, density: defaultDensity = "sm", }, } = {
+    default: {
+        sorting: [],
+        pagination: {
+            pageIndex: 0, //initial page index
+            pageSize: 10, //age size
+        },
+        rowSelection: {},
+        columnFilters: [],
+        columnOrder: [],
+        columnVisibility: {},
+        globalFilter: { globalFilter: "" },
+        density: "sm",
+    },
+}) => {
+    const [sorting, setSorting] = react$1.useState(defaultSorting);
+    const [columnFilters, setColumnFilters] = react$1.useState(defaultColumnFilters); // can set initial column filter state here
+    const [pagination, setPagination] = react$1.useState(defaultPagination);
+    const [rowSelection, setRowSelection] = react$1.useState(defaultRowSelection);
+    const [columnOrder, setColumnOrder] = react$1.useState(defaultColumnOrder);
+    const [globalFilter, setGlobalFilter] = react$1.useState(defaultGlobalFilter);
+    const [density, setDensity] = react$1.useState(defaultDensity);
+    const [columnVisibility, setColumnVisibility] = react$1.useState(defaultColumnVisibility);
+    return {
+        sorting,
+        setSorting,
+        columnFilters,
+        setColumnFilters,
+        pagination,
+        setPagination,
+        rowSelection,
+        setRowSelection,
+        columnOrder,
+        setColumnOrder,
+        globalFilter,
+        setGlobalFilter,
+        density,
+        setDensity,
+        columnVisibility,
+        setColumnVisibility,
+    };
+};
+
 const FilterOptions = ({ column }) => {
     const { table } = useDataTableContext();
     const tableColumn = table.getColumn(column);
@@ -899,4 +945,5 @@ exports.TableSorter = TableSorter;
 exports.TableViewer = TableViewer;
 exports.TextCell = TextCell;
 exports.useDataFromUrl = useDataFromUrl;
+exports.useDataTable = useDataTable;
 exports.useDataTableContext = useDataTableContext;

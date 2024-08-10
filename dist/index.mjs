@@ -836,6 +836,52 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
     return (jsx(Flex, { alignItems: "center", height: "100%", padding: padding, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }));
 };
 
+const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: defaultPagination = {
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = { globalFilter: "" }, density: defaultDensity = "sm", }, } = {
+    default: {
+        sorting: [],
+        pagination: {
+            pageIndex: 0, //initial page index
+            pageSize: 10, //age size
+        },
+        rowSelection: {},
+        columnFilters: [],
+        columnOrder: [],
+        columnVisibility: {},
+        globalFilter: { globalFilter: "" },
+        density: "sm",
+    },
+}) => {
+    const [sorting, setSorting] = useState(defaultSorting);
+    const [columnFilters, setColumnFilters] = useState(defaultColumnFilters); // can set initial column filter state here
+    const [pagination, setPagination] = useState(defaultPagination);
+    const [rowSelection, setRowSelection] = useState(defaultRowSelection);
+    const [columnOrder, setColumnOrder] = useState(defaultColumnOrder);
+    const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
+    const [density, setDensity] = useState(defaultDensity);
+    const [columnVisibility, setColumnVisibility] = useState(defaultColumnVisibility);
+    return {
+        sorting,
+        setSorting,
+        columnFilters,
+        setColumnFilters,
+        pagination,
+        setPagination,
+        rowSelection,
+        setRowSelection,
+        columnOrder,
+        setColumnOrder,
+        globalFilter,
+        setGlobalFilter,
+        density,
+        setDensity,
+        columnVisibility,
+        setColumnVisibility,
+    };
+};
+
 const FilterOptions = ({ column }) => {
     const { table } = useDataTableContext();
     const tableColumn = table.getColumn(column);
@@ -863,4 +909,4 @@ const GlobalFilter = ({ icon = MdSearch }) => {
                         } })] }) }) }));
 };
 
-export { DataTable, DataTableServer, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTableContext };
+export { DataTable, DataTableServer, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable, useDataTableContext };
