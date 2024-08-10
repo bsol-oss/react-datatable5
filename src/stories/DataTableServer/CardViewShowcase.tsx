@@ -6,7 +6,6 @@ import {
   theme,
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { useDataTable } from "../../components/DataTable/useDataTable";
 import {
   DataTableServer,
   EditFilterButton,
@@ -19,6 +18,7 @@ import {
   TablePagination,
   TableSelector,
   TextCell,
+  useDataTable,
 } from "../../index";
 
 interface ChatRecord {

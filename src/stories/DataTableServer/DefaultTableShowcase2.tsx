@@ -6,9 +6,8 @@ import {
   DataTableServer,
   DefaultTable,
   TableComponent,
-  TextCell,
+  TextCell, useDataTable
 } from "../../index";
-import { useDataTable } from "../../components/DataTable/useDataTable";
 
 export interface Root {
   count: number;

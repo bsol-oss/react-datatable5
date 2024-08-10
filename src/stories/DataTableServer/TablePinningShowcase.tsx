@@ -14,8 +14,8 @@ import {
   TablePagination,
   TableSelector,
   TextCell,
+  useDataTable,
 } from "../../index";
-import { useDataTable } from "../../components/DataTable/useDataTable";
 
 interface ChatRecord {
   session_id: string;
