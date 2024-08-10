@@ -1,13 +1,13 @@
 import { Box, Button, ChakraProvider, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
+import { useState } from "react";
 import {
   DataTableServer,
   DefaultTable,
   TableComponent,
-  TextCell,
+  TextCell
 } from "../../index";
-import { useState } from "react";
 
 interface ChatRecord {
   session_id: string;
@@ -35,6 +35,30 @@ const DefaultTableShowcase2 = () => {
   const columnHelper = createColumnHelper<ChatRecord>();
 
   const columns: ColumnDef<ChatRecord>[] = [
+    columnHelper.display({
+      id: "actionsa",
+      header: () => <span>Actions A</span>,
+      cell: (props) => <RowActions row={props.row.original} />,
+      meta: {
+        displayName: "Actions A",
+      },
+    }),
+    columnHelper.display({
+      id: "actionsb",
+      header: () => <span>Actions B</span>,
+      cell: (props) => <RowActions row={props.row.original} />,
+      meta: {
+        displayName: "Actions B",
+      },
+    }),
+    columnHelper.display({
+      id: "actionsc",
+      header: () => <span>Actions C</span>,
+      cell: (props) => <RowActions row={props.row.original} />,
+      meta: {
+        displayName: "Actions C",
+      },
+    }),
     // Display Column
     columnHelper.display({
       id: "actions",
@@ -71,11 +95,27 @@ const DefaultTableShowcase2 = () => {
   const columnv2: ColumnDef<ChatRecord>[] = [
     // Display Column
     columnHelper.display({
-      id: "actions",
-      header: () => <span>Actions</span>,
+      id: "actions1",
+      header: () => <span>Actions 1</span>,
       cell: (props) => <RowActions row={props.row.original} />,
       meta: {
-        displayName: "Actions",
+        displayName: "Actions 1",
+      },
+    }),
+    columnHelper.display({
+      id: "actions2",
+      header: () => <span>Actions 2</span>,
+      cell: (props) => <RowActions row={props.row.original} />,
+      meta: {
+        displayName: "Actions 2",
+      },
+    }),
+    columnHelper.display({
+      id: "actions3",
+      header: () => <span>Actions 3</span>,
+      cell: (props) => <RowActions row={props.row.original} />,
+      meta: {
+        displayName: "Actions 3",
       },
     }),
 
@@ -129,6 +169,11 @@ const DefaultTableShowcase2 = () => {
         url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
         sorting={[{ id: "last_update", desc: true }]}
         pagination={{ pageSize: 25, pageIndex: 0 }}
+        columnVisibility={
+          selectedId == "dc40c86a-7ce6-4835-b9fb-2fd6afa4b909"
+            ? { actionsa: false }
+            : { actions1: false }
+        }
       >
         <DefaultTable showFilter filterOptions={["model"]} />
         <Box width="400px" height={"400px"}>
