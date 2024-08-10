@@ -1,10 +1,10 @@
 /// <reference types="react" />
-import { Table } from "@tanstack/react-table";
+import { GlobalFilterTableState, OnChangeFn, Table } from "@tanstack/react-table";
 export interface DataTableContext<TData> {
     table: Table<TData>;
     refreshData: () => void;
-    globalFilter: string;
-    setGlobalFilter: (filter: string) => void;
+    globalFilter: GlobalFilterTableState;
+    setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
     loading: boolean;
     hasError: boolean;
 }

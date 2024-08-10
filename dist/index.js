@@ -18,7 +18,7 @@ var reactBeautifulDnd = require('react-beautiful-dnd');
 var fa = require('react-icons/fa');
 
 const DensityToggleButton = ({ text, icon = jsxRuntime.jsx(ai.AiOutlineColumnWidth, {}), }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!text === false && (jsxRuntime.jsx(react.IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: icon, onClick: () => {
                     table.toggleDensity();
                 } })), !!text !== false && (jsxRuntime.jsx(react.Button, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
@@ -39,13 +39,13 @@ const EditOrderButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineMoveDown, {})
 const TableContext = react$1.createContext({
     table: {},
     refreshData: () => { },
-    globalFilter: "",
+    globalFilter: { globalFilter: "" },
     setGlobalFilter: () => { },
     loading: false,
     hasError: false,
 });
 
-const useDataTable = () => {
+const useDataTableContext = () => {
     const { table, refreshData, globalFilter, setGlobalFilter, loading, hasError, } = react$1.useContext(TableContext);
     return {
         table,
@@ -58,20 +58,14 @@ const useDataTable = () => {
 };
 
 const TableSorter = () => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsx(jsxRuntime.Fragment, { children: headerGroup.headers.map((header) => {
                 const displayName = header.column.columnDef.meta === undefined
                     ? header.column.id
                     : header.column.columnDef.meta.displayName;
-                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanSort() && (jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsxs(react.Button, { variant: "ghost", onClick: (e) => {
+                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanSort() && (jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsxs(react.Button, { variant: "ghost", onClick: () => {
                                     header.column.toggleSorting();
-                                }, children: [header.column.getIsSorted() === false && (
-                                    // <Text>To No sort</Text>
-                                    jsxRuntime.jsx(icons.UpDownIcon, {})), header.column.getIsSorted() === "asc" && (
-                                    // <Text>To asc</Text>
-                                    jsxRuntime.jsx(icons.ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (
-                                    // <Text>To desc</Text>
-                                    jsxRuntime.jsx(icons.ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsxRuntime.jsx(react.Button, { onClick: (e) => {
+                                }, children: [header.column.getIsSorted() === false && jsxRuntime.jsx(icons.UpDownIcon, {}), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsxRuntime.jsx(react.Button, { onClick: () => {
                                     header.column.clearSorting();
                                 }, children: jsxRuntime.jsx(icons.CloseIcon, {}) }))] })) }));
             }) }))) }));
@@ -88,35 +82,35 @@ const EditViewButton = ({ text, icon = jsxRuntime.jsx(io.IoMdEye, {}), title = "
 };
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(react.Menu, { children: [jsxRuntime.jsx(react.MenuButton, { as: react.Button, variant: "ghost", rightIcon: jsxRuntime.jsx(icons.ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsxRuntime.jsx(react.MenuList, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(react.MenuItem, { onClick: () => {
                             table.setPageSize(Number(pageSize));
                         }, children: pageSize }, crypto.randomUUID()))) })] }) }));
 };
 
 const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsxRuntime.jsx(react.Button, { onClick: () => {
             table.resetColumnFilters();
         }, children: text }));
 };
 
 const ResetSelectionButton = ({ text = "Reset Selection", }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsxRuntime.jsx(react.Button, { onClick: () => {
             table.resetRowSelection();
         }, children: text }));
 };
 
 const ResetSortingButton = ({ text = "Reset Sorting", }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsxRuntime.jsx(react.Button, { onClick: () => {
             table.resetSorting();
         }, children: text }));
 };
 
 const RowCountText = () => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return jsxRuntime.jsx(react.Text, { children: table.getRowCount() });
 };
 
@@ -204,15 +198,7 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
     // Return if the item should be filtered in/out
     return itemRank.passed;
 };
-const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, columnVisibility: defaultColumnVisibility = {}, children, }) => {
-    const [columnOrder, setColumnOrder] = react$1.useState(defaultColumnOrder);
-    const [globalFilter, setGlobalFilter] = react$1.useState(defaultGlobalFilter);
-    const [densityState, setDensity] = react$1.useState(density);
-    const [rowSelection, setRowSelection] = react$1.useState(defaultRowSelection);
-    const [columnVisibility, setColumnVisibility] = react$1.useState(defaultColumnVisibility);
+const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }) => {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
         data: data,
@@ -226,16 +212,6 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             minSize: 10, //enforced during column resizing
             maxSize: 10000, //enforced during column resizing
         },
-        state: {
-            columnOrder,
-            globalFilter,
-            density: densityState,
-            rowSelection,
-            columnVisibility,
-        },
-        onColumnOrderChange: (state) => {
-            setColumnOrder(state);
-        },
         enableRowSelection: enableRowSelection,
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
@@ -244,17 +220,29 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         filterFns: {
             fuzzy: fuzzyFilter,
         },
-        onGlobalFilterChange: setGlobalFilter,
         globalFilterFn: "fuzzy",
-        // global filter end
-        onDensityChange: setDensity,
-        onRowSelectionChange: setRowSelection,
-        onColumnVisibilityChange: setColumnVisibility,
-        initialState: {
-            columnFilters: defaultColumnFilter,
-            sorting: defaultSorting,
-            pagination: defaultPagination,
+        state: {
+            pagination,
+            sorting,
+            columnFilters,
+            rowSelection,
+            columnOrder,
+            globalFilter,
+            density,
+            columnVisibility,
         },
+        onPaginationChange: setPagination,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        onRowSelectionChange: setRowSelection,
+        onColumnOrderChange: (state) => {
+            setColumnOrder(state);
+        },
+        onGlobalFilterChange: (state) => {
+            setGlobalFilter(state);
+        },
+        onDensityChange: setDensity,
+        onColumnVisibilityChange: setColumnVisibility,
     });
     react$1.useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
@@ -308,18 +296,7 @@ const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSu
     return { data, loading, hasError, refreshData };
 };
 
-const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, columnVisibility: defaultColumnVisibility = {}, children, }) => {
-    const [sorting, setSorting] = react$1.useState(defaultSorting);
-    const [columnFilters, setColumnFilters] = react$1.useState(defaultColumnFilter); // can set initial column filter state here
-    const [pagination, setPagination] = react$1.useState(defaultPagination);
-    const [rowSelection, setRowSelection] = react$1.useState(defaultRowSelection);
-    const [columnOrder, setColumnOrder] = react$1.useState(defaultColumnOrder);
-    const [globalFilter, setGlobalFilter] = react$1.useState(defaultGlobalFilter);
-    const [densityState, setDensity] = react$1.useState(density);
-    const [columnVisibility, setColumnVisibility] = react$1.useState(defaultColumnVisibility);
+const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }) => {
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -341,7 +318,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
                 obj[filter.id] = filter.value;
                 return { ...accumulator, ...obj };
             }, {})),
-            searching: globalFilter,
+            searching: globalFilter.globalFilter,
         },
         disableFirstFetch: true,
     });
@@ -352,21 +329,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         getCoreRowModel: reactTable.getCoreRowModel(),
         manualPagination: true,
         manualSorting: true,
-        onPaginationChange: setPagination,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
         columnResizeMode: "onChange",
-        onRowSelectionChange: setRowSelection,
-        state: {
-            pagination,
-            sorting,
-            columnFilters,
-            rowSelection,
-            columnOrder,
-            globalFilter,
-            density: densityState,
-            columnVisibility,
-        },
         defaultColumn: {
             size: 150, //starting column size
             minSize: 10, //enforced during column resizing
@@ -375,12 +338,28 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         enableRowSelection: enableRowSelection,
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
+        state: {
+            pagination,
+            sorting,
+            columnFilters,
+            rowSelection,
+            columnOrder,
+            globalFilter,
+            density,
+            columnVisibility,
+        },
+        onPaginationChange: setPagination,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        onRowSelectionChange: setRowSelection,
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
         },
         onGlobalFilterChange: (state) => {
             setGlobalFilter(state);
         },
+        onDensityChange: setDensity,
+        onColumnVisibilityChange: setColumnVisibility,
         rowCount: data.count,
         // for tanstack-table ts bug start
         filterFns: {
@@ -389,8 +368,6 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             },
         },
         // for tanstack-table ts bug end
-        onDensityChange: setDensity,
-        onColumnVisibilityChange: setColumnVisibility,
     });
     react$1.useEffect(() => {
         refreshData();
@@ -461,14 +438,14 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
 };
 
 const TableControls = ({ totalText = "Total:", showFilter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showFilterName = false, showFilterTags = false, filterOptions = [], }) => {
-    const { loading, hasError } = useDataTable();
+    const { loading, hasError } = useDataTableContext();
     return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto auto auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: "1rem", alignItems: "center", justifySelf: "end", children: [loading && jsxRuntime.jsx(react.Spinner, { size: "sm" }), hasError && (jsxRuntime.jsx(react.Tooltip, { label: "An error occurred while fetching data", children: jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: "red.400" }) }) })), showFilter && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(GlobalFilter, {}), jsxRuntime.jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] }))] })] }), jsxRuntime.jsx(react.Flex, { gridColumn: "1 / span 2", flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
                     return (jsxRuntime.jsxs(react.Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxRuntime.jsxs(react.Text, { children: [column, ":"] }), jsxRuntime.jsx(FilterOptions, { column: column })] }));
                 }) }), jsxRuntime.jsx(react.Flex, { gridColumn: "1 / span 2", children: showFilterTags && jsxRuntime.jsx(TableFilterTags, {}) }), jsxRuntime.jsx(react.Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: children }), jsxRuntime.jsxs(react.Flex, { gap: "1rem", alignItems: "center", children: [jsxRuntime.jsx(PageSizeControl, {}), jsxRuntime.jsxs(react.Flex, { children: [jsxRuntime.jsx(react.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] })] }), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: jsxRuntime.jsx(TablePagination, {}) })] }));
 };
 
 const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
-    const table = useDataTable().table;
+    const table = useDataTableContext().table;
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = react$1.useState(false);
     const handleRowHover = (isHovered) => {
@@ -517,7 +494,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }
 };
 
 const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = react$1.useState(false);
     const handleRowHover = (isHovered) => {
@@ -602,7 +579,7 @@ const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = f
 };
 
 const Table = ({ children, showLoading = false, loadingComponent = jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Loading..." }), ...props }) => {
-    const { table, loading } = useDataTable();
+    const { table, loading } = useDataTableContext();
     if (showLoading) {
         return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [loading && loadingComponent, !loading && (jsxRuntime.jsx(react.Table, { width: table.getCenterTotalSize(), overflow: "auto", ...props, children: children }))] }));
     }
@@ -628,7 +605,7 @@ const TableCards = ({ isSelectable = false }) => {
 const TableComponent = ({ render = () => {
     throw Error("Not Implemented");
 }, }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return render(table);
 };
 
@@ -732,32 +709,32 @@ function Filter({ column }) {
                 } })] }, column.id));
 }
 const TableFilter = () => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getAllColumns().map((column) => {
             return jsxRuntime.jsx(Filter, { column: column }, column.id);
         }) }));
 };
 
 const TableFilterTags = () => {
-    const { table } = useDataTable();
-    return (jsxRuntime.jsx(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }, index) => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }) => {
             return (jsxRuntime.jsxs(react.Tag, { display: "flex", gap: "0.5rem", alignItems: "center", children: [jsxRuntime.jsx(react.Text, { children: `${id}: ${value}` }), jsxRuntime.jsx(react.IconButton, { size: "xs", variant: "ghost", icon: jsxRuntime.jsx(icons.CloseIcon, {}), onClick: () => {
-                            table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
-                                return curIndex != index;
+                            table.setColumnFilters(table.getState().columnFilters.filter((filter) => {
+                                return filter.value != value;
                             }));
                         }, "aria-label": "remove filter" })] }, `${id}-${value}`));
         }) }));
 };
 
 const TableLoadingComponent = ({ render, }) => {
-    const { loading } = useDataTable();
+    const { loading } = useDataTableContext();
     return jsxRuntime.jsx(jsxRuntime.Fragment, { children: render(loading) });
 };
 
 const ColumnOrderChanger = ({ columns }) => {
     const [order, setOrder] = react$1.useState([]);
     const [originalOrder, setOriginalOrder] = react$1.useState([]);
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     const handleChangeOrder = (startIndex, endIndex) => {
         const newOrder = Array.from(order);
         const [removed] = newOrder.splice(startIndex, 1);
@@ -803,24 +780,24 @@ const ColumnOrderChanger = ({ columns }) => {
                         }, children: "Reset" })] })] }));
 };
 const TableOrderer = () => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
 };
 
 const TablePagination = ({}) => {
-    const { firstPage, getCanPreviousPage, previousPage, getState, nextPage, getCanNextPage, lastPage, } = useDataTable().table;
+    const { firstPage, getCanPreviousPage, previousPage, getState, nextPage, getCanNextPage, lastPage, } = useDataTableContext().table;
     return (jsxRuntime.jsxs(react.ButtonGroup, { isAttached: true, children: [jsxRuntime.jsx(react.IconButton, { icon: jsxRuntime.jsx(md.MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost" }), jsxRuntime.jsx(react.IconButton, { icon: jsxRuntime.jsx(md.MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost" }), jsxRuntime.jsx(react.Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsxRuntime.jsx(react.IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsxRuntime.jsx(md.MdArrowForward, {}) }), jsxRuntime.jsx(react.IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsxRuntime.jsx(md.MdLastPage, {}) })] }));
 };
 
 const ReloadButton = ({ text = "Reload" }) => {
-    const { refreshData } = useDataTable();
+    const { refreshData } = useDataTableContext();
     return (jsxRuntime.jsx(react.Button, { leftIcon: jsxRuntime.jsx(io5.IoReload, {}), onClick: () => {
             refreshData();
         }, children: text }));
 };
 
-const SelectAllRowsToggle = ({ selectAllIcon = jsxRuntime.jsx(md.MdOutlineChecklist, {}), clearAllIcon = jsxRuntime.jsx(md.MdClear, {}), selectAllText, clearAllText, }) => {
-    const { table } = useDataTable();
+const SelectAllRowsToggle = ({ selectAllIcon = jsxRuntime.jsx(md.MdOutlineChecklist, {}), clearAllIcon = jsxRuntime.jsx(md.MdClear, {}), selectAllText = "", clearAllText = "", }) => {
+    const { table } = useDataTableContext();
     return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!selectAllText === false && (jsxRuntime.jsx(react.IconButton, { icon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
                     table.getToggleAllRowsSelectedHandler()(event);
                 } })), !!selectAllText !== false && (jsxRuntime.jsx(react.Button, { leftIcon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", onClick: (event) => {
@@ -836,11 +813,9 @@ const TableSelector = () => {
 };
 
 const TableViewer = () => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     const columns = table.getAllLeafColumns();
-    const [columnOrder, setColumnOrder] = react$1.useState(columns.map((column, index) => {
-        return column.id;
-    }));
+    const [columnOrder, setColumnOrder] = react$1.useState(columns.map(column => column.id));
     const handleDragEnd = (result) => {
         if (!result.destination)
             return;
@@ -850,12 +825,10 @@ const TableViewer = () => {
         setColumnOrder(newColumnOrder);
         table.setColumnOrder(newColumnOrder);
     };
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(reactBeautifulDnd.DragDropContext, { onDragEnd: handleDragEnd, children: jsxRuntime.jsx(reactBeautifulDnd.Droppable, { droppableId: "columns", children: (provided) => (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.5rem", ref: provided.innerRef, ...provided.droppableProps, children: [columns.map((column, i) => {
-                            const displayName = column.columnDef.meta === undefined
-                                ? column.id
-                                : column.columnDef.meta.displayName;
-                            return (jsxRuntime.jsx(reactBeautifulDnd.Draggable, { draggableId: column.id, index: i, children: (provided) => (jsxRuntime.jsxs(react.Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsxRuntime.jsx(react.Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "auto 0 auto 0", children: jsxRuntime.jsx(react.Icon, { as: fa.FaGripLinesVertical, color: "gray.400" }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsxs(react.Box, { children: [" ", displayName] }), jsxRuntime.jsx(react.Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] }, column.id)) }, column.id));
-                        }), provided.placeholder] })) }) }) }));
+    return (jsxRuntime.jsx(reactBeautifulDnd.DragDropContext, { onDragEnd: handleDragEnd, children: jsxRuntime.jsx(reactBeautifulDnd.Droppable, { droppableId: "columns", children: (provided) => (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.5rem", ref: provided.innerRef, ...provided.droppableProps, children: [columns.map((column, index) => {
+                        const displayName = column.columnDef.meta?.displayName || column.id;
+                        return (jsxRuntime.jsx(reactBeautifulDnd.Draggable, { draggableId: column.id, index: index, children: (provided) => (jsxRuntime.jsxs(react.Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsxRuntime.jsx(react.Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "0", children: jsxRuntime.jsx(react.Icon, { as: fa.FaGripLinesVertical, color: "gray.400" }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsx(react.Box, { children: displayName }), jsxRuntime.jsx(react.Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] })) }, column.id));
+                    }), provided.placeholder] })) }) }));
 };
 
 const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipProps, ...props }) => {
@@ -866,7 +839,7 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
 };
 
 const FilterOptions = ({ column }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     const tableColumn = table.getColumn(column);
     const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: options.map((option) => {
@@ -886,9 +859,9 @@ const FilterOptions = ({ column }) => {
 };
 
 const GlobalFilter = ({ icon = md.MdSearch }) => {
-    const { globalFilter, setGlobalFilter } = useDataTable();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsxs(react.InputGroup, { children: [jsxRuntime.jsx(react.InputLeftElement, { pointerEvents: "none", children: jsxRuntime.jsx(react.Icon, { as: icon, color: "gray.300" }) }), jsxRuntime.jsx(react.Input, { value: globalFilter, onChange: (e) => {
-                            setGlobalFilter(e.target.value);
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsxs(react.InputGroup, { children: [jsxRuntime.jsx(react.InputLeftElement, { pointerEvents: "none", children: jsxRuntime.jsx(react.Icon, { as: icon, color: "gray.300" }) }), jsxRuntime.jsx(react.Input, { value: table.getState().globalFilter.globalFilter, onChange: (e) => {
+                            table.setGlobalFilter(e.target.value);
                         } })] }) }) }));
 };
 
@@ -926,4 +899,4 @@ exports.TableSorter = TableSorter;
 exports.TableViewer = TableViewer;
 exports.TextCell = TextCell;
 exports.useDataFromUrl = useDataFromUrl;
-exports.useDataTable = useDataTable;
+exports.useDataTableContext = useDataTableContext;

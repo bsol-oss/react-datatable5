@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnFiltersState, SortingState, VisibilityState, Row, Table as Table$1, Column } from '@tanstack/react-table';
+import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnOrderState, ColumnFiltersState, GlobalFilterTableState, PaginationState, SortingState, VisibilityState, Row, Table as Table$1, Column } from '@tanstack/react-table';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React$1, { ReactNode } from 'react';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
@@ -103,19 +103,24 @@ interface DataTableProps<TData> {
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
     onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
-    columnOrder?: string[];
-    columnFilters?: ColumnFiltersState;
-    globalFilter?: string;
-    density?: DensityState;
-    pagination?: {
-        pageIndex: number;
-        pageSize: number;
-    };
-    sorting?: SortingState;
-    rowSelection?: RowSelectionState;
-    columnVisibility?: VisibilityState;
+    columnOrder: ColumnOrderState;
+    columnFilters: ColumnFiltersState;
+    globalFilter: GlobalFilterTableState;
+    density: DensityState;
+    pagination: PaginationState;
+    sorting: SortingState;
+    rowSelection: RowSelectionState;
+    columnVisibility: VisibilityState;
+    setPagination: OnChangeFn<PaginationState>;
+    setSorting: OnChangeFn<SortingState>;
+    setColumnFilters: OnChangeFn<ColumnFiltersState>;
+    setRowSelection: OnChangeFn<RowSelectionState>;
+    setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+    setColumnOrder: OnChangeFn<ColumnOrderState>;
+    setDensity: OnChangeFn<DensityState>;
+    setColumnVisibility: OnChangeFn<VisibilityState>;
 }
-declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, columnVisibility: defaultColumnVisibility, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DataTableServerProps<TData> {
     children: JSX.Element | JSX.Element[];
@@ -125,18 +130,22 @@ interface DataTableServerProps<TData> {
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
     onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
-    columnOrder?: string[];
-    columnFilters?: ColumnFiltersState;
-    globalFilter?: string;
-    density?: DensityState;
-    pagination?: {
-        pageIndex: number;
-        pageSize: number;
-    };
-    sorting?: SortingState;
-    rowSelection?: RowSelectionState;
-    loadingComponent?: JSX.Element;
-    columnVisibility?: VisibilityState;
+    columnOrder: ColumnOrderState;
+    columnFilters: ColumnFiltersState;
+    globalFilter: GlobalFilterTableState;
+    density: DensityState;
+    pagination: PaginationState;
+    sorting: SortingState;
+    rowSelection: RowSelectionState;
+    columnVisibility: VisibilityState;
+    setPagination: OnChangeFn<PaginationState>;
+    setSorting: OnChangeFn<SortingState>;
+    setColumnFilters: OnChangeFn<ColumnFiltersState>;
+    setRowSelection: OnChangeFn<RowSelectionState>;
+    setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+    setColumnOrder: OnChangeFn<ColumnOrderState>;
+    setDensity: OnChangeFn<DensityState>;
+    setColumnVisibility: OnChangeFn<VisibilityState>;
 }
 interface Result<T> {
     results: T[];
@@ -146,7 +155,7 @@ interface DataResponse<T> extends Result<T> {
     count: number;
     filterCount: number;
 }
-declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder: defaultColumnOrder, columnFilters: defaultColumnFilter, density, globalFilter: defaultGlobalFilter, pagination: defaultPagination, sorting: defaultSorting, rowSelection: defaultRowSelection, columnVisibility: defaultColumnVisibility, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface TableControlsProps {
     totalText?: string;
@@ -272,11 +281,11 @@ interface useDataFromUrlProps<T> {
 }
 declare const useDataFromUrl: <T>({ url, params, disableFirstFetch, onFetchSuccess, defaultData, }: useDataFromUrlProps<T>) => useDataFromUrlReturn<T>;
 
-declare const useDataTable: () => {
+declare const useDataTableContext: () => {
     table: _tanstack_table_core.Table<any>;
     refreshData: () => void;
-    globalFilter: string;
-    setGlobalFilter: (filter: string) => void;
+    globalFilter: _tanstack_table_core.GlobalFilterTableState;
+    setGlobalFilter: _tanstack_table_core.OnChangeFn<_tanstack_table_core.GlobalFilterTableState>;
     loading: boolean;
     hasError: boolean;
 };
@@ -342,4 +351,4 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, FilterOptions, type FilterOptionsProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, TablePagination, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTable };
+export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, FilterOptions, type FilterOptionsProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, TablePagination, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, useDataFromUrl, type useDataFromUrlProps, type useDataFromUrlReturn, useDataTableContext };

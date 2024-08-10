@@ -3,7 +3,7 @@ import { IconButton, Button, useDisclosure, Modal, ModalOverlay, ModalContent, M
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import { MdFilterAlt, MdOutlineMoveDown, MdOutlineSort, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdArrowUpward, MdArrowDownward, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdOutlineChecklist, MdClose, MdSearch } from 'react-icons/md';
 import { UpDownIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon } from '@chakra-ui/icons';
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
 import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 import { rankItem } from '@tanstack/match-sorter-utils';
@@ -16,7 +16,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { FaGripLinesVertical } from 'react-icons/fa';
 
 const DensityToggleButton = ({ text, icon = jsx(AiOutlineColumnWidth, {}), }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: icon, onClick: () => {
                     table.toggleDensity();
                 } })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
@@ -37,13 +37,13 @@ const EditOrderButton = ({ text, icon = jsx(MdOutlineMoveDown, {}), title = "Cha
 const TableContext = createContext({
     table: {},
     refreshData: () => { },
-    globalFilter: "",
+    globalFilter: { globalFilter: "" },
     setGlobalFilter: () => { },
     loading: false,
     hasError: false,
 });
 
-const useDataTable = () => {
+const useDataTableContext = () => {
     const { table, refreshData, globalFilter, setGlobalFilter, loading, hasError, } = useContext(TableContext);
     return {
         table,
@@ -56,20 +56,14 @@ const useDataTable = () => {
 };
 
 const TableSorter = () => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsx(Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsx(Fragment, { children: headerGroup.headers.map((header) => {
                 const displayName = header.column.columnDef.meta === undefined
                     ? header.column.id
                     : header.column.columnDef.meta.displayName;
-                return (jsx(Fragment, { children: header.column.getCanSort() && (jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsx(Text, { children: displayName }), jsxs(Button, { variant: "ghost", onClick: (e) => {
+                return (jsx(Fragment, { children: header.column.getCanSort() && (jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsx(Text, { children: displayName }), jsxs(Button, { variant: "ghost", onClick: () => {
                                     header.column.toggleSorting();
-                                }, children: [header.column.getIsSorted() === false && (
-                                    // <Text>To No sort</Text>
-                                    jsx(UpDownIcon, {})), header.column.getIsSorted() === "asc" && (
-                                    // <Text>To asc</Text>
-                                    jsx(ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (
-                                    // <Text>To desc</Text>
-                                    jsx(ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsx(Button, { onClick: (e) => {
+                                }, children: [header.column.getIsSorted() === false && jsx(UpDownIcon, {}), header.column.getIsSorted() === "asc" && (jsx(ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsx(Button, { onClick: () => {
                                     header.column.clearSorting();
                                 }, children: jsx(CloseIcon, {}) }))] })) }));
             }) }))) }));
@@ -86,35 +80,35 @@ const EditViewButton = ({ text, icon = jsx(IoMdEye, {}), title = "Edit View", })
 };
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Button, variant: "ghost", rightIcon: jsx(ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsx(MenuList, { children: pageSizes.map((pageSize) => (jsx(MenuItem, { onClick: () => {
                             table.setPageSize(Number(pageSize));
                         }, children: pageSize }, crypto.randomUUID()))) })] }) }));
 };
 
 const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsx(Button, { onClick: () => {
             table.resetColumnFilters();
         }, children: text }));
 };
 
 const ResetSelectionButton = ({ text = "Reset Selection", }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsx(Button, { onClick: () => {
             table.resetRowSelection();
         }, children: text }));
 };
 
 const ResetSortingButton = ({ text = "Reset Sorting", }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsx(Button, { onClick: () => {
             table.resetSorting();
         }, children: text }));
 };
 
 const RowCountText = () => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return jsx(Text, { children: table.getRowCount() });
 };
 
@@ -202,15 +196,7 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
     // Return if the item should be filtered in/out
     return itemRank.passed;
 };
-const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, columnVisibility: defaultColumnVisibility = {}, children, }) => {
-    const [columnOrder, setColumnOrder] = useState(defaultColumnOrder);
-    const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
-    const [densityState, setDensity] = useState(density);
-    const [rowSelection, setRowSelection] = useState(defaultRowSelection);
-    const [columnVisibility, setColumnVisibility] = useState(defaultColumnVisibility);
+const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }) => {
     const table = useReactTable({
         _features: [DensityFeature],
         data: data,
@@ -224,16 +210,6 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             minSize: 10, //enforced during column resizing
             maxSize: 10000, //enforced during column resizing
         },
-        state: {
-            columnOrder,
-            globalFilter,
-            density: densityState,
-            rowSelection,
-            columnVisibility,
-        },
-        onColumnOrderChange: (state) => {
-            setColumnOrder(state);
-        },
         enableRowSelection: enableRowSelection,
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
@@ -242,17 +218,29 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         filterFns: {
             fuzzy: fuzzyFilter,
         },
-        onGlobalFilterChange: setGlobalFilter,
         globalFilterFn: "fuzzy",
-        // global filter end
-        onDensityChange: setDensity,
-        onRowSelectionChange: setRowSelection,
-        onColumnVisibilityChange: setColumnVisibility,
-        initialState: {
-            columnFilters: defaultColumnFilter,
-            sorting: defaultSorting,
-            pagination: defaultPagination,
+        state: {
+            pagination,
+            sorting,
+            columnFilters,
+            rowSelection,
+            columnOrder,
+            globalFilter,
+            density,
+            columnVisibility,
         },
+        onPaginationChange: setPagination,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        onRowSelectionChange: setRowSelection,
+        onColumnOrderChange: (state) => {
+            setColumnOrder(state);
+        },
+        onGlobalFilterChange: (state) => {
+            setGlobalFilter(state);
+        },
+        onDensityChange: setDensity,
+        onColumnVisibilityChange: setColumnVisibility,
     });
     useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
@@ -306,18 +294,7 @@ const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSu
     return { data, loading, hasError, refreshData };
 };
 
-const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder: defaultColumnOrder = [], columnFilters: defaultColumnFilter = [], density = "sm", globalFilter: defaultGlobalFilter = "", pagination: defaultPagination = {
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-}, sorting: defaultSorting = [], rowSelection: defaultRowSelection = {}, columnVisibility: defaultColumnVisibility = {}, children, }) => {
-    const [sorting, setSorting] = useState(defaultSorting);
-    const [columnFilters, setColumnFilters] = useState(defaultColumnFilter); // can set initial column filter state here
-    const [pagination, setPagination] = useState(defaultPagination);
-    const [rowSelection, setRowSelection] = useState(defaultRowSelection);
-    const [columnOrder, setColumnOrder] = useState(defaultColumnOrder);
-    const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
-    const [densityState, setDensity] = useState(density);
-    const [columnVisibility, setColumnVisibility] = useState(defaultColumnVisibility);
+const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }) => {
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -339,7 +316,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
                 obj[filter.id] = filter.value;
                 return { ...accumulator, ...obj };
             }, {})),
-            searching: globalFilter,
+            searching: globalFilter.globalFilter,
         },
         disableFirstFetch: true,
     });
@@ -350,21 +327,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         getCoreRowModel: getCoreRowModel(),
         manualPagination: true,
         manualSorting: true,
-        onPaginationChange: setPagination,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
         columnResizeMode: "onChange",
-        onRowSelectionChange: setRowSelection,
-        state: {
-            pagination,
-            sorting,
-            columnFilters,
-            rowSelection,
-            columnOrder,
-            globalFilter,
-            density: densityState,
-            columnVisibility,
-        },
         defaultColumn: {
             size: 150, //starting column size
             minSize: 10, //enforced during column resizing
@@ -373,12 +336,28 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         enableRowSelection: enableRowSelection,
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
+        state: {
+            pagination,
+            sorting,
+            columnFilters,
+            rowSelection,
+            columnOrder,
+            globalFilter,
+            density,
+            columnVisibility,
+        },
+        onPaginationChange: setPagination,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        onRowSelectionChange: setRowSelection,
         onColumnOrderChange: (state) => {
             setColumnOrder(state);
         },
         onGlobalFilterChange: (state) => {
             setGlobalFilter(state);
         },
+        onDensityChange: setDensity,
+        onColumnVisibilityChange: setColumnVisibility,
         rowCount: data.count,
         // for tanstack-table ts bug start
         filterFns: {
@@ -387,8 +366,6 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
             },
         },
         // for tanstack-table ts bug end
-        onDensityChange: setDensity,
-        onColumnVisibilityChange: setColumnVisibility,
     });
     useEffect(() => {
         refreshData();
@@ -459,14 +436,14 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
 };
 
 const TableControls = ({ totalText = "Total:", showFilter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsx(Fragment, {}), showFilterName = false, showFilterTags = false, filterOptions = [], }) => {
-    const { loading, hasError } = useDataTable();
+    const { loading, hasError } = useDataTableContext();
     return (jsxs(Grid, { templateRows: "auto auto auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "1rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { label: "An error occurred while fetching data", children: jsx(Box, { children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) }) })), showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] }))] })] }), jsx(Flex, { gridColumn: "1 / span 2", flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
                     return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxs(Text, { children: [column, ":"] }), jsx(FilterOptions, { column: column })] }));
                 }) }), jsx(Flex, { gridColumn: "1 / span 2", children: showFilterTags && jsx(TableFilterTags, {}) }), jsx(Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: children }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, {}), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
 };
 
 const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
-    const table = useDataTable().table;
+    const table = useDataTableContext().table;
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
     const handleRowHover = (isHovered) => {
@@ -515,7 +492,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }
 };
 
 const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
     const handleRowHover = (isHovered) => {
@@ -600,7 +577,7 @@ const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = f
 };
 
 const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
-    const { table, loading } = useDataTable();
+    const { table, loading } = useDataTableContext();
     if (showLoading) {
         return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflow: "auto", ...props, children: children }))] }));
     }
@@ -626,7 +603,7 @@ const TableCards = ({ isSelectable = false }) => {
 const TableComponent = ({ render = () => {
     throw Error("Not Implemented");
 }, }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return render(table);
 };
 
@@ -730,32 +707,32 @@ function Filter({ column }) {
                 } })] }, column.id));
 }
 const TableFilter = () => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsx(Fragment, { children: table.getAllColumns().map((column) => {
             return jsx(Filter, { column: column }, column.id);
         }) }));
 };
 
 const TableFilterTags = () => {
-    const { table } = useDataTable();
-    return (jsx(Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }, index) => {
+    const { table } = useDataTableContext();
+    return (jsx(Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }) => {
             return (jsxs(Tag, { display: "flex", gap: "0.5rem", alignItems: "center", children: [jsx(Text, { children: `${id}: ${value}` }), jsx(IconButton, { size: "xs", variant: "ghost", icon: jsx(CloseIcon, {}), onClick: () => {
-                            table.setColumnFilters(table.getState().columnFilters.filter((value, curIndex) => {
-                                return curIndex != index;
+                            table.setColumnFilters(table.getState().columnFilters.filter((filter) => {
+                                return filter.value != value;
                             }));
                         }, "aria-label": "remove filter" })] }, `${id}-${value}`));
         }) }));
 };
 
 const TableLoadingComponent = ({ render, }) => {
-    const { loading } = useDataTable();
+    const { loading } = useDataTableContext();
     return jsx(Fragment, { children: render(loading) });
 };
 
 const ColumnOrderChanger = ({ columns }) => {
     const [order, setOrder] = useState([]);
     const [originalOrder, setOriginalOrder] = useState([]);
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     const handleChangeOrder = (startIndex, endIndex) => {
         const newOrder = Array.from(order);
         const [removed] = newOrder.splice(startIndex, 1);
@@ -801,24 +778,24 @@ const ColumnOrderChanger = ({ columns }) => {
                         }, children: "Reset" })] })] }));
 };
 const TableOrderer = () => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     return (jsx(Fragment, { children: jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
 };
 
 const TablePagination = ({}) => {
-    const { firstPage, getCanPreviousPage, previousPage, getState, nextPage, getCanNextPage, lastPage, } = useDataTable().table;
+    const { firstPage, getCanPreviousPage, previousPage, getState, nextPage, getCanNextPage, lastPage, } = useDataTableContext().table;
     return (jsxs(ButtonGroup, { isAttached: true, children: [jsx(IconButton, { icon: jsx(MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost" }), jsx(IconButton, { icon: jsx(MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost" }), jsx(Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsx(IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsx(MdArrowForward, {}) }), jsx(IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsx(MdLastPage, {}) })] }));
 };
 
 const ReloadButton = ({ text = "Reload" }) => {
-    const { refreshData } = useDataTable();
+    const { refreshData } = useDataTableContext();
     return (jsx(Button, { leftIcon: jsx(IoReload, {}), onClick: () => {
             refreshData();
         }, children: text }));
 };
 
-const SelectAllRowsToggle = ({ selectAllIcon = jsx(MdOutlineChecklist, {}), clearAllIcon = jsx(MdClear, {}), selectAllText, clearAllText, }) => {
-    const { table } = useDataTable();
+const SelectAllRowsToggle = ({ selectAllIcon = jsx(MdOutlineChecklist, {}), clearAllIcon = jsx(MdClear, {}), selectAllText = "", clearAllText = "", }) => {
+    const { table } = useDataTableContext();
     return (jsxs(Fragment, { children: [!!selectAllText === false && (jsx(IconButton, { icon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
                     table.getToggleAllRowsSelectedHandler()(event);
                 } })), !!selectAllText !== false && (jsx(Button, { leftIcon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", onClick: (event) => {
@@ -834,11 +811,9 @@ const TableSelector = () => {
 };
 
 const TableViewer = () => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     const columns = table.getAllLeafColumns();
-    const [columnOrder, setColumnOrder] = useState(columns.map((column, index) => {
-        return column.id;
-    }));
+    const [columnOrder, setColumnOrder] = useState(columns.map(column => column.id));
     const handleDragEnd = (result) => {
         if (!result.destination)
             return;
@@ -848,12 +823,10 @@ const TableViewer = () => {
         setColumnOrder(newColumnOrder);
         table.setColumnOrder(newColumnOrder);
     };
-    return (jsx(Fragment, { children: jsx(DragDropContext, { onDragEnd: handleDragEnd, children: jsx(Droppable, { droppableId: "columns", children: (provided) => (jsxs(Flex, { flexFlow: "column", gap: "0.5rem", ref: provided.innerRef, ...provided.droppableProps, children: [columns.map((column, i) => {
-                            const displayName = column.columnDef.meta === undefined
-                                ? column.id
-                                : column.columnDef.meta.displayName;
-                            return (jsx(Draggable, { draggableId: column.id, index: i, children: (provided) => (jsxs(Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsx(Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "auto 0 auto 0", children: jsx(Icon, { as: FaGripLinesVertical, color: "gray.400" }) }), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Box, { children: [" ", displayName] }), jsx(Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] }, column.id)) }, column.id));
-                        }), provided.placeholder] })) }) }) }));
+    return (jsx(DragDropContext, { onDragEnd: handleDragEnd, children: jsx(Droppable, { droppableId: "columns", children: (provided) => (jsxs(Flex, { flexFlow: "column", gap: "0.5rem", ref: provided.innerRef, ...provided.droppableProps, children: [columns.map((column, index) => {
+                        const displayName = column.columnDef.meta?.displayName || column.id;
+                        return (jsx(Draggable, { draggableId: column.id, index: index, children: (provided) => (jsxs(Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsx(Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "0", children: jsx(Icon, { as: FaGripLinesVertical, color: "gray.400" }) }), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsx(Box, { children: displayName }), jsx(Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] })) }, column.id));
+                    }), provided.placeholder] })) }) }));
 };
 
 const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipProps, ...props }) => {
@@ -864,7 +837,7 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
 };
 
 const FilterOptions = ({ column }) => {
-    const { table } = useDataTable();
+    const { table } = useDataTableContext();
     const tableColumn = table.getColumn(column);
     const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
     return (jsx(Fragment, { children: options.map((option) => {
@@ -884,10 +857,10 @@ const FilterOptions = ({ column }) => {
 };
 
 const GlobalFilter = ({ icon = MdSearch }) => {
-    const { globalFilter, setGlobalFilter } = useDataTable();
-    return (jsx(Fragment, { children: jsx(Box, { children: jsxs(InputGroup, { children: [jsx(InputLeftElement, { pointerEvents: "none", children: jsx(Icon, { as: icon, color: "gray.300" }) }), jsx(Input, { value: globalFilter, onChange: (e) => {
-                            setGlobalFilter(e.target.value);
+    const { table } = useDataTableContext();
+    return (jsx(Fragment, { children: jsx(Box, { children: jsxs(InputGroup, { children: [jsx(InputLeftElement, { pointerEvents: "none", children: jsx(Icon, { as: icon, color: "gray.300" }) }), jsx(Input, { value: table.getState().globalFilter.globalFilter, onChange: (e) => {
+                            table.setGlobalFilter(e.target.value);
                         } })] }) }) }));
 };
 
-export { DataTable, DataTableServer, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable };
+export { DataTable, DataTableServer, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTableContext };
