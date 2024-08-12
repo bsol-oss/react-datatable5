@@ -136,7 +136,7 @@ const DefaultTableShowcase = () => {
         url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
         {...dataTable}
       >
-        <DefaultTable showFilter filterOptions={["model"]} />
+        <DefaultTable showFilter filterOptions={["model"]} showReload />
         <Box width="400px" height={"400px"}>
           <DefaultTable showFilter />
         </Box>

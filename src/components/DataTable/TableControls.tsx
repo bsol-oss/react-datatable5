@@ -19,6 +19,7 @@ import {
   TableFilterTags,
   TablePagination,
   useDataTableContext,
+  ReloadButton,
 } from "../../index";
 
 export interface TableControlsProps {
@@ -30,6 +31,7 @@ export interface TableControlsProps {
   children?: JSX.Element;
   showFilterName?: boolean;
   showFilterTags?: boolean;
+  showReload?: boolean;
   filterOptions?: string[];
 }
 
@@ -42,6 +44,7 @@ export const TableControls = ({
   children = <></>,
   showFilterName = false,
   showFilterTags = false,
+  showReload = false,
   filterOptions = [],
 }: TableControlsProps) => {
   const { loading, hasError } = useDataTableContext();
@@ -62,12 +65,12 @@ export const TableControls = ({
             icon={<MdOutlineViewColumn />}
           />
         </Box>
-        <Flex gap={"1rem"} alignItems={"center"} justifySelf={"end"}>
+        <Flex gap={"0.5rem"} alignItems={"center"} justifySelf={"end"}>
           {loading && <Spinner size={"sm"} />}
           {hasError && (
             <Tooltip label="An error occurred while fetching data">
               <Box>
-              <Icon as={BsExclamationCircleFill} color={"red.400"} />
+                <Icon as={BsExclamationCircleFill} color={"red.400"} />
               </Box>
             </Tooltip>
           )}
@@ -79,6 +82,7 @@ export const TableControls = ({
               />
             </>
           )}
+          {showReload && <ReloadButton />}
         </Flex>
       </Flex>
       <Flex gridColumn={"1 / span 2"} flexFlow={"column"} gap={"0.5rem"}>

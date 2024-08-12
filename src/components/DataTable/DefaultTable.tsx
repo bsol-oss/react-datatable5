@@ -18,6 +18,7 @@ export const DefaultTable = ({
   filterOptions = [],
   showFilterTags = false,
   showFilterName = false,
+  showReload = false,
 }: DefaultTableProps) => {
   return (
     <TableControls
@@ -29,6 +30,7 @@ export const DefaultTable = ({
       filterOptions={filterOptions}
       showFilterName={showFilterName}
       showFilterTags={showFilterTags}
+      showReload={showReload}
     >
       <Table variant={"striped"}>
         <TableHeader canResize />
