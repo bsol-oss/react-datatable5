@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import { ColumnDef, ColumnFiltersState, ColumnOrderState, GlobalFilterTableState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
+import { ColumnDef, ColumnFiltersState, ColumnOrderState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { DensityState } from "../Controls/DensityFeature";
 export interface DataTableServerProps<TData> {
     children: JSX.Element | JSX.Element[];
@@ -11,7 +11,7 @@ export interface DataTableServerProps<TData> {
     onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
     columnOrder: ColumnOrderState;
     columnFilters: ColumnFiltersState;
-    globalFilter: GlobalFilterTableState;
+    globalFilter: string;
     density: DensityState;
     pagination: PaginationState;
     sorting: SortingState;
@@ -21,7 +21,7 @@ export interface DataTableServerProps<TData> {
     setSorting: OnChangeFn<SortingState>;
     setColumnFilters: OnChangeFn<ColumnFiltersState>;
     setRowSelection: OnChangeFn<RowSelectionState>;
-    setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+    setGlobalFilter: OnChangeFn<string>;
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;

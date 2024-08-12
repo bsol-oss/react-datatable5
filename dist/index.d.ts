@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnOrderState, ColumnFiltersState, GlobalFilterTableState, PaginationState, SortingState, VisibilityState, Row, Table as Table$1, Column } from '@tanstack/react-table';
+import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnOrderState, ColumnFiltersState, PaginationState, SortingState, VisibilityState, Row, Table as Table$1, Column } from '@tanstack/react-table';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React$1, { ReactNode } from 'react';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
@@ -105,7 +105,7 @@ interface DataTableProps<TData> {
     onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
     columnOrder: ColumnOrderState;
     columnFilters: ColumnFiltersState;
-    globalFilter: GlobalFilterTableState;
+    globalFilter: string;
     density: DensityState;
     pagination: PaginationState;
     sorting: SortingState;
@@ -115,7 +115,7 @@ interface DataTableProps<TData> {
     setSorting: OnChangeFn<SortingState>;
     setColumnFilters: OnChangeFn<ColumnFiltersState>;
     setRowSelection: OnChangeFn<RowSelectionState>;
-    setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+    setGlobalFilter: OnChangeFn<string>;
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
@@ -132,7 +132,7 @@ interface DataTableServerProps<TData> {
     onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
     columnOrder: ColumnOrderState;
     columnFilters: ColumnFiltersState;
-    globalFilter: GlobalFilterTableState;
+    globalFilter: string;
     density: DensityState;
     pagination: PaginationState;
     sorting: SortingState;
@@ -142,7 +142,7 @@ interface DataTableServerProps<TData> {
     setSorting: OnChangeFn<SortingState>;
     setColumnFilters: OnChangeFn<ColumnFiltersState>;
     setRowSelection: OnChangeFn<RowSelectionState>;
-    setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+    setGlobalFilter: OnChangeFn<string>;
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
@@ -288,7 +288,7 @@ interface UseDataTableProps {
         pagination?: PaginationState;
         rowSelection?: RowSelectionState;
         columnOrder?: ColumnOrderState;
-        globalFilter?: GlobalFilterTableState;
+        globalFilter?: string;
         columnVisibility?: VisibilityState;
         density?: DensityState;
     };
@@ -299,14 +299,14 @@ interface UseDataTableReturn {
     pagination: PaginationState;
     rowSelection: RowSelectionState;
     columnOrder: ColumnOrderState;
-    globalFilter: GlobalFilterTableState;
+    globalFilter: string;
     columnVisibility: VisibilityState;
     density: DensityState;
     setPagination: OnChangeFn<PaginationState>;
     setSorting: OnChangeFn<SortingState>;
     setColumnFilters: OnChangeFn<ColumnFiltersState>;
     setRowSelection: OnChangeFn<RowSelectionState>;
-    setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+    setGlobalFilter: OnChangeFn<string>;
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
@@ -316,8 +316,8 @@ declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: d
 declare const useDataTableContext: () => {
     table: _tanstack_table_core.Table<any>;
     refreshData: () => void;
-    globalFilter: _tanstack_table_core.GlobalFilterTableState;
-    setGlobalFilter: _tanstack_table_core.OnChangeFn<_tanstack_table_core.GlobalFilterTableState>;
+    globalFilter: string;
+    setGlobalFilter: _tanstack_table_core.OnChangeFn<string>;
     loading: boolean;
     hasError: boolean;
 };

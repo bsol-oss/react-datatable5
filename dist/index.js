@@ -39,7 +39,7 @@ const EditOrderButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineMoveDown, {})
 const TableContext = react$1.createContext({
     table: {},
     refreshData: () => { },
-    globalFilter: { globalFilter: "" },
+    globalFilter: "",
     setGlobalFilter: () => { },
     loading: false,
     hasError: false,
@@ -202,6 +202,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
         data: data,
+        rowCount: data.length,
         columns: columns,
         getCoreRowModel: reactTable.getCoreRowModel(),
         getFilteredRowModel: reactTable.getFilteredRowModel(),
@@ -318,13 +319,14 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
                 obj[filter.id] = filter.value;
                 return { ...accumulator, ...obj };
             }, {})),
-            searching: globalFilter.globalFilter,
+            searching: globalFilter,
         },
         disableFirstFetch: true,
     });
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
         data: data.results,
+        rowCount: data.count ?? 0,
         columns: columns,
         getCoreRowModel: reactTable.getCoreRowModel(),
         manualPagination: true,
@@ -360,7 +362,6 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         },
         onDensityChange: setDensity,
         onColumnVisibilityChange: setColumnVisibility,
-        rowCount: data.count,
         // for tanstack-table ts bug start
         filterFns: {
             fuzzy: () => {
@@ -841,7 +842,19 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
 const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
-}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = { globalFilter: "" }, density: defaultDensity = "sm", }, } = {
+}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = "", density: defaultDensity = "sm", } = {
+    sorting: [],
+    pagination: {
+        pageIndex: 0, //initial page index
+        pageSize: 10, //age size
+    },
+    rowSelection: {},
+    columnFilters: [],
+    columnOrder: [],
+    columnVisibility: {},
+    globalFilter: "",
+    density: "sm",
+}, } = {
     default: {
         sorting: [],
         pagination: {
@@ -852,7 +865,7 @@ const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: def
         columnFilters: [],
         columnOrder: [],
         columnVisibility: {},
-        globalFilter: { globalFilter: "" },
+        globalFilter: "",
         density: "sm",
     },
 }) => {
@@ -907,7 +920,10 @@ const FilterOptions = ({ column }) => {
 const GlobalFilter = ({ icon = md.MdSearch }) => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsxs(react.InputGroup, { children: [jsxRuntime.jsx(react.InputLeftElement, { pointerEvents: "none", children: jsxRuntime.jsx(react.Icon, { as: icon, color: "gray.300" }) }), jsxRuntime.jsx(react.Input, { value: table.getState().globalFilter.globalFilter, onChange: (e) => {
-                            table.setGlobalFilter({ "globalFilter": e.target.value });
+                            if (!!e.target.value) {
+                                table.setGlobalFilter({ globalFilter: undefined });
+                            }
+                            table.setGlobalFilter({ globalFilter: e.target.value });
                         } })] }) }) }));
 };
 

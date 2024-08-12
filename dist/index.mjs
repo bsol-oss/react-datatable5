@@ -37,7 +37,7 @@ const EditOrderButton = ({ text, icon = jsx(MdOutlineMoveDown, {}), title = "Cha
 const TableContext = createContext({
     table: {},
     refreshData: () => { },
-    globalFilter: { globalFilter: "" },
+    globalFilter: "",
     setGlobalFilter: () => { },
     loading: false,
     hasError: false,
@@ -200,6 +200,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
     const table = useReactTable({
         _features: [DensityFeature],
         data: data,
+        rowCount: data.length,
         columns: columns,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -316,13 +317,14 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
                 obj[filter.id] = filter.value;
                 return { ...accumulator, ...obj };
             }, {})),
-            searching: globalFilter.globalFilter,
+            searching: globalFilter,
         },
         disableFirstFetch: true,
     });
     const table = useReactTable({
         _features: [DensityFeature],
         data: data.results,
+        rowCount: data.count ?? 0,
         columns: columns,
         getCoreRowModel: getCoreRowModel(),
         manualPagination: true,
@@ -358,7 +360,6 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         },
         onDensityChange: setDensity,
         onColumnVisibilityChange: setColumnVisibility,
-        rowCount: data.count,
         // for tanstack-table ts bug start
         filterFns: {
             fuzzy: () => {
@@ -839,7 +840,19 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
 const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
-}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = { globalFilter: "" }, density: defaultDensity = "sm", }, } = {
+}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = "", density: defaultDensity = "sm", } = {
+    sorting: [],
+    pagination: {
+        pageIndex: 0, //initial page index
+        pageSize: 10, //age size
+    },
+    rowSelection: {},
+    columnFilters: [],
+    columnOrder: [],
+    columnVisibility: {},
+    globalFilter: "",
+    density: "sm",
+}, } = {
     default: {
         sorting: [],
         pagination: {
@@ -850,7 +863,7 @@ const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: def
         columnFilters: [],
         columnOrder: [],
         columnVisibility: {},
-        globalFilter: { globalFilter: "" },
+        globalFilter: "",
         density: "sm",
     },
 }) => {
@@ -905,7 +918,10 @@ const FilterOptions = ({ column }) => {
 const GlobalFilter = ({ icon = MdSearch }) => {
     const { table } = useDataTableContext();
     return (jsx(Fragment, { children: jsx(Box, { children: jsxs(InputGroup, { children: [jsx(InputLeftElement, { pointerEvents: "none", children: jsx(Icon, { as: icon, color: "gray.300" }) }), jsx(Input, { value: table.getState().globalFilter.globalFilter, onChange: (e) => {
-                            table.setGlobalFilter({ "globalFilter": e.target.value });
+                            if (!!e.target.value) {
+                                table.setGlobalFilter({ globalFilter: undefined });
+                            }
+                            table.setGlobalFilter({ globalFilter: e.target.value });
                         } })] }) }) }));
 };
 
