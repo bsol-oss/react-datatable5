@@ -13,6 +13,7 @@ import {
   TablePagination,
   TableSelector,
   TextCell,
+  useDataTable,
 } from "../../index";
 import { data, Product } from "../product_data";
 
@@ -37,9 +38,12 @@ export default {
 };
 
 const Template = (args: any) => {
+  const datatable = useDataTable({
+    default: { sorting: [{ id: "title", desc: false }] },
+  });
   return (
     <ChakraProvider theme={theme}>
-      <DataTable {...args}>
+      <DataTable {...args} {...datatable}>
         <Flex>
           <TablePagination />
           <EditViewButton />
