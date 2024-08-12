@@ -146,6 +146,7 @@ interface DataTableServerProps<TData> {
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
+    onFetchSuccess?: (response: DataResponse<TData>) => void;
 }
 interface Result<T> {
     results: T[];
@@ -153,9 +154,8 @@ interface Result<T> {
 interface DataResponse<T> extends Result<T> {
     success: boolean;
     count: number;
-    filterCount: number;
 }
-declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, onFetchSuccess, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface TableControlsProps {
     totalText?: string;
@@ -166,14 +166,15 @@ interface TableControlsProps {
     children?: JSX.Element;
     showFilterName?: boolean;
     showFilterTags?: boolean;
+    showReload?: boolean;
     filterOptions?: string[];
 }
-declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, children, showFilterName, showFilterTags, filterOptions, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
+declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, children, showFilterName, showFilterTags, showReload, filterOptions, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
 
 interface DefaultTableProps extends TableControlsProps {
     showFooter?: boolean;
 }
-declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
+declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, showReload, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
 
 interface TableProps extends TableProps$1 {
     showLoading?: boolean;
@@ -248,8 +249,9 @@ declare const TablePagination: ({}: PaginationProps) => react_jsx_runtime.JSX.El
 
 interface ReloadButtonProps {
     text?: string;
+    variant?: string;
 }
-declare const ReloadButton: ({ text }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
+declare const ReloadButton: ({ text, variant, }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
 
 declare const TableSelector: () => react_jsx_runtime.JSX.Element;
 

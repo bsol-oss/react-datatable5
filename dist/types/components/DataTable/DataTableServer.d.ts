@@ -25,6 +25,7 @@ export interface DataTableServerProps<TData> {
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
+    onFetchSuccess?: (response: DataResponse<TData>) => void;
 }
 export interface Result<T> {
     results: T[];
@@ -32,6 +33,5 @@ export interface Result<T> {
 export interface DataResponse<T> extends Result<T> {
     success: boolean;
     count: number;
-    filterCount: number;
 }
-export declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const DataTableServer: <TData>({ columns, url, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, onFetchSuccess, children, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;
