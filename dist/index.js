@@ -907,7 +907,7 @@ const FilterOptions = ({ column }) => {
 const GlobalFilter = ({ icon = md.MdSearch }) => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsxs(react.InputGroup, { children: [jsxRuntime.jsx(react.InputLeftElement, { pointerEvents: "none", children: jsxRuntime.jsx(react.Icon, { as: icon, color: "gray.300" }) }), jsxRuntime.jsx(react.Input, { value: table.getState().globalFilter.globalFilter, onChange: (e) => {
-                            table.setGlobalFilter(e.target.value);
+                            table.setGlobalFilter({ "globalFilter": e.target.value });
                         } })] }) }) }));
 };
 

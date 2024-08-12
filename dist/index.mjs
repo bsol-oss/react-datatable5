@@ -905,7 +905,7 @@ const FilterOptions = ({ column }) => {
 const GlobalFilter = ({ icon = MdSearch }) => {
     const { table } = useDataTableContext();
     return (jsx(Fragment, { children: jsx(Box, { children: jsxs(InputGroup, { children: [jsx(InputLeftElement, { pointerEvents: "none", children: jsx(Icon, { as: icon, color: "gray.300" }) }), jsx(Input, { value: table.getState().globalFilter.globalFilter, onChange: (e) => {
-                            table.setGlobalFilter(e.target.value);
+                            table.setGlobalFilter({ "globalFilter": e.target.value });
                         } })] }) }) }));
 };
 
