@@ -177,6 +177,7 @@ const DefaultTableShowcase2 = () => {
             : columnv2
         }
         url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
+        onFetchSuccess={(response)=>{console.log(response,"some-response-123")}}
         {...dataTable}
       >
         <DefaultTable showFilter filterOptions={["model"]} />

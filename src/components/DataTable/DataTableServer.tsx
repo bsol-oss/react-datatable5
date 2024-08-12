@@ -40,6 +40,7 @@ export interface DataTableServerProps<TData> {
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
+  onFetchSuccess?: (response: DataResponse<TData>) => void;
 }
 
 export interface Result<T> {
@@ -49,7 +50,6 @@ export interface Result<T> {
 export interface DataResponse<T> extends Result<T> {
   success: boolean;
   count: number;
-  filterCount: number;
 }
 
 export const DataTableServer = <TData,>({
@@ -75,6 +75,7 @@ export const DataTableServer = <TData,>({
   setColumnOrder,
   setDensity,
   setColumnVisibility,
+  onFetchSuccess,
   children,
 }: DataTableServerProps<TData>) => {
   const { data, loading, hasError, refreshData } = useDataFromUrl<
@@ -85,7 +86,6 @@ export const DataTableServer = <TData,>({
       success: false,
       results: [],
       count: 0,
-      filterCount: 0,
     },
     params: {
       pagination: JSON.stringify({
@@ -107,6 +107,7 @@ export const DataTableServer = <TData,>({
       searching: globalFilter,
     },
     disableFirstFetch: true,
+    onFetchSuccess: onFetchSuccess,
   });
   const table = useReactTable<TData>({
     _features: [DensityFeature],
