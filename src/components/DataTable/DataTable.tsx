@@ -7,13 +7,12 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  GlobalFilterTableState,
   OnChangeFn,
   PaginationState,
   RowSelectionState,
   SortingState,
   useReactTable,
-  VisibilityState,
+  VisibilityState
 } from "@tanstack/react-table";
 import { useEffect } from "react";
 import { TableContext } from "./DataTableContext";
@@ -55,7 +54,7 @@ export interface DataTableProps<TData> {
   onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
   columnOrder: ColumnOrderState;
   columnFilters: ColumnFiltersState;
-  globalFilter: GlobalFilterTableState;
+  globalFilter: string;
   density: DensityState;
   pagination: PaginationState;
   sorting: SortingState;
@@ -65,7 +64,7 @@ export interface DataTableProps<TData> {
   setSorting: OnChangeFn<SortingState>;
   setColumnFilters: OnChangeFn<ColumnFiltersState>;
   setRowSelection: OnChangeFn<RowSelectionState>;
-  setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+  setGlobalFilter: OnChangeFn<string>;
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
@@ -99,6 +98,7 @@ export const DataTable = <TData,>({
   const table = useReactTable<TData>({
     _features: [DensityFeature],
     data: data,
+    rowCount: data.length,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

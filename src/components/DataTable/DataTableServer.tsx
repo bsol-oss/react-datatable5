@@ -5,7 +5,6 @@ import {
   ColumnFiltersState,
   ColumnOrderState,
   getCoreRowModel,
-  GlobalFilterTableState,
   OnChangeFn,
   PaginationState,
   RowSelectionState,
@@ -27,7 +26,7 @@ export interface DataTableServerProps<TData> {
   onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
   columnOrder: ColumnOrderState;
   columnFilters: ColumnFiltersState;
-  globalFilter: GlobalFilterTableState;
+  globalFilter: string;
   density: DensityState;
   pagination: PaginationState;
   sorting: SortingState;
@@ -37,7 +36,7 @@ export interface DataTableServerProps<TData> {
   setSorting: OnChangeFn<SortingState>;
   setColumnFilters: OnChangeFn<ColumnFiltersState>;
   setRowSelection: OnChangeFn<RowSelectionState>;
-  setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+  setGlobalFilter: OnChangeFn<string>;
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
@@ -105,13 +104,14 @@ export const DataTableServer = <TData,>({
           return { ...accumulator, ...obj };
         }, {})
       ),
-      searching: globalFilter.globalFilter,
+      searching: globalFilter,
     },
     disableFirstFetch: true,
   });
   const table = useReactTable<TData>({
     _features: [DensityFeature],
     data: data.results,
+    rowCount: data.count ?? 0,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
@@ -147,7 +147,6 @@ export const DataTableServer = <TData,>({
     },
     onDensityChange: setDensity,
     onColumnVisibilityChange: setColumnVisibility,
-    rowCount: data.count,
     // for tanstack-table ts bug start
     filterFns: {
       fuzzy: () => {

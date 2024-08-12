@@ -1,12 +1,11 @@
 import {
   ColumnFiltersState,
   ColumnOrderState,
-  GlobalFilterTableState,
   OnChangeFn,
   PaginationState,
   RowSelectionState,
   SortingState,
-  VisibilityState,
+  VisibilityState
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { DensityState } from "../Controls/DensityFeature";
@@ -18,7 +17,7 @@ export interface UseDataTableProps {
     pagination?: PaginationState;
     rowSelection?: RowSelectionState;
     columnOrder?: ColumnOrderState;
-    globalFilter?: GlobalFilterTableState;
+    globalFilter?: string;
     columnVisibility?: VisibilityState;
     density?: DensityState;
   };
@@ -30,14 +29,14 @@ export interface UseDataTableReturn {
   pagination: PaginationState;
   rowSelection: RowSelectionState;
   columnOrder: ColumnOrderState;
-  globalFilter: GlobalFilterTableState;
+  globalFilter: string;
   columnVisibility: VisibilityState;
   density: DensityState;
   setPagination: OnChangeFn<PaginationState>;
   setSorting: OnChangeFn<SortingState>;
   setColumnFilters: OnChangeFn<ColumnFiltersState>;
   setRowSelection: OnChangeFn<RowSelectionState>;
-  setGlobalFilter: OnChangeFn<GlobalFilterTableState>;
+  setGlobalFilter: OnChangeFn<string>;
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
@@ -55,8 +54,20 @@ export const useDataTable = (
       columnFilters: defaultColumnFilters = [],
       columnOrder: defaultColumnOrder = [],
       columnVisibility: defaultColumnVisibility = {},
-      globalFilter: defaultGlobalFilter = { globalFilter: "" },
+      globalFilter: defaultGlobalFilter = "",
       density: defaultDensity = "sm",
+    } = {
+      sorting: [],
+      pagination: {
+        pageIndex: 0, //initial page index
+        pageSize: 10, //age size
+      },
+      rowSelection: {},
+      columnFilters: [],
+      columnOrder: [],
+      columnVisibility: {},
+      globalFilter: "",
+      density: "sm",
     },
   }: UseDataTableProps = {
     default: {
@@ -69,7 +80,7 @@ export const useDataTable = (
       columnFilters: [],
       columnOrder: [],
       columnVisibility: {},
-      globalFilter: { globalFilter: "" },
+      globalFilter: "",
       density: "sm",
     },
   }
@@ -83,8 +94,7 @@ export const useDataTable = (
     useState<RowSelectionState>(defaultRowSelection);
   const [columnOrder, setColumnOrder] =
     useState<ColumnOrderState>(defaultColumnOrder);
-  const [globalFilter, setGlobalFilter] =
-    useState<GlobalFilterTableState>(defaultGlobalFilter);
+  const [globalFilter, setGlobalFilter] = useState<string>(defaultGlobalFilter);
   const [density, setDensity] = useState<DensityState>(defaultDensity);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     defaultColumnVisibility

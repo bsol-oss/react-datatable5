@@ -21,7 +21,10 @@ export const GlobalFilter = ({ icon = MdSearch }) => {
           <Input
             value={table.getState().globalFilter.globalFilter}
             onChange={(e) => {
-              table.setGlobalFilter({"globalFilter":e.target.value});
+              if(!!e.target.value){
+                table.setGlobalFilter({ globalFilter: undefined});
+              }
+              table.setGlobalFilter({ globalFilter: e.target.value });
             }}
           />
         </InputGroup>
