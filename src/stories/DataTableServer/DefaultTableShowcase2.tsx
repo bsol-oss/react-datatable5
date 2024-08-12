@@ -155,7 +155,7 @@ const DefaultTableShowcase2 = () => {
     <ChakraProvider theme={theme}>
       <Button
         onClick={() => {
-          setSelectedId("ea3382be-eb0e-4b72-9a7b-9ec9df7dbf61");
+          setSelectedId("staff_profile");
           dataTable.setColumnVisibility({ actionsa: false });
         }}
       >
@@ -164,7 +164,7 @@ const DefaultTableShowcase2 = () => {
       +
       <Button
         onClick={() => {
-          setSelectedId("dc40c86a-7ce6-4835-b9fb-2fd6afa4b909");
+          setSelectedId("aad_profile");
           dataTable.setColumnVisibility({ actions1: false });
         }}
       >
@@ -172,18 +172,11 @@ const DefaultTableShowcase2 = () => {
       </Button>
       <DataTableServer
         columns={
-          selectedId == "dc40c86a-7ce6-4835-b9fb-2fd6afa4b909"
+          selectedId == "aad_profile"
             ? columns
             : columnv2
         }
         url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
-        // sorting={}
-        // pagination={{ pageSize: 25, pageIndex: 0 }}
-        // columnVisibility={
-        //   selectedId == "dc40c86a-7ce6-4835-b9fb-2fd6afa4b909"
-        //     ? { actionsa: false }
-        //     : { actions1: false }
-        // }
         {...dataTable}
       >
         <DefaultTable showFilter filterOptions={["model"]} />
