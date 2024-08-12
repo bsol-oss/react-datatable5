@@ -379,6 +379,9 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     react$1.useEffect(() => {
         onRowSelect(table.getState().rowSelection, data.results);
     }, [table.getState().rowSelection]);
+    react$1.useEffect(() => {
+        table.resetPagination();
+    }, [sorting, columnFilters, globalFilter, url]);
     return (jsxRuntime.jsx(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: refreshData,
@@ -921,9 +924,9 @@ const GlobalFilter = ({ icon = md.MdSearch }) => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsxs(react.InputGroup, { children: [jsxRuntime.jsx(react.InputLeftElement, { pointerEvents: "none", children: jsxRuntime.jsx(react.Icon, { as: icon, color: "gray.300" }) }), jsxRuntime.jsx(react.Input, { value: table.getState().globalFilter.globalFilter, onChange: (e) => {
                             if (!!e.target.value) {
-                                table.setGlobalFilter({ globalFilter: undefined });
+                                table.setGlobalFilter(undefined);
                             }
-                            table.setGlobalFilter({ globalFilter: e.target.value });
+                            table.setGlobalFilter(e.target.value);
                         } })] }) }) }));
 };
 
