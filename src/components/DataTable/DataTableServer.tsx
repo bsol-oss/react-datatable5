@@ -168,6 +168,10 @@ export const DataTableServer = <TData,>({
     onRowSelect(table.getState().rowSelection, data.results);
   }, [table.getState().rowSelection]);
 
+  useEffect(() => {
+    table.resetPagination();
+  }, [sorting, columnFilters, globalFilter, url]);
+
   return (
     <TableContext.Provider
       value={{
