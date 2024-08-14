@@ -168,13 +168,14 @@ interface TableControlsProps {
     showFilterTags?: boolean;
     showReload?: boolean;
     filterOptions?: string[];
+    extraItems?: JSX.Element;
 }
-declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, children, showFilterName, showFilterTags, showReload, filterOptions, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
+declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, children, showFilterName, showFilterTags, showReload, filterOptions, extraItems, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
 
 interface DefaultTableProps extends TableControlsProps {
     showFooter?: boolean;
 }
-declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, showReload, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
+declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, showReload, extraItems, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
 
 interface TableProps extends TableProps$1 {
     showLoading?: boolean;

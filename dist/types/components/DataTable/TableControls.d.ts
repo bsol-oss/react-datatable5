@@ -10,5 +10,6 @@ export interface TableControlsProps {
     showFilterTags?: boolean;
     showReload?: boolean;
     filterOptions?: string[];
+    extraItems?: JSX.Element;
 }
-export declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, children, showFilterName, showFilterTags, showReload, filterOptions, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, children, showFilterName, showFilterTags, showReload, filterOptions, extraItems, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;
