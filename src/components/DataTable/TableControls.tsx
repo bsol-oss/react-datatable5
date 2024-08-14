@@ -33,6 +33,7 @@ export interface TableControlsProps {
   showFilterTags?: boolean;
   showReload?: boolean;
   filterOptions?: string[];
+  extraItems?: JSX.Element;
 }
 
 export const TableControls = ({
@@ -46,6 +47,7 @@ export const TableControls = ({
   showFilterTags = false,
   showReload = false,
   filterOptions = [],
+  extraItems = <></>,
 }: TableControlsProps) => {
   const { loading, hasError } = useDataTableContext();
   return (
@@ -83,6 +85,7 @@ export const TableControls = ({
             </>
           )}
           {showReload && <ReloadButton />}
+          {extraItems}
         </Flex>
       </Flex>
       <Flex gridColumn={"1 / span 2"} flexFlow={"column"} gap={"0.5rem"}>
