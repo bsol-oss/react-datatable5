@@ -14,11 +14,11 @@ import {
 } from "@tanstack/react-table";
 import { DensityFeature, DensityState } from "../Controls/DensityFeature";
 import { TableContext } from "./DataTableContext";
-import { useDataFromUrl } from "./useDataFromUrl";
+import { UseDataFromUrlReturn } from "./useDataFromUrl";
+import { DataResponse } from "./useDataTableServer";
 
-export interface DataTableServerProps<TData> {
+export interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataResponse<TData>> {
   children: JSX.Element | JSX.Element[];
-  url: string;
   columns: ColumnDef<TData, any>[]; // TODO: find the appropriate types
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
@@ -40,21 +40,12 @@ export interface DataTableServerProps<TData> {
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
-  onFetchSuccess?: (response: DataResponse<TData>) => void;
 }
 
-export interface Result<T> {
-  results: T[];
-}
 
-export interface DataResponse<T> extends Result<T> {
-  success: boolean;
-  count: number;
-}
 
 export const DataTableServer = <TData,>({
   columns,
-  url,
   enableRowSelection = true,
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
@@ -75,40 +66,12 @@ export const DataTableServer = <TData,>({
   setColumnOrder,
   setDensity,
   setColumnVisibility,
-  onFetchSuccess,
+  data,
+  loading,
+  hasError,
+  refreshData,
   children,
 }: DataTableServerProps<TData>) => {
-  const { data, loading, hasError, refreshData } = useDataFromUrl<
-    DataResponse<TData>
-  >({
-    url: url,
-    defaultData: {
-      success: false,
-      results: [],
-      count: 0,
-    },
-    params: {
-      pagination: JSON.stringify({
-        offset: pagination.pageIndex * pagination.pageSize,
-        rows: pagination.pageSize,
-      }),
-      sorting: JSON.stringify(
-        sorting.length > 0
-          ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
-          : {}
-      ),
-      where: JSON.stringify(
-        columnFilters.reduce((accumulator, filter) => {
-          const obj: any = {};
-          obj[filter.id] = filter.value;
-          return { ...accumulator, ...obj };
-        }, {})
-      ),
-      searching: globalFilter,
-    },
-    disableFirstFetch: true,
-    onFetchSuccess: onFetchSuccess,
-  });
   const table = useReactTable<TData>({
     _features: [DensityFeature],
     data: data.results,
@@ -157,9 +120,6 @@ export const DataTableServer = <TData,>({
     // for tanstack-table ts bug end
   });
 
-  useEffect(() => {
-    refreshData();
-  }, [pagination, sorting, columnFilters, globalFilter, url]);
 
   useEffect(() => {
     setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
@@ -171,7 +131,7 @@ export const DataTableServer = <TData,>({
 
   useEffect(() => {
     table.resetPagination();
-  }, [sorting, columnFilters, globalFilter, url]);
+  }, [sorting, columnFilters, globalFilter]);
 
   return (
     <TableContext.Provider

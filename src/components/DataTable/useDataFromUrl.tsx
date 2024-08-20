@@ -1,14 +1,14 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-export interface useDataFromUrlReturn<T> {
+export interface UseDataFromUrlReturn<T> {
   data: T;
   loading: boolean;
   hasError: boolean;
   refreshData: () => void;
 }
 
-export interface useDataFromUrlProps<T> {
+export interface UseDataFromUrlProps<T> {
   url: string;
   params?: object;
   defaultData: T;
@@ -22,7 +22,7 @@ export const useDataFromUrl = <T,>({
   disableFirstFetch = false,
   onFetchSuccess = () => {},
   defaultData,
-}: useDataFromUrlProps<T>): useDataFromUrlReturn<T> => {
+}: UseDataFromUrlProps<T>): UseDataFromUrlReturn<T> => {
   const [loading, setLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
   const [data, setData] = useState<T>(defaultData);

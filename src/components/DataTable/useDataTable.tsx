@@ -11,7 +11,7 @@ import { useState } from "react";
 import { DensityState } from "../Controls/DensityFeature";
 
 export interface UseDataTableProps {
-  default: {
+  default?: {
     sorting?: SortingState;
     columnFilters?: ColumnFiltersState;
     pagination?: PaginationState;
