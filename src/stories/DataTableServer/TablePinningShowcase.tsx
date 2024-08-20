@@ -14,7 +14,7 @@ import {
   TablePagination,
   TableSelector,
   TextCell,
-  useDataTable,
+  useDataTableServer
 } from "../../index";
 
 interface ChatRecord {
@@ -32,7 +32,13 @@ interface ChatRecord {
 }
 
 const TablePinningShowcase = () => {
-  const datatable = useDataTable();
+  const dataTable = useDataTableServer<ChatRecord>({
+    url: "http://localhost:8333/api/v1/gpt/chat/history/all",
+    default: {
+      sorting: [{ id: "last_update", desc: true }],
+      pagination: { pageSize: 25, pageIndex: 0 },
+    },
+  });
   const columnHelper = createColumnHelper<ChatRecord>();
   const columns: ColumnDef<ChatRecord>[] = [
     columnHelper.display({
@@ -125,10 +131,9 @@ const TablePinningShowcase = () => {
   ];
   return (
     <ChakraProvider theme={theme}>
-      <DataTableServer
+      <DataTableServer<ChatRecord>
         columns={columns}
-        url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
-        {...datatable}
+        {...dataTable}
       >
         <Flex gap="0.25rem">
           <TablePagination />

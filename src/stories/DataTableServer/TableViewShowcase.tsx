@@ -29,6 +29,7 @@ import {
   TableSelector,
   TextCell,
   useDataTable,
+  useDataTableServer,
 } from "../../index";
 
 interface ChatRecord {
@@ -83,7 +84,8 @@ export const extendedTheme = extendTheme({
 });
 
 const TableViewShowcase = () => {
-  const dataTable = useDataTable({
+  const dataTable = useDataTableServer<ChatRecord>({
+    url: "http://localhost:8333/api/v1/gpt/chat/history/all",
     default: {
       sorting: [{ id: "last_update", desc: true }],
       pagination: { pageSize: 25, pageIndex: 0 },
@@ -184,11 +186,7 @@ const TableViewShowcase = () => {
 
   return (
     <ChakraProvider theme={extendedTheme}>
-      <DataTableServer
-        columns={columns}
-        url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
-        {...dataTable}
-      >
+      <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <Flex flexFlow={"wrap"}>
           <TablePagination />
           <EditViewButton text={"View"} />

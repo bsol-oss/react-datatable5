@@ -1,12 +1,14 @@
 import { Box, Button, ChakraProvider, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DataTableServer,
   DefaultTable,
   TableComponent,
-  TextCell, useDataTable
+  TextCell,
+  useDataTable,
+  useDataTableServer,
 } from "../../index";
 
 export interface Root {
@@ -34,11 +36,12 @@ const RowActions = ({ row }: RowActionsProps) => {
 };
 
 const DefaultTableShowcase2 = () => {
-  const dataTable = useDataTable({
-    default: {
-      pagination: { pageSize: 25, pageIndex: 0 },
-    },
-  });
+  // const dataTable = useDataTable({
+  //   default: {
+  //     pagination: { pageSize: 25, pageIndex: 0 },
+  //   },
+  // });
+
   const columnHelper = createColumnHelper<ProfileData>();
 
   const columns: ColumnDef<ProfileData>[] = [
@@ -150,6 +153,13 @@ const DefaultTableShowcase2 = () => {
   ];
 
   const [selectedId, setSelectedId] = useState<string>();
+  const dataTable = useDataTableServer<ProfileData>({
+    url: `http://localhost:8081/api/profile-data/${selectedId}/search`,
+    default: {
+      pagination: { pageSize: 25, pageIndex: 0 },
+    },
+  });
+
 
   return (
     <ChakraProvider theme={theme}>
@@ -170,14 +180,10 @@ const DefaultTableShowcase2 = () => {
       >
         aad profile
       </Button>
-      <DataTableServer
-        columns={
-          selectedId == "aad_profile"
-            ? columns
-            : columnv2
-        }
-        url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
-        onFetchSuccess={(response)=>{console.log(response,"some-response-123")}}
+      <DataTableServer<ProfileData>
+        columns={selectedId == "aad_profile" ? columns : columnv2}
+        // url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
+        // onFetchSuccess={(response)=>{console.log(response,"some-response-123")}}
         {...dataTable}
       >
         <DefaultTable showFilter filterOptions={["model"]} />
