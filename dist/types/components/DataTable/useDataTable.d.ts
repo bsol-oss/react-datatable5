@@ -1,7 +1,7 @@
 import { ColumnFiltersState, ColumnOrderState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { DensityState } from "../Controls/DensityFeature";
 export interface UseDataTableProps {
-    default: {
+    default?: {
         sorting?: SortingState;
         columnFilters?: ColumnFiltersState;
         pagination?: PaginationState;

@@ -9,13 +9,13 @@ var react$1 = require('react');
 var io = require('react-icons/io');
 var reactTable = require('@tanstack/react-table');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
-var axios = require('axios');
 var table = require('@chakra-ui/table');
 var bs = require('react-icons/bs');
 var gr = require('react-icons/gr');
 var io5 = require('react-icons/io5');
 var reactBeautifulDnd = require('react-beautiful-dnd');
 var fa = require('react-icons/fa');
+var axios = require('axios');
 
 const DensityToggleButton = ({ text, icon = jsxRuntime.jsx(ai.AiOutlineColumnWidth, {}), }) => {
     const { table } = useDataTableContext();
@@ -263,66 +263,7 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         }, children: children }));
 };
 
-const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSuccess = () => { }, defaultData, }) => {
-    const [loading, setLoading] = react$1.useState(true);
-    const [hasError, setHasError] = react$1.useState(false);
-    const [data, setData] = react$1.useState(defaultData);
-    const refreshData = async () => {
-        await getData();
-    };
-    const getData = async () => {
-        try {
-            setHasError(false);
-            setLoading(true);
-            const { data } = await axios.get(url, { params: params });
-            console.debug("get DataFromUrl success", data);
-            onFetchSuccess(data);
-            setLoading(false);
-            setData(data);
-        }
-        catch (e) {
-            console.log("Error", e);
-            setLoading(false);
-            setHasError(true);
-        }
-    };
-    react$1.useEffect(() => {
-        if (disableFirstFetch) {
-            return;
-        }
-        getData().catch((e) => {
-            console.error(e);
-        });
-    }, [url]);
-    return { data, loading, hasError, refreshData };
-};
-
-const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, onFetchSuccess, children, }) => {
-    const { data, loading, hasError, refreshData } = useDataFromUrl({
-        url: url,
-        defaultData: {
-            success: false,
-            results: [],
-            count: 0,
-        },
-        params: {
-            pagination: JSON.stringify({
-                offset: pagination.pageIndex * pagination.pageSize,
-                rows: pagination.pageSize,
-            }),
-            sorting: JSON.stringify(sorting.length > 0
-                ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
-                : {}),
-            where: JSON.stringify(columnFilters.reduce((accumulator, filter) => {
-                const obj = {};
-                obj[filter.id] = filter.value;
-                return { ...accumulator, ...obj };
-            }, {})),
-            searching: globalFilter,
-        },
-        disableFirstFetch: true,
-        onFetchSuccess: onFetchSuccess,
-    });
+const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, data, loading, hasError, refreshData, children, }) => {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
         data: data.results,
@@ -371,9 +312,6 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
         // for tanstack-table ts bug end
     });
     react$1.useEffect(() => {
-        refreshData();
-    }, [pagination, sorting, columnFilters, globalFilter, url]);
-    react$1.useEffect(() => {
         setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
     }, []);
     react$1.useEffect(() => {
@@ -381,7 +319,7 @@ const DataTableServer = ({ columns, url, enableRowSelection = true, enableMultiR
     }, [table.getState().rowSelection]);
     react$1.useEffect(() => {
         table.resetPagination();
-    }, [sorting, columnFilters, globalFilter, url]);
+    }, [sorting, columnFilters, globalFilter]);
     return (jsxRuntime.jsx(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: refreshData,
@@ -847,6 +785,40 @@ const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipP
     return (jsxRuntime.jsx(react.Flex, { alignItems: "center", height: "100%", padding: padding, children: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }));
 };
 
+const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSuccess = () => { }, defaultData, }) => {
+    const [loading, setLoading] = react$1.useState(true);
+    const [hasError, setHasError] = react$1.useState(false);
+    const [data, setData] = react$1.useState(defaultData);
+    const refreshData = async () => {
+        await getData();
+    };
+    const getData = async () => {
+        try {
+            setHasError(false);
+            setLoading(true);
+            const { data } = await axios.get(url, { params: params });
+            console.debug("get DataFromUrl success", data);
+            onFetchSuccess(data);
+            setLoading(false);
+            setData(data);
+        }
+        catch (e) {
+            console.log("Error", e);
+            setLoading(false);
+            setHasError(true);
+        }
+    };
+    react$1.useEffect(() => {
+        if (disableFirstFetch) {
+            return;
+        }
+        getData().catch((e) => {
+            console.error(e);
+        });
+    }, [url]);
+    return { data, loading, hasError, refreshData };
+};
+
 const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
@@ -902,6 +874,82 @@ const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: def
         setDensity,
         columnVisibility,
         setColumnVisibility,
+    };
+};
+
+const useDataTableServer = ({ url, onFetchSuccess = () => { }, default: { sorting: defaultSorting = [], pagination: defaultPagination = {
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = "", density: defaultDensity = "sm", } = {
+    sorting: [],
+    pagination: {
+        pageIndex: 0, //initial page index
+        pageSize: 10, //age size
+    },
+    rowSelection: {},
+    columnFilters: [],
+    columnOrder: [],
+    columnVisibility: {},
+    globalFilter: "",
+    density: "sm",
+}, }) => {
+    const [sorting, setSorting] = react$1.useState(defaultSorting);
+    const [columnFilters, setColumnFilters] = react$1.useState(defaultColumnFilters); // can set initial column filter state here
+    const [pagination, setPagination] = react$1.useState(defaultPagination);
+    const [rowSelection, setRowSelection] = react$1.useState(defaultRowSelection);
+    const [columnOrder, setColumnOrder] = react$1.useState(defaultColumnOrder);
+    const [globalFilter, setGlobalFilter] = react$1.useState(defaultGlobalFilter);
+    const [density, setDensity] = react$1.useState(defaultDensity);
+    const [columnVisibility, setColumnVisibility] = react$1.useState(defaultColumnVisibility);
+    const { data, loading, hasError, refreshData } = useDataFromUrl({
+        url: url,
+        defaultData: {
+            success: false,
+            results: [],
+            count: 0,
+        },
+        params: {
+            pagination: JSON.stringify({
+                offset: pagination.pageIndex * pagination.pageSize,
+                rows: pagination.pageSize,
+            }),
+            sorting: JSON.stringify(sorting.length > 0
+                ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
+                : {}),
+            where: JSON.stringify(columnFilters.reduce((accumulator, filter) => {
+                const obj = {};
+                obj[filter.id] = filter.value;
+                return { ...accumulator, ...obj };
+            }, {})),
+            searching: globalFilter,
+        },
+        disableFirstFetch: true,
+        onFetchSuccess: onFetchSuccess,
+    });
+    react$1.useEffect(() => {
+        refreshData();
+    }, [pagination, sorting, columnFilters, globalFilter, url]);
+    return {
+        sorting,
+        setSorting,
+        columnFilters,
+        setColumnFilters,
+        pagination,
+        setPagination,
+        rowSelection,
+        setRowSelection,
+        columnOrder,
+        setColumnOrder,
+        globalFilter,
+        setGlobalFilter,
+        density,
+        setDensity,
+        columnVisibility,
+        setColumnVisibility,
+        data,
+        loading,
+        hasError,
+        refreshData,
     };
 };
 
@@ -971,3 +1019,4 @@ exports.TextCell = TextCell;
 exports.useDataFromUrl = useDataFromUrl;
 exports.useDataTable = useDataTable;
 exports.useDataTableContext = useDataTableContext;
+exports.useDataTableServer = useDataTableServer;
