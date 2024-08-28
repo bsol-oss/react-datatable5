@@ -137,17 +137,18 @@ interface UseDataFromUrlProps<T> {
 }
 declare const useDataFromUrl: <T>({ url, params, disableFirstFetch, onFetchSuccess, defaultData, }: UseDataFromUrlProps<T>) => UseDataFromUrlReturn<T>;
 
+interface DataTableDefaultState {
+    sorting?: SortingState;
+    columnFilters?: ColumnFiltersState;
+    pagination?: PaginationState;
+    rowSelection?: RowSelectionState;
+    columnOrder?: ColumnOrderState;
+    globalFilter?: string;
+    columnVisibility?: VisibilityState;
+    density?: DensityState;
+}
 interface UseDataTableProps {
-    default?: {
-        sorting?: SortingState;
-        columnFilters?: ColumnFiltersState;
-        pagination?: PaginationState;
-        rowSelection?: RowSelectionState;
-        columnOrder?: ColumnOrderState;
-        globalFilter?: string;
-        columnVisibility?: VisibilityState;
-        density?: DensityState;
-    };
+    default?: DataTableDefaultState;
 }
 interface UseDataTableReturn {
     sorting: SortingState;
@@ -392,4 +393,4 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export { type DataResponse, DataTable, type DataTableProps, DataTableServer, type DataTableServerProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, FilterOptions, type FilterOptionsProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, TablePagination, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataFromUrlProps, type UseDataFromUrlReturn, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, useDataFromUrl, useDataTable, useDataTableContext, useDataTableServer };
+export { type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, FilterOptions, type FilterOptionsProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, TablePagination, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataFromUrlProps, type UseDataFromUrlReturn, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, useDataFromUrl, useDataTable, useDataTableContext, useDataTableServer };

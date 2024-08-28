@@ -1,16 +1,17 @@
 import { ColumnFiltersState, ColumnOrderState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { DensityState } from "../Controls/DensityFeature";
+export interface DataTableDefaultState {
+    sorting?: SortingState;
+    columnFilters?: ColumnFiltersState;
+    pagination?: PaginationState;
+    rowSelection?: RowSelectionState;
+    columnOrder?: ColumnOrderState;
+    globalFilter?: string;
+    columnVisibility?: VisibilityState;
+    density?: DensityState;
+}
 export interface UseDataTableProps {
-    default?: {
-        sorting?: SortingState;
-        columnFilters?: ColumnFiltersState;
-        pagination?: PaginationState;
-        rowSelection?: RowSelectionState;
-        columnOrder?: ColumnOrderState;
-        globalFilter?: string;
-        columnVisibility?: VisibilityState;
-        density?: DensityState;
-    };
+    default?: DataTableDefaultState;
 }
 export interface UseDataTableReturn {
     sorting: SortingState;
