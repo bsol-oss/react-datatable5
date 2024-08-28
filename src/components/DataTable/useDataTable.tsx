@@ -5,22 +5,24 @@ import {
   PaginationState,
   RowSelectionState,
   SortingState,
-  VisibilityState
+  VisibilityState,
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { DensityState } from "../Controls/DensityFeature";
 
+export interface DataTableDefaultState {
+  sorting?: SortingState;
+  columnFilters?: ColumnFiltersState;
+  pagination?: PaginationState;
+  rowSelection?: RowSelectionState;
+  columnOrder?: ColumnOrderState;
+  globalFilter?: string;
+  columnVisibility?: VisibilityState;
+  density?: DensityState;
+}
+
 export interface UseDataTableProps {
-  default?: {
-    sorting?: SortingState;
-    columnFilters?: ColumnFiltersState;
-    pagination?: PaginationState;
-    rowSelection?: RowSelectionState;
-    columnOrder?: ColumnOrderState;
-    globalFilter?: string;
-    columnVisibility?: VisibilityState;
-    density?: DensityState;
-  };
+  default?: DataTableDefaultState;
 }
 
 export interface UseDataTableReturn {
