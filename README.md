@@ -8,10 +8,16 @@ npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
 
 ## Usage
 
+### Hook
+
+```tsx
+const datatable = useDataTable();
+```
+
 ### DataTable
 
 ```tsx
-<DataTable columns={columns} data={data}>
+<DataTable columns={columns} data={data} {...datatable}>
   <Flex>
     <TablePagination />
     <EditViewButton />
@@ -37,6 +43,7 @@ npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
 <DataTableServer
   columns={columns}
   url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
+  {...datatable}
 >
   <Flex>
     <TablePagination />
@@ -73,10 +80,27 @@ GET http://localhost:8333/api/v1/gpt/chat/history/all?pagination={"offset":0,"ro
 ### DefaultTable
 
 ```tsx
-<DataTable columns={columns} data={data}>
+<DataTable columns={columns} data={data} {...datatable}>
   <DefaultTable />
 </DataTable>
 ```
+
+### Example Usage
+
+```tsx
+import { DataTable } from "@bsol-oss/react-datatable5";
+const Template = () => {
+  const datatable = useDataTable();
+  const columns = []
+  const data = []
+  return (
+    <DataTable columns={columns} data={data} {...datatable}>
+      <DefaultTable />
+    </DataTable>
+  );
+};
+```
+
 
 ## Development
 
