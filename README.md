@@ -10,8 +10,11 @@ npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
 
 ### Hook
 
+The `DataTable` and `DataTableServer` utilize hook to add props. 
+
 ```tsx
 const datatable = useDataTable();
+const datatableServer = useDataTableServer({url: "<some-url>"});
 ```
 
 ### DataTable
@@ -42,7 +45,6 @@ const datatable = useDataTable();
 ```tsx
 <DataTableServer
   columns={columns}
-  url={"http://localhost:8333/api/v1/gpt/chat/history/all"}
   {...datatable}
 >
   <Flex>
@@ -84,23 +86,6 @@ GET http://localhost:8333/api/v1/gpt/chat/history/all?pagination={"offset":0,"ro
   <DefaultTable />
 </DataTable>
 ```
-
-### Example Usage
-
-```tsx
-import { DataTable } from "@bsol-oss/react-datatable5";
-const Template = () => {
-  const datatable = useDataTable();
-  const columns = []
-  const data = []
-  return (
-    <DataTable columns={columns} data={data} {...datatable}>
-      <DefaultTable />
-    </DataTable>
-  );
-};
-```
-
 
 ## Development
 
