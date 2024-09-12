@@ -16,10 +16,12 @@ import { useState } from "react";
 
 export interface TableFooterProps {
   pinnedBgColor?: { light: string; dark: string };
+  showSelector?: boolean;
 }
 
 export const TableFooter = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
+  showSelector = false,
 }: TableFooterProps) => {
   const table = useDataTableContext().table;
   const SELECTION_BOX_WIDTH = 20;
@@ -42,53 +44,55 @@ export const TableFooter = ({
     <Tfoot>
       {table.getFooterGroups().map((footerGroup) => (
         <Tr display={"flex"} key={crypto.randomUUID()}>
-          <Th
-            // styling resize and pinning start
-            padding={`${table.getDensityValue()}px`}
-            {...(table.getIsSomeColumnsPinned("left")
-              ? {
-                  left: `0px`,
-                  backgroundColor: pinnedBgColor.light,
-                  position: "sticky",
-                  zIndex: 1,
-                  _dark: { backgroundColor: pinnedBgColor.dark },
-                }
-              : {})}
-            // styling resize and pinning end
-            onMouseEnter={() => handleRowHover(true)}
-            onMouseLeave={() => handleRowHover(false)}
-            display={"grid"}
-          >
-            {isCheckBoxVisible() && (
-              <FormLabel
-                margin={"0rem"}
-                display={"grid"}
-                justifyItems={"center"}
-                alignItems={"center"}
-              >
-                <Checkbox
+          {showSelector && (
+            <Th
+              // styling resize and pinning start
+              padding={`${table.getDensityValue()}px`}
+              {...(table.getIsSomeColumnsPinned("left")
+                ? {
+                    left: `0px`,
+                    backgroundColor: pinnedBgColor.light,
+                    position: "sticky",
+                    zIndex: 1,
+                    _dark: { backgroundColor: pinnedBgColor.dark },
+                  }
+                : {})}
+              // styling resize and pinning end
+              onMouseEnter={() => handleRowHover(true)}
+              onMouseLeave={() => handleRowHover(false)}
+              display={"grid"}
+            >
+              {isCheckBoxVisible() && (
+                <FormLabel
+                  margin={"0rem"}
+                  display={"grid"}
+                  justifyItems={"center"}
+                  alignItems={"center"}
+                >
+                  <Checkbox
+                    width={`${SELECTION_BOX_WIDTH}px`}
+                    height={`${SELECTION_BOX_WIDTH}px`}
+                    {...{
+                      isChecked: table.getIsAllRowsSelected(),
+                      // indeterminate: table.getIsSomeRowsSelected(),
+                      onChange: table.getToggleAllRowsSelectedHandler(),
+                    }}
+                  ></Checkbox>
+                </FormLabel>
+              )}
+              {!isCheckBoxVisible() && (
+                <Box
+                  as="span"
+                  margin={"0rem"}
+                  display={"grid"}
+                  justifyItems={"center"}
+                  alignItems={"center"}
                   width={`${SELECTION_BOX_WIDTH}px`}
                   height={`${SELECTION_BOX_WIDTH}px`}
-                  {...{
-                    isChecked: table.getIsAllRowsSelected(),
-                    // indeterminate: table.getIsSomeRowsSelected(),
-                    onChange: table.getToggleAllRowsSelectedHandler(),
-                  }}
-                ></Checkbox>
-              </FormLabel>
-            )}
-            {!isCheckBoxVisible() && (
-              <Box
-                as="span"
-                margin={"0rem"}
-                display={"grid"}
-                justifyItems={"center"}
-                alignItems={"center"}
-                width={`${SELECTION_BOX_WIDTH}px`}
-                height={`${SELECTION_BOX_WIDTH}px`}
-              />
-            )}
-          </Th>
+                />
+              )}
+            </Th>
+          )}
           {footerGroup.headers.map((header) => (
             <Th
               padding={"0"}

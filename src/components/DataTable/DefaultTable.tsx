@@ -6,6 +6,7 @@ import { TableHeader } from "./TableHeader";
 
 export interface DefaultTableProps extends TableControlsProps {
   showFooter?: boolean;
+  showSelector?: boolean;
 }
 
 export const DefaultTable = ({
@@ -19,6 +20,7 @@ export const DefaultTable = ({
   showFilterTags = false,
   showFilterName = false,
   showReload = false,
+  showSelector = false,
   extraItems = <></>,
 }: DefaultTableProps) => {
   return (
@@ -35,9 +37,9 @@ export const DefaultTable = ({
       extraItems={extraItems}
     >
       <Table variant={"striped"}>
-        <TableHeader canResize />
-        <TableBody />
-        {showFooter && <TableFooter />}
+        <TableHeader canResize showSelector={showSelector} />
+        <TableBody showSelector={showSelector} />
+        {showFooter && <TableFooter showSelector={showSelector} />}
       </Table>
     </TableControls>
   );

@@ -23,11 +23,13 @@ import { useDataTableContext } from "../../index";
 export interface TableHeaderProps {
   canResize?: boolean;
   pinnedBgColor?: { light: string; dark: string };
+  showSelector?: boolean;
 }
 
 export const TableHeader = ({
   canResize,
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
+  showSelector,
 }: TableHeaderProps) => {
   const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
@@ -50,54 +52,56 @@ export const TableHeader = ({
   return (
     <Thead>
       {table.getHeaderGroups().map((headerGroup) => (
-        <Tr display={"flex"} key={crypto.randomUUID()}>
-          <Th
-            // styling resize and pinning start
-            {...(table.getIsSomeColumnsPinned("left")
-              ? {
-                  left: `0px`,
-                  backgroundColor: pinnedBgColor.light,
-                  position: "sticky",
-                  zIndex: 1,
-                  _dark: { backgroundColor: pinnedBgColor.dark },
-                }
-              : {})}
-            // styling resize and pinning end
-            padding={`${table.getDensityValue()}px`}
-            onMouseEnter={() => handleRowHover(true)}
-            onMouseLeave={() => handleRowHover(false)}
-            display={"grid"}
-          >
-            {isCheckBoxVisible() && (
-              <FormLabel
-                margin={"0rem"}
-                display={"grid"}
-                justifyItems={"center"}
-                alignItems={"center"}
-              >
-                <Checkbox
+        <Tr display={"flex"} key={`chakra-table-headergroup-${headerGroup.id}`}>
+          {showSelector && (
+            <Th
+              // styling resize and pinning start
+              {...(table.getIsSomeColumnsPinned("left")
+                ? {
+                    left: `0px`,
+                    backgroundColor: pinnedBgColor.light,
+                    position: "sticky",
+                    zIndex: 1,
+                    _dark: { backgroundColor: pinnedBgColor.dark },
+                  }
+                : {})}
+              // styling resize and pinning end
+              padding={`${table.getDensityValue()}px`}
+              onMouseEnter={() => handleRowHover(true)}
+              onMouseLeave={() => handleRowHover(false)}
+              display={"grid"}
+            >
+              {isCheckBoxVisible() && (
+                <FormLabel
+                  margin={"0rem"}
+                  display={"grid"}
+                  justifyItems={"center"}
+                  alignItems={"center"}
+                >
+                  <Checkbox
+                    width={`${SELECTION_BOX_WIDTH}px`}
+                    height={`${SELECTION_BOX_WIDTH}px`}
+                    {...{
+                      isChecked: table.getIsAllRowsSelected(),
+                      // indeterminate: table.getIsSomeRowsSelected(),
+                      onChange: table.getToggleAllRowsSelectedHandler(),
+                    }}
+                  ></Checkbox>
+                </FormLabel>
+              )}
+              {!isCheckBoxVisible() && (
+                <Box
+                  as="span"
+                  margin={"0rem"}
+                  display={"grid"}
+                  justifyItems={"center"}
+                  alignItems={"center"}
                   width={`${SELECTION_BOX_WIDTH}px`}
                   height={`${SELECTION_BOX_WIDTH}px`}
-                  {...{
-                    isChecked: table.getIsAllRowsSelected(),
-                    // indeterminate: table.getIsSomeRowsSelected(),
-                    onChange: table.getToggleAllRowsSelectedHandler(),
-                  }}
-                ></Checkbox>
-              </FormLabel>
-            )}
-            {!isCheckBoxVisible() && (
-              <Box
-                as="span"
-                margin={"0rem"}
-                display={"grid"}
-                justifyItems={"center"}
-                alignItems={"center"}
-                width={`${SELECTION_BOX_WIDTH}px`}
-                height={`${SELECTION_BOX_WIDTH}px`}
-              ></Box>
-            )}
-          </Th>
+                ></Box>
+              )}
+            </Th>
+          )}
           {headerGroup.headers.map((header) => {
             const resizeProps = {
               onClick: () => header.column.resetSize(),

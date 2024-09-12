@@ -6,6 +6,7 @@ import { TableContext } from "./DataTableContext";
 
 export interface TableBodyProps {
   pinnedBgColor?: { light: string; dark: string };
+  showSelector?: boolean;
 }
 
 export interface TableRowSelectorProps<TData> {
@@ -20,6 +21,7 @@ export interface TableRowSelectorProps<TData> {
 
 export const TableBody = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
+  showSelector = false,
 }: TableBodyProps) => {
   const { table } = useContext(TableContext);
   const SELECTION_BOX_WIDTH = 20;
@@ -41,7 +43,13 @@ export const TableBody = ({
             onMouseEnter={() => handleRowHover(index)}
             onMouseLeave={() => handleRowHover(-1)}
           >
-            <TableRowSelector index={index} row={row} hoveredRow={hoveredRow} />
+            {showSelector && (
+              <TableRowSelector
+                index={index}
+                row={row}
+                hoveredRow={hoveredRow}
+              />
+            )}
             {row.getVisibleCells().map((cell) => {
               return (
                 <Td
@@ -124,9 +132,7 @@ const TableRowSelector = <TData,>({
           alignItems={"center"}
           width={`${SELECTION_BOX_WIDTH}px`}
           height={`${SELECTION_BOX_WIDTH}px`}
-        >
-          
-        </Box>
+        ></Box>
       )}
       {isCheckBoxVisible(index, row) && (
         <FormLabel
