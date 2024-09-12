@@ -113,7 +113,7 @@ export const TableHeader = ({
             return (
               <Th
                 padding={"0rem"}
-                key={crypto.randomUUID()}
+                key={`chakra-table-header-${header.id}`}
                 colSpan={header.colSpan}
                 // styling resize and pinning start
                 maxWidth={`${header.getSize()}px`}

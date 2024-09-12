@@ -25,7 +25,7 @@ export const PageSizeControl = ({
         <MenuList>
           {pageSizes.map((pageSize) => (
             <MenuItem
-              key={crypto.randomUUID()}
+              key={`chakra-table-pageSize-${pageSize}`}
               onClick={() => {
                 table.setPageSize(Number(pageSize));
               }}

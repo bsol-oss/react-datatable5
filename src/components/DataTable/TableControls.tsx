@@ -91,7 +91,12 @@ export const TableControls = ({
       <Flex gridColumn={"1 / span 2"} flexFlow={"column"} gap={"0.5rem"}>
         {filterOptions.map((column) => {
           return (
-            <Flex alignItems={"center"} flexFlow={"wrap"} gap={"0.5rem"}>
+            <Flex
+              key={column}
+              alignItems={"center"}
+              flexFlow={"wrap"}
+              gap={"0.5rem"}
+            >
               {showFilterName && <Text>{column}:</Text>}
               <FilterOptions column={column}></FilterOptions>
             </Flex>

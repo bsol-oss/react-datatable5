@@ -14,7 +14,7 @@ export const TableCards = ({ isSelectable = false }: TableCardsProps) => {
     <>
       {table.getRowModel().rows.map((row) => {
         return (
-          <Card key={crypto.randomUUID()}>
+          <Card key={`chakra-table-card-${row.id}`}>
             <CardBody display={"flex"} flexFlow={"column"} gap={"0.5rem"}>
               {isSelectable && (
                 <Checkbox
@@ -28,7 +28,7 @@ export const TableCards = ({ isSelectable = false }: TableCardsProps) => {
               )}
               {row.getVisibleCells().map((cell) => {
                 return (
-                  <Box key={crypto.randomUUID()}>
+                  <Box key={`chakra-table-cardcolumn-${row.id}`}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Box>
                 );

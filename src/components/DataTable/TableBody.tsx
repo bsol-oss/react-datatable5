@@ -38,7 +38,7 @@ export const TableBody = ({
           <Tr
             display={"flex"}
             _hover={{ backgroundColor: "rgba(178,178,178,0.1)" }}
-            key={crypto.randomUUID()}
+            key={`chakra-table-row-${row.id}`}
             zIndex={1}
             onMouseEnter={() => handleRowHover(index)}
             onMouseLeave={() => handleRowHover(-1)}
@@ -50,11 +50,11 @@ export const TableBody = ({
                 hoveredRow={hoveredRow}
               />
             )}
-            {row.getVisibleCells().map((cell) => {
+            {row.getVisibleCells().map((cell, index) => {
               return (
                 <Td
                   padding={`${table.getDensityValue()}px`}
-                  key={crypto.randomUUID()}
+                  key={`chakra-table-rowcell-${cell.id}-${index}`}
                   // styling resize and pinning start
                   maxWidth={`${cell.column.getSize()}px`}
                   width={`${cell.column.getSize()}px`}

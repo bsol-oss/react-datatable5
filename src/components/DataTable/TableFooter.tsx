@@ -43,7 +43,7 @@ export const TableFooter = ({
   return (
     <Tfoot>
       {table.getFooterGroups().map((footerGroup) => (
-        <Tr display={"flex"} key={crypto.randomUUID()}>
+        <Tr display={"flex"} key={`chakra-table-footergroup-${footerGroup.id}`}>
           {showSelector && (
             <Th
               // styling resize and pinning start
@@ -96,7 +96,7 @@ export const TableFooter = ({
           {footerGroup.headers.map((header) => (
             <Th
               padding={"0"}
-              key={crypto.randomUUID()}
+              key={`chakra-table-footer-${footerGroup.id}`}
               colSpan={header.colSpan}
               // styling resize and pinning start
               maxWidth={`${header.getSize()}px`}
