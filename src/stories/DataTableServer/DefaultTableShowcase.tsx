@@ -34,7 +34,7 @@ const RowActions = ({ row }: RowActionsProps) => {
 
 const DefaultTableShowcase = () => {
   const dataTable = useDataTableServer<ChatRecord>({
-    url: 'http://localhost:8333/api/v1/gpt/chat/history/all',
+    url: "http://localhost:8333/api/v1/gpt/chat/history/all",
     default: {
       sorting: [{ id: "last_update", desc: true }],
       pagination: { pageSize: 25, pageIndex: 0 },
@@ -133,11 +133,14 @@ const DefaultTableShowcase = () => {
 
   return (
     <ChakraProvider theme={theme}>
-      <DataTableServer<ChatRecord>
-        columns={columns}
-        {...dataTable}
-      >
-        <DefaultTable showFilter filterOptions={["model"]} showReload extraItems={<>some extra items</>}/>
+      <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
+        <DefaultTable
+          showSelector
+          filterOptions={["model"]}
+          showFilter
+          showReload
+          extraItems={<>some extra items</>}
+        />
         <Box width="400px" height={"400px"}>
           <DefaultTable showFilter />
         </Box>
