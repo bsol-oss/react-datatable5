@@ -3,5 +3,6 @@ export interface TableFooterProps {
         light: string;
         dark: string;
     };
+    showSelector?: boolean;
 }
-export declare const TableFooter: ({ pinnedBgColor, }: TableFooterProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableFooter: ({ pinnedBgColor, showSelector, }: TableFooterProps) => import("react/jsx-runtime").JSX.Element;

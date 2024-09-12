@@ -4,6 +4,7 @@ export interface TableBodyProps {
         light: string;
         dark: string;
     };
+    showSelector?: boolean;
 }
 export interface TableRowSelectorProps<TData> {
     index: number;
@@ -14,4 +15,4 @@ export interface TableRowSelectorProps<TData> {
         dark: string;
     };
 }
-export declare const TableBody: ({ pinnedBgColor, }: TableBodyProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableBody: ({ pinnedBgColor, showSelector, }: TableBodyProps) => import("react/jsx-runtime").JSX.Element;

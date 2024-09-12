@@ -4,5 +4,6 @@ export interface TableHeaderProps {
         light: string;
         dark: string;
     };
+    showSelector?: boolean;
 }
-export declare const TableHeader: ({ canResize, pinnedBgColor, }: TableHeaderProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, }: TableHeaderProps) => import("react/jsx-runtime").JSX.Element;

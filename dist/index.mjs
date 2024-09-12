@@ -83,7 +83,7 @@ const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = useDataTableContext();
     return (jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Button, variant: "ghost", rightIcon: jsx(ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsx(MenuList, { children: pageSizes.map((pageSize) => (jsx(MenuItem, { onClick: () => {
                             table.setPageSize(Number(pageSize));
-                        }, children: pageSize }, crypto.randomUUID()))) })] }) }));
+                        }, children: pageSize }, `chakra-table-pageSize-${pageSize}`))) })] }) }));
 };
 
 const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
@@ -328,7 +328,7 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: children }));
 };
 
-const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
+const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, }) => {
     const { table } = useContext(TableContext);
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredRow, setHoveredRow] = useState(-1);
@@ -336,7 +336,7 @@ const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) 
         setHoveredRow(index);
     };
     return (jsx(Tbody, { children: table.getRowModel().rows.map((row, index) => {
-            return (jsxs(Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow }), row.getVisibleCells().map((cell) => {
+            return (jsxs(Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [showSelector && (jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow })), row.getVisibleCells().map((cell, index) => {
                         return (jsx(Td, { padding: `${table.getDensityValue()}px`, 
                             // styling resize and pinning start
                             maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, left: cell.column.getIsPinned()
@@ -345,8 +345,8 @@ const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) 
                                 backgroundColor: cell.column.getIsPinned()
                                     ? pinnedBgColor.dark
                                     : undefined,
-                            }, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID()));
-                    })] }, crypto.randomUUID()));
+                            }, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
+                    })] }, `chakra-table-row-${row.id}`));
         }) }));
 };
 const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
@@ -380,11 +380,11 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
 const TableControls = ({ totalText = "Total:", showFilter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsx(Fragment, {}), showFilterName = false, showFilterTags = false, showReload = false, filterOptions = [], extraItems = jsx(Fragment, {}), }) => {
     const { loading, hasError } = useDataTableContext();
     return (jsxs(Grid, { templateRows: "auto auto auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { label: "An error occurred while fetching data", children: jsx(Box, { children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) }) })), showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })), showReload && jsx(ReloadButton, {}), extraItems] })] }), jsx(Flex, { gridColumn: "1 / span 2", flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
-                    return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxs(Text, { children: [column, ":"] }), jsx(FilterOptions, { column: column })] }));
+                    return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxs(Text, { children: [column, ":"] }), jsx(FilterOptions, { column: column })] }, column));
                 }) }), jsx(Flex, { gridColumn: "1 / span 2", children: showFilterTags && jsx(TableFilterTags, {}) }), jsx(Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: children }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, {}), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
 };
 
-const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
+const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, }) => {
     const table = useDataTableContext().table;
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
@@ -400,7 +400,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }
         }
         return false;
     };
-    return (jsx(Tfoot, { children: table.getFooterGroups().map((footerGroup) => (jsxs(Tr$1, { display: "flex", children: [jsxs(Th
+    return (jsx(Tfoot, { children: table.getFooterGroups().map((footerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
                 // styling resize and pinning start
                 , { 
                     // styling resize and pinning start
@@ -416,7 +416,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }
                     // styling resize and pinning end
                     onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsx(FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
                                 // indeterminate: table.getIsSomeRowsSelected(),
-                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] }), footerGroup.headers.map((header) => (jsx(Th, { padding: "0", colSpan: header.colSpan, 
+                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), footerGroup.headers.map((header) => (jsx(Th, { padding: "0", colSpan: header.colSpan, 
                     // styling resize and pinning start
                     maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
                         ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
@@ -430,10 +430,10 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }
                                         ? null
                                         : flexRender(header.column.columnDef.footer, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (
                                                 // <UpDownIcon />
-                                                jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }) }) }, crypto.randomUUID())))] }, crypto.randomUUID()))) }));
+                                                jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }) }) }, `chakra-table-footer-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
 };
 
-const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
+const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector, }) => {
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
@@ -449,7 +449,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
         }
         return false;
     };
-    return (jsx(Thead, { children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [jsxs(Th
+    return (jsx(Thead, { children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
                 // styling resize and pinning start
                 , { ...(table.getIsSomeColumnsPinned("left")
                         ? {
@@ -463,7 +463,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                     // styling resize and pinning end
                     padding: `${table.getDensityValue()}px`, onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsx(FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
                                 // indeterminate: table.getIsSomeRowsSelected(),
-                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] }), headerGroup.headers.map((header) => {
+                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), headerGroup.headers.map((header) => {
                     const resizeProps = {
                         onClick: () => header.column.resetSize(),
                         onMouseDown: header.getResizeHandler(),
@@ -510,12 +510,12 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                     borderRightColor: header.column.getIsResizing()
                                         ? "gray.700"
                                         : "gray.400",
-                                }, ...resizeProps }))] }, crypto.randomUUID()));
-                })] }, crypto.randomUUID()))) }));
+                                }, ...resizeProps }))] }, `chakra-table-header-${header.id}`));
+                })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, showReload = false, extraItems = jsx(Fragment, {}), }) => {
-    return (jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxs(Table, { variant: "striped", children: [jsx(TableHeader, { canResize: true }), jsx(TableBody, {}), showFooter && jsx(TableFooter, {})] }) }));
+const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, showReload = false, showSelector = false, extraItems = jsx(Fragment, {}), }) => {
+    return (jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxs(Table, { variant: "striped", children: [jsx(TableHeader, { canResize: true, showSelector: showSelector }), jsx(TableBody, { showSelector: showSelector }), showFooter && jsx(TableFooter, { showSelector: showSelector })] }) }));
 };
 
 const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
@@ -537,8 +537,8 @@ const TableCards = ({ isSelectable = false }) => {
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
                             onChange: row.getToggleSelectedHandler() })), row.getVisibleCells().map((cell) => {
-                            return (jsx(Box, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, crypto.randomUUID()));
-                        })] }) }, crypto.randomUUID()));
+                            return (jsx(Box, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`));
+                        })] }) }, `chakra-table-card-${row.id}`));
         }) }));
 };
 
