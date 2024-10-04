@@ -229,8 +229,9 @@ declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHe
 interface DefaultTableProps extends TableControlsProps {
     showFooter?: boolean;
     showSelector?: boolean;
+    tableProps?: Omit<TableProps, "children">;
 }
-declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, showReload, showSelector, extraItems, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
+declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, showReload, showSelector, extraItems, tableProps, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
 
 interface TableProps extends TableProps$1 {
     showLoading?: boolean;
@@ -245,6 +246,7 @@ interface TableBodyProps {
         dark: string;
     };
     showSelector?: boolean;
+    alwaysShowSelector?: boolean;
 }
 interface TableRowSelectorProps<TData> {
     index: number;
@@ -254,8 +256,9 @@ interface TableRowSelectorProps<TData> {
         light: string;
         dark: string;
     };
+    alwaysShowSelector?: boolean;
 }
-declare const TableBody: ({ pinnedBgColor, showSelector, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
+declare const TableBody: ({ pinnedBgColor, showSelector, alwaysShowSelector, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
 
 interface TableCardContainerProps extends GridProps {
     children: JSX.Element;
@@ -282,8 +285,9 @@ interface TableFooterProps {
         dark: string;
     };
     showSelector?: boolean;
+    alwaysShowSelector?: boolean;
 }
-declare const TableFooter: ({ pinnedBgColor, showSelector, }: TableFooterProps) => react_jsx_runtime.JSX.Element;
+declare const TableFooter: ({ pinnedBgColor, showSelector, alwaysShowSelector, }: TableFooterProps) => react_jsx_runtime.JSX.Element;
 
 interface TableHeaderProps {
     canResize?: boolean;
@@ -292,8 +296,9 @@ interface TableHeaderProps {
         dark: string;
     };
     showSelector?: boolean;
+    alwaysShowSelector?: boolean;
 }
-declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
+declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, alwaysShowSelector, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
 
 interface TableLoadingComponentProps {
     render: (loading: boolean) => JSX.Element;

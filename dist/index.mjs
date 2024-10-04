@@ -328,31 +328,44 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: children }));
 };
 
-const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, }) => {
+const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
     const { table } = useContext(TableContext);
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredRow, setHoveredRow] = useState(-1);
     const handleRowHover = (index) => {
         setHoveredRow(index);
     };
+    const getTdProps = (cell) => {
+        const tdProps = cell.column.getIsPinned()
+            ? {
+                left: showSelector
+                    ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+                    : `${cell.column.getStart("left") + table.getDensityValue() * 2}px`,
+                background: pinnedBgColor.light,
+                position: "sticky",
+                zIndex: 1,
+                _dark: {
+                    backgroundColor: pinnedBgColor.dark,
+                },
+            }
+            : {};
+        return tdProps;
+    };
     return (jsx(Tbody, { children: table.getRowModel().rows.map((row, index) => {
-            return (jsxs(Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [showSelector && (jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow })), row.getVisibleCells().map((cell, index) => {
+            return (jsxs(Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [showSelector && (jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow, alwaysShowSelector: alwaysShowSelector })), row.getVisibleCells().map((cell, index) => {
                         return (jsx(Td, { padding: `${table.getDensityValue()}px`, 
                             // styling resize and pinning start
-                            maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, left: cell.column.getIsPinned()
-                                ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                                : undefined, backgroundColor: cell.column.getIsPinned() ? pinnedBgColor.light : undefined, position: cell.column.getIsPinned() ? "sticky" : "relative", zIndex: cell.column.getIsPinned() ? 1 : 0, _dark: {
-                                backgroundColor: cell.column.getIsPinned()
-                                    ? pinnedBgColor.dark
-                                    : undefined,
-                            }, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
+                            maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, ...getTdProps(cell), children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
                     })] }, `chakra-table-row-${row.id}`));
         }) }));
 };
-const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
+const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, alwaysShowSelector = true, }) => {
     const { table } = useContext(TableContext);
     const SELECTION_BOX_WIDTH = 20;
     const isCheckBoxVisible = (current_index, current_row) => {
+        if (alwaysShowSelector) {
+            return true;
+        }
         if (current_row.getIsSelected()) {
             return true;
         }
@@ -384,7 +397,7 @@ const TableControls = ({ totalText = "Total:", showFilter = false, fitTableWidth
                 }) }), jsx(Flex, { gridColumn: "1 / span 2", children: showFilterTags && jsx(TableFilterTags, {}) }), jsx(Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: children }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, {}), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
 };
 
-const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, }) => {
+const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
     const table = useDataTableContext().table;
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
@@ -392,6 +405,9 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
         setHoveredCheckBox(isHovered);
     };
     const isCheckBoxVisible = () => {
+        if (alwaysShowSelector) {
+            return true;
+        }
         if (table.getIsAllRowsSelected()) {
             return true;
         }
@@ -399,6 +415,22 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
             return true;
         }
         return false;
+    };
+    const getThProps = (header) => {
+        const thProps = header.column.getIsPinned()
+            ? {
+                left: showSelector
+                    ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+                    : `${header.getStart("left") + table.getDensityValue() * 2}px`,
+                background: pinnedBgColor.light,
+                position: "sticky",
+                zIndex: 1,
+                _dark: {
+                    backgroundColor: pinnedBgColor.dark,
+                },
+            }
+            : {};
+        return thProps;
     };
     return (jsx(Tfoot, { children: table.getFooterGroups().map((footerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
                 // styling resize and pinning start
@@ -418,22 +450,14 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
                                 // indeterminate: table.getIsSomeRowsSelected(),
                                 onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), footerGroup.headers.map((header) => (jsx(Th, { padding: "0", colSpan: header.colSpan, 
                     // styling resize and pinning start
-                    maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
-                        ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                        : undefined, backgroundColor: header.column.getIsPinned() ? pinnedBgColor.light : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : undefined, _dark: {
-                        backgroundColor: header.column.getIsPinned()
-                            ? pinnedBgColor.dark
-                            : undefined,
-                    }, 
-                    // styling resize and pinning end
-                    display: "grid", children: jsx(Menu, { children: jsx(MenuButton, { as: Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                    maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: "grid", ...getThProps(header), children: jsx(Menu, { children: jsx(MenuButton, { as: Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                         ? null
                                         : flexRender(header.column.columnDef.footer, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (
                                                 // <UpDownIcon />
                                                 jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }) }) }, `chakra-table-footer-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
 };
 
-const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector, }) => {
+const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector, alwaysShowSelector = true, }) => {
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
@@ -441,6 +465,9 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
         setHoveredCheckBox(isHovered);
     };
     const isCheckBoxVisible = () => {
+        if (alwaysShowSelector) {
+            return true;
+        }
         if (table.getIsAllRowsSelected()) {
             return true;
         }
@@ -448,6 +475,22 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
             return true;
         }
         return false;
+    };
+    const getThProps = (header) => {
+        const thProps = header.column.getIsPinned()
+            ? {
+                left: showSelector
+                    ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+                    : `${header.getStart("left") + table.getDensityValue() * 2}px`,
+                background: pinnedBgColor.light,
+                position: "sticky",
+                zIndex: 1,
+                _dark: {
+                    backgroundColor: pinnedBgColor.dark,
+                },
+            }
+            : {};
+        return thProps;
     };
     return (jsx(Thead, { children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
                 // styling resize and pinning start
@@ -472,15 +515,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                     };
                     return (jsxs(Th, { padding: "0rem", colSpan: header.colSpan, 
                         // styling resize and pinning start
-                        maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
-                            ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                            : undefined, backgroundColor: header.column.getIsPinned() ? pinnedBgColor.light : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : undefined, _dark: {
-                            backgroundColor: header.column.getIsPinned()
-                                ? pinnedBgColor.dark
-                                : undefined,
-                        }, 
-                        // styling resize and pinning end
-                        display: "grid", children: [jsxs(Menu, { children: [jsx(MenuButton, { as: Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                        maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: "grid", ...getThProps(header), children: [jsxs(Menu, { children: [jsx(MenuButton, { as: Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                                     ? null
                                                     : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && jsx(Fragment, {}), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) }), jsx(Box, { children: header.column.getIsFiltered() && jsx(MdFilterListAlt, {}) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
                                                         header.column.pin("left");
@@ -514,8 +549,8 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, showReload = false, showSelector = false, extraItems = jsx(Fragment, {}), }) => {
-    return (jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxs(Table, { variant: "striped", children: [jsx(TableHeader, { canResize: true, showSelector: showSelector }), jsx(TableBody, { showSelector: showSelector }), showFooter && jsx(TableFooter, { showSelector: showSelector })] }) }));
+const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, showReload = false, showSelector = false, extraItems = jsx(Fragment, {}), tableProps = {}, }) => {
+    return (jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxs(Table, { ...tableProps, children: [jsx(TableHeader, { canResize: true, showSelector: showSelector }), jsx(TableBody, { showSelector: showSelector }), showFooter && jsx(TableFooter, { showSelector: showSelector })] }) }));
 };
 
 const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {

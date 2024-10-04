@@ -330,31 +330,44 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: children }));
 };
 
-const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, }) => {
+const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
     const { table: table$1 } = react$1.useContext(TableContext);
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredRow, setHoveredRow] = react$1.useState(-1);
     const handleRowHover = (index) => {
         setHoveredRow(index);
     };
+    const getTdProps = (cell) => {
+        const tdProps = cell.column.getIsPinned()
+            ? {
+                left: showSelector
+                    ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table$1.getDensityValue() * 2}px`
+                    : `${cell.column.getStart("left") + table$1.getDensityValue() * 2}px`,
+                background: pinnedBgColor.light,
+                position: "sticky",
+                zIndex: 1,
+                _dark: {
+                    backgroundColor: pinnedBgColor.dark,
+                },
+            }
+            : {};
+        return tdProps;
+    };
     return (jsxRuntime.jsx(table.Tbody, { children: table$1.getRowModel().rows.map((row, index) => {
-            return (jsxRuntime.jsxs(table.Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [showSelector && (jsxRuntime.jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow })), row.getVisibleCells().map((cell, index) => {
+            return (jsxRuntime.jsxs(table.Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [showSelector && (jsxRuntime.jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow, alwaysShowSelector: alwaysShowSelector })), row.getVisibleCells().map((cell, index) => {
                         return (jsxRuntime.jsx(table.Td, { padding: `${table$1.getDensityValue()}px`, 
                             // styling resize and pinning start
-                            maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, left: cell.column.getIsPinned()
-                                ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table$1.getDensityValue() * 2}px`
-                                : undefined, backgroundColor: cell.column.getIsPinned() ? pinnedBgColor.light : undefined, position: cell.column.getIsPinned() ? "sticky" : "relative", zIndex: cell.column.getIsPinned() ? 1 : 0, _dark: {
-                                backgroundColor: cell.column.getIsPinned()
-                                    ? pinnedBgColor.dark
-                                    : undefined,
-                            }, children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
+                            maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, ...getTdProps(cell), children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
                     })] }, `chakra-table-row-${row.id}`));
         }) }));
 };
-const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, }) => {
+const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, alwaysShowSelector = true, }) => {
     const { table: table$1 } = react$1.useContext(TableContext);
     const SELECTION_BOX_WIDTH = 20;
     const isCheckBoxVisible = (current_index, current_row) => {
+        if (alwaysShowSelector) {
+            return true;
+        }
         if (current_row.getIsSelected()) {
             return true;
         }
@@ -386,7 +399,7 @@ const TableControls = ({ totalText = "Total:", showFilter = false, fitTableWidth
                 }) }), jsxRuntime.jsx(react.Flex, { gridColumn: "1 / span 2", children: showFilterTags && jsxRuntime.jsx(TableFilterTags, {}) }), jsxRuntime.jsx(react.Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: children }), jsxRuntime.jsxs(react.Flex, { gap: "1rem", alignItems: "center", children: [jsxRuntime.jsx(PageSizeControl, {}), jsxRuntime.jsxs(react.Flex, { children: [jsxRuntime.jsx(react.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] })] }), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: jsxRuntime.jsx(TablePagination, {}) })] }));
 };
 
-const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, }) => {
+const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
     const table = useDataTableContext().table;
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = react$1.useState(false);
@@ -394,6 +407,9 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
         setHoveredCheckBox(isHovered);
     };
     const isCheckBoxVisible = () => {
+        if (alwaysShowSelector) {
+            return true;
+        }
         if (table.getIsAllRowsSelected()) {
             return true;
         }
@@ -401,6 +417,22 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
             return true;
         }
         return false;
+    };
+    const getThProps = (header) => {
+        const thProps = header.column.getIsPinned()
+            ? {
+                left: showSelector
+                    ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+                    : `${header.getStart("left") + table.getDensityValue() * 2}px`,
+                background: pinnedBgColor.light,
+                position: "sticky",
+                zIndex: 1,
+                _dark: {
+                    backgroundColor: pinnedBgColor.dark,
+                },
+            }
+            : {};
+        return thProps;
     };
     return (jsxRuntime.jsx(react.Tfoot, { children: table.getFooterGroups().map((footerGroup) => (jsxRuntime.jsxs(react.Tr, { display: "flex", children: [showSelector && (jsxRuntime.jsxs(react.Th
                 // styling resize and pinning start
@@ -420,22 +452,14 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
                                 // indeterminate: table.getIsSomeRowsSelected(),
                                 onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react.Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), footerGroup.headers.map((header) => (jsxRuntime.jsx(react.Th, { padding: "0", colSpan: header.colSpan, 
                     // styling resize and pinning start
-                    maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
-                        ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                        : undefined, backgroundColor: header.column.getIsPinned() ? pinnedBgColor.light : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : undefined, _dark: {
-                        backgroundColor: header.column.getIsPinned()
-                            ? pinnedBgColor.dark
-                            : undefined,
-                    }, 
-                    // styling resize and pinning end
-                    display: "grid", children: jsxRuntime.jsx(react.Menu, { children: jsxRuntime.jsx(react.MenuButton, { as: react.Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                    maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: "grid", ...getThProps(header), children: jsxRuntime.jsx(react.Menu, { children: jsxRuntime.jsx(react.MenuButton, { as: react.Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                         ? null
                                         : reactTable.flexRender(header.column.columnDef.footer, header.getContext()), jsxRuntime.jsx(react.Box, { children: header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [header.column.getIsSorted() === false && (
                                                 // <UpDownIcon />
                                                 jsxRuntime.jsx(jsxRuntime.Fragment, {})), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {}))] })) })] }) }) }) }, `chakra-table-footer-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
 };
 
-const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector, }) => {
+const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector, alwaysShowSelector = true, }) => {
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = react$1.useState(false);
@@ -443,6 +467,9 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
         setHoveredCheckBox(isHovered);
     };
     const isCheckBoxVisible = () => {
+        if (alwaysShowSelector) {
+            return true;
+        }
         if (table.getIsAllRowsSelected()) {
             return true;
         }
@@ -450,6 +477,22 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
             return true;
         }
         return false;
+    };
+    const getThProps = (header) => {
+        const thProps = header.column.getIsPinned()
+            ? {
+                left: showSelector
+                    ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+                    : `${header.getStart("left") + table.getDensityValue() * 2}px`,
+                background: pinnedBgColor.light,
+                position: "sticky",
+                zIndex: 1,
+                _dark: {
+                    backgroundColor: pinnedBgColor.dark,
+                },
+            }
+            : {};
+        return thProps;
     };
     return (jsxRuntime.jsx(react.Thead, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsxs(react.Tr, { display: "flex", children: [showSelector && (jsxRuntime.jsxs(react.Th
                 // styling resize and pinning start
@@ -474,15 +517,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                     };
                     return (jsxRuntime.jsxs(react.Th, { padding: "0rem", colSpan: header.colSpan, 
                         // styling resize and pinning start
-                        maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, left: header.column.getIsPinned()
-                            ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                            : undefined, backgroundColor: header.column.getIsPinned() ? pinnedBgColor.light : undefined, position: header.column.getIsPinned() ? "sticky" : "relative", zIndex: header.column.getIsPinned() ? 1 : undefined, _dark: {
-                            backgroundColor: header.column.getIsPinned()
-                                ? pinnedBgColor.dark
-                                : undefined,
-                        }, 
-                        // styling resize and pinning end
-                        display: "grid", children: [jsxRuntime.jsxs(react.Menu, { children: [jsxRuntime.jsx(react.MenuButton, { as: react.Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                        maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: "grid", ...getThProps(header), children: [jsxRuntime.jsxs(react.Menu, { children: [jsxRuntime.jsx(react.MenuButton, { as: react.Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                                     ? null
                                                     : reactTable.flexRender(header.column.columnDef.header, header.getContext()), jsxRuntime.jsx(react.Box, { children: header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [header.column.getIsSorted() === false && jsxRuntime.jsx(jsxRuntime.Fragment, {}), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {}))] })) }), jsxRuntime.jsx(react.Box, { children: header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}) })] }) }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsxs(react.MenuList, { children: [!header.column.getIsPinned() && (jsxRuntime.jsx(react.MenuItem, { icon: jsxRuntime.jsx(md.MdPushPin, {}), onClick: () => {
                                                         header.column.pin("left");
@@ -516,8 +551,8 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, showReload = false, showSelector = false, extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), }) => {
-    return (jsxRuntime.jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxRuntime.jsxs(Table, { variant: "striped", children: [jsxRuntime.jsx(TableHeader, { canResize: true, showSelector: showSelector }), jsxRuntime.jsx(TableBody, { showSelector: showSelector }), showFooter && jsxRuntime.jsx(TableFooter, { showSelector: showSelector })] }) }));
+const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, showReload = false, showSelector = false, extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), tableProps = {}, }) => {
+    return (jsxRuntime.jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxRuntime.jsxs(Table, { ...tableProps, children: [jsxRuntime.jsx(TableHeader, { canResize: true, showSelector: showSelector }), jsxRuntime.jsx(TableBody, { showSelector: showSelector }), showFooter && jsxRuntime.jsx(TableFooter, { showSelector: showSelector })] }) }));
 };
 
 const Table = ({ children, showLoading = false, loadingComponent = jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Loading..." }), ...props }) => {
