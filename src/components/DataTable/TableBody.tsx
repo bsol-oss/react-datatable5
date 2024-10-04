@@ -1,12 +1,14 @@
-import { Box, Checkbox, FormLabel } from "@chakra-ui/react";
+import { Box, Checkbox, FormLabel, ResponsiveValue } from "@chakra-ui/react";
 import { Tbody, Td, Tr } from "@chakra-ui/table";
-import { flexRender, Row } from "@tanstack/react-table";
+import { Cell, flexRender, Row } from "@tanstack/react-table";
+import * as CSS from "csstype";
 import { useContext, useState } from "react";
 import { TableContext } from "./DataTableContext";
 
 export interface TableBodyProps {
   pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
+  alwaysShowSelector?: boolean;
 }
 
 export interface TableRowSelectorProps<TData> {
@@ -17,11 +19,13 @@ export interface TableRowSelectorProps<TData> {
     light: string;
     dark: string;
   };
+  alwaysShowSelector?: boolean;
 }
 
 export const TableBody = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
   showSelector = false,
+  alwaysShowSelector = true,
 }: TableBodyProps) => {
   const { table } = useContext(TableContext);
   const SELECTION_BOX_WIDTH = 20;
@@ -29,6 +33,23 @@ export const TableBody = ({
 
   const handleRowHover = (index: number) => {
     setHoveredRow(index);
+  };
+
+  const getTdProps = (cell: Cell<unknown, unknown>) => {
+    const tdProps = cell.column.getIsPinned()
+      ? {
+          left: showSelector
+            ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+            : `${cell.column.getStart("left") + table.getDensityValue() * 2}px`,
+          background: pinnedBgColor.light,
+          position: "sticky" as ResponsiveValue<CSS.Property.Position>,
+          zIndex: 1,
+          _dark: {
+            backgroundColor: pinnedBgColor.dark,
+          },
+        }
+      : {};
+    return tdProps;
   };
 
   return (
@@ -48,6 +69,7 @@ export const TableBody = ({
                 index={index}
                 row={row}
                 hoveredRow={hoveredRow}
+                alwaysShowSelector={alwaysShowSelector}
               />
             )}
             {row.getVisibleCells().map((cell, index) => {
@@ -58,22 +80,7 @@ export const TableBody = ({
                   // styling resize and pinning start
                   maxWidth={`${cell.column.getSize()}px`}
                   width={`${cell.column.getSize()}px`}
-                  left={
-                    cell.column.getIsPinned()
-                      ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                      : undefined
-                  }
-                  backgroundColor={
-                    cell.column.getIsPinned() ? pinnedBgColor.light : undefined
-                  }
-                  position={cell.column.getIsPinned() ? "sticky" : "relative"}
-                  zIndex={cell.column.getIsPinned() ? 1 : 0}
-                  _dark={{
-                    backgroundColor: cell.column.getIsPinned()
-                      ? pinnedBgColor.dark
-                      : undefined,
-                  }}
-                  // styling resize and pinning end
+                  {...getTdProps(cell)}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </Td>
@@ -91,6 +98,7 @@ const TableRowSelector = <TData,>({
   row,
   hoveredRow,
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
+  alwaysShowSelector = true,
 }: TableRowSelectorProps<TData>) => {
   const { table } = useContext(TableContext);
   const SELECTION_BOX_WIDTH = 20;
@@ -98,6 +106,9 @@ const TableRowSelector = <TData,>({
     current_index: number,
     current_row: Row<TData>
   ) => {
+    if (alwaysShowSelector) {
+      return true;
+    }
     if (current_row.getIsSelected()) {
       return true;
     }

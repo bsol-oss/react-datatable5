@@ -1,4 +1,4 @@
-import { Table } from "../../index";
+import { Table, TableProps } from "../../index";
 import { TableBody } from "./TableBody";
 import { TableControls, TableControlsProps } from "./TableControls";
 import { TableFooter } from "./TableFooter";
@@ -7,6 +7,7 @@ import { TableHeader } from "./TableHeader";
 export interface DefaultTableProps extends TableControlsProps {
   showFooter?: boolean;
   showSelector?: boolean;
+  tableProps?: Omit<TableProps, "children">;
 }
 
 export const DefaultTable = ({
@@ -22,6 +23,7 @@ export const DefaultTable = ({
   showReload = false,
   showSelector = false,
   extraItems = <></>,
+  tableProps = {},
 }: DefaultTableProps) => {
   return (
     <TableControls
@@ -36,7 +38,7 @@ export const DefaultTable = ({
       showReload={showReload}
       extraItems={extraItems}
     >
-      <Table variant={"striped"}>
+      <Table {...tableProps}>
         <TableHeader canResize showSelector={showSelector} />
         <TableBody showSelector={showSelector} />
         {showFooter && <TableFooter showSelector={showSelector} />}

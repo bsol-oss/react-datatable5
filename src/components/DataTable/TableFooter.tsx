@@ -6,22 +6,26 @@ import {
   FormLabel,
   Menu,
   MenuButton,
+  ResponsiveValue,
   Tfoot,
   Th,
   Tr,
 } from "@chakra-ui/react";
-import { flexRender } from "@tanstack/react-table";
-import { useDataTableContext } from "./useDataTableContext";
+import { flexRender, Header } from "@tanstack/react-table";
+import * as CSS from "csstype";
 import { useState } from "react";
+import { useDataTableContext } from "./useDataTableContext";
 
 export interface TableFooterProps {
   pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
+  alwaysShowSelector?: boolean;
 }
 
 export const TableFooter = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
   showSelector = false,
+  alwaysShowSelector = true,
 }: TableFooterProps) => {
   const table = useDataTableContext().table;
   const SELECTION_BOX_WIDTH = 20;
@@ -32,6 +36,9 @@ export const TableFooter = ({
   };
 
   const isCheckBoxVisible = () => {
+    if (alwaysShowSelector) {
+      return true;
+    }
     if (table.getIsAllRowsSelected()) {
       return true;
     }
@@ -40,6 +47,24 @@ export const TableFooter = ({
     }
     return false;
   };
+
+  const getThProps = (header: Header<unknown, unknown>) => {
+    const thProps = header.column.getIsPinned()
+      ? {
+          left: showSelector
+            ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+            : `${header.getStart("left") + table.getDensityValue() * 2}px`,
+          background: pinnedBgColor.light,
+          position: "sticky" as ResponsiveValue<CSS.Property.Position>,
+          zIndex: 1,
+          _dark: {
+            backgroundColor: pinnedBgColor.dark,
+          },
+        }
+      : {};
+    return thProps;
+  };
+
   return (
     <Tfoot>
       {table.getFooterGroups().map((footerGroup) => (
@@ -101,23 +126,8 @@ export const TableFooter = ({
               // styling resize and pinning start
               maxWidth={`${header.getSize()}px`}
               width={`${header.getSize()}px`}
-              left={
-                header.column.getIsPinned()
-                  ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                  : undefined
-              }
-              backgroundColor={
-                header.column.getIsPinned() ? pinnedBgColor.light : undefined
-              }
-              position={header.column.getIsPinned() ? "sticky" : "relative"}
-              zIndex={header.column.getIsPinned() ? 1 : undefined}
-              _dark={{
-                backgroundColor: header.column.getIsPinned()
-                  ? pinnedBgColor.dark
-                  : undefined,
-              }}
-              // styling resize and pinning end
               display={"grid"}
+              {...getThProps(header)}
             >
               <Menu>
                 <MenuButton
