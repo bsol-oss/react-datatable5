@@ -824,7 +824,12 @@ const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSu
     const [loading, setLoading] = react$1.useState(true);
     const [hasError, setHasError] = react$1.useState(false);
     const [data, setData] = react$1.useState(defaultData);
-    const refreshData = async () => {
+    const [timer, setTimer] = react$1.useState();
+    const refreshData = async ({ debounce, delay } = { debounce: false, delay: 1000 }) => {
+        if (debounce) {
+            await debouncedGetData(delay);
+            return;
+        }
         await getData();
     };
     const getData = async () => {
@@ -842,6 +847,14 @@ const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSu
             setLoading(false);
             setHasError(true);
         }
+    };
+    const debouncedGetData = async (delay = 1000) => {
+        if (timer) {
+            clearTimeout(timer); // Clear the previous timer
+        }
+        setTimer(setTimeout(async () => {
+            await getData();
+        }, delay));
     };
     react$1.useEffect(() => {
         if (disableFirstFetch) {
@@ -927,7 +940,7 @@ const useDataTableServer = ({ url, onFetchSuccess = () => { }, default: { sortin
     columnVisibility: {},
     globalFilter: "",
     density: "sm",
-}, }) => {
+}, debounce = true, debounceDelay = 1000, }) => {
     const [sorting, setSorting] = react$1.useState(defaultSorting);
     const [columnFilters, setColumnFilters] = react$1.useState(defaultColumnFilters); // can set initial column filter state here
     const [pagination, setPagination] = react$1.useState(defaultPagination);
@@ -962,7 +975,7 @@ const useDataTableServer = ({ url, onFetchSuccess = () => { }, default: { sortin
         onFetchSuccess: onFetchSuccess,
     });
     react$1.useEffect(() => {
-        refreshData();
+        refreshData({ debounce, debounceDelay });
     }, [pagination, sorting, columnFilters, globalFilter, url]);
     return {
         sorting,

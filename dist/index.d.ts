@@ -126,7 +126,13 @@ interface UseDataFromUrlReturn<T> {
     data: T;
     loading: boolean;
     hasError: boolean;
-    refreshData: () => void;
+    /**
+     * Delays sending the request when the `refreshData` function is called multiple times within a short period.
+     */
+    refreshData: (config: {
+        debounce: boolean;
+        delay: number;
+    }) => void;
 }
 interface UseDataFromUrlProps<T> {
     url: string;
@@ -173,6 +179,18 @@ declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: d
 interface UseDataTableServerProps<TData> extends Omit<UseDataFromUrlProps<DataResponse<TData>>, keyof {
     defaultData: any;
 }>, UseDataTableProps {
+    /**
+     * Delay to send the request if the `refreshData` called multiple times
+     *
+     * default: `true`
+     */
+    debounce?: boolean;
+    /**
+     * The time to wait before sending the request
+     *
+     * default: `1000`
+     */
+    debounceDelay?: number;
 }
 interface UseDataTableServerReturn<TData> extends UseDataFromUrlReturn<DataResponse<TData>>, UseDataTableReturn {
 }
@@ -183,7 +201,7 @@ interface DataResponse<T> extends Result<T> {
     success: boolean;
     count: number;
 }
-declare const useDataTableServer: <TData>({ url, onFetchSuccess, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }: UseDataTableServerProps<TData>) => UseDataTableServerReturn<TData>;
+declare const useDataTableServer: <TData>({ url, onFetchSuccess, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, debounce, debounceDelay, }: UseDataTableServerProps<TData>) => UseDataTableServerReturn<TData>;
 
 interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataResponse<TData>> {
     children: JSX.Element | JSX.Element[];
