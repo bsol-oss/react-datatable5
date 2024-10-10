@@ -20,7 +20,20 @@ export interface UseDataTableServerProps<TData>
       UseDataFromUrlProps<DataResponse<TData>>,
       keyof { defaultData: any }
     >,
-    UseDataTableProps {}
+    UseDataTableProps {
+  /**
+   * Delay to send the request if the `refreshData` called multiple times
+   * 
+   * default: `true`
+   */
+  debounce?: boolean;
+  /**
+   * The time to wait before sending the request
+   * 
+   * default: `1000`
+   */
+  debounceDelay?: number;
+}
 
 export interface UseDataTableServerReturn<TData>
   extends UseDataFromUrlReturn<DataResponse<TData>>,
@@ -63,6 +76,8 @@ export const useDataTableServer = <TData,>({
     globalFilter: "",
     density: "sm",
   },
+  debounce = true,
+  debounceDelay = 1000,
 }: UseDataTableServerProps<TData>): UseDataTableServerReturn<TData> => {
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] =
@@ -111,7 +126,7 @@ export const useDataTableServer = <TData,>({
   });
 
   useEffect(() => {
-    refreshData();
+    refreshData({ debounce, debounceDelay });
   }, [pagination, sorting, columnFilters, globalFilter, url]);
   return {
     sorting,
