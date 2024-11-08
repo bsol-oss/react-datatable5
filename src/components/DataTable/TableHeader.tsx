@@ -144,6 +144,7 @@ export const TableHeader = ({
                 maxWidth={`${header.getSize()}px`}
                 width={`${header.getSize()}px`}
                 display={"grid"}
+                gridTemplateColumns={'1fr auto'}
                 {...getThProps(header)}
               >
                 <Menu>
@@ -253,31 +254,26 @@ export const TableHeader = ({
                   </Portal>
                 </Menu>
 
-                <Box>
-                  {canResize && (
-                    <Box
-                      borderRight={"0.2rem solid"}
-                      borderRightColor={
-                        header.column.getIsResizing()
-                          ? "gray.700"
-                          : "transparent"
-                      }
-                      position={'absolute'}
-                      right={"0"}
-                      top={"0"}
-                      height={"100%"}
-                      width={"5px"}
-                      userSelect={"none"}
-                      style={{ touchAction: "none" }}
-                      _hover={{
-                        borderRightColor: header.column.getIsResizing()
-                          ? "gray.700"
-                          : "gray.400",
-                      }}
-                      {...resizeProps}
-                    ></Box>
-                  )}
-                </Box>
+                {canResize && (
+                  <Box
+                    borderRight={"0.2rem solid"}
+                    borderRightColor={
+                      header.column.getIsResizing() ? "gray.700" : "transparent"
+                    }
+                    position={'relative'}
+                    right={'0.1rem'}
+                    width={"2px"}
+                    height={'100%'}
+                    userSelect={"none"}
+                    style={{ touchAction: "none" }}
+                    _hover={{
+                      borderRightColor: header.column.getIsResizing()
+                        ? "gray.700"
+                        : "gray.400",
+                    }}
+                    {...resizeProps}
+                  ></Box>
+                )}
               </Th>
             );
           })}

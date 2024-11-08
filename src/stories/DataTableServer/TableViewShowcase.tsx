@@ -28,8 +28,7 @@ import {
   TablePagination,
   TableSelector,
   TextCell,
-  useDataTable,
-  useDataTableServer,
+  useDataTableServer
 } from "../../index";
 
 interface ChatRecord {
