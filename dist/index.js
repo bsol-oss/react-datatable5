@@ -543,11 +543,13 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                                 });
                                                             }, children: "Sort Descending" }), header.column.getIsSorted() && (jsxRuntime.jsx(react.MenuItem, { icon: jsxRuntime.jsx(md.MdClear, {}), onClick: () => {
                                                                 header.column.clearSorting();
-                                                            }, children: "Clear Sorting" }))] }))] }) })] }), canResize && (jsxRuntime.jsx(react.Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "absolute", right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
-                                    borderRightColor: header.column.getIsResizing()
+                                                            }, children: "Clear Sorting" }))] }))] }) })] }), jsxRuntime.jsx(react.Box, { children: canResize && (jsxRuntime.jsx(react.Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing()
                                         ? "gray.700"
-                                        : "gray.400",
-                                }, ...resizeProps }))] }, `chakra-table-header-${header.id}`));
+                                        : "transparent", position: 'absolute', right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
+                                        borderRightColor: header.column.getIsResizing()
+                                            ? "gray.700"
+                                            : "gray.400",
+                                    }, ...resizeProps })) })] }, `chakra-table-header-${header.id}`));
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
@@ -573,9 +575,10 @@ const TableCards = ({ isSelectable = false }) => {
             return (jsxRuntime.jsx(react.Card, { children: jsxRuntime.jsxs(react.CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [isSelectable && (jsxRuntime.jsx(react.Checkbox, { isChecked: row.getIsSelected(),
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler() })), row.getVisibleCells().map((cell) => {
-                            return (jsxRuntime.jsx(react.Box, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`));
-                        })] }) }, `chakra-table-card-${row.id}`));
+                            onChange: row.getToggleSelectedHandler() })), jsxRuntime.jsx(react.Grid, { templateColumns: "auto 1fr", gap: "1rem", children: row.getVisibleCells().map((cell) => {
+                                return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsx(react.Text, { fontWeight: "bold", children: cell.column.columnDef.meta?.displayName ??
+                                                    cell.column.id }) }, `chakra-table-cardcolumnid-${row.id}`), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`)] }));
+                            }) })] }) }, `chakra-table-card-${row.id}`));
         }) }));
 };
 

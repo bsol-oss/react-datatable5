@@ -541,11 +541,13 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                                 });
                                                             }, children: "Sort Descending" }), header.column.getIsSorted() && (jsx(MenuItem, { icon: jsx(MdClear, {}), onClick: () => {
                                                                 header.column.clearSorting();
-                                                            }, children: "Clear Sorting" }))] }))] }) })] }), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "absolute", right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
-                                    borderRightColor: header.column.getIsResizing()
+                                                            }, children: "Clear Sorting" }))] }))] }) })] }), jsx(Box, { children: canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing()
                                         ? "gray.700"
-                                        : "gray.400",
-                                }, ...resizeProps }))] }, `chakra-table-header-${header.id}`));
+                                        : "transparent", position: 'absolute', right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
+                                        borderRightColor: header.column.getIsResizing()
+                                            ? "gray.700"
+                                            : "gray.400",
+                                    }, ...resizeProps })) })] }, `chakra-table-header-${header.id}`));
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
@@ -571,9 +573,10 @@ const TableCards = ({ isSelectable = false }) => {
             return (jsx(Card, { children: jsxs(CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [isSelectable && (jsx(Checkbox, { isChecked: row.getIsSelected(),
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler() })), row.getVisibleCells().map((cell) => {
-                            return (jsx(Box, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`));
-                        })] }) }, `chakra-table-card-${row.id}`));
+                            onChange: row.getToggleSelectedHandler() })), jsx(Grid, { templateColumns: "auto 1fr", gap: "1rem", children: row.getVisibleCells().map((cell) => {
+                                return (jsxs(Fragment, { children: [jsx(Box, { children: jsx(Text, { fontWeight: "bold", children: cell.column.columnDef.meta?.displayName ??
+                                                    cell.column.id }) }, `chakra-table-cardcolumnid-${row.id}`), jsx(Box, { justifySelf: "end", children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`)] }));
+                            }) })] }) }, `chakra-table-card-${row.id}`));
         }) }));
 };
 
