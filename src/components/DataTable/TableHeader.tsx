@@ -3,6 +3,7 @@ import {
   Checkbox,
   Flex,
   FormLabel,
+  Grid,
   Menu,
   MenuButton,
   MenuItem,
@@ -129,7 +130,6 @@ export const TableHeader = ({
           )}
           {headerGroup.headers.map((header) => {
             const resizeProps = {
-              onClick: () => header.column.resetSize(),
               onMouseDown: header.getResizeHandler(),
               onTouchStart: header.getResizeHandler(),
               cursor: "col-resize",
@@ -141,20 +141,21 @@ export const TableHeader = ({
                 key={`chakra-table-header-${header.id}`}
                 colSpan={header.colSpan}
                 // styling resize and pinning start
-                maxWidth={`${header.getSize()}px`}
                 width={`${header.getSize()}px`}
                 display={"grid"}
                 gridTemplateColumns={'1fr auto'}
+                zIndex={header.index}
                 {...getThProps(header)}
               >
                 <Menu>
                   <MenuButton
-                    as={Box}
+                    as={Grid}
                     padding={`${table.getDensityValue()}px`}
                     display={"flex"}
                     alignItems={"center"}
                     justifyContent={"start"}
                     borderRadius={"0rem"}
+                    overflow={'auto'}
                     _hover={{ backgroundColor: "gray.100" }}
                   >
                     <Flex gap="0.5rem" alignItems={"center"}>
