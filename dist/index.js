@@ -510,14 +510,13 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                 // indeterminate: table.getIsSomeRowsSelected(),
                                 onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react.Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), headerGroup.headers.map((header) => {
                     const resizeProps = {
-                        onClick: () => header.column.resetSize(),
                         onMouseDown: header.getResizeHandler(),
                         onTouchStart: header.getResizeHandler(),
                         cursor: "col-resize",
                     };
                     return (jsxRuntime.jsxs(react.Th, { padding: "0rem", colSpan: header.colSpan, 
                         // styling resize and pinning start
-                        maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: "grid", ...getThProps(header), children: [jsxRuntime.jsxs(react.Menu, { children: [jsxRuntime.jsx(react.MenuButton, { as: react.Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                        width: `${header.getSize()}px`, display: "grid", gridTemplateColumns: '1fr auto', zIndex: header.index, ...getThProps(header), children: [jsxRuntime.jsxs(react.Menu, { children: [jsxRuntime.jsx(react.MenuButton, { as: react.Grid, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: 'auto', _hover: { backgroundColor: "gray.100" }, children: jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                                     ? null
                                                     : reactTable.flexRender(header.column.columnDef.header, header.getContext()), jsxRuntime.jsx(react.Box, { children: header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [header.column.getIsSorted() === false && jsxRuntime.jsx(jsxRuntime.Fragment, {}), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {}))] })) }), jsxRuntime.jsx(react.Box, { children: header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}) })] }) }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsxs(react.MenuList, { children: [!header.column.getIsPinned() && (jsxRuntime.jsx(react.MenuItem, { icon: jsxRuntime.jsx(md.MdPushPin, {}), onClick: () => {
                                                         header.column.pin("left");
@@ -543,13 +542,11 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                                 });
                                                             }, children: "Sort Descending" }), header.column.getIsSorted() && (jsxRuntime.jsx(react.MenuItem, { icon: jsxRuntime.jsx(md.MdClear, {}), onClick: () => {
                                                                 header.column.clearSorting();
-                                                            }, children: "Clear Sorting" }))] }))] }) })] }), jsxRuntime.jsx(react.Box, { children: canResize && (jsxRuntime.jsx(react.Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing()
+                                                            }, children: "Clear Sorting" }))] }))] }) })] }), canResize && (jsxRuntime.jsx(react.Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: 'relative', right: '0.1rem', width: "2px", height: '100%', userSelect: "none", style: { touchAction: "none" }, _hover: {
+                                    borderRightColor: header.column.getIsResizing()
                                         ? "gray.700"
-                                        : "transparent", position: 'absolute', right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
-                                        borderRightColor: header.column.getIsResizing()
-                                            ? "gray.700"
-                                            : "gray.400",
-                                    }, ...resizeProps })) })] }, `chakra-table-header-${header.id}`));
+                                        : "gray.400",
+                                }, ...resizeProps }))] }, `chakra-table-header-${header.id}`));
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 

@@ -508,14 +508,13 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                 // indeterminate: table.getIsSomeRowsSelected(),
                                 onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), headerGroup.headers.map((header) => {
                     const resizeProps = {
-                        onClick: () => header.column.resetSize(),
                         onMouseDown: header.getResizeHandler(),
                         onTouchStart: header.getResizeHandler(),
                         cursor: "col-resize",
                     };
                     return (jsxs(Th, { padding: "0rem", colSpan: header.colSpan, 
                         // styling resize and pinning start
-                        maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: "grid", ...getThProps(header), children: [jsxs(Menu, { children: [jsx(MenuButton, { as: Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                        width: `${header.getSize()}px`, display: "grid", gridTemplateColumns: '1fr auto', zIndex: header.index, ...getThProps(header), children: [jsxs(Menu, { children: [jsx(MenuButton, { as: Grid, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: 'auto', _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                                     ? null
                                                     : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && jsx(Fragment, {}), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) }), jsx(Box, { children: header.column.getIsFiltered() && jsx(MdFilterListAlt, {}) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
                                                         header.column.pin("left");
@@ -541,13 +540,11 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                                 });
                                                             }, children: "Sort Descending" }), header.column.getIsSorted() && (jsx(MenuItem, { icon: jsx(MdClear, {}), onClick: () => {
                                                                 header.column.clearSorting();
-                                                            }, children: "Clear Sorting" }))] }))] }) })] }), jsx(Box, { children: canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing()
+                                                            }, children: "Clear Sorting" }))] }))] }) })] }), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: 'relative', right: '0.1rem', width: "2px", height: '100%', userSelect: "none", style: { touchAction: "none" }, _hover: {
+                                    borderRightColor: header.column.getIsResizing()
                                         ? "gray.700"
-                                        : "transparent", position: 'absolute', right: "0", top: "0", height: "100%", width: "5px", userSelect: "none", style: { touchAction: "none" }, _hover: {
-                                        borderRightColor: header.column.getIsResizing()
-                                            ? "gray.700"
-                                            : "gray.400",
-                                    }, ...resizeProps })) })] }, `chakra-table-header-${header.id}`));
+                                        : "gray.400",
+                                }, ...resizeProps }))] }, `chakra-table-header-${header.id}`));
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
