@@ -8,6 +8,7 @@ import {
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import {
   DataTable,
+  DefaultCard,
   EditFilterButton,
   EditOrderButton,
   EditSortingButton,
@@ -20,9 +21,10 @@ import {
   TextCell,
 } from "../../index";
 
-import { data, Product } from "../product_data";
+import { MdStarRate } from "react-icons/md";
+import { } from "../../components/DataTable/DefaultCard";
 import { useDataTable } from "../../components/DataTable/useDataTable";
-
+import { data, Product } from "../product_data";
 interface RowActionsProps {
   row: Product;
 }
@@ -52,7 +54,7 @@ const CardViewShowcase = () => {
           cell: (props) => {
             return <TextCell>{props.row.original.id}</TextCell>;
           },
-          header: () => <span>Id</span>,
+          header: () => <Box color={"green.400"}>Id</Box>,
           footer: (props) => props.column.id,
           size: 50,
         }),
@@ -66,7 +68,7 @@ const CardViewShowcase = () => {
               </Box>
             );
           },
-          header: () => <Box>Title</Box>,
+          header: () => <Box color={"blue.400"}>Title</Box>,
           footer: (props) => props.column.id,
           size: 100,
         }),
@@ -100,7 +102,22 @@ const CardViewShowcase = () => {
           </ButtonGroup>
         </Flex>
         <TableCardContainer>
-          <TableCards />
+          <TableCards<Product>
+            renderTitle={(row) => {
+              return (
+                <DefaultCard
+                  {...{
+                    row: row,
+                    imageColumnId: "thumbnail",
+                    titleColumnId: "title",
+                    tagColumnId: "rating",
+                    tagIcon: MdStarRate,
+                  }}
+                />
+              );
+            }}
+            cardBodyProps={{ minWidth: "10rem" }}
+          />
         </TableCardContainer>
         <TablePagination />
       </DataTable>
