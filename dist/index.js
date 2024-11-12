@@ -330,6 +330,22 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: children }));
 };
 
+const DefaultCard = ({ row, imageColumnId = undefined, titleColumnId = undefined, tagColumnId = undefined, tagIcon = undefined, showTag = true, }) => {
+    if (!!row.original === false) {
+        return jsxRuntime.jsx(jsxRuntime.Fragment, {});
+    }
+    //   const imageIdExists = Object.keys(row.original).some((key) => {
+    //     return key === imageColumnId;
+    //   });
+    //   const titleIdExists = Object.keys(row.original).some((key) => {
+    //     return key === titleColumnId;
+    //   });
+    //   const tagIdExists = Object.keys(row.original).some((key) => {
+    //     return key === tagColumnId;
+    //   });
+    return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto auto", gap: "1rem", children: [jsxRuntime.jsx(react.Flex, { justifyContent: "center", alignItems: "center", children: jsxRuntime.jsx(react.Image, { src: row.original[imageColumnId] }) }), jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: [jsxRuntime.jsx(react.Text, { fontWeight: "bold", fontSize: "large", children: row.original[titleColumnId] }), showTag && (jsxRuntime.jsxs(react.Tag, { fontSize: "large", children: [jsxRuntime.jsx(react.TagLeftIcon, { as: tagIcon }), row.original[tagColumnId]] }))] })] }));
+};
+
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
     const { table: table$1 } = react$1.useContext(TableContext);
     const SELECTION_BOX_WIDTH = 20;
@@ -554,6 +570,18 @@ const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = f
     return (jsxRuntime.jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxRuntime.jsxs(Table, { ...tableProps, children: [jsxRuntime.jsx(TableHeader, { canResize: true, showSelector: showSelector }), jsxRuntime.jsx(TableBody, { showSelector: showSelector }), showFooter && jsxRuntime.jsx(TableFooter, { showSelector: showSelector })] }) }));
 };
 
+const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
+    const { refreshData } = useDataTableContext();
+    if (variant === "icon") {
+        return (jsxRuntime.jsx(react.Tooltip, { label: "refresh", children: jsxRuntime.jsx(react.IconButton, { variant: "ghost", icon: jsxRuntime.jsx(io5.IoReload, {}), onClick: () => {
+                    refreshData();
+                }, "aria-label": "refresh" }) }));
+    }
+    return (jsxRuntime.jsx(react.Button, { variant: "ghost", leftIcon: jsxRuntime.jsx(io5.IoReload, {}), onClick: () => {
+            refreshData();
+        }, children: text }));
+};
+
 const Table = ({ children, showLoading = false, loadingComponent = jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Loading..." }), ...props }) => {
     const { table, loading } = useDataTableContext();
     if (showLoading) {
@@ -566,15 +594,21 @@ const TableCardContainer = ({ children, ...props }) => {
     return (jsxRuntime.jsx(react.Grid, { gridTemplateColumns: ["1fr", "1fr 1fr", "1fr 1fr 1fr"], gap: "0.5rem", ...props, children: children }));
 };
 
-const TableCards = ({ isSelectable = false }) => {
+const DefaultCardTitle = () => {
+    return jsxRuntime.jsx(jsxRuntime.Fragment, {});
+};
+const TableCards = ({ isSelectable = false, showDisplayNameOnly = false, renderTitle = DefaultCardTitle, cardBodyProps = {} }) => {
     const { table } = react$1.useContext(TableContext);
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getRowModel().rows.map((row) => {
-            return (jsxRuntime.jsx(react.Card, { children: jsxRuntime.jsxs(react.CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [isSelectable && (jsxRuntime.jsx(react.Checkbox, { isChecked: row.getIsSelected(),
+            return (jsxRuntime.jsx(react.Card, { children: jsxRuntime.jsxs(react.CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", ...cardBodyProps, children: [isSelectable && (jsxRuntime.jsx(react.Checkbox, { isChecked: row.getIsSelected(),
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler() })), jsxRuntime.jsx(react.Grid, { templateColumns: "auto 1fr", gap: "1rem", children: row.getVisibleCells().map((cell) => {
-                                return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsx(react.Text, { fontWeight: "bold", children: cell.column.columnDef.meta?.displayName ??
-                                                    cell.column.id }) }, `chakra-table-cardcolumnid-${row.id}`), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`)] }));
+                            onChange: row.getToggleSelectedHandler() })), renderTitle(row), jsxRuntime.jsx(react.Grid, { templateColumns: "auto 1fr", gap: "1rem", children: row.getVisibleCells().map((cell) => {
+                                console.log(table.getColumn(cell.column.id), "dko");
+                                return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsxs(react.Box, { children: [showDisplayNameOnly && (jsxRuntime.jsx(react.Text, { fontWeight: "bold", children: cell.column.columnDef.meta?.displayName ??
+                                                        cell.column.id })), !showDisplayNameOnly && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: reactTable.flexRender(cell.column.columnDef.header, 
+                                                    // @ts-expect-error Assuming the CellContext interface is the same as HeaderContext
+                                                    cell.getContext()) }))] }, `chakra-table-cardcolumnid-${row.id}`), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`)] }));
                             }) })] }) }, `chakra-table-card-${row.id}`));
         }) }));
 };
@@ -764,18 +798,6 @@ const TableOrderer = () => {
 const TablePagination = ({}) => {
     const { firstPage, getCanPreviousPage, previousPage, getState, nextPage, getCanNextPage, lastPage, } = useDataTableContext().table;
     return (jsxRuntime.jsxs(react.ButtonGroup, { isAttached: true, children: [jsxRuntime.jsx(react.IconButton, { icon: jsxRuntime.jsx(md.MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost" }), jsxRuntime.jsx(react.IconButton, { icon: jsxRuntime.jsx(md.MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost" }), jsxRuntime.jsx(react.Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsxRuntime.jsx(react.IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsxRuntime.jsx(md.MdArrowForward, {}) }), jsxRuntime.jsx(react.IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsxRuntime.jsx(md.MdLastPage, {}) })] }));
-};
-
-const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
-    const { refreshData } = useDataTableContext();
-    if (variant === "icon") {
-        return (jsxRuntime.jsx(react.Tooltip, { label: "refresh", children: jsxRuntime.jsx(react.IconButton, { variant: "ghost", icon: jsxRuntime.jsx(io5.IoReload, {}), onClick: () => {
-                    refreshData();
-                }, "aria-label": "refresh" }) }));
-    }
-    return (jsxRuntime.jsx(react.Button, { variant: "ghost", leftIcon: jsxRuntime.jsx(io5.IoReload, {}), onClick: () => {
-            refreshData();
-        }, children: text }));
 };
 
 const SelectAllRowsToggle = ({ selectAllIcon = jsxRuntime.jsx(md.MdOutlineChecklist, {}), clearAllIcon = jsxRuntime.jsx(md.MdClear, {}), selectAllText = "", clearAllText = "", }) => {
@@ -1033,6 +1055,8 @@ const GlobalFilter = ({ icon = md.MdSearch }) => {
 
 exports.DataTable = DataTable;
 exports.DataTableServer = DataTableServer;
+exports.DefaultCard = DefaultCard;
+exports.DefaultCardTitle = DefaultCardTitle;
 exports.DefaultTable = DefaultTable;
 exports.DensityToggleButton = DensityToggleButton;
 exports.EditFilterButton = EditFilterButton;

@@ -1,5 +1,5 @@
 import { jsxs, Fragment, jsx } from 'react/jsx-runtime';
-import { IconButton, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Text, Menu, MenuButton, MenuList, MenuItem, Box, FormLabel, Checkbox, Grid, Spinner, Tooltip, Icon, Tfoot, Tr as Tr$1, Th, Thead, Portal, Table as Table$1, Card, CardBody, VStack, FormControl, Input, RangeSlider, RangeSliderTrack, RangeSliderFilledTrack, RangeSliderThumb, WrapItem, Tag, TagLabel, TagCloseButton, Select, ButtonGroup, Switch, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import { IconButton, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Text, Menu, MenuButton, MenuList, MenuItem, Grid, Image, Tag, TagLeftIcon, Box, FormLabel, Checkbox, Spinner, Tooltip, Icon, Tfoot, Tr as Tr$1, Th, Thead, Portal, Table as Table$1, Card, CardBody, VStack, FormControl, Input, RangeSlider, RangeSliderTrack, RangeSliderFilledTrack, RangeSliderThumb, WrapItem, TagLabel, TagCloseButton, Select, ButtonGroup, Switch, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import { MdFilterAlt, MdOutlineMoveDown, MdOutlineSort, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdArrowUpward, MdArrowDownward, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdOutlineChecklist, MdClose, MdSearch } from 'react-icons/md';
 import { UpDownIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon } from '@chakra-ui/icons';
@@ -328,6 +328,22 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: children }));
 };
 
+const DefaultCard = ({ row, imageColumnId = undefined, titleColumnId = undefined, tagColumnId = undefined, tagIcon = undefined, showTag = true, }) => {
+    if (!!row.original === false) {
+        return jsx(Fragment, {});
+    }
+    //   const imageIdExists = Object.keys(row.original).some((key) => {
+    //     return key === imageColumnId;
+    //   });
+    //   const titleIdExists = Object.keys(row.original).some((key) => {
+    //     return key === titleColumnId;
+    //   });
+    //   const tagIdExists = Object.keys(row.original).some((key) => {
+    //     return key === tagColumnId;
+    //   });
+    return (jsxs(Grid, { templateRows: "auto auto", gap: "1rem", children: [jsx(Flex, { justifyContent: "center", alignItems: "center", children: jsx(Image, { src: row.original[imageColumnId] }) }), jsxs(Flex, { gap: "0.5rem", flexFlow: "wrap", children: [jsx(Text, { fontWeight: "bold", fontSize: "large", children: row.original[titleColumnId] }), showTag && (jsxs(Tag, { fontSize: "large", children: [jsx(TagLeftIcon, { as: tagIcon }), row.original[tagColumnId]] }))] })] }));
+};
+
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
     const { table } = useContext(TableContext);
     const SELECTION_BOX_WIDTH = 20;
@@ -552,6 +568,18 @@ const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = f
     return (jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxs(Table, { ...tableProps, children: [jsx(TableHeader, { canResize: true, showSelector: showSelector }), jsx(TableBody, { showSelector: showSelector }), showFooter && jsx(TableFooter, { showSelector: showSelector })] }) }));
 };
 
+const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
+    const { refreshData } = useDataTableContext();
+    if (variant === "icon") {
+        return (jsx(Tooltip, { label: "refresh", children: jsx(IconButton, { variant: "ghost", icon: jsx(IoReload, {}), onClick: () => {
+                    refreshData();
+                }, "aria-label": "refresh" }) }));
+    }
+    return (jsx(Button, { variant: "ghost", leftIcon: jsx(IoReload, {}), onClick: () => {
+            refreshData();
+        }, children: text }));
+};
+
 const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
     const { table, loading } = useDataTableContext();
     if (showLoading) {
@@ -564,15 +592,21 @@ const TableCardContainer = ({ children, ...props }) => {
     return (jsx(Grid, { gridTemplateColumns: ["1fr", "1fr 1fr", "1fr 1fr 1fr"], gap: "0.5rem", ...props, children: children }));
 };
 
-const TableCards = ({ isSelectable = false }) => {
+const DefaultCardTitle = () => {
+    return jsx(Fragment, {});
+};
+const TableCards = ({ isSelectable = false, showDisplayNameOnly = false, renderTitle = DefaultCardTitle, cardBodyProps = {} }) => {
     const { table } = useContext(TableContext);
     return (jsx(Fragment, { children: table.getRowModel().rows.map((row) => {
-            return (jsx(Card, { children: jsxs(CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", children: [isSelectable && (jsx(Checkbox, { isChecked: row.getIsSelected(),
+            return (jsx(Card, { children: jsxs(CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", ...cardBodyProps, children: [isSelectable && (jsx(Checkbox, { isChecked: row.getIsSelected(),
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler() })), jsx(Grid, { templateColumns: "auto 1fr", gap: "1rem", children: row.getVisibleCells().map((cell) => {
-                                return (jsxs(Fragment, { children: [jsx(Box, { children: jsx(Text, { fontWeight: "bold", children: cell.column.columnDef.meta?.displayName ??
-                                                    cell.column.id }) }, `chakra-table-cardcolumnid-${row.id}`), jsx(Box, { justifySelf: "end", children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`)] }));
+                            onChange: row.getToggleSelectedHandler() })), renderTitle(row), jsx(Grid, { templateColumns: "auto 1fr", gap: "1rem", children: row.getVisibleCells().map((cell) => {
+                                console.log(table.getColumn(cell.column.id), "dko");
+                                return (jsxs(Fragment, { children: [jsxs(Box, { children: [showDisplayNameOnly && (jsx(Text, { fontWeight: "bold", children: cell.column.columnDef.meta?.displayName ??
+                                                        cell.column.id })), !showDisplayNameOnly && (jsx(Fragment, { children: flexRender(cell.column.columnDef.header, 
+                                                    // @ts-expect-error Assuming the CellContext interface is the same as HeaderContext
+                                                    cell.getContext()) }))] }, `chakra-table-cardcolumnid-${row.id}`), jsx(Box, { justifySelf: "end", children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`)] }));
                             }) })] }) }, `chakra-table-card-${row.id}`));
         }) }));
 };
@@ -762,18 +796,6 @@ const TableOrderer = () => {
 const TablePagination = ({}) => {
     const { firstPage, getCanPreviousPage, previousPage, getState, nextPage, getCanNextPage, lastPage, } = useDataTableContext().table;
     return (jsxs(ButtonGroup, { isAttached: true, children: [jsx(IconButton, { icon: jsx(MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost" }), jsx(IconButton, { icon: jsx(MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost" }), jsx(Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsx(IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsx(MdArrowForward, {}) }), jsx(IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsx(MdLastPage, {}) })] }));
-};
-
-const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
-    const { refreshData } = useDataTableContext();
-    if (variant === "icon") {
-        return (jsx(Tooltip, { label: "refresh", children: jsx(IconButton, { variant: "ghost", icon: jsx(IoReload, {}), onClick: () => {
-                    refreshData();
-                }, "aria-label": "refresh" }) }));
-    }
-    return (jsx(Button, { variant: "ghost", leftIcon: jsx(IoReload, {}), onClick: () => {
-            refreshData();
-        }, children: text }));
 };
 
 const SelectAllRowsToggle = ({ selectAllIcon = jsx(MdOutlineChecklist, {}), clearAllIcon = jsx(MdClear, {}), selectAllText = "", clearAllText = "", }) => {
@@ -1029,4 +1051,4 @@ const GlobalFilter = ({ icon = MdSearch }) => {
                         } })] }) }) }));
 };
 
-export { DataTable, DataTableServer, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable, useDataTableContext, useDataTableServer };
+export { DataTable, DataTableServer, DefaultCard, DefaultCardTitle, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable, useDataTableContext, useDataTableServer };

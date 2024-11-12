@@ -3,9 +3,10 @@ import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, C
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React$1, { ReactNode } from 'react';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
-import { TableProps as TableProps$1, GridProps, TextProps, TooltipProps } from '@chakra-ui/react';
+import * as react_icons from 'react-icons';
+import { IconType } from 'react-icons';
+import { TableProps as TableProps$1, GridProps, CardBodyProps, TextProps, TooltipProps } from '@chakra-ui/react';
 import * as _tanstack_table_core from '@tanstack/table-core';
-import * as react_icons_lib from 'react-icons/lib';
 
 interface DensityToggleButtonProps {
     icon?: React$1.ReactElement;
@@ -229,6 +230,16 @@ interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataResponse<
 }
 declare const DataTableServer: <TData>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, data, loading, hasError, refreshData, children, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
 
+interface DefaultCardProps<TData> {
+    row: Row<TData>;
+    imageColumnId?: keyof TData;
+    titleColumnId?: keyof TData;
+    tagColumnId?: keyof TData;
+    tagIcon?: IconType;
+    showTag?: boolean;
+}
+declare const DefaultCard: <TData>({ row, imageColumnId, titleColumnId, tagColumnId, tagIcon, showTag, }: DefaultCardProps<TData>) => react_jsx_runtime.JSX.Element;
+
 interface TableControlsProps {
     totalText?: string;
     showFilter?: boolean;
@@ -250,6 +261,12 @@ interface DefaultTableProps extends TableControlsProps {
     tableProps?: Omit<TableProps, "children">;
 }
 declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, showReload, showSelector, extraItems, tableProps, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
+
+interface ReloadButtonProps {
+    text?: string;
+    variant?: string;
+}
+declare const ReloadButton: ({ text, variant, }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
 
 interface TableProps extends TableProps$1 {
     showLoading?: boolean;
@@ -283,10 +300,14 @@ interface TableCardContainerProps extends GridProps {
 }
 declare const TableCardContainer: ({ children, ...props }: TableCardContainerProps) => react_jsx_runtime.JSX.Element;
 
-interface TableCardsProps {
+interface TableCardsProps<TData> {
     isSelectable?: boolean;
+    showDisplayNameOnly?: boolean;
+    renderTitle?: (row: Row<TData>) => JSX.Element | undefined;
+    cardBodyProps?: CardBodyProps;
 }
-declare const TableCards: ({ isSelectable }: TableCardsProps) => react_jsx_runtime.JSX.Element;
+declare const DefaultCardTitle: () => react_jsx_runtime.JSX.Element;
+declare const TableCards: <TData>({ isSelectable, showDisplayNameOnly, renderTitle, cardBodyProps }: TableCardsProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface TableRendererProps<TData> {
     render: (render: Table$1<TData>) => React$1.ReactElement;
@@ -329,12 +350,6 @@ interface PaginationProps {
 }
 declare const TablePagination: ({}: PaginationProps) => react_jsx_runtime.JSX.Element;
 
-interface ReloadButtonProps {
-    text?: string;
-    variant?: string;
-}
-declare const ReloadButton: ({ text, variant, }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
-
 declare const TableSelector: () => react_jsx_runtime.JSX.Element;
 
 declare const TableSorter: () => react_jsx_runtime.JSX.Element;
@@ -365,7 +380,7 @@ interface FilterOptionsProps {
 declare const FilterOptions: ({ column }: FilterOptionsProps) => react_jsx_runtime.JSX.Element;
 
 declare const GlobalFilter: ({ icon }: {
-    icon?: react_icons_lib.IconType | undefined;
+    icon?: react_icons.IconType | undefined;
 }) => react_jsx_runtime.JSX.Element;
 
 declare module "@tanstack/react-table" {
@@ -420,4 +435,4 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export { type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, FilterOptions, type FilterOptionsProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, TablePagination, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataFromUrlProps, type UseDataFromUrlReturn, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, useDataFromUrl, useDataTable, useDataTableContext, useDataTableServer };
+export { type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DefaultCard, type DefaultCardProps, DefaultCardTitle, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, FilterOptions, type FilterOptionsProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type PaginationProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, TablePagination, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataFromUrlProps, type UseDataFromUrlReturn, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, useDataFromUrl, useDataTable, useDataTableContext, useDataTableServer };
