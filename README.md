@@ -87,6 +87,31 @@ GET http://localhost:8333/api/v1/gpt/chat/history/all?pagination={"offset":0,"ro
 </DataTable>
 ```
 
+### TableCardContainer, TableCards, DefaultCard
+
+```tsx
+<DataTable columns={columns} data={data} {...datatable}>
+  <TableCardContainer>
+    <TableCards<Product>
+      renderTitle={(row) => {
+        return (
+          <DefaultCard
+            {...{
+              row: row,
+              imageColumnId: "thumbnail",
+              titleColumnId: "title",
+              tagColumnId: "rating",
+              tagIcon: MdStarRate,
+            }}
+          />
+        );
+      }}
+    />
+  </TableCardContainer>
+  <TablePagination />
+</DataTable>
+```
+
 ## Development
 
 ```
