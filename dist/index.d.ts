@@ -335,9 +335,10 @@ interface TableHeaderProps {
         dark: string;
     };
     showSelector?: boolean;
+    isSticky?: boolean;
     alwaysShowSelector?: boolean;
 }
-declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, alwaysShowSelector, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
+declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, isSticky, alwaysShowSelector, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
 
 interface TableLoadingComponentProps {
     render: (loading: boolean) => JSX.Element;

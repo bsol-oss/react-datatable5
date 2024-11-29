@@ -473,7 +473,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
                                                 jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }) }) }, `chakra-table-footer-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
 };
 
-const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector, alwaysShowSelector = true, }) => {
+const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, isSticky = true, alwaysShowSelector = true, }) => {
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
@@ -508,7 +508,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
             : {};
         return thProps;
     };
-    return (jsx(Thead, { children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
+    return (jsx(Thead, { position: isSticky ? "sticky" : undefined, top: "0px", backgroundColor: "white", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)", children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
                 // styling resize and pinning start
                 , { ...(table.getIsSomeColumnsPinned("left")
                         ? {
@@ -530,7 +530,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                     };
                     return (jsxs(Th, { padding: "0rem", colSpan: header.colSpan, 
                         // styling resize and pinning start
-                        width: `${header.getSize()}px`, display: "grid", gridTemplateColumns: '1fr auto', zIndex: header.index, ...getThProps(header), children: [jsxs(Menu, { children: [jsx(MenuButton, { as: Grid, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: 'auto', _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                        width: `${header.getSize()}px`, display: "grid", gridTemplateColumns: "1fr auto", zIndex: header.index, ...getThProps(header), children: [jsxs(Menu, { children: [jsx(MenuButton, { as: Grid, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: "auto", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                                     ? null
                                                     : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && jsx(Fragment, {}), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) }), jsx(Box, { children: header.column.getIsFiltered() && jsx(MdFilterListAlt, {}) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
                                                         header.column.pin("left");
@@ -556,7 +556,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                                 });
                                                             }, children: "Sort Descending" }), header.column.getIsSorted() && (jsx(MenuItem, { icon: jsx(MdClear, {}), onClick: () => {
                                                                 header.column.clearSorting();
-                                                            }, children: "Clear Sorting" }))] }))] }) })] }), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: 'relative', right: '0.1rem', width: "2px", height: '100%', userSelect: "none", style: { touchAction: "none" }, _hover: {
+                                                            }, children: "Clear Sorting" }))] }))] }) })] }), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "relative", right: "0.1rem", width: "2px", height: "100%", userSelect: "none", style: { touchAction: "none" }, _hover: {
                                     borderRightColor: header.column.getIsResizing()
                                         ? "gray.700"
                                         : "gray.400",
