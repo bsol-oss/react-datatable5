@@ -28,13 +28,15 @@ export interface TableHeaderProps {
   canResize?: boolean;
   pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
+  isSticky?: boolean;
   alwaysShowSelector?: boolean;
 }
 
 export const TableHeader = ({
   canResize,
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
-  showSelector,
+  showSelector = false,
+  isSticky = true,
   alwaysShowSelector = true,
 }: TableHeaderProps) => {
   const { table } = useDataTableContext();
@@ -76,7 +78,14 @@ export const TableHeader = ({
   };
 
   return (
-    <Thead>
+    <Thead
+      position={isSticky ? "sticky" : undefined}
+      top={"0px"}
+      backgroundColor={"white"}
+      boxShadow={
+        "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+      }
+    >
       {table.getHeaderGroups().map((headerGroup) => (
         <Tr display={"flex"} key={`chakra-table-headergroup-${headerGroup.id}`}>
           {showSelector && (
@@ -143,7 +152,7 @@ export const TableHeader = ({
                 // styling resize and pinning start
                 width={`${header.getSize()}px`}
                 display={"grid"}
-                gridTemplateColumns={'1fr auto'}
+                gridTemplateColumns={"1fr auto"}
                 zIndex={header.index}
                 {...getThProps(header)}
               >
@@ -155,7 +164,7 @@ export const TableHeader = ({
                     alignItems={"center"}
                     justifyContent={"start"}
                     borderRadius={"0rem"}
-                    overflow={'auto'}
+                    overflow={"auto"}
                     _hover={{ backgroundColor: "gray.100" }}
                   >
                     <Flex gap="0.5rem" alignItems={"center"}>
@@ -261,10 +270,10 @@ export const TableHeader = ({
                     borderRightColor={
                       header.column.getIsResizing() ? "gray.700" : "transparent"
                     }
-                    position={'relative'}
-                    right={'0.1rem'}
+                    position={"relative"}
+                    right={"0.1rem"}
                     width={"2px"}
-                    height={'100%'}
+                    height={"100%"}
                     userSelect={"none"}
                     style={{ touchAction: "none" }}
                     _hover={{
