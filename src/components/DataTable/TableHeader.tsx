@@ -10,6 +10,7 @@ import {
   MenuList,
   Portal,
   ResponsiveValue,
+  TableHeadProps,
   Th,
   Thead,
   Tr,
@@ -77,13 +78,21 @@ export const TableHeader = ({
     return thProps;
   };
 
+  const stickyCssAttributes: TableHeadProps = {
+    position: "sticky",
+    backgroundColor: "white",
+    _dark: {
+      backgroundColor: "gray.800",
+    },
+  };
+
   return (
     <Thead
-      position={isSticky ? "sticky" : undefined}
       top={"0px"}
       boxShadow={
         "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)"
       }
+      {...(isSticky ? stickyCssAttributes : {})}
     >
       {table.getHeaderGroups().map((headerGroup) => (
         <Tr display={"flex"} key={`chakra-table-headergroup-${headerGroup.id}`}>
