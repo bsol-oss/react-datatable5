@@ -510,7 +510,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
             : {};
         return thProps;
     };
-    return (jsxRuntime.jsx(react.Thead, { position: isSticky ? "sticky" : undefined, top: "0px", backgroundColor: "white", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)", children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsxs(react.Tr, { display: "flex", children: [showSelector && (jsxRuntime.jsxs(react.Th
+    return (jsxRuntime.jsx(react.Thead, { position: isSticky ? "sticky" : undefined, top: "0px", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)", children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsxs(react.Tr, { display: "flex", children: [showSelector && (jsxRuntime.jsxs(react.Th
                 // styling resize and pinning start
                 , { ...(table.getIsSomeColumnsPinned("left")
                         ? {
