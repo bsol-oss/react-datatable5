@@ -508,7 +508,14 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
             : {};
         return thProps;
     };
-    return (jsx(Thead, { position: isSticky ? "sticky" : undefined, top: "0px", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)", children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
+    const stickyCssAttributes = {
+        position: "sticky",
+        backgroundColor: "white",
+        _dark: {
+            backgroundColor: "gray.800",
+        },
+    };
+    return (jsx(Thead, { top: "0px", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)", ...(isSticky ? stickyCssAttributes : {}), children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
                 // styling resize and pinning start
                 , { ...(table.getIsSomeColumnsPinned("left")
                         ? {
