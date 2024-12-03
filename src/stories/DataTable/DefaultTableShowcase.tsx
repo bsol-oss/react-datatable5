@@ -157,7 +157,11 @@ const DefaultTableShowcase = () => {
         <Text> {"fitTable={true}"}</Text>
 
         <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter fitTableWidth />
+          <DefaultTable
+            showFilter
+            fitTableWidth
+            tHeadProps={{ bgColor: "yellow", _dark: { bgColor: "blue" } }}
+          />
         </Box>
         <Box width="2400px" height={"2400px"}>
           <DefaultTable showFilter fitTableWidth fitTableHeight />

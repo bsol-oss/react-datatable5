@@ -31,6 +31,7 @@ export interface TableHeaderProps {
   showSelector?: boolean;
   isSticky?: boolean;
   alwaysShowSelector?: boolean;
+  tHeadProps?: TableHeadProps;
 }
 
 export const TableHeader = ({
@@ -39,6 +40,7 @@ export const TableHeader = ({
   showSelector = false,
   isSticky = true,
   alwaysShowSelector = true,
+  tHeadProps = {},
 }: TableHeaderProps) => {
   const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
@@ -80,10 +82,6 @@ export const TableHeader = ({
 
   const stickyCssAttributes: TableHeadProps = {
     position: "sticky",
-    backgroundColor: "white",
-    _dark: {
-      backgroundColor: "gray.800",
-    },
   };
 
   return (
@@ -93,6 +91,7 @@ export const TableHeader = ({
         "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)"
       }
       {...(isSticky ? stickyCssAttributes : {})}
+      {...tHeadProps}
     >
       {table.getHeaderGroups().map((headerGroup) => (
         <Tr display={"flex"} key={`chakra-table-headergroup-${headerGroup.id}`}>
