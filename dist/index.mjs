@@ -473,7 +473,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
                                                 jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }) }) }, `chakra-table-footer-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
 };
 
-const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, isSticky = true, alwaysShowSelector = true, }) => {
+const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, isSticky = true, alwaysShowSelector = true, tHeadProps = {}, }) => {
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
@@ -510,12 +510,8 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
     };
     const stickyCssAttributes = {
         position: "sticky",
-        backgroundColor: "white",
-        _dark: {
-            backgroundColor: "gray.800",
-        },
     };
-    return (jsx(Thead, { top: "0px", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)", ...(isSticky ? stickyCssAttributes : {}), children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
+    return (jsx(Thead, { top: "0px", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)", ...(isSticky ? stickyCssAttributes : {}), ...tHeadProps, children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
                 // styling resize and pinning start
                 , { ...(table.getIsSomeColumnsPinned("left")
                         ? {
@@ -571,8 +567,8 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, showReload = false, showSelector = false, extraItems = jsx(Fragment, {}), tableProps = {}, }) => {
-    return (jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxs(Table, { ...tableProps, children: [jsx(TableHeader, { canResize: true, showSelector: showSelector }), jsx(TableBody, { showSelector: showSelector }), showFooter && jsx(TableFooter, { showSelector: showSelector })] }) }));
+const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, showReload = false, showSelector = false, extraItems = jsx(Fragment, {}), tableProps = {}, tHeadProps = {}, }) => {
+    return (jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxs(Table, { ...tableProps, children: [jsx(TableHeader, { canResize: true, showSelector: showSelector, tHeadProps: tHeadProps }), jsx(TableBody, { showSelector: showSelector }), showFooter && jsx(TableFooter, { showSelector: showSelector })] }) }));
 };
 
 const ReloadButton = ({ text = "Reload", variant = "icon", }) => {

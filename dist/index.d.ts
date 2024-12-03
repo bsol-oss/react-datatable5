@@ -5,7 +5,7 @@ import React$1, { ReactNode } from 'react';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import * as react_icons from 'react-icons';
 import { IconType } from 'react-icons';
-import { TableProps as TableProps$1, GridProps, CardBodyProps, TextProps, TooltipProps } from '@chakra-ui/react';
+import { TableHeadProps, TableProps as TableProps$1, GridProps, CardBodyProps, TextProps, TooltipProps } from '@chakra-ui/react';
 import * as _tanstack_table_core from '@tanstack/table-core';
 
 interface DensityToggleButtonProps {
@@ -259,8 +259,9 @@ interface DefaultTableProps extends TableControlsProps {
     showFooter?: boolean;
     showSelector?: boolean;
     tableProps?: Omit<TableProps, "children">;
+    tHeadProps?: TableHeadProps;
 }
-declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, showReload, showSelector, extraItems, tableProps, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
+declare const DefaultTable: ({ totalText, showFilter, showFooter, fitTableWidth, fitTableHeight, isMobile, filterOptions, showFilterTags, showFilterName, showReload, showSelector, extraItems, tableProps, tHeadProps, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
 
 interface ReloadButtonProps {
     text?: string;
@@ -337,8 +338,9 @@ interface TableHeaderProps {
     showSelector?: boolean;
     isSticky?: boolean;
     alwaysShowSelector?: boolean;
+    tHeadProps?: TableHeadProps;
 }
-declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, isSticky, alwaysShowSelector, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
+declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, isSticky, alwaysShowSelector, tHeadProps, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
 
 interface TableLoadingComponentProps {
     render: (loading: boolean) => JSX.Element;

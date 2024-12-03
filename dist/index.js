@@ -475,7 +475,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
                                                 jsxRuntime.jsx(jsxRuntime.Fragment, {})), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {}))] })) })] }) }) }) }, `chakra-table-footer-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
 };
 
-const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, isSticky = true, alwaysShowSelector = true, }) => {
+const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, isSticky = true, alwaysShowSelector = true, tHeadProps = {}, }) => {
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = react$1.useState(false);
@@ -512,12 +512,8 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
     };
     const stickyCssAttributes = {
         position: "sticky",
-        backgroundColor: "white",
-        _dark: {
-            backgroundColor: "gray.800",
-        },
     };
-    return (jsxRuntime.jsx(react.Thead, { top: "0px", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)", ...(isSticky ? stickyCssAttributes : {}), children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsxs(react.Tr, { display: "flex", children: [showSelector && (jsxRuntime.jsxs(react.Th
+    return (jsxRuntime.jsx(react.Thead, { top: "0px", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)", ...(isSticky ? stickyCssAttributes : {}), ...tHeadProps, children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsxs(react.Tr, { display: "flex", children: [showSelector && (jsxRuntime.jsxs(react.Th
                 // styling resize and pinning start
                 , { ...(table.getIsSomeColumnsPinned("left")
                         ? {
@@ -573,8 +569,8 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, showReload = false, showSelector = false, extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), tableProps = {}, }) => {
-    return (jsxRuntime.jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxRuntime.jsxs(Table, { ...tableProps, children: [jsxRuntime.jsx(TableHeader, { canResize: true, showSelector: showSelector }), jsxRuntime.jsx(TableBody, { showSelector: showSelector }), showFooter && jsxRuntime.jsx(TableFooter, { showSelector: showSelector })] }) }));
+const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, filterOptions = [], showFilterTags = false, showFilterName = false, showReload = false, showSelector = false, extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), tableProps = {}, tHeadProps = {}, }) => {
+    return (jsxRuntime.jsx(TableControls, { totalText: totalText, showFilter: showFilter, fitTableWidth: fitTableWidth, fitTableHeight: fitTableHeight, isMobile: isMobile, filterOptions: filterOptions, showFilterName: showFilterName, showFilterTags: showFilterTags, showReload: showReload, extraItems: extraItems, children: jsxRuntime.jsxs(Table, { ...tableProps, children: [jsxRuntime.jsx(TableHeader, { canResize: true, showSelector: showSelector, tHeadProps: tHeadProps }), jsxRuntime.jsx(TableBody, { showSelector: showSelector }), showFooter && jsxRuntime.jsx(TableFooter, { showSelector: showSelector })] }) }));
 };
 
 const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
