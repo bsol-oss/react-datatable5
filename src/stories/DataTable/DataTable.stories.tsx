@@ -42,7 +42,7 @@ const Template = (args: any) => {
     default: { sorting: [{ id: "title", desc: false }] },
   });
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider value={theme}>
       <DataTable {...args} {...datatable}>
         <Flex>
           <TablePagination />

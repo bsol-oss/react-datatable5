@@ -2,17 +2,20 @@ import {
   Button,
   Flex,
   IconButton,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   useDisclosure
 } from "@chakra-ui/react";
 import { MdFilterAlt } from "react-icons/md";
 import { ResetFilteringButton, TableFilter } from "../../index";
+
+import {
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export interface EditFilterButtonProps {
   text?: string;

@@ -130,7 +130,7 @@ const TablePinningShowcase = () => {
     }),
   ];
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider value={theme}>
       <DataTableServer<ChatRecord>
         columns={columns}
         {...dataTable}

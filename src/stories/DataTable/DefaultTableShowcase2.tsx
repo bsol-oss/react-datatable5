@@ -104,7 +104,7 @@ const DefaultTableShowcase2 = () => {
   ];
 
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider value={theme}>
       <DataTable columns={columns} data={staffData} {...datatable}>
         <DefaultTable
           showFilter

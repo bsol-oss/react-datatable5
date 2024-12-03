@@ -5,7 +5,6 @@ import {
   Icon,
   Spinner,
   Text,
-  Tooltip,
 } from "@chakra-ui/react";
 import { BsExclamationCircleFill } from "react-icons/bs";
 import { MdOutlineViewColumn } from "react-icons/md";
@@ -21,6 +20,7 @@ import {
   useDataTableContext,
   ReloadButton,
 } from "../../index";
+import { Tooltip } from "../../components/ui/tooltip";
 
 export interface TableControlsProps {
   totalText?: string;
@@ -70,7 +70,7 @@ export const TableControls = ({
         <Flex gap={"0.5rem"} alignItems={"center"} justifySelf={"end"}>
           {loading && <Spinner size={"sm"} />}
           {hasError && (
-            <Tooltip label="An error occurred while fetching data">
+            <Tooltip content="An error occurred while fetching data">
               <Box>
                 <Icon as={BsExclamationCircleFill} color={"red.400"} />
               </Box>

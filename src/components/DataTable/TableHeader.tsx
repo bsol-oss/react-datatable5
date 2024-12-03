@@ -1,29 +1,24 @@
 import {
   Box,
-  Checkbox,
   Flex,
-  FormLabel,
   Grid,
-  Menu,
-  MenuButton,
+  MenuRoot,
   MenuItem,
-  MenuList,
-  Portal,
-  ResponsiveValue,
-  TableHeadProps,
-  Th,
-  Thead,
-  Tr,
+  MenuContent,
+  Table,
+  TableHeaderProps as ChakraTableHeaderProps,
+  MenuTrigger,
+  Button,
 } from "@chakra-ui/react";
 import { flexRender, Header } from "@tanstack/react-table";
 import { MdCancel, MdClear, MdFilterListAlt } from "react-icons/md";
 
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import * as CSS from "csstype";
 import { useState } from "react";
 import { GrAscend, GrDescend } from "react-icons/gr";
 import { MdPushPin } from "react-icons/md";
 import { useDataTableContext } from "../../index";
+import { Checkbox } from "../../components/ui/checkbox";
 
 export interface TableHeaderProps {
   canResize?: boolean;
@@ -31,7 +26,7 @@ export interface TableHeaderProps {
   showSelector?: boolean;
   isSticky?: boolean;
   alwaysShowSelector?: boolean;
-  tHeadProps?: TableHeadProps;
+  tHeadProps?: ChakraTableHeaderProps;
 }
 
 export const TableHeader = ({
@@ -70,7 +65,7 @@ export const TableHeader = ({
             ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
             : `${header.getStart("left") + table.getDensityValue() * 2}px`,
           background: pinnedBgColor.light,
-          position: "sticky" as ResponsiveValue<CSS.Property.Position>,
+          position: "sticky",
           zIndex: 1,
           _dark: {
             backgroundColor: pinnedBgColor.dark,
@@ -80,12 +75,12 @@ export const TableHeader = ({
     return thProps;
   };
 
-  const stickyCssAttributes: TableHeadProps = {
+  const stickyCssAttributes: ChakraTableHeaderProps = {
     position: "sticky",
   };
 
   return (
-    <Thead
+    <Table.Header
       top={"0px"}
       boxShadow={
         "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)"
@@ -94,9 +89,12 @@ export const TableHeader = ({
       {...tHeadProps}
     >
       {table.getHeaderGroups().map((headerGroup) => (
-        <Tr display={"flex"} key={`chakra-table-headergroup-${headerGroup.id}`}>
+        <Table.Row
+          display={"flex"}
+          key={`chakra-table-headergroup-${headerGroup.id}`}
+        >
           {showSelector && (
-            <Th
+            <Table.Header
               // styling resize and pinning start
               {...(table.getIsSomeColumnsPinned("left")
                 ? {
@@ -114,7 +112,7 @@ export const TableHeader = ({
               display={"grid"}
             >
               {isCheckBoxVisible() && (
-                <FormLabel
+                <Box
                   margin={"0rem"}
                   display={"grid"}
                   justifyItems={"center"}
@@ -129,7 +127,7 @@ export const TableHeader = ({
                       onChange: table.getToggleAllRowsSelectedHandler(),
                     }}
                   ></Checkbox>
-                </FormLabel>
+                </Box>
               )}
               {!isCheckBoxVisible() && (
                 <Box
@@ -142,7 +140,7 @@ export const TableHeader = ({
                   height={`${SELECTION_BOX_WIDTH}px`}
                 ></Box>
               )}
-            </Th>
+            </Table.Header>
           )}
           {headerGroup.headers.map((header) => {
             const resizeProps = {
@@ -152,10 +150,10 @@ export const TableHeader = ({
             };
 
             return (
-              <Th
+              <Table.Header
                 padding={"0rem"}
                 key={`chakra-table-header-${header.id}`}
-                colSpan={header.colSpan}
+                columnSpan={`${header.colSpan}`}
                 // styling resize and pinning start
                 width={`${header.getSize()}px`}
                 display={"grid"}
@@ -163,69 +161,73 @@ export const TableHeader = ({
                 zIndex={header.index}
                 {...getThProps(header)}
               >
-                <Menu>
-                  <MenuButton
-                    as={Grid}
-                    padding={`${table.getDensityValue()}px`}
-                    display={"flex"}
-                    alignItems={"center"}
-                    justifyContent={"start"}
-                    borderRadius={"0rem"}
-                    overflow={"auto"}
-                    _hover={{ backgroundColor: "gray.100" }}
-                  >
-                    <Flex gap="0.5rem" alignItems={"center"}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
+                <MenuRoot>
+                  <MenuTrigger asChild>
+                    <Grid
+                      padding={`${table.getDensityValue()}px`}
+                      display={"flex"}
+                      alignItems={"center"}
+                      justifyContent={"start"}
+                      borderRadius={"0rem"}
+                      overflow={"auto"}
+                      _hover={{ backgroundColor: "gray.100" }}
+                    >
+                      <Flex gap="0.5rem" alignItems={"center"}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                        <Box>
+                          {header.column.getCanSort() && (
+                            <>
+                              {header.column.getIsSorted() === false && <></>}
+                              {header.column.getIsSorted() === "asc" && (
+                                <ChevronUpIcon />
+                              )}
+                              {header.column.getIsSorted() === "desc" && (
+                                <ChevronDownIcon />
+                              )}
+                            </>
                           )}
-                      <Box>
-                        {header.column.getCanSort() && (
-                          <>
-                            {header.column.getIsSorted() === false && <></>}
-                            {header.column.getIsSorted() === "asc" && (
-                              <ChevronUpIcon />
-                            )}
-                            {header.column.getIsSorted() === "desc" && (
-                              <ChevronDownIcon />
-                            )}
-                          </>
-                        )}
-                      </Box>
-                      <Box>
-                        {header.column.getIsFiltered() && <MdFilterListAlt />}
-                      </Box>
-                    </Flex>
-                  </MenuButton>
+                        </Box>
+                        <Box>
+                          {header.column.getIsFiltered() && <MdFilterListAlt />}
+                        </Box>
+                      </Flex>
+                    </Grid>
+                  </MenuTrigger>
 
-                  <Portal>
-                    <MenuList>
-                      {!header.column.getIsPinned() && (
-                        <MenuItem
-                          icon={<MdPushPin />}
+                  <MenuContent>
+                    {!header.column.getIsPinned() && (
+                      <MenuItem asChild value="pin-column">
+                        <Button
                           onClick={() => {
                             header.column.pin("left");
                           }}
                         >
+                          <MdPushPin />
                           Pin Column
-                        </MenuItem>
-                      )}
-                      {header.column.getIsPinned() && (
-                        <MenuItem
-                          icon={<MdCancel />}
+                        </Button>
+                      </MenuItem>
+                    )}
+                    {header.column.getIsPinned() && (
+                      <MenuItem asChild value="cancel-pin">
+                        <Button
                           onClick={() => {
                             header.column.pin(false);
                           }}
                         >
+                          <MdCancel />
                           Cancel Pin
-                        </MenuItem>
-                      )}
-                      {header.column.getCanSort() && (
-                        <>
-                          <MenuItem
-                            icon={<GrAscend />}
+                        </Button>
+                      </MenuItem>
+                    )}
+                    {header.column.getCanSort() && (
+                      <>
+                        <MenuItem asChild value="sort-ascend">
+                          <Button
                             onClick={() => {
                               table.setSorting((state) => {
                                 return [
@@ -237,10 +239,12 @@ export const TableHeader = ({
                               });
                             }}
                           >
+                            <GrAscend />
                             Sort Ascending
-                          </MenuItem>
-                          <MenuItem
-                            icon={<GrDescend />}
+                          </Button>
+                        </MenuItem>
+                        <MenuItem asChild value="sort-descend">
+                          <Button
                             onClick={() => {
                               table.setSorting((state) => {
                                 return [
@@ -252,24 +256,27 @@ export const TableHeader = ({
                               });
                             }}
                           >
+                            <GrDescend />
                             Sort Descending
-                          </MenuItem>
+                          </Button>
+                        </MenuItem>
 
-                          {header.column.getIsSorted() && (
-                            <MenuItem
-                              icon={<MdClear />}
+                        {header.column.getIsSorted() && (
+                          <MenuItem asChild value="sort-descend">
+                            <Button
                               onClick={() => {
                                 header.column.clearSorting();
                               }}
                             >
+                              <MdClear />
                               Clear Sorting
-                            </MenuItem>
-                          )}
-                        </>
-                      )}
-                    </MenuList>
-                  </Portal>
-                </Menu>
+                            </Button>
+                          </MenuItem>
+                        )}
+                      </>
+                    )}
+                  </MenuContent>
+                </MenuRoot>
 
                 {canResize && (
                   <Box
@@ -291,11 +298,11 @@ export const TableHeader = ({
                     {...resizeProps}
                   ></Box>
                 )}
-              </Th>
+              </Table.Header>
             );
           })}
-        </Tr>
+        </Table.Row>
       ))}
-    </Thead>
+    </Table.Header>
   );
 };
