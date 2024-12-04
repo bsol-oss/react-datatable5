@@ -39,10 +39,10 @@ export const TableBody = ({
       ? {
           left: showSelector
             ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-            : `${cell.column.getStart("left") + table.getDensityValue() * 2}px`,
+            : `${cell.column.getStart("left") }px`,
           background: pinnedBgColor.light,
           position: "sticky",
-          zIndex: 1,
+          zIndex: -1,
           _dark: {
             backgroundColor: pinnedBgColor.dark,
           },

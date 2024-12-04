@@ -64,7 +64,7 @@ export const TableHeader = ({
       ? {
           left: showSelector
             ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-            : `${header.getStart("left") + table.getDensityValue() * 2}px`,
+            : `${header.getStart("left")}px`,
           background: pinnedBgColor.light,
           position: "sticky",
           zIndex: 1,
