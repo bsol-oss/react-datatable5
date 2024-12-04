@@ -13,6 +13,8 @@ export const Table = ({ children, ...props }: TableProps) => {
 
   return (
     <ChakraTable.Root
+      stickyHeader
+      variant={"outline"}
       width={table.getCenterTotalSize()}
       {...props}
     >

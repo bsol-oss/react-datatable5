@@ -75,27 +75,20 @@ export const TableHeader = ({
       : {};
     return thProps;
   };
-
-  const stickyCssAttributes: ChakraTableHeaderProps = {
+  const stickyProps = {
     position: "sticky",
+    top: 0,
   };
 
   return (
-    <Table.Header
-      top={"0px"}
-      boxShadow={
-        "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)"
-      }
-      {...(isSticky ? stickyCssAttributes : {})}
-      {...tHeadProps}
-    >
+    <Table.Header {...(isSticky ? stickyProps : {})} {...tHeadProps}>
       {table.getHeaderGroups().map((headerGroup) => (
         <Table.Row
           display={"flex"}
           key={`chakra-table-headergroup-${headerGroup.id}`}
         >
           {showSelector && (
-            <Table.Header
+            <Table.ColumnHeader
               // styling resize and pinning start
               {...(table.getIsSomeColumnsPinned("left")
                 ? {
@@ -141,7 +134,7 @@ export const TableHeader = ({
                   height={`${SELECTION_BOX_WIDTH}px`}
                 ></Box>
               )}
-            </Table.Header>
+            </Table.ColumnHeader>
           )}
           {headerGroup.headers.map((header) => {
             const resizeProps = {
@@ -151,7 +144,7 @@ export const TableHeader = ({
             };
 
             return (
-              <Table.Header
+              <Table.ColumnHeader
                 padding={"0rem"}
                 key={`chakra-table-header-${header.id}`}
                 columnSpan={`${header.colSpan}`}
@@ -304,7 +297,7 @@ export const TableHeader = ({
                     {...resizeProps}
                   ></Box>
                 )}
-              </Table.Header>
+              </Table.ColumnHeader>
             );
           })}
         </Table.Row>
