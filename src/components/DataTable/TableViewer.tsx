@@ -1,13 +1,21 @@
-import { Box, Flex, Grid, Icon, Switch } from "@chakra-ui/react";
+import { Box, Flex, Grid } from "@chakra-ui/react";
 import { useState } from "react";
-import { DragDropContext, Draggable, Droppable, DropResult } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from "react-beautiful-dnd";
 import { FaGripLinesVertical } from "react-icons/fa";
 import { useDataTableContext } from "./useDataTableContext";
+import { Switch } from "@/components/ui/switch";
 
 export const TableViewer = () => {
   const { table } = useDataTableContext();
   const columns = table.getAllLeafColumns();
-  const [columnOrder, setColumnOrder] = useState<string[]>(columns.map(column => column.id));
+  const [columnOrder, setColumnOrder] = useState<string[]>(
+    columns.map((column) => column.id)
+  );
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -31,10 +39,15 @@ export const TableViewer = () => {
             {...provided.droppableProps}
           >
             {columns.map((column, index) => {
-              const displayName = column.columnDef.meta?.displayName || column.id;
+              const displayName =
+                column.columnDef.meta?.displayName || column.id;
 
               return (
-                <Draggable key={column.id} draggableId={column.id} index={index}>
+                <Draggable
+                  key={column.id}
+                  draggableId={column.id}
+                  index={index}
+                >
                   {(provided) => (
                     <Grid
                       ref={provided.innerRef}
@@ -48,12 +61,12 @@ export const TableViewer = () => {
                         alignItems="center"
                         padding="0"
                       >
-                        <Icon as={FaGripLinesVertical} color="gray.400" />
+                        <FaGripLinesVertical color="gray.400" />
                       </Flex>
                       <Flex justifyContent="space-between" alignItems="center">
                         <Box>{displayName}</Box>
                         <Switch
-                          isChecked={column.getIsVisible()}
+                          checked={column.getIsVisible()}
                           onChange={column.getToggleVisibilityHandler()}
                         />
                       </Flex>
