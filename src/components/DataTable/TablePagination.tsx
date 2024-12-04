@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, IconButton } from "@chakra-ui/react";
+import { Group, IconButton } from "@chakra-ui/react";
 import {
   MdArrowBack,
   MdArrowForward,
@@ -6,10 +6,10 @@ import {
   MdLastPage,
 } from "react-icons/md";
 import { useDataTableContext } from "./useDataTableContext";
+import { Button } from "@/components/ui/button";
 
-export interface PaginationProps {}
 
-export const TablePagination = ({}: PaginationProps) => {
+export const TablePagination = () => {
   const {
     firstPage,
     getCanPreviousPage,
@@ -20,7 +20,7 @@ export const TablePagination = ({}: PaginationProps) => {
     lastPage,
   } = useDataTableContext().table;
   return (
-    <ButtonGroup isAttached>
+    <Group attached>
       <IconButton
         onClick={() => firstPage()}
         disabled={!getCanPreviousPage()}
@@ -61,6 +61,6 @@ export const TablePagination = ({}: PaginationProps) => {
       >
         <MdLastPage />
       </IconButton>
-    </ButtonGroup>
+    </Group>
   );
 };

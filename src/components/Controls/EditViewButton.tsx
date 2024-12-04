@@ -1,17 +1,22 @@
 import {
   Button,
+  DialogBackdrop,
   IconButton,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
 import React from "react";
 import { IoMdEye } from "react-icons/io";
 import { TableViewer } from "../../index";
+import {
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export interface EditViewButtonProps {
   text?: string;
@@ -27,33 +32,26 @@ export const EditViewButton = ({
   const viewModel = useDisclosure();
   return (
     <>
-      {!!text === false && (
-        <IconButton
-          icon={icon}
-          variant={"ghost"}
-          onClick={viewModel.onOpen}
-          aria-label={"change sorting"}
-        />
-      )}
-      {!!text !== false && (
-        <Button leftIcon={icon} variant={"ghost"} onClick={viewModel.onOpen}>
-          {text}
-        </Button>
-      )}
-      <Modal
-        isOpen={viewModel.isOpen}
-        onClose={viewModel.onClose}
-        size={["full", "full", "md", "md"]}
-      >
-        <ModalOverlay />
-        <ModalContent padding={"0 0 1rem 0"}>
-          <ModalHeader>{title}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+      <DialogRoot>
+        <DialogBackdrop />
+        <DialogTrigger>
+          <Button variant={"ghost"} onClick={viewModel.onOpen}>
+            {icon} {text}
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogCloseTrigger />
+          <DialogHeader>
+            <DialogTitle />
+            {title}
+          </DialogHeader>
+          <DialogBody>
             <TableViewer />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+          </DialogBody>
+          <DialogFooter />
+        </DialogContent>
+      </DialogRoot>
+
     </>
   );
 };

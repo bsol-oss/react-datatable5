@@ -2,13 +2,8 @@ import {
   Box,
   Flex,
   Grid,
-  MenuRoot,
-  MenuItem,
-  MenuContent,
   Table,
   TableHeaderProps as ChakraTableHeaderProps,
-  MenuTrigger,
-  Button,
 } from "@chakra-ui/react";
 import { flexRender, Header } from "@tanstack/react-table";
 import { MdCancel, MdClear, MdFilterListAlt } from "react-icons/md";
@@ -19,7 +14,13 @@ import { GrAscend, GrDescend } from "react-icons/gr";
 import { MdPushPin } from "react-icons/md";
 import { useDataTableContext } from "../../index";
 import { Checkbox } from "../../components/ui/checkbox";
-
+import { Button } from "@/components/ui/button";
+import {
+  MenuContent,
+  MenuItem,
+  MenuRoot,
+  MenuTrigger,
+} from "@/components/ui/menu";
 export interface TableHeaderProps {
   canResize?: boolean;
   pinnedBgColor?: { light: string; dark: string };
@@ -203,6 +204,7 @@ export const TableHeader = ({
                     {!header.column.getIsPinned() && (
                       <MenuItem asChild value="pin-column">
                         <Button
+                          variant={"ghost"}
                           onClick={() => {
                             header.column.pin("left");
                           }}
@@ -215,6 +217,7 @@ export const TableHeader = ({
                     {header.column.getIsPinned() && (
                       <MenuItem asChild value="cancel-pin">
                         <Button
+                          variant={"ghost"}
                           onClick={() => {
                             header.column.pin(false);
                           }}
@@ -228,6 +231,7 @@ export const TableHeader = ({
                       <>
                         <MenuItem asChild value="sort-ascend">
                           <Button
+                            variant={"ghost"}
                             onClick={() => {
                               table.setSorting((state) => {
                                 return [
@@ -245,6 +249,7 @@ export const TableHeader = ({
                         </MenuItem>
                         <MenuItem asChild value="sort-descend">
                           <Button
+                            variant={"ghost"}
                             onClick={() => {
                               table.setSorting((state) => {
                                 return [

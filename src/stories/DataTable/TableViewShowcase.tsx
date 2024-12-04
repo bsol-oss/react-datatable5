@@ -107,7 +107,7 @@ const TableViewShowcase = () => {
   ];
 
   return (
-    <ChakraProvider value={theme}>
+    <ChakraProvider value={defaultSystem}>
       <DataTable columns={columns} data={data} {...datatable}>
         <Flex>
           <TablePagination />

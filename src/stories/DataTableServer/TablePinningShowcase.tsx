@@ -1,5 +1,5 @@
 // import React from 'react';
-import { ButtonGroup, ChakraProvider, Flex, theme } from "@chakra-ui/react";
+import { Group, ChakraProvider, Flex, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 import {
@@ -130,21 +130,21 @@ const TablePinningShowcase = () => {
     }),
   ];
   return (
-    <ChakraProvider value={theme}>
+    <ChakraProvider value={defaultSystem}>
       <DataTableServer<ChatRecord>
         columns={columns}
         {...dataTable}
       >
         <Flex gap="0.25rem">
           <TablePagination />
-          <ButtonGroup isAttached>
+          <Group isAttached>
             <EditViewButton />
-          </ButtonGroup>
+          </Group>
           <EditOrderButton />
           <PageSizeControl />
-          <ButtonGroup isAttached>
+          <Group isAttached>
             <TableSelector />
-          </ButtonGroup>
+          </Group>
         </Flex>
         <Table>
           <TableHeader canResize />

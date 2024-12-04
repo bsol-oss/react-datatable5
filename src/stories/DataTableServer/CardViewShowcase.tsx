@@ -1,6 +1,6 @@
 import {
   Box,
-  ButtonGroup,
+  Group,
   ChakraProvider,
   Flex,
   theme,
@@ -117,20 +117,20 @@ const CardViewShowcase = () => {
   ];
 
   return (
-    <ChakraProvider value={theme}>
+    <ChakraProvider value={defaultSystem}>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <Flex gap="0.25rem">
           <TablePagination />
-          <ButtonGroup isAttached>
+          <Group isAttached>
             <EditViewButton />
             <EditFilterButton />
             <EditSortingButton />
-          </ButtonGroup>
+          </Group>
           <EditOrderButton />
           <PageSizeControl />
-          <ButtonGroup isAttached>
+          <Group isAttached>
             <TableSelector />
-          </ButtonGroup>
+          </Group>
         </Flex>
         <TableCardContainer>
           <TableCards />

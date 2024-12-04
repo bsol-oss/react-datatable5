@@ -132,7 +132,7 @@ const DefaultTableShowcase = () => {
   ];
 
   return (
-    <ChakraProvider value={theme}>
+    <ChakraProvider value={defaultSystem}>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <DefaultTable
           showSelector

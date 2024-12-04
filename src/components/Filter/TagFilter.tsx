@@ -1,12 +1,6 @@
-import {
-  Flex,
-  Tag,
-  TagCloseButton,
-  TagLabel,
-  WrapItem
-} from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import React from "react";
-
+import { Tag } from "@/components/ui/tag"
 interface TagFilterProps {
   availableTags: string[];
   selectedTags: string[];
@@ -29,17 +23,14 @@ export const TagFilter: React.FC<TagFilterProps> = ({
   return (
     <Flex flexFlow={"wrap"} p={"0.5rem"} gap={"0.5rem"}>
       {availableTags.map((tag) => (
-        <WrapItem key={tag}>
-          <Tag
-            size="lg"
-            variant={selectedTags.includes(tag) ? "solid" : "outline"}
-            cursor="pointer"
-            onClick={() => toggleTag(tag)}
-          >
-            <TagLabel>{tag}</TagLabel>
-            {selectedTags.includes(tag) && <TagCloseButton />}
-          </Tag>
-        </WrapItem>
+        <Tag
+          variant={selectedTags.includes(tag) ? "solid" : "outline"}
+          cursor="pointer"
+          closable
+          onClick={() => toggleTag(tag)}
+        >
+          {tag}
+        </Tag>
       ))}
     </Flex>
   );

@@ -1,7 +1,7 @@
-import { Grid, Flex, Tag, TagLeftIcon, Image, Text } from "@chakra-ui/react";
+import { Grid, Flex, Image, Text } from "@chakra-ui/react";
 import { Row } from "@tanstack/react-table";
 import { IconType } from "react-icons";
-
+import { Tag } from "@/components/ui/tag";
 export interface DefaultCardProps<TData> {
   row: Row<TData>;
   imageColumnId?: keyof TData;
@@ -44,7 +44,7 @@ export const DefaultCard = <TData,>({
         </Text>
         {showTag && (
           <Tag fontSize={"large"}>
-            <TagLeftIcon as={tagIcon} />
+            {tagIcon ?? ''}
             {row.original[tagColumnId!] as string}
           </Tag>
         )}

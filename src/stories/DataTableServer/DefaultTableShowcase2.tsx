@@ -162,7 +162,7 @@ const DefaultTableShowcase2 = () => {
 
 
   return (
-    <ChakraProvider value={theme}>
+    <ChakraProvider value={defaultSystem}>
       <Button
         onClick={() => {
           setSelectedId("staff_profile");

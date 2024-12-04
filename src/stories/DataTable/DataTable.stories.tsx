@@ -1,4 +1,4 @@
-import { Box, ChakraProvider, Flex, Table, theme } from "@chakra-ui/react";
+import { Box, ChakraProvider, defaultSystem, Flex, Table, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable/DataTable";
 import {
@@ -42,7 +42,7 @@ const Template = (args: any) => {
     default: { sorting: [{ id: "title", desc: false }] },
   });
   return (
-    <ChakraProvider value={theme}>
+    <ChakraProvider value={defaultSystem}>
       <DataTable {...args} {...datatable}>
         <Flex>
           <TablePagination />

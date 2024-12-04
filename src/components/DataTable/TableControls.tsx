@@ -1,11 +1,4 @@
-import {
-  Box,
-  Flex,
-  Grid,
-  Icon,
-  Spinner,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Flex, Grid, Icon, Spinner, Text } from "@chakra-ui/react";
 import { BsExclamationCircleFill } from "react-icons/bs";
 import { MdOutlineViewColumn } from "react-icons/md";
 import {
@@ -71,9 +64,7 @@ export const TableControls = ({
           {loading && <Spinner size={"sm"} />}
           {hasError && (
             <Tooltip content="An error occurred while fetching data">
-              <Box>
-                <Icon as={BsExclamationCircleFill} color={"red.400"} />
-              </Box>
+              <Icon as={BsExclamationCircleFill} color={"red.400"} />
             </Tooltip>
           )}
           {showFilter && (
