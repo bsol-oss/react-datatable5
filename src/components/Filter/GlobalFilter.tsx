@@ -13,9 +13,6 @@ export const GlobalFilter = () => {
           placeholder="Outline"
           variant="outline"
           onChange={(e) => {
-            if (e.target.value) {
-              table.setGlobalFilter(undefined);
-            }
             table.setGlobalFilter(e.target.value);
           }}
         />

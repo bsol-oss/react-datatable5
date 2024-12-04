@@ -269,6 +269,7 @@ export const TableHeader = ({
                         {header.column.getIsSorted() && (
                           <MenuItem asChild value="sort-descend">
                             <Button
+                              variant={"ghost"}
                               onClick={() => {
                                 header.column.clearSorting();
                               }}
