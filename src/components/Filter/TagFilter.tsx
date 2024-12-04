@@ -1,6 +1,6 @@
 import { Flex } from "@chakra-ui/react";
 import React from "react";
-import { Tag } from "@/components/ui/tag"
+import { Tag } from "@/components/ui/tag";
 interface TagFilterProps {
   availableTags: string[];
   selectedTags: string[];
@@ -26,7 +26,7 @@ export const TagFilter: React.FC<TagFilterProps> = ({
         <Tag
           variant={selectedTags.includes(tag) ? "solid" : "outline"}
           cursor="pointer"
-          closable
+          closable={selectedTags.includes(tag) ? true : undefined}
           onClick={() => toggleTag(tag)}
         >
           {tag}
