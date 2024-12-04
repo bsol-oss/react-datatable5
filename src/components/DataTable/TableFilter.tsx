@@ -1,14 +1,18 @@
-import { Flex, Input, Select, Text } from "@chakra-ui/react";
+import { Flex, Input, Text } from "@chakra-ui/react";
 import { Column } from "@tanstack/react-table";
 import { DateRangeFilter } from "../Filter/DateRangeFilter";
 import RangeFilter from "../Filter/RangeFilter";
 import { TagFilter } from "../Filter/TagFilter";
 import { useDataTableContext } from "./useDataTableContext";
+import { Radio, RadioGroup } from "@/components/ui/radio";
 
-function Filter({ column }: { column: Column<any, unknown> }) {
+const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
   const { filterVariant } = column.columnDef.meta ?? {};
   const displayName = column.columnDef.meta?.displayName ?? column.id;
   const filterOptions = column.columnDef.meta?.filterOptions ?? [];
+  // const collection = createListCollection({
+  //   items: filterOptions,
+  // });
 
   if (column.columns.length > 0) {
     return (
@@ -27,21 +31,21 @@ function Filter({ column }: { column: Column<any, unknown> }) {
     return (
       <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
         <Text>{displayName}</Text>
-        <Select
+        <RadioGroup
           value={column.getFilterValue() ? String(column.getFilterValue()) : ""}
-          placeholder="Select option"
-          onChange={(e) => {
-            column.setFilterValue(e.target.value);
+          onValueChange={(details) => {
+            column.setFilterValue(details.value);
           }}
         >
-          {filterOptions.map((option: string) => {
-            return (
-              <option key={`${option}`} value={option}>
-                {option}
-              </option>
-            );
-          })}
-        </Select>
+          <Flex flexFlow={'wrap'} gap={'0.5rem'}>
+          {filterOptions.map((item) => (
+            <Radio key={item} value={item}>
+              {item}
+            </Radio>
+          ))}
+          </Flex>
+         
+        </RadioGroup>
       </Flex>
     );
   }
@@ -151,7 +155,7 @@ function Filter({ column }: { column: Column<any, unknown> }) {
       />
     </Flex>
   );
-}
+};
 
 export const TableFilter = () => {
   const { table } = useDataTableContext();
