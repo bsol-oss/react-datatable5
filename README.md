@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-npm install @tanstack/react-table @chakra-ui/react @bsol-oss/react-datatable5
+npm install @tanstack/react-table @chakra-ui/react @emotion/react @bsol-oss/react-datatable5
 ```
 
 ## Usage
