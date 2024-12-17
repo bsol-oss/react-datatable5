@@ -1,10 +1,8 @@
-import { Box, Checkbox, FormLabel, ResponsiveValue } from "@chakra-ui/react";
-import { Tbody, Td, Tr } from "@chakra-ui/table";
+import { Box, Table } from "@chakra-ui/react";
 import { Cell, flexRender, Row } from "@tanstack/react-table";
-import * as CSS from "csstype";
 import { useContext, useState } from "react";
+import { Checkbox } from "../../components/ui/checkbox";
 import { TableContext } from "./DataTableContext";
-
 export interface TableBodyProps {
   pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
@@ -40,10 +38,10 @@ export const TableBody = ({
       ? {
           left: showSelector
             ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-            : `${cell.column.getStart("left") + table.getDensityValue() * 2}px`,
+            : `${cell.column.getStart("left")}px`,
           background: pinnedBgColor.light,
-          position: "sticky" as ResponsiveValue<CSS.Property.Position>,
-          zIndex: 1,
+          position: "sticky",
+          zIndex: -1,
           _dark: {
             backgroundColor: pinnedBgColor.dark,
           },
@@ -53,10 +51,10 @@ export const TableBody = ({
   };
 
   return (
-    <Tbody>
+    <Table.Body>
       {table.getRowModel().rows.map((row, index) => {
         return (
-          <Tr
+          <Table.Row
             display={"flex"}
             _hover={{ backgroundColor: "rgba(178,178,178,0.1)" }}
             key={`chakra-table-row-${row.id}`}
@@ -74,7 +72,7 @@ export const TableBody = ({
             )}
             {row.getVisibleCells().map((cell, index) => {
               return (
-                <Td
+                <Table.Cell
                   padding={`${table.getDensityValue()}px`}
                   key={`chakra-table-rowcell-${cell.id}-${index}`}
                   // styling resize and pinning start
@@ -83,13 +81,13 @@ export const TableBody = ({
                   {...getTdProps(cell)}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </Td>
+                </Table.Cell>
               );
             })}
-          </Tr>
+          </Table.Row>
         );
       })}
-    </Tbody>
+    </Table.Body>
   );
 };
 
@@ -119,7 +117,7 @@ const TableRowSelector = <TData,>({
   };
 
   return (
-    <Td
+    <Table.Cell
       padding={`${table.getDensityValue()}px`}
       // styling resize and pinning start
       {...(table.getIsSomeColumnsPinned("left")
@@ -146,7 +144,7 @@ const TableRowSelector = <TData,>({
         ></Box>
       )}
       {isCheckBoxVisible(index, row) && (
-        <FormLabel
+        <Box
           margin={"0rem"}
           display={"grid"}
           justifyItems={"center"}
@@ -162,8 +160,8 @@ const TableRowSelector = <TData,>({
               onChange: row.getToggleSelectedHandler(),
             }}
           />
-        </FormLabel>
+        </Box>
       )}
-    </Td>
+    </Table.Cell>
   );
 };

@@ -1,14 +1,15 @@
 import {
   Button,
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+  DialogTrigger,
   Flex,
-  IconButton,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { MdOutlineMoveDown } from "react-icons/md";
 import { TableOrderer } from "../../index";
@@ -25,39 +26,32 @@ export const EditOrderButton = ({
   icon = <MdOutlineMoveDown />,
   title = "Change Order",
 }: EditOrderButtonProps) => {
-  const orderModal = useDisclosure();
-
   return (
     <>
-      {!!text === false && (
-        <IconButton
-          icon={icon}
-          variant={"ghost"}
-          onClick={orderModal.onOpen}
-          aria-label={"change order"}
-        />
-      )}
-      {!!text !== false && (
-        <Button leftIcon={icon} variant={"ghost"} onClick={orderModal.onOpen}>
-          {text}
-        </Button>
-      )}
-      <Modal
-        isOpen={orderModal.isOpen}
-        onClose={orderModal.onClose}
-        size={["full", "full", "md", "md"]}
+      <DialogRoot
+        size="cover"
       >
-        <ModalOverlay />
-        <ModalContent padding={"0 0 1rem 0"}>
-          <ModalHeader>{title}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+        <DialogBackdrop />
+        <DialogTrigger asChild>
+          <Button variant={"ghost"}>
+            {icon}
+            {text}
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogCloseTrigger />
+          <DialogHeader>
+            <DialogTitle />
+            {title}
+          </DialogHeader>
+          <DialogBody>
             <Flex flexFlow={"column"} gap={"0.25rem"}>
               <TableOrderer />
             </Flex>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+          </DialogBody>
+          <DialogFooter />
+        </DialogContent>
+      </DialogRoot>
     </>
   );
 };

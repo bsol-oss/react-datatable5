@@ -1,20 +1,9 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Checkbox,
-  Flex,
-  FormLabel,
-  Menu,
-  MenuButton,
-  ResponsiveValue,
-  Tfoot,
-  Th,
-  Tr,
-} from "@chakra-ui/react";
+import { Flex, Box, Table, MenuRoot, MenuTrigger } from "@chakra-ui/react";
 import { flexRender, Header } from "@tanstack/react-table";
-import * as CSS from "csstype";
 import { useState } from "react";
 import { useDataTableContext } from "./useDataTableContext";
+import { Checkbox } from "../../components/ui/checkbox";
 
 export interface TableFooterProps {
   pinnedBgColor?: { light: string; dark: string };
@@ -55,7 +44,7 @@ export const TableFooter = ({
             ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
             : `${header.getStart("left") + table.getDensityValue() * 2}px`,
           background: pinnedBgColor.light,
-          position: "sticky" as ResponsiveValue<CSS.Property.Position>,
+          position: "sticky",
           zIndex: 1,
           _dark: {
             backgroundColor: pinnedBgColor.dark,
@@ -66,11 +55,14 @@ export const TableFooter = ({
   };
 
   return (
-    <Tfoot>
+    <Table.Footer>
       {table.getFooterGroups().map((footerGroup) => (
-        <Tr display={"flex"} key={`chakra-table-footergroup-${footerGroup.id}`}>
+        <Table.Row
+          display={"flex"}
+          key={`chakra-table-footergroup-${footerGroup.id}`}
+        >
           {showSelector && (
-            <Th
+            <Table.Header
               // styling resize and pinning start
               padding={`${table.getDensityValue()}px`}
               {...(table.getIsSomeColumnsPinned("left")
@@ -88,7 +80,7 @@ export const TableFooter = ({
               display={"grid"}
             >
               {isCheckBoxVisible() && (
-                <FormLabel
+                <Box
                   margin={"0rem"}
                   display={"grid"}
                   justifyItems={"center"}
@@ -103,7 +95,7 @@ export const TableFooter = ({
                       onChange: table.getToggleAllRowsSelectedHandler(),
                     }}
                   ></Checkbox>
-                </FormLabel>
+                </Box>
               )}
               {!isCheckBoxVisible() && (
                 <Box
@@ -116,59 +108,60 @@ export const TableFooter = ({
                   height={`${SELECTION_BOX_WIDTH}px`}
                 />
               )}
-            </Th>
+            </Table.Header>
           )}
           {footerGroup.headers.map((header) => (
-            <Th
+            <Table.Header
               padding={"0"}
               key={`chakra-table-footer-${footerGroup.id}`}
-              colSpan={header.colSpan}
+              columnSpan={`${header.colSpan}`}
               // styling resize and pinning start
               maxWidth={`${header.getSize()}px`}
               width={`${header.getSize()}px`}
               display={"grid"}
               {...getThProps(header)}
             >
-              <Menu>
-                <MenuButton
-                  as={Box}
-                  padding={`${table.getDensityValue()}px`}
-                  display={"flex"}
-                  alignItems={"center"}
-                  justifyContent={"start"}
-                  borderRadius={"0rem"}
-                  _hover={{ backgroundColor: "gray.100" }}
-                >
-                  <Flex gap="0.5rem" alignItems={"center"}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.footer,
-                          header.getContext()
+              <MenuRoot>
+                <MenuTrigger asChild>
+                  <Box
+                    padding={`${table.getDensityValue()}px`}
+                    display={"flex"}
+                    alignItems={"center"}
+                    justifyContent={"start"}
+                    borderRadius={"0rem"}
+                    _hover={{ backgroundColor: "gray.100" }}
+                  >
+                    <Flex gap="0.5rem" alignItems={"center"}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.footer,
+                            header.getContext()
+                          )}
+                      <Box>
+                        {header.column.getCanSort() && (
+                          <>
+                            {header.column.getIsSorted() === false && (
+                              // <UpDownIcon />
+                              <></>
+                            )}
+                            {header.column.getIsSorted() === "asc" && (
+                              <ChevronUpIcon />
+                            )}
+                            {header.column.getIsSorted() === "desc" && (
+                              <ChevronDownIcon />
+                            )}
+                          </>
                         )}
-                    <Box>
-                      {header.column.getCanSort() && (
-                        <>
-                          {header.column.getIsSorted() === false && (
-                            // <UpDownIcon />
-                            <></>
-                          )}
-                          {header.column.getIsSorted() === "asc" && (
-                            <ChevronUpIcon />
-                          )}
-                          {header.column.getIsSorted() === "desc" && (
-                            <ChevronDownIcon />
-                          )}
-                        </>
-                      )}
-                    </Box>
-                  </Flex>
-                </MenuButton>
-              </Menu>
-            </Th>
+                      </Box>
+                    </Flex>
+                  </Box>
+                </MenuTrigger>
+              </MenuRoot>
+            </Table.Header>
           ))}
-        </Tr>
+        </Table.Row>
       ))}
-    </Tfoot>
+    </Table.Footer>
   );
 };

@@ -1,9 +1,8 @@
 import {
   Box,
-  ButtonGroup,
   ChakraProvider,
   Flex,
-  theme,
+  defaultSystem
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import {
@@ -117,20 +116,16 @@ const CardViewShowcase = () => {
   ];
 
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider value={defaultSystem}>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <Flex gap="0.25rem">
           <TablePagination />
-          <ButtonGroup isAttached>
-            <EditViewButton />
-            <EditFilterButton />
-            <EditSortingButton />
-          </ButtonGroup>
+          <EditViewButton />
+          <EditFilterButton />
+          <EditSortingButton />
           <EditOrderButton />
           <PageSizeControl />
-          <ButtonGroup isAttached>
-            <TableSelector />
-          </ButtonGroup>
+          <TableSelector />
         </Flex>
         <TableCardContainer>
           <TableCards />

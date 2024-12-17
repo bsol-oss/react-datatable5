@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, IconButton } from "@chakra-ui/react";
+import { Group, IconButton } from "@chakra-ui/react";
 import {
   MdArrowBack,
   MdArrowForward,
@@ -6,10 +6,10 @@ import {
   MdLastPage,
 } from "react-icons/md";
 import { useDataTableContext } from "./useDataTableContext";
+import { Button } from "@/components/ui/button";
 
-export interface PaginationProps {}
 
-export const TablePagination = ({}: PaginationProps) => {
+export const TablePagination = () => {
   const {
     firstPage,
     getCanPreviousPage,
@@ -20,21 +20,23 @@ export const TablePagination = ({}: PaginationProps) => {
     lastPage,
   } = useDataTableContext().table;
   return (
-    <ButtonGroup isAttached>
+    <Group attached>
       <IconButton
-        icon={<MdFirstPage />}
         onClick={() => firstPage()}
-        isDisabled={!getCanPreviousPage()}
+        disabled={!getCanPreviousPage()}
         aria-label={"first-page"}
         variant={"ghost"}
-      ></IconButton>
+      >
+        <MdFirstPage />
+      </IconButton>
       <IconButton
-        icon={<MdArrowBack />}
         onClick={() => previousPage()}
-        isDisabled={!getCanPreviousPage()}
+        disabled={!getCanPreviousPage()}
         aria-label={"previous-page"}
         variant={"ghost"}
-      ></IconButton>
+      >
+        <MdArrowBack />
+      </IconButton>
       <Button
         variant={"ghost"}
         onClick={() => {}}
@@ -45,7 +47,7 @@ export const TablePagination = ({}: PaginationProps) => {
 
       <IconButton
         onClick={() => nextPage()}
-        isDisabled={!getCanNextPage()}
+        disabled={!getCanNextPage()}
         aria-label={"next-page"}
         variant={"ghost"}
       >
@@ -53,12 +55,12 @@ export const TablePagination = ({}: PaginationProps) => {
       </IconButton>
       <IconButton
         onClick={() => lastPage()}
-        isDisabled={!getCanNextPage()}
+        disabled={!getCanNextPage()}
         aria-label={"last-page"}
         variant={"ghost"}
       >
         <MdLastPage />
       </IconButton>
-    </ButtonGroup>
+    </Group>
   );
 };

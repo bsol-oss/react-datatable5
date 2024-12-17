@@ -1,4 +1,4 @@
-import { TableHeadProps } from "@chakra-ui/react";
+import { TableHeaderProps } from "@chakra-ui/react";
 import { Table, TableProps } from "../../index";
 import { TableBody } from "./TableBody";
 import { TableControls, TableControlsProps } from "./TableControls";
@@ -9,7 +9,7 @@ export interface DefaultTableProps extends TableControlsProps {
   showFooter?: boolean;
   showSelector?: boolean;
   tableProps?: Omit<TableProps, "children">;
-  tHeadProps?: TableHeadProps;
+  tHeadProps?: TableHeaderProps;
 }
 
 export const DefaultTable = ({
@@ -42,7 +42,11 @@ export const DefaultTable = ({
       extraItems={extraItems}
     >
       <Table {...tableProps}>
-        <TableHeader canResize showSelector={showSelector} tHeadProps={tHeadProps}/>
+        <TableHeader
+          canResize
+          showSelector={showSelector}
+          tHeadProps={tHeadProps}
+        />
         <TableBody showSelector={showSelector} />
         {showFooter && <TableFooter showSelector={showSelector} />}
       </Table>

@@ -2,7 +2,7 @@ import {
   Box,
   Button,
   ChakraProvider,
-  extendTheme,
+  defaultSystem,
   Flex,
   Text,
 } from "@chakra-ui/react";
@@ -56,31 +56,6 @@ const RowActions = ({ row }: RowActionsProps) => {
     </>
   );
 };
-
-export const extendedTheme = extendTheme({
-  components: {
-    Table: {
-      baseStyle: {
-        // define the part you're going to style
-        th: {
-          // fontFamily: "mono", // change the font family
-          textTransform: "none",
-          letterSpacing: "unstyled",
-        },
-        td: {
-          fontSize: "10px",
-        },
-      },
-    },
-    Button: {
-      variants: {
-        solid: {
-          fontSize: "10px",
-        },
-      },
-    },
-  },
-});
 
 const TableViewShowcase = () => {
   const dataTable = useDataTableServer<ChatRecord>({
@@ -184,7 +159,7 @@ const TableViewShowcase = () => {
   ];
 
   return (
-    <ChakraProvider theme={extendedTheme}>
+    <ChakraProvider value={defaultSystem}>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <Flex flexFlow={"wrap"}>
           <TablePagination />

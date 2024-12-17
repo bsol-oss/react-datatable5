@@ -1,18 +1,23 @@
 import {
   Button,
+  DialogBackdrop,
   Flex,
   IconButton,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
 import { MdOutlineSort } from "react-icons/md";
 import { ResetSortingButton } from "../../index";
 import { TableSorter } from "../DataTable/TableSorter";
+import {
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export interface EditSortingButtonProps {
   title?: string;
@@ -28,36 +33,28 @@ export const EditSortingButton = ({
   const sortingModal = useDisclosure();
   return (
     <>
-      {!!text === false && (
-        <IconButton
-          icon={icon}
-          variant={"ghost"}
-          onClick={sortingModal.onOpen}
-          aria-label={"change sorting"}
-        />
-      )}
-      {!!text !== false && (
-        <Button leftIcon={icon} variant={"ghost"} onClick={sortingModal.onOpen}>
-          {text}
-        </Button>
-      )}
-      <Modal
-        isOpen={sortingModal.isOpen}
-        onClose={sortingModal.onClose}
-        size={["full", "full", "md", "md"]}
-      >
-        <ModalOverlay />
-        <ModalContent padding={"0 0 1rem 0"}>
-          <ModalHeader>{title}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+      <DialogRoot size={["full", "full", "md", "md"]}>
+        <DialogBackdrop />
+        <DialogTrigger>
+          <Button variant={"ghost"} onClick={sortingModal.onOpen}>
+            {icon} {text}
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogCloseTrigger />
+          <DialogHeader>
+            <DialogTitle />
+            {title}
+          </DialogHeader>
+          <DialogBody>
             <Flex flexFlow={"column"} gap={"0.25rem"}>
               <TableSorter />
               <ResetSortingButton />
             </Flex>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+          </DialogBody>
+          <DialogFooter />
+        </DialogContent>
+      </DialogRoot>
     </>
   );
 };

@@ -1,7 +1,7 @@
-import { CloseIcon } from "@chakra-ui/icons";
-import { Flex, IconButton, Tag, Text } from "@chakra-ui/react";
+import { Flex, IconButton, Text } from "@chakra-ui/react";
 import { useDataTableContext } from "./useDataTableContext";
-
+import { Tag } from "@/components/ui/tag";
+import { CgClose } from "react-icons/cg";
 export const TableFilterTags = () => {
   const { table } = useDataTableContext();
 
@@ -9,17 +9,11 @@ export const TableFilterTags = () => {
     <Flex gap={"0.5rem"} flexFlow={"wrap"}>
       {table.getState().columnFilters.map(({ id, value }) => {
         return (
-          <Tag
-            key={`${id}-${value}`}
-            display={"flex"}
-            gap={"0.5rem"}
-            alignItems={"center"}
-          >
-            <Text>{`${id}: ${value}`}</Text>
+          <Tag key={`${id}-${value}`} gap={"0.5rem"}>
+            {`${id}: ${value}`}
             <IconButton
-              size={"xs"}
               variant={"ghost"}
-              icon={<CloseIcon />}
+              aria-label={"remove filter"}
               onClick={() => {
                 table.setColumnFilters(
                   table.getState().columnFilters.filter((filter) => {
@@ -27,8 +21,9 @@ export const TableFilterTags = () => {
                   })
                 );
               }}
-              aria-label={"remove filter"}
-            />
+            >
+              <CgClose />
+            </IconButton>
           </Tag>
         );
       })}

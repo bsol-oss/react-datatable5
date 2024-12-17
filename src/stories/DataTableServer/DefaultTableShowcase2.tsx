@@ -1,13 +1,12 @@
-import { Box, Button, ChakraProvider, Text, theme } from "@chakra-ui/react";
+import { Box, Button, ChakraProvider, defaultSystem, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   DataTableServer,
   DefaultTable,
   TableComponent,
   TextCell,
-  useDataTable,
   useDataTableServer,
 } from "../../index";
 
@@ -162,7 +161,7 @@ const DefaultTableShowcase2 = () => {
 
 
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider value={defaultSystem}>
       <Button
         onClick={() => {
           setSelectedId("staff_profile");

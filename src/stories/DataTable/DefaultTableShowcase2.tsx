@@ -1,4 +1,4 @@
-import { Box, ChakraProvider, Text, theme } from "@chakra-ui/react";
+import { Box, ChakraProvider, defaultSystem, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
 import { staffData, Employee } from "../staff_data";
@@ -104,7 +104,7 @@ const DefaultTableShowcase2 = () => {
   ];
 
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider value={defaultSystem}>
       <DataTable columns={columns} data={staffData} {...datatable}>
         <DefaultTable
           showFilter
