@@ -1,9 +1,8 @@
 import { Box, Table } from "@chakra-ui/react";
 import { Cell, flexRender, Row } from "@tanstack/react-table";
 import { useContext, useState } from "react";
-import { TableContext } from "./DataTableContext";
 import { Checkbox } from "../../components/ui/checkbox";
-
+import { TableContext } from "./DataTableContext";
 export interface TableBodyProps {
   pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
@@ -39,7 +38,7 @@ export const TableBody = ({
       ? {
           left: showSelector
             ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-            : `${cell.column.getStart("left") }px`,
+            : `${cell.column.getStart("left")}px`,
           background: pinnedBgColor.light,
           position: "sticky",
           zIndex: -1,
