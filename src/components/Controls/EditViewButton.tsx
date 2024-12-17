@@ -1,13 +1,4 @@
 import {
-  Button,
-  DialogBackdrop,
-  IconButton,
-  useDisclosure,
-} from "@chakra-ui/react";
-import React from "react";
-import { IoMdEye } from "react-icons/io";
-import { TableViewer } from "../../index";
-import {
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
@@ -17,6 +8,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Button,
+  DialogBackdrop,
+  useDisclosure
+} from "@chakra-ui/react";
+import React from "react";
+import { IoMdEye } from "react-icons/io";
+import { TableViewer } from "../../index";
 
 export interface EditViewButtonProps {
   text?: string;

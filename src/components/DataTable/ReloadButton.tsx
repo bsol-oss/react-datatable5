@@ -1,4 +1,5 @@
-import { Button, IconButton, Tooltip } from "@chakra-ui/react";
+import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { IoReload } from "react-icons/io5";
 import { useDataTableContext } from "./useDataTableContext";
 
@@ -14,15 +15,16 @@ export const ReloadButton = ({
   const { refreshData } = useDataTableContext();
   if (variant === "icon") {
     return (
-      <Tooltip label={"refresh"}>
-        <IconButton
+      <Tooltip showArrow content="This is the tooltip content">
+        <Button
           variant={"ghost"}
-          icon={<IoReload />}
           onClick={() => {
             refreshData();
           }}
           aria-label={"refresh"}
-        ></IconButton>
+        >
+          <IoReload />
+        </Button>
       </Tooltip>
     );
   }

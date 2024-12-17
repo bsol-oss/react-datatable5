@@ -1,4 +1,5 @@
-import { Box, Card, CardBody, CardBodyProps, Checkbox, Grid, Text } from "@chakra-ui/react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Box, Card, CardBodyProps, Grid, Text } from "@chakra-ui/react";
 import { flexRender, Row } from "@tanstack/react-table";
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
@@ -26,8 +27,8 @@ export const TableCards = <TData,>({
     <>
       {table.getRowModel().rows.map((row) => {
         return (
-          <Card key={`chakra-table-card-${row.id}`}>
-            <CardBody display={"flex"} flexFlow={"column"} gap={"0.5rem"}  {...cardBodyProps}>
+          <Card.Root key={`chakra-table-card-${row.id}`}>
+            <Card.Body display={"flex"} flexFlow={"column"} gap={"0.5rem"}  {...cardBodyProps}>
               {isSelectable && (
                 <Checkbox
                   {...{
@@ -41,7 +42,6 @@ export const TableCards = <TData,>({
               {renderTitle(row)}
               <Grid templateColumns={"auto 1fr"} gap={"1rem"}>
                 {row.getVisibleCells().map((cell) => {
-                  console.log(table.getColumn(cell.column.id), "dko");
                   return (
                     <>
                       <Box key={`chakra-table-cardcolumnid-${row.id}`}>
@@ -74,8 +74,8 @@ export const TableCards = <TData,>({
                   );
                 })}
               </Grid>
-            </CardBody>
-          </Card>
+            </Card.Body>
+          </Card.Root>
         );
       })}
     </>

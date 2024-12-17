@@ -1,4 +1,4 @@
-import { Box, ChakraProvider, Text, theme } from "@chakra-ui/react";
+import { Box, ChakraProvider, defaultSystem, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 import {
@@ -6,7 +6,6 @@ import {
   DefaultTable,
   TableComponent,
   TextCell,
-  useDataTable,
   useDataTableServer,
 } from "../../index";
 

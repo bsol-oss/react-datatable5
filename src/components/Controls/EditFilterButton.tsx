@@ -1,17 +1,17 @@
-import { Button, Flex, IconButton, useDisclosure } from "@chakra-ui/react";
+import { Button, Flex, useDisclosure } from "@chakra-ui/react";
 import { MdFilterAlt } from "react-icons/md";
 import { ResetFilteringButton, TableFilter } from "../../index";
 
 import {
+  DialogActionTrigger,
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogRoot,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-  DialogActionTrigger,
 } from "@/components/ui/dialog";
 
 export interface EditFilterButtonProps {

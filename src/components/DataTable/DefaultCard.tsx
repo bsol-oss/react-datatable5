@@ -43,8 +43,7 @@ export const DefaultCard = <TData,>({
           {row.original[titleColumnId!] as string}
         </Text>
         {showTag && (
-          <Tag fontSize={"large"}>
-            {tagIcon ?? ''}
+          <Tag fontSize={"large"} startElement={tagIcon && tagIcon({})}>
             {row.original[tagColumnId!] as string}
           </Tag>
         )}

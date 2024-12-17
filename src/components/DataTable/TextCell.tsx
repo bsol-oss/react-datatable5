@@ -1,6 +1,5 @@
+import { Tooltip } from "@/components/ui/tooltip";
 import { Flex, Text, TextProps } from "@chakra-ui/react";
-import { Tooltip } from "@/components/ui/tooltip"
-import { Button } from "@/components/ui/button"
 export interface TextCellProps extends TextProps {
   label?: string;
   noOfLines?: number[];

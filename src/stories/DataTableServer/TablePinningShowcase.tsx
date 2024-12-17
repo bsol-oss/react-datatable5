@@ -1,5 +1,9 @@
 // import React from 'react';
-import { Group, ChakraProvider, Flex, theme } from "@chakra-ui/react";
+import {
+  ChakraProvider,
+  Flex,
+  defaultSystem,
+} from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 import {
@@ -14,7 +18,7 @@ import {
   TablePagination,
   TableSelector,
   TextCell,
-  useDataTableServer
+  useDataTableServer,
 } from "../../index";
 
 interface ChatRecord {
@@ -131,20 +135,13 @@ const TablePinningShowcase = () => {
   ];
   return (
     <ChakraProvider value={defaultSystem}>
-      <DataTableServer<ChatRecord>
-        columns={columns}
-        {...dataTable}
-      >
+      <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <Flex gap="0.25rem">
           <TablePagination />
-          <Group isAttached>
-            <EditViewButton />
-          </Group>
+          <EditViewButton />
           <EditOrderButton />
           <PageSizeControl />
-          <Group isAttached>
-            <TableSelector />
-          </Group>
+          <TableSelector />
         </Flex>
         <Table>
           <TableHeader canResize />

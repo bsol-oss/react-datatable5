@@ -26,10 +26,11 @@ export const EditOrderButton = ({
   icon = <MdOutlineMoveDown />,
   title = "Change Order",
 }: EditOrderButtonProps) => {
-
   return (
     <>
-      <DialogRoot size={["full", "full", "md", "md"]}>
+      <DialogRoot
+        size="cover"
+      >
         <DialogBackdrop />
         <DialogTrigger asChild>
           <Button variant={"ghost"}>
