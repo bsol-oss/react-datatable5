@@ -1,16 +1,19 @@
 import { jsxs, Fragment, jsx } from 'react/jsx-runtime';
-import { IconButton, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Flex, ModalFooter, Text, Menu, MenuButton, MenuList, MenuItem, Grid, Image, Tag, TagLeftIcon, Box, FormLabel, Checkbox, Spinner, Tooltip, Icon, Tfoot, Tr as Tr$1, Th, Thead, Portal, Table as Table$1, Card, CardBody, VStack, FormControl, Input, RangeSlider, RangeSliderTrack, RangeSliderFilledTrack, RangeSliderThumb, WrapItem, TagLabel, TagCloseButton, Select, ButtonGroup, Switch, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import { IconButton, Button as Button$1, Portal, Dialog, useDisclosure, Flex, DialogRoot as DialogRoot$1, DialogBackdrop, DialogTrigger as DialogTrigger$1, DialogContent as DialogContent$1, DialogCloseTrigger as DialogCloseTrigger$1, DialogHeader as DialogHeader$1, DialogTitle as DialogTitle$1, DialogBody as DialogBody$1, DialogFooter as DialogFooter$1, Text, Menu, AbsoluteCenter, Tag as Tag$1, Grid, Image, Checkbox as Checkbox$1, Table as Table$1, Box, Tooltip as Tooltip$1, Spinner, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Span, EmptyState as EmptyState$1, VStack, List, Card, Input, Slider as Slider$1, HStack, For, RadioGroup as RadioGroup$1, Group, Switch as Switch$1, InputElement } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import { MdFilterAlt, MdOutlineMoveDown, MdOutlineSort, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdArrowUpward, MdArrowDownward, MdFirstPage, MdArrowBack, MdArrowForward, MdLastPage, MdOutlineChecklist, MdClose, MdSearch } from 'react-icons/md';
-import { UpDownIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon } from '@chakra-ui/icons';
+import * as React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { LuX, LuCheck, LuChevronRight } from 'react-icons/lu';
+import { UpDownIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon } from '@chakra-ui/icons';
 import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
 import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 import { rankItem } from '@tanstack/match-sorter-utils';
-import { Tbody, Tr, Td } from '@chakra-ui/table';
 import { BsExclamationCircleFill } from 'react-icons/bs';
 import { GrAscend, GrDescend } from 'react-icons/gr';
 import { IoReload } from 'react-icons/io5';
+import { HiColorSwatch } from 'react-icons/hi';
+import { CgClose } from 'react-icons/cg';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { FaGripLinesVertical } from 'react-icons/fa';
 import axios from 'axios';
@@ -19,19 +22,39 @@ const DensityToggleButton = ({ text, icon = jsx(AiOutlineColumnWidth, {}), }) =>
     const { table } = useDataTableContext();
     return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { variant: "ghost", "aria-label": "Toggle Density", icon: icon, onClick: () => {
                     table.toggleDensity();
-                } })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
+                } })), !!text !== false && (jsx(Button$1, { leftIcon: icon, variant: "ghost", "aria-label": "Toggle Density", onClick: () => {
                     table.toggleDensity();
                 }, children: text }))] }));
 };
 
-const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsx(MdFilterAlt, {}), ...props }) => {
+const CloseButton = React.forwardRef(function CloseButton(props, ref) {
+    return (jsx(IconButton, { variant: "ghost", "aria-label": "Close", ref: ref, ...props, children: props.children ?? jsx(LuX, {}) }));
+});
+
+const DialogContent = React.forwardRef(function DialogContent(props, ref) {
+    const { children, portalled = true, portalRef, backdrop = true, ...rest } = props;
+    return (jsxs(Portal, { disabled: !portalled, container: portalRef, children: [backdrop && jsx(Dialog.Backdrop, {}), jsx(Dialog.Positioner, { children: jsx(Dialog.Content, { ref: ref, ...rest, asChild: false, children: children }) })] }));
+});
+const DialogCloseTrigger = React.forwardRef(function DialogCloseTrigger(props, ref) {
+    return (jsx(Dialog.CloseTrigger, { position: "absolute", top: "2", insetEnd: "2", ...props, asChild: true, children: jsx(CloseButton, { size: "sm", ref: ref, children: props.children }) }));
+});
+const DialogRoot = Dialog.Root;
+const DialogFooter = Dialog.Footer;
+const DialogHeader = Dialog.Header;
+const DialogBody = Dialog.Body;
+Dialog.Backdrop;
+const DialogTitle = Dialog.Title;
+Dialog.Description;
+const DialogTrigger = Dialog.Trigger;
+const DialogActionTrigger = Dialog.ActionTrigger;
+
+const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsx(MdFilterAlt, {}), }) => {
     const filterModal = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: filterModal.onOpen, "aria-label": "filter", ...props })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: filterModal.onOpen, ...props, children: text })), jsxs(Modal, { isOpen: filterModal.isOpen, onClose: filterModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "1rem", children: [jsx(TableFilter, {}), jsx(ResetFilteringButton, { text: resetText })] }) }), jsx(ModalFooter, { children: jsx(Button, { onClick: filterModal.onClose, children: closeText }) })] })] })] }));
+    return (jsx(Fragment, { children: jsx(DialogRoot, { size: ["full", "full", "md", "md"], children: jsxs(DialogRoot, { children: [jsx(DialogTrigger, { asChild: true, children: jsxs(Button$1, { variant: "outline", children: [icon, " ", text] }) }), jsxs(DialogContent, { children: [jsx(DialogHeader, { children: jsx(DialogTitle, { children: title }) }), jsx(DialogBody, { children: jsxs(Flex, { flexFlow: "column", gap: "1rem", children: [jsx(TableFilter, {}), jsx(ResetFilteringButton, { text: resetText })] }) }), jsxs(DialogFooter, { children: [jsx(DialogActionTrigger, { asChild: true, children: jsx(Button$1, { onClick: filterModal.onClose, children: closeText }) }), jsx(Button$1, { children: "Save" })] }), jsx(DialogCloseTrigger, {})] })] }) }) }));
 };
 
 const EditOrderButton = ({ text, icon = jsx(MdOutlineMoveDown, {}), title = "Change Order", }) => {
-    const orderModal = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: orderModal.onOpen, "aria-label": "change order" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: orderModal.onOpen, children: text })), jsxs(Modal, { isOpen: orderModal.isOpen, onClose: orderModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: jsx(TableOrderer, {}) }) })] })] })] }));
+    return (jsx(Fragment, { children: jsxs(DialogRoot$1, { size: "cover", children: [jsx(DialogBackdrop, {}), jsx(DialogTrigger$1, { asChild: true, children: jsxs(Button$1, { variant: "ghost", children: [icon, text] }) }), jsxs(DialogContent$1, { children: [jsx(DialogCloseTrigger$1, {}), jsxs(DialogHeader$1, { children: [jsx(DialogTitle$1, {}), title] }), jsx(DialogBody$1, { children: jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: jsx(TableOrderer, {}) }) }), jsx(DialogFooter$1, {})] })] }) }));
 };
 
 const TableContext = createContext({
@@ -61,9 +84,9 @@ const TableSorter = () => {
                 const displayName = header.column.columnDef.meta === undefined
                     ? header.column.id
                     : header.column.columnDef.meta.displayName;
-                return (jsx(Fragment, { children: header.column.getCanSort() && (jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsx(Text, { children: displayName }), jsxs(Button, { variant: "ghost", onClick: () => {
+                return (jsx(Fragment, { children: header.column.getCanSort() && (jsxs(Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsx(Text, { children: displayName }), jsxs(Button$1, { variant: "ghost", onClick: () => {
                                     header.column.toggleSorting();
-                                }, children: [header.column.getIsSorted() === false && jsx(UpDownIcon, {}), header.column.getIsSorted() === "asc" && (jsx(ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsx(Button, { onClick: () => {
+                                }, children: [header.column.getIsSorted() === false && jsx(UpDownIcon, {}), header.column.getIsSorted() === "asc" && (jsx(ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsx(Button$1, { onClick: () => {
                                     header.column.clearSorting();
                                 }, children: jsx(CloseIcon, {}) }))] })) }));
             }) }))) }));
@@ -71,38 +94,69 @@ const TableSorter = () => {
 
 const EditSortingButton = ({ text, icon = jsx(MdOutlineSort, {}), title = "Edit Sorting", }) => {
     const sortingModal = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: sortingModal.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: sortingModal.onOpen, children: text })), jsxs(Modal, { isOpen: sortingModal.isOpen, onClose: sortingModal.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) })] })] })] }));
+    return (jsx(Fragment, { children: jsxs(DialogRoot, { size: ["full", "full", "md", "md"], children: [jsx(DialogBackdrop, {}), jsx(DialogTrigger, { children: jsxs(Button$1, { variant: "ghost", onClick: sortingModal.onOpen, children: [icon, " ", text] }) }), jsxs(DialogContent, { children: [jsx(DialogCloseTrigger, {}), jsxs(DialogHeader, { children: [jsx(DialogTitle, {}), title] }), jsx(DialogBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) }), jsx(DialogFooter, {})] })] }) }));
 };
 
 const EditViewButton = ({ text, icon = jsx(IoMdEye, {}), title = "Edit View", }) => {
     const viewModel = useDisclosure();
-    return (jsxs(Fragment, { children: [!!text === false && (jsx(IconButton, { icon: icon, variant: "ghost", onClick: viewModel.onOpen, "aria-label": "change sorting" })), !!text !== false && (jsx(Button, { leftIcon: icon, variant: "ghost", onClick: viewModel.onOpen, children: text })), jsxs(Modal, { isOpen: viewModel.isOpen, onClose: viewModel.onClose, size: ["full", "full", "md", "md"], children: [jsx(ModalOverlay, {}), jsxs(ModalContent, { padding: "0 0 1rem 0", children: [jsx(ModalHeader, { children: title }), jsx(ModalCloseButton, {}), jsx(ModalBody, { children: jsx(TableViewer, {}) })] })] })] }));
+    return (jsx(Fragment, { children: jsxs(DialogRoot, { children: [jsx(DialogBackdrop, {}), jsx(DialogTrigger, { children: jsxs(Button$1, { variant: "ghost", onClick: viewModel.onOpen, children: [icon, " ", text] }) }), jsxs(DialogContent, { children: [jsx(DialogCloseTrigger, {}), jsxs(DialogHeader, { children: [jsx(DialogTitle, {}), title] }), jsx(DialogBody, { children: jsx(TableViewer, {}) }), jsx(DialogFooter, {})] })] }) }));
 };
+
+const MenuContent = React.forwardRef(function MenuContent(props, ref) {
+    const { portalled = true, portalRef, ...rest } = props;
+    return (jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Menu.Positioner, { children: jsx(Menu.Content, { ref: ref, ...rest }) }) }));
+});
+React.forwardRef(function MenuArrow(props, ref) {
+    return (jsx(Menu.Arrow, { ref: ref, ...props, children: jsx(Menu.ArrowTip, {}) }));
+});
+React.forwardRef(function MenuCheckboxItem(props, ref) {
+    return (jsxs(Menu.CheckboxItem, { ref: ref, ...props, children: [jsx(Menu.ItemIndicator, { hidden: false, children: jsx(LuCheck, {}) }), props.children] }));
+});
+React.forwardRef(function MenuRadioItem(props, ref) {
+    const { children, ...rest } = props;
+    return (jsxs(Menu.RadioItem, { ps: "8", ref: ref, ...rest, children: [jsx(AbsoluteCenter, { axis: "horizontal", left: "4", asChild: true, children: jsx(Menu.ItemIndicator, { children: jsx(LuCheck, {}) }) }), jsx(Menu.ItemText, { children: children })] }));
+});
+React.forwardRef(function MenuItemGroup(props, ref) {
+    const { title, children, ...rest } = props;
+    return (jsxs(Menu.ItemGroup, { ref: ref, ...rest, children: [title && (jsx(Menu.ItemGroupLabel, { userSelect: "none", children: title })), children] }));
+});
+React.forwardRef(function MenuTriggerItem(props, ref) {
+    const { startIcon, children, ...rest } = props;
+    return (jsxs(Menu.TriggerItem, { ref: ref, ...rest, children: [startIcon, children, jsx(LuChevronRight, {})] }));
+});
+Menu.RadioItemGroup;
+Menu.ContextTrigger;
+const MenuRoot = Menu.Root;
+Menu.Separator;
+const MenuItem = Menu.Item;
+Menu.ItemText;
+Menu.ItemCommand;
+const MenuTrigger = Menu.Trigger;
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = useDataTableContext();
-    return (jsx(Fragment, { children: jsxs(Menu, { children: [jsx(MenuButton, { as: Button, variant: "ghost", rightIcon: jsx(ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsx(MenuList, { children: pageSizes.map((pageSize) => (jsx(MenuItem, { onClick: () => {
+    return (jsx(Fragment, { children: jsxs(MenuRoot, { children: [jsx(MenuTrigger, { asChild: true, children: jsxs(Button$1, { variant: "ghost", gap: "0.5rem", children: [table.getState().pagination.pageSize, " ", jsx(ChevronDownIcon, {})] }) }), jsx(MenuContent, { children: pageSizes.map((pageSize) => (jsx(MenuItem, { value: `chakra-table-pageSize-${pageSize}`, onClick: () => {
                             table.setPageSize(Number(pageSize));
-                        }, children: pageSize }, `chakra-table-pageSize-${pageSize}`))) })] }) }));
+                        }, children: pageSize }))) })] }) }));
 };
 
 const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
     const { table } = useDataTableContext();
-    return (jsx(Button, { onClick: () => {
+    return (jsx(Button$1, { onClick: () => {
             table.resetColumnFilters();
         }, children: text }));
 };
 
 const ResetSelectionButton = ({ text = "Reset Selection", }) => {
     const { table } = useDataTableContext();
-    return (jsx(Button, { onClick: () => {
+    return (jsx(Button$1, { onClick: () => {
             table.resetRowSelection();
         }, children: text }));
 };
 
 const ResetSortingButton = ({ text = "Reset Sorting", }) => {
     const { table } = useDataTableContext();
-    return (jsx(Button, { onClick: () => {
+    return (jsx(Button$1, { onClick: () => {
             table.resetSorting();
         }, children: text }));
 };
@@ -328,6 +382,11 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: children }));
 };
 
+const Tag = React.forwardRef(function Tag(props, ref) {
+    const { startElement, endElement, onClose, closable = !!onClose, children, ...rest } = props;
+    return (jsxs(Tag$1.Root, { ref: ref, ...rest, children: [startElement && (jsx(Tag$1.StartElement, { children: startElement })), jsx(Tag$1.Label, { children: children }), endElement && (jsx(Tag$1.EndElement, { children: endElement })), closable && (jsx(Tag$1.EndElement, { children: jsx(Tag$1.CloseTrigger, { onClick: onClose }) }))] }));
+});
+
 const DefaultCard = ({ row, imageColumnId = undefined, titleColumnId = undefined, tagColumnId = undefined, tagIcon = undefined, showTag = true, }) => {
     if (!!row.original === false) {
         return jsx(Fragment, {});
@@ -341,8 +400,13 @@ const DefaultCard = ({ row, imageColumnId = undefined, titleColumnId = undefined
     //   const tagIdExists = Object.keys(row.original).some((key) => {
     //     return key === tagColumnId;
     //   });
-    return (jsxs(Grid, { templateRows: "auto auto", gap: "1rem", children: [jsx(Flex, { justifyContent: "center", alignItems: "center", children: jsx(Image, { src: row.original[imageColumnId] }) }), jsxs(Flex, { gap: "0.5rem", flexFlow: "wrap", children: [jsx(Text, { fontWeight: "bold", fontSize: "large", children: row.original[titleColumnId] }), showTag && (jsxs(Tag, { fontSize: "large", children: [jsx(TagLeftIcon, { as: tagIcon }), row.original[tagColumnId]] }))] })] }));
+    return (jsxs(Grid, { templateRows: "auto auto", gap: "1rem", children: [jsx(Flex, { justifyContent: "center", alignItems: "center", children: jsx(Image, { src: row.original[imageColumnId] }) }), jsxs(Flex, { gap: "0.5rem", flexFlow: "wrap", children: [jsx(Text, { fontWeight: "bold", fontSize: "large", children: row.original[titleColumnId] }), showTag && (jsx(Tag, { fontSize: "large", startElement: tagIcon && tagIcon({}), children: row.original[tagColumnId] }))] })] }));
 };
+
+const Checkbox = React.forwardRef(function Checkbox(props, ref) {
+    const { icon, children, inputProps, rootRef, ...rest } = props;
+    return (jsxs(Checkbox$1.Root, { ref: rootRef, ...rest, children: [jsx(Checkbox$1.HiddenInput, { ref: ref, ...inputProps }), jsx(Checkbox$1.Control, { children: icon || jsx(Checkbox$1.Indicator, {}) }), children != null && (jsx(Checkbox$1.Label, { children: children }))] }));
+});
 
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
     const { table } = useContext(TableContext);
@@ -356,10 +420,10 @@ const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, sho
             ? {
                 left: showSelector
                     ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                    : `${cell.column.getStart("left") + table.getDensityValue() * 2}px`,
+                    : `${cell.column.getStart("left")}px`,
                 background: pinnedBgColor.light,
                 position: "sticky",
-                zIndex: 1,
+                zIndex: -1,
                 _dark: {
                     backgroundColor: pinnedBgColor.dark,
                 },
@@ -367,9 +431,9 @@ const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, sho
             : {};
         return tdProps;
     };
-    return (jsx(Tbody, { children: table.getRowModel().rows.map((row, index) => {
-            return (jsxs(Tr, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [showSelector && (jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow, alwaysShowSelector: alwaysShowSelector })), row.getVisibleCells().map((cell, index) => {
-                        return (jsx(Td, { padding: `${table.getDensityValue()}px`, 
+    return (jsx(Table$1.Body, { children: table.getRowModel().rows.map((row, index) => {
+            return (jsxs(Table$1.Row, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [showSelector && (jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow, alwaysShowSelector: alwaysShowSelector })), row.getVisibleCells().map((cell, index) => {
+                        return (jsx(Table$1.Cell, { padding: `${table.getDensityValue()}px`, 
                             // styling resize and pinning start
                             maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, ...getTdProps(cell), children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
                     })] }, `chakra-table-row-${row.id}`));
@@ -390,7 +454,7 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
         }
         return false;
     };
-    return (jsxs(Td, { padding: `${table.getDensityValue()}px`, ...(table.getIsSomeColumnsPinned("left")
+    return (jsxs(Table$1.Cell, { padding: `${table.getDensityValue()}px`, ...(table.getIsSomeColumnsPinned("left")
             ? {
                 left: `0px`,
                 backgroundColor: pinnedBgColor.light,
@@ -400,15 +464,22 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
             }
             : {}), 
         // styling resize and pinning end
-        display: "grid", children: [!isCheckBoxVisible(index, row) && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` })), isCheckBoxVisible(index, row) && (jsx(FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: row.getIsSelected(),
+        display: "grid", children: [!isCheckBoxVisible(index, row) && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` })), isCheckBoxVisible(index, row) && (jsx(Box, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: row.getIsSelected(),
                     disabled: !row.getCanSelect(),
                     // indeterminate: row.getIsSomeSelected(),
                     onChange: row.getToggleSelectedHandler() }) }))] }));
 };
 
+const Tooltip = React.forwardRef(function Tooltip(props, ref) {
+    const { showArrow, children, disabled, portalled, content, contentProps, portalRef, ...rest } = props;
+    if (disabled)
+        return children;
+    return (jsxs(Tooltip$1.Root, { ...rest, children: [jsx(Tooltip$1.Trigger, { asChild: true, children: children }), jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Tooltip$1.Positioner, { children: jsxs(Tooltip$1.Content, { ref: ref, ...contentProps, children: [showArrow && (jsx(Tooltip$1.Arrow, { children: jsx(Tooltip$1.ArrowTip, {}) })), content] }) }) })] }));
+});
+
 const TableControls = ({ totalText = "Total:", showFilter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsx(Fragment, {}), showFilterName = false, showFilterTags = false, showReload = false, filterOptions = [], extraItems = jsx(Fragment, {}), }) => {
     const { loading, hasError } = useDataTableContext();
-    return (jsxs(Grid, { templateRows: "auto auto auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { label: "An error occurred while fetching data", children: jsx(Box, { children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) }) })), showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })), showReload && jsx(ReloadButton, {}), extraItems] })] }), jsx(Flex, { gridColumn: "1 / span 2", flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
+    return (jsxs(Grid, { templateRows: "auto auto auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxs(Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsx(Box, { children: jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { content: "An error occurred while fetching data", children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) })), showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })), showReload && jsx(ReloadButton, {}), extraItems] })] }), jsx(Flex, { gridColumn: "1 / span 2", flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
                     return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxs(Text, { children: [column, ":"] }), jsx(FilterOptions, { column: column })] }, column));
                 }) }), jsx(Flex, { gridColumn: "1 / span 2", children: showFilterTags && jsx(TableFilterTags, {}) }), jsx(Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", children: children }), jsxs(Flex, { gap: "1rem", alignItems: "center", children: [jsx(PageSizeControl, {}), jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: totalText }), jsx(RowCountText, {})] })] }), jsx(Box, { justifySelf: "end", children: jsx(TablePagination, {}) })] }));
 };
@@ -448,7 +519,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
             : {};
         return thProps;
     };
-    return (jsx(Tfoot, { children: table.getFooterGroups().map((footerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
+    return (jsx(Table$1.Footer, { children: table.getFooterGroups().map((footerGroup) => (jsxs(Table$1.Row, { display: "flex", children: [showSelector && (jsxs(Table$1.Header
                 // styling resize and pinning start
                 , { 
                     // styling resize and pinning start
@@ -462,16 +533,21 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
                         }
                         : {}), 
                     // styling resize and pinning end
-                    onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsx(FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
+                    onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsx(Box, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
                                 // indeterminate: table.getIsSomeRowsSelected(),
-                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), footerGroup.headers.map((header) => (jsx(Th, { padding: "0", colSpan: header.colSpan, 
+                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), footerGroup.headers.map((header) => (jsx(Table$1.Header, { padding: "0", columnSpan: `${header.colSpan}`, 
                     // styling resize and pinning start
-                    maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: "grid", ...getThProps(header), children: jsx(Menu, { children: jsx(MenuButton, { as: Box, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
-                                        ? null
-                                        : flexRender(header.column.columnDef.footer, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (
-                                                // <UpDownIcon />
-                                                jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }) }) }, `chakra-table-footer-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
+                    maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: "grid", ...getThProps(header), children: jsx(MenuRoot$1, { children: jsx(MenuTrigger$1, { asChild: true, children: jsx(Box, { padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                                            ? null
+                                            : flexRender(header.column.columnDef.footer, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (
+                                                    // <UpDownIcon />
+                                                    jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) })] }) }) }) }) }, `chakra-table-footer-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
 };
+
+const Button = React.forwardRef(function Button(props, ref) {
+    const { loading, disabled, loadingText, children, ...rest } = props;
+    return (jsx(Button$1, { disabled: loading || disabled, ref: ref, ...rest, children: loading && !loadingText ? (jsxs(Fragment, { children: [jsx(AbsoluteCenter, { display: "inline-flex", children: jsx(Spinner, { size: "inherit", color: "inherit" }) }), jsx(Span, { opacity: 0, children: children })] })) : loading && loadingText ? (jsxs(Fragment, { children: [jsx(Spinner, { size: "inherit", color: "inherit" }), loadingText] })) : (children) }));
+});
 
 const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, isSticky = true, alwaysShowSelector = true, tHeadProps = {}, }) => {
     const { table } = useDataTableContext();
@@ -497,7 +573,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
             ? {
                 left: showSelector
                     ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                    : `${header.getStart("left") + table.getDensityValue() * 2}px`,
+                    : `${header.getStart("left")}px`,
                 background: pinnedBgColor.light,
                 position: "sticky",
                 zIndex: 1,
@@ -508,10 +584,11 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
             : {};
         return thProps;
     };
-    const stickyCssAttributes = {
+    const stickyProps = {
         position: "sticky",
+        top: 0,
     };
-    return (jsx(Thead, { top: "0px", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06)", ...(isSticky ? stickyCssAttributes : {}), ...tHeadProps, children: table.getHeaderGroups().map((headerGroup) => (jsxs(Tr$1, { display: "flex", children: [showSelector && (jsxs(Th
+    return (jsx(Table$1.Header, { ...(isSticky ? stickyProps : {}), ...tHeadProps, children: table.getHeaderGroups().map((headerGroup) => (jsxs(Table$1.Row, { display: "flex", children: [showSelector && (jsxs(Table$1.ColumnHeader
                 // styling resize and pinning start
                 , { ...(table.getIsSomeColumnsPinned("left")
                         ? {
@@ -523,7 +600,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                         }
                         : {}), 
                     // styling resize and pinning end
-                    padding: `${table.getDensityValue()}px`, onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsx(FormLabel, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
+                    padding: `${table.getDensityValue()}px`, onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsx(Box, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
                                 // indeterminate: table.getIsSomeRowsSelected(),
                                 onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), headerGroup.headers.map((header) => {
                     const resizeProps = {
@@ -531,15 +608,15 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                         onTouchStart: header.getResizeHandler(),
                         cursor: "col-resize",
                     };
-                    return (jsxs(Th, { padding: "0rem", colSpan: header.colSpan, 
+                    return (jsxs(Table$1.ColumnHeader, { padding: "0rem", columnSpan: `${header.colSpan}`, 
                         // styling resize and pinning start
-                        width: `${header.getSize()}px`, display: "grid", gridTemplateColumns: "1fr auto", zIndex: header.index, ...getThProps(header), children: [jsxs(Menu, { children: [jsx(MenuButton, { as: Grid, padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: "auto", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && jsx(Fragment, {}), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) }), jsx(Box, { children: header.column.getIsFiltered() && jsx(MdFilterListAlt, {}) })] }) }), jsx(Portal, { children: jsxs(MenuList, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdPushPin, {}), onClick: () => {
+                        width: `${header.getSize()}px`, display: "grid", gridTemplateColumns: "1fr auto", zIndex: header.index, ...getThProps(header), children: [jsxs(MenuRoot, { children: [jsx(MenuTrigger, { asChild: true, children: jsx(Grid, { padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: "auto", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                                                        ? null
+                                                        : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && jsx(Fragment, {}), header.column.getIsSorted() === "asc" && (jsx(ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsx(ChevronDownIcon, {}))] })) }), jsx(Box, { children: header.column.getIsFiltered() && jsx(MdFilterListAlt, {}) })] }) }) }), jsxs(MenuContent, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { asChild: true, value: "pin-column", children: jsxs(Button, { variant: "ghost", onClick: () => {
                                                         header.column.pin("left");
-                                                    }, children: "Pin Column" })), header.column.getIsPinned() && (jsx(MenuItem, { icon: jsx(MdCancel, {}), onClick: () => {
+                                                    }, children: [jsx(MdPushPin, {}), "Pin Column"] }) })), header.column.getIsPinned() && (jsx(MenuItem, { asChild: true, value: "cancel-pin", children: jsxs(Button, { variant: "ghost", onClick: () => {
                                                         header.column.pin(false);
-                                                    }, children: "Cancel Pin" })), header.column.getCanSort() && (jsxs(Fragment, { children: [jsx(MenuItem, { icon: jsx(GrAscend, {}), onClick: () => {
+                                                    }, children: [jsx(MdCancel, {}), "Cancel Pin"] }) })), header.column.getCanSort() && (jsxs(Fragment, { children: [jsx(MenuItem, { asChild: true, value: "sort-ascend", children: jsxs(Button, { variant: "ghost", onClick: () => {
                                                                 table.setSorting((state) => {
                                                                     return [
                                                                         ...state.filter((column) => {
@@ -548,7 +625,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                                         { id: header.id, desc: false },
                                                                     ];
                                                                 });
-                                                            }, children: "Sort Ascending" }), jsx(MenuItem, { icon: jsx(GrDescend, {}), onClick: () => {
+                                                            }, children: [jsx(GrAscend, {}), "Sort Ascending"] }) }), jsx(MenuItem, { asChild: true, value: "sort-descend", children: jsxs(Button, { variant: "ghost", onClick: () => {
                                                                 table.setSorting((state) => {
                                                                     return [
                                                                         ...state.filter((column) => {
@@ -557,9 +634,9 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                                                                         { id: header.id, desc: true },
                                                                     ];
                                                                 });
-                                                            }, children: "Sort Descending" }), header.column.getIsSorted() && (jsx(MenuItem, { icon: jsx(MdClear, {}), onClick: () => {
+                                                            }, children: [jsx(GrDescend, {}), "Sort Descending"] }) }), header.column.getIsSorted() && (jsx(MenuItem, { asChild: true, value: "sort-descend", children: jsxs(Button, { variant: "ghost", onClick: () => {
                                                                 header.column.clearSorting();
-                                                            }, children: "Clear Sorting" }))] }))] }) })] }), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "relative", right: "0.1rem", width: "2px", height: "100%", userSelect: "none", style: { touchAction: "none" }, _hover: {
+                                                            }, children: [jsx(MdClear, {}), "Clear Sorting"] }) }))] }))] })] }), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "relative", right: "0.1rem", width: "2px", height: "100%", userSelect: "none", style: { touchAction: "none" }, _hover: {
                                     borderRightColor: header.column.getIsResizing()
                                         ? "gray.700"
                                         : "gray.400",
@@ -574,21 +651,27 @@ const DefaultTable = ({ totalText = "Total:", showFilter = false, showFooter = f
 const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
     const { refreshData } = useDataTableContext();
     if (variant === "icon") {
-        return (jsx(Tooltip, { label: "refresh", children: jsx(IconButton, { variant: "ghost", icon: jsx(IoReload, {}), onClick: () => {
+        return (jsx(Tooltip, { showArrow: true, content: "This is the tooltip content", children: jsx(Button, { variant: "ghost", onClick: () => {
                     refreshData();
-                }, "aria-label": "refresh" }) }));
+                }, "aria-label": "refresh", children: jsx(IoReload, {}) }) }));
     }
     return (jsx(Button, { variant: "ghost", leftIcon: jsx(IoReload, {}), onClick: () => {
             refreshData();
         }, children: text }));
 };
 
-const Table = ({ children, showLoading = false, loadingComponent = jsx(Fragment, { children: "Loading..." }), ...props }) => {
-    const { table, loading } = useDataTableContext();
-    if (showLoading) {
-        return (jsxs(Fragment, { children: [loading && loadingComponent, !loading && (jsx(Table$1, { width: table.getCenterTotalSize(), overflow: "auto", ...props, children: children }))] }));
+const EmptyState = React.forwardRef(function EmptyState(props, ref) {
+    const { title, description, icon, children, ...rest } = props;
+    return (jsx(EmptyState$1.Root, { ref: ref, ...rest, children: jsxs(EmptyState$1.Content, { children: [icon && (jsx(EmptyState$1.Indicator, { children: icon })), description ? (jsxs(VStack, { textAlign: "center", children: [jsx(EmptyState$1.Title, { children: title }), jsx(EmptyState$1.Description, { children: description })] })) : (jsx(EmptyState$1.Title, { children: title })), children] }) }));
+});
+
+const EmptyResult = (jsx(EmptyState, { icon: jsx(HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxs(List.Root, { variant: "marker", children: [jsx(List.Item, { children: "Try removing filters" }), jsx(List.Item, { children: "Try different keywords" })] }) }));
+const Table = ({ children, emptyComponent = EmptyResult, ...props }) => {
+    const { table } = useDataTableContext();
+    if (table.getRowModel().rows.length <= 0) {
+        return emptyComponent;
     }
-    return (jsx(Fragment, { children: jsx(Table$1, { width: table.getCenterTotalSize(), overflowX: "auto", ...props, children: children }) }));
+    return (jsx(Table$1.Root, { stickyHeader: true, variant: "outline", width: table.getCenterTotalSize(), ...props, children: children }));
 };
 
 const TableCardContainer = ({ children, ...props }) => {
@@ -601,11 +684,10 @@ const DefaultCardTitle = () => {
 const TableCards = ({ isSelectable = false, showDisplayNameOnly = false, renderTitle = DefaultCardTitle, cardBodyProps = {} }) => {
     const { table } = useContext(TableContext);
     return (jsx(Fragment, { children: table.getRowModel().rows.map((row) => {
-            return (jsx(Card, { children: jsxs(CardBody, { display: "flex", flexFlow: "column", gap: "0.5rem", ...cardBodyProps, children: [isSelectable && (jsx(Checkbox, { isChecked: row.getIsSelected(),
+            return (jsx(Card.Root, { children: jsxs(Card.Body, { display: "flex", flexFlow: "column", gap: "0.5rem", ...cardBodyProps, children: [isSelectable && (jsx(Checkbox, { isChecked: row.getIsSelected(),
                             disabled: !row.getCanSelect(),
                             // indeterminate: row.getIsSomeSelected(),
                             onChange: row.getToggleSelectedHandler() })), renderTitle(row), jsx(Grid, { templateColumns: "auto 1fr", gap: "1rem", children: row.getVisibleCells().map((cell) => {
-                                console.log(table.getColumn(cell.column.id), "dko");
                                 return (jsxs(Fragment, { children: [jsxs(Box, { children: [showDisplayNameOnly && (jsx(Text, { fontWeight: "bold", children: cell.column.columnDef.meta?.displayName ??
                                                         cell.column.id })), !showDisplayNameOnly && (jsx(Fragment, { children: flexRender(cell.column.columnDef.header, 
                                                     // @ts-expect-error Assuming the CellContext interface is the same as HeaderContext
@@ -623,11 +705,39 @@ const TableComponent = ({ render = () => {
 
 const DateRangeFilter = ({ startDate, endDate, setStartDate, setEndDate, }) => {
     console.log(startDate, endDate, "dflp");
-    return (jsx(Box, { p: '1rem', children: jsxs(VStack, { spacing: 4, children: [jsxs(FormControl, { children: [jsx(FormLabel, { htmlFor: "start-date", children: "Start Date" }), jsx(Input, { id: "start-date", type: "date", value: startDate, onChange: (e) => setStartDate(e.target.value) })] }), jsxs(FormControl, { children: [jsx(FormLabel, { htmlFor: "end-date", children: "End Date" }), jsx(Input, { id: "end-date", type: "date", value: endDate, onChange: (e) => setEndDate(e.target.value) })] })] }) }));
+    return (jsx(Box, { p: "1rem", children: jsxs(VStack, { children: [jsxs(Box, { children: [jsx(Box, { children: "Start Date" }), jsx(Input, { id: "start-date", type: "date", value: startDate, onChange: (e) => setStartDate(e.target.value) })] }), jsxs(Box, { children: [jsx(Box, { children: "End Date" }), jsx(Input, { id: "end-date", type: "date", value: endDate, onChange: (e) => setEndDate(e.target.value) })] })] }) }));
 };
 
+const Slider = React.forwardRef(function Slider(props, ref) {
+    const { marks: marksProp, label, showValue, ...rest } = props;
+    const value = props.defaultValue ?? props.value;
+    const marks = marksProp?.map((mark) => {
+        if (typeof mark === "number")
+            return { value: mark, label: undefined };
+        return mark;
+    });
+    const hasMarkLabel = !!marks?.some((mark) => mark.label);
+    return (jsxs(Slider$1.Root, { ref: ref, thumbAlignment: "center", ...rest, children: [label && !showValue && (jsx(Slider$1.Label, { children: label })), label && showValue && (jsxs(HStack, { justify: "space-between", children: [jsx(Slider$1.Label, { children: label }), jsx(Slider$1.ValueText, {})] })), jsxs(Slider$1.Control, { "data-has-mark-label": hasMarkLabel || undefined, children: [jsx(Slider$1.Track, { children: jsx(Slider$1.Range, {}) }), jsx(SliderThumbs, { value: value }), jsx(SliderMarks, { marks: marks })] })] }));
+});
+function SliderThumbs(props) {
+    const { value } = props;
+    return (jsx(For, { each: value, children: (_, index) => (jsx(Slider$1.Thumb, { index: index, children: jsx(Slider$1.HiddenInput, {}) }, index)) }));
+}
+const SliderMarks = React.forwardRef(function SliderMarks(props, ref) {
+    const { marks } = props;
+    if (!marks?.length)
+        return null;
+    return (jsx(Slider$1.MarkerGroup, { ref: ref, children: marks.map((mark, index) => {
+            const value = typeof mark === "number" ? mark : mark.value;
+            const label = typeof mark === "number" ? undefined : mark.label;
+            return (jsxs(Slider$1.Marker, { value: value, children: [jsx(Slider$1.MarkerIndicator, {}), label] }, index));
+        }) }));
+});
+
 const RangeFilter = ({ range, setRange, defaultValue, min, max, step, }) => {
-    return (jsx(Box, { p: 8, children: jsxs(VStack, { spacing: 4, children: [jsxs(Text, { children: ["Selected Range: ", range[0], " - ", range[1]] }), jsxs(RangeSlider, { "aria-label": ["min", "max"], defaultValue: defaultValue, min: min, max: max, step: step, onChangeEnd: (val) => setRange(val), children: [jsx(RangeSliderTrack, { children: jsx(RangeSliderFilledTrack, {}) }), jsx(RangeSliderThumb, { index: 0 }), jsx(RangeSliderThumb, { index: 1 })] })] }) }));
+    return (jsx(Box, { p: 8, children: jsx(Slider, { width: "full", min: min, max: max, defaultValue: defaultValue, step: step, name: `Selected Range: ${range[0]} - ${range[1]}`, 
+            // value={field.value}
+            onValueChange: (val) => setRange(val.value) }) }));
 };
 
 const TagFilter = ({ availableTags, selectedTags, onTagChange, }) => {
@@ -639,13 +749,22 @@ const TagFilter = ({ availableTags, selectedTags, onTagChange, }) => {
             onTagChange([...selectedTags, tag]);
         }
     };
-    return (jsx(Flex, { flexFlow: "wrap", p: "0.5rem", gap: "0.5rem", children: availableTags.map((tag) => (jsx(WrapItem, { children: jsxs(Tag, { size: "lg", variant: selectedTags.includes(tag) ? "solid" : "outline", cursor: "pointer", onClick: () => toggleTag(tag), children: [jsx(TagLabel, { children: tag }), selectedTags.includes(tag) && jsx(TagCloseButton, {})] }) }, tag))) }));
+    return (jsx(Flex, { flexFlow: "wrap", p: "0.5rem", gap: "0.5rem", children: availableTags.map((tag) => (jsx(Tag, { variant: selectedTags.includes(tag) ? "solid" : "outline", cursor: "pointer", closable: selectedTags.includes(tag) ? true : undefined, onClick: () => toggleTag(tag), children: tag }))) }));
 };
 
-function Filter({ column }) {
+const Radio = React.forwardRef(function Radio(props, ref) {
+    const { children, inputProps, rootRef, ...rest } = props;
+    return (jsxs(RadioGroup$1.Item, { ref: rootRef, ...rest, children: [jsx(RadioGroup$1.ItemHiddenInput, { ref: ref, ...inputProps }), jsx(RadioGroup$1.ItemIndicator, {}), children && (jsx(RadioGroup$1.ItemText, { children: children }))] }));
+});
+const RadioGroup = RadioGroup$1.Root;
+
+const Filter = ({ column }) => {
     const { filterVariant } = column.columnDef.meta ?? {};
     const displayName = column.columnDef.meta?.displayName ?? column.id;
     const filterOptions = column.columnDef.meta?.filterOptions ?? [];
+    // const collection = createListCollection({
+    //   items: filterOptions,
+    // });
     if (column.columns.length > 0) {
         return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), column.columns.map((column) => {
                     return jsx(Filter, { column: column }, column.id);
@@ -655,11 +774,9 @@ function Filter({ column }) {
         return jsx(Fragment, {});
     }
     if (filterVariant === "select") {
-        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(Select, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", placeholder: "Select option", onChange: (e) => {
-                        column.setFilterValue(e.target.value);
-                    }, children: filterOptions.map((option) => {
-                        return (jsx("option", { value: option, children: option }, `${option}`));
-                    }) })] }, column.id));
+        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(RadioGroup, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", onValueChange: (details) => {
+                        column.setFilterValue(details.value);
+                    }, children: jsx(Flex, { flexFlow: 'wrap', gap: '0.5rem', children: filterOptions.map((item) => (jsx(Radio, { value: item, children: item }, item))) }) })] }, column.id));
     }
     if (filterVariant === "tag") {
         return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(TagFilter, { availableTags: filterOptions, selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
@@ -719,7 +836,7 @@ function Filter({ column }) {
     return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(Input, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", onChange: (e) => {
                     column.setFilterValue(e.target.value);
                 } })] }, column.id));
-}
+};
 const TableFilter = () => {
     const { table } = useDataTableContext();
     return (jsx(Fragment, { children: table.getAllColumns().map((column) => {
@@ -730,11 +847,11 @@ const TableFilter = () => {
 const TableFilterTags = () => {
     const { table } = useDataTableContext();
     return (jsx(Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }) => {
-            return (jsxs(Tag, { display: "flex", gap: "0.5rem", alignItems: "center", children: [jsx(Text, { children: `${id}: ${value}` }), jsx(IconButton, { size: "xs", variant: "ghost", icon: jsx(CloseIcon, {}), onClick: () => {
+            return (jsxs(Tag, { gap: "0.5rem", children: [`${id}: ${value}`, jsx(IconButton, { variant: "ghost", "aria-label": "remove filter", onClick: () => {
                             table.setColumnFilters(table.getState().columnFilters.filter((filter) => {
                                 return filter.value != value;
                             }));
-                        }, "aria-label": "remove filter" })] }, `${id}-${value}`));
+                        }, children: jsx(CgClose, {}) })] }, `${id}-${value}`));
         }) }));
 };
 
@@ -785,9 +902,9 @@ const ColumnOrderChanger = ({ columns }) => {
                                 if (nextIndex < order.length) {
                                     handleChangeOrder(index, nextIndex);
                                 }
-                            }, disabled: index === order.length - 1, "aria-label": "", children: jsx(MdArrowDownward, {}) })] }, columnId))) }), jsxs(Flex, { gap: "0.25rem", children: [jsx(Button, { onClick: () => {
+                            }, disabled: index === order.length - 1, "aria-label": "", children: jsx(MdArrowDownward, {}) })] }, columnId))) }), jsxs(Flex, { gap: "0.25rem", children: [jsx(Button$1, { onClick: () => {
                             table.setColumnOrder(order);
-                        }, children: "Apply" }), jsx(Button, { onClick: () => {
+                        }, children: "Apply" }), jsx(Button$1, { onClick: () => {
                             table.setColumnOrder(originalOrder);
                         }, children: "Reset" })] })] }));
 };
@@ -796,31 +913,36 @@ const TableOrderer = () => {
     return (jsx(Fragment, { children: jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
 };
 
-const TablePagination = ({}) => {
+const TablePagination = () => {
     const { firstPage, getCanPreviousPage, previousPage, getState, nextPage, getCanNextPage, lastPage, } = useDataTableContext().table;
-    return (jsxs(ButtonGroup, { isAttached: true, children: [jsx(IconButton, { icon: jsx(MdFirstPage, {}), onClick: () => firstPage(), isDisabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost" }), jsx(IconButton, { icon: jsx(MdArrowBack, {}), onClick: () => previousPage(), isDisabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost" }), jsx(Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsx(IconButton, { onClick: () => nextPage(), isDisabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsx(MdArrowForward, {}) }), jsx(IconButton, { onClick: () => lastPage(), isDisabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsx(MdLastPage, {}) })] }));
+    return (jsxs(Group, { attached: true, children: [jsx(IconButton, { onClick: () => firstPage(), disabled: !getCanPreviousPage(), "aria-label": "first-page", variant: "ghost", children: jsx(MdFirstPage, {}) }), jsx(IconButton, { onClick: () => previousPage(), disabled: !getCanPreviousPage(), "aria-label": "previous-page", variant: "ghost", children: jsx(MdArrowBack, {}) }), jsx(Button, { variant: "ghost", onClick: () => { }, disabled: !getCanPreviousPage(), children: getState().pagination.pageIndex + 1 }), jsx(IconButton, { onClick: () => nextPage(), disabled: !getCanNextPage(), "aria-label": "next-page", variant: "ghost", children: jsx(MdArrowForward, {}) }), jsx(IconButton, { onClick: () => lastPage(), disabled: !getCanNextPage(), "aria-label": "last-page", variant: "ghost", children: jsx(MdLastPage, {}) })] }));
 };
 
 const SelectAllRowsToggle = ({ selectAllIcon = jsx(MdOutlineChecklist, {}), clearAllIcon = jsx(MdClear, {}), selectAllText = "", clearAllText = "", }) => {
     const { table } = useDataTableContext();
     return (jsxs(Fragment, { children: [!!selectAllText === false && (jsx(IconButton, { icon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
                     table.getToggleAllRowsSelectedHandler()(event);
-                } })), !!selectAllText !== false && (jsx(Button, { leftIcon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", onClick: (event) => {
+                } })), !!selectAllText !== false && (jsx(Button$1, { leftIcon: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, variant: "ghost", onClick: (event) => {
                     table.getToggleAllRowsSelectedHandler()(event);
                 }, children: table.getIsAllRowsSelected() ? clearAllText : selectAllText }))] }));
 };
 
 const TableSelector = () => {
     const { table } = useContext(TableContext);
-    return (jsxs(Fragment, { children: [table.getSelectedRowModel().rows.length > 0 && (jsxs(Button, { onClick: () => { }, variant: "ghost", display: "flex", gap: "0.25rem", children: [jsx(Box, { fontSize: "sm", children: `${table.getSelectedRowModel().rows.length}` }), jsx(Icon, { as: IoMdCheckbox })] })), !table.getIsAllPageRowsSelected() && jsx(SelectAllRowsToggle, {}), table.getSelectedRowModel().rows.length > 0 && (jsx(IconButton, { variant: "ghost", icon: jsx(Icon, { as: MdClear }), onClick: () => {
+    return (jsxs(Fragment, { children: [table.getSelectedRowModel().rows.length > 0 && (jsxs(Button$1, { onClick: () => { }, variant: "ghost", display: "flex", gap: "0.25rem", children: [jsx(Box, { fontSize: "sm", children: `${table.getSelectedRowModel().rows.length}` }), jsx(Icon, { as: IoMdCheckbox })] })), !table.getIsAllPageRowsSelected() && jsx(SelectAllRowsToggle, {}), table.getSelectedRowModel().rows.length > 0 && (jsx(IconButton, { variant: "ghost", icon: jsx(Icon, { as: MdClear }), onClick: () => {
                     table.resetRowSelection();
                 }, "aria-label": "reset selection" }))] }));
 };
 
+const Switch = React.forwardRef(function Switch(props, ref) {
+    const { inputProps, children, rootRef, trackLabel, thumbLabel, ...rest } = props;
+    return (jsxs(Switch$1.Root, { ref: rootRef, ...rest, children: [jsx(Switch$1.HiddenInput, { ref: ref, ...inputProps }), jsxs(Switch$1.Control, { children: [jsx(Switch$1.Thumb, { children: thumbLabel && (jsx(Switch$1.ThumbIndicator, { fallback: thumbLabel?.off, children: thumbLabel?.on })) }), trackLabel && (jsx(Switch$1.Indicator, { fallback: trackLabel.off, children: trackLabel.on }))] }), children != null && (jsx(Switch$1.Label, { children: children }))] }));
+});
+
 const TableViewer = () => {
     const { table } = useDataTableContext();
     const columns = table.getAllLeafColumns();
-    const [columnOrder, setColumnOrder] = useState(columns.map(column => column.id));
+    const [columnOrder, setColumnOrder] = useState(columns.map((column) => column.id));
     const handleDragEnd = (result) => {
         if (!result.destination)
             return;
@@ -832,15 +954,15 @@ const TableViewer = () => {
     };
     return (jsx(DragDropContext, { onDragEnd: handleDragEnd, children: jsx(Droppable, { droppableId: "columns", children: (provided) => (jsxs(Flex, { flexFlow: "column", gap: "0.5rem", ref: provided.innerRef, ...provided.droppableProps, children: [columns.map((column, index) => {
                         const displayName = column.columnDef.meta?.displayName || column.id;
-                        return (jsx(Draggable, { draggableId: column.id, index: index, children: (provided) => (jsxs(Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsx(Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "0", children: jsx(Icon, { as: FaGripLinesVertical, color: "gray.400" }) }), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsx(Box, { children: displayName }), jsx(Switch, { isChecked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] })) }, column.id));
+                        return (jsx(Draggable, { draggableId: column.id, index: index, children: (provided) => (jsxs(Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsx(Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "0", children: jsx(FaGripLinesVertical, { color: "gray.400" }) }), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsx(Box, { children: displayName }), jsx(Switch, { checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] })) }, column.id));
                     }), provided.placeholder] })) }) }));
 };
 
-const TextCell = ({ label, noOfLines = [1], padding = "0rem", children, tooltipProps, ...props }) => {
+const TextCell = ({ label, padding = "0rem", children, ...props }) => {
     if (label) {
-        return (jsx(Flex, { alignItems: "center", height: "100%", padding: padding, children: jsx(Tooltip, { label: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", noOfLines: [5], children: label }), placement: "auto", ...tooltipProps, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }) }));
+        return (jsx(Flex, { alignItems: "center", height: "100%", padding: padding, children: jsx(Tooltip, { content: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", children: label }), children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", ...props, children: children }) }) }));
     }
-    return (jsx(Flex, { alignItems: "center", height: "100%", padding: padding, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", noOfLines: noOfLines, ...props, children: children }) }));
+    return (jsx(Flex, { alignItems: "center", height: "100%", padding: padding, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", ...props, children: children }) }));
 };
 
 const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSuccess = () => { }, defaultData, }) => {
@@ -1030,7 +1152,7 @@ const FilterOptions = ({ column }) => {
     const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
     return (jsx(Fragment, { children: options.map((option) => {
             const selected = table.getColumn(column)?.getFilterValue() === option;
-            return (jsxs(Button, { size: "sm", onClick: () => {
+            return (jsxs(Button$1, { size: "sm", onClick: () => {
                     if (selected) {
                         table.setColumnFilters((state) => {
                             return state.filter((filter) => {
@@ -1044,14 +1166,22 @@ const FilterOptions = ({ column }) => {
         }) }));
 };
 
-const GlobalFilter = ({ icon = MdSearch }) => {
+const InputGroup = React.forwardRef(function InputGroup(props, ref) {
+    const { startElement, startElementProps, endElement, endElementProps, children, startOffset = "6px", endOffset = "6px", ...rest } = props;
+    return (jsxs(Group, { ref: ref, ...rest, children: [startElement && (jsx(InputElement, { pointerEvents: "none", ...startElementProps, children: startElement })), React.cloneElement(children, {
+                ...(startElement && {
+                    ps: `calc(var(--input-height) - ${startOffset})`,
+                }),
+                ...(endElement && { pe: `calc(var(--input-height) - ${endOffset})` }),
+                ...children.props,
+            }), endElement && (jsx(InputElement, { placement: "end", ...endElementProps, children: endElement }))] }));
+});
+
+const GlobalFilter = () => {
     const { table } = useDataTableContext();
-    return (jsx(Fragment, { children: jsx(Box, { children: jsxs(InputGroup, { children: [jsx(InputLeftElement, { pointerEvents: "none", children: jsx(Icon, { as: icon, color: "gray.300" }) }), jsx(Input, { value: table.getState().globalFilter.globalFilter, onChange: (e) => {
-                            if (!!e.target.value) {
-                                table.setGlobalFilter(undefined);
-                            }
-                            table.setGlobalFilter(e.target.value);
-                        } })] }) }) }));
+    return (jsx(Fragment, { children: jsx(InputGroup, { flex: "1", startElement: jsx(MdSearch, {}), children: jsx(Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
+                    table.setGlobalFilter(e.target.value);
+                } }) }) }));
 };
 
 export { DataTable, DataTableServer, DefaultCard, DefaultCardTitle, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, useDataFromUrl, useDataTable, useDataTableContext, useDataTableServer };
