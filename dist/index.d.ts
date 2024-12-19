@@ -313,7 +313,7 @@ declare const TableCards: <TData>({ isSelectable, showDisplayNameOnly, renderTit
 interface TableRendererProps<TData> {
     render: (render: Table$1<TData>) => React$1.ReactElement;
 }
-declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) => React$1.ReactElement<any, string | React$1.JSXElementConstructor<any>>;
+declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) => React$1.ReactElement<unknown, string | React$1.JSXElementConstructor<any>>;
 
 declare const TableFilter: () => react_jsx_runtime.JSX.Element;
 
