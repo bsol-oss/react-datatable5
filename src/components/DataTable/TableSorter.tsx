@@ -1,11 +1,9 @@
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  CloseIcon,
-  UpDownIcon,
-} from "@chakra-ui/icons";
+
 import { Button, Flex, Text } from "@chakra-ui/react";
 import { useDataTableContext } from "./useDataTableContext";
+import { FaUpDown } from "react-icons/fa6";
+import { BiDownArrow, BiUpArrow } from "react-icons/bi";
+import { CgClose } from "react-icons/cg";
 
 export const TableSorter = () => {
   const { table } = useDataTableContext();
@@ -30,12 +28,12 @@ export const TableSorter = () => {
                         header.column.toggleSorting();
                       }}
                     >
-                      {header.column.getIsSorted() === false && <UpDownIcon />}
+                      {header.column.getIsSorted() === false && <FaUpDown />}
                       {header.column.getIsSorted() === "asc" && (
-                        <ChevronDownIcon />
+                        <BiDownArrow />
                       )}
                       {header.column.getIsSorted() === "desc" && (
-                        <ChevronUpIcon />
+                        <BiUpArrow />
                       )}
                     </Button>
 
@@ -45,7 +43,7 @@ export const TableSorter = () => {
                           header.column.clearSorting();
                         }}
                       >
-                        <CloseIcon />
+                        <CgClose />
                       </Button>
                     )}
                   </Flex>

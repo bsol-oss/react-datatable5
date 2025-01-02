@@ -1,9 +1,9 @@
-import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import { Flex, Box, Table, MenuRoot, MenuTrigger } from "@chakra-ui/react";
 import { flexRender, Header } from "@tanstack/react-table";
 import { useState } from "react";
 import { useDataTableContext } from "./useDataTableContext";
 import { Checkbox } from "../../components/ui/checkbox";
+import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 
 export interface TableFooterProps {
   pinnedBgColor?: { light: string; dark: string };
@@ -146,10 +146,10 @@ export const TableFooter = ({
                               <></>
                             )}
                             {header.column.getIsSorted() === "asc" && (
-                              <ChevronUpIcon />
+                              <BiUpArrow />
                             )}
                             {header.column.getIsSorted() === "desc" && (
-                              <ChevronDownIcon />
+                              <BiDownArrow />
                             )}
                           </>
                         )}

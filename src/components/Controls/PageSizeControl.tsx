@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
 import { Button } from "@chakra-ui/react";
 import { useDataTableContext } from "../../index";
 import {
@@ -7,6 +6,7 @@ import {
   MenuRoot,
   MenuTrigger,
 } from "@/components/ui/menu";
+import { BiDownArrow } from "react-icons/bi";
 export interface PageSizeControlProps {
   pageSizes?: number[];
 }
@@ -21,7 +21,7 @@ export const PageSizeControl = ({
       <MenuRoot>
         <MenuTrigger asChild>
           <Button variant={"ghost"} gap={"0.5rem"}>
-            {table.getState().pagination.pageSize} <ChevronDownIcon />
+            {table.getState().pagination.pageSize} <BiDownArrow />
           </Button>
         </MenuTrigger>
         <MenuContent>

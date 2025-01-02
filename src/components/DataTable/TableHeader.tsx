@@ -8,7 +8,6 @@ import {
 import { flexRender, Header } from "@tanstack/react-table";
 import { MdCancel, MdClear, MdFilterListAlt } from "react-icons/md";
 
-import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { GrAscend, GrDescend } from "react-icons/gr";
 import { MdPushPin } from "react-icons/md";
@@ -21,6 +20,7 @@ import {
   MenuRoot,
   MenuTrigger,
 } from "@/components/ui/menu";
+import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 export interface TableHeaderProps {
   canResize?: boolean;
   pinnedBgColor?: { light: string; dark: string };
@@ -178,10 +178,10 @@ export const TableHeader = ({
                             <>
                               {header.column.getIsSorted() === false && <></>}
                               {header.column.getIsSorted() === "asc" && (
-                                <ChevronUpIcon />
+                                <BiUpArrow />
                               )}
                               {header.column.getIsSorted() === "desc" && (
-                                <ChevronDownIcon />
+                                <BiDownArrow />
                               )}
                             </>
                           )}
