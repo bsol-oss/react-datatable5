@@ -28,11 +28,9 @@ export const EditOrderButton = ({
 }: EditOrderButtonProps) => {
   return (
     <>
-      <DialogRoot
-        size="cover"
-      >
+      <DialogRoot size="cover">
         <DialogBackdrop />
-        <DialogTrigger asChild>
+        <DialogTrigger>
           <Button variant={"ghost"}>
             {icon}
             {text}

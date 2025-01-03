@@ -34,7 +34,7 @@ export const EditFilterButton = ({
     <>
       <DialogRoot size={["full", "full", "md", "md"]}>
         <DialogRoot>
-          <DialogTrigger asChild>
+          <DialogTrigger>
             <Button variant="outline">
               {icon} {text}
             </Button>
