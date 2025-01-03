@@ -9,7 +9,7 @@ export interface UseDataFromUrlReturn<T> {
   /**
    * Delays sending the request when the `refreshData` function is called multiple times within a short period.
    */
-  refreshData: (config: { debounce: boolean; delay: number }) => void;
+  refreshData: (config?: { debounce?: boolean; delay?: number }) => void;
 }
 
 export interface UseDataFromUrlProps<T> {

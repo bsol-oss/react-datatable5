@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 
 import {
   ColumnDef,
@@ -17,8 +17,9 @@ import { TableContext } from "./DataTableContext";
 import { UseDataFromUrlReturn } from "./useDataFromUrl";
 import { DataResponse } from "./useDataTableServer";
 
-export interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataResponse<TData>> {
-  children: JSX.Element | JSX.Element[];
+export interface DataTableServerProps<TData>
+  extends UseDataFromUrlReturn<DataResponse<TData>> {
+  children: ReactNode | ReactNode[];
   columns: ColumnDef<TData, any>[]; // TODO: find the appropriate types
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
@@ -41,8 +42,6 @@ export interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataRe
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
 }
-
-
 
 export const DataTableServer = <TData,>({
   columns,
@@ -119,7 +118,6 @@ export const DataTableServer = <TData,>({
     },
     // for tanstack-table ts bug end
   });
-
 
   useEffect(() => {
     setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
