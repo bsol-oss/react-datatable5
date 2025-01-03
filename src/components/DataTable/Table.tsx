@@ -6,8 +6,8 @@ import { EmptyState } from "../ui/empty-state";
 
 export interface TableProps extends TableRootProps {
   showLoading?: boolean;
-  loadingComponent?: JSX.Element;
-  emptyComponent?: JSX.Element;
+  loadingComponent?: ReactNode;
+  emptyComponent?: ReactNode;
   children: ReactNode;
 }
 

@@ -1,7 +1,8 @@
+import { ReactNode } from "react";
 import { useDataTableContext } from "./useDataTableContext";
 
 export interface TableLoadingComponentProps {
-  render: (loading: boolean) => JSX.Element;
+  render: (loading: boolean) => ReactNode;
 }
 
 export const TableLoadingComponent = ({

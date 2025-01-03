@@ -1,4 +1,5 @@
 import { Column, RowData } from "@tanstack/react-table";
+import { ReactNode } from "react";
 
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData extends RowData, TValue> {
@@ -59,7 +60,7 @@ declare module "@tanstack/react-table" {
      * @param column - The column for which the filter is being rendered.
      * @returns A JSX element representing the filter UI.
      */
-    renderFilter?: (column: Column<TData>) => JSX.Element;
+    renderFilter?: (column: Column<TData>) => ReactNode;
   }
 }
 

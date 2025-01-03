@@ -1,13 +1,13 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Box, Card, CardBodyProps, Grid, Text } from "@chakra-ui/react";
 import { flexRender, Row } from "@tanstack/react-table";
-import { useContext } from "react";
+import { ReactNode, useContext } from "react";
 import { TableContext } from "./DataTableContext";
 
 export interface TableCardsProps<TData> {
   isSelectable?: boolean;
   showDisplayNameOnly?: boolean;
-  renderTitle?: (row: Row<TData>) => JSX.Element | undefined;
+  renderTitle?: (row: Row<TData>) => ReactNode | undefined;
   cardBodyProps?: CardBodyProps
 }
 

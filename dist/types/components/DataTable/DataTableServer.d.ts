@@ -1,10 +1,10 @@
-/// <reference types="react" />
+import { ReactNode } from "react";
 import { ColumnDef, ColumnFiltersState, ColumnOrderState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { DensityState } from "../Controls/DensityFeature";
 import { UseDataFromUrlReturn } from "./useDataFromUrl";
 import { DataResponse } from "./useDataTableServer";
 export interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataResponse<TData>> {
-    children: JSX.Element | JSX.Element[];
+    children: ReactNode | ReactNode[];
     columns: ColumnDef<TData, any>[];
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;

@@ -12,9 +12,9 @@ import {
   RowSelectionState,
   SortingState,
   useReactTable,
-  VisibilityState
+  VisibilityState,
 } from "@tanstack/react-table";
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { TableContext } from "./DataTableContext";
 
 import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
@@ -45,7 +45,7 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 };
 
 export interface DataTableProps<TData> {
-  children?: JSX.Element | JSX.Element[];
+  children?: ReactNode | ReactNode[];
   data: TData[];
   columns: ColumnDef<TData, any>[];
   enableRowSelection?: boolean;

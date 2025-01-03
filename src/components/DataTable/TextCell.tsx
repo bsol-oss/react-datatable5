@@ -1,10 +1,11 @@
 import { Tooltip } from "@/components/ui/tooltip";
 import { Flex, Text, TextProps } from "@chakra-ui/react";
+import { ReactNode } from "react";
 export interface TextCellProps extends TextProps {
   label?: string;
   noOfLines?: number[];
   padding?: string;
-  children: string | number | JSX.Element | JSX.Element[];
+  children: string | number | ReactNode | ReactNode[];
 }
 
 export const TextCell = ({
@@ -18,11 +19,7 @@ export const TextCell = ({
       <Flex alignItems={"center"} height={"100%"} padding={padding}>
         <Tooltip
           content={
-            <Text
-              as="span"
-              overflow="hidden"
-              textOverflow={"ellipsis"}
-            >
+            <Text as="span" overflow="hidden" textOverflow={"ellipsis"}>
               {label}
             </Text>
           }

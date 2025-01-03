@@ -14,6 +14,7 @@ import {
   ReloadButton,
 } from "../../index";
 import { Tooltip } from "../../components/ui/tooltip";
+import { ReactNode } from "react";
 
 export interface TableControlsProps {
   totalText?: string;
@@ -21,12 +22,12 @@ export interface TableControlsProps {
   fitTableWidth?: boolean;
   fitTableHeight?: boolean;
   isMobile?: boolean;
-  children?: JSX.Element;
+  children?: ReactNode;
   showFilterName?: boolean;
   showFilterTags?: boolean;
   showReload?: boolean;
   filterOptions?: string[];
-  extraItems?: JSX.Element;
+  extraItems?: ReactNode;
 }
 
 export const TableControls = ({
