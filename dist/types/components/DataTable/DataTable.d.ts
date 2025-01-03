@@ -1,5 +1,5 @@
-/// <reference types="react" />
 import { ColumnDef, ColumnFiltersState, ColumnOrderState, FilterFn, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
+import { ReactNode } from "react";
 import { RankingInfo } from "@tanstack/match-sorter-utils";
 import { DensityState } from "../Controls/DensityFeature";
 declare module "@tanstack/react-table" {
@@ -11,7 +11,7 @@ declare module "@tanstack/react-table" {
     }
 }
 export interface DataTableProps<TData> {
-    children?: JSX.Element | JSX.Element[];
+    children?: ReactNode | ReactNode[];
     data: TData[];
     columns: ColumnDef<TData, any>[];
     enableRowSelection?: boolean;

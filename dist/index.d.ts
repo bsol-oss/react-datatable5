@@ -1,14 +1,15 @@
 /// <reference types="react" />
 import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnOrderState, ColumnFiltersState, PaginationState, SortingState, VisibilityState, Row, Table as Table$1, Column } from '@tanstack/react-table';
+import * as React$1 from 'react';
+import React__default, { ReactNode } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import React$1, { ReactNode } from 'react';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { IconType } from 'react-icons';
 import { TableHeaderProps as TableHeaderProps$1, TableRootProps, GridProps, CardBodyProps, TextProps } from '@chakra-ui/react';
 import * as _tanstack_table_core from '@tanstack/table-core';
 
 interface DensityToggleButtonProps {
-    icon?: React$1.ReactElement;
+    icon?: React__default.ReactElement;
     text?: string;
 }
 declare const DensityToggleButton: ({ text, icon, }: DensityToggleButtonProps) => react_jsx_runtime.JSX.Element;
@@ -24,7 +25,7 @@ declare const EditFilterButton: ({ text, title, closeText, resetText, icon, }: E
 
 interface EditOrderButtonProps {
     title?: string;
-    icon?: React$1.ReactElement;
+    icon?: React__default.ReactElement;
     text?: string;
 }
 declare const EditOrderButton: ({ text, icon, title, }: EditOrderButtonProps) => react_jsx_runtime.JSX.Element;
@@ -38,7 +39,7 @@ declare const EditSortingButton: ({ text, icon, title, }: EditSortingButtonProps
 
 interface EditViewButtonProps {
     text?: string;
-    icon?: React$1.ReactElement;
+    icon?: React__default.ReactElement;
     title?: string;
 }
 declare const EditViewButton: ({ text, icon, title, }: EditViewButtonProps) => react_jsx_runtime.JSX.Element;
@@ -96,7 +97,7 @@ declare module "@tanstack/react-table" {
     }
 }
 interface DataTableProps<TData> {
-    children?: JSX.Element | JSX.Element[];
+    children?: ReactNode | ReactNode[];
     data: TData[];
     columns: ColumnDef<TData, any>[];
     enableRowSelection?: boolean;
@@ -129,9 +130,9 @@ interface UseDataFromUrlReturn<T> {
     /**
      * Delays sending the request when the `refreshData` function is called multiple times within a short period.
      */
-    refreshData: (config: {
-        debounce: boolean;
-        delay: number;
+    refreshData: (config?: {
+        debounce?: boolean;
+        delay?: number;
     }) => void;
 }
 interface UseDataFromUrlProps<T> {
@@ -204,7 +205,7 @@ interface DataResponse<T> extends Result<T> {
 declare const useDataTableServer: <TData>({ url, onFetchSuccess, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, debounce, debounceDelay, }: UseDataTableServerProps<TData>) => UseDataTableServerReturn<TData>;
 
 interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataResponse<TData>> {
-    children: JSX.Element | JSX.Element[];
+    children: ReactNode | ReactNode[];
     columns: ColumnDef<TData, any>[];
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
@@ -245,12 +246,12 @@ interface TableControlsProps {
     fitTableWidth?: boolean;
     fitTableHeight?: boolean;
     isMobile?: boolean;
-    children?: JSX.Element;
+    children?: ReactNode;
     showFilterName?: boolean;
     showFilterTags?: boolean;
     showReload?: boolean;
     filterOptions?: string[];
-    extraItems?: JSX.Element;
+    extraItems?: ReactNode;
 }
 declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, children, showFilterName, showFilterTags, showReload, filterOptions, extraItems, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
 
@@ -270,11 +271,11 @@ declare const ReloadButton: ({ text, variant, }: ReloadButtonProps) => react_jsx
 
 interface TableProps extends TableRootProps {
     showLoading?: boolean;
-    loadingComponent?: JSX.Element;
-    emptyComponent?: JSX.Element;
+    loadingComponent?: ReactNode;
+    emptyComponent?: ReactNode;
     children: ReactNode;
 }
-declare const Table: ({ children, emptyComponent, ...props }: TableProps) => react_jsx_runtime.JSX.Element;
+declare const Table: ({ children, emptyComponent, ...props }: TableProps) => string | number | bigint | boolean | react_jsx_runtime.JSX.Element | Iterable<ReactNode> | Promise<string | number | bigint | boolean | React$1.ReactPortal | React$1.ReactElement<unknown, string | React$1.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null;
 
 interface TableBodyProps {
     pinnedBgColor?: {
@@ -297,23 +298,23 @@ interface TableRowSelectorProps<TData> {
 declare const TableBody: ({ pinnedBgColor, showSelector, alwaysShowSelector, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
 
 interface TableCardContainerProps extends GridProps {
-    children: JSX.Element;
+    children: ReactNode;
 }
 declare const TableCardContainer: ({ children, ...props }: TableCardContainerProps) => react_jsx_runtime.JSX.Element;
 
 interface TableCardsProps<TData> {
     isSelectable?: boolean;
     showDisplayNameOnly?: boolean;
-    renderTitle?: (row: Row<TData>) => JSX.Element | undefined;
+    renderTitle?: (row: Row<TData>) => ReactNode | undefined;
     cardBodyProps?: CardBodyProps;
 }
 declare const DefaultCardTitle: () => react_jsx_runtime.JSX.Element;
 declare const TableCards: <TData>({ isSelectable, showDisplayNameOnly, renderTitle, cardBodyProps }: TableCardsProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface TableRendererProps<TData> {
-    render: (render: Table$1<TData>) => React$1.ReactElement;
+    render: (render: Table$1<TData>) => React__default.ReactElement;
 }
-declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) => React$1.ReactElement<unknown, string | React$1.JSXElementConstructor<any>>;
+declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) => React__default.ReactElement<unknown, string | React__default.JSXElementConstructor<any>>;
 
 declare const TableFilter: () => react_jsx_runtime.JSX.Element;
 
@@ -343,7 +344,7 @@ interface TableHeaderProps {
 declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, isSticky, alwaysShowSelector, tHeadProps, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
 
 interface TableLoadingComponentProps {
-    render: (loading: boolean) => JSX.Element;
+    render: (loading: boolean) => ReactNode;
 }
 declare const TableLoadingComponent: ({ render, }: TableLoadingComponentProps) => react_jsx_runtime.JSX.Element;
 
@@ -361,7 +362,7 @@ interface TextCellProps extends TextProps {
     label?: string;
     noOfLines?: number[];
     padding?: string;
-    children: string | number | JSX.Element | JSX.Element[];
+    children: string | number | ReactNode | ReactNode[];
 }
 declare const TextCell: ({ label, padding, children, ...props }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
@@ -429,7 +430,7 @@ declare module "@tanstack/react-table" {
          * @param column - The column for which the filter is being rendered.
          * @returns A JSX element representing the filter UI.
          */
-        renderFilter?: (column: Column<TData>) => JSX.Element;
+        renderFilter?: (column: Column<TData>) => ReactNode;
     }
 }
 

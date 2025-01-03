@@ -6,7 +6,9 @@ var ai = require('react-icons/ai');
 var md = require('react-icons/md');
 var React = require('react');
 var lu = require('react-icons/lu');
-var icons = require('@chakra-ui/icons');
+var fa6 = require('react-icons/fa6');
+var bi = require('react-icons/bi');
+var cg = require('react-icons/cg');
 var io = require('react-icons/io');
 var reactTable = require('@tanstack/react-table');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
@@ -14,9 +16,8 @@ var bs = require('react-icons/bs');
 var gr = require('react-icons/gr');
 var io5 = require('react-icons/io5');
 var hi = require('react-icons/hi');
-var cg = require('react-icons/cg');
-var reactBeautifulDnd = require('react-beautiful-dnd');
-var fa = require('react-icons/fa');
+var adapter = require('@atlaskit/pragmatic-drag-and-drop/element/adapter');
+var invariant = require('tiny-invariant');
 var axios = require('axios');
 
 function _interopNamespaceDefault(e) {
@@ -70,11 +71,11 @@ const DialogActionTrigger = react.Dialog.ActionTrigger;
 
 const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsxRuntime.jsx(md.MdFilterAlt, {}), }) => {
     const filterModal = react.useDisclosure();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(DialogRoot, { size: ["full", "full", "md", "md"], children: jsxRuntime.jsxs(DialogRoot, { children: [jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "outline", children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogHeader, { children: jsxRuntime.jsx(DialogTitle, { children: title }) }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "1rem", children: [jsxRuntime.jsx(TableFilter, {}), jsxRuntime.jsx(ResetFilteringButton, { text: resetText })] }) }), jsxRuntime.jsxs(DialogFooter, { children: [jsxRuntime.jsx(DialogActionTrigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { onClick: filterModal.onClose, children: closeText }) }), jsxRuntime.jsx(react.Button, { children: "Save" })] }), jsxRuntime.jsx(DialogCloseTrigger, {})] })] }) }) }));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(DialogRoot, { size: ["full", "full", "md", "md"], children: jsxRuntime.jsxs(DialogRoot, { children: [jsxRuntime.jsx(DialogTrigger, { children: jsxRuntime.jsxs(react.Button, { variant: "outline", children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogHeader, { children: jsxRuntime.jsx(DialogTitle, { children: title }) }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "1rem", children: [jsxRuntime.jsx(TableFilter, {}), jsxRuntime.jsx(ResetFilteringButton, { text: resetText })] }) }), jsxRuntime.jsxs(DialogFooter, { children: [jsxRuntime.jsx(DialogActionTrigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { onClick: filterModal.onClose, children: closeText }) }), jsxRuntime.jsx(react.Button, { children: "Save" })] }), jsxRuntime.jsx(DialogCloseTrigger, {})] })] }) }) }));
 };
 
 const EditOrderButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineMoveDown, {}), title = "Change Order", }) => {
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(react.DialogRoot, { size: "cover", children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(react.DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "ghost", children: [icon, text] }) }), jsxRuntime.jsxs(react.DialogContent, { children: [jsxRuntime.jsx(react.DialogCloseTrigger, {}), jsxRuntime.jsxs(react.DialogHeader, { children: [jsxRuntime.jsx(react.DialogTitle, {}), title] }), jsxRuntime.jsx(react.DialogBody, { children: jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: jsxRuntime.jsx(TableOrderer, {}) }) }), jsxRuntime.jsx(react.DialogFooter, {})] })] }) }));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(react.DialogRoot, { size: "cover", children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(react.DialogTrigger, { children: jsxRuntime.jsxs(react.Button, { variant: "ghost", children: [icon, text] }) }), jsxRuntime.jsxs(react.DialogContent, { children: [jsxRuntime.jsx(react.DialogCloseTrigger, {}), jsxRuntime.jsxs(react.DialogHeader, { children: [jsxRuntime.jsx(react.DialogTitle, {}), title] }), jsxRuntime.jsx(react.DialogBody, { children: jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: jsxRuntime.jsx(TableOrderer, {}) }) }), jsxRuntime.jsx(react.DialogFooter, {})] })] }) }));
 };
 
 const TableContext = React.createContext({
@@ -106,9 +107,9 @@ const TableSorter = () => {
                     : header.column.columnDef.meta.displayName;
                 return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanSort() && (jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsxs(react.Button, { variant: "ghost", onClick: () => {
                                     header.column.toggleSorting();
-                                }, children: [header.column.getIsSorted() === false && jsxRuntime.jsx(icons.UpDownIcon, {}), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {}))] }), header.column.getIsSorted() && (jsxRuntime.jsx(react.Button, { onClick: () => {
+                                }, children: [header.column.getIsSorted() === false && jsxRuntime.jsx(fa6.FaUpDown, {}), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(bi.BiDownArrow, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(bi.BiUpArrow, {}))] }), header.column.getIsSorted() && (jsxRuntime.jsx(react.Button, { onClick: () => {
                                     header.column.clearSorting();
-                                }, children: jsxRuntime.jsx(icons.CloseIcon, {}) }))] })) }));
+                                }, children: jsxRuntime.jsx(cg.CgClose, {}) }))] })) }));
             }) }))) }));
 };
 
@@ -155,7 +156,7 @@ const MenuTrigger = react.Menu.Trigger;
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "ghost", gap: "0.5rem", children: [table.getState().pagination.pageSize, " ", jsxRuntime.jsx(icons.ChevronDownIcon, {})] }) }), jsxRuntime.jsx(MenuContent, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(MenuItem, { value: `chakra-table-pageSize-${pageSize}`, onClick: () => {
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "ghost", gap: "0.5rem", children: [table.getState().pagination.pageSize, " ", jsxRuntime.jsx(bi.BiDownArrow, {})] }) }), jsxRuntime.jsx(MenuContent, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(MenuItem, { value: `chakra-table-pageSize-${pageSize}`, onClick: () => {
                             table.setPageSize(Number(pageSize));
                         }, children: pageSize }))) })] }) }));
 };
@@ -561,7 +562,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
                                             ? null
                                             : reactTable.flexRender(header.column.columnDef.footer, header.getContext()), jsxRuntime.jsx(react.Box, { children: header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [header.column.getIsSorted() === false && (
                                                     // <UpDownIcon />
-                                                    jsxRuntime.jsx(jsxRuntime.Fragment, {})), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {}))] })) })] }) }) }) }) }, `chakra-table-footer-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
+                                                    jsxRuntime.jsx(jsxRuntime.Fragment, {})), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(bi.BiUpArrow, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(bi.BiDownArrow, {}))] })) })] }) }) }) }) }, `chakra-table-footer-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
 };
 
 const Button = React__namespace.forwardRef(function Button(props, ref) {
@@ -632,7 +633,7 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                         // styling resize and pinning start
                         width: `${header.getSize()}px`, display: "grid", gridTemplateColumns: "1fr auto", zIndex: header.index, ...getThProps(header), children: [jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsx(react.Grid, { padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: "auto", _hover: { backgroundColor: "gray.100" }, children: jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                                         ? null
-                                                        : reactTable.flexRender(header.column.columnDef.header, header.getContext()), jsxRuntime.jsx(react.Box, { children: header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [header.column.getIsSorted() === false && jsxRuntime.jsx(jsxRuntime.Fragment, {}), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(icons.ChevronUpIcon, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(icons.ChevronDownIcon, {}))] })) }), jsxRuntime.jsx(react.Box, { children: header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}) })] }) }) }), jsxRuntime.jsxs(MenuContent, { children: [!header.column.getIsPinned() && (jsxRuntime.jsx(MenuItem, { asChild: true, value: "pin-column", children: jsxRuntime.jsxs(Button, { variant: "ghost", onClick: () => {
+                                                        : reactTable.flexRender(header.column.columnDef.header, header.getContext()), jsxRuntime.jsx(react.Box, { children: header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [header.column.getIsSorted() === false && jsxRuntime.jsx(jsxRuntime.Fragment, {}), header.column.getIsSorted() === "asc" && (jsxRuntime.jsx(bi.BiUpArrow, {})), header.column.getIsSorted() === "desc" && (jsxRuntime.jsx(bi.BiDownArrow, {}))] })) }), jsxRuntime.jsx(react.Box, { children: header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}) })] }) }) }), jsxRuntime.jsxs(MenuContent, { children: [!header.column.getIsPinned() && (jsxRuntime.jsx(MenuItem, { asChild: true, value: "pin-column", children: jsxRuntime.jsxs(Button, { variant: "ghost", onClick: () => {
                                                         header.column.pin("left");
                                                     }, children: [jsxRuntime.jsx(md.MdPushPin, {}), "Pin Column"] }) })), header.column.getIsPinned() && (jsxRuntime.jsx(MenuItem, { asChild: true, value: "cancel-pin", children: jsxRuntime.jsxs(Button, { variant: "ghost", onClick: () => {
                                                         header.column.pin(false);
@@ -959,23 +960,87 @@ const Switch = React__namespace.forwardRef(function Switch(props, ref) {
     return (jsxRuntime.jsxs(react.Switch.Root, { ref: rootRef, ...rest, children: [jsxRuntime.jsx(react.Switch.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsxs(react.Switch.Control, { children: [jsxRuntime.jsx(react.Switch.Thumb, { children: thumbLabel && (jsxRuntime.jsx(react.Switch.ThumbIndicator, { fallback: thumbLabel?.off, children: thumbLabel?.on })) }), trackLabel && (jsxRuntime.jsx(react.Switch.Indicator, { fallback: trackLabel.off, children: trackLabel.on }))] }), children != null && (jsxRuntime.jsx(react.Switch.Label, { children: children }))] }));
 });
 
+function ColumnCard({ columnId }) {
+    const ref = React.useRef(null);
+    const [dragging, setDragging] = React.useState(false); // NEW
+    const { table } = useDataTableContext();
+    const displayName = columnId;
+    const column = table.getColumn(columnId);
+    invariant(column);
+    React.useEffect(() => {
+        const el = ref.current;
+        invariant(el);
+        return adapter.draggable({
+            element: el,
+            getInitialData: () => {
+                return { column: table.getColumn(columnId) };
+            },
+            onDragStart: () => setDragging(true), // NEW
+            onDrop: () => setDragging(false), // NEW
+        });
+    }, [columnId, table]);
+    return (jsxRuntime.jsxs(react.Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsxRuntime.jsx(react.Flex, { alignItems: "center", padding: "0", children: jsxRuntime.jsx(fa6.FaGripLinesVertical, { color: "gray.400" }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsx(react.Box, { children: displayName }), jsxRuntime.jsx(Switch, { checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] }));
+}
+function CardContainer({ location, children }) {
+    const ref = React.useRef(null);
+    const [isDraggedOver, setIsDraggedOver] = React.useState(false);
+    React.useEffect(() => {
+        const el = ref.current;
+        invariant(el);
+        return adapter.dropTargetForElements({
+            element: el,
+            getData: () => ({ location }),
+            onDragEnter: () => setIsDraggedOver(true),
+            onDragLeave: () => setIsDraggedOver(false),
+            onDrop: () => setIsDraggedOver(false),
+        });
+    }, [location]);
+    // const isDark = (location + location) % 2 === 1;
+    function getColor(isDraggedOver) {
+        if (isDraggedOver) {
+            return "skyblue";
+        }
+        // return isDark ? "lightgrey" : "white";
+        return "white";
+    }
+    return (jsxRuntime.jsx(react.Box, { backgroundColor: getColor(isDraggedOver), ref: ref, children: children }));
+}
 const TableViewer = () => {
     const { table } = useDataTableContext();
-    const columns = table.getAllLeafColumns();
-    const [columnOrder, setColumnOrder] = React.useState(columns.map((column) => column.id));
-    const handleDragEnd = (result) => {
-        if (!result.destination)
-            return;
-        const newColumnOrder = Array.from(columnOrder);
-        const [removed] = newColumnOrder.splice(result.source.index, 1);
-        newColumnOrder.splice(result.destination.index, 0, removed);
-        setColumnOrder(newColumnOrder);
-        table.setColumnOrder(newColumnOrder);
-    };
-    return (jsxRuntime.jsx(reactBeautifulDnd.DragDropContext, { onDragEnd: handleDragEnd, children: jsxRuntime.jsx(reactBeautifulDnd.Droppable, { droppableId: "columns", children: (provided) => (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.5rem", ref: provided.innerRef, ...provided.droppableProps, children: [columns.map((column, index) => {
-                        const displayName = column.columnDef.meta?.displayName || column.id;
-                        return (jsxRuntime.jsx(reactBeautifulDnd.Draggable, { draggableId: column.id, index: index, children: (provided) => (jsxRuntime.jsxs(react.Grid, { ref: provided.innerRef, ...provided.draggableProps, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", children: [jsxRuntime.jsx(react.Flex, { ...provided.dragHandleProps, alignItems: "center", padding: "0", children: jsxRuntime.jsx(fa.FaGripLinesVertical, { color: "gray.400" }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsx(react.Box, { children: displayName }), jsxRuntime.jsx(Switch, { checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] })) }, column.id));
-                    }), provided.placeholder] })) }) }));
+    const [order, setOrder] = React.useState(table.getAllLeafColumns().map((column) => {
+        return column.id;
+    }));
+    React.useEffect(() => {
+        return adapter.monitorForElements({
+            onDrop({ source, location }) {
+                const destination = location.current.dropTargets[0];
+                if (!destination) {
+                    return;
+                }
+                const destinationLocation = destination.data.location;
+                // const sourceLocation = source.data.location;
+                const sourceColumn = source.data.column;
+                const columnOrder = order.map((id) => {
+                    if (id == sourceColumn.id) {
+                        return "<marker>";
+                    }
+                    return id;
+                });
+                const columnBefore = columnOrder.slice(0, destinationLocation + 1);
+                const columnAfter = columnOrder.slice(destinationLocation + 1, columnOrder.length);
+                const newOrder = [
+                    ...columnBefore,
+                    sourceColumn.id,
+                    ...columnAfter,
+                ].filter((id) => id != "<marker>");
+                table.setColumnOrder(newOrder);
+                setOrder(newOrder);
+            },
+        });
+    }, [order, table]);
+    return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: table.getState().columnOrder.map((columnId, index) => {
+            return (jsxRuntime.jsx(CardContainer, { location: index, children: jsxRuntime.jsx(ColumnCard, { columnId: columnId }) }));
+        }) }));
 };
 
 const TextCell = ({ label, padding = "0rem", children, ...props }) => {
