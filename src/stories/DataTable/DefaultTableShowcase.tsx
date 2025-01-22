@@ -1,8 +1,14 @@
-import { Box, ChakraProvider, defaultSystem, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  ChakraProvider,
+  defaultSystem,
+  Text,
+} from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import { useDataTable } from "../../components/DataTable/useDataTable";
 import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
 import { data, Product } from "../product_data";
-import { useDataTable } from "../../components/DataTable/useDataTable";
 
 interface RowActionsProps {
   row: Product;
@@ -146,6 +152,24 @@ const DefaultTableShowcase = () => {
           showFilterName
           showFilterTags
           filterOptions={["category", "brand"]}
+        />
+        <TableComponent
+          render={(table) => {
+            return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
+          }}
+        />
+        <TableComponent
+          render={(table) => {
+            return (
+              <Button
+                onClick={() => {
+                  table.setRowSelection({});
+                }}
+              >
+                {"reset select"}
+              </Button>
+            );
+          }}
         />
         <Box width="400px" height={"400px"}>
           <DefaultTable showFilter />
