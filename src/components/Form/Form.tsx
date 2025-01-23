@@ -3,61 +3,65 @@ import { JSONSchema7 } from "json-schema";
 import { FormProvider, useForm } from "react-hook-form";
 import { StringInputField } from "./components/StringInputField";
 import { Button } from "../ui/button";
-import axios from "axios";
 import { SchemaContext } from "./SchemaContext";
+import { IdPicker } from "./components/IdPicker";
 
 export interface FormProps {
   schema: JSONSchema7;
   ignore?: string[];
+  onSubmit?: (data: any) => void;
 }
 
-export const Form = ({ schema, ignore = [] }: FormProps) => {
+export const Form = ({
+  schema,
+  ignore = [],
+  onSubmit = () => {},
+}: FormProps) => {
   const { properties } = schema;
   const methods = useForm();
-  const onSubmit = async (data: any) => {
-    console.log(data);
-    const options = {
-      method: "POST",
-      url: "http://localhost:8081/api/g/core_addresses",
-      headers: {
-        Apikey: "YOUR_SECRET_TOKEN",
-        "Content-Type": "application/json",
-      },
-      data: data,
-    };
-
-    try {
-      const { data } = await axios.request(options);
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    }
+  const onFormSubmit = async (data: any) => {
+    onSubmit(data);
   };
 
   const fields = Object.entries(properties);
 
   return (
-    <SchemaContext.Provider value={{schema}}>
+    <SchemaContext.Provider value={{ schema }}>
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <Grid templateColumns={"1fr 1fr"} gap={2}>
-            {fields.map(([key, values]) => {
-              if (
-                ignore.some((column) => {
-                  return column == key;
-                })
-              ) {
-                return <></>;
-              }
-              const { type } = values;
-              if (type === "string") {
-                return <StringInputField column={key} />;
-              }
+        <Grid templateColumns={"1fr 1fr"} gap={2}>
+          {fields.map(([key, values]) => {
+            if (
+              ignore.some((column) => {
+                return column == key;
+              })
+            ) {
               return <></>;
-            })}
-            <Button as={Input} type="submit" />
-          </Grid>
-        </form>
+            }
+            const { type, variant, table_ref } = values;
+            if (type === "string") {
+              if (variant === "id-picker") {
+                return (
+                  <IdPicker
+                    key={`form-${key}`}
+                    column={key}
+                    table_ref={table_ref}
+                  />
+                );
+              }
+              return <StringInputField key={`form-${key}`} column={key} />;
+            }
+
+            return <></>;
+          })}
+          <Button
+            onClick={() => {
+              methods.handleSubmit(onFormSubmit)();
+            }}
+            formNoValidate
+          >
+            Submit
+          </Button>
+        </Grid>
       </FormProvider>
     </SchemaContext.Provider>
   );
