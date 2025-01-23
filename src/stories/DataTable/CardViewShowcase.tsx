@@ -109,6 +109,25 @@ const CardViewShowcase = () => {
             cardBodyProps={{ minWidth: "10rem" }}
           />
         </TableCardContainer>
+        <TableCardContainer variant="carousel">
+          <TableCards<Product>
+            renderTitle={(row) => {
+              return (
+                <CardHeader
+                  {...{
+                    row: row,
+                    imageColumnId: "thumbnail",
+                    titleColumnId: "title",
+                    tagColumnId: "rating",
+                    tagIcon: MdStarRate,
+                    showTag: false,
+                  }}
+                />
+              );
+            }}
+            cardBodyProps={{ minWidth: "10rem" }}
+          />
+        </TableCardContainer>
         <TablePagination />
       </DataTable>
     </ChakraProvider>

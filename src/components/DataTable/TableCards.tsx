@@ -8,7 +8,7 @@ export interface TableCardsProps<TData> {
   isSelectable?: boolean;
   showDisplayNameOnly?: boolean;
   renderTitle?: (row: Row<TData>) => ReactNode | undefined;
-  cardBodyProps?: CardBodyProps
+  cardBodyProps?: CardBodyProps;
 }
 
 export const DefaultCardTitle = () => {
@@ -19,7 +19,7 @@ export const TableCards = <TData,>({
   isSelectable = false,
   showDisplayNameOnly = false,
   renderTitle = DefaultCardTitle,
-  cardBodyProps = {}
+  cardBodyProps = {},
 }: TableCardsProps<TData>) => {
   const { table } = useContext(TableContext);
 
@@ -27,8 +27,13 @@ export const TableCards = <TData,>({
     <>
       {table.getRowModel().rows.map((row) => {
         return (
-          <Card.Root key={`chakra-table-card-${row.id}`}>
-            <Card.Body display={"flex"} flexFlow={"column"} gap={"0.5rem"}  {...cardBodyProps}>
+          <Card.Root key={`chakra-table-card-${row.id}`} flex={'1 0 20rem'} >
+            <Card.Body
+              display={"flex"}
+              flexFlow={"column"}
+              gap={"0.5rem"}
+              {...cardBodyProps}
+            >
               {isSelectable && (
                 <Checkbox
                   {...{
