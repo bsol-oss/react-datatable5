@@ -76,7 +76,7 @@ export * from "./components/Controls/ResetSortingButton";
 export * from "./components/Controls/RowCountText";
 export * from "./components/DataTable/DataTable";
 export * from "./components/DataTable/DataTableServer";
-export * from "./components/DataTable/DefaultCard";
+export * from "./components/DataTable/CardHeader";
 export * from "./components/DataTable/DefaultTable";
 export * from "./components/DataTable/ReloadButton";
 export * from "./components/DataTable/Table";
