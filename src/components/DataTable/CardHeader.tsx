@@ -31,9 +31,9 @@ export const CardHeader = <TData,>({
     <Grid templateRows={"auto auto"} gap={"1rem"}>
       {!!imageColumnId && (
         <Image
+          width={"100%"}
           src={row.original[imageColumnId!] as string}
           {...imageProps}
-          objectFit={"contain"}
         />
       )}
       {isShowFirstColumn && (
