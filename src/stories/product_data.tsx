@@ -9,7 +9,7 @@ export const data = [
     stock: 94,
     brand: "Apple",
     category: "smartphones",
-    thumbnail: "https://cdn.dummyjson.com/product-images/1/thumbnail.jpg",
+    thumbnail: "https://picsum.photos/200/300",
     images: [
       "https://cdn.dummyjson.com/product-images/1/1.jpg",
       "https://cdn.dummyjson.com/product-images/1/2.jpg",
@@ -29,7 +29,7 @@ export const data = [
     stock: 34,
     brand: "Apple",
     category: "smartphones",
-    thumbnail: "https://cdn.dummyjson.com/product-images/2/thumbnail.jpg",
+    thumbnail: "https://picsum.photos/600",
     images: [
       "https://cdn.dummyjson.com/product-images/2/1.jpg",
       "https://cdn.dummyjson.com/product-images/2/2.jpg",
@@ -48,7 +48,7 @@ export const data = [
     stock: 36,
     brand: "Samsung",
     category: "smartphones",
-    thumbnail: "https://cdn.dummyjson.com/product-images/3/thumbnail.jpg",
+    thumbnail: "https://picsum.photos/500",
     images: ["https://cdn.dummyjson.com/product-images/3/1.jpg"],
   },
   {
