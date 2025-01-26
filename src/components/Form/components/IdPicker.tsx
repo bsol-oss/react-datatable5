@@ -42,7 +42,6 @@ const getTableData = async ({ searching, table_ref }) => {
 
 export const IdPicker = ({ column, table_ref }: IdPickerProps) => {
   const {
-    register,
     formState: { errors },
     setValue,
   } = useFormContext();
@@ -63,14 +62,13 @@ export const IdPicker = ({ column, table_ref }: IdPickerProps) => {
   return (
     <>
       <Field label={`${snakeToLabel(column)}`} required={isRequired}>
-        {/* <Input {...register(column, { required: isRequired })} /> */}
         <Input
           onChange={(event) => {
             onSearchChange(event);
           }}
         />
         <>{selectedId}</>
-        {(data?.results ?? []).map((item) => {
+        {(data?.data ?? []).map((item) => {
           return (
             <Button
               onClick={() => {
