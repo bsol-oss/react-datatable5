@@ -1,15 +1,14 @@
-import { Alert, Grid } from "@chakra-ui/react";
+import { DataListItem, DataListRoot } from "@/components/ui/data-list";
+import { Box, Center, Grid, Spinner } from "@chakra-ui/react";
+import axios from "axios";
 import { JSONSchema7 } from "json-schema";
+import { useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { StringInputField } from "./components/StringInputField";
 import { Button } from "../ui/button";
 import { SchemaFormContext } from "./SchemaFormContext";
 import { IdPicker } from "./components/IdPicker";
-import axios from "axios";
-import { useState } from "react";
-import { DataListItem, DataListRoot } from "@/components/ui/data-list";
+import { StringInputField } from "./components/StringInputField";
 import { snakeToLabel } from "./utils/snakeToLabel";
-import { ImStarEmpty } from "react-icons/im";
 export interface FormProps<TData> {
   schema: JSONSchema7;
   serverUrl: string;
@@ -31,7 +30,7 @@ export const Form = <TData,>({
   const [isError, setIsError] = useState<boolean>(false);
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
-  const [validatedData, setValidatedData] = useState<boolean>(false);
+  const [validatedData, setValidatedData] = useState();
 
   const onBeforeSubmit = () => {
     setIsSubmiting(true);
@@ -90,12 +89,6 @@ export const Form = <TData,>({
   };
 
   const ordered = renderOrder(order, Object.keys(properties));
-  const isEmpty = (value: string | undefined) => {
-    if (value) {
-      return value.length <= 0;
-    }
-    return true;
-  };
 
   const getDataListProps = (value: string | undefined) => {
     if (value == undefined || value.length <= 0) {
@@ -108,9 +101,29 @@ export const Form = <TData,>({
       value: value,
     };
   };
-  if (isConfirming) {
+  if (isSuccess) {
     return (
       <>
+        isSuccess
+        <Button
+          onClick={() => {
+            setIsError(false);
+            setIsSubmiting(false);
+            setIsSuccess(false);
+            setIsConfirming(false);
+            setValidatedData(undefined);
+            methods.reset();
+          }}
+          formNoValidate
+        >
+          Submit New
+        </Button>
+      </>
+    );
+  }
+  if (isConfirming) {
+    return (
+      <Grid>
         isConfirming
         <DataListRoot orientation="horizontal">
           {ordered.map((column) => {
@@ -120,28 +133,35 @@ export const Form = <TData,>({
               <DataListItem
                 key={`form-${key}`}
                 label={`${snakeToLabel(column)}`}
-                {...getDataListProps(validatedData[column])}
+                {...getDataListProps((validatedData ?? {})[column])}
               />
             );
           })}
-          <Button
-            onClick={() => {
-              onFormSubmit(validatedData);
-            }}
-          >
-            Confirm
-          </Button>
         </DataListRoot>
-      </>
+        <Button
+          onClick={() => {
+            onFormSubmit(validatedData);
+          }}
+        >
+          Confirm
+        </Button>
+        <Button
+          onClick={() => {
+            setIsConfirming(false);
+          }}
+        >
+          Back
+        </Button>
+        {isSubmiting && (
+          <Box pos="absolute" inset="0" bg="bg/80">
+            <Center h="full">
+              <Spinner color="teal.500" />
+            </Center>
+          </Box>
+        )}
+        {isError && <>isError</>}
+      </Grid>
     );
-  }
-
-  if (isSubmiting) {
-    return <>isSubmiting</>;
-  }
-
-  if (isSuccess) {
-    return <>isSuccess</>;
   }
 
   return (
@@ -175,7 +195,14 @@ export const Form = <TData,>({
 
             return <></>;
           })}
-          v
+          <Button
+            onClick={() => {
+              methods.handleSubmit(onValid)();
+            }}
+            formNoValidate
+          >
+            Submit
+          </Button>
         </Grid>
         {isError && <>isError</>}
       </FormProvider>
