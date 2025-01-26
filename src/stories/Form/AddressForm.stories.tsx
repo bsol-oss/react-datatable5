@@ -41,6 +41,9 @@ const AddressForm = () => {
         ]}
         ignore={["id", "created_at", "updated_at"]}
         serverUrl={"http://localhost:8081"} 
+        preLoadedValues={{
+          "street_number": "nice"
+        }}
       />
     </ChakraProvider>
   );

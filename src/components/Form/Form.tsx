@@ -2,7 +2,7 @@ import { DataListItem, DataListRoot } from "@/components/ui/data-list";
 import { Box, Center, Grid, Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { JSONSchema7 } from "json-schema";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { SchemaFormContext } from "./SchemaFormContext";
@@ -15,6 +15,7 @@ export interface FormProps<TData> {
   order?: string[];
   ignore?: string[];
   onSubmit?: SubmitHandler<TData>;
+  preLoadedValues?: object;
 }
 
 export const Form = <TData,>({
@@ -23,6 +24,7 @@ export const Form = <TData,>({
   order = [],
   ignore = [],
   onSubmit = undefined,
+  preLoadedValues = {},
 }: FormProps<TData>) => {
   const { properties } = schema;
   const methods = useForm();
@@ -101,6 +103,16 @@ export const Form = <TData,>({
       value: value,
     };
   };
+
+  useEffect(() => {
+    const loadData = () => {
+      Object.entries(preLoadedValues).map(([column, value]) => {
+        methods.setValue(column, value);
+      });
+    };
+    loadData();
+  }, [preLoadedValues, methods]);
+
   if (isSuccess) {
     return (
       <>
