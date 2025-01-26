@@ -1,5 +1,5 @@
 import { DataListItem, DataListRoot } from "@/components/ui/data-list";
-import { Box, Center, Grid, Spinner } from "@chakra-ui/react";
+import { Box, Center, Grid, Heading, Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { JSONSchema7 } from "json-schema";
 import { useEffect, useState } from "react";
@@ -12,6 +12,7 @@ import { snakeToLabel } from "./utils/snakeToLabel";
 export interface FormProps<TData> {
   schema: JSONSchema7;
   serverUrl: string;
+  title: string;
   order?: string[];
   ignore?: string[];
   onSubmit?: SubmitHandler<TData>;
@@ -21,6 +22,7 @@ export interface FormProps<TData> {
 export const Form = <TData,>({
   schema,
   serverUrl,
+  title = "",
   order = [],
   ignore = [],
   onSubmit = undefined,
@@ -104,6 +106,14 @@ export const Form = <TData,>({
     };
   };
 
+  const getTitle = () => {
+    if (title.length <= 0) {
+      return snakeToLabel(schema.title);
+    }
+
+    return title;
+  };
+
   useEffect(() => {
     const loadData = () => {
       Object.entries(preLoadedValues).map(([column, value]) => {
@@ -136,7 +146,7 @@ export const Form = <TData,>({
   if (isConfirming) {
     return (
       <Grid>
-        isConfirming
+        <Heading>Confirmation</Heading>
         <DataListRoot orientation="horizontal">
           {ordered.map((column) => {
             const key = column;
@@ -180,6 +190,7 @@ export const Form = <TData,>({
     <SchemaFormContext.Provider value={{ schema, serverUrl }}>
       <FormProvider {...methods}>
         <Grid gap={2}>
+          <Heading>{getTitle()}</Heading>
           {ordered.map((column) => {
             const key = column;
             const values = properties[column];
