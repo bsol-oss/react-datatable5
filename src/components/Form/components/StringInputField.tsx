@@ -2,8 +2,7 @@ import { Input, Text } from "@chakra-ui/react";
 import { Field } from "../../ui/field";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../useSchemaContext";
-
-
+import { snakeToLabel } from "../utils/snakeToLabel";
 
 export interface StringInputFieldProps {
   column: string;
