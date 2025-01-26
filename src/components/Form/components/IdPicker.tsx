@@ -15,13 +15,24 @@ const snakeToLabel = (str: string): string => {
 
 export interface IdPickerProps {
   column: string;
-  table_ref: string;
+  in_table: string;
+  column_ref: string;
 }
 
-const getTableData = async ({ searching, table_ref }) => {
+export interface GetTableDataConfig {
+  serverUrl: string;
+  searching: string;
+  in_table: string;
+}
+
+const getTableData = async ({
+  serverUrl = "http://localhost:8081",
+  searching,
+  in_table,
+}: GetTableDataConfig) => {
   const options: AxiosRequestConfig = {
     method: "GET",
-    url: `http://localhost:8081/api/g/${table_ref}`,
+    url: `${serverUrl}/api/g/${in_table}`,
     headers: {
       Apikey: "YOUR_SECRET_TOKEN",
       "Content-Type": "application/json",
@@ -40,12 +51,12 @@ const getTableData = async ({ searching, table_ref }) => {
   }
 };
 
-export const IdPicker = ({ column, table_ref }: IdPickerProps) => {
+export const IdPicker = ({ column, in_table, column_ref }: IdPickerProps) => {
   const {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema } = useSchemaContext();
+  const { schema, serverUrl } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const [data, setData] = useState();
@@ -53,8 +64,9 @@ export const IdPicker = ({ column, table_ref }: IdPickerProps) => {
 
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const data = await getTableData({
+      serverUrl,
       searching: event.target.value,
-      table_ref: table_ref,
+      in_table: in_table,
     });
 
     setData(data);
@@ -68,12 +80,12 @@ export const IdPicker = ({ column, table_ref }: IdPickerProps) => {
           }}
         />
         <>{selectedId}</>
-        {(data?.data ?? []).map((item) => {
+        {(data?.data ?? []).map((item: any) => {
           return (
             <Button
               onClick={() => {
-                setSelectedId(item["id"]);
-                setValue(column, item["id"]);
+                setSelectedId(item[column_ref]);
+                setValue(column, item[column_ref]);
               }}
             >
               {item.first_name}

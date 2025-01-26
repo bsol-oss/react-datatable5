@@ -1,10 +1,11 @@
 import { useContext } from "react";
-import { SchemaContext } from "./SchemaContext";
+import { SchemaFormContext } from "./SchemaFormContext";
 
 export const useSchemaContext = () => {
-  const { schema } = useContext(SchemaContext);
+  const { schema, serverUrl } = useContext(SchemaFormContext);
 
   return {
     schema,
+    serverUrl,
   };
 };

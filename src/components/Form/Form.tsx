@@ -1,27 +1,53 @@
-import { Grid, Input } from "@chakra-ui/react";
+import { Grid } from "@chakra-ui/react";
 import { JSONSchema7 } from "json-schema";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { StringInputField } from "./components/StringInputField";
 import { Button } from "../ui/button";
-import { SchemaContext } from "./SchemaContext";
+import { SchemaFormContext } from "./SchemaFormContext";
 import { IdPicker } from "./components/IdPicker";
+import axios from "axios";
 
-export interface FormProps {
+export interface FormProps<TData> {
   schema: JSONSchema7;
+  serverUrl: string;
   order?: string[];
   ignore?: string[];
-  onSubmit?: (data: any) => void;
+  onSubmit?: SubmitHandler<TData>;
 }
 
-export const Form = ({
+export const Form = <TData,>({
   schema,
+  serverUrl,
   order = [],
   ignore = [],
-  onSubmit = () => {},
-}: FormProps) => {
+  onSubmit = undefined,
+}: FormProps<TData>) => {
   const { properties } = schema;
   const methods = useForm();
+
+  const defaultOnSubmit: SubmitHandler<any> = async (data, serverUrl) => {
+    const options = {
+      method: "POST",
+      url: `${serverUrl}/api/g/${schema.title}`,
+      headers: {
+        Apikey: "YOUR_SECRET_TOKEN",
+        "Content-Type": "application/json",
+      },
+      data: clearEmptyString(data),
+    };
+
+    try {
+      const { data } = await axios.request(options);
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const onFormSubmit = async (data: any) => {
+    if (onSubmit === undefined) {
+      defaultOnSubmit(data);
+      return;
+    }
     onSubmit(data);
   };
 
@@ -35,7 +61,7 @@ export const Form = ({
   const ordered = renderOrder(order, Object.keys(properties));
 
   return (
-    <SchemaContext.Provider value={{ schema }}>
+    <SchemaFormContext.Provider value={{ schema, serverUrl }}>
       <FormProvider {...methods}>
         <Grid gap={2}>
           {ordered.map((column) => {
@@ -48,14 +74,15 @@ export const Form = ({
             ) {
               return <></>;
             }
-            const { type, variant, table_ref } = values;
+            const { type, variant, in_table, column_ref } = values;
             if (type === "string") {
               if (variant === "id-picker") {
                 return (
                   <IdPicker
                     key={`form-${key}`}
                     column={key}
-                    table_ref={table_ref}
+                    in_table={in_table}
+                    column_ref={column_ref}
                   />
                 );
               }
@@ -74,6 +101,12 @@ export const Form = ({
           </Button>
         </Grid>
       </FormProvider>
-    </SchemaContext.Provider>
+    </SchemaFormContext.Provider>
+  );
+};
+
+const clearEmptyString = (object: object) => {
+  return Object.fromEntries(
+    Object.entries(object).filter(([key, value]) => value !== "")
   );
 };

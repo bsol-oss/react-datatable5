@@ -3,12 +3,7 @@ import { Field } from "../../ui/field";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../useSchemaContext";
 
-const snakeToLabel = (str: string): string => {
-  return str
-    .split("_") // Split by underscore
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
-    .join(" "); // Join with space
-};
+
 
 export interface StringInputFieldProps {
   column: string;

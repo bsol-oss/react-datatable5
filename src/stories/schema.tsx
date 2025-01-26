@@ -109,7 +109,8 @@ export const membershipSchema = {
       type: "string",
       format: "uuid",
       variant: "id-picker",
-      table_ref: "core_people",
+      in_table: "core_people",
+      column_ref: "id",
       description:
         "Missing description. Database type: uuid. Default value: null",
     },
@@ -155,7 +156,8 @@ export const membershipSchema = {
       description:
         "Missing description. Database type: uuid. Default value: null",
       variant: "id-picker",
-      table_ref: "core_people",
+      in_table: "core_people",
+      column_ref: "id",
     },
   },
   description: "Missing description",
