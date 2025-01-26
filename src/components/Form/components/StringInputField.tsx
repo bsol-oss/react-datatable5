@@ -16,7 +16,6 @@ export const StringInputField = ({ column }: StringInputFieldProps) => {
   const { schema } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  console.log(errors);
   return (
     <>
       <Field label={`${snakeToLabel(column)}`} required={isRequired}>
@@ -24,7 +23,9 @@ export const StringInputField = ({ column }: StringInputFieldProps) => {
           {...register(column, { required: isRequired })}
           autoComplete="off"
         />
-        {errors[`${column}`] && <Text color={'red.400'}>{"The field is required"}</Text>}
+        {errors[`${column}`] && (
+          <Text color={"red.400"}>{"The field is required"}</Text>
+        )}
       </Field>
     </>
   );

@@ -12,12 +12,10 @@ const meta = {
 
   argTypes: {},
 } satisfies Meta<typeof Form>;
- 
+
 type Story = StoryObj<typeof meta>;
 
-
 export default meta;
-
 
 export const Membership: Story = {
   render: () => {
@@ -36,26 +34,8 @@ const MembershipForm = () => {
       <Form
         schema={membershipSchema as JSONSchema7}
         ignore={["id", "created_at", "updated_at"]}
-        onSubmit={async (data) => {
-          const options = {
-            method: "POST",
-            url: "http://localhost:8081/api/g/core_memberships",
-            headers: {
-              Apikey: "YOUR_SECRET_TOKEN",
-              "Content-Type": "application/json",
-            },
-            data: clearEmptyString(data),
-          };
-
-          try {
-            const { data } = await axios.request(options);
-            console.log(data);
-          } catch (error) {
-            console.error(error);
-          }
-        }}
+        serverUrl={"http://localhost:8081"}
       />
     </ChakraProvider>
   );
 };
-
