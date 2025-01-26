@@ -1,10 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { Input, Text } from "@chakra-ui/react";
+import { Box, HStack, IconButton, Input, Text } from "@chakra-ui/react";
 import axios, { AxiosRequestConfig } from "axios";
 import { ChangeEvent, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
+import {
+  RadioCardItem,
+  RadioCardLabel,
+  RadioCardRoot,
+} from "@/components/ui/radio-card";
+import { BiCross } from "react-icons/bi";
+import { FcCancel } from "react-icons/fc";
+import { GrClear } from "react-icons/gr";
+import { MdClear } from "react-icons/md";
+import { Tag } from "@/components/ui/tag";
 
 const snakeToLabel = (str: string): string => {
   return str
@@ -17,6 +27,7 @@ export interface IdPickerProps {
   column: string;
   in_table: string;
   column_ref: string;
+  display_column: string;
 }
 
 export interface GetTableDataConfig {
@@ -51,7 +62,12 @@ const getTableData = async ({
   }
 };
 
-export const IdPicker = ({ column, in_table, column_ref }: IdPickerProps) => {
+export const IdPicker = ({
+  column,
+  in_table,
+  column_ref,
+  display_column,
+}: IdPickerProps) => {
   const {
     formState: { errors },
     setValue,
@@ -61,7 +77,7 @@ export const IdPicker = ({ column, in_table, column_ref }: IdPickerProps) => {
   const isRequired = required?.some((columnId) => columnId === column);
   const [data, setData] = useState();
   const [selectedId, setSelectedId] = useState();
-
+  const dataList = data?.data ?? [];
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const data = await getTableData({
       serverUrl,
@@ -71,6 +87,53 @@ export const IdPicker = ({ column, in_table, column_ref }: IdPickerProps) => {
 
     setData(data);
   };
+  const getItemList = (data) => {
+    return data.map((item) => {
+      return {
+        label: item[display_column],
+        key: item[column_ref],
+        value: item[column_ref],
+      };
+    });
+  };
+
+  const getIdMap = (data: any[]) => {
+    return Object.fromEntries(
+      data.map((item) => {
+        return [
+          item[column_ref],
+          {
+            ...item,
+          },
+        ];
+      })
+    );
+  };
+
+  const getSelectedName = () => {
+    const selectedItem = getIdMap(dataList)[selectedId ?? ""];
+    if (selectedItem == undefined) {
+      return "";
+    }
+    return selectedItem[display_column];
+  };
+  if (selectedId != undefined) {
+    return (
+      <Field label={`${snakeToLabel(column)}`} required={isRequired}>
+        <Box>
+          <Tag
+            closable
+            onClick={() => {
+              setSelectedId(undefined);
+              setValue(column, "");
+            }}
+          >
+            {getSelectedName()}
+          </Tag>
+        </Box>
+      </Field>
+    );
+  }
   return (
     <>
       <Field label={`${snakeToLabel(column)}`} required={isRequired}>
@@ -79,22 +142,25 @@ export const IdPicker = ({ column, in_table, column_ref }: IdPickerProps) => {
             onSearchChange(event);
           }}
         />
-        <>{selectedId}</>
-        {(data?.data ?? []).map((item: any) => {
-          return (
-            <Button
-              onClick={() => {
-                setSelectedId(item[column_ref]);
-                setValue(column, item[column_ref]);
-              }}
-            >
-              {item.first_name}
-            </Button>
-          );
-        })}
+        <RadioCardRoot>
+          <HStack>
+            {getItemList(dataList).map((item) => (
+              <RadioCardItem
+                label={item.label}
+                key={item.key}
+                value={item.value}
+                onClick={() => {
+                  setSelectedId(item.key);
+                  setValue(column, item.key);
+                }}
+                indicator={false}
+              />
+            ))}
+          </HStack>
+        </RadioCardRoot>
         <>{JSON.stringify(data ?? {})}</>;
         {errors[`${column}`] && <Text>This field is required</Text>}
-      </Field>
+      </Field>{" "}
     </>
   );
 };

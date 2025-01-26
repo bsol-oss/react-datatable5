@@ -111,6 +111,7 @@ export const membershipSchema = {
       variant: "id-picker",
       in_table: "core_people",
       column_ref: "id",
+      display_column: "first_name",
       description:
         "Missing description. Database type: uuid. Default value: null",
     },

@@ -108,7 +108,7 @@ export const Form = <TData,>({
 
   const getTitle = () => {
     if (title.length <= 0) {
-      return snakeToLabel(schema.title);
+      return snakeToLabel(schema.title ?? "");
     }
 
     return title;
@@ -201,7 +201,8 @@ export const Form = <TData,>({
             ) {
               return <></>;
             }
-            const { type, variant, in_table, column_ref } = values;
+            const { type, variant, in_table, column_ref, display_column } =
+              values;
             if (type === "string") {
               if (variant === "id-picker") {
                 return (
@@ -210,6 +211,7 @@ export const Form = <TData,>({
                     column={key}
                     in_table={in_table}
                     column_ref={column_ref}
+                    display_column={display_column}
                   />
                 );
               }
