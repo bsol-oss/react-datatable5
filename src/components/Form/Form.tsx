@@ -28,7 +28,7 @@ export const Form = ({
   return (
     <SchemaContext.Provider value={{ schema }}>
       <FormProvider {...methods}>
-        <Grid templateColumns={"1fr 1fr"} gap={2}>
+        <Grid gap={2}>
           {fields.map(([key, values]) => {
             if (
               ignore.some((column) => {
