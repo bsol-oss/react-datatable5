@@ -16,9 +16,7 @@ const meta = {
 
 type Story = StoryObj<typeof meta>;
 
-
 export default meta;
-
 
 export const Address: Story = {
   render: () => {
@@ -37,6 +35,16 @@ const AddressForm = () => {
     <ChakraProvider value={defaultSystem}>
       <Form
         schema={addressSchema as JSONSchema7}
+        order={[
+          "flat_number",
+          "floor_number",
+          "building_name",
+          "street_name",
+          "street_number",
+          "village_name",
+          "region",
+          "district",
+        ]}
         ignore={["id", "created_at", "updated_at"]}
         onSubmit={async (data) => {
           console.log("gkpotsk", clearEmptyString(data));
@@ -61,4 +69,3 @@ const AddressForm = () => {
     </ChakraProvider>
   );
 };
-

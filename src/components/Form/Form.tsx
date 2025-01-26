@@ -8,12 +8,14 @@ import { IdPicker } from "./components/IdPicker";
 
 export interface FormProps {
   schema: JSONSchema7;
+  order?: string[];
   ignore?: string[];
   onSubmit?: (data: any) => void;
 }
 
 export const Form = ({
   schema,
+  order = [],
   ignore = [],
   onSubmit = () => {},
 }: FormProps) => {
@@ -23,13 +25,22 @@ export const Form = ({
     onSubmit(data);
   };
 
-  const fields = Object.entries(properties);
+  const renderOrder = (order: string[], origin_list: string[]) => {
+    const not_exist = origin_list.filter(
+      (columnA) => !order.some((columnB) => columnA === columnB)
+    );
+    return [...order, ...not_exist];
+  };
+
+  const ordered = renderOrder(order, Object.keys(properties));
 
   return (
     <SchemaContext.Provider value={{ schema }}>
       <FormProvider {...methods}>
         <Grid gap={2}>
-          {fields.map(([key, values]) => {
+          {ordered.map((column) => {
+            const key = column;
+            const values = properties[column];
             if (
               ignore.some((column) => {
                 return column == key;
