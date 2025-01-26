@@ -1,20 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { Box, HStack, IconButton, Input, Text } from "@chakra-ui/react";
+import {
+  RadioCardItem,
+  RadioCardRoot
+} from "@/components/ui/radio-card";
+import { Tag } from "@/components/ui/tag";
+import { Box, Group, Input, Text } from "@chakra-ui/react";
 import axios, { AxiosRequestConfig } from "axios";
 import { ChangeEvent, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
-import {
-  RadioCardItem,
-  RadioCardLabel,
-  RadioCardRoot,
-} from "@/components/ui/radio-card";
-import { BiCross } from "react-icons/bi";
-import { FcCancel } from "react-icons/fc";
-import { GrClear } from "react-icons/gr";
-import { MdClear } from "react-icons/md";
-import { Tag } from "@/components/ui/tag";
 
 const snakeToLabel = (str: string): string => {
   return str
@@ -93,6 +87,7 @@ export const IdPicker = ({
         label: item[display_column],
         key: item[column_ref],
         value: item[column_ref],
+        description: JSON.stringify(item),
       };
     });
   };
@@ -143,10 +138,11 @@ export const IdPicker = ({
           }}
         />
         <RadioCardRoot>
-          <HStack>
+          <Group attached orientation="vertical">
             {getItemList(dataList).map((item) => (
               <RadioCardItem
                 label={item.label}
+                description={item.description}
                 key={item.key}
                 value={item.value}
                 onClick={() => {
@@ -156,7 +152,7 @@ export const IdPicker = ({
                 indicator={false}
               />
             ))}
-          </HStack>
+          </Group>
         </RadioCardRoot>
         <>{JSON.stringify(data ?? {})}</>;
         {errors[`${column}`] && <Text>This field is required</Text>}
