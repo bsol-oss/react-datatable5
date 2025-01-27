@@ -12,7 +12,7 @@ import { snakeToLabel } from "./utils/snakeToLabel";
 export interface FormProps<TData> {
   schema: JSONSchema7;
   serverUrl: string;
-  title: string;
+  title?: string;
   order?: string[];
   ignore?: string[];
   onSubmit?: SubmitHandler<TData>;
