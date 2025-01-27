@@ -68,8 +68,10 @@ export const IdPicker = ({
   const isRequired = required?.some((columnId) => columnId === column);
   const [data, setData] = useState();
   const [selectedId, setSelectedId] = useState();
+  const [searchText, setSearchText] = useState<string>();
   const dataList = data?.data ?? [];
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchText(event.target.value);
     const data = await getTableData({
       serverUrl,
       searching: event.target.value,
@@ -150,7 +152,9 @@ export const IdPicker = ({
                 indicator={false}
               />
             ))}
-            {dataList.length <= 0 && <>Empty Search Result</>}
+            {dataList.length <= 0 && (searchText?.length ?? 0) > 0 && (
+              <>Empty Search Result</>
+            )}
           </HStack>
         </RadioCardRoot>
         {/* <>{JSON.stringify(data ?? {})}</>; */}
