@@ -2,7 +2,6 @@ import { Form } from "@/components/Form/Form";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { membershipSchema } from "../schema";
 import { JSONSchema7 } from "json-schema";
-import axios from "axios";
 import type { Meta, StoryObj } from "@storybook/react";
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -22,11 +21,6 @@ export const Membership: Story = {
     return <MembershipForm />;
   },
 };
-const clearEmptyString = (object) => {
-  return Object.fromEntries(
-    Object.entries(object).filter(([key, value]) => value !== "")
-  );
-};
 
 const MembershipForm = () => {
   return (
@@ -34,7 +28,8 @@ const MembershipForm = () => {
       <Form
         schema={membershipSchema as JSONSchema7}
         ignore={["id", "created_at", "updated_at"]}
-        serverUrl={"http://localhost:8081"}
+        serverUrl={"http://localhost:8081"} 
+        order={['membership_id','person_id','region_id','expire_date','person_in_charge_id']}
       />
     </ChakraProvider>
   );

@@ -19,6 +19,23 @@ export interface FormProps<TData> {
   preLoadedValues?: object;
 }
 
+const idListSanityCheck = (
+  param: string,
+  idList: string[],
+  properties: object
+) => {
+  const allKeyExists = idList.every((key) =>
+    Object.keys(properties as object).some((column) => column == key)
+  );
+ 
+  if (!allKeyExists) {
+    const wrongKey = idList.find((key) =>
+      !Object.keys(properties as object).some((column) => column == key)
+    );
+    throw new Error(`The key ${wrongKey} in ${param} does not exist in schema.`);
+  }
+};
+
 export const Form = <TData,>({
   schema,
   serverUrl,
@@ -29,6 +46,9 @@ export const Form = <TData,>({
   preLoadedValues = {},
 }: FormProps<TData>) => {
   const { properties } = schema;
+  idListSanityCheck("order", order, properties as object);
+  idListSanityCheck("ignore", ignore, properties as object);
+
   const methods = useForm();
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -79,7 +99,7 @@ export const Form = <TData,>({
     onSubmit(data);
   };
 
-  const onValid = (data) => {
+  const onValid = (data: any) => {
     setValidatedData(data);
     setIsError(false);
     setIsConfirming(true);
@@ -92,7 +112,7 @@ export const Form = <TData,>({
     return [...order, ...not_exist];
   };
 
-  const ordered = renderOrder(order, Object.keys(properties));
+  const ordered = renderOrder(order, Object.keys(properties as object));
 
   const getDataListProps = (value: string | undefined) => {
     if (value == undefined || value.length <= 0) {
@@ -185,6 +205,7 @@ export const Form = <TData,>({
       </Grid>
     );
   }
+  console.log(properties, ordered);
 
   return (
     <SchemaFormContext.Provider value={{ schema, serverUrl }}>
@@ -235,8 +256,6 @@ export const Form = <TData,>({
   );
 };
 
-const clearEmptyString = (object: object) => {
-  return Object.fromEntries(
-    Object.entries(object).filter(([key, value]) => value !== "")
-  );
-};
+function clearEmptyString(data: any) {
+  throw new Error("Function not implemented.");
+}
