@@ -130,6 +130,7 @@ export const IdPicker = ({
     <>
       <Field label={`${snakeToLabel(column)}`} required={isRequired}>
         <Input
+          placeholder="Type to search"
           onChange={(event) => {
             onSearchChange(event);
           }}
@@ -149,6 +150,7 @@ export const IdPicker = ({
                 indicator={false}
               />
             ))}
+            {dataList.length <= 0 && <>Empty Search Result</>}
           </HStack>
         </RadioCardRoot>
         {/* <>{JSON.stringify(data ?? {})}</>; */}
