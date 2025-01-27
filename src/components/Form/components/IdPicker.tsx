@@ -1,6 +1,6 @@
 import { RadioCardItem, RadioCardRoot } from "@/components/ui/radio-card";
 import { Tag } from "@/components/ui/tag";
-import { Box, Group, HStack, Input, Text } from "@chakra-ui/react";
+import { Box, HStack, Input, Text } from "@chakra-ui/react";
 import axios, { AxiosRequestConfig } from "axios";
 import { ChangeEvent, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -53,6 +53,11 @@ const getTableData = async ({
   }
 };
 
+export interface GetTableResponse {
+  data?: object[];
+  count: number;
+}
+
 export const IdPicker = ({
   column,
   in_table,
@@ -66,7 +71,7 @@ export const IdPicker = ({
   const { schema, serverUrl } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const [data, setData] = useState();
+  const [data, setData] = useState<GetTableResponse>();
   const [selectedId, setSelectedId] = useState();
   const [searchText, setSearchText] = useState<string>();
   const dataList = data?.data ?? [];
@@ -80,17 +85,18 @@ export const IdPicker = ({
 
     setData(data);
   };
-  const getItemList = (data) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getItemList = (data: any[]) => {
     return data.map((item) => {
       return {
         label: item[display_column],
         key: item[column_ref],
         value: item[column_ref],
-        // description: JSON.stringify(item),
       };
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getIdMap = (data: any[]) => {
     return Object.fromEntries(
       data.map((item) => {
@@ -139,19 +145,22 @@ export const IdPicker = ({
         />
         <RadioCardRoot>
           <HStack align="stretch">
-            {getItemList(dataList).map((item) => (
-              <RadioCardItem
-                label={item.label}
-                description={item.description}
-                key={item.key}
-                value={item.value}
-                onClick={() => {
-                  setSelectedId(item.key);
-                  setValue(column, item.key);
-                }}
-                indicator={false}
-              />
-            ))}
+            {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              getItemList(dataList).map((item: any) => (
+                <RadioCardItem
+                  label={item.label}
+                  description={item.description}
+                  key={item.key}
+                  value={item.value}
+                  onClick={() => {
+                    setSelectedId(item.key);
+                    setValue(column, item.key);
+                  }}
+                  indicator={false}
+                />
+              ))
+            }
             {dataList.length <= 0 && (searchText?.length ?? 0) > 0 && (
               <>Empty Search Result</>
             )}

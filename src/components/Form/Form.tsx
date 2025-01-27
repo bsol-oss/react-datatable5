@@ -3,13 +3,20 @@ import { Box, Center, Grid, Heading, Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { JSONSchema7 } from "json-schema";
 import { useEffect, useState } from "react";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import {
+  FieldValues,
+  FormProvider,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
 import { Button } from "../ui/button";
 import { SchemaFormContext } from "./SchemaFormContext";
 import { IdPicker } from "./components/IdPicker";
 import { StringInputField } from "./components/StringInputField";
 import { snakeToLabel } from "./utils/snakeToLabel";
-export interface FormProps<TData> {
+import { clearEmptyString } from "./utils/clearEmptyString";
+
+export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
   serverUrl: string;
   title?: string;
@@ -27,16 +34,19 @@ const idListSanityCheck = (
   const allKeyExists = idList.every((key) =>
     Object.keys(properties as object).some((column) => column == key)
   );
- 
+
   if (!allKeyExists) {
-    const wrongKey = idList.find((key) =>
-      !Object.keys(properties as object).some((column) => column == key)
+    const wrongKey = idList.find(
+      (key) =>
+        !Object.keys(properties as object).some((column) => column == key)
     );
-    throw new Error(`The key ${wrongKey} in ${param} does not exist in schema.`);
+    throw new Error(
+      `The key ${wrongKey} in ${param} does not exist in schema.`
+    );
   }
 };
 
-export const Form = <TData,>({
+export const Form = <TData extends FieldValues>({
   schema,
   serverUrl,
   title = "",
@@ -55,6 +65,7 @@ export const Form = <TData,>({
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
   const [validatedData, setValidatedData] = useState();
+  const [error, setError] = useState();
 
   const onBeforeSubmit = () => {
     setIsSubmiting(true);
@@ -68,7 +79,7 @@ export const Form = <TData,>({
   const onSubmitSuccess = () => {
     setIsSuccess(true);
   };
-  const defaultOnSubmit: SubmitHandler<any> = async (data) => {
+  const defaultOnSubmit: SubmitHandler<TData> = async (data) => {
     const options = {
       method: "POST",
       url: `${serverUrl}/api/g/${schema.title}`,
@@ -81,16 +92,17 @@ export const Form = <TData,>({
 
     try {
       onBeforeSubmit();
-      const { data } = await axios.request(options);
+      await axios.request(options);
       onSubmitSuccess();
     } catch (error) {
       setIsError(true);
-      console.error(error);
+      setError(error);
       onSubmitError();
     } finally {
       onAfterSubmit();
     }
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFormSubmit = async (data: any) => {
     if (onSubmit === undefined) {
       defaultOnSubmit(data);
@@ -99,6 +111,7 @@ export const Form = <TData,>({
     onSubmit(data);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onValid = (data: any) => {
     setValidatedData(data);
     setIsError(false);
@@ -201,7 +214,11 @@ export const Form = <TData,>({
             </Center>
           </Box>
         )}
-        {isError && <>isError</>}
+        {isError && (
+          <>
+            isError<> {`${error}`}</>
+          </>
+        )}
       </Grid>
     );
   }
@@ -213,6 +230,9 @@ export const Form = <TData,>({
         <Grid gap={2}>
           <Heading>{getTitle()}</Heading>
           {ordered.map((column) => {
+            if (properties === undefined) {
+              return <></>;
+            }
             const key = column;
             const values = properties[column];
             if (
@@ -222,6 +242,7 @@ export const Form = <TData,>({
             ) {
               return <></>;
             }
+            //@ts-expect-error TODO: add more fields to support form-creation
             const { type, variant, in_table, column_ref, display_column } =
               values;
             if (type === "string") {
@@ -250,12 +271,12 @@ export const Form = <TData,>({
             Submit
           </Button>
         </Grid>
-        {isError && <>isError</>}
+        {isError && (
+          <>
+            isError<> {`${error}`}</>
+          </>
+        )}
       </FormProvider>
     </SchemaFormContext.Provider>
   );
 };
-
-function clearEmptyString(data: any) {
-  throw new Error("Function not implemented.");
-}
