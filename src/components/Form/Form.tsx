@@ -1,5 +1,5 @@
 import { DataListItem, DataListRoot } from "@/components/ui/data-list";
-import { Box, Center, Grid, Heading, Spinner } from "@chakra-ui/react";
+import { Box, Center, Flex, Grid, Heading, Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { JSONSchema7 } from "json-schema";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ import { IdPicker } from "./components/IdPicker";
 import { StringInputField } from "./components/StringInputField";
 import { snakeToLabel } from "./utils/snakeToLabel";
 import { clearEmptyString } from "./utils/clearEmptyString";
+import { BiLeftArrowAlt, BiRightArrow } from "react-icons/bi";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -178,9 +179,26 @@ export const Form = <TData extends FieldValues>({
   }
   if (isConfirming) {
     return (
-      <Grid>
-        <Heading>Confirmation</Heading>
-        <DataListRoot orientation="horizontal">
+      <Grid gap={2}>
+        <Heading>{getTitle()}</Heading>
+        <Flex alignItems={"center"} gap={2}>
+          <Button
+            onClick={() => {
+              setIsConfirming(false);
+            }}
+            variant={"ghost"}
+          >
+            <BiLeftArrowAlt />
+          </Button>
+          <Heading>Confirmation</Heading>
+        </Flex>
+        <DataListRoot
+          orientation="horizontal"
+          gap={4}
+          padding={4}
+          display={"grid"}
+          gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
+        >
           {ordered.map((column) => {
             const key = column;
 
@@ -200,13 +218,7 @@ export const Form = <TData extends FieldValues>({
         >
           Confirm
         </Button>
-        <Button
-          onClick={() => {
-            setIsConfirming(false);
-          }}
-        >
-          Back
-        </Button>
+
         {isSubmiting && (
           <Box pos="absolute" inset="0" bg="bg/80">
             <Center h="full">
@@ -229,39 +241,45 @@ export const Form = <TData extends FieldValues>({
       <FormProvider {...methods}>
         <Grid gap={2}>
           <Heading>{getTitle()}</Heading>
-          {ordered.map((column) => {
-            if (properties === undefined) {
-              return <></>;
-            }
-            const key = column;
-            const values = properties[column];
-            if (
-              ignore.some((column) => {
-                return column == key;
-              })
-            ) {
-              return <></>;
-            }
-            //@ts-expect-error TODO: add more fields to support form-creation
-            const { type, variant, in_table, column_ref, display_column } =
-              values;
-            if (type === "string") {
-              if (variant === "id-picker") {
-                return (
-                  <IdPicker
-                    key={`form-${key}`}
-                    column={key}
-                    in_table={in_table}
-                    column_ref={column_ref}
-                    display_column={display_column}
-                  />
-                );
+          <Grid
+            gap={4}
+            padding={4}
+            gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
+          >
+            {ordered.map((column) => {
+              if (properties === undefined) {
+                return <></>;
               }
-              return <StringInputField key={`form-${key}`} column={key} />;
-            }
+              const key = column;
+              const values = properties[column];
+              if (
+                ignore.some((column) => {
+                  return column == key;
+                })
+              ) {
+                return <></>;
+              }
+              //@ts-expect-error TODO: add more fields to support form-creation
+              const { type, variant, in_table, column_ref, display_column } =
+                values;
+              if (type === "string") {
+                if (variant === "id-picker") {
+                  return (
+                    <IdPicker
+                      key={`form-${key}`}
+                      column={key}
+                      in_table={in_table}
+                      column_ref={column_ref}
+                      display_column={display_column}
+                    />
+                  );
+                }
+                return <StringInputField key={`form-${key}`} column={key} />;
+              }
 
-            return <></>;
-          })}
+              return <></>;
+            })}
+          </Grid>
           <Button
             onClick={() => {
               methods.handleSubmit(onValid)();
