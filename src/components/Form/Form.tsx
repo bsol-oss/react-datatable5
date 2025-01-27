@@ -65,7 +65,7 @@ export const Form = <TData extends FieldValues>({
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
   const [validatedData, setValidatedData] = useState();
-  const [error, setError] = useState();
+  const [error, setError] = useState<unknown>();
 
   const onBeforeSubmit = () => {
     setIsSubmiting(true);
