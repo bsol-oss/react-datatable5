@@ -1,5 +1,20 @@
+import {
+  AccordionItem,
+  AccordionItemContent,
+  AccordionItemTrigger,
+  AccordionRoot,
+} from "@/components/ui/accordion";
 import { DataListItem, DataListRoot } from "@/components/ui/data-list";
-import { Box, Center, Flex, Grid, Heading, Spinner } from "@chakra-ui/react";
+import {
+  Alert,
+  Box,
+  Center,
+  Flex,
+  Grid,
+  Heading,
+  Spinner,
+  Text,
+} from "@chakra-ui/react";
 import axios from "axios";
 import { JSONSchema7 } from "json-schema";
 import { useEffect, useState } from "react";
@@ -9,13 +24,13 @@ import {
   SubmitHandler,
   useForm,
 } from "react-hook-form";
+import { BiLeftArrowAlt } from "react-icons/bi";
 import { Button } from "../ui/button";
 import { SchemaFormContext } from "./SchemaFormContext";
 import { IdPicker } from "./components/IdPicker";
 import { StringInputField } from "./components/StringInputField";
-import { snakeToLabel } from "./utils/snakeToLabel";
 import { clearEmptyString } from "./utils/clearEmptyString";
-import { BiLeftArrowAlt, BiRightArrow } from "react-icons/bi";
+import { snakeToLabel } from "./utils/snakeToLabel";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -228,7 +243,19 @@ export const Form = <TData extends FieldValues>({
         )}
         {isError && (
           <>
-            isError<> {`${error}`}</>
+            <Alert.Root status="error">
+              <Alert.Title>
+                <AccordionRoot collapsible defaultValue={["b"]}>
+                  <AccordionItem value={"b"}>
+                    <AccordionItemTrigger>
+                      <Alert.Indicator />
+                      {`${error}`}
+                    </AccordionItemTrigger>
+                    <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
+                  </AccordionItem>
+                </AccordionRoot>
+              </Alert.Title>
+            </Alert.Root>
           </>
         )}
       </Grid>
