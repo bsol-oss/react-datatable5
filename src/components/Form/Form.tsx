@@ -174,8 +174,12 @@ export const Form = <TData extends FieldValues>({
 
   if (isSuccess) {
     return (
-      <>
-        isSuccess
+      <Grid gap={2}>
+        <Heading>{getTitle()}</Heading>
+        <Alert.Root status="success">
+          <Alert.Indicator />
+          <Alert.Title>Data uploaded to the server. Fire on!</Alert.Title>
+        </Alert.Root>
         <Button
           onClick={() => {
             setIsError(false);
@@ -189,7 +193,7 @@ export const Form = <TData extends FieldValues>({
         >
           Submit New
         </Button>
-      </>
+      </Grid>
     );
   }
   if (isConfirming) {
