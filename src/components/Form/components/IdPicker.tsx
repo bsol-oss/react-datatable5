@@ -1,9 +1,6 @@
-import {
-  RadioCardItem,
-  RadioCardRoot
-} from "@/components/ui/radio-card";
+import { RadioCardItem, RadioCardRoot } from "@/components/ui/radio-card";
 import { Tag } from "@/components/ui/tag";
-import { Box, Group, Input, Text } from "@chakra-ui/react";
+import { Box, Group, HStack, Input, Text } from "@chakra-ui/react";
 import axios, { AxiosRequestConfig } from "axios";
 import { ChangeEvent, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -87,7 +84,7 @@ export const IdPicker = ({
         label: item[display_column],
         key: item[column_ref],
         value: item[column_ref],
-        description: JSON.stringify(item),
+        // description: JSON.stringify(item),
       };
     });
   };
@@ -138,7 +135,7 @@ export const IdPicker = ({
           }}
         />
         <RadioCardRoot>
-          <Group attached orientation="vertical">
+          <HStack align="stretch">
             {getItemList(dataList).map((item) => (
               <RadioCardItem
                 label={item.label}
@@ -152,9 +149,9 @@ export const IdPicker = ({
                 indicator={false}
               />
             ))}
-          </Group>
+          </HStack>
         </RadioCardRoot>
-        <>{JSON.stringify(data ?? {})}</>;
+        {/* <>{JSON.stringify(data ?? {})}</>; */}
         {errors[`${column}`] && <Text>This field is required</Text>}
       </Field>{" "}
     </>
