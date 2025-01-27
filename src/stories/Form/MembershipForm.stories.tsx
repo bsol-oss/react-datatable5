@@ -28,8 +28,14 @@ const MembershipForm = () => {
       <Form
         schema={membershipSchema as JSONSchema7}
         ignore={["id", "created_at", "updated_at"]}
-        serverUrl={"http://localhost:8081"} 
-        order={['membership_id','person_id','region_id','expire_date','person_in_charge_id']}
+        serverUrl={"http://localhost:8081"}
+        order={[
+          "membership_id",
+          "person_id",
+          "region_id",
+          "expire_date",
+          "person_in_charge_id",
+        ]}
       />
     </ChakraProvider>
   );
