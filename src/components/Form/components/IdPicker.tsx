@@ -54,7 +54,7 @@ export const IdPicker = ({
     staleTime: 10000,
   });
 
-  const { isLoading, isFetching, data, isPending } = query;
+  const { isLoading, isFetching, data, isPending, isError } = query;
 
   const dataList = data?.data ?? [];
   const count = data?.count ?? 0;
@@ -140,6 +140,7 @@ export const IdPicker = ({
                 {isFetching && <>isFetching</>}
                 {isLoading && <>isLoading</>}
                 {isPending && <>isPending</>}
+                {isError && <>isError</>}
                 <Text>{`Search Result: ${count}, Showing ${limit}`}</Text>
                 <Button
                   onClick={async () => {
