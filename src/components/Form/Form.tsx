@@ -34,6 +34,7 @@ import { StringInputField } from "./components/StringInputField";
 import { useSchemaContext } from "./useSchemaContext";
 import { clearEmptyString } from "./utils/clearEmptyString";
 import { snakeToLabel } from "./utils/snakeToLabel";
+import { NumberInputField } from "./components/NumberInputField";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -71,7 +72,7 @@ const idPickerSanityCheck = (
   column_ref?: string,
   display_column?: string
 ) => {
-  console.log(!!in_table,"okgsd")
+  console.log(!!in_table, "okgsd");
   if (!!in_table == false) {
     throw new Error(
       `The key in_table does not exist in properties of column ${column}.`
@@ -358,8 +359,22 @@ const FormInternal = <TData extends FieldValues>() => {
               }
               return <StringInputField key={`form-${key}`} column={key} />;
             }
-
-            return <></>;
+            if (type === "number" || type === "integer") {
+              return <NumberInputField key={`form-${key}`} column={key} />;
+            }
+            if (type === "boolean") {
+              return <>{`boolean ${column}`}</>;
+            }
+            if (type === "object") {
+              return <>{`object ${column}`}</>;
+            }
+            if (type === "array") {
+              return <>{`array ${column}`}</>;
+            }
+            if (type === "null") {
+              return <>{`null ${column}`}</>;
+            }
+            return <>missing type</>;
           })}
         </Grid>
         <Button
