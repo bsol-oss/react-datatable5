@@ -13,8 +13,8 @@ import {
   Grid,
   Heading,
   Spinner,
-  Text,
 } from "@chakra-ui/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { JSONSchema7 } from "json-schema";
 import { useEffect, useState } from "react";
@@ -23,16 +23,17 @@ import {
   FormProvider,
   SubmitHandler,
   useForm,
+  useFormContext,
 } from "react-hook-form";
 import { BiLeftArrowAlt } from "react-icons/bi";
 import { Button } from "../ui/button";
 import { SchemaFormContext } from "./SchemaFormContext";
 import { IdPicker } from "./components/IdPicker";
+import { IdViewer } from "./components/IdViewer";
 import { StringInputField } from "./components/StringInputField";
+import { useSchemaContext } from "./useSchemaContext";
 import { clearEmptyString } from "./utils/clearEmptyString";
 import { snakeToLabel } from "./utils/snakeToLabel";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -64,27 +65,18 @@ const idListSanityCheck = (
   }
 };
 
-export const Form = <TData extends FieldValues>({
-  schema,
-  serverUrl,
-  title = "",
-  order = [],
-  ignore = [],
-  onSubmit = undefined,
-  preLoadedValues = {},
-}: FormProps<TData>) => {
-  const { properties } = schema;
-  idListSanityCheck("order", order, properties as object);
-  idListSanityCheck("ignore", ignore, properties as object);
-  const queryClient = new QueryClient();
-
-  const methods = useForm();
+export const FormInternal = <TData extends FieldValues>() => {
+  const { schema, serverUrl, title, order, ignore, onSubmit, preLoadedValues } =
+    useSchemaContext();
+  const methods = useFormContext();
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
   const [validatedData, setValidatedData] = useState();
   const [error, setError] = useState<unknown>();
+
+  const { properties } = schema;
 
   const onBeforeSubmit = () => {
     setIsSubmiting(true);
@@ -222,8 +214,31 @@ export const Form = <TData extends FieldValues>({
           gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
         >
           {ordered.map((column) => {
+            if (properties === undefined) {
+              return <></>;
+            }
             const key = column;
-
+            const values = properties[column];
+            const shouldIgnore = ignore.some((column) => {
+              return column == key;
+            });
+            if (shouldIgnore) {
+              return <></>;
+            }
+            //@ts-expect-error TODO: add more fields to support form-creation
+            const { type, variant, in_table, column_ref, display_column } =
+              values;
+            if (type === "string") {
+              if (variant === "id-picker") {
+                return (
+                  <IdViewer
+                    key={`form-${key}`}
+                    value={(validatedData ?? {})[column]}
+                    {...{ in_table, column_ref, display_column }}
+                  />
+                );
+              }
+            }
             return (
               <DataListItem
                 key={`form-${key}`}
@@ -268,67 +283,101 @@ export const Form = <TData extends FieldValues>({
       </Grid>
     );
   }
-  console.log(properties, ordered);
+
+  return (
+    <>
+      <Grid gap={2}>
+        <Heading>{getTitle()}</Heading>
+        <Grid
+          gap={4}
+          padding={4}
+          gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
+        >
+          {ordered.map((column) => {
+            if (properties === undefined) {
+              return <></>;
+            }
+            const key = column;
+            const values = properties[column];
+            const shouldIgnore = ignore.some((column) => {
+              return column == key;
+            });
+            if (shouldIgnore) {
+              return <></>;
+            }
+            //@ts-expect-error TODO: add more fields to support form-creation
+            const { type, variant, in_table, column_ref, display_column } =
+              values;
+            if (type === "string") {
+              if (variant === "id-picker") {
+                return (
+                  <IdPicker
+                    key={`form-${key}`}
+                    column={key}
+                    in_table={in_table}
+                    column_ref={column_ref}
+                    display_column={display_column}
+                  />
+                );
+              }
+              return <StringInputField key={`form-${key}`} column={key} />;
+            }
+
+            return <></>;
+          })}
+        </Grid>
+        <Button
+          onClick={() => {
+            methods.handleSubmit(onValid)();
+          }}
+          formNoValidate
+        >
+          Submit
+        </Button>
+      </Grid>
+      {isError && (
+        <>
+          isError<> {`${error}`}</>
+        </>
+      )}
+    </>
+  );
+};
+
+export const Form = <TData extends FieldValues>({
+  schema,
+  serverUrl,
+  title = "",
+  order = [],
+  ignore = [],
+  onSubmit = undefined,
+  preLoadedValues = {},
+}: FormProps<TData>) => {
+  const queryClient = new QueryClient();
+  const methods = useForm();
+
+  const { properties } = schema;
+
+  idListSanityCheck("order", order, properties as object);
+  idListSanityCheck("ignore", ignore, properties as object);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SchemaFormContext.Provider value={{ schema, serverUrl }}>
-        <FormProvider {...methods}>
-          <Grid gap={2}>
-            <Heading>{getTitle()}</Heading>
-            <Grid
-              gap={4}
-              padding={4}
-              gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
-            >
-              {ordered.map((column) => {
-                if (properties === undefined) {
-                  return <></>;
-                }
-                const key = column;
-                const values = properties[column];
-                if (
-                  ignore.some((column) => {
-                    return column == key;
-                  })
-                ) {
-                  return <></>;
-                }
-                //@ts-expect-error TODO: add more fields to support form-creation
-                const { type, variant, in_table, column_ref, display_column } =
-                  values;
-                if (type === "string") {
-                  if (variant === "id-picker") {
-                    return (
-                      <IdPicker
-                        key={`form-${key}`}
-                        column={key}
-                        in_table={in_table}
-                        column_ref={column_ref}
-                        display_column={display_column}
-                      />
-                    );
-                  }
-                  return <StringInputField key={`form-${key}`} column={key} />;
-                }
+      <SchemaFormContext.Provider
+        value={{
+          schema,
+          serverUrl,
+          title,
+          order,
+          ignore,
 
-                return <></>;
-              })}
-            </Grid>
-            <Button
-              onClick={() => {
-                methods.handleSubmit(onValid)();
-              }}
-              formNoValidate
-            >
-              Submit
-            </Button>
-          </Grid>
-          {isError && (
-            <>
-              isError<> {`${error}`}</>
-            </>
-          )}
+          // @ts-expect-error TODO: find appropriate types
+          onSubmit,
+          preLoadedValues,
+        }}
+      >
+        <FormProvider {...methods}>
+          <FormInternal />
         </FormProvider>
       </SchemaFormContext.Provider>
     </QueryClientProvider>

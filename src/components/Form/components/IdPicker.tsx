@@ -9,59 +9,19 @@ import {
 import { RadioCardItem, RadioCardRoot } from "@/components/ui/radio-card";
 import { Tag } from "@/components/ui/tag";
 import { Input, Text } from "@chakra-ui/react";
-import axios, { AxiosRequestConfig } from "axios";
 import { ChangeEvent, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
 import { useQuery } from "@tanstack/react-query";
 import { snakeToLabel } from "../utils/snakeToLabel";
+import { getTableData } from "../utils/getTableData";
 
 export interface IdPickerProps {
   column: string;
   in_table: string;
   column_ref: string;
   display_column: string;
-}
-
-export interface GetTableDataConfig {
-  serverUrl: string;
-  searching: string;
-  in_table: string;
-  limit: number;
-}
-
-const getTableData = async ({
-  serverUrl = "http://localhost:8081",
-  in_table,
-  searching,
-  limit,
-}: GetTableDataConfig) => {
-  const options: AxiosRequestConfig = {
-    method: "GET",
-    url: `${serverUrl}/api/g/${in_table}`,
-    headers: {
-      Apikey: "YOUR_SECRET_TOKEN",
-      "Content-Type": "application/json",
-    },
-    params: {
-      searching,
-      limit,
-    },
-  };
-
-  try {
-    const { data } = await axios.request(options);
-    console.log(data);
-    return data;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-export interface GetTableResponse {
-  data?: object[];
-  count: number;
 }
 
 export const IdPicker = ({
