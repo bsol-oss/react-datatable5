@@ -82,7 +82,7 @@ export const IdPicker = ({
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const query = useQuery({
-    queryKey: [`idpicker`,column,searchText,in_table, limit],
+    queryKey: [`idpicker`, searchText, in_table, limit],
     queryFn: async () => {
       return await getTableData({
         serverUrl,
