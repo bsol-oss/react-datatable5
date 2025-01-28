@@ -31,6 +31,8 @@ import { IdPicker } from "./components/IdPicker";
 import { StringInputField } from "./components/StringInputField";
 import { clearEmptyString } from "./utils/clearEmptyString";
 import { snakeToLabel } from "./utils/snakeToLabel";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -74,6 +76,7 @@ export const Form = <TData extends FieldValues>({
   const { properties } = schema;
   idListSanityCheck("order", order, properties as object);
   idListSanityCheck("ignore", ignore, properties as object);
+  const queryClient = new QueryClient();
 
   const methods = useForm();
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
@@ -268,64 +271,66 @@ export const Form = <TData extends FieldValues>({
   console.log(properties, ordered);
 
   return (
-    <SchemaFormContext.Provider value={{ schema, serverUrl }}>
-      <FormProvider {...methods}>
-        <Grid gap={2}>
-          <Heading>{getTitle()}</Heading>
-          <Grid
-            gap={4}
-            padding={4}
-            gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
-          >
-            {ordered.map((column) => {
-              if (properties === undefined) {
-                return <></>;
-              }
-              const key = column;
-              const values = properties[column];
-              if (
-                ignore.some((column) => {
-                  return column == key;
-                })
-              ) {
-                return <></>;
-              }
-              //@ts-expect-error TODO: add more fields to support form-creation
-              const { type, variant, in_table, column_ref, display_column } =
-                values;
-              if (type === "string") {
-                if (variant === "id-picker") {
-                  return (
-                    <IdPicker
-                      key={`form-${key}`}
-                      column={key}
-                      in_table={in_table}
-                      column_ref={column_ref}
-                      display_column={display_column}
-                    />
-                  );
+    <QueryClientProvider client={queryClient}>
+      <SchemaFormContext.Provider value={{ schema, serverUrl }}>
+        <FormProvider {...methods}>
+          <Grid gap={2}>
+            <Heading>{getTitle()}</Heading>
+            <Grid
+              gap={4}
+              padding={4}
+              gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
+            >
+              {ordered.map((column) => {
+                if (properties === undefined) {
+                  return <></>;
                 }
-                return <StringInputField key={`form-${key}`} column={key} />;
-              }
+                const key = column;
+                const values = properties[column];
+                if (
+                  ignore.some((column) => {
+                    return column == key;
+                  })
+                ) {
+                  return <></>;
+                }
+                //@ts-expect-error TODO: add more fields to support form-creation
+                const { type, variant, in_table, column_ref, display_column } =
+                  values;
+                if (type === "string") {
+                  if (variant === "id-picker") {
+                    return (
+                      <IdPicker
+                        key={`form-${key}`}
+                        column={key}
+                        in_table={in_table}
+                        column_ref={column_ref}
+                        display_column={display_column}
+                      />
+                    );
+                  }
+                  return <StringInputField key={`form-${key}`} column={key} />;
+                }
 
-              return <></>;
-            })}
+                return <></>;
+              })}
+            </Grid>
+            <Button
+              onClick={() => {
+                methods.handleSubmit(onValid)();
+              }}
+              formNoValidate
+            >
+              Submit
+            </Button>
           </Grid>
-          <Button
-            onClick={() => {
-              methods.handleSubmit(onValid)();
-            }}
-            formNoValidate
-          >
-            Submit
-          </Button>
-        </Grid>
-        {isError && (
-          <>
-            isError<> {`${error}`}</>
-          </>
-        )}
-      </FormProvider>
-    </SchemaFormContext.Provider>
+          {isError && (
+            <>
+              isError<> {`${error}`}</>
+            </>
+          )}
+        </FormProvider>
+      </SchemaFormContext.Provider>
+    </QueryClientProvider>
   );
 };

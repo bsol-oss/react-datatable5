@@ -14,12 +14,8 @@ import { ChangeEvent, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
-const snakeToLabel = (str: string): string => {
-  return str
-    .split("_") // Split by underscore
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
-    .join(" "); // Join with space
-};
+import { useQuery } from "@tanstack/react-query";
+import { snakeToLabel } from "../utils/snakeToLabel";
 
 export interface IdPickerProps {
   column: string;
@@ -81,11 +77,24 @@ export const IdPicker = ({
   const { schema, serverUrl } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const [data, setData] = useState<GetTableResponse>();
   const [selectedId, setSelectedId] = useState();
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
+  const query = useQuery({
+    queryKey: [`idpicker`,column,searchText,in_table, limit],
+    queryFn: async () => {
+      return await getTableData({
+        serverUrl,
+        searching: searchText ?? "",
+        in_table: in_table,
+        limit: limit,
+      });
+    },
+    staleTime: 10000,
+  });
+
+  const { isLoading, isFetching, data, isPending } = query;
 
   const dataList = data?.data ?? [];
   const count = data?.count ?? 0;
@@ -93,14 +102,6 @@ export const IdPicker = ({
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
     setLimit(10);
-    const data = await getTableData({
-      serverUrl,
-      searching: event.target.value,
-      in_table: in_table,
-      limit: 10,
-    });
-
-    setData(data);
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getItemList = (data: any[]) => {
@@ -162,7 +163,9 @@ export const IdPicker = ({
             onSearchChange(event);
             setOpenSearchResult(true);
           }}
+          autoComplete="off"
         />
+
         <PopoverRoot open={openSearchResult}>
           <PopoverTrigger />
           <PopoverContent>
@@ -174,9 +177,10 @@ export const IdPicker = ({
                 overflow={"auto"}
                 maxHeight={"50vh"}
               >
-                <Text>
-                  {`Search Result: ${count}, Showing ${limit}`}
-                </Text>
+                {isFetching && <>isFetching</>}
+                {isLoading && <>isLoading</>}
+                {isPending && <>isPending</>}
+                <Text>{`Search Result: ${count}, Showing ${limit}`}</Text>
                 <Button
                   onClick={async () => {
                     setOpenSearchResult(false);
@@ -209,13 +213,12 @@ export const IdPicker = ({
                         <Button
                           onClick={async () => {
                             setLimit((limit) => limit + 10);
-                            const data = await getTableData({
+                            await getTableData({
                               serverUrl,
                               searching: searchText ?? "",
                               in_table: in_table,
                               limit: limit + 10,
                             });
-                            setData(data);
                           }}
                         >
                           show more
