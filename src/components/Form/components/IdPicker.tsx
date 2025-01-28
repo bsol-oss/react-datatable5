@@ -1,12 +1,19 @@
+import { Button } from "@/components/ui/button";
+import {
+  PopoverBody,
+  PopoverContent,
+  PopoverRoot,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { RadioCardItem, RadioCardRoot } from "@/components/ui/radio-card";
 import { Tag } from "@/components/ui/tag";
-import { Box, HStack, Input, Text } from "@chakra-ui/react";
+import { Input, Text } from "@chakra-ui/react";
 import axios, { AxiosRequestConfig } from "axios";
 import { ChangeEvent, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
-
 const snakeToLabel = (str: string): string => {
   return str
     .split("_") // Split by underscore
@@ -25,12 +32,14 @@ export interface GetTableDataConfig {
   serverUrl: string;
   searching: string;
   in_table: string;
+  limit: number;
 }
 
 const getTableData = async ({
   serverUrl = "http://localhost:8081",
-  searching,
   in_table,
+  searching,
+  limit,
 }: GetTableDataConfig) => {
   const options: AxiosRequestConfig = {
     method: "GET",
@@ -40,7 +49,8 @@ const getTableData = async ({
       "Content-Type": "application/json",
     },
     params: {
-      searching: searching,
+      searching,
+      limit,
     },
   };
 
@@ -74,13 +84,20 @@ export const IdPicker = ({
   const [data, setData] = useState<GetTableResponse>();
   const [selectedId, setSelectedId] = useState();
   const [searchText, setSearchText] = useState<string>();
+  const [limit, setLimit] = useState<number>(10);
+  const [openSearchResult, setOpenSearchResult] = useState<boolean>();
+
   const dataList = data?.data ?? [];
+  const count = data?.count ?? 0;
+  const isDirty = (searchText?.length ?? 0) > 0;
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
+    setLimit(10);
     const data = await getTableData({
       serverUrl,
       searching: event.target.value,
       in_table: in_table,
+      limit: 10,
     });
 
     setData(data);
@@ -120,55 +137,101 @@ export const IdPicker = ({
   if (selectedId != undefined) {
     return (
       <Field label={`${snakeToLabel(column)}`} required={isRequired}>
-        <Box>
-          <Tag
-            closable
-            onClick={() => {
-              setSelectedId(undefined);
-              setValue(column, "");
-            }}
-          >
-            {getSelectedName()}
-          </Tag>
-        </Box>
+        <Tag
+          closable
+          onClick={() => {
+            setSelectedId(undefined);
+            setValue(column, "");
+          }}
+        >
+          {getSelectedName()}
+        </Tag>
       </Field>
     );
   }
   return (
     <>
-      <Field label={`${snakeToLabel(column)}`} required={isRequired}>
+      <Field
+        label={`${snakeToLabel(column)}`}
+        required={isRequired}
+        alignItems={"stretch"}
+      >
         <Input
           placeholder="Type to search"
           onChange={(event) => {
             onSearchChange(event);
+            setOpenSearchResult(true);
           }}
         />
-        <RadioCardRoot>
-          <HStack align="stretch">
-            {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              getItemList(dataList).map((item: any) => (
-                <RadioCardItem
-                  label={item.label}
-                  description={item.description}
-                  key={item.key}
-                  value={item.value}
-                  onClick={() => {
-                    setSelectedId(item.key);
-                    setValue(column, item.key);
+        <PopoverRoot open={openSearchResult}>
+          <PopoverTrigger />
+          <PopoverContent>
+            <PopoverBody>
+              <PopoverTitle />
+              <RadioCardRoot
+                display={"grid"}
+                gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
+                overflow={"auto"}
+                maxHeight={"50vh"}
+              >
+                <Text>
+                  {`Search Result: ${count}, Showing ${limit}`}
+                </Text>
+                <Button
+                  onClick={async () => {
+                    setOpenSearchResult(false);
                   }}
-                  indicator={false}
-                />
-              ))
-            }
-            {dataList.length <= 0 && (searchText?.length ?? 0) > 0 && (
-              <>Empty Search Result</>
-            )}
-          </HStack>
-        </RadioCardRoot>
+                >
+                  close
+                </Button>
+                {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  getItemList(dataList).map((item: any) => (
+                    <RadioCardItem
+                      label={item.label}
+                      description={item.description}
+                      key={item.key}
+                      value={item.value}
+                      onClick={() => {
+                        setSelectedId(item.key);
+                        setValue(column, item.key);
+                        setOpenSearchResult(false);
+                      }}
+                      indicator={false}
+                    />
+                  ))
+                }
+                {isDirty && (
+                  <>
+                    {dataList.length <= 0 && <>Empty Search Result</>}{" "}
+                    {count > dataList.length && (
+                      <>
+                        <Button
+                          onClick={async () => {
+                            setLimit((limit) => limit + 10);
+                            const data = await getTableData({
+                              serverUrl,
+                              searching: searchText ?? "",
+                              in_table: in_table,
+                              limit: limit + 10,
+                            });
+                            setData(data);
+                          }}
+                        >
+                          show more
+                        </Button>
+                      </>
+                    )}
+                  </>
+                )}
+              </RadioCardRoot>
+            </PopoverBody>
+          </PopoverContent>
+        </PopoverRoot>
+
         {/* <>{JSON.stringify(data ?? {})}</>; */}
         {errors[`${column}`] && <Text>This field is required</Text>}
-      </Field>{" "}
+      </Field>
     </>
   );
 };
