@@ -234,7 +234,7 @@ export const FormInternal = <TData extends FieldValues>() => {
                   <IdViewer
                     key={`form-${key}`}
                     value={(validatedData ?? {})[column]}
-                    {...{ in_table, column_ref, display_column }}
+                    {...{ in_table, column_ref, display_column, column }}
                   />
                 );
               }
@@ -370,7 +370,6 @@ export const Form = <TData extends FieldValues>({
           title,
           order,
           ignore,
-
           // @ts-expect-error TODO: find appropriate types
           onSubmit,
           preLoadedValues,
