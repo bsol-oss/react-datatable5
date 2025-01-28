@@ -65,7 +65,31 @@ const idListSanityCheck = (
   }
 };
 
-export const FormInternal = <TData extends FieldValues>() => {
+const idPickerSanityCheck = (
+  column: string,
+  in_table?: string,
+  column_ref?: string,
+  display_column?: string
+) => {
+  console.log(!!in_table,"okgsd")
+  if (!!in_table == false) {
+    throw new Error(
+      `The key in_table does not exist in properties of column ${column}.`
+    );
+  }
+  if (!!column_ref == false) {
+    throw new Error(
+      `The key column_ref does not exist in properties of column ${column}.`
+    );
+  }
+  if (!!display_column == false) {
+    throw new Error(
+      `The key display_column does not exist in properties of column ${column}.`
+    );
+  }
+};
+
+const FormInternal = <TData extends FieldValues>() => {
   const { schema, serverUrl, title, order, ignore, onSubmit, preLoadedValues } =
     useSchemaContext();
   const methods = useFormContext();
@@ -230,6 +254,12 @@ export const FormInternal = <TData extends FieldValues>() => {
               values;
             if (type === "string") {
               if (variant === "id-picker") {
+                idPickerSanityCheck(
+                  column,
+                  in_table,
+                  column_ref,
+                  display_column
+                );
                 return (
                   <IdViewer
                     key={`form-${key}`}
@@ -310,6 +340,12 @@ export const FormInternal = <TData extends FieldValues>() => {
               values;
             if (type === "string") {
               if (variant === "id-picker") {
+                idPickerSanityCheck(
+                  column,
+                  in_table,
+                  column_ref,
+                  display_column
+                );
                 return (
                   <IdPicker
                     key={`form-${key}`}
