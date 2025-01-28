@@ -165,3 +165,88 @@ export const membershipSchema = {
   description: "Missing description",
   additionalProperties: false,
 };
+
+export const rewardPointsTransactionsSchema = {
+  $id: "http://api.localhost.com/schema/public/reward_points_transactions.json",
+  type: "object",
+  title: "reward_points_transactions",
+  $schema: "http://json-schema.org/draft-07/schema#",
+  example: {
+    item: "ullamco ad eu exercitation f",
+    points: 25883355,
+    item_type: "exercitation Lorem tempor fugiat ex",
+    membership_id: "deda0eaa-2353-9e33-9d39-0c643fa24d83",
+    person_in_charge_id: "20e0ff01-2553-d587-8230-0b2222ff6a7f",
+  },
+  required: ["item", "points", "person_in_charge_id", "membership_id"],
+  properties: {
+    id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: uuid_generate_v4()",
+    },
+    item: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    points: {
+      type: "integer",
+      description:
+        "Missing description. Database type: integer. Default value: null",
+    },
+    comment: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    item_type: {
+      type: "string",
+      description:
+        "Missing description. Database type: text. Default value: 'others'",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      description:
+        "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
+    },
+    extra_info: {
+      type: "object",
+      properties: {},
+      description:
+        "Missing description. Database type: jsonb. Default value: null",
+    },
+    updated_at: {
+      type: "string",
+      format: "date-time",
+      description:
+        "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
+    },
+    membership_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+      variant: "id-picker",
+      in_table: "core_memberships",
+      column_ref: "id",
+      display_column: "membership_id",
+    },
+    person_in_charge_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+      variant: "id-picker",
+      in_table: "core_people",
+      column_ref: "id",
+      display_column: "first_name",
+    },
+  },
+  description: "Missing description",
+  additionalProperties: false,
+};
