@@ -3,7 +3,6 @@ import { Form } from "@/components/Form/Form";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { addressSchema } from "../schema";
 import { JSONSchema7 } from "json-schema";
-import axios from "axios";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {

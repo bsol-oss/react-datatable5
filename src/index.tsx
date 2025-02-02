@@ -102,4 +102,5 @@ export * from "./components/DataTable/useDataTableContext";
 export * from "./components/DataTable/useDataTableServer";
 export * from "./components/Filter/FilterOptions";
 export * from "./components/Filter/GlobalFilter";
+export * from "./components/DataTable/DataDisplay";
 

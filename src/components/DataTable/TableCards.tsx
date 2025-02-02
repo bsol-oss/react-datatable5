@@ -1,5 +1,11 @@
 import { Checkbox } from "@/components/ui/checkbox";
-import { Box, Card, CardBodyProps, Grid, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Card,
+  CardBodyProps,
+  Grid,
+  Text
+} from "@chakra-ui/react";
 import { flexRender, Row } from "@tanstack/react-table";
 import { ReactNode, useContext } from "react";
 import { TableContext } from "./DataTableContext";
@@ -27,7 +33,7 @@ export const TableCards = <TData,>({
     <>
       {table.getRowModel().rows.map((row) => {
         return (
-          <Card.Root key={`chakra-table-card-${row.id}`} flex={'1 0 20rem'} >
+          <Card.Root key={`chakra-table-card-${row.id}`} flex={"1 0 20rem"}>
             <Card.Body
               display={"flex"}
               flexFlow={"column"}
