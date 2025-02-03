@@ -1,6 +1,7 @@
 import { Card, DataList as ChakraDataList, Flex } from "@chakra-ui/react";
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
+import { snakeToLabel } from "../Form/utils/snakeToLabel";
 
 export interface DataDisplayProps {
   variant?: "horizontal" | "stats" | "";
@@ -8,7 +9,6 @@ export interface DataDisplayProps {
 
 export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
   const { table } = useContext(TableContext);
-  console.log(table.getRowModel(), "okfsa");
   if (variant == "horizontal") {
     return (
       <Flex flexFlow={"column"} gap={"1"}>
@@ -27,7 +27,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                     return (
                       <ChakraDataList.Item key={cell.id}>
                         <ChakraDataList.ItemLabel>
-                          {cell.column.id}
+                          {snakeToLabel(cell.column.id)}
                         </ChakraDataList.ItemLabel>
                         <ChakraDataList.ItemValue>{`${cell.getValue()}`}</ChakraDataList.ItemValue>
                       </ChakraDataList.Item>
@@ -65,7 +65,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                         flex={"1 1 10rem"}
                       >
                         <ChakraDataList.ItemLabel>
-                          {cell.column.id}
+                          {snakeToLabel(cell.column.id)}
                         </ChakraDataList.ItemLabel>
                         <ChakraDataList.ItemValue>{`${cell.getValue()}`}</ChakraDataList.ItemValue>
                       </ChakraDataList.Item>
@@ -96,7 +96,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   return (
                     <ChakraDataList.Item key={cell.id}>
                       <ChakraDataList.ItemLabel>
-                        {cell.column.id}
+                        {snakeToLabel(cell.column.id)}
                       </ChakraDataList.ItemLabel>
                       <ChakraDataList.ItemValue>{`${cell.getValue()}`}</ChakraDataList.ItemValue>
                     </ChakraDataList.Item>

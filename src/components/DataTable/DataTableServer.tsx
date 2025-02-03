@@ -20,7 +20,7 @@ import { DataResponse } from "./useDataTableServer";
 export interface DataTableServerProps<TData>
   extends UseDataFromUrlReturn<DataResponse<TData>> {
   children: ReactNode | ReactNode[];
-  columns: ColumnDef<TData, any>[]; // TODO: find the appropriate types
+  columns: ColumnDef<TData, unknown>[]; // TODO: find the appropriate types
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
@@ -73,7 +73,7 @@ export const DataTableServer = <TData,>({
 }: DataTableServerProps<TData>) => {
   const table = useReactTable<TData>({
     _features: [DensityFeature],
-    data: data.results,
+    data: data.data,
     rowCount: data.count ?? 0,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
@@ -124,7 +124,7 @@ export const DataTableServer = <TData,>({
   }, []);
 
   useEffect(() => {
-    onRowSelect(table.getState().rowSelection, data.results);
+    onRowSelect(table.getState().rowSelection, data.data);
   }, [table.getState().rowSelection]);
 
   useEffect(() => {

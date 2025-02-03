@@ -1,9 +1,19 @@
+import { SchemaFormContext } from "@/components/Form/SchemaFormContext";
+import { IdPicker } from "@/components/Form/components/IdPicker";
+import { IdViewer } from "@/components/Form/components/IdViewer";
+import { NumberInputField } from "@/components/Form/components/NumberInputField";
+import { StringInputField } from "@/components/Form/components/StringInputField";
+import { useSchemaContext } from "@/components/Form/useSchemaContext";
+import { clearEmptyString } from "@/components/Form/utils/clearEmptyString";
+import { idListSanityCheck } from "@/components/Form/utils/idListSanityCheck";
+import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 import {
   AccordionItem,
   AccordionItemContent,
   AccordionItemTrigger,
   AccordionRoot,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import { DataListItem, DataListRoot } from "@/components/ui/data-list";
 import {
   Alert,
@@ -26,15 +36,6 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { BiLeftArrowAlt } from "react-icons/bi";
-import { Button } from "../ui/button";
-import { SchemaFormContext } from "./SchemaFormContext";
-import { IdPicker } from "./components/IdPicker";
-import { IdViewer } from "./components/IdViewer";
-import { StringInputField } from "./components/StringInputField";
-import { useSchemaContext } from "./useSchemaContext";
-import { clearEmptyString } from "./utils/clearEmptyString";
-import { snakeToLabel } from "./utils/snakeToLabel";
-import { NumberInputField } from "./components/NumberInputField";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -45,26 +46,6 @@ export interface FormProps<TData extends FieldValues> {
   onSubmit?: SubmitHandler<TData>;
   preLoadedValues?: object;
 }
-
-const idListSanityCheck = (
-  param: string,
-  idList: string[],
-  properties: object
-) => {
-  const allKeyExists = idList.every((key) =>
-    Object.keys(properties as object).some((column) => column == key)
-  );
-
-  if (!allKeyExists) {
-    const wrongKey = idList.find(
-      (key) =>
-        !Object.keys(properties as object).some((column) => column == key)
-    );
-    throw new Error(
-      `The key ${wrongKey} in ${param} does not exist in schema.`
-    );
-  }
-};
 
 const idPickerSanityCheck = (
   column: string,

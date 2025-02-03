@@ -74,9 +74,10 @@ export * from "./components/Controls/ResetFilteringButton";
 export * from "./components/Controls/ResetSelectionButton";
 export * from "./components/Controls/ResetSortingButton";
 export * from "./components/Controls/RowCountText";
+export * from "./components/DataTable/CardHeader";
+export * from "./components/DataTable/DataDisplay";
 export * from "./components/DataTable/DataTable";
 export * from "./components/DataTable/DataTableServer";
-export * from "./components/DataTable/CardHeader";
 export * from "./components/DataTable/DefaultTable";
 export * from "./components/DataTable/ReloadButton";
 export * from "./components/DataTable/Table";
@@ -102,5 +103,4 @@ export * from "./components/DataTable/useDataTableContext";
 export * from "./components/DataTable/useDataTableServer";
 export * from "./components/Filter/FilterOptions";
 export * from "./components/Filter/GlobalFilter";
-export * from "./components/DataTable/DataDisplay";
 
