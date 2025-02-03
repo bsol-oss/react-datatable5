@@ -159,7 +159,11 @@ const DataDisplayView = () => {
     <ChakraProvider value={defaultSystem}>
       <DataTable columns={columns} data={data} {...datatable}>
         <DataDisplay />
-        <DataDisplay variant="stats"/>
+        <DataDisplay variant="stats" />
+        <Box width={"20rem"}>
+          <DataDisplay variant="horizontal" />
+        </Box>
+        <DataDisplay variant="horizontal" />
         <TableComponent
           render={(table) => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
