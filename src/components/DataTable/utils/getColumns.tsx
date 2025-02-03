@@ -6,21 +6,24 @@ import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 
 export interface getColumnsConfigs {
   schema: JSONSchema7;
-  hidden: string[];
+  ignore: string[];
 }
 
 export const getColumns = <TData extends RowData>({
   schema,
-  hidden,
+  ignore,
 }: getColumnsConfigs) => {
   const { properties } = schema;
-  idListSanityCheck("hidden", hidden, properties as object);
+  idListSanityCheck("ignore", ignore, properties as object);
   const keys = Object.keys(properties as object);
+  const ignored = keys.filter((key) => {
+    return !ignore.some((shouldIgnoreKey) => key === shouldIgnoreKey);
+  });
 
   const columnHelper = createColumnHelper();
   // @ts-expect-error find type for unknown
   const columns: ColumnDef<TData>[] = [
-    ...keys.map((column) => {
+    ...ignored.map((column) => {
       return columnHelper.accessor(column, {
         cell: (props) => {
           // @ts-expect-error find type for unknown

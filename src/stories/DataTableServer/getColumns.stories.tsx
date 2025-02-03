@@ -27,10 +27,6 @@ export const DataDisplayStory: Story = {
   },
 };
 
-// const RowActions = () => {
-//   return <>has no actions</>;
-// };
-
 const DataDisplayView = () => {
   const datatable = useDataTableServer({
     url: "http://localhost:8081/api/g/core_addresses",
@@ -38,7 +34,7 @@ const DataDisplayView = () => {
   });
   const columns = getColumns({
     schema: addressSchema as JSONSchema7,
-    hidden: [],
+    ignore: ["building_name"],
   });
 
   return (
