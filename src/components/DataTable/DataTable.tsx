@@ -47,7 +47,7 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 export interface DataTableProps<TData> {
   children?: ReactNode | ReactNode[];
   data: TData[];
-  columns: ColumnDef<TData, any>[];
+  columns: ColumnDef<TData, unknown>[];
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
@@ -144,11 +144,11 @@ export const DataTable = <TData,>({
 
   useEffect(() => {
     setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
-  }, []);
+  }, [table, setColumnOrder]);
 
   useEffect(() => {
     onRowSelect(table.getState().rowSelection, data);
-  }, [table.getState().rowSelection]);
+  }, [data, onRowSelect, table]);
 
   return (
     <TableContext.Provider
