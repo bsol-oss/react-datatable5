@@ -1,4 +1,11 @@
-import { Box, ChakraProvider, defaultSystem, Flex, Text } from "@chakra-ui/react";
+import {
+  Box,
+  ChakraProvider,
+  defaultSystem,
+  Flex,
+  Grid,
+  Text,
+} from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 import { useDataTable } from "../../components/DataTable/useDataTable";
@@ -13,6 +20,7 @@ import {
   Table,
   TableBody,
   TableComponent,
+  TableFilter,
   TableFooter,
   TableHeader,
   TablePagination,
@@ -120,6 +128,9 @@ const TableViewShowcase = () => {
           <Text paddingRight="0.5rem">Total:</Text>
           <RowCountText />
         </Flex>
+        <Grid gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}>
+          <TableFilter />
+        </Grid>
         <Table>
           <TableHeader canResize />
           <TableBody />
