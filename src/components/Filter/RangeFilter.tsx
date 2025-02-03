@@ -1,6 +1,6 @@
-import React from "react";
-import { Box, Text, VStack } from "@chakra-ui/react";
 import { Slider } from "@/components/ui/slider";
+import { Flex, Text } from "@chakra-ui/react";
+import React from "react";
 interface RangeFilterProps {
   range: [number, number];
   setRange: (value: [number, number]) => void;
@@ -19,7 +19,8 @@ const RangeFilter: React.FC<RangeFilterProps> = ({
   step,
 }) => {
   return (
-    <Box p={8}>
+    <Flex p={2} gap={2} flexFlow={'column'}>
+      <Text>{`${range[0]} - ${range[1]}`}</Text>
       <Slider
         width="full"
         min={min}
@@ -28,9 +29,9 @@ const RangeFilter: React.FC<RangeFilterProps> = ({
         step={step}
         name={`Selected Range: ${range[0]} - ${range[1]}`}
         // value={field.value}
-        onValueChange={(val) => setRange(val.value as [number,number])}
+        onValueChange={(val) => setRange(val.value as [number, number])}
       />
-    </Box>
+    </Flex>
   );
 };
 
