@@ -55,6 +55,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   display={"flex"}
                   flexFlow={"row"}
                   variant={"subtle"}
+                  overflow={'auto'}
                 >
                   {row.getVisibleCells().map((cell) => {
                     return (
@@ -63,7 +64,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                         display={"flex"}
                         justifyContent={"center"}
                         alignItems={"center"}
-                        flex={"1 1 10rem"}
+                        flex={"1 0 10rem"}
                       >
                         <ChakraDataList.ItemLabel>
                           {snakeToLabel(cell.column.id)}
