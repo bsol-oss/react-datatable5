@@ -1,7 +1,7 @@
 import { Card, DataList as ChakraDataList, Flex } from "@chakra-ui/react";
 import { useContext } from "react";
-import { TableContext } from "./DataTableContext";
 import { snakeToLabel } from "../Form/utils/snakeToLabel";
+import { TableContext } from "./DataTableContext";
 
 export interface DataDisplayProps {
   variant?: "horizontal" | "stats" | "";
@@ -22,6 +22,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   display={"grid"}
                   variant={"subtle"}
                   orientation={"horizontal"}
+                  overflow={'auto'}
                 >
                   {row.getVisibleCells().map((cell) => {
                     return (
