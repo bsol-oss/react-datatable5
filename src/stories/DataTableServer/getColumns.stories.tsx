@@ -7,6 +7,7 @@ import { Box, ChakraProvider, defaultSystem, Text } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { JSONSchema7 } from "json-schema";
 import { addressSchema } from "../schema";
+import { DefaultTable } from "@/components/DataTable/DefaultTable";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -35,6 +36,7 @@ const DataDisplayView = () => {
   const columns = getColumns({
     schema: addressSchema as JSONSchema7,
     ignore: ["building_name"],
+    width: [400, 80, 100]
   });
 
   return (
@@ -51,6 +53,9 @@ const DataDisplayView = () => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
           }}
         />
+        <Box width="2400px" height={"2400px"}>
+          <DefaultTable showFilter fitTableWidth fitTableHeight />
+        </Box>
       </DataTableServer>
     </ChakraProvider>
   );

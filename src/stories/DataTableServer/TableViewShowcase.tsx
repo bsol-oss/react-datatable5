@@ -10,6 +10,7 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 import {
   DataTableServer,
+  DefaultTable,
   DensityToggleButton,
   EditFilterButton,
   EditOrderButton,
@@ -28,7 +29,7 @@ import {
   TablePagination,
   TableSelector,
   TextCell,
-  useDataTableServer
+  useDataTableServer,
 } from "../../index";
 
 interface ChatRecord {
