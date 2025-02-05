@@ -20,7 +20,7 @@ import { DataResponse } from "./useDataTableServer";
 export interface DataTableServerProps<TData>
   extends UseDataFromUrlReturn<DataResponse<TData>> {
   children: ReactNode | ReactNode[];
-  columns: ColumnDef<TData, unknown>[]; // TODO: find the appropriate types
+  columns: ColumnDef<TData>[]; // TODO: find the appropriate types
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
