@@ -168,6 +168,7 @@ class DatePicker extends React.Component<DatePickerProps> {
         date={this.props.date}
         minDate={this.props.minDate}
         maxDate={this.props.maxDate}
+        monthsToDisplay={this.props.monthsToDisplay}
         render={(dayzedData) => (
           <Calendar
             {...{ ...dayzedData, firstDayOfWeek: this.props.firstDayOfWeek }}

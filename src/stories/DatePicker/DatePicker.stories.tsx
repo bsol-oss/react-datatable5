@@ -206,3 +206,74 @@ export const MinMax: Story = {
     );
   },
 };
+
+
+
+
+export const MultipleMonths: Story = {
+  render: () => {
+    const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+    const [firstDayOfWeek, setFirstDayOfWeek] = useState<
+      0 | 1 | 2 | 3 | 4 | 5 | 6 | undefined
+    >();
+    const [showOutsideDays, setShowOutsideDays] = useState<boolean>(false);
+    return (
+      <ChakraProvider value={defaultSystem}>
+        <div>
+          <DatePicker
+            selected={selectedDates}
+            onDateSelected={({ selected, selectable, date }) => {
+              const newDates = getMultiDates({
+                selected,
+                selectable,
+                selectedDate: date,
+                selectedDates,
+              });
+              setSelectedDates(() => newDates);
+            }}
+            firstDayOfWeek={firstDayOfWeek}
+            showOutsideDays={showOutsideDays}
+            {...{
+              date: new Date("05/01/2018"),
+              minDate: new Date("05/04/2018"),
+              maxDate: new Date("09/27/2018"),
+              monthsToDisplay: 3
+            }}
+          />
+          <div style={{ paddingTop: 20, textAlign: "center" }}>
+            <div>Set First Day of The Week</div>
+            {["Su", "M", "T", "W", "Th", "F", "S"].map((day, i) => (
+              <Button
+                data-test={`firstDayOfWeekButton${day}`}
+                key={day}
+                onClick={() => {
+                  setFirstDayOfWeek(i);
+                }}
+                style={{ background: firstDayOfWeek === i ? "purple" : null }}
+              >
+                {day}
+              </Button>
+            ))}
+          </div>
+          <div style={{ paddingTop: 20, textAlign: "center" }}>
+            <Button
+              data-test="showOutsideDaysButton"
+              onClick={() => {
+                setShowOutsideDays((state) => !state);
+              }}
+            >
+              Toggle Show Outside Days: {showOutsideDays ? "True" : "False"}
+            </Button>
+          </div>
+          {selectedDates && (
+            <div style={{ paddingTop: 20, textAlign: "center" }}>
+              <p>Selected:</p>
+              <p>{`${JSON.stringify(selectedDates)}`}</p>
+            </div>
+          )}
+        </div>
+      </ChakraProvider>
+    );
+  },
+};
+
