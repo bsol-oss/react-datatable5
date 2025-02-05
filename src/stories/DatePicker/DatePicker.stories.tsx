@@ -1,4 +1,5 @@
 import DatePicker from "@/components/DatePicker/DatePicker";
+import { getMultiDates } from "@/components/DatePicker/getMultiDates";
 import { Button, ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
@@ -16,7 +17,7 @@ type Story = StoryObj<typeof meta>;
 
 export default meta;
 
-export const DatePickerStory: Story = {
+export const Single: Story = {
   render: () => {
     return <DataDisplayView />;
   },
@@ -68,6 +69,71 @@ const DataDisplayView = () => {
           <div style={{ paddingTop: 20, textAlign: "center" }}>
             <p>Selected:</p>
             <p>{`${selectedDate.toLocaleDateString()}`}</p>
+          </div>
+        )}
+      </div>
+    </ChakraProvider>
+  );
+};
+
+export const Multi: Story = {
+  render: () => {
+    return <DataDisplayMultiView />;
+  },
+};
+
+const DataDisplayMultiView = () => {
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [firstDayOfWeek, setFirstDayOfWeek] = useState<
+    0 | 1 | 2 | 3 | 4 | 5 | 6 | undefined
+  >();
+  const [showOutsideDays, setShowOutsideDays] = useState<boolean>(false);
+  return (
+    <ChakraProvider value={defaultSystem}>
+      <div>
+        <DatePicker
+          selected={selectedDates}
+          onDateSelected={({ selected, selectable, date }) => {
+            const newDates = getMultiDates({
+              selected,
+              selectable,
+              selectedDate: date,
+              selectedDates,
+            });
+            setSelectedDates(() => newDates);
+          }}
+          firstDayOfWeek={firstDayOfWeek}
+          showOutsideDays={showOutsideDays}
+        />
+        <div style={{ paddingTop: 20, textAlign: "center" }}>
+          <div>Set First Day of The Week</div>
+          {["Su", "M", "T", "W", "Th", "F", "S"].map((day, i) => (
+            <Button
+              data-test={`firstDayOfWeekButton${day}`}
+              key={day}
+              onClick={() => {
+                setFirstDayOfWeek(i);
+              }}
+              style={{ background: firstDayOfWeek === i ? "purple" : null }}
+            >
+              {day}
+            </Button>
+          ))}
+        </div>
+        <div style={{ paddingTop: 20, textAlign: "center" }}>
+          <Button
+            data-test="showOutsideDaysButton"
+            onClick={() => {
+              setShowOutsideDays((state) => !state);
+            }}
+          >
+            Toggle Show Outside Days: {showOutsideDays ? "True" : "False"}
+          </Button>
+        </div>
+        {selectedDates && (
+          <div style={{ paddingTop: 20, textAlign: "center" }}>
+            <p>Selected:</p>
+            <p>{`${JSON.stringify(selectedDates)}`}</p>
           </div>
         )}
       </div>
