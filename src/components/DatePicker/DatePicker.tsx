@@ -1,5 +1,5 @@
 import { Box, Button } from "@chakra-ui/react";
-import Dayzed, { DateObj, useDayzed } from "dayzed";
+import Dayzed, { DateObj, Props, useDayzed } from "dayzed";
 import React from "react";
 
 const monthNamesShort = [
@@ -127,10 +127,7 @@ function Calendar({ calendars, getBackProps, getForwardProps, getDateProps }) {
   return null;
 }
 
-export interface DatePickerProps {
-  onDateSelected: (selectedDate: DateObj) => void;
-  selected: Date | Date[] | undefined;
-}
+export interface DatePickerProps extends Props {}
 
 class DatePicker extends React.Component<DatePickerProps> {
   render() {
@@ -138,6 +135,8 @@ class DatePicker extends React.Component<DatePickerProps> {
       <Dayzed
         onDateSelected={this.props.onDateSelected}
         selected={this.props.selected}
+        firstDayOfWeek={this.props.firstDayOfWeek}
+        showOutsideDays={this.props.showOutsideDays}
         render={(dayzedData) => <Calendar {...dayzedData} />}
       />
     );
