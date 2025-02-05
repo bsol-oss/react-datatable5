@@ -18,7 +18,13 @@ const monthNamesShort = [
 ];
 const weekdayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-function Calendar({ calendars, getBackProps, getForwardProps, getDateProps }) {
+function Calendar({
+  calendars,
+  getBackProps,
+  getForwardProps,
+  getDateProps,
+  firstDayOfWeek,
+}) {
   if (calendars.length) {
     return (
       <Box style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
@@ -61,19 +67,23 @@ function Calendar({ calendars, getBackProps, getForwardProps, getDateProps }) {
             <Box>
               {monthNamesShort[calendar.month]} {calendar.year}
             </Box>
-            {weekdayNamesShort.map((weekday) => (
-              <Box
-                key={`${calendar.month}${calendar.year}${weekday}`}
-                style={{
-                  display: "inline-block",
-                  width: "calc(100% / 7)",
-                  border: "none",
-                  background: "transparent",
-                }}
-              >
-                {weekday}
-              </Box>
-            ))}
+            {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+              const weekday = (weekdayNum + firstDayOfWeek) % 7;
+
+              return (
+                <Box
+                  key={`${calendar.month}${calendar.year}${weekday}`}
+                  style={{
+                    display: "inline-block",
+                    width: "calc(100% / 7)",
+                    border: "none",
+                    background: "transparent",
+                  }}
+                >
+                  {weekdayNamesShort[weekday]}
+                </Box>
+              );
+            })}
             {calendar.weeks.map((week, weekIndex) =>
               week.map((dateObj, index) => {
                 const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
@@ -155,7 +165,11 @@ class DatePicker extends React.Component<DatePickerProps> {
         selected={this.props.selected}
         firstDayOfWeek={this.props.firstDayOfWeek}
         showOutsideDays={this.props.showOutsideDays}
-        render={(dayzedData) => <Calendar {...dayzedData} />}
+        render={(dayzedData) => (
+          <Calendar
+            {...{ ...dayzedData, firstDayOfWeek: this.props.firstDayOfWeek }}
+          />
+        )}
       />
     );
   }
