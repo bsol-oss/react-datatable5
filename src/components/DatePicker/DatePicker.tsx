@@ -23,11 +23,29 @@ function Calendar({ calendars, getBackProps, getForwardProps, getDateProps }) {
     return (
       <Box style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
         <Box>
+          <Button
+            variant={"ghost"}
+            {...getBackProps({
+              calendars,
+              offset: 12,
+            })}
+          >
+            {"<<"}
+          </Button>
           <Button variant={"ghost"} {...getBackProps({ calendars })}>
             Back
           </Button>
           <Button variant={"ghost"} {...getForwardProps({ calendars })}>
             Next
+          </Button>
+          <Button
+            variant={"ghost"}
+            {...getForwardProps({
+              calendars,
+              offset: 12,
+            })}
+          >
+            {">>"}
           </Button>
         </Box>
         {calendars.map((calendar) => (
