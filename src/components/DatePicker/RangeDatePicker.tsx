@@ -85,24 +85,24 @@ function Calendar({
         }}
       >
         <Box>
-          <button
+          <Button
             {...getBackProps({
               calendars,
               offset: 12,
             })}
           >
             {"<<"}
-          </button>
-          <button {...getBackProps({ calendars })}>Back</button>
-          <button {...getForwardProps({ calendars })}>Next</button>
-          <button
+          </Button>
+          <Button {...getBackProps({ calendars })}>Back</Button>
+          <Button {...getForwardProps({ calendars })}>Next</Button>
+          <Button
             {...getForwardProps({
               calendars,
               offset: 12,
             })}
           >
             {">>"}
-          </button>
+          </Button>
         </Box>
         {calendars.map((calendar) => (
           <Box
