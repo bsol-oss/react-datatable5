@@ -92,7 +92,7 @@ export * from "./components/DataTable/TableFooter";
 export * from "./components/DataTable/TableHeader";
 export * from "./components/DataTable/TableLoadingComponent";
 export * from "./components/DataTable/TableOrderer";
-export * from "./components/DataTable/TablePagination";
+export * from "./components/Controls/TablePagination";
 export * from "./components/DataTable/TableSelector";
 export * from "./components/DataTable/TableSorter";
 export * from "./components/DataTable/TableViewer";
