@@ -1,4 +1,4 @@
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, Grid } from "@chakra-ui/react";
 import Dayzed, { Props, RenderProps } from "dayzed";
 import React, { useState } from "react";
 
@@ -18,13 +18,6 @@ const monthNamesFull = [
 ];
 
 const weekdayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const dayOfMonthStyle = {
-  display: "inline-block",
-  width: "calc((100% / 7) - 4px)", // make allowance for active border
-  border: "none",
-  margin: "2px", // make allowance for active border
-};
 
 export interface CalendarProps extends RenderProps {
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -77,15 +70,8 @@ function Calendar({
 
   if (calendars.length) {
     return (
-      <Box
-        onMouseLeave={onMouseLeave}
-        {...{
-          maxWidth: 800,
-          margin: "0 auto",
-          textAlign: "center",
-        }}
-      >
-        <Box>
+      <Grid onMouseLeave={onMouseLeave}>
+        <Grid templateColumns={"repeat(4, auto)"} justifyContent={"center"}>
           <Button
             variant={"ghost"}
             {...getBackProps({
@@ -110,104 +96,103 @@ function Calendar({
           >
             {">>"}
           </Button>
-        </Box>
-        {calendars.map((calendar) => (
-          <Box
-            key={`${calendar.month}${calendar.year}`}
-            {...{
-              display: "inline-block",
-              width: "50%",
-              padding: "0 10px 30px",
-              boxSizing: "border-box",
-            }}
-          >
-            <Box>
-              {monthNamesFull[calendar.month]} {calendar.year}
-            </Box>
-            {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-              const weekday = (weekdayNum + firstDayOfWeek) % 7;
-              return (
-                <Box
-                  {...dayOfMonthStyle}
-                  key={`${calendar.month}${calendar.year}${weekday}`}
-                >
-                  {weekdayNamesShort[weekday]}
-                </Box>
-              );
-            })}
+        </Grid>
+        <Grid templateColumns={"repeat(2, auto)"} justifyContent={"center"} gap={4}>
+          {calendars.map((calendar) => (
+            <Grid key={`${calendar.month}${calendar.year}`} gap={4}>
+              <Grid justifyContent={"center"}>
+                {monthNamesFull[calendar.month]} {calendar.year}
+              </Grid>
+              <Grid
+                templateColumns={"repeat(7, auto)"}
+                justifyContent={"center"}
+              >
+                {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                  const weekday = (weekdayNum + firstDayOfWeek) % 7;
+                  return (
+                    <Box
+                      key={`${calendar.month}${calendar.year}${weekday}`}
+                      minWidth={"48px"}
+                      textAlign={'center'}
+                    >
+                      {weekdayNamesShort[weekday]}
+                    </Box>
+                  );
+                })}
+              </Grid>
+              <Grid
+                templateColumns={"repeat(7, auto)"}
+                justifyContent={"center"}
+              >
+                {calendar.weeks.map((week, windex) =>
+                  week.map((dateObj, index) => {
+                    const key = `${calendar.month}${calendar.year}${windex}${index}`;
 
-            {calendar.weeks.map((week, windex) =>
-              week.map((dateObj, index) => {
-                const key = `${calendar.month}${calendar.year}${windex}${index}`;
-
-                if (!dateObj) {
-                  return <Box key={key} {...dayOfMonthStyle} />;
-                }
-                const { date, selected, selectable, today } = dateObj;
-                const getStyle = ({
-                  selected,
-                  unavailable,
-                  today,
-                  isInRange,
-                }: GetStyleProps): {
-                  colorPalette?: "gray" | "blue" | "green" | "cyan";
-                  variant: "solid" | "ghost" | "subtle";
-                } => {
-                  if (unavailable) {
-                    return {
-                      colorPalette: "gray",
-                      variant: "solid",
-                    };
-                  }
-                  if (selected) {
-                    return {
-                      colorPalette: "blue",
-                      variant: "solid",
-                    };
-                  }
-                  if (isInRange) {
-                    return {
-                      colorPalette: "blue",
-                      variant: "subtle",
-                    };
-                  }
-                  if (today) {
-                    return {
-                      colorPalette: "green",
-                      variant: "solid",
-                    };
-                  }
-                  return { variant: "ghost" };
-                };
-                return (
-                  <Button
-                    key={key}
-                    {...getDateProps({
-                      dateObj,
-                      onMouseEnter: () => {
-                        onMouseEnter(date);
-                      },
-                    })}
-                    // selected={selected}
-                    // unavailable={!selectable}
-                    // today={today}
-                    // isInRange={isInRange(date)}
-                    {...dayOfMonthStyle}
-                    {...getStyle({
+                    if (!dateObj) {
+                      return <Box key={key} />;
+                    }
+                    const { date, selected, selectable, today } = dateObj;
+                    const getStyle = ({
                       selected,
-                      unavailable: !selectable,
+                      unavailable,
                       today,
-                      isInRange: isInRange(date),
-                    })}
-                  >
-                    {selectable ? date.getDate() : "X"}
-                  </Button>
-                );
-              })
-            )}
-          </Box>
-        ))}
-      </Box>
+                      isInRange,
+                    }: GetStyleProps): {
+                      colorPalette?: "gray" | "blue" | "green" | "cyan";
+                      variant: "solid" | "ghost" | "subtle";
+                    } => {
+                      if (unavailable) {
+                        return {
+                          colorPalette: "gray",
+                          variant: "solid",
+                        };
+                      }
+                      if (selected) {
+                        return {
+                          colorPalette: "blue",
+                          variant: "solid",
+                        };
+                      }
+                      if (isInRange) {
+                        return {
+                          colorPalette: "blue",
+                          variant: "subtle",
+                        };
+                      }
+                      if (today) {
+                        return {
+                          colorPalette: "green",
+                          variant: "solid",
+                        };
+                      }
+                      return { variant: "ghost" };
+                    };
+                    return (
+                      <Button
+                        key={key}
+                        {...getDateProps({
+                          dateObj,
+                          onMouseEnter: () => {
+                            onMouseEnter(date);
+                          },
+                        })}
+                        {...getStyle({
+                          selected,
+                          unavailable: !selectable,
+                          today,
+                          isInRange: isInRange(date),
+                        })}
+                      >
+                        {selectable ? date.getDate() : "X"}
+                      </Button>
+                    );
+                  })
+                )}
+              </Grid>
+            </Grid>
+          ))}
+        </Grid>
+      </Grid>
     );
   }
   return null;
