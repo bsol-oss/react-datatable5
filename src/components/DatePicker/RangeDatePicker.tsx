@@ -86,6 +86,7 @@ function Calendar({
       >
         <Box>
           <Button
+            variant={"ghost"}
             {...getBackProps({
               calendars,
               offset: 12,
@@ -93,9 +94,14 @@ function Calendar({
           >
             {"<<"}
           </Button>
-          <Button {...getBackProps({ calendars })}>Back</Button>
-          <Button {...getForwardProps({ calendars })}>Next</Button>
+          <Button variant={"ghost"} {...getBackProps({ calendars })}>
+            Back
+          </Button>
+          <Button variant={"ghost"} {...getForwardProps({ calendars })}>
+            Next
+          </Button>
           <Button
+            variant={"ghost"}
             {...getForwardProps({
               calendars,
               offset: 12,
@@ -134,20 +140,36 @@ function Calendar({
                   return <Box key={key} {...dayOfMonthStyle} />;
                 }
                 const { date, selected, selectable, today } = dateObj;
-                const getBackground = ({
+                const getStyle = ({
                   selected,
                   unavailable,
                   today,
                   isInRange,
                 }) => {
-                  let background = today ? "cornflowerblue" : "";
-                  background = selected || isInRange ? "purple" : background;
-                  background = unavailable ? "teal" : background;
-                  return { background };
+                  if (unavailable) {
+                    return {
+                      colorPalette: "gray",
+                      variant: "solid",
+                    };
+                  }
+                  if (selected || isInRange) {
+                    return {
+                      colorPalette: "blue",
+                      variant: "solid",
+                    };
+                  }
+                  if (today) {
+                    return {
+                      colorPalette: "green",
+                      variant: "solid",
+                    };
+                  }
+                  return {};
                 };
                 return (
                   <Button
                     key={key}
+                    variant={"ghost"}
                     {...getDateProps({
                       dateObj,
                       onMouseEnter: () => {
@@ -159,7 +181,7 @@ function Calendar({
                     today={today}
                     isInRange={isInRange(date)}
                     {...dayOfMonthStyle}
-                    {...getBackground({
+                    {...getStyle({
                       selected,
                       unavailable: !selectable,
                       today,

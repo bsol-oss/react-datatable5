@@ -1,5 +1,4 @@
 import DatePicker from "@/components/DatePicker/DatePicker";
-import { getMultiDates } from "@/components/DatePicker/getMultiDates";
 import { getRangeDates } from "@/components/DatePicker/getRangeDates";
 import RangeDatePicker from "@/components/DatePicker/RangeDatePicker";
 import { Button, ChakraProvider, defaultSystem } from "@chakra-ui/react";
@@ -42,7 +41,7 @@ export const MultipleMonths: Story = {
             firstDayOfWeek={firstDayOfWeek}
             showOutsideDays={showOutsideDays}
             {...{
-              date: new Date("05/01/2018"),
+              date: new Date("05/15/2018"),
               minDate: new Date("05/04/2018"),
               maxDate: new Date("09/27/2018"),
               monthsToDisplay: 3,

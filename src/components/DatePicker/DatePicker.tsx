@@ -1,5 +1,5 @@
 import { Box, Button } from "@chakra-ui/react";
-import Dayzed, { DateObj, Props, useDayzed } from "dayzed";
+import Dayzed, { Props } from "dayzed";
 import React from "react";
 
 const monthNamesShort = [
@@ -135,7 +135,6 @@ function Calendar({
                       display: "inline-block",
                       width: "calc(100% / 7)",
                       border: "none",
-                      //   background,
                     }}
                     variant={variant}
                     key={key}
