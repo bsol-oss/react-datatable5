@@ -66,6 +66,7 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
               autoComplete="off"
             />
             <IconButton
+            variant={'ghost'}
               onClick={() => {
                 const filtered = entries.filter(([target]) => {
                   return target !== key;

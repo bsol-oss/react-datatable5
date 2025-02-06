@@ -23,9 +23,11 @@ import {
   Grid,
   Heading,
   Spinner,
+  Text,
 } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
+import dayjs from "dayjs";
 import { JSONSchema7 } from "json-schema";
 import { useEffect, useState } from "react";
 import {
@@ -36,9 +38,8 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { BiLeftArrowAlt } from "react-icons/bi";
-import { DatePicker } from "./components/DatePicker";
-import dayjs from "dayjs";
 import { BooleanPicker } from "./components/BooleanPicker";
+import { DatePicker } from "./components/DatePicker";
 import { ObjectInput } from "./components/ObjectInput";
 
 export interface FormProps<TData extends FieldValues> {
@@ -274,6 +275,46 @@ const FormInternal = <TData extends FieldValues>() => {
                   />
                 );
               }
+            }
+            if (type === "object") {
+              const value = (validatedData ?? {})[column];
+              if (!!value === false) {
+                return (
+                  <DataListItem
+                    key={`form-${key}`}
+                    label={`${snakeToLabel(column)}`}
+                    {...getDataListProps(undefined)}
+                  />
+                );
+              }
+              return (
+                <Flex flexFlow={"column"} gap={2}>
+                  <Text>{snakeToLabel(column)}</Text>
+                  <DataListRoot
+                    orientation={"horizontal"}
+                    padding={4}
+                    borderColor={"gray.200"}
+                    borderWidth={1}
+                    borderRadius={4}
+                  >
+                    {Object.entries(value).map(([key, value]) => {
+                      return (
+                        <DataListItem
+                          key={`form-${column}-${key}`}
+                          label={`${key}`}
+                          {...getDataListProps(value as string | undefined)}
+                        />
+                      );
+                    })}
+                  </DataListRoot>
+                </Flex>
+              );
+            }
+            if (type === "array") {
+              return <>{`array ${column}`}</>;
+            }
+            if (type === "null") {
+              return <>{`null ${column}`}</>;
             }
             return (
               <DataListItem
