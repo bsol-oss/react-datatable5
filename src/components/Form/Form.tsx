@@ -39,6 +39,7 @@ import { BiLeftArrowAlt } from "react-icons/bi";
 import { DatePicker } from "./components/DatePicker";
 import dayjs from "dayjs";
 import { BooleanPicker } from "./components/BooleanPicker";
+import { ObjectInput } from "./components/ObjectInput";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -373,7 +374,11 @@ const FormInternal = <TData extends FieldValues>() => {
               return <BooleanPicker key={`form-${key}`} column={key} />;
             }
             if (type === "object") {
-              return <>{`object ${column}`}</>;
+              return (
+                <>
+                  <ObjectInput key={`form-${key}`} column={key} />
+                </>
+              );
             }
             if (type === "array") {
               return <>{`array ${column}`}</>;

@@ -1,11 +1,9 @@
-import ChakraDatePicker from "@/components/DatePicker/DatePicker";
 import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
+import { CheckboxCard } from "@/components/ui/checkbox-card";
 import { Field } from "@/components/ui/field";
 import { Text } from "@chakra-ui/react";
-import dayjs from "dayjs";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../useSchemaContext";
-import { CheckboxCard } from "@/components/ui/checkbox-card";
 
 export interface DatePickerProps {
   column: string;
