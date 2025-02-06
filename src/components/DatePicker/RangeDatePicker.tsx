@@ -1,21 +1,6 @@
-import { Box, Button, Flex } from "@chakra-ui/react";
-import Dayzed, { Props } from "dayzed";
+import { Box, Button } from "@chakra-ui/react";
+import Dayzed, { Props, RenderProps } from "dayzed";
 import React, { useState } from "react";
-
-const monthNamesShort = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
 
 const monthNamesFull = [
   "January",
@@ -41,33 +26,49 @@ const dayOfMonthStyle = {
   margin: "2px", // make allowance for active border
 };
 
+export interface CalendarProps extends RenderProps {
+  firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  selected?: Date[];
+}
+
+export interface GetStyleProps {
+  today: boolean;
+  selected: boolean;
+  unavailable: boolean;
+  isInRange: boolean;
+}
+
 function Calendar({
   calendars,
   getBackProps,
   getForwardProps,
   getDateProps,
-  firstDayOfWeek,
-  selected,
-}) {
-  const [hoveredDate, setHoveredDate] = useState();
+  selected = [],
+  firstDayOfWeek = 0,
+}: CalendarProps) {
+  const [hoveredDate, setHoveredDate] = useState<Date>();
   const onMouseLeave = () => {
     setHoveredDate(undefined);
   };
 
-  const onMouseEnter = (date) => {
+  const onMouseEnter = (date: Date) => {
     setHoveredDate(date);
   };
-  const isInRange = (date) => {
+  const isInRange = (date: Date): boolean => {
     if (selected.length) {
       const firstSelected = selected[0].getTime();
       if (selected.length === 2) {
         const secondSelected = selected[1].getTime();
-        return firstSelected < date && secondSelected > date;
-      } else {
         return (
+          firstSelected < date.getTime() && secondSelected > date.getTime()
+        );
+      } else {
+        return !!(
           hoveredDate &&
-          ((firstSelected < date && hoveredDate >= date) ||
-            (date < firstSelected && date >= hoveredDate))
+          ((firstSelected < date.getTime() &&
+            hoveredDate.getTime() >= date.getTime()) ||
+            (date.getTime() < firstSelected &&
+              date.getTime() >= hoveredDate.getTime()))
         );
       }
     }
@@ -123,14 +124,17 @@ function Calendar({
             <Box>
               {monthNamesFull[calendar.month]} {calendar.year}
             </Box>
-            {weekdayNamesShort.map((weekday) => (
-              <Box
-                {...dayOfMonthStyle}
-                key={`${calendar.month}${calendar.year}${weekday}`}
-              >
-                {weekday}
-              </Box>
-            ))}
+            {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+              const weekday = (weekdayNum + firstDayOfWeek) % 7;
+              return (
+                <Box
+                  {...dayOfMonthStyle}
+                  key={`${calendar.month}${calendar.year}${weekday}`}
+                >
+                  {weekdayNamesShort[weekday]}
+                </Box>
+              );
+            })}
 
             {calendar.weeks.map((week, windex) =>
               week.map((dateObj, index) => {
@@ -145,7 +149,10 @@ function Calendar({
                   unavailable,
                   today,
                   isInRange,
-                }) => {
+                }: GetStyleProps): {
+                  colorPalette?: "gray" | "blue" | "green";
+                  variant: "solid" | "ghost";
+                } => {
                   if (unavailable) {
                     return {
                       colorPalette: "gray",
@@ -164,22 +171,21 @@ function Calendar({
                       variant: "solid",
                     };
                   }
-                  return {};
+                  return { variant: "ghost" };
                 };
                 return (
                   <Button
                     key={key}
-                    variant={"ghost"}
                     {...getDateProps({
                       dateObj,
                       onMouseEnter: () => {
                         onMouseEnter(date);
                       },
                     })}
-                    selected={selected}
-                    unavailable={!selectable}
-                    today={today}
-                    isInRange={isInRange(date)}
+                    // selected={selected}
+                    // unavailable={!selectable}
+                    // today={today}
+                    // isInRange={isInRange(date)}
                     {...dayOfMonthStyle}
                     {...getStyle({
                       selected,
@@ -220,7 +226,7 @@ class RangeDatePicker extends React.Component<DatePickerProps> {
             {...{
               ...dayzedData,
               firstDayOfWeek: this.props.firstDayOfWeek,
-              selected: this.props.selected,
+              selected: this.props.selected as Date[],
             }}
           />
         )}

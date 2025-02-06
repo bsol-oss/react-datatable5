@@ -1,5 +1,5 @@
 import { Box, Button } from "@chakra-ui/react";
-import Dayzed, { Props } from "dayzed";
+import Dayzed, { Props, RenderProps } from "dayzed";
 import React from "react";
 
 const monthNamesShort = [
@@ -18,13 +18,29 @@ const monthNamesShort = [
 ];
 const weekdayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-function Calendar({
+export interface CalendarProps extends RenderProps {
+  firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+}
+
+export interface GetDateColorProps {
+  today: boolean;
+  selected: boolean;
+  selectable: boolean;
+}
+
+export interface GetVariantProps {
+  today: boolean;
+  selected: boolean;
+  selectable: boolean;
+}
+
+const Calendar = ({
   calendars,
   getBackProps,
   getForwardProps,
   getDateProps,
-  firstDayOfWeek,
-}) {
+  firstDayOfWeek = 0,
+}: CalendarProps) => {
   if (calendars.length) {
     return (
       <Box style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
@@ -101,7 +117,11 @@ function Calendar({
                   );
                 }
                 const { date, selected, selectable, today } = dateObj;
-                const getDateColor = ({ today, selected, selectable }) => {
+                const getDateColor = ({
+                  today,
+                  selected,
+                  selectable,
+                }: GetDateColorProps) => {
                   if (!selectable) {
                     return "gray";
                   }
@@ -114,7 +134,11 @@ function Calendar({
                   return "";
                 };
 
-                const getVariant = ({ today, selected, selectable }) => {
+                const getVariant = ({
+                  today,
+                  selected,
+                  selectable,
+                }: GetVariantProps) => {
                   if (!selectable) {
                     return "solid";
                   }
@@ -152,7 +176,7 @@ function Calendar({
     );
   }
   return null;
-}
+};
 
 export interface DatePickerProps extends Props {}
 
