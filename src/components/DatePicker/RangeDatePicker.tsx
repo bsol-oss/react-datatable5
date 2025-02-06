@@ -150,8 +150,8 @@ function Calendar({
                   today,
                   isInRange,
                 }: GetStyleProps): {
-                  colorPalette?: "gray" | "blue" | "green";
-                  variant: "solid" | "ghost";
+                  colorPalette?: "gray" | "blue" | "green" | "cyan";
+                  variant: "solid" | "ghost" | "subtle";
                 } => {
                   if (unavailable) {
                     return {
@@ -159,10 +159,16 @@ function Calendar({
                       variant: "solid",
                     };
                   }
-                  if (selected || isInRange) {
+                  if (selected) {
                     return {
                       colorPalette: "blue",
                       variant: "solid",
+                    };
+                  }
+                  if (isInRange) {
+                    return {
+                      colorPalette: "blue",
+                      variant: "subtle",
                     };
                   }
                   if (today) {
