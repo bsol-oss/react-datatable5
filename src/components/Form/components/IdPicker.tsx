@@ -9,7 +9,7 @@ import {
 import { RadioCardItem, RadioCardRoot } from "@/components/ui/radio-card";
 import { Tag } from "@/components/ui/tag";
 import { Input, Text } from "@chakra-ui/react";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
@@ -41,6 +41,7 @@ export const IdPicker = ({
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
+  const ref = useRef<HTMLInputElement>(null);
   const query = useQuery({
     queryKey: [`idpicker`, searchText, in_table, limit],
     queryFn: async () => {
@@ -124,9 +125,15 @@ export const IdPicker = ({
             setOpenSearchResult(true);
           }}
           autoComplete="off"
+          ref={ref}
         />
 
-        <PopoverRoot open={openSearchResult}>
+        <PopoverRoot
+          open={openSearchResult}
+          onOpenChange={(e) => setOpenSearchResult(e.open)}
+          closeOnInteractOutside
+          initialFocusEl={() => ref.current}
+        >
           <PopoverTrigger />
           <PopoverContent>
             <PopoverBody>

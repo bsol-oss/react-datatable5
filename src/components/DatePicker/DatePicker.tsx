@@ -1,4 +1,4 @@
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, Grid, Text } from "@chakra-ui/react";
 import Dayzed, { Props, RenderProps } from "dayzed";
 import React from "react";
 
@@ -43,8 +43,8 @@ const Calendar = ({
 }: CalendarProps) => {
   if (calendars.length) {
     return (
-      <Box style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
-        <Box>
+      <Grid>
+        <Grid templateColumns={"repeat(4, auto)"} justifyContent={"center"}>
           <Button
             variant={"ghost"}
             {...getBackProps({
@@ -69,110 +69,85 @@ const Calendar = ({
           >
             {">>"}
           </Button>
-        </Box>
+        </Grid>
         {calendars.map((calendar) => (
-          <Box
-            key={`${calendar.month}${calendar.year}`}
-            style={{
-              display: "inline-block",
-              width: "50%",
-              padding: "0 10px 30px",
-              boxSizing: "border-box",
-            }}
-          >
-            <Box>
+          <Grid key={`${calendar.month}${calendar.year}`} gap={4}>
+            <Grid justifyContent={"center"}>
               {monthNamesShort[calendar.month]} {calendar.year}
-            </Box>
-            {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-              const weekday = (weekdayNum + firstDayOfWeek) % 7;
-
-              return (
-                <Box
-                  key={`${calendar.month}${calendar.year}${weekday}`}
-                  style={{
-                    display: "inline-block",
-                    width: "calc(100% / 7)",
-                    border: "none",
-                    background: "transparent",
-                  }}
-                >
-                  {weekdayNamesShort[weekday]}
-                </Box>
-              );
-            })}
-            {calendar.weeks.map((week, weekIndex) =>
-              week.map((dateObj, index) => {
-                const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
-                if (!dateObj) {
-                  return (
-                    <Box
-                      key={key}
-                      style={{
-                        display: "inline-block",
-                        width: "calc(100% / 7)",
-                        border: "none",
-                        background: "transparent",
-                      }}
-                    />
-                  );
-                }
-                const { date, selected, selectable, today } = dateObj;
-                const getDateColor = ({
-                  today,
-                  selected,
-                  selectable,
-                }: GetDateColorProps) => {
-                  if (!selectable) {
-                    return "gray";
-                  }
-                  if (selected) {
-                    return "blue";
-                  }
-                  if (today) {
-                    return "green";
-                  }
-                  return "";
-                };
-
-                const getVariant = ({
-                  today,
-                  selected,
-                  selectable,
-                }: GetVariantProps) => {
-                  if (!selectable) {
-                    return "solid";
-                  }
-                  if (selected) {
-                    return "solid";
-                  }
-                  if (today) {
-                    return "solid";
-                  }
-                  return "ghost";
-                };
-
-                const color = getDateColor({ today, selected, selectable });
-                const variant = getVariant({ today, selected, selectable });
+            </Grid>
+            <Grid templateColumns={"repeat(7, 1fr)"}>
+              {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                const weekday = (weekdayNum + firstDayOfWeek) % 7;
                 return (
-                  <Button
-                    style={{
-                      display: "inline-block",
-                      width: "calc(100% / 7)",
-                      border: "none",
-                    }}
-                    variant={variant}
-                    key={key}
-                    colorPalette={color}
-                    {...getDateProps({ dateObj })}
+                  <Text
+                    textAlign={"center"}
+                    key={`${calendar.month}${calendar.year}${weekday}`}
                   >
-                    {selectable ? date.getDate() : "X"}
-                  </Button>
+                    {weekdayNamesShort[weekday]}
+                  </Text>
                 );
-              })
-            )}
-          </Box>
+              })}
+            </Grid>
+            <Grid templateColumns={"repeat(7, auto)"} justifyContent={"center"}>
+              {calendar.weeks.map((week, weekIndex) =>
+                week.map((dateObj, index) => {
+                  const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
+                  if (!dateObj) {
+                    return <Grid key={key} />;
+                  }
+                  const { date, selected, selectable, today } = dateObj;
+                  const getDateColor = ({
+                    today,
+                    selected,
+                    selectable,
+                  }: GetDateColorProps) => {
+                    if (!selectable) {
+                      return "gray";
+                    }
+                    if (selected) {
+                      return "blue";
+                    }
+                    if (today) {
+                      return "green";
+                    }
+                    return "";
+                  };
+
+                  const getVariant = ({
+                    today,
+                    selected,
+                    selectable,
+                  }: GetVariantProps) => {
+                    if (!selectable) {
+                      return "solid";
+                    }
+                    if (selected) {
+                      return "solid";
+                    }
+                    if (today) {
+                      return "solid";
+                    }
+                    return "ghost";
+                  };
+
+                  const color = getDateColor({ today, selected, selectable });
+                  const variant = getVariant({ today, selected, selectable });
+                  return (
+                    <Button
+                      variant={variant}
+                      key={key}
+                      colorPalette={color}
+                      {...getDateProps({ dateObj })}
+                    >
+                      {selectable ? date.getDate() : "X"}
+                    </Button>
+                  );
+                })
+              )}
+            </Grid>
+          </Grid>
         ))}
-      </Box>
+      </Grid>
     );
   }
   return null;

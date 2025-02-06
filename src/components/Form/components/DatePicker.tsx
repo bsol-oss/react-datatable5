@@ -35,7 +35,11 @@ export const DatePicker = ({ column }: DatePickerProps) => {
       required={isRequired}
       alignItems={"stretch"}
     >
-      <PopoverRoot open={open}>
+      <PopoverRoot
+        open={open}
+        onOpenChange={(e) => setOpen(e.open)}
+        closeOnInteractOutside
+      >
         <PopoverTrigger asChild>
           <Button
             size="sm"
@@ -57,7 +61,7 @@ export const DatePicker = ({ column }: DatePickerProps) => {
               selected={new Date(getValues(column))}
               onDateSelected={({ selected, selectable, date }) => {
                 console.log(date, selected, selectable, "jasdio");
-                setValue(column, dayjs(date).format('YYYY-MM-DD'));
+                setValue(column, dayjs(date).format("YYYY-MM-DD"));
                 setOpen(false);
               }}
             />

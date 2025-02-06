@@ -1,3 +1,5 @@
+import { JSONSchema6, JSONSchema7 } from "json-schema";
+
 export const addressSchema = {
   $id: "http://api.localhost.com/schema/public/core_addresses.json",
   type: "object",
@@ -280,7 +282,7 @@ export const eventsSchema = {
     recurring_days: "eiusmod mollit",
     parent_event_id: "e73af37d-252d-0022-ae4b-3b8fc70f856e",
   },
-  required: [],
+  required: ['event_name'],
   properties: {
     id: {
       type: "string",
@@ -310,6 +312,7 @@ export const eventsSchema = {
     },
     end_date: {
       type: "string",
+      variant: "date-picker",
       format: "date",
       description:
         "Missing description. Database type: date. Default value: null",
@@ -392,4 +395,4 @@ export const eventsSchema = {
   },
   description: "Missing description",
   additionalProperties: false,
-};
+} as JSONSchema7;
