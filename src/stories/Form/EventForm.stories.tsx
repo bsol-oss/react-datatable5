@@ -23,14 +23,10 @@ export const Event: Story = {
       <ChakraProvider value={defaultSystem}>
         <Form
           schema={eventsSchema as JSONSchema7}
-          order={[
-          
-          ]}
+          order={[]}
           ignore={["id", "created_at", "updated_at"]}
           serverUrl={"http://localhost:8081"}
-          preLoadedValues={{
-            street_number: "nice",
-          }}
+          preLoadedValues={{}}
         />
       </ChakraProvider>
     );

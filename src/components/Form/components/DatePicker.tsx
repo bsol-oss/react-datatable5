@@ -29,7 +29,6 @@ export const DatePicker = ({ column }: DatePickerProps) => {
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const [open, setOpen] = useState(false);
-  console.log(getValues(column), column, "okaspd");
   return (
     <Field
       label={`${snakeToLabel(column)}`}
@@ -58,7 +57,7 @@ export const DatePicker = ({ column }: DatePickerProps) => {
               selected={new Date(getValues(column))}
               onDateSelected={({ selected, selectable, date }) => {
                 console.log(date, selected, selectable, "jasdio");
-                setValue(column, date);
+                setValue(column, dayjs(date).format('YYYY-MM-DD'));
                 setOpen(false);
               }}
             />
