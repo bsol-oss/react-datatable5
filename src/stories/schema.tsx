@@ -250,3 +250,146 @@ export const rewardPointsTransactionsSchema = {
   description: "Missing description",
   additionalProperties: false,
 };
+
+export const eventsSchema = {
+  $id: "http://api.localhost.com/schema/public/core_events.json",
+  type: "object",
+  title: "core_events",
+  $schema: "http://json-schema.org/draft-07/schema#",
+  example: {
+    id: "96ae1dd7-e13a-0210-5e73-64fda2b38495",
+    fee: -59976193.56805224,
+    quota: -9014054,
+    status: "tempor",
+    remarks: "deserunt ut sed consequat",
+    end_date: "1932-11-22",
+    end_time: "21:18:36.220Z",
+    created_at: "1916-06-22T20:51:15.0Z",
+    event_name: "ut quis nisi cillum",
+    extra_info: {
+      eu_e05: "voluptate dolor veniam proident",
+      veniam_4: "velit dolore culpa reprehenderit",
+      cupidatate9: "esse aliquip laborum do cupidatat",
+    },
+    start_date: "1959-05-20",
+    start_time: "19:13:14.205Z",
+    updated_at: "1896-06-15T18:48:15.0Z",
+    description: "reprehenderit",
+    location_id: "a2cc684e-b50c-35f5-a2a2-c50f521d0f50",
+    is_recurring: true,
+    recurring_days: "eiusmod mollit",
+    parent_event_id: "e73af37d-252d-0022-ae4b-3b8fc70f856e",
+  },
+  required: [],
+  properties: {
+    id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: uuid_generate_v4()",
+    },
+    fee: {
+      type: "number",
+      description:
+        "Missing description. Database type: numeric. Default value: null",
+    },
+    quota: {
+      type: "integer",
+      description:
+        "Missing description. Database type: integer. Default value: null",
+    },
+    status: {
+      type: "string",
+      description:
+        "Missing description. Database type: text. Default value: 'draft'",
+    },
+    remarks: {
+      type: "string",
+      description:
+        "Missing description. Database type: text. Default value: null",
+    },
+    end_date: {
+      type: "string",
+      format: "date",
+      description:
+        "Missing description. Database type: date. Default value: null",
+    },
+    end_time: {
+      type: "string",
+      format: "time",
+      description:
+        "Missing description. Database type: time without time zone. Default value: null",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      description:
+        "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
+    },
+    event_name: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    extra_info: {
+      type: "object",
+      properties: {},
+      description:
+        "Missing description. Database type: jsonb. Default value: null",
+    },
+    start_date: {
+      type: "string",
+      variant: "date-picker",
+      format: "date",
+      description:
+        "Missing description. Database type: date. Default value: null",
+    },
+    start_time: {
+      type: "string",
+      format: "time",
+      description:
+        "Missing description. Database type: time without time zone. Default value: null",
+    },
+    updated_at: {
+      type: "string",
+      format: "date-time",
+      description:
+        "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
+    },
+    description: {
+      type: "string",
+      description:
+        "Missing description. Database type: text. Default value: null",
+    },
+    location_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+    },
+    is_recurring: {
+      type: "boolean",
+      description:
+        "Missing description. Database type: boolean. Default value: false",
+    },
+    recurring_days: {
+      type: "string",
+      description:
+        "Missing description. Database type: text. Default value: null",
+    },
+    recurring_type: {
+      type: "string",
+      description:
+        "Missing description. Database type: text. Default value: null",
+    },
+    parent_event_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+    },
+  },
+  description: "Missing description",
+  additionalProperties: false,
+};

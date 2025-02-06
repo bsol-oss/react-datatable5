@@ -36,6 +36,8 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { BiLeftArrowAlt } from "react-icons/bi";
+import { DatePicker } from "./components/DatePicker";
+import dayjs from "dayjs";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -250,6 +252,26 @@ const FormInternal = <TData extends FieldValues>() => {
                   />
                 );
               }
+              if (variant === "date-picker") {
+                const value = (validatedData ?? {})[column];
+                if (!!value === false) {
+                  return (
+                    <DataListItem
+                      key={`form-${key}`}
+                      label={`${snakeToLabel(column)}`}
+                      {...getDataListProps(undefined)}
+                    />
+                  );
+                }
+                const date = dayjs(value).format("YYYY-MM-DD");
+                return (
+                  <DataListItem
+                    key={`form-${key}`}
+                    label={`${snakeToLabel(column)}`}
+                    {...getDataListProps(date)}
+                  />
+                );
+              }
             }
             return (
               <DataListItem
@@ -337,6 +359,9 @@ const FormInternal = <TData extends FieldValues>() => {
                     display_column={display_column}
                   />
                 );
+              }
+              if (variant === "date-picker") {
+                return <DatePicker key={`form-${key}`} column={key} />;
               }
               return <StringInputField key={`form-${key}`} column={key} />;
             }
