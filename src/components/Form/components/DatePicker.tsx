@@ -39,6 +39,7 @@ export const DatePicker = ({ column }: DatePickerProps) => {
         open={open}
         onOpenChange={(e) => setOpen(e.open)}
         closeOnInteractOutside
+        positioning={{ sameWidth: true }}
       >
         <PopoverTrigger asChild>
           <Button
@@ -54,7 +55,7 @@ export const DatePicker = ({ column }: DatePickerProps) => {
               : ""}
           </Button>
         </PopoverTrigger>
-        <PopoverContent>
+        <PopoverContent  width="auto">
           <PopoverBody>
             <PopoverTitle />
             <ChakraDatePicker

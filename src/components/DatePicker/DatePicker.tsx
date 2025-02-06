@@ -85,18 +85,12 @@ const Calendar = ({
                   return (
                     <Text
                       textAlign={"center"}
-                      minWidth={"48px"}
                       key={`${calendar.month}${calendar.year}${weekday}`}
                     >
                       {weekdayNamesShort[weekday]}
                     </Text>
                   );
                 })}
-              </Grid>
-              <Grid
-                templateColumns={"repeat(7, auto)"}
-                justifyContent={"center"}
-              >
                 {calendar.weeks.map((week, weekIndex) =>
                   week.map((dateObj, index) => {
                     const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
