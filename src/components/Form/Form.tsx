@@ -417,6 +417,11 @@ export const Form = <TData extends FieldValues>({
 
   idListSanityCheck("order", order, properties as object);
   idListSanityCheck("ignore", ignore, properties as object);
+  idListSanityCheck(
+    "preLoadedValues",
+    Object.keys(preLoadedValues),
+    properties as object
+  );
 
   return (
     <QueryClientProvider client={queryClient}>
