@@ -3,6 +3,7 @@ import { getTableData } from "../utils/getTableData";
 import { useSchemaContext } from "../useSchemaContext";
 import { DataListItem } from "@/components/ui/data-list";
 import { snakeToLabel } from "../utils/snakeToLabel";
+import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface IdViewerProps {
   value: string | undefined;
@@ -19,8 +20,11 @@ export const IdViewer = ({
   display_column,
   column,
 }: IdViewerProps) => {
-  const { serverUrl } = useSchemaContext();
-
+  const { schema, serverUrl } = useSchemaContext();
+  if (schema.properties == undefined) {
+    throw new Error("schema properties when using DatePicker");
+  }
+  const { title } = schema.properties[column] as CustomJSONSchema7;
   const query = useQuery({
     queryKey: [`idpicker`, in_table, value],
     queryFn: async () => {
@@ -53,7 +57,7 @@ export const IdViewer = ({
   return (
     <>
       <DataListItem
-        label={`${snakeToLabel(column)}`}
+        label={`${title ?? snakeToLabel(column)}`}
         {...getDataListProps((query.data?.data[0] ?? {})[display_column])}
       />
     </>

@@ -41,7 +41,7 @@ export const IdPicker = ({
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
-  const { gridColumn, gridRow } = schema.properties[
+  const { gridColumn, gridRow, title } = schema.properties[
     column
   ] as CustomJSONSchema7;
   const [selectedId, setSelectedId] = useState();
@@ -106,7 +106,7 @@ export const IdPicker = ({
   if (selectedId != undefined) {
     return (
       <Field
-        label={`${snakeToLabel(column)}`}
+        label={`${title ?? snakeToLabel(column)}`}
         required={isRequired}
         {...{
           gridColumn,
@@ -127,7 +127,7 @@ export const IdPicker = ({
   }
   return (
     <Field
-      label={`${snakeToLabel(column)}`}
+      label={`${title ?? snakeToLabel(column)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{

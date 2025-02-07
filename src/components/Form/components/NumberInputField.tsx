@@ -23,12 +23,12 @@ export const NumberInputField = ({ column }: NumberInputFieldProps) => {
   if (schema.properties == undefined) {
     throw new Error("schema properties when using String Input Field");
   }
-  const { gridColumn, gridRow } = schema.properties[
+  const { gridColumn, gridRow, title } = schema.properties[
     column
   ] as CustomJSONSchema7;
   return (
     <Field
-      label={`${snakeToLabel(column)}`}
+      label={`${title ?? snakeToLabel(column)}`}
       required={isRequired}
       {...{ gridColumn, gridRow }}
     >

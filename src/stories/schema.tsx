@@ -303,6 +303,7 @@ export const eventsSchema = {
         "Missing description. Database type: integer. Default value: null",
       gridColumn: "4/span 3",
       gridRow: "7/span 1",
+      title: `限額`,
     },
     status: {
       type: "string",

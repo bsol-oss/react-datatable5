@@ -22,12 +22,12 @@ export const BooleanPicker = ({ column }: DatePickerProps) => {
   if (schema.properties == undefined) {
     throw new Error("schema properties when using BooleanPicker");
   }
-  const { gridColumn, gridRow } = schema.properties[
+  const { gridColumn, gridRow, title } = schema.properties[
     column
   ] as CustomJSONSchema7;
   return (
     <Field
-      label={`${snakeToLabel(column)}`}
+      label={`${title ?? snakeToLabel(column)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{

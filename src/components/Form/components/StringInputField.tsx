@@ -12,6 +12,7 @@ export interface StringInputFieldProps {
 export interface CustomJSONSchema7 extends JSONSchema7 {
   gridColumn?: string;
   gridRow?: string;
+  title?: string;
 }
 
 export const StringInputField = ({ column }: StringInputFieldProps) => {
@@ -25,14 +26,14 @@ export const StringInputField = ({ column }: StringInputFieldProps) => {
   if (schema.properties == undefined) {
     throw new Error("schema properties when using String Input Field");
   }
-  const { gridColumn, gridRow } = schema.properties[
+  const { gridColumn, gridRow, title } = schema.properties[
     column
   ] as CustomJSONSchema7;
 
   return (
     <>
       <Field
-        label={`${snakeToLabel(column)}`}
+        label={`${title ?? snakeToLabel(column)}`}
         required={isRequired}
         gridColumn={gridColumn ?? "span 4"}
         gridRow={gridRow ?? "span 1"}
