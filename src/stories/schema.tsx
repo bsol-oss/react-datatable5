@@ -294,14 +294,14 @@ export const eventsSchema = {
       type: "number",
       description:
         "Missing description. Database type: numeric. Default value: null",
-      gridColumn: "1/span 2",
+      gridColumn: "1/span 3",
       gridRow: "7/span 1",
     },
     quota: {
       type: "integer",
       description:
         "Missing description. Database type: integer. Default value: null",
-      gridColumn: "3/span 2",
+      gridColumn: "4/span 3",
       gridRow: "7/span 1",
     },
     status: {

@@ -238,7 +238,6 @@ const FormInternal = <TData extends FieldValues>() => {
         <DataListRoot
           orientation="horizontal"
           gap={4}
-          padding={4}
           display={"grid"}
           gridTemplateColumns={"repeat(12, 1fr)"}
           gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, 1fr)`}
@@ -436,7 +435,6 @@ const FormInternal = <TData extends FieldValues>() => {
         <Heading>{getTitle()}</Heading>
         <Grid
           gap={4}
-          padding={4}
           gridTemplateColumns={"repeat(12, 1fr)"}
           gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, 1fr)`}
         >
