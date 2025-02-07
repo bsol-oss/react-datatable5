@@ -1,4 +1,4 @@
-import { Box, Grid, GridProps } from "@chakra-ui/react";
+import { Flex, Grid, GridProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
 
 export interface TableCardContainerProps extends GridProps {
@@ -13,14 +13,14 @@ export const TableCardContainer = ({
 }: TableCardContainerProps) => {
   if (variant === "carousel") {
     return (
-      <Box overflow={"scroll"} display={"flex"} gap={"1rem"}>
+      <Flex overflow={"scroll"} gap={"1rem"}>
         {children}
-      </Box>
+      </Flex>
     );
   }
   return (
     <Grid
-      gridTemplateColumns={["1fr", "1fr 1fr", "1fr 1fr 1fr"]}
+      gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
       gap={"0.5rem"}
       {...props}
     >

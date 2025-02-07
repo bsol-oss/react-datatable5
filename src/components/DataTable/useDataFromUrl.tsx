@@ -1,6 +1,10 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
+export interface RefreshDataConfig {
+  debounce?: boolean;
+  delay?: number;
+}
 export interface UseDataFromUrlReturn<T> {
   data: T;
   loading: boolean;
@@ -9,7 +13,7 @@ export interface UseDataFromUrlReturn<T> {
   /**
    * Delays sending the request when the `refreshData` function is called multiple times within a short period.
    */
-  refreshData: (config?: { debounce?: boolean; delay?: number }) => void;
+  refreshData: (config?: RefreshDataConfig) => void;
 }
 
 export interface UseDataFromUrlProps<T> {
@@ -33,8 +37,12 @@ export const useDataFromUrl = <T,>({
   const [timer, setTimer] = useState<NodeJS.Timeout>();
 
   const refreshData = async (
-    { debounce, delay } = { debounce: false, delay: 1000 }
+    config: RefreshDataConfig = {
+      debounce: false,
+      delay: 1000,
+    }
   ) => {
+    const { debounce, delay } = config;
     if (debounce) {
       await debouncedGetData(delay);
       return;

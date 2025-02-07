@@ -28,7 +28,7 @@ import {
   TablePagination,
   TableSelector,
   TextCell,
-  useDataTableServer
+  useDataTableServer,
 } from "../../index";
 
 interface ChatRecord {
@@ -45,11 +45,7 @@ interface ChatRecord {
   last_update: string;
 }
 
-interface RowActionsProps {
-  row: ChatRecord;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
+const RowActions = () => {
   return (
     <>
       <Button>Some Action</Button>

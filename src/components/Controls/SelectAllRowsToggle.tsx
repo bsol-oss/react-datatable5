@@ -21,7 +21,6 @@ export const SelectAllRowsToggle = ({
     <>
       {!!selectAllText === false && (
         <IconButton
-          icon={table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon}
           variant={"ghost"}
           aria-label={
             table.getIsAllRowsSelected() ? clearAllText : selectAllText
@@ -29,16 +28,18 @@ export const SelectAllRowsToggle = ({
           onClick={(event) => {
             table.getToggleAllRowsSelectedHandler()(event);
           }}
-        />
+        >
+          {table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon}
+        </IconButton>
       )}
       {!!selectAllText !== false && (
         <Button
-          leftIcon={table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon}
           variant={"ghost"}
           onClick={(event) => {
             table.getToggleAllRowsSelectedHandler()(event);
           }}
         >
+          {table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon}
           {table.getIsAllRowsSelected() ? clearAllText : selectAllText}
         </Button>
       )}

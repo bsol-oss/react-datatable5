@@ -1,4 +1,4 @@
-import { Flex, Input, Text } from "@chakra-ui/react";
+import { Flex, Grid, Input, Text } from "@chakra-ui/react";
 import { Column } from "@tanstack/react-table";
 import { DateRangeFilter } from "../Filter/DateRangeFilter";
 import RangeFilter from "../Filter/RangeFilter";
@@ -16,11 +16,17 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
 
   if (column.columns.length > 0) {
     return (
-      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
+      <Flex flexFlow={"column"} gap={1}>
         <Text>{displayName}</Text>
-        {column.columns.map((column) => {
-          return <Filter key={column.id} column={column} />;
-        })}
+        <Grid
+          key={column.id}
+          gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
+          gap={1}
+        >
+          {column.columns.map((column) => {
+            return <Filter key={column.id} column={column} />;
+          })}
+        </Grid>
       </Flex>
     );
   }
@@ -37,14 +43,13 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
             column.setFilterValue(details.value);
           }}
         >
-          <Flex flexFlow={'wrap'} gap={'0.5rem'}>
-          {filterOptions.map((item) => (
-            <Radio key={item} value={item}>
-              {item}
-            </Radio>
-          ))}
+          <Flex flexFlow={"wrap"} gap={"0.5rem"}>
+            {filterOptions.map((item) => (
+              <Radio key={item} value={item}>
+                {item}
+              </Radio>
+            ))}
           </Flex>
-         
         </RadioGroup>
       </Flex>
     );
@@ -96,17 +101,20 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
       defaultValue: [4, 50],
     };
     return (
-      <RangeFilter
-        range={filterValue}
-        setRange={function (value: [number, number]): void {
-          // throw new Error("Function not implemented.");
-          column.setFilterValue(value);
-        }}
-        defaultValue={defaultValue}
-        min={min}
-        max={max}
-        step={step}
-      />
+      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
+        <Text>{displayName}</Text>
+        <RangeFilter
+          range={filterValue}
+          setRange={function (value: [number, number]): void {
+            // throw new Error("Function not implemented.");
+            column.setFilterValue(value);
+          }}
+          defaultValue={defaultValue}
+          min={min}
+          max={max}
+          step={step}
+        />
+      </Flex>
     );
   }
 

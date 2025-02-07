@@ -2,7 +2,6 @@ import {
   Button,
   DialogBackdrop,
   Flex,
-  IconButton,
   useDisclosure,
 } from "@chakra-ui/react";
 import { MdOutlineSort } from "react-icons/md";

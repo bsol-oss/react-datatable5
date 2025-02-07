@@ -31,12 +31,11 @@ export const ReloadButton = ({
   return (
     <Button
       variant={"ghost"}
-      leftIcon={<IoReload />}
       onClick={() => {
         refreshData();
       }}
     >
-      {text}
+      <IoReload /> {text}
     </Button>
   );
 };

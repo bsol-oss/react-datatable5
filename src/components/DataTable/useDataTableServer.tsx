@@ -23,13 +23,13 @@ export interface UseDataTableServerProps<TData>
     UseDataTableProps {
   /**
    * Delay to send the request if the `refreshData` called multiple times
-   * 
+   *
    * default: `true`
    */
   debounce?: boolean;
   /**
    * The time to wait before sending the request
-   * 
+   *
    * default: `1000`
    */
   debounceDelay?: number;
@@ -40,11 +40,10 @@ export interface UseDataTableServerReturn<TData>
     UseDataTableReturn {}
 
 export interface Result<T> {
-  results: T[];
+  data: T[];
 }
 
 export interface DataResponse<T> extends Result<T> {
-  success: boolean;
   count: number;
 }
 
@@ -98,27 +97,18 @@ export const useDataTableServer = <TData,>({
   >({
     url: url,
     defaultData: {
-      success: false,
-      results: [],
+      data: [],
       count: 0,
     },
     params: {
-      pagination: JSON.stringify({
-        offset: pagination.pageIndex * pagination.pageSize,
-        rows: pagination.pageSize,
-      }),
-      sorting: JSON.stringify(
-        sorting.length > 0
-          ? { field: sorting[0].id, sort: sorting[0].desc ? "desc" : "asc" }
-          : {}
-      ),
-      where: JSON.stringify(
-        columnFilters.reduce((accumulator, filter) => {
-          const obj: any = {};
-          obj[filter.id] = filter.value;
-          return { ...accumulator, ...obj };
-        }, {})
-      ),
+      offset: pagination.pageIndex * pagination.pageSize,
+      limit: pagination.pageSize,
+      sorting,
+      where: columnFilters.reduce((accumulator, filter) => {
+        const obj: any = {};
+        obj[filter.id] = filter.value;
+        return { ...accumulator, ...obj };
+      }, {}),
       searching: globalFilter,
     },
     disableFirstFetch: true,
@@ -126,7 +116,7 @@ export const useDataTableServer = <TData,>({
   });
 
   useEffect(() => {
-    refreshData({ debounce, debounceDelay });
+    refreshData({ debounce, delay: debounceDelay });
   }, [pagination, sorting, columnFilters, globalFilter, url]);
   return {
     sorting,
