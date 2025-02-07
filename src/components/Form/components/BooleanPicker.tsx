@@ -16,7 +16,8 @@ export const BooleanPicker = ({ column }: DatePickerProps) => {
     setValue,
     getValues,
   } = useFormContext();
-  const { schema } = useSchemaContext();
+  const { schema, displayText } = useSchemaContext();
+  const { fieldRequired } = displayText;
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   if (schema.properties == undefined) {
@@ -43,7 +44,11 @@ export const BooleanPicker = ({ column }: DatePickerProps) => {
           setValue(column, !getValues(column));
         }}
       />
-      {errors[`${column}`] && <Text>This field is required</Text>}
+      {errors[`${column}`] && (
+        <Text color={"red.400"}>
+          {fieldRequired ?? "The field is requried"}
+        </Text>
+      )}
     </Field>
   );
 };

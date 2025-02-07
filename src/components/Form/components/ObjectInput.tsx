@@ -26,7 +26,8 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
     setValue,
     getValues,
   } = useFormContext();
-  const { schema } = useSchemaContext();
+  const { schema, displayText } = useSchemaContext();
+  const { addNew, fieldRequired, save } = displayText;
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const entries = Object.entries(getValues(column) ?? {});
@@ -89,7 +90,6 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
       <Show when={showNewEntries}>
         <Card.Root>
           <Card.Body gap="2">
-            <Card.Title mb="2">New Entries</Card.Title>
             <Grid templateColumns={"1fr 1fr auto"} gap={1}>
               <Input
                 value={newKey}
@@ -135,7 +135,7 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
                 setNewValue(undefined);
               }}
             >
-              Save
+              {save ?? "Save"}
             </Button>
           </Card.Footer>
         </Card.Root>
@@ -147,9 +147,13 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
           setNewValue(undefined);
         }}
       >
-        add new
+        {addNew ?? "Add New"}
       </Button>
-      {errors[`${column}`] && <Text>This field is required</Text>}
+      {errors[`${column}`] && (
+        <Text color={"red.400"}>
+          {fieldRequired ?? "The field is requried"}
+        </Text>
+      )}
     </Field>
   );
 };

@@ -20,7 +20,8 @@ export const StringInputField = ({ column }: StringInputFieldProps) => {
     register,
     formState: { errors },
   } = useFormContext();
-  const { schema } = useSchemaContext();
+  const { schema, displayText } = useSchemaContext();
+  const { fieldRequired } = displayText;
   const { required } = schema as CustomJSONSchema7;
   const isRequired = required?.some((columnId) => columnId === column);
   if (schema.properties == undefined) {
@@ -43,7 +44,9 @@ export const StringInputField = ({ column }: StringInputFieldProps) => {
           autoComplete="off"
         />
         {errors[`${column}`] && (
-          <Text color={"red.400"}>{"The field is required"}</Text>
+          <Text color={"red.400"}>
+            {fieldRequired ?? "The field is requried"}
+          </Text>
         )}
       </Field>
     </>

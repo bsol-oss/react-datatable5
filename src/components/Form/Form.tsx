@@ -41,15 +41,28 @@ import { BooleanPicker } from "./components/BooleanPicker";
 import { DatePicker } from "./components/DatePicker";
 import { ObjectInput } from "./components/ObjectInput";
 
+export interface DisplayTextProps {
+  title?: string;
+  addNew?: string;
+  submit?: string;
+  confirm?: string;
+  save?: string;
+  empty?: string;
+  cancel?: string;
+  submitSuccess?: string;
+  submitAgain?: string;
+  fieldRequired?: string;
+}
+
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
   serverUrl: string;
-  title?: string;
   order?: string[];
   ignore?: string[];
   onSubmit?: SubmitHandler<TData>;
   preLoadedValues?: object;
   rowNumber?: number | string;
+  displayText?: DisplayTextProps;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -89,13 +102,15 @@ const FormInternal = <TData extends FieldValues>() => {
   const {
     schema,
     serverUrl,
-    title,
+    displayText,
     order,
     ignore,
     onSubmit,
     preLoadedValues,
     rowNumber,
   } = useSchemaContext();
+  const { title, submit, empty, cancel, submitSuccess, submitAgain, confirm } =
+    displayText;
   const methods = useFormContext();
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -169,21 +184,13 @@ const FormInternal = <TData extends FieldValues>() => {
   const getDataListProps = (value: string | undefined) => {
     if (value == undefined || value.length <= 0) {
       return {
-        value: "<empty>",
+        value: `<${empty ?? "Empty"}>`,
         color: "gray.400",
       };
     }
     return {
       value: value,
     };
-  };
-
-  const getTitle = () => {
-    if (title.length <= 0) {
-      return snakeToLabel(schema.title ?? "");
-    }
-
-    return title;
   };
 
   useEffect(() => {
@@ -198,10 +205,12 @@ const FormInternal = <TData extends FieldValues>() => {
   if (isSuccess) {
     return (
       <Grid gap={2}>
-        <Heading>{getTitle()}</Heading>
+        <Heading>{title ?? snakeToLabel(schema.title ?? "")}</Heading>
         <Alert.Root status="success">
           <Alert.Indicator />
-          <Alert.Title>Data uploaded to the server. Fire on!</Alert.Title>
+          <Alert.Title>
+            {submitSuccess ?? "Data uploaded to the server. Fire on!"}
+          </Alert.Title>
         </Alert.Root>
         <Button
           onClick={() => {
@@ -214,7 +223,7 @@ const FormInternal = <TData extends FieldValues>() => {
           }}
           formNoValidate
         >
-          Submit New
+          {submitAgain ?? "Submit Again"}
         </Button>
       </Grid>
     );
@@ -222,7 +231,7 @@ const FormInternal = <TData extends FieldValues>() => {
   if (isConfirming) {
     return (
       <Grid gap={2}>
-        <Heading>{getTitle()}</Heading>
+        <Heading>{title ?? snakeToLabel(schema.title ?? "")}</Heading>
         <DataListRoot
           orientation="horizontal"
           gap={4}
@@ -386,7 +395,7 @@ const FormInternal = <TData extends FieldValues>() => {
             onFormSubmit(validatedData);
           }}
         >
-          Confirm
+          {confirm ?? "Confirm"}
         </Button>
         <Button
           onClick={() => {
@@ -394,7 +403,7 @@ const FormInternal = <TData extends FieldValues>() => {
           }}
           variant={"subtle"}
         >
-          Cancel
+          {cancel ?? "Cancel"}
         </Button>
 
         {isSubmiting && (
@@ -428,7 +437,7 @@ const FormInternal = <TData extends FieldValues>() => {
   return (
     <>
       <Grid gap={2}>
-        <Heading>{getTitle()}</Heading>
+        <Heading>{title ?? snakeToLabel(schema.title ?? "")}</Heading>
         <Grid
           gap={4}
           gridTemplateColumns={"repeat(12, 1fr)"}
@@ -500,7 +509,7 @@ const FormInternal = <TData extends FieldValues>() => {
           }}
           formNoValidate
         >
-          Submit
+          {submit ?? "Submit"}
         </Button>
       </Grid>
       {isError && (
@@ -515,12 +524,12 @@ const FormInternal = <TData extends FieldValues>() => {
 export const Form = <TData extends FieldValues>({
   schema,
   serverUrl,
-  title = "",
   order = [],
   ignore = [],
   onSubmit = undefined,
   preLoadedValues = {},
   rowNumber = undefined,
+  displayText = {},
 }: FormProps<TData>) => {
   const queryClient = new QueryClient();
   const methods = useForm();
@@ -541,7 +550,7 @@ export const Form = <TData extends FieldValues>({
         value={{
           schema,
           serverUrl,
-          title,
+          displayText,
           order,
           ignore,
           // @ts-expect-error TODO: find appropriate types

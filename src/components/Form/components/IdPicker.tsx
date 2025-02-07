@@ -35,7 +35,8 @@ export const IdPicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema, serverUrl } = useSchemaContext();
+  const { schema, serverUrl, displayText } = useSchemaContext();
+  const { fieldRequired } = displayText;
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   if (schema.properties == undefined) {
@@ -217,8 +218,11 @@ export const IdPicker = ({
         </PopoverContent>
       </PopoverRoot>
 
-      {/* <>{JSON.stringify(data ?? {})}</>; */}
-      {errors[`${column}`] && <Text>This field is required</Text>}
+      {errors[`${column}`] && (
+        <Text color={"red.400"}>
+          {fieldRequired ?? "The field is requried"}
+        </Text>
+      )}
     </Field>
   );
 };

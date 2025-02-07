@@ -17,7 +17,8 @@ export const NumberInputField = ({ column }: NumberInputFieldProps) => {
     register,
     formState: { errors },
   } = useFormContext();
-  const { schema } = useSchemaContext();
+  const { schema, displayText } = useSchemaContext();
+  const { fieldRequired } = displayText;
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   if (schema.properties == undefined) {
@@ -38,7 +39,9 @@ export const NumberInputField = ({ column }: NumberInputFieldProps) => {
         />
       </NumberInputRoot>
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{"The field is required"}</Text>
+        <Text color={"red.400"}>
+          {fieldRequired ?? "The field is requried"}
+        </Text>
       )}
     </Field>
   );

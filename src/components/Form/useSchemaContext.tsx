@@ -5,22 +5,22 @@ export const useSchemaContext = () => {
   const {
     schema,
     serverUrl,
-    title,
     order,
     ignore,
     onSubmit,
     preLoadedValues,
     rowNumber,
+    displayText,
   } = useContext(SchemaFormContext);
 
   return {
     schema,
     serverUrl,
-    title,
     order,
     ignore,
     onSubmit,
     preLoadedValues,
     rowNumber,
+    displayText,
   };
 };
