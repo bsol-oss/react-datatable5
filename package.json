@@ -34,7 +34,7 @@
     "build-storybook": "storybook build",
     "format": "prettier --ignore-unknown '**/*'"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.4.0",
     "@chakra-ui/react": "^3.2.3",
     "@emotion/react": "^11.13.5",
