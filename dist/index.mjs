@@ -9,7 +9,7 @@ import { FaUpDown, FaGripLinesVertical } from 'react-icons/fa6';
 import { BiDownArrow, BiUpArrow } from 'react-icons/bi';
 import { CgClose } from 'react-icons/cg';
 import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
-import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
+import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender, createColumnHelper } from '@tanstack/react-table';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import { BsExclamationCircleFill } from 'react-icons/bs';
 import { GrAscend, GrDescend } from 'react-icons/gr';
@@ -1345,6 +1345,60 @@ const GlobalFilter = () => {
                 } }) }) }));
 };
 
+const idListSanityCheck = (param, idList, properties) => {
+    const allKeyExists = idList.every((key) => Object.keys(properties).some((column) => column == key));
+    if (!allKeyExists) {
+        const wrongKey = idList.find((key) => !Object.keys(properties).some((column) => column == key));
+        throw new Error(`The key ${wrongKey} in ${param} does not exist in schema.`);
+    }
+};
+
+const widthSanityCheck = (widthList, ignoreList, properties) => {
+    const widthListToolong = widthList.length > Object.keys(properties).length;
+    if (widthListToolong) {
+        throw new Error(`The width list is too long given from the number of properties.`);
+    }
+    const widthListToolongWithIgnore = widthList.length > Object.keys(properties).length - ignoreList.length;
+    if (widthListToolongWithIgnore) {
+        throw new Error(`The width list is too long given from the number of remaining properties after ignore some.`);
+    }
+};
+const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth = 400, }) => {
+    const { properties } = schema;
+    idListSanityCheck("ignore", ignore, properties);
+    widthSanityCheck(width, ignore, properties);
+    idListSanityCheck("meta", Object.keys(meta), properties);
+    const keys = Object.keys(properties);
+    const ignored = keys.filter((key) => {
+        return !ignore.some((shouldIgnoreKey) => key === shouldIgnoreKey);
+    });
+    const columnHelper = createColumnHelper();
+    // @ts-expect-error find type for unknown
+    const columns = [
+        ...ignored.map((column, index) => {
+            return columnHelper.accessor(column, {
+                cell: (props) => {
+                    // @ts-expect-error find type for unknown
+                    return jsx(TextCell, { children: props.row.original[column] });
+                },
+                header: (columnHeader) => {
+                    const displayName = columnHeader.column.columnDef.meta?.displayName ??
+                        snakeToLabel(column);
+                    return jsx("span", { children: displayName });
+                },
+                footer: (columnFooter) => {
+                    const displayName = columnFooter.column.columnDef.meta?.displayName ??
+                        snakeToLabel(column);
+                    return jsx("span", { children: displayName });
+                },
+                size: width[index] ?? defaultWidth,
+                meta: Object.keys(meta).length > 0 ? meta[column] : {},
+            });
+        }),
+    ];
+    return columns;
+};
+
 //@ts-expect-error TODO: find appropriate type
 const SchemaFormContext = createContext({
     schema: {},
@@ -1615,14 +1669,6 @@ const StringInputField = ({ column }) => {
 
 const clearEmptyString = (object) => {
     return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
-};
-
-const idListSanityCheck = (param, idList, properties) => {
-    const allKeyExists = idList.every((key) => Object.keys(properties).some((column) => column == key));
-    if (!allKeyExists) {
-        const wrongKey = idList.find((key) => !Object.keys(properties).some((column) => column == key));
-        throw new Error(`The key ${wrongKey} in ${param} does not exist in schema.`);
-    }
 };
 
 const AccordionItemTrigger = React.forwardRef(function AccordionItemTrigger(props, ref) {
@@ -2194,4 +2240,4 @@ class RangeDatePicker extends React__default.Component {
     }
 }
 
-export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, Form, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, getMultiDates, getRangeDates, useDataFromUrl, useDataTable, useDataTableContext, useDataTableServer };
+export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, Form, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, getColumns, getMultiDates, getRangeDates, useDataFromUrl, useDataTable, useDataTableContext, useDataTableServer, widthSanityCheck };

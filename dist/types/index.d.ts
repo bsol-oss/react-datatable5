@@ -90,6 +90,7 @@ export * from "./components/DataTable/useDataTableContext";
 export * from "./components/DataTable/useDataTableServer";
 export * from "./components/Filter/FilterOptions";
 export * from "./components/Filter/GlobalFilter";
+export * from "./components/DataTable/utils/getColumns";
 export * from "./components/Form/Form";
 export * from "./components/DatePicker/DatePicker";
 export * from "./components/DatePicker/getMultiDates";
