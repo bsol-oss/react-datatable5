@@ -19,7 +19,7 @@ const monthNamesFull = [
 
 const weekdayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-export interface CalendarProps extends RenderProps {
+export interface RangeCalendarProps extends RenderProps {
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   selected?: Date[];
 }
@@ -38,7 +38,7 @@ function Calendar({
   getDateProps,
   selected = [],
   firstDayOfWeek = 0,
-}: CalendarProps) {
+}: RangeCalendarProps) {
   const [hoveredDate, setHoveredDate] = useState<Date>();
   const onMouseLeave = () => {
     setHoveredDate(undefined);
@@ -198,9 +198,9 @@ function Calendar({
   return null;
 }
 
-export interface DatePickerProps extends Props {}
+export interface RangeDatePickerProps extends Props {}
 
-class RangeDatePicker extends React.Component<DatePickerProps> {
+class RangeDatePicker extends React.Component<RangeDatePickerProps> {
   render() {
     return (
       <Dayzed
