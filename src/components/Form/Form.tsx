@@ -224,17 +224,6 @@ const FormInternal = <TData extends FieldValues>() => {
     return (
       <Grid gap={2}>
         <Heading>{getTitle()}</Heading>
-        <Flex alignItems={"center"} gap={2}>
-          <Button
-            onClick={() => {
-              setIsConfirming(false);
-            }}
-            variant={"ghost"}
-          >
-            <BiLeftArrowAlt />
-          </Button>
-          <Heading>Confirmation</Heading>
-        </Flex>
         <DataListRoot
           orientation="horizontal"
           gap={4}
@@ -399,6 +388,14 @@ const FormInternal = <TData extends FieldValues>() => {
           }}
         >
           Confirm
+        </Button>
+        <Button
+          onClick={() => {
+            setIsConfirming(false);
+          }}
+          variant={"subtle"}
+        >
+          Cancel
         </Button>
 
         {isSubmiting && (
