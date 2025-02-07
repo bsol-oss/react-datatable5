@@ -19,10 +19,9 @@ export interface UseDataTableServerProps<TData> extends Omit<UseDataFromUrlProps
 export interface UseDataTableServerReturn<TData> extends UseDataFromUrlReturn<DataResponse<TData>>, UseDataTableReturn {
 }
 export interface Result<T> {
-    results: T[];
+    data: T[];
 }
 export interface DataResponse<T> extends Result<T> {
-    success: boolean;
     count: number;
 }
 export declare const useDataTableServer: <TData>({ url, onFetchSuccess, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, debounce, debounceDelay, }: UseDataTableServerProps<TData>) => UseDataTableServerReturn<TData>;

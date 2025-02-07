@@ -1,8 +1,9 @@
 /// <reference types="react" />
 import { OnChangeFn, Table } from "@tanstack/react-table";
+import { RefreshDataConfig } from "./useDataFromUrl";
 export interface DataTableContext<TData> {
     table: Table<TData>;
-    refreshData: () => void;
+    refreshData: (config?: RefreshDataConfig) => void;
     globalFilter: string;
     setGlobalFilter: OnChangeFn<string>;
     loading: boolean;

@@ -5,7 +5,7 @@ import { UseDataFromUrlReturn } from "./useDataFromUrl";
 import { DataResponse } from "./useDataTableServer";
 export interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataResponse<TData>> {
     children: ReactNode | ReactNode[];
-    columns: ColumnDef<TData, any>[];
+    columns: ColumnDef<TData>[];
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;

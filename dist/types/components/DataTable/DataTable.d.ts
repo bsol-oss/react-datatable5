@@ -13,7 +13,7 @@ declare module "@tanstack/react-table" {
 export interface DataTableProps<TData> {
     children?: ReactNode | ReactNode[];
     data: TData[];
-    columns: ColumnDef<TData, any>[];
+    columns: ColumnDef<TData, unknown>[];
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
