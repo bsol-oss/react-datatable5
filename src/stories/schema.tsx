@@ -1,4 +1,4 @@
-import { JSONSchema6, JSONSchema7 } from "json-schema";
+import { JSONSchema7 } from "json-schema";
 
 export const addressSchema = {
   $id: "http://api.localhost.com/schema/public/core_addresses.json",

@@ -2,13 +2,12 @@ import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import {
-  Box,
   Card,
   Grid,
   IconButton,
   Input,
   Show,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";

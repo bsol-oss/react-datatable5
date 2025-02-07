@@ -10,7 +10,6 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 import {
   DataTableServer,
-  DefaultTable,
   DensityToggleButton,
   EditFilterButton,
   EditOrderButton,
@@ -46,11 +45,7 @@ interface ChatRecord {
   last_update: string;
 }
 
-interface RowActionsProps {
-  row: ChatRecord;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
+const RowActions = () => {
   return (
     <>
       <Button>Some Action</Button>

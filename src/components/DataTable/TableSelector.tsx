@@ -25,12 +25,13 @@ export const TableSelector = () => {
       {table.getSelectedRowModel().rows.length > 0 && (
         <IconButton
           variant={"ghost"}
-          icon={<Icon as={MdClear} />}
           onClick={() => {
             table.resetRowSelection();
           }}
           aria-label={"reset selection"}
-        ></IconButton>
+        >
+          <MdClear />
+        </IconButton>
       )}
     </>
   );
