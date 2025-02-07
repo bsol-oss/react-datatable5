@@ -28,7 +28,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import dayjs from "dayjs";
-import { JSONSchema7, JSONSchema7Definition } from "json-schema";
+import { JSONSchema7 } from "json-schema";
 import { useEffect, useState } from "react";
 import {
   FieldValues,
@@ -37,7 +37,6 @@ import {
   useForm,
   useFormContext,
 } from "react-hook-form";
-import { BiLeftArrowAlt } from "react-icons/bi";
 import { BooleanPicker } from "./components/BooleanPicker";
 import { DatePicker } from "./components/DatePicker";
 import { ObjectInput } from "./components/ObjectInput";
@@ -229,7 +228,7 @@ const FormInternal = <TData extends FieldValues>() => {
           gap={4}
           display={"grid"}
           gridTemplateColumns={"repeat(12, 1fr)"}
-          gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, 1fr)`}
+          gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, auto)`}
         >
           {ordered.map((column) => {
             if (properties === undefined) {
@@ -433,7 +432,7 @@ const FormInternal = <TData extends FieldValues>() => {
         <Grid
           gap={4}
           gridTemplateColumns={"repeat(12, 1fr)"}
-          gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, 1fr)`}
+          gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, auto)`}
         >
           {ordered.map((column) => {
             if (properties === undefined) {
