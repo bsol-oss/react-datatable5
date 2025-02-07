@@ -14,6 +14,7 @@ import { useState } from "react";
 import { Text } from "@chakra-ui/react";
 import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
+import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface DatePickerProps {
   column: string;
@@ -29,11 +30,21 @@ export const DatePicker = ({ column }: DatePickerProps) => {
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const [open, setOpen] = useState(false);
+  if (schema.properties == undefined) {
+    throw new Error("schema properties when using DatePicker");
+  }
+  const { gridColumn, gridRow } = schema.properties[
+    column
+  ] as CustomJSONSchema7;
   return (
     <Field
       label={`${snakeToLabel(column)}`}
       required={isRequired}
       alignItems={"stretch"}
+      {...{
+        gridColumn,
+        gridRow,
+      }}
     >
       <PopoverRoot
         open={open}
@@ -55,7 +66,7 @@ export const DatePicker = ({ column }: DatePickerProps) => {
               : ""}
           </Button>
         </PopoverTrigger>
-        <PopoverContent  width="auto">
+        <PopoverContent width="auto">
           <PopoverBody>
             <PopoverTitle />
             <ChakraDatePicker

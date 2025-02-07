@@ -282,7 +282,7 @@ export const eventsSchema = {
     recurring_days: "eiusmod mollit",
     parent_event_id: "e73af37d-252d-0022-ae4b-3b8fc70f856e",
   },
-  required: ['event_name'],
+  required: ["event_name"],
   properties: {
     id: {
       type: "string",
@@ -294,32 +294,44 @@ export const eventsSchema = {
       type: "number",
       description:
         "Missing description. Database type: numeric. Default value: null",
+      gridColumn: "1/span 2",
+      gridRow: "7/span 1",
     },
     quota: {
       type: "integer",
       description:
         "Missing description. Database type: integer. Default value: null",
+      gridColumn: "3/span 2",
+      gridRow: "7/span 1",
     },
     status: {
       type: "string",
       description:
         "Missing description. Database type: text. Default value: 'draft'",
+      gridColumn: "7/span 2",
+      gridRow: "7/span 1",
     },
     remarks: {
       type: "string",
       description:
         "Missing description. Database type: text. Default value: null",
+      gridColumn: "1/span 12",
+      gridRow: "8/span 1",
     },
     end_date: {
       type: "string",
       variant: "date-picker",
       format: "date",
+      gridColumn: "7/span 3",
+      gridRow: "4/span 1",
       description:
         "Missing description. Database type: date. Default value: null",
     },
     end_time: {
       type: "string",
       format: "time",
+      gridColumn: "10/span 3",
+      gridRow: "4/span 1",
       description:
         "Missing description. Database type: time without time zone. Default value: null",
     },
@@ -334,16 +346,22 @@ export const eventsSchema = {
       maxLength: 255,
       description:
         "Missing description. Database type: character varying. Default value: null",
+      gridColumn: "1/span 12",
+      gridRow: "1/span 1",
     },
     extra_info: {
       type: "object",
       properties: {},
       description:
         "Missing description. Database type: jsonb. Default value: null",
+      gridColumn: "1/span 4",
+      gridRow: "9/span 1",
     },
     start_date: {
       type: "string",
       variant: "date-picker",
+      gridColumn: "1/span 3",
+      gridRow: "4/span 1",
       format: "date",
       description:
         "Missing description. Database type: date. Default value: null",
@@ -351,6 +369,8 @@ export const eventsSchema = {
     start_time: {
       type: "string",
       format: "time",
+      gridColumn: "4/span 3",
+      gridRow: "4/span 1",
       description:
         "Missing description. Database type: time without time zone. Default value: null",
     },
@@ -364,33 +384,45 @@ export const eventsSchema = {
       type: "string",
       description:
         "Missing description. Database type: text. Default value: null",
+      gridColumn: "1/span 12",
+      gridRow: "6/span 1",
     },
     location_id: {
       type: "string",
       format: "uuid",
       description:
         "Missing description. Database type: uuid. Default value: null",
+      gridColumn: "1/span 6",
+      gridRow: "3/span 1",
     },
     is_recurring: {
       type: "boolean",
       description:
         "Missing description. Database type: boolean. Default value: false",
+      gridColumn: "1/span 3",
+      gridRow: "5/span 1",
     },
     recurring_days: {
       type: "string",
       description:
         "Missing description. Database type: text. Default value: null",
+      gridColumn: "7/span 3",
+      gridRow: "5/span 1",
     },
     recurring_type: {
       type: "string",
       description:
         "Missing description. Database type: text. Default value: null",
+      gridColumn: "4/span 3",
+      gridRow: "5/span 1",
     },
     parent_event_id: {
       type: "string",
       format: "uuid",
       description:
         "Missing description. Database type: uuid. Default value: null",
+      gridColumn: "1/span 6",
+      gridRow: "2/span 1",
     },
   },
   description: "Missing description",

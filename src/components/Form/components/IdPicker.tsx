@@ -16,6 +16,7 @@ import { useSchemaContext } from "../useSchemaContext";
 import { useQuery } from "@tanstack/react-query";
 import { snakeToLabel } from "../utils/snakeToLabel";
 import { getTableData } from "../utils/getTableData";
+import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface IdPickerProps {
   column: string;
@@ -37,6 +38,12 @@ export const IdPicker = ({
   const { schema, serverUrl } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
+  if (schema.properties == undefined) {
+    throw new Error("schema properties when using DatePicker");
+  }
+  const { gridColumn, gridRow } = schema.properties[
+    column
+  ] as CustomJSONSchema7;
   const [selectedId, setSelectedId] = useState();
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
@@ -98,7 +105,14 @@ export const IdPicker = ({
   };
   if (selectedId != undefined) {
     return (
-      <Field label={`${snakeToLabel(column)}`} required={isRequired}>
+      <Field
+        label={`${snakeToLabel(column)}`}
+        required={isRequired}
+        {...{
+          gridColumn,
+          gridRow,
+        }}
+      >
         <Tag
           closable
           onClick={() => {
@@ -112,97 +126,99 @@ export const IdPicker = ({
     );
   }
   return (
-    <>
-      <Field
-        label={`${snakeToLabel(column)}`}
-        required={isRequired}
-        alignItems={"stretch"}
+    <Field
+      label={`${snakeToLabel(column)}`}
+      required={isRequired}
+      alignItems={"stretch"}
+      {...{
+        gridColumn,
+        gridRow,
+      }}
+    >
+      <Input
+        placeholder="Type to search"
+        onChange={(event) => {
+          onSearchChange(event);
+          setOpenSearchResult(true);
+        }}
+        autoComplete="off"
+        ref={ref}
+      />
+
+      <PopoverRoot
+        open={openSearchResult}
+        onOpenChange={(e) => setOpenSearchResult(e.open)}
+        closeOnInteractOutside
+        initialFocusEl={() => ref.current}
       >
-        <Input
-          placeholder="Type to search"
-          onChange={(event) => {
-            onSearchChange(event);
-            setOpenSearchResult(true);
-          }}
-          autoComplete="off"
-          ref={ref}
-        />
-
-        <PopoverRoot
-          open={openSearchResult}
-          onOpenChange={(e) => setOpenSearchResult(e.open)}
-          closeOnInteractOutside
-          initialFocusEl={() => ref.current}
-        >
-          <PopoverTrigger />
-          <PopoverContent>
-            <PopoverBody>
-              <PopoverTitle />
-              <RadioCardRoot
-                display={"grid"}
-                gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
-                overflow={"auto"}
-                maxHeight={"50vh"}
+        <PopoverTrigger />
+        <PopoverContent>
+          <PopoverBody>
+            <PopoverTitle />
+            <RadioCardRoot
+              display={"grid"}
+              gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
+              overflow={"auto"}
+              maxHeight={"50vh"}
+            >
+              {isFetching && <>isFetching</>}
+              {isLoading && <>isLoading</>}
+              {isPending && <>isPending</>}
+              {isError && <>isError</>}
+              <Text>{`Search Result: ${count}, Showing ${limit}`}</Text>
+              <Button
+                onClick={async () => {
+                  setOpenSearchResult(false);
+                }}
               >
-                {isFetching && <>isFetching</>}
-                {isLoading && <>isLoading</>}
-                {isPending && <>isPending</>}
-                {isError && <>isError</>}
-                <Text>{`Search Result: ${count}, Showing ${limit}`}</Text>
-                <Button
-                  onClick={async () => {
-                    setOpenSearchResult(false);
-                  }}
-                >
-                  close
-                </Button>
-                {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  getItemList(dataList).map((item: any) => (
-                    <RadioCardItem
-                      label={item.label}
-                      description={item.description}
-                      key={item.key}
-                      value={item.value}
-                      onClick={() => {
-                        setSelectedId(item.key);
-                        setValue(column, item.key);
-                        setOpenSearchResult(false);
-                      }}
-                      indicator={false}
-                    />
-                  ))
-                }
-                {isDirty && (
-                  <>
-                    {dataList.length <= 0 && <>Empty Search Result</>}{" "}
-                    {count > dataList.length && (
-                      <>
-                        <Button
-                          onClick={async () => {
-                            setLimit((limit) => limit + 10);
-                            await getTableData({
-                              serverUrl,
-                              searching: searchText ?? "",
-                              in_table: in_table,
-                              limit: limit + 10,
-                            });
-                          }}
-                        >
-                          show more
-                        </Button>
-                      </>
-                    )}
-                  </>
-                )}
-              </RadioCardRoot>
-            </PopoverBody>
-          </PopoverContent>
-        </PopoverRoot>
+                close
+              </Button>
+              {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                getItemList(dataList).map((item: any) => (
+                  <RadioCardItem
+                    label={item.label}
+                    description={item.description}
+                    key={item.key}
+                    value={item.value}
+                    onClick={() => {
+                      setSelectedId(item.key);
+                      setValue(column, item.key);
+                      setOpenSearchResult(false);
+                    }}
+                    indicator={false}
+                  />
+                ))
+              }
+              {isDirty && (
+                <>
+                  {dataList.length <= 0 && <>Empty Search Result</>}{" "}
+                  {count > dataList.length && (
+                    <>
+                      <Button
+                        onClick={async () => {
+                          setLimit((limit) => limit + 10);
+                          await getTableData({
+                            serverUrl,
+                            searching: searchText ?? "",
+                            in_table: in_table,
+                            limit: limit + 10,
+                          });
+                        }}
+                      >
+                        show more
+                      </Button>
+                    </>
+                  )}
+                </>
+              )}
+            </RadioCardRoot>
+          </PopoverBody>
+        </PopoverContent>
+      </PopoverRoot>
 
-        {/* <>{JSON.stringify(data ?? {})}</>; */}
-        {errors[`${column}`] && <Text>This field is required</Text>}
-      </Field>
-    </>
+      {/* <>{JSON.stringify(data ?? {})}</>; */}
+      {errors[`${column}`] && <Text>This field is required</Text>}
+    </Field>
   );
 };

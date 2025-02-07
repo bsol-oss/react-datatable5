@@ -2,8 +2,16 @@ import { useContext } from "react";
 import { SchemaFormContext } from "./SchemaFormContext";
 
 export const useSchemaContext = () => {
-  const { schema, serverUrl, title, order, ignore, onSubmit, preLoadedValues } =
-    useContext(SchemaFormContext);
+  const {
+    schema,
+    serverUrl,
+    title,
+    order,
+    ignore,
+    onSubmit,
+    preLoadedValues,
+    rowNumber,
+  } = useContext(SchemaFormContext);
 
   return {
     schema,
@@ -13,5 +21,6 @@ export const useSchemaContext = () => {
     ignore,
     onSubmit,
     preLoadedValues,
+    rowNumber,
   };
 };

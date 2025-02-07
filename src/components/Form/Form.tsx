@@ -28,7 +28,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import dayjs from "dayjs";
-import { JSONSchema7 } from "json-schema";
+import { JSONSchema7, JSONSchema7Definition } from "json-schema";
 import { useEffect, useState } from "react";
 import {
   FieldValues,
@@ -50,6 +50,16 @@ export interface FormProps<TData extends FieldValues> {
   ignore?: string[];
   onSubmit?: SubmitHandler<TData>;
   preLoadedValues?: object;
+  rowNumber?: number | string;
+}
+
+export interface CustomJSONSchema7Definition extends JSONSchema7 {
+  variant: string;
+  in_table: string;
+  column_ref: string;
+  display_column: string;
+  gridColumn: string;
+  gridRow: string;
 }
 
 const idPickerSanityCheck = (
@@ -77,8 +87,16 @@ const idPickerSanityCheck = (
 };
 
 const FormInternal = <TData extends FieldValues>() => {
-  const { schema, serverUrl, title, order, ignore, onSubmit, preLoadedValues } =
-    useSchemaContext();
+  const {
+    schema,
+    serverUrl,
+    title,
+    order,
+    ignore,
+    onSubmit,
+    preLoadedValues,
+    rowNumber,
+  } = useSchemaContext();
   const methods = useFormContext();
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -222,7 +240,8 @@ const FormInternal = <TData extends FieldValues>() => {
           gap={4}
           padding={4}
           display={"grid"}
-          gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
+          gridTemplateColumns={"repeat(12, 1fr)"}
+          gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, 1fr)`}
         >
           {ordered.map((column) => {
             if (properties === undefined) {
@@ -236,9 +255,16 @@ const FormInternal = <TData extends FieldValues>() => {
             if (shouldIgnore) {
               return <></>;
             }
-            //@ts-expect-error TODO: add more fields to support form-creation
-            const { type, variant, in_table, column_ref, display_column } =
-              values;
+
+            const {
+              type,
+              variant,
+              in_table,
+              column_ref,
+              display_column,
+              gridColumn,
+              gridRow,
+            } = values as CustomJSONSchema7Definition;
             if (type === "string") {
               if (variant === "id-picker") {
                 idPickerSanityCheck(
@@ -251,7 +277,14 @@ const FormInternal = <TData extends FieldValues>() => {
                   <IdViewer
                     key={`form-${key}`}
                     value={(validatedData ?? {})[column]}
-                    {...{ in_table, column_ref, display_column, column }}
+                    {...{
+                      in_table,
+                      column_ref,
+                      display_column,
+                      column,
+                      gridColumn,
+                      gridRow,
+                    }}
                   />
                 );
               }
@@ -260,6 +293,8 @@ const FormInternal = <TData extends FieldValues>() => {
                 if (!!value === false) {
                   return (
                     <DataListItem
+                      gridColumn={gridColumn ?? "span 4"}
+                      gridRow={gridRow ?? "span 1"}
                       key={`form-${key}`}
                       label={`${snakeToLabel(column)}`}
                       {...getDataListProps(undefined)}
@@ -269,18 +304,31 @@ const FormInternal = <TData extends FieldValues>() => {
                 const date = dayjs(value).format("YYYY-MM-DD");
                 return (
                   <DataListItem
+                    gridColumn={gridColumn ?? "span 4"}
+                    gridRow={gridRow ?? "span 1"}
                     key={`form-${key}`}
                     label={`${snakeToLabel(column)}`}
                     {...getDataListProps(date)}
                   />
                 );
               }
+              return (
+                <DataListItem
+                  gridColumn={gridColumn ?? "span 4"}
+                  gridRow={gridRow ?? "span 4"}
+                  key={`form-${key}`}
+                  label={`${snakeToLabel(column)}`}
+                  {...getDataListProps((validatedData ?? {})[column])}
+                />
+              );
             }
             if (type === "object") {
               const value = (validatedData ?? {})[column];
               if (!!value === false) {
                 return (
                   <DataListItem
+                    gridColumn={gridColumn ?? "span 4"}
+                    gridRow={gridRow ?? "span 1"}
                     key={`form-${key}`}
                     label={`${snakeToLabel(column)}`}
                     {...getDataListProps(undefined)}
@@ -288,7 +336,12 @@ const FormInternal = <TData extends FieldValues>() => {
                 );
               }
               return (
-                <Flex flexFlow={"column"} gap={2}>
+                <Flex
+                  flexFlow={"column"}
+                  gap={2}
+                  gridColumn={gridColumn ?? "span 4"}
+                  gridRow={gridRow ?? "span 1"}
+                >
                   <Text>{snakeToLabel(column)}</Text>
                   <DataListRoot
                     orientation={"horizontal"}
@@ -310,19 +363,35 @@ const FormInternal = <TData extends FieldValues>() => {
                 </Flex>
               );
             }
+            if (type === "boolean") {
+              return (
+                <DataListItem
+                  gridColumn={gridColumn ?? "span 4"}
+                  gridRow={gridRow ?? "span 4"}
+                  key={`form-${key}`}
+                  label={`${snakeToLabel(column)}`}
+                  {...getDataListProps((validatedData ?? {})[column])}
+                />
+              );
+            }
+            if (type === "number" || type === "integer") {
+              return (
+                <DataListItem
+                  gridColumn={gridColumn ?? "span 4"}
+                  gridRow={gridRow ?? "span 4"}
+                  key={`form-${key}`}
+                  label={`${snakeToLabel(column)}`}
+                  {...getDataListProps((validatedData ?? {})[column])}
+                />
+              );
+            }
             if (type === "array") {
               return <>{`array ${column}`}</>;
             }
             if (type === "null") {
               return <>{`null ${column}`}</>;
             }
-            return (
-              <DataListItem
-                key={`form-${key}`}
-                label={`${snakeToLabel(column)}`}
-                {...getDataListProps((validatedData ?? {})[column])}
-              />
-            );
+            return <>{`unknown type ${column}`}</>;
           })}
         </DataListRoot>
         <Button
@@ -368,7 +437,8 @@ const FormInternal = <TData extends FieldValues>() => {
         <Grid
           gap={4}
           padding={4}
-          gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
+          gridTemplateColumns={"repeat(12, 1fr)"}
+          gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, 1fr)`}
         >
           {ordered.map((column) => {
             if (properties === undefined) {
@@ -456,6 +526,7 @@ export const Form = <TData extends FieldValues>({
   ignore = [],
   onSubmit = undefined,
   preLoadedValues = {},
+  rowNumber = undefined,
 }: FormProps<TData>) => {
   const queryClient = new QueryClient();
   const methods = useForm();
@@ -482,6 +553,7 @@ export const Form = <TData extends FieldValues>({
           // @ts-expect-error TODO: find appropriate types
           onSubmit,
           preLoadedValues,
+          rowNumber,
         }}
       >
         <FormProvider {...methods}>

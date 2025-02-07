@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { CgClose } from "react-icons/cg";
 import { useSchemaContext } from "../useSchemaContext";
+import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface DatePickerProps {
   column: string;
@@ -32,12 +33,18 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
   const [showNewEntries, setShowNewEntries] = useState<boolean>(false);
   const [newKey, setNewKey] = useState<string>();
   const [newValue, setNewValue] = useState<string>();
-
+  if (schema.properties == undefined) {
+    throw new Error("schema properties when using DatePicker");
+  }
+  const { gridColumn, gridRow } = schema.properties[
+    column
+  ] as CustomJSONSchema7;
   return (
     <Field
       label={`${snakeToLabel(column)}`}
       required={isRequired}
       alignItems={"stretch"}
+      {...{ gridColumn, gridRow }}
     >
       {entries.map(([key, value]) => {
         return (
@@ -66,7 +73,7 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
               autoComplete="off"
             />
             <IconButton
-            variant={'ghost'}
+              variant={"ghost"}
               onClick={() => {
                 const filtered = entries.filter(([target]) => {
                   return target !== key;

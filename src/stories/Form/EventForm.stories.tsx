@@ -32,3 +32,32 @@ export const Event: Story = {
     );
   },
 };
+
+export const EventRow: Story = {
+  render: () => {
+    return (
+      <ChakraProvider value={defaultSystem}>
+        <Form
+          schema={eventsSchema as JSONSchema7}
+          order={[
+            "event_name",
+            "parent_event_id",
+            "start_date",
+            "start_time",
+            "end_date",
+            "end_time",
+            "is_recurring",
+            "recurring_days",
+            "recurring_type",
+            "location_id",
+            "description",
+          ]}
+          ignore={["id", "created_at", "updated_at"]}
+          serverUrl={"http://localhost:8081"}
+          preLoadedValues={{}}
+          rowNumber={9}
+        />
+      </ChakraProvider>
+    );
+  },
+};

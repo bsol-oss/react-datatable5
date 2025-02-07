@@ -10,8 +10,8 @@ export interface SchemaFormContext<TData extends FieldValues> {
   ignore: string[];
   onSubmit?: SubmitHandler<TData>;
   preLoadedValues: object;
+  rowNumber?: number | string;
 }
-
 
 //@ts-expect-error TODO: find appropriate type
 export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
@@ -22,4 +22,5 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   ignore: [],
   onSubmit: () => {},
   preLoadedValues: {},
+  rowNumber: 0,
 });
