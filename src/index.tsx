@@ -75,6 +75,7 @@ export * from "./components/Controls/ResetFilteringButton";
 export * from "./components/Controls/ResetSelectionButton";
 export * from "./components/Controls/ResetSortingButton";
 export * from "./components/Controls/RowCountText";
+export * from "./components/Controls/TablePagination";
 export * from "./components/DataTable/CardHeader";
 export * from "./components/DataTable/DataDisplay";
 export * from "./components/DataTable/DataTable";
@@ -93,7 +94,6 @@ export * from "./components/DataTable/TableFooter";
 export * from "./components/DataTable/TableHeader";
 export * from "./components/DataTable/TableLoadingComponent";
 export * from "./components/DataTable/TableOrderer";
-export * from "./components/Controls/TablePagination";
 export * from "./components/DataTable/TableSelector";
 export * from "./components/DataTable/TableSorter";
 export * from "./components/DataTable/TableViewer";
@@ -102,9 +102,10 @@ export * from "./components/DataTable/useDataFromUrl";
 export * from "./components/DataTable/useDataTable";
 export * from "./components/DataTable/useDataTableContext";
 export * from "./components/DataTable/useDataTableServer";
+export * from "./components/DataTable/utils/getColumns";
+
 export * from "./components/Filter/FilterOptions";
 export * from "./components/Filter/GlobalFilter";
-export * from "./components/DataTable/utils/getColumns"
 
 export * from "./components/Form/Form";
 
@@ -112,3 +113,4 @@ export * from "./components/DatePicker/DatePicker";
 export * from "./components/DatePicker/getMultiDates";
 export * from "./components/DatePicker/getRangeDates";
 export * from "./components/DatePicker/RangeDatePicker";
+
