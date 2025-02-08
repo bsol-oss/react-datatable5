@@ -69,6 +69,8 @@ declare const ResetSortingButton: ({ text, }: ResetSortingButtonProps) => react_
 
 declare const RowCountText: () => react_jsx_runtime.JSX.Element;
 
+declare const TablePagination: () => react_jsx_runtime.JSX.Element;
+
 interface CardHeaderProps<TData> {
     row: Row<TData>;
     imageColumnId?: keyof TData;
@@ -360,8 +362,6 @@ declare const TableLoadingComponent: ({ render, }: TableLoadingComponentProps) =
 
 declare const TableOrderer: () => react_jsx_runtime.JSX.Element;
 
-declare const TablePagination: () => react_jsx_runtime.JSX.Element;
-
 declare const TableSelector: () => react_jsx_runtime.JSX.Element;
 
 declare const TableSorter: () => react_jsx_runtime.JSX.Element;
@@ -385,13 +385,6 @@ declare const useDataTableContext: () => {
     hasError: boolean;
 };
 
-interface FilterOptionsProps {
-    column: string;
-}
-declare const FilterOptions: ({ column }: FilterOptionsProps) => react_jsx_runtime.JSX.Element;
-
-declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
-
 interface GetColumnsConfigs<K extends RowData> {
     schema: JSONSchema7;
     ignore?: K[];
@@ -403,6 +396,13 @@ interface GetColumnsConfigs<K extends RowData> {
 }
 declare const widthSanityCheck: <K extends unknown>(widthList: number[], ignoreList: K[], properties: { [key in K as string]?: object | undefined; }) => void;
 declare const getColumns: <TData extends unknown>({ schema, ignore, width, meta, defaultWidth, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
+
+interface FilterOptionsProps {
+    column: string;
+}
+declare const FilterOptions: ({ column }: FilterOptionsProps) => react_jsx_runtime.JSX.Element;
+
+declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
 
 interface DisplayTextProps {
     title?: string;

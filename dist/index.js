@@ -10,13 +10,13 @@ var fa6 = require('react-icons/fa6');
 var bi = require('react-icons/bi');
 var cg = require('react-icons/cg');
 var io = require('react-icons/io');
+var hi2 = require('react-icons/hi2');
 var reactTable = require('@tanstack/react-table');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
 var bs = require('react-icons/bs');
 var gr = require('react-icons/gr');
 var io5 = require('react-icons/io5');
 var hi = require('react-icons/hi');
-var hi2 = require('react-icons/hi2');
 var adapter = require('@atlaskit/pragmatic-drag-and-drop/element/adapter');
 var invariant = require('tiny-invariant');
 var axios = require('axios');
@@ -195,6 +195,77 @@ const ResetSortingButton = ({ text = "Reset Sorting", }) => {
 const RowCountText = () => {
     const { table } = useDataTableContext();
     return jsxRuntime.jsx(react.Text, { children: table.getRowCount() });
+};
+
+const { withContext } = react.createRecipeContext({ key: "button" });
+// Replace "a" with your framework's link component
+const LinkButton = withContext("a");
+
+const [RootPropsProvider, useRootProps] = react.createContext({
+    name: "RootPropsProvider",
+});
+const variantMap = {
+    outline: { default: "ghost", ellipsis: "plain", current: "outline" },
+    solid: { default: "outline", ellipsis: "outline", current: "solid" },
+    subtle: { default: "ghost", ellipsis: "plain", current: "subtle" },
+};
+const PaginationRoot = React__namespace.forwardRef(function PaginationRoot(props, ref) {
+    const { size = "sm", variant = "outline", getHref, ...rest } = props;
+    return (jsxRuntime.jsx(RootPropsProvider, { value: { size, variantMap: variantMap[variant], getHref }, children: jsxRuntime.jsx(react.Pagination.Root, { ref: ref, type: getHref ? "link" : "button", ...rest }) }));
+});
+const PaginationEllipsis = React__namespace.forwardRef(function PaginationEllipsis(props, ref) {
+    const { size, variantMap } = useRootProps();
+    return (jsxRuntime.jsx(react.Pagination.Ellipsis, { ref: ref, ...props, asChild: true, children: jsxRuntime.jsx(react.Button, { as: "span", variant: variantMap.ellipsis, size: size, children: jsxRuntime.jsx(hi2.HiMiniEllipsisHorizontal, {}) }) }));
+});
+const PaginationItem = React__namespace.forwardRef(function PaginationItem(props, ref) {
+    const { page } = react.usePaginationContext();
+    const { size, variantMap, getHref } = useRootProps();
+    const current = page === props.value;
+    const variant = current ? variantMap.current : variantMap.default;
+    if (getHref) {
+        return (jsxRuntime.jsx(LinkButton, { href: getHref(props.value), variant: variant, size: size, children: props.value }));
+    }
+    return (jsxRuntime.jsx(react.Pagination.Item, { ref: ref, ...props, asChild: true, children: jsxRuntime.jsx(react.Button, { variant: variant, size: size, children: props.value }) }));
+});
+const PaginationPrevTrigger = React__namespace.forwardRef(function PaginationPrevTrigger(props, ref) {
+    const { size, variantMap, getHref } = useRootProps();
+    const { previousPage } = react.usePaginationContext();
+    if (getHref) {
+        return (jsxRuntime.jsx(LinkButton, { href: previousPage != null ? getHref(previousPage) : undefined, variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronLeft, {}) }));
+    }
+    return (jsxRuntime.jsx(react.Pagination.PrevTrigger, { ref: ref, asChild: true, ...props, children: jsxRuntime.jsx(react.IconButton, { variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronLeft, {}) }) }));
+});
+const PaginationNextTrigger = React__namespace.forwardRef(function PaginationNextTrigger(props, ref) {
+    const { size, variantMap, getHref } = useRootProps();
+    const { nextPage } = react.usePaginationContext();
+    if (getHref) {
+        return (jsxRuntime.jsx(LinkButton, { href: nextPage != null ? getHref(nextPage) : undefined, variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronRight, {}) }));
+    }
+    return (jsxRuntime.jsx(react.Pagination.NextTrigger, { ref: ref, asChild: true, ...props, children: jsxRuntime.jsx(react.IconButton, { variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronRight, {}) }) }));
+});
+const PaginationItems = (props) => {
+    return (jsxRuntime.jsx(react.Pagination.Context, { children: ({ pages }) => pages.map((page, index) => {
+            return page.type === "ellipsis" ? (jsxRuntime.jsx(PaginationEllipsis, { index: index, ...props }, index)) : (jsxRuntime.jsx(PaginationItem, { type: "page", value: page.value, ...props }, index));
+        }) }));
+};
+const PaginationPageText = React__namespace.forwardRef(function PaginationPageText(props, ref) {
+    const { format = "compact", ...rest } = props;
+    const { page, totalPages, pageRange, count } = react.usePaginationContext();
+    const content = React__namespace.useMemo(() => {
+        if (format === "short")
+            return `${page} / ${totalPages}`;
+        if (format === "compact")
+            return `${page} of ${totalPages}`;
+        return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} of ${count}`;
+    }, [format, page, totalPages, pageRange, count]);
+    return (jsxRuntime.jsx(react.Text, { fontWeight: "medium", ref: ref, ...rest, children: content }));
+});
+
+const TablePagination = () => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: table.getRowCount(), pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
+            table.setPageIndex(e.page - 1);
+        }, children: jsxRuntime.jsxs(react.HStack, { children: [jsxRuntime.jsx(PaginationPageText, { format: "long" }), jsxRuntime.jsx(PaginationPrevTrigger, {}), jsxRuntime.jsx(PaginationItems, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) }));
 };
 
 const Tag = React__namespace.forwardRef(function Tag(props, ref) {
@@ -964,77 +1035,6 @@ const TableOrderer = () => {
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
 };
 
-const { withContext } = react.createRecipeContext({ key: "button" });
-// Replace "a" with your framework's link component
-const LinkButton = withContext("a");
-
-const [RootPropsProvider, useRootProps] = react.createContext({
-    name: "RootPropsProvider",
-});
-const variantMap = {
-    outline: { default: "ghost", ellipsis: "plain", current: "outline" },
-    solid: { default: "outline", ellipsis: "outline", current: "solid" },
-    subtle: { default: "ghost", ellipsis: "plain", current: "subtle" },
-};
-const PaginationRoot = React__namespace.forwardRef(function PaginationRoot(props, ref) {
-    const { size = "sm", variant = "outline", getHref, ...rest } = props;
-    return (jsxRuntime.jsx(RootPropsProvider, { value: { size, variantMap: variantMap[variant], getHref }, children: jsxRuntime.jsx(react.Pagination.Root, { ref: ref, type: getHref ? "link" : "button", ...rest }) }));
-});
-const PaginationEllipsis = React__namespace.forwardRef(function PaginationEllipsis(props, ref) {
-    const { size, variantMap } = useRootProps();
-    return (jsxRuntime.jsx(react.Pagination.Ellipsis, { ref: ref, ...props, asChild: true, children: jsxRuntime.jsx(react.Button, { as: "span", variant: variantMap.ellipsis, size: size, children: jsxRuntime.jsx(hi2.HiMiniEllipsisHorizontal, {}) }) }));
-});
-const PaginationItem = React__namespace.forwardRef(function PaginationItem(props, ref) {
-    const { page } = react.usePaginationContext();
-    const { size, variantMap, getHref } = useRootProps();
-    const current = page === props.value;
-    const variant = current ? variantMap.current : variantMap.default;
-    if (getHref) {
-        return (jsxRuntime.jsx(LinkButton, { href: getHref(props.value), variant: variant, size: size, children: props.value }));
-    }
-    return (jsxRuntime.jsx(react.Pagination.Item, { ref: ref, ...props, asChild: true, children: jsxRuntime.jsx(react.Button, { variant: variant, size: size, children: props.value }) }));
-});
-const PaginationPrevTrigger = React__namespace.forwardRef(function PaginationPrevTrigger(props, ref) {
-    const { size, variantMap, getHref } = useRootProps();
-    const { previousPage } = react.usePaginationContext();
-    if (getHref) {
-        return (jsxRuntime.jsx(LinkButton, { href: previousPage != null ? getHref(previousPage) : undefined, variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronLeft, {}) }));
-    }
-    return (jsxRuntime.jsx(react.Pagination.PrevTrigger, { ref: ref, asChild: true, ...props, children: jsxRuntime.jsx(react.IconButton, { variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronLeft, {}) }) }));
-});
-const PaginationNextTrigger = React__namespace.forwardRef(function PaginationNextTrigger(props, ref) {
-    const { size, variantMap, getHref } = useRootProps();
-    const { nextPage } = react.usePaginationContext();
-    if (getHref) {
-        return (jsxRuntime.jsx(LinkButton, { href: nextPage != null ? getHref(nextPage) : undefined, variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronRight, {}) }));
-    }
-    return (jsxRuntime.jsx(react.Pagination.NextTrigger, { ref: ref, asChild: true, ...props, children: jsxRuntime.jsx(react.IconButton, { variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronRight, {}) }) }));
-});
-const PaginationItems = (props) => {
-    return (jsxRuntime.jsx(react.Pagination.Context, { children: ({ pages }) => pages.map((page, index) => {
-            return page.type === "ellipsis" ? (jsxRuntime.jsx(PaginationEllipsis, { index: index, ...props }, index)) : (jsxRuntime.jsx(PaginationItem, { type: "page", value: page.value, ...props }, index));
-        }) }));
-};
-const PaginationPageText = React__namespace.forwardRef(function PaginationPageText(props, ref) {
-    const { format = "compact", ...rest } = props;
-    const { page, totalPages, pageRange, count } = react.usePaginationContext();
-    const content = React__namespace.useMemo(() => {
-        if (format === "short")
-            return `${page} / ${totalPages}`;
-        if (format === "compact")
-            return `${page} of ${totalPages}`;
-        return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} of ${count}`;
-    }, [format, page, totalPages, pageRange, count]);
-    return (jsxRuntime.jsx(react.Text, { fontWeight: "medium", ref: ref, ...rest, children: content }));
-});
-
-const TablePagination = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: table.getRowCount(), pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
-            table.setPageIndex(e.page - 1);
-        }, children: jsxRuntime.jsxs(react.HStack, { children: [jsxRuntime.jsx(PaginationPageText, { format: "long" }), jsxRuntime.jsx(PaginationPrevTrigger, {}), jsxRuntime.jsx(PaginationItems, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) }));
-};
-
 const SelectAllRowsToggle = ({ selectAllIcon = jsxRuntime.jsx(md.MdOutlineChecklist, {}), clearAllIcon = jsxRuntime.jsx(md.MdClear, {}), selectAllText = "", clearAllText = "", }) => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!selectAllText === false && (jsxRuntime.jsx(react.IconButton, { variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
@@ -1326,45 +1326,6 @@ const useDataTableServer = ({ url, onFetchSuccess = () => { }, default: { sortin
     };
 };
 
-const FilterOptions = ({ column }) => {
-    const { table } = useDataTableContext();
-    const tableColumn = table.getColumn(column);
-    const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: options.map((option) => {
-            const selected = table.getColumn(column)?.getFilterValue() === option;
-            return (jsxRuntime.jsxs(react.Button, { size: "sm", onClick: () => {
-                    if (selected) {
-                        table.setColumnFilters((state) => {
-                            return state.filter((filter) => {
-                                return filter.id !== column;
-                            });
-                        });
-                        return;
-                    }
-                    table.getColumn(column)?.setFilterValue(option);
-                }, variant: selected ? "solid" : "outline", display: "flex", gap: "0.25rem", children: [option, selected && jsxRuntime.jsx(md.MdClose, {})] }, option));
-        }) }));
-};
-
-const InputGroup = React__namespace.forwardRef(function InputGroup(props, ref) {
-    const { startElement, startElementProps, endElement, endElementProps, children, startOffset = "6px", endOffset = "6px", ...rest } = props;
-    return (jsxRuntime.jsxs(react.Group, { ref: ref, ...rest, children: [startElement && (jsxRuntime.jsx(react.InputElement, { pointerEvents: "none", ...startElementProps, children: startElement })), React__namespace.cloneElement(children, {
-                ...(startElement && {
-                    ps: `calc(var(--input-height) - ${startOffset})`,
-                }),
-                ...(endElement && { pe: `calc(var(--input-height) - ${endOffset})` }),
-                // @ts-expect-error chakra generated files
-                ...children.props,
-            }), endElement && (jsxRuntime.jsx(react.InputElement, { placement: "end", ...endElementProps, children: endElement }))] }));
-});
-
-const GlobalFilter = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(InputGroup, { flex: "1", startElement: jsxRuntime.jsx(md.MdSearch, {}), children: jsxRuntime.jsx(react.Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
-                    table.setGlobalFilter(e.target.value);
-                } }) }) }));
-};
-
 const idListSanityCheck = (param, idList, properties) => {
     const allKeyExists = idList.every((key) => Object.keys(properties).some((column) => column == key));
     if (!allKeyExists) {
@@ -1417,6 +1378,45 @@ const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth =
         }),
     ];
     return columns;
+};
+
+const FilterOptions = ({ column }) => {
+    const { table } = useDataTableContext();
+    const tableColumn = table.getColumn(column);
+    const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: options.map((option) => {
+            const selected = table.getColumn(column)?.getFilterValue() === option;
+            return (jsxRuntime.jsxs(react.Button, { size: "sm", onClick: () => {
+                    if (selected) {
+                        table.setColumnFilters((state) => {
+                            return state.filter((filter) => {
+                                return filter.id !== column;
+                            });
+                        });
+                        return;
+                    }
+                    table.getColumn(column)?.setFilterValue(option);
+                }, variant: selected ? "solid" : "outline", display: "flex", gap: "0.25rem", children: [option, selected && jsxRuntime.jsx(md.MdClose, {})] }, option));
+        }) }));
+};
+
+const InputGroup = React__namespace.forwardRef(function InputGroup(props, ref) {
+    const { startElement, startElementProps, endElement, endElementProps, children, startOffset = "6px", endOffset = "6px", ...rest } = props;
+    return (jsxRuntime.jsxs(react.Group, { ref: ref, ...rest, children: [startElement && (jsxRuntime.jsx(react.InputElement, { pointerEvents: "none", ...startElementProps, children: startElement })), React__namespace.cloneElement(children, {
+                ...(startElement && {
+                    ps: `calc(var(--input-height) - ${startOffset})`,
+                }),
+                ...(endElement && { pe: `calc(var(--input-height) - ${endOffset})` }),
+                // @ts-expect-error chakra generated files
+                ...children.props,
+            }), endElement && (jsxRuntime.jsx(react.InputElement, { placement: "end", ...endElementProps, children: endElement }))] }));
+});
+
+const GlobalFilter = () => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(InputGroup, { flex: "1", startElement: jsxRuntime.jsx(md.MdSearch, {}), children: jsxRuntime.jsx(react.Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
+                    table.setGlobalFilter(e.target.value);
+                } }) }) }));
 };
 
 //@ts-expect-error TODO: find appropriate type

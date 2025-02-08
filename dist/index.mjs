@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, useDisclosure, Flex, DialogRoot as DialogRoot$1, DialogBackdrop, DialogTrigger as DialogTrigger$1, DialogContent as DialogContent$1, DialogCloseTrigger as DialogCloseTrigger$1, DialogHeader as DialogHeader$1, DialogTitle as DialogTitle$1, DialogBody as DialogBody$1, DialogFooter as DialogFooter$1, Text, Menu, Tag as Tag$1, Grid, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Box, Tooltip as Tooltip$1, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$1, VStack, List, Input, Slider as Slider$1, HStack, For, RadioGroup as RadioGroup$1, createRecipeContext, createContext as createContext$1, Pagination, usePaginationContext, Switch as Switch$1, Group, InputElement, Popover, RadioCard, Field as Field$1, NumberInput, Accordion, CheckboxCard as CheckboxCard$1, Show, Heading, Alert, Center } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, useDisclosure, Flex, DialogRoot as DialogRoot$1, DialogBackdrop, DialogTrigger as DialogTrigger$1, DialogContent as DialogContent$1, DialogCloseTrigger as DialogCloseTrigger$1, DialogHeader as DialogHeader$1, DialogTitle as DialogTitle$1, DialogBody as DialogBody$1, DialogFooter as DialogFooter$1, Text, Menu, createRecipeContext, createContext as createContext$1, Pagination, usePaginationContext, HStack, Tag as Tag$1, Grid, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Box, Tooltip as Tooltip$1, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$1, VStack, List, Input, Slider as Slider$1, For, RadioGroup as RadioGroup$1, Switch as Switch$1, Group, InputElement, Popover, RadioCard, Field as Field$1, NumberInput, Accordion, CheckboxCard as CheckboxCard$1, Show, Heading, Alert, Center } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useEffect, useState, useRef } from 'react';
@@ -9,13 +9,13 @@ import { FaUpDown, FaGripLinesVertical } from 'react-icons/fa6';
 import { BiDownArrow, BiUpArrow } from 'react-icons/bi';
 import { CgClose } from 'react-icons/cg';
 import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
+import { HiMiniEllipsisHorizontal, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender, createColumnHelper } from '@tanstack/react-table';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import { BsExclamationCircleFill } from 'react-icons/bs';
 import { GrAscend, GrDescend } from 'react-icons/gr';
 import { IoReload } from 'react-icons/io5';
 import { HiColorSwatch, HiOutlineInformationCircle } from 'react-icons/hi';
-import { HiMiniEllipsisHorizontal, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import { monitorForElements, draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import invariant from 'tiny-invariant';
 import axios from 'axios';
@@ -175,6 +175,77 @@ const ResetSortingButton = ({ text = "Reset Sorting", }) => {
 const RowCountText = () => {
     const { table } = useDataTableContext();
     return jsx(Text, { children: table.getRowCount() });
+};
+
+const { withContext } = createRecipeContext({ key: "button" });
+// Replace "a" with your framework's link component
+const LinkButton = withContext("a");
+
+const [RootPropsProvider, useRootProps] = createContext$1({
+    name: "RootPropsProvider",
+});
+const variantMap = {
+    outline: { default: "ghost", ellipsis: "plain", current: "outline" },
+    solid: { default: "outline", ellipsis: "outline", current: "solid" },
+    subtle: { default: "ghost", ellipsis: "plain", current: "subtle" },
+};
+const PaginationRoot = React.forwardRef(function PaginationRoot(props, ref) {
+    const { size = "sm", variant = "outline", getHref, ...rest } = props;
+    return (jsx(RootPropsProvider, { value: { size, variantMap: variantMap[variant], getHref }, children: jsx(Pagination.Root, { ref: ref, type: getHref ? "link" : "button", ...rest }) }));
+});
+const PaginationEllipsis = React.forwardRef(function PaginationEllipsis(props, ref) {
+    const { size, variantMap } = useRootProps();
+    return (jsx(Pagination.Ellipsis, { ref: ref, ...props, asChild: true, children: jsx(Button$1, { as: "span", variant: variantMap.ellipsis, size: size, children: jsx(HiMiniEllipsisHorizontal, {}) }) }));
+});
+const PaginationItem = React.forwardRef(function PaginationItem(props, ref) {
+    const { page } = usePaginationContext();
+    const { size, variantMap, getHref } = useRootProps();
+    const current = page === props.value;
+    const variant = current ? variantMap.current : variantMap.default;
+    if (getHref) {
+        return (jsx(LinkButton, { href: getHref(props.value), variant: variant, size: size, children: props.value }));
+    }
+    return (jsx(Pagination.Item, { ref: ref, ...props, asChild: true, children: jsx(Button$1, { variant: variant, size: size, children: props.value }) }));
+});
+const PaginationPrevTrigger = React.forwardRef(function PaginationPrevTrigger(props, ref) {
+    const { size, variantMap, getHref } = useRootProps();
+    const { previousPage } = usePaginationContext();
+    if (getHref) {
+        return (jsx(LinkButton, { href: previousPage != null ? getHref(previousPage) : undefined, variant: variantMap.default, size: size, children: jsx(HiChevronLeft, {}) }));
+    }
+    return (jsx(Pagination.PrevTrigger, { ref: ref, asChild: true, ...props, children: jsx(IconButton, { variant: variantMap.default, size: size, children: jsx(HiChevronLeft, {}) }) }));
+});
+const PaginationNextTrigger = React.forwardRef(function PaginationNextTrigger(props, ref) {
+    const { size, variantMap, getHref } = useRootProps();
+    const { nextPage } = usePaginationContext();
+    if (getHref) {
+        return (jsx(LinkButton, { href: nextPage != null ? getHref(nextPage) : undefined, variant: variantMap.default, size: size, children: jsx(HiChevronRight, {}) }));
+    }
+    return (jsx(Pagination.NextTrigger, { ref: ref, asChild: true, ...props, children: jsx(IconButton, { variant: variantMap.default, size: size, children: jsx(HiChevronRight, {}) }) }));
+});
+const PaginationItems = (props) => {
+    return (jsx(Pagination.Context, { children: ({ pages }) => pages.map((page, index) => {
+            return page.type === "ellipsis" ? (jsx(PaginationEllipsis, { index: index, ...props }, index)) : (jsx(PaginationItem, { type: "page", value: page.value, ...props }, index));
+        }) }));
+};
+const PaginationPageText = React.forwardRef(function PaginationPageText(props, ref) {
+    const { format = "compact", ...rest } = props;
+    const { page, totalPages, pageRange, count } = usePaginationContext();
+    const content = React.useMemo(() => {
+        if (format === "short")
+            return `${page} / ${totalPages}`;
+        if (format === "compact")
+            return `${page} of ${totalPages}`;
+        return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} of ${count}`;
+    }, [format, page, totalPages, pageRange, count]);
+    return (jsx(Text, { fontWeight: "medium", ref: ref, ...rest, children: content }));
+});
+
+const TablePagination = () => {
+    const { table } = useDataTableContext();
+    return (jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: table.getRowCount(), pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
+            table.setPageIndex(e.page - 1);
+        }, children: jsxs(HStack, { children: [jsx(PaginationPageText, { format: "long" }), jsx(PaginationPrevTrigger, {}), jsx(PaginationItems, {}), jsx(PaginationNextTrigger, {})] }) }));
 };
 
 const Tag = React.forwardRef(function Tag(props, ref) {
@@ -944,77 +1015,6 @@ const TableOrderer = () => {
     return (jsx(Fragment, { children: jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
 };
 
-const { withContext } = createRecipeContext({ key: "button" });
-// Replace "a" with your framework's link component
-const LinkButton = withContext("a");
-
-const [RootPropsProvider, useRootProps] = createContext$1({
-    name: "RootPropsProvider",
-});
-const variantMap = {
-    outline: { default: "ghost", ellipsis: "plain", current: "outline" },
-    solid: { default: "outline", ellipsis: "outline", current: "solid" },
-    subtle: { default: "ghost", ellipsis: "plain", current: "subtle" },
-};
-const PaginationRoot = React.forwardRef(function PaginationRoot(props, ref) {
-    const { size = "sm", variant = "outline", getHref, ...rest } = props;
-    return (jsx(RootPropsProvider, { value: { size, variantMap: variantMap[variant], getHref }, children: jsx(Pagination.Root, { ref: ref, type: getHref ? "link" : "button", ...rest }) }));
-});
-const PaginationEllipsis = React.forwardRef(function PaginationEllipsis(props, ref) {
-    const { size, variantMap } = useRootProps();
-    return (jsx(Pagination.Ellipsis, { ref: ref, ...props, asChild: true, children: jsx(Button$1, { as: "span", variant: variantMap.ellipsis, size: size, children: jsx(HiMiniEllipsisHorizontal, {}) }) }));
-});
-const PaginationItem = React.forwardRef(function PaginationItem(props, ref) {
-    const { page } = usePaginationContext();
-    const { size, variantMap, getHref } = useRootProps();
-    const current = page === props.value;
-    const variant = current ? variantMap.current : variantMap.default;
-    if (getHref) {
-        return (jsx(LinkButton, { href: getHref(props.value), variant: variant, size: size, children: props.value }));
-    }
-    return (jsx(Pagination.Item, { ref: ref, ...props, asChild: true, children: jsx(Button$1, { variant: variant, size: size, children: props.value }) }));
-});
-const PaginationPrevTrigger = React.forwardRef(function PaginationPrevTrigger(props, ref) {
-    const { size, variantMap, getHref } = useRootProps();
-    const { previousPage } = usePaginationContext();
-    if (getHref) {
-        return (jsx(LinkButton, { href: previousPage != null ? getHref(previousPage) : undefined, variant: variantMap.default, size: size, children: jsx(HiChevronLeft, {}) }));
-    }
-    return (jsx(Pagination.PrevTrigger, { ref: ref, asChild: true, ...props, children: jsx(IconButton, { variant: variantMap.default, size: size, children: jsx(HiChevronLeft, {}) }) }));
-});
-const PaginationNextTrigger = React.forwardRef(function PaginationNextTrigger(props, ref) {
-    const { size, variantMap, getHref } = useRootProps();
-    const { nextPage } = usePaginationContext();
-    if (getHref) {
-        return (jsx(LinkButton, { href: nextPage != null ? getHref(nextPage) : undefined, variant: variantMap.default, size: size, children: jsx(HiChevronRight, {}) }));
-    }
-    return (jsx(Pagination.NextTrigger, { ref: ref, asChild: true, ...props, children: jsx(IconButton, { variant: variantMap.default, size: size, children: jsx(HiChevronRight, {}) }) }));
-});
-const PaginationItems = (props) => {
-    return (jsx(Pagination.Context, { children: ({ pages }) => pages.map((page, index) => {
-            return page.type === "ellipsis" ? (jsx(PaginationEllipsis, { index: index, ...props }, index)) : (jsx(PaginationItem, { type: "page", value: page.value, ...props }, index));
-        }) }));
-};
-const PaginationPageText = React.forwardRef(function PaginationPageText(props, ref) {
-    const { format = "compact", ...rest } = props;
-    const { page, totalPages, pageRange, count } = usePaginationContext();
-    const content = React.useMemo(() => {
-        if (format === "short")
-            return `${page} / ${totalPages}`;
-        if (format === "compact")
-            return `${page} of ${totalPages}`;
-        return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} of ${count}`;
-    }, [format, page, totalPages, pageRange, count]);
-    return (jsx(Text, { fontWeight: "medium", ref: ref, ...rest, children: content }));
-});
-
-const TablePagination = () => {
-    const { table } = useDataTableContext();
-    return (jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: table.getRowCount(), pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
-            table.setPageIndex(e.page - 1);
-        }, children: jsxs(HStack, { children: [jsx(PaginationPageText, { format: "long" }), jsx(PaginationPrevTrigger, {}), jsx(PaginationItems, {}), jsx(PaginationNextTrigger, {})] }) }));
-};
-
 const SelectAllRowsToggle = ({ selectAllIcon = jsx(MdOutlineChecklist, {}), clearAllIcon = jsx(MdClear, {}), selectAllText = "", clearAllText = "", }) => {
     const { table } = useDataTableContext();
     return (jsxs(Fragment, { children: [!!selectAllText === false && (jsx(IconButton, { variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
@@ -1306,45 +1306,6 @@ const useDataTableServer = ({ url, onFetchSuccess = () => { }, default: { sortin
     };
 };
 
-const FilterOptions = ({ column }) => {
-    const { table } = useDataTableContext();
-    const tableColumn = table.getColumn(column);
-    const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
-    return (jsx(Fragment, { children: options.map((option) => {
-            const selected = table.getColumn(column)?.getFilterValue() === option;
-            return (jsxs(Button$1, { size: "sm", onClick: () => {
-                    if (selected) {
-                        table.setColumnFilters((state) => {
-                            return state.filter((filter) => {
-                                return filter.id !== column;
-                            });
-                        });
-                        return;
-                    }
-                    table.getColumn(column)?.setFilterValue(option);
-                }, variant: selected ? "solid" : "outline", display: "flex", gap: "0.25rem", children: [option, selected && jsx(MdClose, {})] }, option));
-        }) }));
-};
-
-const InputGroup = React.forwardRef(function InputGroup(props, ref) {
-    const { startElement, startElementProps, endElement, endElementProps, children, startOffset = "6px", endOffset = "6px", ...rest } = props;
-    return (jsxs(Group, { ref: ref, ...rest, children: [startElement && (jsx(InputElement, { pointerEvents: "none", ...startElementProps, children: startElement })), React.cloneElement(children, {
-                ...(startElement && {
-                    ps: `calc(var(--input-height) - ${startOffset})`,
-                }),
-                ...(endElement && { pe: `calc(var(--input-height) - ${endOffset})` }),
-                // @ts-expect-error chakra generated files
-                ...children.props,
-            }), endElement && (jsx(InputElement, { placement: "end", ...endElementProps, children: endElement }))] }));
-});
-
-const GlobalFilter = () => {
-    const { table } = useDataTableContext();
-    return (jsx(Fragment, { children: jsx(InputGroup, { flex: "1", startElement: jsx(MdSearch, {}), children: jsx(Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
-                    table.setGlobalFilter(e.target.value);
-                } }) }) }));
-};
-
 const idListSanityCheck = (param, idList, properties) => {
     const allKeyExists = idList.every((key) => Object.keys(properties).some((column) => column == key));
     if (!allKeyExists) {
@@ -1397,6 +1358,45 @@ const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth =
         }),
     ];
     return columns;
+};
+
+const FilterOptions = ({ column }) => {
+    const { table } = useDataTableContext();
+    const tableColumn = table.getColumn(column);
+    const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
+    return (jsx(Fragment, { children: options.map((option) => {
+            const selected = table.getColumn(column)?.getFilterValue() === option;
+            return (jsxs(Button$1, { size: "sm", onClick: () => {
+                    if (selected) {
+                        table.setColumnFilters((state) => {
+                            return state.filter((filter) => {
+                                return filter.id !== column;
+                            });
+                        });
+                        return;
+                    }
+                    table.getColumn(column)?.setFilterValue(option);
+                }, variant: selected ? "solid" : "outline", display: "flex", gap: "0.25rem", children: [option, selected && jsx(MdClose, {})] }, option));
+        }) }));
+};
+
+const InputGroup = React.forwardRef(function InputGroup(props, ref) {
+    const { startElement, startElementProps, endElement, endElementProps, children, startOffset = "6px", endOffset = "6px", ...rest } = props;
+    return (jsxs(Group, { ref: ref, ...rest, children: [startElement && (jsx(InputElement, { pointerEvents: "none", ...startElementProps, children: startElement })), React.cloneElement(children, {
+                ...(startElement && {
+                    ps: `calc(var(--input-height) - ${startOffset})`,
+                }),
+                ...(endElement && { pe: `calc(var(--input-height) - ${endOffset})` }),
+                // @ts-expect-error chakra generated files
+                ...children.props,
+            }), endElement && (jsx(InputElement, { placement: "end", ...endElementProps, children: endElement }))] }));
+});
+
+const GlobalFilter = () => {
+    const { table } = useDataTableContext();
+    return (jsx(Fragment, { children: jsx(InputGroup, { flex: "1", startElement: jsx(MdSearch, {}), children: jsx(Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
+                    table.setGlobalFilter(e.target.value);
+                } }) }) }));
 };
 
 //@ts-expect-error TODO: find appropriate type
