@@ -9,7 +9,7 @@ import { RankingInfo } from '@tanstack/match-sorter-utils';
 import * as _tanstack_table_core from '@tanstack/table-core';
 import { JSONSchema7 } from 'json-schema';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
-import { RenderProps, Props } from 'dayzed';
+import { RenderProps, Props } from '@bsol-oss/dayzed-react19';
 
 interface DensityToggleButtonProps {
     icon?: React__default.ReactElement;

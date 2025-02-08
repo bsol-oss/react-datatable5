@@ -23,7 +23,7 @@ var axios = require('axios');
 var reactHookForm = require('react-hook-form');
 var reactQuery = require('@tanstack/react-query');
 var dayjs = require('dayjs');
-var Dayzed = require('dayzed');
+var Dayzed = require('@bsol-oss/dayzed-react19');
 
 function _interopNamespaceDefault(e) {
     var n = Object.create(null);

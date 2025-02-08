@@ -22,7 +22,7 @@ import axios from 'axios';
 import { useFormContext, useForm, FormProvider } from 'react-hook-form';
 import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import Dayzed from 'dayzed';
+import Dayzed from '@bsol-oss/dayzed-react19';
 
 const TableContext = createContext({
     table: {},

@@ -1,4 +1,4 @@
-import { Props, RenderProps } from "dayzed";
+import { Props, RenderProps } from "@bsol-oss/dayzed-react19";
 import React from "react";
 export interface CalendarProps extends RenderProps {
     firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
