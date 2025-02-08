@@ -1,5 +1,5 @@
 import { Box, Button, Grid } from "@chakra-ui/react";
-import Dayzed, { Props, RenderProps } from "dayzed";
+import Dayzed, { Props, RenderProps } from "@bsol-oss/dayzed-react19";
 import React, { useState } from "react";
 
 const monthNamesFull = [

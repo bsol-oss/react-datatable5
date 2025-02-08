@@ -1,5 +1,5 @@
 import { Button, Grid, Text } from "@chakra-ui/react";
-import Dayzed, { Props, RenderProps } from "dayzed";
+import Dayzed, { Props, RenderProps } from "@bsol-oss/dayzed-react19";
 import React from "react";
 
 const monthNamesShort = [
