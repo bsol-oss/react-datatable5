@@ -1,3 +1,4 @@
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import {
   ColumnFiltersState,
   ColumnOrderState,
@@ -6,21 +7,12 @@ import {
   SortingState,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import axios from "axios";
+import { useState } from "react";
 import { DensityState } from "../Controls/DensityFeature";
-import {
-  useDataFromUrl,
-  UseDataFromUrlProps,
-  UseDataFromUrlReturn,
-} from "./useDataFromUrl";
 import { UseDataTableProps, UseDataTableReturn } from "./useDataTable";
 
-export interface UseDataTableServerProps<TData>
-  extends Omit<
-      UseDataFromUrlProps<DataResponse<TData>>,
-      keyof { defaultData: any }
-    >,
-    UseDataTableProps {
+export interface UseDataTableServerProps<TData> {
   /**
    * Delay to send the request if the `refreshData` called multiple times
    *
@@ -35,9 +27,9 @@ export interface UseDataTableServerProps<TData>
   debounceDelay?: number;
 }
 
-export interface UseDataTableServerReturn<TData>
-  extends UseDataFromUrlReturn<DataResponse<TData>>,
-    UseDataTableReturn {}
+export interface UseDataTableServerReturn<TData> {
+  query: UseQueryResult<TData>;
+}
 
 export interface Result<T> {
   data: T[];
@@ -92,32 +84,28 @@ export const useDataTableServer = <TData,>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     defaultColumnVisibility
   );
-  const { data, loading, hasError, refreshData } = useDataFromUrl<
-    DataResponse<TData>
-  >({
-    url: url,
-    defaultData: {
-      data: [],
-      count: 0,
+
+  const query = useQuery<TData>({
+    queryKey: [url],
+    queryFn: () => {
+      return axios
+        .get<TData>(url, {
+          params: {
+            offset: pagination.pageIndex * pagination.pageSize,
+            limit: pagination.pageSize,
+            sorting,
+            where: columnFilters.reduce((accumulator, filter) => {
+              const obj: any = {};
+              obj[filter.id] = filter.value;
+              return { ...accumulator, ...obj };
+            }, {}),
+            searching: globalFilter,
+          },
+        })
+        .then((res) => res.data);
     },
-    params: {
-      offset: pagination.pageIndex * pagination.pageSize,
-      limit: pagination.pageSize,
-      sorting,
-      where: columnFilters.reduce((accumulator, filter) => {
-        const obj: any = {};
-        obj[filter.id] = filter.value;
-        return { ...accumulator, ...obj };
-      }, {}),
-      searching: globalFilter,
-    },
-    disableFirstFetch: true,
-    onFetchSuccess: onFetchSuccess,
   });
 
-  useEffect(() => {
-    refreshData({ debounce, delay: debounceDelay });
-  }, [pagination, sorting, columnFilters, globalFilter, url]);
   return {
     sorting,
     setSorting,
@@ -135,9 +123,6 @@ export const useDataTableServer = <TData,>({
     setDensity,
     columnVisibility,
     setColumnVisibility,
-    data,
-    loading,
-    hasError,
-    refreshData,
+    query,
   };
 };

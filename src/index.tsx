@@ -98,7 +98,6 @@ export * from "./components/DataTable/TableSelector";
 export * from "./components/DataTable/TableSorter";
 export * from "./components/DataTable/TableViewer";
 export * from "./components/DataTable/TextCell";
-export * from "./components/DataTable/useDataFromUrl";
 export * from "./components/DataTable/useDataTable";
 export * from "./components/DataTable/useDataTableContext";
 export * from "./components/DataTable/useDataTableServer";

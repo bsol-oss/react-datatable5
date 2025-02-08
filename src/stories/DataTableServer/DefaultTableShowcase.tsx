@@ -8,6 +8,7 @@ import {
   TextCell,
   useDataTableServer,
 } from "../../index";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 interface ChatRecord {
   session_id: string;
@@ -31,7 +32,7 @@ const RowActions = ({ row }: RowActionsProps) => {
   return <>has no actions</>;
 };
 
-const DefaultTableShowcase = () => {
+const App = () => {
   const dataTable = useDataTableServer<ChatRecord>({
     url: "http://localhost:8333/api/v1/gpt/chat/history/all",
     default: {
@@ -129,7 +130,6 @@ const DefaultTableShowcase = () => {
       ],
     }),
   ];
-
   return (
     <ChakraProvider value={defaultSystem}>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
@@ -167,6 +167,15 @@ const DefaultTableShowcase = () => {
         />
       </DataTableServer>
     </ChakraProvider>
+  );
+};
+const queryClient = new QueryClient();
+
+const DefaultTableShowcase = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
   );
 };
 

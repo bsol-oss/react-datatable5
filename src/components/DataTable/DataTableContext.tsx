@@ -1,21 +1,18 @@
 import { OnChangeFn, Table } from "@tanstack/react-table";
 import { createContext } from "react";
 import { RefreshDataConfig } from "./useDataFromUrl";
+import { UseQueryResult } from "@tanstack/react-query";
 
 export interface DataTableContext<TData> {
   table: Table<TData>;
-  refreshData: (config?: RefreshDataConfig) => void;
   globalFilter: string;
   setGlobalFilter: OnChangeFn<string>;
-  loading: boolean;
-  hasError: boolean;
+  query: UseQueryResult<TData>;
 }
 
 export const TableContext = createContext<DataTableContext<any>>({
   table: {} as Table<any>,
-  refreshData: () => {},
   globalFilter: "",
   setGlobalFilter: () => {},
-  loading: false,
-  hasError: false,
+  query: {} as UseQueryResult<any>,
 });

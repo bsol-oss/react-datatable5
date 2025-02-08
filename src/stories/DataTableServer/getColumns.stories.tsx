@@ -9,6 +9,7 @@ import { JSONSchema7 } from "json-schema";
 import { addressSchema } from "../schema";
 import { DefaultTable } from "@/components/DataTable/DefaultTable";
 import { FilterOptions } from "@/components/Filter/FilterOptions";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -29,7 +30,17 @@ export const GetColumnsStory: Story = {
   },
 };
 
+const queryClient = new QueryClient();
+
 const DataDisplayView = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  );
+};
+
+const App = () => {
   const datatable = useDataTableServer({
     url: "http://localhost:8081/api/g/core_addresses",
     default: { sorting: [{ id: "id", desc: false }] },
@@ -43,8 +54,8 @@ const DataDisplayView = () => {
         displayName: "Created at",
         filterVariant: "select",
         filterOptions: ["Apple", "Huawei"],
-      }
-    }
+      },
+    },
   });
 
   return (
@@ -63,7 +74,13 @@ const DataDisplayView = () => {
           }}
         />
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter showFilterName showFilterTags fitTableWidth fitTableHeight />
+          <DefaultTable
+            showFilter
+            showFilterName
+            showFilterTags
+            fitTableWidth
+            fitTableHeight
+          />
         </Box>
       </DataTableServer>
     </ChakraProvider>
