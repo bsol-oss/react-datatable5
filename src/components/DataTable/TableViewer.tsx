@@ -9,8 +9,7 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import { FaGripLinesVertical } from "react-icons/fa6";
 import invariant from "tiny-invariant";
 import { Switch } from "../ui/switch";
-import { useDataTableContext } from "./useDataTableContext";
-
+import { useDataTableContext } from "./context/useDataTableContext";
 interface ColumnCardProps {
   columnId: string;
 }

@@ -7,8 +7,8 @@ import {
   Text
 } from "@chakra-ui/react";
 import { flexRender, Row } from "@tanstack/react-table";
-import { ReactNode, useContext } from "react";
-import { TableContext } from "./DataTableContext";
+import { ReactNode } from "react";
+import { useDataTableContext } from "./context/useDataTableContext";
 
 export interface TableCardsProps<TData> {
   isSelectable?: boolean;
@@ -27,7 +27,7 @@ export const TableCards = <TData,>({
   renderTitle = DefaultCardTitle,
   cardBodyProps = {},
 }: TableCardsProps<TData>) => {
-  const { table } = useContext(TableContext);
+  const { table } = useDataTableContext();
 
   return (
     <>

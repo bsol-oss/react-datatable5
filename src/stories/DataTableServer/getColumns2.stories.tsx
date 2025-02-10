@@ -6,7 +6,7 @@ import { getColumns } from "@/components/DataTable/utils/getColumns";
 import { Box, ChakraProvider, defaultSystem, Text } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { JSONSchema7 } from "json-schema";
-import { addressSchema } from "../schema";
+import { addressSchema, peopleSchema } from "../schema";
 import { DefaultTable } from "@/components/DataTable/DefaultTable";
 import { FilterOptions } from "@/components/Filter/FilterOptions";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -24,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 
 export default meta;
 
-export const GetColumnsStory: Story = {
+export const GetColumns2Story: Story = {
   render: () => {
     return <DataDisplayView />;
   },
@@ -42,32 +42,32 @@ const DataDisplayView = () => {
 
 const AddressApp = () => {
   const datatable = useDataTableServer({
-    url: "http://localhost:8081/api/g/core_addresses",
+    url: "http://localhost:8081/api/g/core_people",
     default: { sorting: [{ id: "id", desc: false }] },
   });
   const columns = getColumns<string>({
-    schema: addressSchema as JSONSchema7,
-    ignore: ["building_name"],
+    schema: peopleSchema as JSONSchema7,
+    // ignore: ["building_name"],
     width: [400, 80, 100],
     meta: {
-      created_at: {
-        displayName: "Created at",
-        filterVariant: "select",
-        filterOptions: ["Apple", "Huawei"],
-      },
+      // created_at: {
+      //   displayName: "Created at",
+      //   filterVariant: "select",
+      //   filterOptions: ["Apple", "Huawei"],
+      // },
     },
   });
 
   return (
     <ChakraProvider value={defaultSystem}>
-      <DataTableServer columns={columns} {...datatable}>
-          <DefaultTable
-            showFilter
-            showFilterName
-            showFilterTags
-            fitTableWidth
-            fitTableHeight
-          />
+      <DataTableServer url="http://localhost:8081/api/g/core_people" columns={columns} {...datatable}>
+        <DefaultTable
+          controlProps={{
+            showFilter: true,
+            fitTableWidth: true,
+            fitTableHeight: true,
+          }}
+        />
         <DataDisplay />
         <DataDisplay variant="stats" />
         <Box width={"20rem"}>

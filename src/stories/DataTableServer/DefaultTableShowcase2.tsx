@@ -1,10 +1,15 @@
-import { Box, Button, ChakraProvider, defaultSystem, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  ChakraProvider,
+  defaultSystem,
+  Text,
+} from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 import { useState } from "react";
 import {
   DataTableServer,
-  DefaultTable,
   TableComponent,
   TextCell,
   useDataTableServer,
@@ -159,7 +164,6 @@ const DefaultTableShowcase2 = () => {
     },
   });
 
-
   return (
     <ChakraProvider value={defaultSystem}>
       <Button
@@ -179,33 +183,12 @@ const DefaultTableShowcase2 = () => {
       >
         aad profile
       </Button>
-      <DataTableServer<ProfileData>
+      <DataTableServer
+        url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
         columns={selectedId == "aad_profile" ? columns : columnv2}
-        // url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
         // onFetchSuccess={(response)=>{console.log(response,"some-response-123")}}
         {...dataTable}
       >
-        <DefaultTable showFilter filterOptions={["model"]} />
-        <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter />
-        </Box>
-        <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter />
-        </Box>
-
-        <Text> {"fitTable={true}"}</Text>
-
-        <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter fitTableWidth />
-        </Box>
-        <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter fitTableWidth fitTableHeight />
-        </Box>
-
-        <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter fitTableWidth fitTableHeight />
-        </Box>
-
         <TableComponent
           render={(table) => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;

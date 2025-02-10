@@ -1,9 +1,10 @@
-import { TextProps } from "@chakra-ui/react";
+import { FlexProps, TextProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
-export interface TextCellProps extends TextProps {
+export interface TextCellProps {
     label?: string;
     noOfLines?: number[];
-    padding?: string;
     children: string | number | ReactNode | ReactNode[];
+    containerProps?: FlexProps;
+    textProps?: TextProps;
 }
-export declare const TextCell: ({ label, padding, children, ...props }: TextCellProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TextCell: ({ label, containerProps, textProps, children, }: TextCellProps) => import("react/jsx-runtime").JSX.Element;

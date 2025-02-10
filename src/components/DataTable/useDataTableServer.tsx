@@ -1,3 +1,4 @@
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import {
   ColumnFiltersState,
   ColumnOrderState,
@@ -6,21 +7,12 @@ import {
   SortingState,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import axios from "axios";
+import { useState } from "react";
 import { DensityState } from "../Controls/DensityFeature";
-import {
-  useDataFromUrl,
-  UseDataFromUrlProps,
-  UseDataFromUrlReturn,
-} from "./useDataFromUrl";
 import { UseDataTableProps, UseDataTableReturn } from "./useDataTable";
 
-export interface UseDataTableServerProps<TData>
-  extends Omit<
-      UseDataFromUrlProps<DataResponse<TData>>,
-      keyof { defaultData: any }
-    >,
-    UseDataTableProps {
+export interface UseDataTableServerProps extends UseDataTableProps {
   /**
    * Delay to send the request if the `refreshData` called multiple times
    *
@@ -33,11 +25,13 @@ export interface UseDataTableServerProps<TData>
    * default: `1000`
    */
   debounceDelay?: number;
+
+  url: string;
 }
 
-export interface UseDataTableServerReturn<TData>
-  extends UseDataFromUrlReturn<DataResponse<TData>>,
-    UseDataTableReturn {}
+export interface UseDataTableServerReturn<TData> extends UseDataTableReturn {
+  query: UseQueryResult<DataResponse<TData>, Error>;
+}
 
 export interface Result<T> {
   data: T[];
@@ -49,7 +43,6 @@ export interface DataResponse<T> extends Result<T> {
 
 export const useDataTableServer = <TData,>({
   url,
-  onFetchSuccess = () => {},
   default: {
     sorting: defaultSorting = [],
     pagination: defaultPagination = {
@@ -75,9 +68,9 @@ export const useDataTableServer = <TData,>({
     globalFilter: "",
     density: "sm",
   },
-  debounce = true,
-  debounceDelay = 1000,
-}: UseDataTableServerProps<TData>): UseDataTableServerReturn<TData> => {
+  // debounce = true,
+  // debounceDelay = 1000,
+}: UseDataTableServerProps): UseDataTableServerReturn<TData> => {
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] =
     useState<ColumnFiltersState>(defaultColumnFilters); // can set initial column filter state here
@@ -92,32 +85,30 @@ export const useDataTableServer = <TData,>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     defaultColumnVisibility
   );
-  const { data, loading, hasError, refreshData } = useDataFromUrl<
-    DataResponse<TData>
-  >({
-    url: url,
-    defaultData: {
-      data: [],
+
+  const params = {
+    offset: pagination.pageIndex * pagination.pageSize,
+    limit: pagination.pageSize,
+    sorting,
+    where: columnFilters,
+    searching: globalFilter,
+  };
+
+  const query = useQuery<DataResponse<TData>>({
+    queryKey: [url, params],
+    queryFn: () => {
+      return axios
+        .get<DataResponse<TData>>(url, {
+          params,
+        })
+        .then((res) => res.data);
+    },
+    placeholderData: {
       count: 0,
+      data: [],
     },
-    params: {
-      offset: pagination.pageIndex * pagination.pageSize,
-      limit: pagination.pageSize,
-      sorting,
-      where: columnFilters.reduce((accumulator, filter) => {
-        const obj: any = {};
-        obj[filter.id] = filter.value;
-        return { ...accumulator, ...obj };
-      }, {}),
-      searching: globalFilter,
-    },
-    disableFirstFetch: true,
-    onFetchSuccess: onFetchSuccess,
   });
 
-  useEffect(() => {
-    refreshData({ debounce, delay: debounceDelay });
-  }, [pagination, sorting, columnFilters, globalFilter, url]);
   return {
     sorting,
     setSorting,
@@ -135,9 +126,6 @@ export const useDataTableServer = <TData,>({
     setDensity,
     columnVisibility,
     setColumnVisibility,
-    data,
-    loading,
-    hasError,
-    refreshData,
+    query,
   };
 };

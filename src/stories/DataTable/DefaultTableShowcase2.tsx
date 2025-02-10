@@ -1,8 +1,13 @@
-import { Box, ChakraProvider, defaultSystem, Text, theme } from "@chakra-ui/react";
+import {
+  Box,
+  ChakraProvider,
+  defaultSystem,
+  Text
+} from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
-import { staffData, Employee } from "../staff_data";
 import { useDataTable } from "../../components/DataTable/useDataTable";
+import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
+import { Employee, staffData } from "../staff_data";
 
 interface RowActionsProps {
   row: Employee;
@@ -107,10 +112,12 @@ const DefaultTableShowcase2 = () => {
     <ChakraProvider value={defaultSystem}>
       <DataTable columns={columns} data={staffData} {...datatable}>
         <DefaultTable
-          showFilter
-          showFilterName
-          showFilterTags
-          filterOptions={["category", "brand"]}
+          controlProps={{
+            showFilter: true,
+            showFilterName: true,
+            showFilterTags: true,
+            filterOptions: ["category", "brand"],
+          }}
         />
         <TableComponent
           render={(table) => {
@@ -118,23 +125,48 @@ const DefaultTableShowcase2 = () => {
           }}
         />
         <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+            }}
+          />
         </Box>
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+            }}
+          />
         </Box>
 
         <Text> {"fitTable={true}"}</Text>
 
         <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter fitTableWidth />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+              fitTableWidth: true,
+            }}
+          />
         </Box>
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter fitTableWidth fitTableHeight />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+              fitTableWidth: true,
+              fitTableHeight: true,
+            }}
+          />
         </Box>
 
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter fitTableWidth fitTableHeight />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+              fitTableWidth: true,
+              fitTableHeight: true,
+            }}
+          />
         </Box>
 
         <TableComponent

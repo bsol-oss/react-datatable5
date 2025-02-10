@@ -2,7 +2,7 @@ import { idListSanityCheck } from "@/components/Form/utils/idListSanityCheck";
 import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 import { ColumnDef, createColumnHelper, RowData } from "@tanstack/react-table";
 import { JSONSchema7 } from "json-schema";
-import { TextCell } from "../TextCell";
+import { TextCell } from "../../../index";
 
 export interface GetColumnsConfigs<K extends RowData> {
   schema: JSONSchema7;
@@ -62,7 +62,11 @@ export const getColumns = <TData extends RowData>({
       return columnHelper.accessor(column, {
         cell: (props) => {
           // @ts-expect-error find type for unknown
-          return <TextCell>{props.row.original[column]}</TextCell>;
+          const value = props.row.original[column];
+          if (typeof value === "object") {
+            return <TextCell>{JSON.stringify(value)}</TextCell>;
+          }
+          return <TextCell>{value}</TextCell>;
         },
         header: (columnHeader) => {
           const displayName =

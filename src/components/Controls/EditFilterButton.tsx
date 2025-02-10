@@ -1,4 +1,4 @@
-import { Button, Flex, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, Flex, useDisclosure } from "@chakra-ui/react";
 import { MdFilterAlt } from "react-icons/md";
 import { ResetFilteringButton, TableFilter } from "../../index";
 
@@ -32,10 +32,10 @@ export const EditFilterButton = ({
   const filterModal = useDisclosure();
   return (
     <>
-      <DialogRoot size={["full", "full", "md", "md"]}>
+      <DialogRoot size={["full", "full", "md", "md"]} open={filterModal.open}>
         <DialogRoot>
-          <DialogTrigger>
-            <Button variant="outline">
+          <DialogTrigger asChild>
+            <Button as={Box} variant={'ghost'} onClick={filterModal.onOpen}>
               {icon} {text}
             </Button>
           </DialogTrigger>

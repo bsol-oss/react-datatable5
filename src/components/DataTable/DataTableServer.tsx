@@ -1,5 +1,6 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 
+import { UseQueryResult } from "@tanstack/react-query";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,12 +14,12 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { DensityFeature, DensityState } from "../Controls/DensityFeature";
-import { TableContext } from "./DataTableContext";
-import { UseDataFromUrlReturn } from "./useDataFromUrl";
-import { DataResponse } from "./useDataTableServer";
+import {
+  DataTableContext,
+} from "./context/DataTableContext";
+import { DataTableServerContext } from "./context/DataTableServerContext";
 
-export interface DataTableServerProps<TData>
-  extends UseDataFromUrlReturn<DataResponse<TData>> {
+export interface DataTableServerProps<TData> {
   children: ReactNode | ReactNode[];
   columns: ColumnDef<TData>[]; // TODO: find the appropriate types
   enableRowSelection?: boolean;
@@ -41,6 +42,8 @@ export interface DataTableServerProps<TData>
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
+  query: UseQueryResult<TData>;
+  url: string;
 }
 
 export const DataTableServer = <TData,>({
@@ -65,16 +68,14 @@ export const DataTableServer = <TData,>({
   setColumnOrder,
   setDensity,
   setColumnVisibility,
-  data,
-  loading,
-  hasError,
-  refreshData,
+  query,
   children,
+  url
 }: DataTableServerProps<TData>) => {
   const table = useReactTable<TData>({
     _features: [DensityFeature],
-    data: data.data,
-    rowCount: data.count ?? 0,
+    data: query.data?.data ?? [],
+    rowCount: query.data?.count ?? 0,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
@@ -119,30 +120,17 @@ export const DataTableServer = <TData,>({
     // for tanstack-table ts bug end
   });
 
-  useEffect(() => {
-    setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
-  }, []);
-
-  useEffect(() => {
-    onRowSelect(table.getState().rowSelection, data.data);
-  }, [table.getState().rowSelection]);
-
-  useEffect(() => {
-    table.resetPagination();
-  }, [sorting, columnFilters, globalFilter]);
-
   return (
-    <TableContext.Provider
+    <DataTableContext.Provider
       value={{
         table: { ...table },
-        refreshData: refreshData,
         globalFilter,
         setGlobalFilter,
-        loading: loading,
-        hasError: hasError,
       }}
     >
-      {children}
-    </TableContext.Provider>
+      <DataTableServerContext.Provider  value={{url}}>
+        {children}
+      </DataTableServerContext.Provider>
+    </DataTableContext.Provider>
   );
 };

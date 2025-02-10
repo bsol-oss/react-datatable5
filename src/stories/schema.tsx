@@ -429,3 +429,99 @@ export const eventsSchema = {
   description: "Missing description",
   additionalProperties: false,
 } as JSONSchema7;
+
+export const peopleSchema = {
+  $id: "http://api.localhost.com/schema/public/core_people.json",
+  type: "object",
+  title: "core_people",
+  $schema: "http://json-schema.org/draft-07/schema#",
+  example: {
+    id: "fe2b247d-a4d6-61a2-7442-f0533f6714bb",
+    bio: "cillum minim laboris incididunt",
+    tags: {
+      et_7c7: "qui",
+    },
+    email: "eu esse",
+    last_name: "commodo dolore",
+    created_at: "1929-05-03T01:44:20.0Z",
+    first_name: "sit",
+    telephone_number: "incididunt eu",
+  },
+  required: ["first_name", "last_name"],
+  properties: {
+    id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: uuid_generate_v4()",
+    },
+    bio: {
+      type: "string",
+      description:
+        "Missing description. Database type: text. Default value: null",
+    },
+    tags: {
+      type: "string",
+      properties: {},
+      description:
+        "Missing description. Database type: json. Default value: null",
+    },
+    email: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    last_name: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      description:
+        "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
+    },
+    extra_info: {
+      type: "object",
+      properties: {},
+      description:
+        "Missing description. Database type: jsonb. Default value: null",
+    },
+    first_name: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    updated_at: {
+      type: "string",
+      format: "date-time",
+      description:
+        "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
+    },
+    date_of_birth: {
+      type: "string",
+      format: "date",
+      description:
+        "Missing description. Database type: date. Default value: null",
+    },
+    telephone_number: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    profile_picture_url: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+  },
+  description: "Missing description",
+  searchingColumns: ["first_name", "last_name"],
+  additionalProperties: false,
+};

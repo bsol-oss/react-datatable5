@@ -11,5 +11,7 @@ export interface TableControlsProps {
     showReload?: boolean;
     filterOptions?: string[];
     extraItems?: ReactNode;
+    loading?: boolean;
+    hasError?: boolean;
 }
-export declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, children, showFilterName, showFilterTags, showReload, filterOptions, extraItems, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, children, showFilterName, showFilterTags, showReload, filterOptions, extraItems, loading, hasError, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;

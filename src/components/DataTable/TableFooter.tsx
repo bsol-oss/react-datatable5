@@ -1,8 +1,7 @@
 import { Flex, Box, Table, MenuRoot, MenuTrigger } from "@chakra-ui/react";
 import { flexRender, Header } from "@tanstack/react-table";
 import { useState } from "react";
-import { useDataTableContext } from "./useDataTableContext";
-import { Checkbox } from "../../components/ui/checkbox";
+import { useDataTableContext } from "./context/useDataTableContext";import { Checkbox } from "../../components/ui/checkbox";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 
 export interface TableFooterProps {
@@ -111,9 +110,9 @@ export const TableFooter = ({
             </Table.Header>
           )}
           {footerGroup.headers.map((header) => (
-            <Table.Header
+            <Table.Cell
               padding={"0"}
-              key={`chakra-table-footer-${footerGroup.id}`}
+              key={`chakra-table-footer-${header.column.id}-${footerGroup.id}`}
               columnSpan={`${header.colSpan}`}
               // styling resize and pinning start
               maxWidth={`${header.getSize()}px`}
@@ -158,7 +157,7 @@ export const TableFooter = ({
                   </Box>
                 </MenuTrigger>
               </MenuRoot>
-            </Table.Header>
+            </Table.Cell>
           ))}
         </Table.Row>
       ))}

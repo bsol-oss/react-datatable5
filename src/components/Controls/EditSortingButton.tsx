@@ -1,13 +1,4 @@
 import {
-  Button,
-  DialogBackdrop,
-  Flex,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { MdOutlineSort } from "react-icons/md";
-import { ResetSortingButton } from "../../index";
-import { TableSorter } from "../DataTable/TableSorter";
-import {
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
@@ -17,6 +8,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Button,
+  DialogBackdrop,
+  Flex,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { MdOutlineSort } from "react-icons/md";
+import { ResetSortingButton, TableSorter } from "../../index";
 
 export interface EditSortingButtonProps {
   title?: string;
@@ -35,7 +34,7 @@ export const EditSortingButton = ({
       <DialogRoot size={["full", "full", "md", "md"]}>
         <DialogBackdrop />
         <DialogTrigger>
-          <Button variant={"ghost"} onClick={sortingModal.onOpen}>
+          <Button as="div" variant={"ghost"} onClick={sortingModal.onOpen}>
             {icon} {text}
           </Button>
         </DialogTrigger>

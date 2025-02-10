@@ -8,6 +8,7 @@ import {
   TextCell,
   useDataTableServer,
 } from "../../index";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 interface ChatRecord {
   session_id: string;
@@ -31,7 +32,7 @@ const RowActions = ({ row }: RowActionsProps) => {
   return <>has no actions</>;
 };
 
-const DefaultTableShowcase = () => {
+const App = () => {
   const dataTable = useDataTableServer<ChatRecord>({
     url: "http://localhost:8333/api/v1/gpt/chat/history/all",
     default: {
@@ -129,35 +130,54 @@ const DefaultTableShowcase = () => {
       ],
     }),
   ];
-
   return (
     <ChakraProvider value={defaultSystem}>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <DefaultTable
           showSelector
-          filterOptions={["model"]}
-          showFilter
-          showReload
-          extraItems={<>some extra items</>}
+          controlProps={{
+            filterOptions: ["model"],
+            showFilter: true,
+            showReload: true,
+            extraItems: <>some extra items</>,
+          }}
         />
         <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter />
+          <DefaultTable controlProps={{ showFilter: true }} />
         </Box>
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter />
+          <DefaultTable controlProps={{ showFilter: true }} />
         </Box>
 
         <Text> {"fitTable={true}"}</Text>
 
         <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter fitTableWidth />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+              fitTableWidth: true,
+              fitTableHeight: true,
+            }}
+          />
         </Box>
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter fitTableWidth fitTableHeight />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+              fitTableWidth: true,
+              fitTableHeight: true,
+            }}
+          />
         </Box>
 
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter fitTableWidth fitTableHeight />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+              fitTableWidth: true,
+              fitTableHeight: true,
+            }}
+          />
         </Box>
 
         <TableComponent
@@ -167,6 +187,15 @@ const DefaultTableShowcase = () => {
         />
       </DataTableServer>
     </ChakraProvider>
+  );
+};
+const queryClient = new QueryClient();
+
+const DefaultTableShowcase = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
   );
 };
 

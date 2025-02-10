@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
+import { useQueryClient } from "@tanstack/react-query";
 import { IoReload } from "react-icons/io5";
-import { useDataTableContext } from "./useDataTableContext";
+import { useDataTableServerContext } from "./context/useDataTableServerContext";
 
 export interface ReloadButtonProps {
   text?: string;
@@ -12,14 +13,15 @@ export const ReloadButton = ({
   text = "Reload",
   variant = "icon",
 }: ReloadButtonProps) => {
-  const { refreshData } = useDataTableContext();
+  const { url } = useDataTableServerContext();
+  const queryClient = useQueryClient();
   if (variant === "icon") {
     return (
       <Tooltip showArrow content="This is the tooltip content">
         <Button
           variant={"ghost"}
           onClick={() => {
-            refreshData();
+            queryClient.invalidateQueries({ queryKey: [url] });
           }}
           aria-label={"refresh"}
         >
@@ -32,7 +34,7 @@ export const ReloadButton = ({
     <Button
       variant={"ghost"}
       onClick={() => {
-        refreshData();
+        queryClient.invalidateQueries({ queryKey: [url] });
       }}
     >
       <IoReload /> {text}

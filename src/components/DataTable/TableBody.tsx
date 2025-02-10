@@ -1,8 +1,8 @@
 import { Box, Table } from "@chakra-ui/react";
 import { Cell, flexRender, Row } from "@tanstack/react-table";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Checkbox } from "../../components/ui/checkbox";
-import { TableContext } from "./DataTableContext";
+import { useDataTableContext } from "./context/useDataTableContext";
 export interface TableBodyProps {
   pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
@@ -25,7 +25,7 @@ export const TableBody = ({
   showSelector = false,
   alwaysShowSelector = true,
 }: TableBodyProps) => {
-  const { table } = useContext(TableContext);
+  const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
   const [hoveredRow, setHoveredRow] = useState<number>(-1);
 
@@ -78,6 +78,7 @@ export const TableBody = ({
                   // styling resize and pinning start
                   maxWidth={`${cell.column.getSize()}px`}
                   width={`${cell.column.getSize()}px`}
+                  backgroundColor={"white"}
                   {...getTdProps(cell)}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -98,7 +99,7 @@ const TableRowSelector = <TData,>({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
   alwaysShowSelector = true,
 }: TableRowSelectorProps<TData>) => {
-  const { table } = useContext(TableContext);
+  const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
   const isCheckBoxVisible = (
     current_index: number,

@@ -8,11 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Button,
-  DialogBackdrop,
-  useDisclosure
-} from "@chakra-ui/react";
+import { Box, Button, DialogBackdrop, useDisclosure } from "@chakra-ui/react";
 import React from "react";
 import { IoMdEye } from "react-icons/io";
 import { TableViewer } from "../../index";
@@ -33,8 +29,8 @@ export const EditViewButton = ({
     <>
       <DialogRoot>
         <DialogBackdrop />
-        <DialogTrigger>
-          <Button variant={"ghost"} onClick={viewModel.onOpen}>
+        <DialogTrigger asChild>
+          <Button as={Box} variant={"ghost"} onClick={viewModel.onOpen}>
             {icon} {text}
           </Button>
         </DialogTrigger>
@@ -50,7 +46,6 @@ export const EditViewButton = ({
           <DialogFooter />
         </DialogContent>
       </DialogRoot>
-
     </>
   );
 };
