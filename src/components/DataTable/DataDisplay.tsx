@@ -13,7 +13,13 @@ const formatValue = (value: unknown): string => {
   if (typeof value === "string") {
     return value;
   }
-  throw new Error("value is unknown");
+  if (typeof value === "number" || typeof value === "boolean") {
+    return `${value}`;
+  }
+  if (value === undefined) {
+    return `undefined`;
+  }
+  throw new Error(`value is unknown, ${typeof value}`);
 };
 
 export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
