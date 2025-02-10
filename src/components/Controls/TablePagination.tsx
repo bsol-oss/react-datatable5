@@ -4,9 +4,8 @@ import { useDataTableContext } from "../../index";
 import {
   PaginationItems,
   PaginationNextTrigger,
-  PaginationRoot,
   PaginationPrevTrigger,
-  PaginationPageText,
+  PaginationRoot
 } from "../ui/pagination";
 
 export const TablePagination = () => {
@@ -21,7 +20,6 @@ export const TablePagination = () => {
       }}
     >
       <HStack>
-        <PaginationPageText format="long" />
         <PaginationPrevTrigger />
         <PaginationItems />
         <PaginationNextTrigger />
