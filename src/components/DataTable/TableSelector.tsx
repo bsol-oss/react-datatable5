@@ -1,11 +1,10 @@
 import { Box, Button, Icon, IconButton } from "@chakra-ui/react";
-import { useContext } from "react";
 import { IoMdCheckbox } from "react-icons/io";
 import { MdClear } from "react-icons/md";
 import { SelectAllRowsToggle } from "../Controls/SelectAllRowsToggle";
-import { TableContext } from "./DataTableContext";
+import { useDataTableContext } from "./context/useDataTableContext";
 export const TableSelector = () => {
-  const { table } = useContext(TableContext);
+  const { table } = useDataTableContext();
   return (
     <>
       {table.getSelectedRowModel().rows.length > 0 && (

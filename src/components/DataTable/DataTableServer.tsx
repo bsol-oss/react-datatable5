@@ -1,5 +1,6 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 
+import { UseQueryResult } from "@tanstack/react-query";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,9 +14,10 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { DensityFeature, DensityState } from "../Controls/DensityFeature";
-import { TableContext } from "./DataTableContext";
-import { DataResponse } from "./useDataTableServer";
-import { UseQueryResult } from "@tanstack/react-query";
+import {
+  DataTableContext,
+} from "./context/DataTableContext";
+import { DataTableServerContext } from "./context/DataTableServerContext";
 
 export interface DataTableServerProps<TData> {
   children: ReactNode | ReactNode[];
@@ -41,6 +43,7 @@ export interface DataTableServerProps<TData> {
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
   query: UseQueryResult<TData>;
+  url: string;
 }
 
 export const DataTableServer = <TData,>({
@@ -67,6 +70,7 @@ export const DataTableServer = <TData,>({
   setColumnVisibility,
   query,
   children,
+  url
 }: DataTableServerProps<TData>) => {
   const table = useReactTable<TData>({
     _features: [DensityFeature],
@@ -117,15 +121,16 @@ export const DataTableServer = <TData,>({
   });
 
   return (
-    <TableContext.Provider
+    <DataTableContext.Provider
       value={{
         table: { ...table },
         globalFilter,
         setGlobalFilter,
-        query,
       }}
     >
-      {children}
-    </TableContext.Provider>
+      <DataTableServerContext.Provider  value={{url}}>
+        {children}
+      </DataTableServerContext.Provider>
+    </DataTableContext.Provider>
   );
 };

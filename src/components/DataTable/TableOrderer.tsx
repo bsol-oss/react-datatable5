@@ -1,8 +1,7 @@
 import { Button, Flex, IconButton } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { MdArrowDownward, MdArrowUpward } from "react-icons/md";
-import { useDataTableContext } from "./useDataTableContext";
-interface ColumnOrderChangerProps {
+import { useDataTableContext } from "./context/useDataTableContext";interface ColumnOrderChangerProps {
   columns: string[];
 }
 
@@ -33,12 +32,12 @@ const ColumnOrderChanger = ({ columns }: ColumnOrderChangerProps) => {
   }, [columns]);
 
   return (
-    <Flex gap={"0.5rem"} flexFlow={"column"}>
-      <Flex gap={"0.5rem"} flexFlow={"column"}>
+    <Flex gap={2} flexFlow={"column"}>
+      <Flex gap={2} flexFlow={"column"}>
         {order.map((columnId, index) => (
           <Flex
             key={columnId}
-            gap={"0.5rem"}
+            gap={2}
             alignItems={"center"}
             justifyContent={"space-between"}
           >

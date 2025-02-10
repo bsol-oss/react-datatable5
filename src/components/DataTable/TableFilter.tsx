@@ -3,7 +3,7 @@ import { Column } from "@tanstack/react-table";
 import { DateRangeFilter } from "../Filter/DateRangeFilter";
 import RangeFilter from "../Filter/RangeFilter";
 import { TagFilter } from "../Filter/TagFilter";
-import { useDataTableContext } from "./useDataTableContext";
+import { useDataTableContext } from "./context/useDataTableContext";
 import { Radio, RadioGroup } from "@/components/ui/radio";
 
 const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {

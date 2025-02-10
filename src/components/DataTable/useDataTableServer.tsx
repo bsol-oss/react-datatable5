@@ -12,7 +12,7 @@ import { useState } from "react";
 import { DensityState } from "../Controls/DensityFeature";
 import { UseDataTableProps, UseDataTableReturn } from "./useDataTable";
 
-export interface UseDataTableServerProps<TData> {
+export interface UseDataTableServerProps extends UseDataTableProps {
   /**
    * Delay to send the request if the `refreshData` called multiple times
    *
@@ -25,10 +25,12 @@ export interface UseDataTableServerProps<TData> {
    * default: `1000`
    */
   debounceDelay?: number;
+
+  url: string;
 }
 
-export interface UseDataTableServerReturn<TData> {
-  query: UseQueryResult<TData>;
+export interface UseDataTableServerReturn<TData> extends UseDataTableReturn {
+  query: UseQueryResult<DataResponse<TData>, Error>;
 }
 
 export interface Result<T> {
@@ -41,7 +43,6 @@ export interface DataResponse<T> extends Result<T> {
 
 export const useDataTableServer = <TData,>({
   url,
-  onFetchSuccess = () => {},
   default: {
     sorting: defaultSorting = [],
     pagination: defaultPagination = {
@@ -67,9 +68,9 @@ export const useDataTableServer = <TData,>({
     globalFilter: "",
     density: "sm",
   },
-  debounce = true,
-  debounceDelay = 1000,
-}: UseDataTableServerProps<TData>): UseDataTableServerReturn<TData> => {
+  // debounce = true,
+  // debounceDelay = 1000,
+}: UseDataTableServerProps): UseDataTableServerReturn<TData> => {
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] =
     useState<ColumnFiltersState>(defaultColumnFilters); // can set initial column filter state here
@@ -85,24 +86,26 @@ export const useDataTableServer = <TData,>({
     defaultColumnVisibility
   );
 
-  const query = useQuery<TData>({
-    queryKey: [url],
+  const params = {
+    offset: pagination.pageIndex * pagination.pageSize,
+    limit: pagination.pageSize,
+    sorting,
+    where: columnFilters,
+    searching: globalFilter,
+  };
+
+  const query = useQuery<DataResponse<TData>>({
+    queryKey: [url, params],
     queryFn: () => {
       return axios
-        .get<TData>(url, {
-          params: {
-            offset: pagination.pageIndex * pagination.pageSize,
-            limit: pagination.pageSize,
-            sorting,
-            where: columnFilters.reduce((accumulator, filter) => {
-              const obj: any = {};
-              obj[filter.id] = filter.value;
-              return { ...accumulator, ...obj };
-            }, {}),
-            searching: globalFilter,
-          },
+        .get<DataResponse<TData>>(url, {
+          params,
         })
         .then((res) => res.data);
+    },
+    placeholderData: {
+      count: 0,
+      data: [],
     },
   });
 

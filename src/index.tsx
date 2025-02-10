@@ -99,7 +99,7 @@ export * from "./components/DataTable/TableSorter";
 export * from "./components/DataTable/TableViewer";
 export * from "./components/DataTable/TextCell";
 export * from "./components/DataTable/useDataTable";
-export * from "./components/DataTable/useDataTableContext";
+export * from "./components/DataTable/context/useDataTableContext";
 export * from "./components/DataTable/useDataTableServer";
 export * from "./components/DataTable/utils/getColumns";
 

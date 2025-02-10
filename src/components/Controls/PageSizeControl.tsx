@@ -27,6 +27,7 @@ export const PageSizeControl = ({
         <MenuContent>
           {pageSizes.map((pageSize) => (
             <MenuItem
+              key={`chakra-table-pageSize-${pageSize}`}
               value={`chakra-table-pageSize-${pageSize}`}
               onClick={() => {
                 table.setPageSize(Number(pageSize));

@@ -1,8 +1,7 @@
 import { Tag } from "@/components/ui/tag";
 import { Flex, IconButton } from "@chakra-ui/react";
 import { CgClose } from "react-icons/cg";
-import { useDataTableContext } from "./useDataTableContext";
-export const TableFilterTags = () => {
+import { useDataTableContext } from "./context/useDataTableContext";export const TableFilterTags = () => {
   const { table } = useDataTableContext();
 
   return (

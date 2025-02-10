@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   DialogBackdrop,
   DialogBody,
@@ -11,9 +12,9 @@ import {
   DialogTrigger,
   Flex,
 } from "@chakra-ui/react";
+import React from "react";
 import { MdOutlineMoveDown } from "react-icons/md";
 import { TableOrderer } from "../../index";
-import React from "react";
 
 export interface EditOrderButtonProps {
   title?: string;
@@ -30,10 +31,9 @@ export const EditOrderButton = ({
     <>
       <DialogRoot size="cover">
         <DialogBackdrop />
-        <DialogTrigger>
-          <Button variant={"ghost"}>
-            {icon}
-            {text}
+        <DialogTrigger asChild>
+          <Button as={Box} variant={"ghost"}>
+            {icon} {text}
           </Button>
         </DialogTrigger>
         <DialogContent>

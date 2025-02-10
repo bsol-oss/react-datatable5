@@ -1,14 +1,23 @@
 import { Card, DataList as ChakraDataList, Flex } from "@chakra-ui/react";
-import { useContext } from "react";
 import { snakeToLabel } from "../Form/utils/snakeToLabel";
-import { TableContext } from "./DataTableContext";
+import { useDataTableContext } from "./context/useDataTableContext";
 
 export interface DataDisplayProps {
   variant?: "horizontal" | "stats" | "";
 }
 
+const formatValue = (value: unknown): string => {
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  throw new Error("value is unknown");
+};
+
 export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
-  const { table } = useContext(TableContext);
+  const { table } = useDataTableContext();
   if (variant == "horizontal") {
     return (
       <Flex flexFlow={"column"} gap={"1"}>
@@ -22,7 +31,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   display={"grid"}
                   variant={"subtle"}
                   orientation={"horizontal"}
-                  overflow={'auto'}
+                  overflow={"auto"}
                 >
                   {row.getVisibleCells().map((cell) => {
                     return (
@@ -30,7 +39,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                         <ChakraDataList.ItemLabel>
                           {snakeToLabel(cell.column.id)}
                         </ChakraDataList.ItemLabel>
-                        <ChakraDataList.ItemValue>{`${cell.getValue()}`}</ChakraDataList.ItemValue>
+                        <ChakraDataList.ItemValue>{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
                       </ChakraDataList.Item>
                     );
                   })}
@@ -55,7 +64,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   display={"flex"}
                   flexFlow={"row"}
                   variant={"subtle"}
-                  overflow={'auto'}
+                  overflow={"auto"}
                 >
                   {row.getVisibleCells().map((cell) => {
                     return (
@@ -69,7 +78,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                         <ChakraDataList.ItemLabel>
                           {snakeToLabel(cell.column.id)}
                         </ChakraDataList.ItemLabel>
-                        <ChakraDataList.ItemValue>{`${cell.getValue()}`}</ChakraDataList.ItemValue>
+                        <ChakraDataList.ItemValue>{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
                       </ChakraDataList.Item>
                     );
                   })}
@@ -100,7 +109,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                       <ChakraDataList.ItemLabel>
                         {snakeToLabel(cell.column.id)}
                       </ChakraDataList.ItemLabel>
-                      <ChakraDataList.ItemValue>{`${cell.getValue()}`}</ChakraDataList.ItemValue>
+                      <ChakraDataList.ItemValue>{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
                     </ChakraDataList.Item>
                   );
                 })}

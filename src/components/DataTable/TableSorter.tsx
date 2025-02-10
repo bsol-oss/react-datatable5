@@ -1,6 +1,5 @@
-
 import { Button, Flex, Text } from "@chakra-ui/react";
-import { useDataTableContext } from "./useDataTableContext";
+import { useDataTableContext } from "./context/useDataTableContext";
 import { FaUpDown } from "react-icons/fa6";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 import { CgClose } from "react-icons/cg";
@@ -29,12 +28,8 @@ export const TableSorter = () => {
                       }}
                     >
                       {header.column.getIsSorted() === false && <FaUpDown />}
-                      {header.column.getIsSorted() === "asc" && (
-                        <BiDownArrow />
-                      )}
-                      {header.column.getIsSorted() === "desc" && (
-                        <BiUpArrow />
-                      )}
+                      {header.column.getIsSorted() === "asc" && <BiDownArrow />}
+                      {header.column.getIsSorted() === "desc" && <BiUpArrow />}
                     </Button>
 
                     {header.column.getIsSorted() && (

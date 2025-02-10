@@ -1,6 +1,6 @@
 import { HStack } from "@chakra-ui/react";
 
-import { useDataTableContext } from "../DataTable/useDataTableContext";
+import { useDataTableContext } from "../../index";
 import {
   PaginationItems,
   PaginationNextTrigger,

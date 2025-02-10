@@ -15,10 +15,10 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { ReactNode, useEffect } from "react";
-import { TableContext } from "./DataTableContext";
 
 import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
 import { DensityFeature, DensityState } from "../Controls/DensityFeature";
+import { DataTableContext } from "./context/DataTableContext";
 
 declare module "@tanstack/react-table" {
   //add fuzzy filter to the filterFns
@@ -151,19 +151,14 @@ export const DataTable = <TData,>({
   }, [data, onRowSelect, table]);
 
   return (
-    <TableContext.Provider
+    <DataTableContext.Provider
       value={{
         table: { ...table },
-        refreshData: () => {
-          throw new Error("not implemented");
-        },
         globalFilter: globalFilter,
         setGlobalFilter: setGlobalFilter,
-        loading: false,
-        hasError: false,
       }}
     >
       {children}
-    </TableContext.Provider>
+    </DataTableContext.Provider>
   );
 };

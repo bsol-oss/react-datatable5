@@ -1,7 +1,6 @@
 import { Table as ChakraTable, List, TableRootProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
-import { useDataTableContext } from "./useDataTableContext";
-import { HiColorSwatch } from "react-icons/hi";
+import { useDataTableContext } from "./context/useDataTableContext";import { HiColorSwatch } from "react-icons/hi";
 import { EmptyState } from "../ui/empty-state";
 
 export interface TableProps extends TableRootProps {
