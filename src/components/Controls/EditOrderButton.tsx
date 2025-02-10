@@ -1,7 +1,5 @@
+import { Box, Button, DialogBackdrop, Flex } from "@chakra-ui/react";
 import {
-  Box,
-  Button,
-  DialogBackdrop,
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
@@ -10,8 +8,7 @@ import {
   DialogRoot,
   DialogTitle,
   DialogTrigger,
-  Flex,
-} from "@chakra-ui/react";
+} from "@/components/ui/dialog";
 import React from "react";
 import { MdOutlineMoveDown } from "react-icons/md";
 import { TableOrderer } from "../../index";
