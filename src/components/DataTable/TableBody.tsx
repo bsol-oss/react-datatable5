@@ -1,6 +1,6 @@
 import { Box, Table } from "@chakra-ui/react";
 import { Cell, flexRender, Row } from "@tanstack/react-table";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Checkbox } from "../../components/ui/checkbox";
 import { useDataTableContext } from "./context/useDataTableContext";
 export interface TableBodyProps {
@@ -99,7 +99,7 @@ const TableRowSelector = <TData,>({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
   alwaysShowSelector = true,
 }: TableRowSelectorProps<TData>) => {
-  const { table } = useContext(DataTableServerContext);
+  const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
   const isCheckBoxVisible = (
     current_index: number,

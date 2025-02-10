@@ -1,8 +1,8 @@
-import { Box, Button, Icon, IconButton } from "@chakra-ui/react";
+import { Box, Button, IconButton } from "@chakra-ui/react";
 import { IoMdCheckbox } from "react-icons/io";
-import { MdClear } from "react-icons/md";
 import { SelectAllRowsToggle } from "../Controls/SelectAllRowsToggle";
 import { useDataTableContext } from "./context/useDataTableContext";
+import { MdClear } from "react-icons/md";
 export const TableSelector = () => {
   const { table } = useDataTableContext();
   return (
@@ -17,7 +17,7 @@ export const TableSelector = () => {
           <Box
             fontSize={"sm"}
           >{`${table.getSelectedRowModel().rows.length}`}</Box>
-          <Icon as={IoMdCheckbox} />
+          <IoMdCheckbox />
         </Button>
       )}
       {!table.getIsAllPageRowsSelected() && <SelectAllRowsToggle />}
