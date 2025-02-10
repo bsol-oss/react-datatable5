@@ -8,6 +8,8 @@ import {
   PaginationRoot
 } from "../ui/pagination";
 
+
+// TODO: not working in client side
 export const TablePagination = () => {
   const { table } = useDataTableContext();
   return (
