@@ -49,15 +49,14 @@ export const TableControls = ({
   return (
     <Grid
       templateRows={"auto 1fr auto"}
-      templateColumns={"1fr 1fr"}
       width={fitTableWidth ? "fit-content" : "100%"}
       height={fitTableHeight ? "fit-content" : "100%"}
       justifySelf={"center"}
       alignSelf={"center"}
       gap={"0.5rem"}
     >
-      <Flex flexFlow={'column'}>
-        <Flex justifyContent={"space-between"} gridColumn={"1 / span 2"}>
+      <Flex flexFlow={"column"} gap={2}>
+        <Flex justifyContent={"space-between"}>
           <Box>
             <EditViewButton
               text={isMobile ? undefined : "View"}
@@ -84,7 +83,7 @@ export const TableControls = ({
           </Flex>
         </Flex>
         {filterOptions.length > 0 && (
-          <Flex gridColumn={"1 / span 2"} flexFlow={"column"} gap={"0.5rem"}>
+          <Flex flexFlow={"column"} gap={"0.5rem"}>
             {filterOptions.map((column) => {
               return (
                 <Flex
@@ -101,7 +100,7 @@ export const TableControls = ({
           </Flex>
         )}
         {showFilterTags && (
-          <Flex gridColumn={"1 / span 2"}>
+          <Flex>
             <TableFilterTags />
           </Flex>
         )}
@@ -109,23 +108,27 @@ export const TableControls = ({
 
       <Box
         overflow={"auto"}
-        gridColumn={"1 / span 2"}
         width={"100%"}
         height={"100%"}
         backgroundColor={"gray.50"}
+        _dark={{
+          backgroundColor: "gray.900",
+        }}
       >
         {children}
       </Box>
-      <Flex gap={"1rem"} alignItems={"center"}>
-        <PageSizeControl />
-        <Flex>
-          <Text paddingRight={"0.5rem"}>{totalText}</Text>
-          <RowCountText />
+      <Flex justifyContent={"space-between"}>
+        <Flex gap={"1rem"} alignItems={"center"}>
+          <PageSizeControl />
+          <Flex>
+            <Text paddingRight={"0.5rem"}>{totalText}</Text>
+            <RowCountText />
+          </Flex>
         </Flex>
+        <Box justifySelf={"end"}>
+          <TablePagination />
+        </Box>
       </Flex>
-      <Box justifySelf={"end"}>
-        <TablePagination />
-      </Box>
     </Grid>
   );
 };

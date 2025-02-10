@@ -10,6 +10,7 @@ import { addressSchema, peopleSchema } from "../schema";
 import { DefaultTable } from "@/components/DataTable/DefaultTable";
 import { FilterOptions } from "@/components/Filter/FilterOptions";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Provider } from "../provider";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -59,7 +60,7 @@ const AddressApp = () => {
   });
 
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <DataTableServer url="http://localhost:8081/api/g/core_people" columns={columns} {...datatable}>
         <DefaultTable
           controlProps={{
@@ -81,6 +82,6 @@ const AddressApp = () => {
           }}
         />
       </DataTableServer>
-    </ChakraProvider>
+    </Provider>
   );
 };

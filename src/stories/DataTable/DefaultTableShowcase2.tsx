@@ -1,13 +1,9 @@
-import {
-  Box,
-  ChakraProvider,
-  defaultSystem,
-  Text
-} from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
 import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
 import { Employee, staffData } from "../staff_data";
+import Provider from "../Provider";
 
 interface RowActionsProps {
   row: Employee;
@@ -109,7 +105,7 @@ const DefaultTableShowcase2 = () => {
   ];
 
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <DataTable columns={columns} data={staffData} {...datatable}>
         <DefaultTable
           controlProps={{
@@ -175,7 +171,7 @@ const DefaultTableShowcase2 = () => {
           }}
         />
       </DataTable>
-    </ChakraProvider>
+    </Provider>
   );
 };
 

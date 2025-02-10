@@ -3,13 +3,14 @@ import {
   dropTargetForElements,
   monitorForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { Box, Flex, Grid } from "@chakra-ui/react";
+import { Box, BoxProps, Flex, Grid } from "@chakra-ui/react";
 import { Column } from "@tanstack/react-table";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { FaGripLinesVertical } from "react-icons/fa6";
 import invariant from "tiny-invariant";
 import { Switch } from "../ui/switch";
 import { useDataTableContext } from "./context/useDataTableContext";
+import { CheckboxCard } from "../ui/checkbox-card";
 interface ColumnCardProps {
   columnId: string;
 }
@@ -49,8 +50,9 @@ function ColumnCard({ columnId }: ColumnCardProps) {
         <FaGripLinesVertical color="gray.400" />
       </Flex>
       <Flex justifyContent="space-between" alignItems="center">
-        <Box>{displayName}</Box>
-        <Switch
+        <CheckboxCard
+          variant={"surface"}
+          label={displayName}
           checked={column.getIsVisible()}
           onChange={column.getToggleVisibilityHandler()}
         />
@@ -83,16 +85,26 @@ function CardContainer({ location, children }: CardContainerProps) {
 
   // const isDark = (location + location) % 2 === 1;
 
-  function getColor(isDraggedOver: boolean): string {
+  function getColor(isDraggedOver: boolean): BoxProps {
     if (isDraggedOver) {
-      return "skyblue";
+      return {
+        backgroundColor: "blue.400",
+        _dark: {
+          backgroundColor: "blue.400",
+        },
+      };
     }
     // return isDark ? "lightgrey" : "white";
-    return "white";
+    return {
+      backgroundColor: undefined,
+      _dark: {
+        backgroundColor: undefined,
+      },
+    };
   }
 
   return (
-    <Box backgroundColor={getColor(isDraggedOver)} ref={ref}>
+    <Box {...getColor(isDraggedOver)} ref={ref}>
       {children}
     </Box>
   );

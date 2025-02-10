@@ -80,6 +80,9 @@ export const TableBody = ({
                   width={`${cell.column.getSize()}px`}
                   backgroundColor={"white"}
                   {...getTdProps(cell)}
+                  _dark={{
+                    backgroundColor: "gray.950"
+                  }}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </Table.Cell>
