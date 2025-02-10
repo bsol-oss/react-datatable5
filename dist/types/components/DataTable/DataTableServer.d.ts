@@ -1,9 +1,8 @@
 import { ReactNode } from "react";
+import { UseQueryResult } from "@tanstack/react-query";
 import { ColumnDef, ColumnFiltersState, ColumnOrderState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { DensityState } from "../Controls/DensityFeature";
-import { UseDataFromUrlReturn } from "./useDataFromUrl";
-import { DataResponse } from "./useDataTableServer";
-export interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataResponse<TData>> {
+export interface DataTableServerProps<TData> {
     children: ReactNode | ReactNode[];
     columns: ColumnDef<TData>[];
     enableRowSelection?: boolean;
@@ -26,5 +25,7 @@ export interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataRe
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
+    query: UseQueryResult<TData>;
+    url: string;
 }
-export declare const DataTableServer: <TData>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, data, loading, hasError, refreshData, children, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const DataTableServer: <TData>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;
