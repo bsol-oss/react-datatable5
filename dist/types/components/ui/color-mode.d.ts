@@ -5,8 +5,8 @@ export interface ColorModeProviderProps extends ThemeProviderProps {
 }
 export declare function ColorModeProvider(props: ColorModeProviderProps): import("react/jsx-runtime").JSX.Element;
 export declare function useColorMode(): {
-    colorMode: any;
-    setColorMode: any;
+    colorMode: string | undefined;
+    setColorMode: React.Dispatch<React.SetStateAction<string>>;
     toggleColorMode: () => void;
 };
 export declare function useColorModeValue<T>(light: T, dark: T): T;

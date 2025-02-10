@@ -16,8 +16,8 @@ var gr = require('react-icons/gr');
 var reactQuery = require('@tanstack/react-query');
 var io5 = require('react-icons/io5');
 var hi = require('react-icons/hi');
-var cg = require('react-icons/cg');
 var fa6 = require('react-icons/fa6');
+var cg = require('react-icons/cg');
 var adapter = require('@atlaskit/pragmatic-drag-and-drop/element/adapter');
 var invariant = require('tiny-invariant');
 var axios = require('axios');
@@ -537,7 +537,9 @@ const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, sho
             return (jsxRuntime.jsxs(react.Table.Row, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [showSelector && (jsxRuntime.jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow, alwaysShowSelector: alwaysShowSelector })), row.getVisibleCells().map((cell, index) => {
                         return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, 
                             // styling resize and pinning start
-                            maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, backgroundColor: "white", ...getTdProps(cell), children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
+                            maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, backgroundColor: "white", ...getTdProps(cell), _dark: {
+                                backgroundColor: "gray.950"
+                            }, children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
                     })] }, `chakra-table-row-${row.id}`));
         }) }));
 };
@@ -580,9 +582,11 @@ const Tooltip = React__namespace.forwardRef(function Tooltip(props, ref) {
 });
 
 const TableControls = ({ totalText = "Total:", showFilter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showFilterName = false, showFilterTags = false, showReload = false, filterOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, }) => {
-    return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto 1fr auto", templateColumns: "1fr 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', children: [jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", gridColumn: "1 / span 2", children: [jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsxRuntime.jsx(react.Spinner, { size: "sm" }), hasError && (jsxRuntime.jsx(Tooltip, { content: "An error occurred while fetching data", children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: "red.400" }) })), showFilter && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(GlobalFilter, {}), jsxRuntime.jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), filterOptions.length > 0 && (jsxRuntime.jsx(react.Flex, { gridColumn: "1 / span 2", flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
+    return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto 1fr auto", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsxRuntime.jsx(react.Spinner, { size: "sm" }), hasError && (jsxRuntime.jsx(Tooltip, { content: "An error occurred while fetching data", children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: "red.400" }) })), showFilter && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(GlobalFilter, {}), jsxRuntime.jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), filterOptions.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
                             return (jsxRuntime.jsxs(react.Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxRuntime.jsxs(react.Text, { children: [column, ":"] }), jsxRuntime.jsx(FilterOptions, { column: column })] }, column));
-                        }) })), showFilterTags && (jsxRuntime.jsx(react.Flex, { gridColumn: "1 / span 2", children: jsxRuntime.jsx(TableFilterTags, {}) }))] }), jsxRuntime.jsx(react.Box, { overflow: "auto", gridColumn: "1 / span 2", width: "100%", height: "100%", backgroundColor: "gray.50", children: children }), jsxRuntime.jsxs(react.Flex, { gap: "1rem", alignItems: "center", children: [jsxRuntime.jsx(PageSizeControl, {}), jsxRuntime.jsxs(react.Flex, { children: [jsxRuntime.jsx(react.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] })] }), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: jsxRuntime.jsx(TablePagination, {}) })] }));
+                        }) })), showFilterTags && (jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(TableFilterTags, {}) }))] }), jsxRuntime.jsx(react.Box, { overflow: "auto", width: "100%", height: "100%", backgroundColor: "gray.50", _dark: {
+                    backgroundColor: "gray.900",
+                }, children: children }), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsxs(react.Flex, { gap: "1rem", alignItems: "center", children: [jsxRuntime.jsx(PageSizeControl, {}), jsxRuntime.jsxs(react.Flex, { children: [jsxRuntime.jsx(react.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] })] }), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: jsxRuntime.jsx(TablePagination, {}) })] })] }));
 };
 
 const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
@@ -951,11 +955,11 @@ const TableFilter = () => {
 const TableFilterTags = () => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsx(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }) => {
-            return (jsxRuntime.jsxs(Tag, { gap: "0.5rem", children: [`${id}: ${value}`, jsxRuntime.jsx(react.IconButton, { variant: "ghost", "aria-label": "remove filter", onClick: () => {
-                            table.setColumnFilters(table.getState().columnFilters.filter((filter) => {
-                                return filter.value != value;
-                            }));
-                        }, children: jsxRuntime.jsx(cg.CgClose, {}) })] }, `${id}-${value}`));
+            return (jsxRuntime.jsx(Tag, { gap: "0.5rem", closable: true, cursor: "pointer", onClick: () => {
+                    table.setColumnFilters(table.getState().columnFilters.filter((filter) => {
+                        return filter.value != value;
+                    }));
+                }, children: `${id}: ${value}` }, `${id}-${value}`));
         }) }));
 };
 
@@ -1047,10 +1051,13 @@ const TableSorter = () => {
             }) }))) }));
 };
 
-const Switch = React__namespace.forwardRef(function Switch(props, ref) {
-    const { inputProps, children, rootRef, trackLabel, thumbLabel, ...rest } = props;
-    return (jsxRuntime.jsxs(react.Switch.Root, { ref: rootRef, ...rest, children: [jsxRuntime.jsx(react.Switch.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsxs(react.Switch.Control, { children: [jsxRuntime.jsx(react.Switch.Thumb, { children: thumbLabel && (jsxRuntime.jsx(react.Switch.ThumbIndicator, { fallback: thumbLabel?.off, children: thumbLabel?.on })) }), trackLabel && (jsxRuntime.jsx(react.Switch.Indicator, { fallback: trackLabel.off, children: trackLabel.on }))] }), children != null && (jsxRuntime.jsx(react.Switch.Label, { children: children }))] }));
+const CheckboxCard = React__namespace.forwardRef(function CheckboxCard(props, ref) {
+    const { inputProps, label, description, icon, addon, indicator = jsxRuntime.jsx(react.CheckboxCard.Indicator, {}), indicatorPlacement = "end", ...rest } = props;
+    const hasContent = label || description || icon;
+    const ContentWrapper = indicator ? react.CheckboxCard.Content : React__namespace.Fragment;
+    return (jsxRuntime.jsxs(react.CheckboxCard.Root, { ...rest, children: [jsxRuntime.jsx(react.CheckboxCard.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsxs(react.CheckboxCard.Control, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxRuntime.jsxs(ContentWrapper, { children: [icon, label && (jsxRuntime.jsx(react.CheckboxCard.Label, { children: label })), description && (jsxRuntime.jsx(react.CheckboxCard.Description, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsxRuntime.jsx(react.CheckboxCard.Addon, { children: addon })] }));
 });
+react.CheckboxCard.Indicator;
 
 function ColumnCard({ columnId }) {
     const ref = React.useRef(null);
@@ -1071,7 +1078,7 @@ function ColumnCard({ columnId }) {
             onDrop: () => setDragging(false), // NEW
         });
     }, [columnId, table]);
-    return (jsxRuntime.jsxs(react.Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsxRuntime.jsx(react.Flex, { alignItems: "center", padding: "0", children: jsxRuntime.jsx(fa6.FaGripLinesVertical, { color: "gray.400" }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsx(react.Box, { children: displayName }), jsxRuntime.jsx(Switch, { checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() })] })] }));
+    return (jsxRuntime.jsxs(react.Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsxRuntime.jsx(react.Flex, { alignItems: "center", padding: "0", children: jsxRuntime.jsx(fa6.FaGripLinesVertical, { color: "gray.400" }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "space-between", alignItems: "center", children: jsxRuntime.jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
 }
 function CardContainer({ location, children }) {
     const ref = React.useRef(null);
@@ -1090,12 +1097,22 @@ function CardContainer({ location, children }) {
     // const isDark = (location + location) % 2 === 1;
     function getColor(isDraggedOver) {
         if (isDraggedOver) {
-            return "skyblue";
+            return {
+                backgroundColor: "blue.400",
+                _dark: {
+                    backgroundColor: "blue.400",
+                },
+            };
         }
         // return isDark ? "lightgrey" : "white";
-        return "white";
+        return {
+            backgroundColor: undefined,
+            _dark: {
+                backgroundColor: undefined,
+            },
+        };
     }
-    return (jsxRuntime.jsx(react.Box, { backgroundColor: getColor(isDraggedOver), ref: ref, children: children }));
+    return (jsxRuntime.jsx(react.Box, { ...getColor(isDraggedOver), ref: ref, children: children }));
 }
 const TableViewer = () => {
     const { table } = useDataTableContext();
@@ -1647,14 +1664,6 @@ const AccordionItemContent = React__namespace.forwardRef(function AccordionItemC
 });
 const AccordionRoot = react.Accordion.Root;
 const AccordionItem = react.Accordion.Item;
-
-const CheckboxCard = React__namespace.forwardRef(function CheckboxCard(props, ref) {
-    const { inputProps, label, description, icon, addon, indicator = jsxRuntime.jsx(react.CheckboxCard.Indicator, {}), indicatorPlacement = "end", ...rest } = props;
-    const hasContent = label || description || icon;
-    const ContentWrapper = indicator ? react.CheckboxCard.Content : React__namespace.Fragment;
-    return (jsxRuntime.jsxs(react.CheckboxCard.Root, { ...rest, children: [jsxRuntime.jsx(react.CheckboxCard.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsxs(react.CheckboxCard.Control, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxRuntime.jsxs(ContentWrapper, { children: [icon, label && (jsxRuntime.jsx(react.CheckboxCard.Label, { children: label })), description && (jsxRuntime.jsx(react.CheckboxCard.Description, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsxRuntime.jsx(react.CheckboxCard.Addon, { children: addon })] }));
-});
-react.CheckboxCard.Indicator;
 
 const BooleanPicker = ({ column }) => {
     const { formState: { errors }, setValue, getValues, } = reactHookForm.useFormContext();
