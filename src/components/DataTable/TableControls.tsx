@@ -48,7 +48,7 @@ export const TableControls = ({
 }: TableControlsProps) => {
   return (
     <Grid
-      templateRows={"auto auto auto 1fr auto"}
+      templateRows={"auto 1fr auto"}
       templateColumns={"1fr 1fr"}
       width={fitTableWidth ? "fit-content" : "100%"}
       height={fitTableHeight ? "fit-content" : "100%"}
@@ -56,50 +56,57 @@ export const TableControls = ({
       alignSelf={"center"}
       gap={"0.5rem"}
     >
-      <Flex justifyContent={"space-between"} gridColumn={"1 / span 2"}>
-        <Box>
-          <EditViewButton
-            text={isMobile ? undefined : "View"}
-            icon={<MdOutlineViewColumn />}
-          />
-        </Box>
-        <Flex gap={"0.5rem"} alignItems={"center"} justifySelf={"end"}>
-          {loading && <Spinner size={"sm"} />}
-          {hasError && (
-            <Tooltip content="An error occurred while fetching data">
-              <Icon as={BsExclamationCircleFill} color={"red.400"} />
-            </Tooltip>
-          )}
-          {showFilter && (
-            <>
-              <GlobalFilter />
-              <EditFilterButton
-                text={isMobile ? undefined : "Advanced Filter"}
-              />
-            </>
-          )}
-          {showReload && <ReloadButton />}
-          {extraItems}
+      <Flex flexFlow={'column'}>
+        <Flex justifyContent={"space-between"} gridColumn={"1 / span 2"}>
+          <Box>
+            <EditViewButton
+              text={isMobile ? undefined : "View"}
+              icon={<MdOutlineViewColumn />}
+            />
+          </Box>
+          <Flex gap={"0.5rem"} alignItems={"center"} justifySelf={"end"}>
+            {loading && <Spinner size={"sm"} />}
+            {hasError && (
+              <Tooltip content="An error occurred while fetching data">
+                <Icon as={BsExclamationCircleFill} color={"red.400"} />
+              </Tooltip>
+            )}
+            {showFilter && (
+              <>
+                <GlobalFilter />
+                <EditFilterButton
+                  text={isMobile ? undefined : "Advanced Filter"}
+                />
+              </>
+            )}
+            {showReload && <ReloadButton />}
+            {extraItems}
+          </Flex>
         </Flex>
+        {filterOptions.length > 0 && (
+          <Flex gridColumn={"1 / span 2"} flexFlow={"column"} gap={"0.5rem"}>
+            {filterOptions.map((column) => {
+              return (
+                <Flex
+                  key={column}
+                  alignItems={"center"}
+                  flexFlow={"wrap"}
+                  gap={"0.5rem"}
+                >
+                  {showFilterName && <Text>{column}:</Text>}
+                  <FilterOptions column={column}></FilterOptions>
+                </Flex>
+              );
+            })}
+          </Flex>
+        )}
+        {showFilterTags && (
+          <Flex gridColumn={"1 / span 2"}>
+            <TableFilterTags />
+          </Flex>
+        )}
       </Flex>
-      <Flex gridColumn={"1 / span 2"} flexFlow={"column"} gap={"0.5rem"}>
-        {filterOptions.map((column) => {
-          return (
-            <Flex
-              key={column}
-              alignItems={"center"}
-              flexFlow={"wrap"}
-              gap={"0.5rem"}
-            >
-              {showFilterName && <Text>{column}:</Text>}
-              <FilterOptions column={column}></FilterOptions>
-            </Flex>
-          );
-        })}
-      </Flex>
-      <Flex gridColumn={"1 / span 2"}>
-        {showFilterTags && <TableFilterTags />}
-      </Flex>
+
       <Box
         overflow={"auto"}
         gridColumn={"1 / span 2"}
