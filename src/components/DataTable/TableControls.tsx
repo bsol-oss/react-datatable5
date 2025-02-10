@@ -105,6 +105,7 @@ export const TableControls = ({
         gridColumn={"1 / span 2"}
         width={"100%"}
         height={"100%"}
+        backgroundColor={'gray.400'}
       >
         {children}
       </Box>

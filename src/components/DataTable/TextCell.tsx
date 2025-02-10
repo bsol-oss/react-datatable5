@@ -1,22 +1,27 @@
 import { Tooltip } from "@/components/ui/tooltip";
-import { Flex, Text, TextProps } from "@chakra-ui/react";
+import { Flex, FlexProps, Text, TextProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
-export interface TextCellProps extends TextProps {
+export interface TextCellProps {
   label?: string;
   noOfLines?: number[];
-  padding?: string;
   children: string | number | ReactNode | ReactNode[];
+  containerProps?: FlexProps;
+  textProps?: TextProps;
 }
 
 export const TextCell = ({
   label,
-  padding = "0rem",
+  containerProps = {},
+  textProps = {},
   children,
-  ...props
 }: TextCellProps) => {
   if (label) {
     return (
-      <Flex alignItems={"center"} height={"100%"} padding={padding}>
+      <Flex
+        alignItems={"center"}
+        height={"100%"}
+        {...containerProps}
+      >
         <Tooltip
           content={
             <Text as="span" overflow="hidden" textOverflow={"ellipsis"}>
@@ -29,7 +34,7 @@ export const TextCell = ({
             overflow="hidden"
             textOverflow={"ellipsis"}
             wordBreak={"break-all"}
-            {...props}
+            {...textProps}
           >
             {children}
           </Text>
@@ -38,13 +43,17 @@ export const TextCell = ({
     );
   }
   return (
-    <Flex alignItems={"center"} height={"100%"} padding={padding}>
+    <Flex
+      alignItems={"center"}
+      height={"100%"}
+      {...containerProps}
+    >
       <Text
         as="span"
         overflow="hidden"
         textOverflow={"ellipsis"}
         wordBreak={"break-all"}
-        {...props}
+        {...textProps}
       >
         {children}
       </Text>

@@ -78,6 +78,7 @@ export const TableBody = ({
                   // styling resize and pinning start
                   maxWidth={`${cell.column.getSize()}px`}
                   width={`${cell.column.getSize()}px`}
+                  backgroundColor={"white"}
                   {...getTdProps(cell)}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

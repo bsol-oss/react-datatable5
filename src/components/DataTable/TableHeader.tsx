@@ -145,7 +145,7 @@ export const TableHeader = ({
 
             return (
               <Table.ColumnHeader
-                padding={"0rem"}
+                padding={0}
                 key={`chakra-table-header-${header.id}`}
                 columnSpan={`${header.colSpan}`}
                 // styling resize and pinning start
