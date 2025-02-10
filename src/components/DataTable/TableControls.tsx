@@ -1,20 +1,19 @@
 import { Box, Flex, Grid, Icon, Spinner, Text } from "@chakra-ui/react";
+import { ReactNode } from "react";
 import { BsExclamationCircleFill } from "react-icons/bs";
 import { MdOutlineViewColumn } from "react-icons/md";
+import { Tooltip } from "../../components/ui/tooltip";
 import {
   EditFilterButton,
   EditViewButton,
   FilterOptions,
   GlobalFilter,
   PageSizeControl,
+  ReloadButton,
   RowCountText,
   TableFilterTags,
   TablePagination,
-  useDataTableContext,
-  ReloadButton,
 } from "../../index";
-import { Tooltip } from "../../components/ui/tooltip";
-import { ReactNode } from "react";
 
 export interface TableControlsProps {
   totalText?: string;
@@ -28,6 +27,8 @@ export interface TableControlsProps {
   showReload?: boolean;
   filterOptions?: string[];
   extraItems?: ReactNode;
+  loading?: boolean;
+  hasError?: boolean;
 }
 
 export const TableControls = ({
@@ -42,8 +43,9 @@ export const TableControls = ({
   showReload = false,
   filterOptions = [],
   extraItems = <></>,
+  loading = false,
+  hasError = false,
 }: TableControlsProps) => {
-  const { loading, hasError } = useDataTableContext();
   return (
     <Grid
       templateRows={"auto auto auto 1fr auto"}
