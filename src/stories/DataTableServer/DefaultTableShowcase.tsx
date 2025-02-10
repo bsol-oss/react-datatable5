@@ -135,29 +135,49 @@ const App = () => {
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <DefaultTable
           showSelector
-          filterOptions={["model"]}
-          showFilter
-          showReload
-          extraItems={<>some extra items</>}
+          controlProps={{
+            filterOptions: ["model"],
+            showFilter: true,
+            showReload: true,
+            extraItems: <>some extra items</>,
+          }}
         />
         <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter />
+          <DefaultTable controlProps={{ showFilter: true }} />
         </Box>
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter />
+          <DefaultTable controlProps={{ showFilter: true }} />
         </Box>
 
         <Text> {"fitTable={true}"}</Text>
 
         <Box width="400px" height={"400px"}>
-          <DefaultTable showFilter fitTableWidth />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+              fitTableWidth: true,
+              fitTableHeight: true,
+            }}
+          />
         </Box>
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter fitTableWidth fitTableHeight />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+              fitTableWidth: true,
+              fitTableHeight: true,
+            }}
+          />
         </Box>
 
         <Box width="2400px" height={"2400px"}>
-          <DefaultTable showFilter fitTableWidth fitTableHeight />
+          <DefaultTable
+            controlProps={{
+              showFilter: true,
+              fitTableWidth: true,
+              fitTableHeight: true,
+            }}
+          />
         </Box>
 
         <TableComponent

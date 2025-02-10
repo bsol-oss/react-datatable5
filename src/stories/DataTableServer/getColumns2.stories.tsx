@@ -60,14 +60,14 @@ const AddressApp = () => {
 
   return (
     <ChakraProvider value={defaultSystem}>
-      <DataTableServer columns={columns} {...datatable}>
-          <DefaultTable
-            showFilter
-            showFilterName
-            showFilterTags
-            fitTableWidth
-            fitTableHeight
-          />
+      <DataTableServer url="http://localhost:8081/api/g/core_people" columns={columns} {...datatable}>
+        <DefaultTable
+          controlProps={{
+            showFilter: true,
+            fitTableWidth: true,
+            fitTableHeight: true,
+          }}
+        />
         <DataDisplay />
         <DataDisplay variant="stats" />
         <Box width={"20rem"}>
