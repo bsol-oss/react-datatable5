@@ -4,7 +4,7 @@ export interface GetTableDataConfig {
   serverUrl: string;
   in_table: string;
   limit?: number;
-  where?: { id: string; value: string }[];
+  where?: { id: string; value: string[] }[];
   searching?: string;
 }
 

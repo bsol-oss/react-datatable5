@@ -49,10 +49,10 @@ export const EventsTags: Story = {
               },
               data: {
                 data: data["tag_id"]
-                  .filter((tag: Record<string, unknown>) => tag != null)
-                  .map((tag: Record<string, unknown>) => {
+                  .filter((tag_id: string) => tag_id != null)
+                  .map((tag_id: Record<string, unknown>) => {
                     return {
-                      ...tag,
+                      tag_id,
                       event_id: data["event_id"],
                     };
                   }),

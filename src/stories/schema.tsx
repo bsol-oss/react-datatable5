@@ -547,6 +547,7 @@ export const eventsTagsSchema = {
         "Missing description. Database type: uuid. Default value: null",
       variant: "tag-picker",
       in_table: "events_tags",
+      object_id_column: "event_id",
       gridColumn: "1/span 12",
       gridRow: "2/span 1",
     },
