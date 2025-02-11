@@ -40,6 +40,7 @@ import {
 import { BooleanPicker } from "./components/BooleanPicker";
 import { DatePicker } from "./components/DatePicker";
 import { ObjectInput } from "./components/ObjectInput";
+import { TagPicker } from "./components/TagPicker";
 
 export interface DisplayTextProps {
   title?: string;
@@ -133,20 +134,10 @@ const FormInternal = <TData extends FieldValues>() => {
   const onSubmitSuccess = () => {
     setIsSuccess(true);
   };
-  const defaultOnSubmit: SubmitHandler<TData> = async (data) => {
-    const options = {
-      method: "POST",
-      url: `${serverUrl}/api/g/${schema.title}`,
-      headers: {
-        Apikey: "YOUR_SECRET_TOKEN",
-        "Content-Type": "application/json",
-      },
-      data: clearEmptyString(data),
-    };
-
+  const defaultOnSubmit = async (promise: Promise<any>) => {
     try {
       onBeforeSubmit();
-      await axios.request(options);
+      await promise;
       onSubmitSuccess();
     } catch (error) {
       setIsError(true);
@@ -156,13 +147,25 @@ const FormInternal = <TData extends FieldValues>() => {
       onAfterSubmit();
     }
   };
+  const defaultSubmitPromise = (data: TData) => {
+    const options = {
+      method: "POST",
+      url: `${serverUrl}/api/g/${schema.title}`,
+      headers: {
+        Apikey: "YOUR_SECRET_TOKEN",
+        "Content-Type": "application/json",
+      },
+      data: clearEmptyString(data),
+    };
+    return axios.request(options);
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFormSubmit = async (data: any) => {
     if (onSubmit === undefined) {
-      defaultOnSubmit(data);
+      await defaultOnSubmit(defaultSubmitPromise(data));
       return;
     }
-    onSubmit(data);
+    await defaultOnSubmit(onSubmit(data));
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -281,6 +284,18 @@ const FormInternal = <TData extends FieldValues>() => {
                       gridColumn,
                       gridRow,
                     }}
+                  />
+                );
+              }
+              if (variant === "tag-picker") {
+                const value = (validatedData ?? {})[column];
+                return (
+                  <DataListItem
+                    gridColumn={gridColumn ?? "span 4"}
+                    gridRow={gridRow ?? "span 1"}
+                    key={`form-${key}`}
+                    label={`${snakeToLabel(column)}`}
+                    {...getDataListProps(JSON.stringify(value))}
                   />
                 );
               }
@@ -475,6 +490,9 @@ const FormInternal = <TData extends FieldValues>() => {
                     display_column={display_column}
                   />
                 );
+              }
+              if (variant === "tag-picker") {
+                return <TagPicker key={`form-${key}`} column={key} />;
               }
               if (variant === "date-picker") {
                 return <DatePicker key={`form-${key}`} column={key} />;

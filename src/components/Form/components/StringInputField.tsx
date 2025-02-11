@@ -13,6 +13,7 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
   gridColumn?: string;
   gridRow?: string;
   title?: string;
+  in_table?: string;
 }
 
 export const StringInputField = ({ column }: StringInputFieldProps) => {
