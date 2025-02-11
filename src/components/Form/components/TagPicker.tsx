@@ -75,7 +75,6 @@ export const TagPicker = ({ column }: TagPickerProps) => {
     staleTime: 10000,
   });
   const object_id = watch(object_id_column);
-  console.log(object_id_column, object_id, "fdkps");
   const existingTagsQuery = useQuery({
     queryKey: [`existing`, in_table, object_id_column, object_id],
     queryFn: async () => {
