@@ -575,3 +575,50 @@ export const eventsTagsSchema = {
   description: "Missing description",
   additionalProperties: false,
 };
+
+export const membershipsSchema = {
+  $id: "http://api.localhost.com/schema/public/memberships_tags.json",
+  type: "object",
+  title: "memberships_tags",
+  $schema: "http://json-schema.org/draft-07/schema#",
+  example: {
+    tag_id: "2ca1d1cb-b0a8-78e1-b819-410a2eb0fb1a",
+    membership_id: "8ec87ba6-7c30-df29-3b93-269563520f00",
+  },
+  required: ["membership_id", "tag_id"],
+  properties: {
+    tag_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+      variant: "tag-picker",
+      in_table: "memberships_tags",
+      object_id_column: "membership_id",
+      gridColumn: "1/span 12",
+      gridRow: "2/span 1",
+    },
+    extra_info: {
+      type: "object",
+      properties: {},
+      description:
+        "Missing description. Database type: jsonb. Default value: null",
+      gridColumn: "1/span 6",
+      gridRow: "3/span 1",
+    },
+    membership_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+      gridColumn: "1/span 6",
+      gridRow: "1/span 1",
+      variant: "id-picker",
+      in_table: "core_memberships",
+      column_ref: "id",
+      display_column: "membership_id",
+    },
+  },
+  description: "Missing description",
+  additionalProperties: false,
+};

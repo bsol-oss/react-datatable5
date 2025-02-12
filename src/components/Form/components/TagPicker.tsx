@@ -126,18 +126,6 @@ export const TagPicker = ({ column }: TagPickerProps) => {
       {isLoading && <>isLoading</>}
       {isPending && <>isPending</>}
       {isError && <>isError</>}
-      <DataList.Root orientation="horizontal">
-        {existingTagList.map(({ tag_id }) => {
-          return (
-            <DataList.Item key={tagIdMap[tag_id].name} pt="4">
-              <DataList.ItemLabel>
-                {tagIdMap[tag_id].parent_tag_name}
-              </DataList.ItemLabel>
-              <DataList.ItemValue>{tagIdMap[tag_id].name}</DataList.ItemValue>
-            </DataList.Item>
-          );
-        })}
-      </DataList.Root>
       <CheckboxGroup
         onValueChange={(tagIds) => {
           console.log(tagIds, ":goskp");
@@ -152,7 +140,16 @@ export const TagPicker = ({ column }: TagPickerProps) => {
               <Flex flexFlow={"wrap"} gap={2}>
                 {Object.entries(all_tags).map(([tagName, { id }]) => {
                   if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                    return <></>;
+                    return (
+                      <CheckboxCard
+                        label={tagName}
+                        key={tagName}
+                        value={id}
+                        flex={"0 0 0%"}
+                        disabled
+                        onChange={() => {}}
+                      />
+                    );
                   }
                   return (
                     <CheckboxCard
@@ -160,17 +157,7 @@ export const TagPicker = ({ column }: TagPickerProps) => {
                       key={tagName}
                       value={id}
                       flex={"0 0 0%"}
-                      onChange={() => {
-                        // const tags = watch(column);
-                        // if (tags.some(({ tag_id }) => tag_id === id)) {
-                        //   setValue(
-                        //     column,
-                        //     tags.filter(({ tag_id }) => tag_id === id)
-                        //   );
-                        //   return;
-                        // }
-                        // append({ tag_id: id });
-                      }}
+                      onChange={() => {}}
                     />
                   );
                 })}
