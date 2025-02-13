@@ -45,7 +45,11 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                         <ChakraDataList.ItemLabel>
                           {snakeToLabel(cell.column.id)}
                         </ChakraDataList.ItemLabel>
-                        <ChakraDataList.ItemValue>{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
+                        <ChakraDataList.ItemValue
+                          wordBreak={"break-word"}
+                          textOverflow={"ellipsis"}
+                          overflow={"hidden"}
+                        >{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
                       </ChakraDataList.Item>
                     );
                   })}
@@ -79,12 +83,16 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                         display={"flex"}
                         justifyContent={"center"}
                         alignItems={"center"}
-                        flex={"1 0 10rem"}
+                        flex={"1 0 0%"}
                       >
                         <ChakraDataList.ItemLabel>
                           {snakeToLabel(cell.column.id)}
                         </ChakraDataList.ItemLabel>
-                        <ChakraDataList.ItemValue>{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
+                        <ChakraDataList.ItemValue
+                          wordBreak={"break-word"}
+                          textOverflow={"ellipsis"}
+                          overflow={"hidden"}
+                        >{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
                       </ChakraDataList.Item>
                     );
                   })}
@@ -115,7 +123,11 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                       <ChakraDataList.ItemLabel>
                         {snakeToLabel(cell.column.id)}
                       </ChakraDataList.ItemLabel>
-                      <ChakraDataList.ItemValue>{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
+                      <ChakraDataList.ItemValue
+                        wordBreak={"break-word"}
+                        textOverflow={"ellipsis"}
+                        overflow={"hidden"}
+                      >{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
                     </ChakraDataList.Item>
                   );
                 })}
