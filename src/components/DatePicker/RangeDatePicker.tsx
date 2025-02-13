@@ -97,7 +97,11 @@ function Calendar({
             {">>"}
           </Button>
         </Grid>
-        <Grid templateColumns={"repeat(2, auto)"} justifyContent={"center"} gap={4}>
+        <Grid
+          templateColumns={"repeat(2, auto)"}
+          justifyContent={"center"}
+          gap={4}
+        >
           {calendars.map((calendar) => (
             <Grid key={`${calendar.month}${calendar.year}`} gap={4}>
               <Grid justifyContent={"center"}>
@@ -113,7 +117,7 @@ function Calendar({
                     <Box
                       key={`${calendar.month}${calendar.year}${weekday}`}
                       minWidth={"48px"}
-                      textAlign={'center'}
+                      textAlign={"center"}
                     >
                       {weekdayNamesShort[weekday]}
                     </Box>
@@ -198,7 +202,7 @@ function Calendar({
   return null;
 }
 
-export interface RangeDatePickerProps extends Props {}
+export interface RangeDatePickerProps extends Props, RangeCalendarProps {}
 
 class RangeDatePicker extends React.Component<RangeDatePickerProps> {
   render() {

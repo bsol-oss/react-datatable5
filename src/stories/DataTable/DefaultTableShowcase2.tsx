@@ -75,8 +75,39 @@ const DefaultTableShowcase2 = () => {
           footer: () => <span>hire_date</span>,
           size: 100,
           filterFn: (row, col, filterValue) => {
-            console.log(filterValue);
-            return true;
+            console.log(row, col, filterValue, "dksopf");
+
+            if (!row || !col || !filterValue || filterValue.length !== 2) {
+              return false; // Handle invalid input gracefully
+            }
+            const hireDateValue = row.getValue(col);
+
+            if (!hireDateValue) {
+              return false; // Handle missing hire date gracefully.  Crucially important!
+            }
+
+            // Ensure hireDateValue is a Date object.  Crucially important!
+            let hireDate: Date;
+            if (hireDateValue instanceof Date) {
+              hireDate = hireDateValue;
+            } else {
+              try {
+                hireDate = new Date(hireDateValue); // Try to parse it if it's a string
+              } catch (error) {
+                console.error("Error parsing hire date:", hireDateValue, error);
+                return false; // Handle invalid date strings gracefully
+              }
+            }
+
+            const startDate = filterValue[0];
+            const endDate = filterValue[1];
+
+            if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
+              console.error("Invalid filter dates provided.");
+              return false; // Handle cases where filter values aren't valid dates.
+            }
+
+            return hireDate >= startDate && hireDate <= endDate;
           },
           meta: {
             filterVariant: "dateRange",

@@ -1,18 +1,16 @@
+import { Radio, RadioGroup } from "@/components/ui/radio";
 import { Flex, Grid, Input, Text } from "@chakra-ui/react";
 import { Column } from "@tanstack/react-table";
-import { DateRangeFilter } from "../Filter/DateRangeFilter";
+import RangeDatePicker from "../DatePicker/RangeDatePicker";
+import { getRangeDates } from "../DatePicker/getRangeDates";
 import RangeFilter from "../Filter/RangeFilter";
 import { TagFilter } from "../Filter/TagFilter";
 import { useDataTableContext } from "./context/useDataTableContext";
-import { Radio, RadioGroup } from "@/components/ui/radio";
 
 const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
   const { filterVariant } = column.columnDef.meta ?? {};
   const displayName = column.columnDef.meta?.displayName ?? column.id;
   const filterOptions = column.columnDef.meta?.filterOptions ?? [];
-  // const collection = createListCollection({
-  //   items: filterOptions,
-  // });
 
   if (column.columns.length > 0) {
     return (
@@ -119,24 +117,21 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
   }
 
   if (filterVariant === "dateRange") {
-    const [start, end] = (column.getFilterValue() as [string, string]) ?? [
-      "",
-      "",
-    ];
+    const filterValue = (column.getFilterValue() as Date[]) ?? [];
     return (
       <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
         <Text>{displayName}</Text>
-        <DateRangeFilter
-          startDate={start}
-          endDate={end}
-          setStartDate={function (value: string): void {
-            column.setFilterValue((state: [string, string] | undefined) => {
-              return [value, (state ?? ["", ""])[1]];
-            });
-          }}
-          setEndDate={function (value: string): void {
-            column.setFilterValue((state: [string, string]) => {
-              return [(state ?? ["", ""])[0], value];
+        <RangeDatePicker
+          selected={filterValue}
+          onDateSelected={({ selected, selectable, date }) => {
+            const newDates =
+              getRangeDates({
+                selectable,
+                date,
+                selectedDates: filterValue,
+              }) ?? [];
+            column.setFilterValue(() => {
+              return newDates;
             });
           }}
         />
