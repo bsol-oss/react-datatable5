@@ -163,7 +163,12 @@ export const TableHeader = ({
                       justifyContent={"start"}
                       borderRadius={"0rem"}
                       overflow={"auto"}
-                      _hover={{ backgroundColor: "gray.100" }}
+                      _hover={{
+                        backgroundColor: "gray.100",
+                        _dark: {
+                          backgroundColor: "gray.700",
+                        },
+                      }}
                     >
                       <Flex gap="0.5rem" alignItems={"center"}>
                         {header.isPlaceholder
