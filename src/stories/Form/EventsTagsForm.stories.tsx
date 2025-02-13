@@ -40,6 +40,22 @@ export const EventsTags: Story = {
             fieldRequired: "必填項目",
           }}
           onSubmit={async (data) => {
+            console.log(data, "ogfdks");
+            const newRecords = Object.values(data["tag_id"])
+              .map(({ current }: any) => {
+                return current;
+              })
+              .reduce((previous, current) => {
+                return [...previous, ...current];
+              }, [])
+              .filter((record) => record != null)
+              .map((tag_id: string) => {
+                return {
+                  tag_id,
+                  event_id: data["event_id"],
+                };
+              });
+
             const options = {
               method: "POST",
               url: `http://localhost:8081/api/g/events_tags/many`,
@@ -48,17 +64,36 @@ export const EventsTags: Story = {
                 "Content-Type": "application/json",
               },
               data: {
-                data: data["tag_id"]
-                  .filter((tag_id: string) => tag_id != null)
-                  .map((tag_id: Record<string, unknown>) => {
-                    return {
-                      tag_id,
-                      event_id: data["event_id"],
-                    };
-                  }),
+                data: newRecords,
               },
             };
             await axios.request(options);
+
+            const oldRecords = Object.values(data["tag_id"])
+              .map(({ old }: any) => {
+                return old;
+              })
+              .reduce((previous, current) => {
+                return [...previous, ...current];
+              }, [])
+              .map((tag_id: string) => {
+                return {
+                  tag_id,
+                  event_id: data["event_id"],
+                };
+              });
+
+            await axios.request({
+              method: "DELETE",
+              url: `http://localhost:8081/api/g/events_tags/many`,
+              headers: {
+                Apikey: "YOUR_SECRET_TOKEN",
+                "Content-Type": "application/json",
+              },
+              data: {
+                data: oldRecords,
+              },
+            });
           }}
         />
       </ChakraProvider>

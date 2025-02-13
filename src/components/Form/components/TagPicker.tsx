@@ -1,11 +1,11 @@
 import { CheckboxCard } from "@/components/ui/checkbox-card";
-import { CheckboxGroup, DataList, Flex, Text } from "@chakra-ui/react";
+import { RadioCardItem, RadioCardRoot } from "@/components/ui/radio-card";
+import { CheckboxGroup, Flex, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../useSchemaContext";
 import { getTableData } from "../utils/getTableData";
 import { CustomJSONSchema7 } from "./StringInputField";
-
 export interface TagPickerProps {
   column: string;
 }
@@ -30,6 +30,7 @@ export interface TagData {
   parent_tag_name: string;
   parent_tag_id: string;
   all_tags: AllTags;
+  is_mutually_exclusive: boolean;
 }
 
 export interface TagResponse {
@@ -97,18 +98,7 @@ export const TagPicker = ({ column }: TagPickerProps) => {
   const { isLoading, isFetching, data, isPending, isError } = query;
   const dataList = data?.data ?? [];
   const existingTagList = existingTagsQuery.data?.data ?? [];
-  const tagIdMap = Object.fromEntries(
-    dataList
-      .map(({ parent_tag_name, all_tags }) => {
-        return Object.entries(all_tags).map(([, tagRecord]) => {
-          return { ...tagRecord, parent_tag_name };
-        });
-      })
-      .reduce((previous, current) => {
-        return [...previous, ...current];
-      }, [])
-      .map((tag) => [tag.id, tag])
-  );
+
   if (!!object_id === false) {
     return <></>;
   }
@@ -126,46 +116,92 @@ export const TagPicker = ({ column }: TagPickerProps) => {
       {isLoading && <>isLoading</>}
       {isPending && <>isPending</>}
       {isError && <>isError</>}
-      <CheckboxGroup
-        onValueChange={(tagIds) => {
-          console.log(tagIds, ":goskp");
-          setValue(column, tagIds);
-        }}
-      >
-        {dataList.map(({ parent_tag_name, all_tags }) => {
-          return (
-            <Flex flexFlow={"column"} gap={2}>
-              <Text>{parent_tag_name}</Text>
-
-              <Flex flexFlow={"wrap"} gap={2}>
-                {Object.entries(all_tags).map(([tagName, { id }]) => {
-                  if (existingTagList.some(({ tag_id }) => tag_id === id)) {
+      {dataList.map(({ parent_tag_name, all_tags, is_mutually_exclusive }) => {
+        return (
+          <Flex flexFlow={"column"} gap={2}>
+            <Text>{parent_tag_name}</Text>
+            {is_mutually_exclusive && (
+              <RadioCardRoot
+                defaultValue="next"
+                variant={"surface"}
+                onValueChange={(tagIds) => {
+                  const existedTags = Object.values(all_tags)
+                    .filter(({ id }) => {
+                      return existingTagList.some(
+                        ({ tag_id }) => tag_id === id
+                      );
+                    })
+                    .map(({ id }) => {
+                      return id;
+                    });
+                  setValue(`${column}.${parent_tag_name}.current`, [
+                    tagIds.value,
+                  ]);
+                  setValue(`${column}.${parent_tag_name}.old`, existedTags);
+                }}
+              >
+                <Flex flexFlow={"wrap"} gap={2}>
+                  {Object.entries(all_tags).map(([tagName, { id }]) => {
+                    if (existingTagList.some(({ tag_id }) => tag_id === id)) {
+                      return (
+                        <RadioCardItem
+                          label={tagName}
+                          key={`${tagName}-${id}`}
+                          value={id}
+                          flex={"0 0 0%"}
+                          disabled
+                        />
+                      );
+                    }
+                    return (
+                      <RadioCardItem
+                        label={tagName}
+                        key={`${tagName}-${id}`}
+                        value={id}
+                        flex={"0 0 0%"}
+                        colorPalette={"blue"}
+                      />
+                    );
+                  })}
+                </Flex>
+              </RadioCardRoot>
+            )}
+            {!is_mutually_exclusive && (
+              <CheckboxGroup
+                onValueChange={(tagIds) => {
+                  setValue(`${column}.${parent_tag_name}.current`, tagIds);
+                }}
+              >
+                <Flex flexFlow={"wrap"} gap={2}>
+                  {Object.entries(all_tags).map(([tagName, { id }]) => {
+                    if (existingTagList.some(({ tag_id }) => tag_id === id)) {
+                      return (
+                        <CheckboxCard
+                          label={tagName}
+                          key={`${tagName}-${id}`}
+                          value={id}
+                          flex={"0 0 0%"}
+                          disabled
+                          colorPalette={"blue"}
+                        />
+                      );
+                    }
                     return (
                       <CheckboxCard
                         label={tagName}
-                        key={tagName}
+                        key={`${tagName}-${id}`}
                         value={id}
                         flex={"0 0 0%"}
-                        disabled
-                        onChange={() => {}}
                       />
                     );
-                  }
-                  return (
-                    <CheckboxCard
-                      label={tagName}
-                      key={tagName}
-                      value={id}
-                      flex={"0 0 0%"}
-                      onChange={() => {}}
-                    />
-                  );
-                })}
-              </Flex>
-            </Flex>
-          );
-        })}
-      </CheckboxGroup>
+                  })}
+                </Flex>
+              </CheckboxGroup>
+            )}
+          </Flex>
+        );
+      })}
+
       {errors[`${column}`] && (
         <Text color={"red.400"}>
           {(errors[`${column}`]?.message ?? "No error message") as string}
