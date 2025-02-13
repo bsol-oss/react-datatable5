@@ -15,7 +15,7 @@ export const TablePagination = () => {
   return (
     <PaginationRoot
       page={table.getState().pagination.pageIndex + 1}
-      count={table.getRowCount()}
+      count={table.getFilteredRowModel().flatRows.length ?? 0}
       pageSize={table.getState().pagination.pageSize}
       onPageChange={(e) => {
         table.setPageIndex(e.page - 1);

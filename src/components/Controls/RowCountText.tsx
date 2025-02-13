@@ -3,5 +3,5 @@ import { useDataTableContext } from "../../index";
 
 export const RowCountText = () => {
   const { table } = useDataTableContext();
-  return <Text>{table.getRowCount()}</Text>;
+  return <Text>{table.getFilteredRowModel().flatRows.length ?? 0}</Text>;
 };
