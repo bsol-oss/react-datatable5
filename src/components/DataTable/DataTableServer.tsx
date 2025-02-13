@@ -14,9 +14,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { DensityFeature, DensityState } from "../Controls/DensityFeature";
-import {
-  DataTableContext,
-} from "./context/DataTableContext";
+import { DataTableContext } from "./context/DataTableContext";
 import { DataTableServerContext } from "./context/DataTableServerContext";
 
 export interface DataTableServerProps<TData> {
@@ -70,7 +68,7 @@ export const DataTableServer = <TData,>({
   setColumnVisibility,
   query,
   children,
-  url
+  url,
 }: DataTableServerProps<TData>) => {
   const table = useReactTable<TData>({
     _features: [DensityFeature],
@@ -128,7 +126,7 @@ export const DataTableServer = <TData,>({
         setGlobalFilter,
       }}
     >
-      <DataTableServerContext.Provider  value={{url}}>
+      <DataTableServerContext.Provider value={{ url }}>
         {children}
       </DataTableServerContext.Provider>
     </DataTableContext.Provider>
