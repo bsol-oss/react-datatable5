@@ -1,12 +1,14 @@
 import { Table as ChakraTable, List, TableRootProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
-import { useDataTableContext } from "./context/useDataTableContext";import { HiColorSwatch } from "react-icons/hi";
+import { HiColorSwatch } from "react-icons/hi";
 import { EmptyState } from "../ui/empty-state";
+import { useDataTableContext } from "./context/useDataTableContext";
 
 export interface TableProps extends TableRootProps {
   showLoading?: boolean;
   loadingComponent?: ReactNode;
   emptyComponent?: ReactNode;
+  canResize?: boolean;
   children: ReactNode;
 }
 
@@ -26,6 +28,7 @@ const EmptyResult = (
 export const Table = ({
   children,
   emptyComponent = EmptyResult,
+  canResize = true,
   ...props
 }: TableProps) => {
   const { table } = useDataTableContext();
@@ -38,7 +41,7 @@ export const Table = ({
     <ChakraTable.Root
       stickyHeader
       variant={"outline"}
-      width={table.getCenterTotalSize()}
+      width={canResize ? table.getCenterTotalSize() : undefined}
       {...props}
     >
       {children}

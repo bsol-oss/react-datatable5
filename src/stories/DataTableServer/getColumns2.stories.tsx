@@ -1,16 +1,16 @@
 import { DataDisplay } from "@/components/DataTable/DataDisplay";
 import { DataTableServer } from "@/components/DataTable/DataTableServer";
+import { DefaultTable } from "@/components/DataTable/DefaultTable";
 import { TableComponent } from "@/components/DataTable/TableComponent";
 import { useDataTableServer } from "@/components/DataTable/useDataTableServer";
 import { getColumns } from "@/components/DataTable/utils/getColumns";
-import { Box, ChakraProvider, defaultSystem, Text } from "@chakra-ui/react";
-import type { Meta, StoryObj } from "@storybook/react";
-import { JSONSchema7 } from "json-schema";
-import { addressSchema, peopleSchema } from "../schema";
-import { DefaultTable } from "@/components/DataTable/DefaultTable";
 import { FilterOptions } from "@/components/Filter/FilterOptions";
+import { Box, Text } from "@chakra-ui/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Provider } from "../provider";
+import { JSONSchema7 } from "json-schema";
+import { Provider } from "../Provider";
+import { peopleSchema } from "../schema";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -61,7 +61,11 @@ const AddressApp = () => {
 
   return (
     <Provider>
-      <DataTableServer url="http://localhost:8081/api/g/core_people" columns={columns} {...datatable}>
+      <DataTableServer
+        url="http://localhost:8081/api/g/core_people"
+        columns={columns}
+        {...datatable}
+      >
         <DefaultTable
           controlProps={{
             showFilter: true,

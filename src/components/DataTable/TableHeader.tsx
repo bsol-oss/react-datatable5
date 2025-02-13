@@ -1,18 +1,12 @@
 import {
   Box,
-  Flex,
-  Grid,
-  Table,
   TableHeaderProps as ChakraTableHeaderProps,
+  Flex,
+  Table,
 } from "@chakra-ui/react";
 import { flexRender, Header } from "@tanstack/react-table";
 import { MdCancel, MdClear, MdFilterListAlt } from "react-icons/md";
 
-import { useState } from "react";
-import { GrAscend, GrDescend } from "react-icons/gr";
-import { MdPushPin } from "react-icons/md";
-import { useDataTableContext } from "../../index";
-import { Checkbox } from "../../components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
   MenuContent,
@@ -20,7 +14,13 @@ import {
   MenuRoot,
   MenuTrigger,
 } from "@/components/ui/menu";
+import { useState } from "react";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
+import { GrAscend, GrDescend } from "react-icons/gr";
+import { MdPushPin } from "react-icons/md";
+import { Checkbox } from "../../components/ui/checkbox";
+import { useDataTableContext } from "../../index";
+
 export interface TableHeaderProps {
   canResize?: boolean;
   pinnedBgColor?: { light: string; dark: string };
@@ -31,7 +31,7 @@ export interface TableHeaderProps {
 }
 
 export const TableHeader = ({
-  canResize,
+  canResize = true,
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
   showSelector = false,
   isSticky = true,
@@ -149,7 +149,7 @@ export const TableHeader = ({
                 key={`chakra-table-header-${header.id}`}
                 columnSpan={`${header.colSpan}`}
                 // styling resize and pinning start
-                width={`${header.getSize()}px`}
+                flex={`${canResize ? "0" : "1"} 0 ${header.column.getSize()}px`}
                 display={"grid"}
                 gridTemplateColumns={"1fr auto"}
                 zIndex={header.index}

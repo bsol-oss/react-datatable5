@@ -2,8 +2,8 @@ import { Box, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
 import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
-import { Employee, staffData } from "../staff_data";
 import Provider from "../Provider";
+import { Employee, staffData } from "../staff_data";
 
 interface RowActionsProps {
   row: Employee;
@@ -145,6 +145,7 @@ const DefaultTableShowcase2 = () => {
             showFilterTags: true,
             filterOptions: ["category", "brand"],
           }}
+          variant="greedy"
         />
         <TableComponent
           render={(table) => {

@@ -7,6 +7,7 @@ export interface TableBodyProps {
   pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
   alwaysShowSelector?: boolean;
+  canResize?: boolean;
 }
 
 export interface TableRowSelectorProps<TData> {
@@ -24,6 +25,7 @@ export const TableBody = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
   showSelector = false,
   alwaysShowSelector = true,
+  canResize = true,
 }: TableBodyProps) => {
   const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
@@ -97,8 +99,7 @@ export const TableBody = ({
                   padding={`${table.getDensityValue()}px`}
                   key={`chakra-table-rowcell-${cell.id}-${index}`}
                   // styling resize and pinning start
-                  maxWidth={`${cell.column.getSize()}px`}
-                  width={`${cell.column.getSize()}px`}
+                  flex={`${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`}
                   backgroundColor={"white"}
                   {...getTdProps(cell)}
                   _dark={{
@@ -181,7 +182,6 @@ const TableRowSelector = <TData,>({
             {...{
               isChecked: row.getIsSelected(),
               disabled: !row.getCanSelect(),
-              // indeterminate: row.getIsSomeSelected(),
               onChange: row.getToggleSelectedHandler(),
             }}
           />

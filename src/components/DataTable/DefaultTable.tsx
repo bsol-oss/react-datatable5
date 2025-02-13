@@ -1,35 +1,50 @@
-import { TableHeaderProps } from "@chakra-ui/react";
+import { TableHeaderProps as ChakraHeaderProps } from "@chakra-ui/react";
 import { Table, TableProps } from "../../index";
-import { TableBody } from "./TableBody";
+import { TableBody, TableBodyProps } from "./TableBody";
 import { TableControls, TableControlsProps } from "./TableControls";
-import { TableFooter } from "./TableFooter";
-import { TableHeader } from "./TableHeader";
+import { TableFooter, TableFooterProps } from "./TableFooter";
+import { TableHeader, TableHeaderProps } from "./TableHeader";
 
 export interface DefaultTableProps {
   showFooter?: boolean;
   showSelector?: boolean;
   tableProps?: Omit<TableProps, "children">;
-  tHeadProps?: TableHeaderProps;
+  tHeadProps?: ChakraHeaderProps;
   controlProps?: TableControlsProps;
+  tableFooterProps?: TableFooterProps;
+  tableBodyProps?: TableBodyProps;
+  tableHeaderProps?: TableHeaderProps;
+  variant?: "" | "greedy";
 }
 
 export const DefaultTable = ({
   showFooter = false,
-  showSelector = false,
   tableProps = {},
-  tHeadProps = {},
+  tableHeaderProps = {},
+  tableBodyProps = {},
   controlProps = {},
+  tableFooterProps = {},
+  variant = "",
 }: DefaultTableProps) => {
+  if (variant === "greedy") {
+    return (
+      <TableControls {...controlProps}>
+        <Table {...{ canResize: false, ...tableProps }}>
+          <TableHeader {...{ canResize: false, ...tableHeaderProps }} />
+          <TableBody {...{ canResize: false, ...tableBodyProps }} />
+          {showFooter && (
+            <TableFooter {...{ canResize: false, ...tableFooterProps }} />
+          )}
+        </Table>
+      </TableControls>
+    );
+  }
   return (
     <TableControls {...controlProps}>
       <Table {...tableProps}>
-        <TableHeader
-          canResize
-          showSelector={showSelector}
-          tHeadProps={tHeadProps}
-        />
-        <TableBody showSelector={showSelector} />
-        {showFooter && <TableFooter showSelector={showSelector} />}
+        <TableHeader {...tableHeaderProps} />
+        <TableBody {...tableBodyProps} />
+        {showFooter && <TableFooter {...tableFooterProps} />}
       </Table>
     </TableControls>
   );
