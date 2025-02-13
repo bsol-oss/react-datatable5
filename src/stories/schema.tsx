@@ -525,3 +525,100 @@ export const peopleSchema = {
   searchingColumns: ["first_name", "last_name"],
   additionalProperties: false,
 };
+
+export const eventsTagsSchema = {
+  $id: "http://api.localhost.com/schema/public/events_tags.json",
+  type: "object",
+  title: "events_tags",
+  $schema: "http://json-schema.org/draft-07/schema#",
+  example: {
+    tag_id: "f1c6ca09-62c5-7d05-a8b8-7404ce942895",
+    event_id: "b0a00018-b6b1-c5b8-e53a-5e430a5bf653",
+    extra_info: {
+      exercitation6d: -88901105,
+    },
+  },
+  required: ["event_id", "tag_id"],
+  properties: {
+    tag_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+      variant: "tag-picker",
+      in_table: "events_tags",
+      object_id_column: "event_id",
+      gridColumn: "1/span 12",
+      gridRow: "2/span 1",
+    },
+    event_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+      variant: "id-picker",
+      in_table: "core_events",
+      column_ref: "id",
+      display_column: "event_name",
+      gridColumn: "1/span 6",
+      gridRow: "1/span 1",
+    },
+    extra_info: {
+      type: "object",
+      properties: {},
+      description:
+        "Missing description. Database type: jsonb. Default value: null",
+      gridColumn: "1/span 6",
+      gridRow: "3/span 1",
+    },
+  },
+  description: "Missing description",
+  additionalProperties: false,
+};
+
+export const membershipsSchema = {
+  $id: "http://api.localhost.com/schema/public/memberships_tags.json",
+  type: "object",
+  title: "memberships_tags",
+  $schema: "http://json-schema.org/draft-07/schema#",
+  example: {
+    tag_id: "2ca1d1cb-b0a8-78e1-b819-410a2eb0fb1a",
+    membership_id: "8ec87ba6-7c30-df29-3b93-269563520f00",
+  },
+  required: ["membership_id", "tag_id"],
+  properties: {
+    tag_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+      variant: "tag-picker",
+      in_table: "memberships_tags",
+      object_id_column: "membership_id",
+      gridColumn: "1/span 12",
+      gridRow: "2/span 1",
+    },
+    extra_info: {
+      type: "object",
+      properties: {},
+      description:
+        "Missing description. Database type: jsonb. Default value: null",
+      gridColumn: "1/span 6",
+      gridRow: "3/span 1",
+    },
+    membership_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+      gridColumn: "1/span 6",
+      gridRow: "1/span 1",
+      variant: "id-picker",
+      in_table: "core_memberships",
+      column_ref: "id",
+      display_column: "membership_id",
+    },
+  },
+  description: "Missing description",
+  additionalProperties: false,
+};

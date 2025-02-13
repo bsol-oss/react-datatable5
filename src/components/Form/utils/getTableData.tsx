@@ -4,7 +4,7 @@ export interface GetTableDataConfig {
   serverUrl: string;
   in_table: string;
   limit?: number;
-  where?: object[];
+  where?: { id: string; value: string[] }[];
   searching?: string;
 }
 
@@ -16,17 +16,17 @@ export interface GetTableResponse {
 export const getTableData = async ({
   serverUrl,
   in_table,
-  searching = '',
+  searching = "",
   where = [],
   limit = 10,
 }: GetTableDataConfig) => {
-  if(serverUrl === undefined || serverUrl.length == 0){
-    throw new Error('The serverUrl is missing')
+  if (serverUrl === undefined || serverUrl.length == 0) {
+    throw new Error("The serverUrl is missing");
   }
-  if(in_table === undefined || in_table.length == 0){
-    throw new Error('The in_table is missing')
+  if (in_table === undefined || in_table.length == 0) {
+    throw new Error("The in_table is missing");
   }
-  
+
   const options: AxiosRequestConfig = {
     method: "GET",
     url: `${serverUrl}/api/g/${in_table}`,

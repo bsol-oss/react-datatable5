@@ -121,13 +121,13 @@ const Calendar = ({
                       selectable,
                     }: GetVariantProps) => {
                       if (!selectable) {
-                        return "solid";
+                        return "surface";
                       }
                       if (selected) {
                         return "solid";
                       }
                       if (today) {
-                        return "solid";
+                        return "surface";
                       }
                       return "ghost";
                     };
