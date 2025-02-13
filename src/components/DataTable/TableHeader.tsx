@@ -157,9 +157,8 @@ export const TableHeader = ({
               >
                 <MenuRoot>
                   <MenuTrigger asChild>
-                    <Grid
+                    <Flex
                       padding={`${table.getDensityValue()}px`}
-                      display={"flex"}
                       alignItems={"center"}
                       justifyContent={"start"}
                       borderRadius={"0rem"}
@@ -190,7 +189,7 @@ export const TableHeader = ({
                           {header.column.getIsFiltered() && <MdFilterListAlt />}
                         </Box>
                       </Flex>
-                    </Grid>
+                    </Flex>
                   </MenuTrigger>
 
                   <MenuContent>

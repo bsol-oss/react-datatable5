@@ -1,4 +1,4 @@
-import { Box, Table } from "@chakra-ui/react";
+import { Box, Table, TableRowProps } from "@chakra-ui/react";
 import { Cell, flexRender, Row } from "@tanstack/react-table";
 import { useState } from "react";
 import { Checkbox } from "../../components/ui/checkbox";
@@ -50,17 +50,38 @@ export const TableBody = ({
     return tdProps;
   };
 
+  const getTrProps = ({
+    hoveredRow,
+    index,
+  }: {
+    hoveredRow: number;
+    index: number;
+  }): TableRowProps => {
+    if (hoveredRow === -1) {
+      return {};
+    }
+    if (hoveredRow === index) {
+      return {
+        opacity: "1",
+      };
+    }
+
+    return {
+      opacity: "0.8",
+    };
+  };
+
   return (
     <Table.Body>
       {table.getRowModel().rows.map((row, index) => {
         return (
           <Table.Row
             display={"flex"}
-            _hover={{ backgroundColor: "rgba(178,178,178,0.1)" }}
             key={`chakra-table-row-${row.id}`}
             zIndex={1}
             onMouseEnter={() => handleRowHover(index)}
             onMouseLeave={() => handleRowHover(-1)}
+            {...getTrProps({ hoveredRow, index })}
           >
             {showSelector && (
               <TableRowSelector
@@ -81,7 +102,7 @@ export const TableBody = ({
                   backgroundColor={"white"}
                   {...getTdProps(cell)}
                   _dark={{
-                    backgroundColor: "gray.950"
+                    backgroundColor: "gray.950",
                   }}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
