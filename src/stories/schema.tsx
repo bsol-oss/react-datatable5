@@ -659,12 +659,6 @@ export const eventsFilesSchema = {
       gridColumn: "1/span 6",
       gridRow: "1/span 1",
     },
-    // extra_info: {
-    //   type: "object",
-    //   properties: {},
-    //   description:
-    //     "Missing description. Database type: jsonb. Default value: null",
-    // },
   },
   description: "Missing description",
   additionalProperties: false,
