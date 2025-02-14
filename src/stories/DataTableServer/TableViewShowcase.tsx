@@ -1,13 +1,11 @@
+import { Provider } from "@/components/ui/provider";
 import {
   Box,
   Button,
-  ChakraProvider,
-  defaultSystem,
   Flex,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-
 import {
   DataTableServer,
   DensityToggleButton,
@@ -30,6 +28,7 @@ import {
   TextCell,
   useDataTableServer,
 } from "../../index";
+
 
 interface ChatRecord {
   session_id: string;
@@ -155,7 +154,7 @@ const TableViewShowcase = () => {
   ];
 
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <Flex flexFlow={"wrap"}>
           <TablePagination />
@@ -183,7 +182,7 @@ const TableViewShowcase = () => {
           }}
         />
       </DataTableServer>
-    </ChakraProvider>
+    </Provider>
   );
 };
 

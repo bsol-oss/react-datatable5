@@ -1,9 +1,10 @@
+import { Provider } from "@/components/ui/provider";
 import { Box, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
 import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
-import Provider from "../Provider";
 import { Employee, staffData } from "../staff_data";
+
 
 interface RowActionsProps {
   row: Employee;

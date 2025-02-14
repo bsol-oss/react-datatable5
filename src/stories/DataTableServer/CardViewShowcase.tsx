@@ -19,6 +19,7 @@ import {
   TextCell,
   useDataTableServer,
 } from "../../index";
+import { Provider } from "@/components/ui/provider";
 
 interface ChatRecord {
   session_id: string;
@@ -116,7 +117,7 @@ const CardViewShowcase = () => {
   ];
 
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <Flex gap="0.25rem">
           <TablePagination />
@@ -132,7 +133,7 @@ const CardViewShowcase = () => {
         </TableCardContainer>
         <TablePagination />
       </DataTableServer>
-    </ChakraProvider>
+    </Provider>
   );
 };
 

@@ -1,12 +1,13 @@
+import { DataDisplay } from "@/components/DataTable/DataDisplay";
 import { DataTable } from "@/components/DataTable/DataTable";
+import { TableComponent } from "@/components/DataTable/TableComponent";
 import { TextCell } from "@/components/DataTable/TextCell";
 import { useDataTable } from "@/components/DataTable/useDataTable";
-import { DataDisplay } from "@/components/DataTable/DataDisplay";
-import { Box, ChakraProvider, defaultSystem, Text } from "@chakra-ui/react";
+import { Provider } from "@/components/ui/provider";
+import { Box, Text } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { Product, data } from "../product_data";
-import { TableComponent } from "@/components/DataTable/TableComponent";
+import { data, Product } from "../product_data";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -156,7 +157,7 @@ const DataDisplayView = () => {
     }),
   ];
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <DataTable columns={columns} data={data} {...datatable}>
         <DataDisplay />
         <DataDisplay variant="stats" />
@@ -170,6 +171,6 @@ const DataDisplayView = () => {
           }}
         />
       </DataTable>
-    </ChakraProvider>
+    </Provider>
   );
 };

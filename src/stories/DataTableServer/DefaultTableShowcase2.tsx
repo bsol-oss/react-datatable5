@@ -1,12 +1,10 @@
+import { Provider } from "@/components/ui/provider";
 import {
   Box,
   Button,
-  ChakraProvider,
-  defaultSystem,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-
 import { useState } from "react";
 import {
   DataTableServer,
@@ -14,6 +12,7 @@ import {
   TextCell,
   useDataTableServer,
 } from "../../index";
+
 
 export interface Root {
   count: number;
@@ -165,7 +164,7 @@ const DefaultTableShowcase2 = () => {
   });
 
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <Button
         onClick={() => {
           setSelectedId("staff_profile");
@@ -195,7 +194,7 @@ const DefaultTableShowcase2 = () => {
           }}
         />
       </DataTableServer>
-    </ChakraProvider>
+    </Provider>
   );
 };
 

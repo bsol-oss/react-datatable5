@@ -21,7 +21,7 @@ export default meta;
 export const MembershipsTags: Story = {
   render: () => {
     return (
-      <ChakraProvider value={defaultSystem}>
+      <Provider>
         <Form
           schema={membershipsSchema as JSONSchema7}
           serverUrl={"http://localhost:8081"}
@@ -61,7 +61,7 @@ export const MembershipsTags: Story = {
             await axios.request(options);
           }}
         />
-      </ChakraProvider>
+      </Provider>
     );
   },
 };

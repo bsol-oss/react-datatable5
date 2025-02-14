@@ -1,4 +1,4 @@
-import { Box, ChakraProvider, defaultSystem, Flex, Table } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable/DataTable";
 import {
@@ -12,11 +12,12 @@ import {
   TableHeader,
   TablePagination,
   TableSelector,
+  Table as TableWithData,
   TextCell,
-  useDataTable,
-  Table as TableWithData
+  useDataTable
 } from "../../index";
 import { data, Product } from "../product_data";
+import { Provider } from "@/components/ui/provider";
 
 export default {
   title: "react-datatable5/DataTable/interactive",
@@ -43,7 +44,7 @@ const Template = (args: any) => {
     default: { sorting: [{ id: "title", desc: false }] },
   });
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <DataTable {...args} {...datatable}>
         <Flex>
           <TablePagination />
@@ -62,7 +63,7 @@ const Template = (args: any) => {
         <PageSizeControl />
         <TablePagination />
       </DataTable>
-    </ChakraProvider>
+    </Provider>
   );
 };
 

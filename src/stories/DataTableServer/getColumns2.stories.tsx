@@ -5,12 +5,13 @@ import { TableComponent } from "@/components/DataTable/TableComponent";
 import { useDataTableServer } from "@/components/DataTable/useDataTableServer";
 import { getColumns } from "@/components/DataTable/utils/getColumns";
 import { FilterOptions } from "@/components/Filter/FilterOptions";
+import { Provider } from "@/components/ui/provider";
 import { Box, Text } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { JSONSchema7 } from "json-schema";
-import { Provider } from "../Provider";
 import { peopleSchema } from "../schema";
+
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {

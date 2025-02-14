@@ -1,8 +1,8 @@
-import { Box, ChakraProvider, defaultSystem, Flex } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import {
-  DataTable,
   CardHeader,
+  DataTable,
   EditFilterButton,
   EditOrderButton,
   EditSortingButton,
@@ -18,6 +18,8 @@ import {
 import { MdStarRate } from "react-icons/md";
 import { useDataTable } from "../../components/DataTable/useDataTable";
 import { data, Product } from "../product_data";
+import { Provider } from "@/components/ui/provider";
+
 interface RowActionsProps {
   row: Product;
 }
@@ -79,7 +81,7 @@ const CardViewShowcase = () => {
   ];
 
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <DataTable columns={columns} data={data} {...datatable}>
         <Flex gap="0.25rem">
           <TablePagination />
@@ -130,7 +132,7 @@ const CardViewShowcase = () => {
         </TableCardContainer>
         <TablePagination />
       </DataTable>
-    </ChakraProvider>
+    </Provider>
   );
 };
 

@@ -24,7 +24,7 @@ export const Membership: Story = {
 
 const MembershipForm = () => {
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <Form
         schema={membershipSchema as JSONSchema7}
         ignore={["id", "created_at", "updated_at"]}
@@ -37,6 +37,6 @@ const MembershipForm = () => {
           "person_in_charge_id",
         ]}
       />
-    </ChakraProvider>
+    </Provider>
   );
 };

@@ -25,7 +25,7 @@ export const Address: Story = {
 
 const AddressForm = () => {
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <Form
         schema={addressSchema as JSONSchema7}
         order={[
@@ -44,6 +44,6 @@ const AddressForm = () => {
           "street_number": "nice"
         }}
       />
-    </ChakraProvider>
+    </Provider>
   );
 };

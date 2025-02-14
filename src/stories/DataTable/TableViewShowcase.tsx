@@ -1,13 +1,10 @@
 import {
   Box,
-  ChakraProvider,
-  defaultSystem,
   Flex,
   Grid,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-
 import { useDataTable } from "../../components/DataTable/useDataTable";
 import {
   DataTable,
@@ -28,6 +25,8 @@ import {
   TextCell,
 } from "../../index";
 import { data, Product } from "../product_data";
+import { Provider } from "@/components/ui/provider";
+
 interface RowActionsProps {
   row: Product;
 }
@@ -115,7 +114,7 @@ const TableViewShowcase = () => {
   ];
 
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <DataTable columns={columns} data={data} {...datatable}>
         <Flex>
           <TablePagination />
@@ -144,7 +143,7 @@ const TableViewShowcase = () => {
           }}
         />
       </DataTable>
-    </ChakraProvider>
+    </Provider>
   );
 };
 

@@ -21,7 +21,7 @@ export default meta;
 export const EventsTags: Story = {
   render: () => {
     return (
-      <ChakraProvider value={defaultSystem}>
+      <Provider>
         <Form
           schema={eventsTagsSchema as JSONSchema7}
           serverUrl={"http://localhost:8081"}
@@ -96,7 +96,7 @@ export const EventsTags: Story = {
             });
           }}
         />
-      </ChakraProvider>
+      </Provider>
     );
   },
 };

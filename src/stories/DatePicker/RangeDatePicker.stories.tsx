@@ -26,7 +26,7 @@ export const MultipleMonths: Story = {
     >();
     const [showOutsideDays, setShowOutsideDays] = useState<boolean>(false);
     return (
-      <ChakraProvider value={defaultSystem}>
+      <Provider>
         <Flex flexFlow={'column'}>
           <RangeDatePicker
             selected={selectedDates}
@@ -98,7 +98,7 @@ export const MultipleMonths: Story = {
             </div>
           )}
         </Flex>
-      </ChakraProvider>
+      </Provider>
     );
   },
 };

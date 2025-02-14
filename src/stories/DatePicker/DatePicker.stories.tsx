@@ -30,7 +30,7 @@ const DataDisplayView = () => {
   >();
   const [showOutsideDays, setShowOutsideDays] = useState<boolean>(false);
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <div>
         <DatePicker
           selected={selectedDate}
@@ -72,7 +72,7 @@ const DataDisplayView = () => {
           </div>
         )}
       </div>
-    </ChakraProvider>
+    </Provider>
   );
 };
 
@@ -89,7 +89,7 @@ const DataDisplayMultiView = () => {
   >();
   const [showOutsideDays, setShowOutsideDays] = useState<boolean>(false);
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <div>
         <DatePicker
           selected={selectedDates}
@@ -137,7 +137,7 @@ const DataDisplayMultiView = () => {
           </div>
         )}
       </div>
-    </ChakraProvider>
+    </Provider>
   );
 };
 
@@ -149,7 +149,7 @@ export const MinMax: Story = {
     >();
     const [showOutsideDays, setShowOutsideDays] = useState<boolean>(false);
     return (
-      <ChakraProvider value={defaultSystem}>
+      <Provider>
         <div>
           <DatePicker
             selected={selectedDates}
@@ -202,7 +202,7 @@ export const MinMax: Story = {
             </div>
           )}
         </div>
-      </ChakraProvider>
+      </Provider>
     );
   },
 };
@@ -218,7 +218,7 @@ export const MultipleMonths: Story = {
     >();
     const [showOutsideDays, setShowOutsideDays] = useState<boolean>(false);
     return (
-      <ChakraProvider value={defaultSystem}>
+      <Provider>
         <div>
           <DatePicker
             selected={selectedDates}
@@ -272,7 +272,7 @@ export const MultipleMonths: Story = {
             </div>
           )}
         </div>
-      </ChakraProvider>
+      </Provider>
     );
   },
 };

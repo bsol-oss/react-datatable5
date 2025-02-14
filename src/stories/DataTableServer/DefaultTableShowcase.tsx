@@ -1,6 +1,7 @@
-import { Box, ChakraProvider, defaultSystem, Text } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-
+import { Provider } from "@/components/ui/provider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   DataTableServer,
   DefaultTable,
@@ -8,7 +9,6 @@ import {
   TextCell,
   useDataTableServer,
 } from "../../index";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 interface ChatRecord {
   session_id: string;
@@ -131,7 +131,7 @@ const App = () => {
     }),
   ];
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <DefaultTable
           showSelector
@@ -186,7 +186,7 @@ const App = () => {
           }}
         />
       </DataTableServer>
-    </ChakraProvider>
+    </Provider>
   );
 };
 const queryClient = new QueryClient();

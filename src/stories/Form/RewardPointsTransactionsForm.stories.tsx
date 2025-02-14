@@ -24,13 +24,13 @@ export const RewardPointsTransactions: Story = {
 
 const MembershipForm = () => {
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <Form
         schema={rewardPointsTransactionsSchema as JSONSchema7}
         ignore={["id", "created_at", "updated_at"]}
         serverUrl={"http://localhost:8081"}
         order={[]}
       />
-    </ChakraProvider>
+    </Provider>
   );
 };

@@ -1,10 +1,9 @@
 // import React from 'react';
 import {
-  ChakraProvider,
-  Flex,
-  defaultSystem,
+  Flex
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import { Provider } from "@/components/ui/provider";
 
 import {
   DataTableServer,
@@ -134,7 +133,7 @@ const TablePinningShowcase = () => {
     }),
   ];
   return (
-    <ChakraProvider value={defaultSystem}>
+    <Provider>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <Flex gap="0.25rem">
           <TablePagination />
@@ -149,7 +148,7 @@ const TablePinningShowcase = () => {
           <TableFooter />
         </Table>
       </DataTableServer>
-    </ChakraProvider>
+    </Provider>
   );
 };
 

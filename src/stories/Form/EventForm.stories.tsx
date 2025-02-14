@@ -20,7 +20,7 @@ export default meta;
 export const Event: Story = {
   render: () => {
     return (
-      <ChakraProvider value={defaultSystem}>
+      <Provider>
         <Form
           schema={eventsSchema as JSONSchema7}
           order={[]}
@@ -28,7 +28,7 @@ export const Event: Story = {
           serverUrl={"http://localhost:8081"}
           preLoadedValues={{}}
         />
-      </ChakraProvider>
+      </Provider>
     );
   },
 };
@@ -36,7 +36,7 @@ export const Event: Story = {
 export const EventRow: Story = {
   render: () => {
     return (
-      <ChakraProvider value={defaultSystem}>
+      <Provider>
         <Form
           schema={eventsSchema as JSONSchema7}
           order={[
@@ -69,7 +69,7 @@ export const EventRow: Story = {
             fieldRequired: "必填項目",
           }}
         />
-      </ChakraProvider>
+      </Provider>
     );
   },
 };
