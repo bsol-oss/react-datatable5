@@ -1,8 +1,8 @@
 import { Form } from "@/components/Form/Form";
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { JSONSchema7 } from "json-schema";
 import { eventsSchema } from "../schema";
+import { Provider } from "@/components/ui/provider";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {

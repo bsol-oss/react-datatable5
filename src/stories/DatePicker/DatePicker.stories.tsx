@@ -1,6 +1,7 @@
 import DatePicker from "@/components/DatePicker/DatePicker";
 import { getMultiDates } from "@/components/DatePicker/getMultiDates";
-import { Button, ChakraProvider, defaultSystem } from "@chakra-ui/react";
+import { Provider } from "@/components/ui/provider";
+import { Button } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 
@@ -207,9 +208,6 @@ export const MinMax: Story = {
   },
 };
 
-
-
-
 export const MultipleMonths: Story = {
   render: () => {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
@@ -237,7 +235,7 @@ export const MultipleMonths: Story = {
               date: new Date("05/01/2018"),
               minDate: new Date("05/04/2018"),
               maxDate: new Date("09/27/2018"),
-              monthsToDisplay: 3
+              monthsToDisplay: 3,
             }}
           />
           <div style={{ paddingTop: 20, textAlign: "center" }}>
@@ -276,4 +274,3 @@ export const MultipleMonths: Story = {
     );
   },
 };
-

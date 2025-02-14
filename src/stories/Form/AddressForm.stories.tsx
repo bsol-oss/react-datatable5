@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { Form } from "@/components/Form/Form";
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
-import { addressSchema } from "../schema";
+import { Provider } from "@/components/ui/provider";
+import type { Meta, StoryObj } from "@storybook/react";
 import { JSONSchema7 } from "json-schema";
+import { addressSchema } from "../schema";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -39,9 +39,9 @@ const AddressForm = () => {
           "district",
         ]}
         ignore={["id", "created_at", "updated_at"]}
-        serverUrl={"http://localhost:8081"} 
+        serverUrl={"http://localhost:8081"}
         preLoadedValues={{
-          "street_number": "nice"
+          street_number: "nice",
         }}
       />
     </Provider>

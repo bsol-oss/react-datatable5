@@ -1,7 +1,8 @@
 import DatePicker from "@/components/DatePicker/DatePicker";
 import { getRangeDates } from "@/components/DatePicker/getRangeDates";
 import RangeDatePicker from "@/components/DatePicker/RangeDatePicker";
-import { Button, ChakraProvider, defaultSystem, Flex } from "@chakra-ui/react";
+import { Provider } from "@/components/ui/provider";
+import { Button, Flex } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 
@@ -27,7 +28,7 @@ export const MultipleMonths: Story = {
     const [showOutsideDays, setShowOutsideDays] = useState<boolean>(false);
     return (
       <Provider>
-        <Flex flexFlow={'column'}>
+        <Flex flexFlow={"column"}>
           <RangeDatePicker
             selected={selectedDates}
             onDateSelected={({ selected, selectable, date }) => {

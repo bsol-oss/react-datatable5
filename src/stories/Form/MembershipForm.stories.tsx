@@ -1,8 +1,9 @@
 import { Form } from "@/components/Form/Form";
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
-import { membershipSchema } from "../schema";
-import { JSONSchema7 } from "json-schema";
+import { Provider } from "@/components/ui/provider";
 import type { Meta, StoryObj } from "@storybook/react";
+import { JSONSchema7 } from "json-schema";
+import { membershipSchema } from "../schema";
+
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
   title: "react-datatable5/Form/Membership",
