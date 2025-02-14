@@ -81,7 +81,6 @@ const idPickerSanityCheck = (
   column_ref?: string,
   display_column?: string
 ) => {
-  console.log(!!in_table, "okgsd");
   if (!!in_table == false) {
     throw new Error(
       `The key in_table does not exist in properties of column ${column}.`
@@ -134,7 +133,7 @@ const FormInternal = <TData extends FieldValues>() => {
   const onSubmitSuccess = () => {
     setIsSuccess(true);
   };
-  const defaultOnSubmit = async (promise: Promise<any>) => {
+  const defaultOnSubmit = async (promise: Promise<unknown>) => {
     try {
       onBeforeSubmit();
       await promise;
