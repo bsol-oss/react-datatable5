@@ -40,7 +40,6 @@ export const EventsTags: Story = {
             fieldRequired: "必填項目",
           }}
           onSubmit={async (data) => {
-            console.log(data, "ogfdks");
             const newRecords = Object.values(data["tag_id"])
               .map(({ current }: any) => {
                 return current;

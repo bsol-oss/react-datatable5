@@ -41,6 +41,7 @@ import { BooleanPicker } from "./components/BooleanPicker";
 import { DatePicker } from "./components/DatePicker";
 import { ObjectInput } from "./components/ObjectInput";
 import { TagPicker } from "./components/TagPicker";
+import { FilePicker } from "./components/FilePicker";
 
 export interface DisplayTextProps {
   title?: string;
@@ -490,9 +491,6 @@ const FormInternal = <TData extends FieldValues>() => {
                   />
                 );
               }
-              if (variant === "tag-picker") {
-                return <TagPicker key={`form-${key}`} column={key} />;
-              }
               if (variant === "date-picker") {
                 return <DatePicker key={`form-${key}`} column={key} />;
               }
@@ -512,6 +510,12 @@ const FormInternal = <TData extends FieldValues>() => {
               );
             }
             if (type === "array") {
+              if (variant === "tag-picker") {
+                return <TagPicker key={`form-${key}`} column={key} />;
+              }
+              if (variant === "file-picker") {
+                return <FilePicker key={`form-${key}`} column={key} />;
+              }
               return <>{`array ${column}`}</>;
             }
             if (type === "null") {
