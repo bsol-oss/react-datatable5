@@ -1,6 +1,6 @@
 import { JSONSchema7 } from "json-schema";
 import { createContext } from "react";
-import { FieldValues, SubmitHandler } from "react-hook-form";
+import { FieldValues } from "react-hook-form";
 import { DisplayTextProps } from "./Form";
 
 export interface SchemaFormContext<TData extends FieldValues> {

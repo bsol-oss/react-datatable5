@@ -8,9 +8,8 @@ import { Column } from "@tanstack/react-table";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { FaGripLinesVertical } from "react-icons/fa6";
 import invariant from "tiny-invariant";
-import { Switch } from "../ui/switch";
-import { useDataTableContext } from "./context/useDataTableContext";
 import { CheckboxCard } from "../ui/checkbox-card";
+import { useDataTableContext } from "./context/useDataTableContext";
 interface ColumnCardProps {
   columnId: string;
 }
