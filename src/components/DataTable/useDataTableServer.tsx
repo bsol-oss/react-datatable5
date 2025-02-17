@@ -95,7 +95,7 @@ export const useDataTableServer = <TData,>({
   };
 
   const query = useQuery<DataResponse<TData>>({
-    queryKey: [url, params],
+    queryKey: [url, JSON.stringify(params)],
     queryFn: () => {
       return axios
         .get<DataResponse<TData>>(url, {

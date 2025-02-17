@@ -162,7 +162,6 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
 
 export const TableFilter = () => {
   const { table } = useDataTableContext();
-
   return (
     <>
       {table.getAllColumns().map((column) => {

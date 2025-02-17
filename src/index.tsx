@@ -88,7 +88,7 @@ export * from "./components/DataTable/TableCardContainer";
 export * from "./components/DataTable/TableCards";
 export * from "./components/DataTable/TableComponent";
 export * from "./components/DataTable/TableControls";
-export * from "./components/DataTable/TableFilter";
+export * from "./components/DataTable/TableFilters";
 export * from "./components/DataTable/TableFilterTags";
 export * from "./components/DataTable/TableFooter";
 export * from "./components/DataTable/TableHeader";

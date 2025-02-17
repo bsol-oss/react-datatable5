@@ -12,7 +12,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { JSONSchema7 } from "json-schema";
 import { peopleSchema } from "../schema";
 
-
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
   title: "react-datatable5/DataTableServer/getColumns",
@@ -69,6 +68,7 @@ const AddressApp = () => {
       >
         <DefaultTable
           controlProps={{
+            showGlobalFilter: true,
             showFilter: true,
             fitTableWidth: true,
             fitTableHeight: true,
