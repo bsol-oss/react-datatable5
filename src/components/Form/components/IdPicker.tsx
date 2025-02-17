@@ -23,6 +23,7 @@ export interface IdPickerProps {
   in_table: string;
   column_ref: string;
   display_column: string;
+  isMultiple?: boolean;
 }
 
 export const IdPicker = ({
@@ -30,8 +31,10 @@ export const IdPicker = ({
   in_table,
   column_ref,
   display_column,
+  isMultiple = false,
 }: IdPickerProps) => {
   const {
+    watch,
     formState: { errors },
     setValue,
   } = useFormContext();
@@ -45,7 +48,7 @@ export const IdPicker = ({
   const { gridColumn, gridRow, title } = schema.properties[
     column
   ] as CustomJSONSchema7;
-  const [selectedId, setSelectedId] = useState();
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
@@ -97,14 +100,14 @@ export const IdPicker = ({
     );
   };
 
-  const getSelectedName = () => {
-    const selectedItem = getIdMap(dataList)[selectedId ?? ""];
+  const getSelectedName = (id: string) => {
+    const selectedItem = getIdMap(dataList)[id];
     if (selectedItem == undefined) {
       return "";
     }
     return selectedItem[display_column];
   };
-  if (selectedId != undefined) {
+  if (selectedIds.length >= 1 && isMultiple === false) {
     return (
       <Field
         label={`${title ?? snakeToLabel(column)}`}
@@ -117,11 +120,11 @@ export const IdPicker = ({
         <Tag
           closable
           onClick={() => {
-            setSelectedId(undefined);
+            setSelectedIds([]);
             setValue(column, "");
           }}
         >
-          {getSelectedName()}
+          {getSelectedName(selectedIds[0])}
         </Tag>
       </Field>
     );
@@ -136,6 +139,19 @@ export const IdPicker = ({
         gridRow,
       }}
     >
+      {selectedIds.map((id) => {
+        return (
+          <Tag
+            closable
+            onClick={() => {
+              setSelectedIds([]);
+              setValue(column, "");
+            }}
+          >
+            {getSelectedName(id)}
+          </Tag>
+        );
+      })}
       <Input
         placeholder="Type to search"
         onChange={(event) => {
@@ -151,6 +167,7 @@ export const IdPicker = ({
         onOpenChange={(e) => setOpenSearchResult(e.open)}
         closeOnInteractOutside
         initialFocusEl={() => ref.current}
+        positioning={{ placement: "bottom-start" }}
       >
         <PopoverTrigger />
         <PopoverContent>
@@ -183,8 +200,9 @@ export const IdPicker = ({
                     key={item.key}
                     value={item.value}
                     onClick={() => {
-                      setSelectedId(item.key);
-                      setValue(column, item.key);
+                      const ids = watch(column);
+                      setSelectedIds((state) => [...state, item.key]);
+                      setValue(column, [...(ids ?? []), item.key]);
                       setOpenSearchResult(false);
                     }}
                     indicator={false}

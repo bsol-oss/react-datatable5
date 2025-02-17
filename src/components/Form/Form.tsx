@@ -538,6 +538,24 @@ const FormInternal = <TData extends FieldValues>() => {
               );
             }
             if (type === "array") {
+              if (variant === "id-picker") {
+                idPickerSanityCheck(
+                  column,
+                  in_table,
+                  column_ref,
+                  display_column
+                );
+                return (
+                  <IdPicker
+                    key={`form-${key}`}
+                    column={key}
+                    in_table={in_table}
+                    column_ref={column_ref}
+                    display_column={display_column}
+                    isMultiple
+                  />
+                );
+              }
               if (variant === "tag-picker") {
                 return <TagPicker key={`form-${key}`} column={key} />;
               }

@@ -663,3 +663,48 @@ export const eventsFilesSchema = {
   description: "Missing description",
   additionalProperties: false,
 };
+
+
+export const eventsFilesSchema2 = {
+  $id: "http://api.localhost.com/schema/public/events_files.json",
+  type: "object",
+  title: "events_files",
+  $schema: "http://json-schema.org/draft-07/schema#",
+  example: {
+    file_id: "4f56b583-9e16-f49a-bbc3-3fdcefd3e68e",
+    event_id: "8df9c8c1-7572-6f33-abfb-cfe0cca4c659",
+    extra_info: {
+      aute__e_: true,
+      mollit_0e: true,
+    },
+  },
+  required: ["event_id", "file_id"],
+  properties: {
+    file_id: {
+      type: "array",
+      format: "uuid",
+      variant: "id-picker",
+      in_table: "core_files",
+      column_ref: "id",
+      display_column: "name",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+      gridColumn: "1/span 8",
+      gridRow: "2/span 8",
+    },
+    event_id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: null",
+      variant: "id-picker",
+      in_table: "core_events",
+      column_ref: "id",
+      display_column: "event_name",
+      gridColumn: "1/span 6",
+      gridRow: "1/span 1",
+    },
+  },
+  description: "Missing description",
+  additionalProperties: false,
+};
