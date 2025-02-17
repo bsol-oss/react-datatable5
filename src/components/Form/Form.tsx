@@ -287,18 +287,7 @@ const FormInternal = <TData extends FieldValues>() => {
                   />
                 );
               }
-              if (variant === "tag-picker") {
-                const value = (validatedData ?? {})[column];
-                return (
-                  <DataListItem
-                    gridColumn={gridColumn ?? "span 4"}
-                    gridRow={gridRow ?? "span 1"}
-                    key={`form-${key}`}
-                    label={`${snakeToLabel(column)}`}
-                    {...getDataListProps(JSON.stringify(value))}
-                  />
-                );
-              }
+
               if (variant === "date-picker") {
                 const value = (validatedData ?? {})[column];
                 if (!!value === false) {
@@ -397,6 +386,18 @@ const FormInternal = <TData extends FieldValues>() => {
               );
             }
             if (type === "array") {
+              if (variant === "tag-picker") {
+                const value = (validatedData ?? {})[column];
+                return (
+                  <DataListItem
+                    gridColumn={gridColumn ?? "span 4"}
+                    gridRow={gridRow ?? "span 1"}
+                    key={`form-${key}`}
+                    label={`${snakeToLabel(column)}`}
+                    {...getDataListProps(JSON.stringify(value))}
+                  />
+                );
+              }
               if (variant === "file-picker") {
                 const fileNames = (
                   ((validatedData ?? {})[column] ?? []) as File[]
