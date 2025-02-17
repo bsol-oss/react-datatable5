@@ -1,10 +1,5 @@
 import { Provider } from "@/components/ui/provider";
-import {
-  Box,
-  Button,
-  Flex,
-  Text
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import {
   DataTableServer,
@@ -28,7 +23,6 @@ import {
   TextCell,
   useDataTableServer,
 } from "../../index";
-
 
 interface ChatRecord {
   session_id: string;
@@ -155,7 +149,11 @@ const TableViewShowcase = () => {
 
   return (
     <Provider>
-      <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
+      <DataTableServer<ChatRecord>
+        url={"http://localhost:8081"}
+        columns={columns}
+        {...dataTable}
+      >
         <Flex flexFlow={"wrap"}>
           <TablePagination />
           <EditViewButton text={"View"} />

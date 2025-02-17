@@ -43,7 +43,7 @@ export interface DataTableServerProps<TData> {
   url: string;
 }
 
-export const DataTableServer = <TData,>({
+export function DataTableServer<TData = unknown>({
   columns,
   enableRowSelection = true,
   enableMultiRowSelection = true,
@@ -67,7 +67,7 @@ export const DataTableServer = <TData,>({
   query,
   children,
   url,
-}: DataTableServerProps<TData>) => {
+}: DataTableServerProps<TData>) {
   const table = useReactTable<TData>({
     _features: [DensityFeature],
     data: query.data?.data ?? [],
@@ -130,4 +130,4 @@ export const DataTableServer = <TData,>({
       </DataTableServerContext.Provider>
     </DataTableContext.Provider>
   );
-};
+}

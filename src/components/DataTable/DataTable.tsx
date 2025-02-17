@@ -70,7 +70,7 @@ export interface DataTableProps<TData> {
   setColumnVisibility: OnChangeFn<VisibilityState>;
 }
 
-export const DataTable = <TData,>({
+export function DataTable<TData = unknown>({
   columns,
   data,
   enableRowSelection = true,
@@ -93,7 +93,7 @@ export const DataTable = <TData,>({
   setDensity,
   setColumnVisibility,
   children,
-}: DataTableProps<TData>) => {
+}: DataTableProps<TData>) {
   const table = useReactTable<TData>({
     _features: [DensityFeature],
     data: data,
@@ -147,10 +147,10 @@ export const DataTable = <TData,>({
         table: { ...table },
         globalFilter: globalFilter,
         setGlobalFilter: setGlobalFilter,
-        type: 'client'
+        type: "client",
       }}
     >
       {children}
     </DataTableContext.Provider>
   );
-};
+}
