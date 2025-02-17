@@ -397,7 +397,34 @@ const FormInternal = <TData extends FieldValues>() => {
               );
             }
             if (type === "array") {
-              return <>{`array ${column}`}</>;
+              if (variant === "file-picker") {
+                const fileNames = (
+                  ((validatedData ?? {})[column] ?? []) as File[]
+                ).map((file) => {
+                  return file.name;
+                });
+                return (
+                  <DataListItem
+                    gridColumn={gridColumn ?? "span 4"}
+                    gridRow={gridRow ?? "span 4"}
+                    key={`form-${key}`}
+                    label={`${snakeToLabel(column)}`}
+                    {...getDataListProps(JSON.stringify(fileNames))}
+                  />
+                );
+              }
+              const objectString = JSON.stringify(
+                (validatedData ?? {})[column]
+              );
+              return (
+                <DataListItem
+                  gridColumn={gridColumn ?? "span 4"}
+                  gridRow={gridRow ?? "span 4"}
+                  key={`form-${key}`}
+                  label={`${snakeToLabel(column)}`}
+                  {...getDataListProps(objectString)}
+                />
+              );
             }
             if (type === "null") {
               return <>{`null ${column}`}</>;
