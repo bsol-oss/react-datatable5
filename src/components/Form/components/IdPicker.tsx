@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tag } from "@/components/ui/tag";
-import { Box, Grid, Input, Text } from "@chakra-ui/react";
+import { Box, Flex, Grid, Input, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -51,7 +51,9 @@ export const IdPicker = ({
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
-  const [idMap, setIdMap] = useState<object>({});
+  const [idMap, setIdMap] = useState<Record<string, Record<string, string>>>(
+    {}
+  );
   const ref = useRef<HTMLInputElement>(null);
   const query = useQuery({
     queryKey: [`idpicker`, searchText, in_table, limit],
@@ -75,9 +77,9 @@ export const IdPicker = ({
     setSearchText(event.target.value);
     setLimit(10);
   };
-
+  const ids = (watch(column) ?? []) as string[];
   const newIdMap = Object.fromEntries(
-    dataList.map((item) => {
+    dataList.map((item: Record<string, string>) => {
       return [
         item[column_ref],
         {
@@ -123,34 +125,53 @@ export const IdPicker = ({
         gridRow,
       }}
     >
-      {selectedIds.map((id) => {
-        const item = idMap[id];
-        if (item === undefined) {
-          return <>undefined</>;
-        }
-        return (
+      <Flex flexFlow={"wrap"} gap={1}>
+        {selectedIds.map((id) => {
+          const item = idMap[id];
+          if (item === undefined) {
+            return <>undefined</>;
+          }
+          return (
+            <Tag
+              closable
+              onClick={() => {
+                setSelectedIds((state) =>
+                  state.filter((id) => id != item[column_ref])
+                );
+                setValue(
+                  column,
+                  ids.filter((id: string) => id != item[column_ref])
+                );
+              }}
+            >
+              {!!renderDisplay === true
+                ? renderDisplay(item)
+                : item[display_column]}
+            </Tag>
+          );
+        })}
+        {isMultiple && (
           <Tag
-            closable
+            cursor={"pointer"}
             onClick={() => {
-              setSelectedIds([]);
-              setValue(column, "");
+              setOpenSearchResult(true);
             }}
           >
-            {!!renderDisplay === true
-              ? renderDisplay(item)
-              : item[display_column]}
+            Add
           </Tag>
-        );
-      })}
-      <Input
-        placeholder="Type to search"
-        onChange={(event) => {
-          onSearchChange(event);
-          setOpenSearchResult(true);
-        }}
-        autoComplete="off"
-        ref={ref}
-      />
+        )}
+        {!isMultiple && (
+          <Input
+            placeholder="Type to search"
+            onChange={(event) => {
+              onSearchChange(event);
+              setOpenSearchResult(true);
+            }}
+            autoComplete="off"
+            ref={ref}
+          />
+        )}
+      </Flex>
 
       <PopoverRoot
         open={openSearchResult}
@@ -162,6 +183,15 @@ export const IdPicker = ({
         <PopoverTrigger />
         <PopoverContent>
           <PopoverBody>
+            <Input
+              placeholder="Type to search"
+              onChange={(event) => {
+                onSearchChange(event);
+                setOpenSearchResult(true);
+              }}
+              autoComplete="off"
+              ref={ref}
+            />
             <PopoverTitle />
             <Grid
               gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
@@ -180,23 +210,35 @@ export const IdPicker = ({
               >
                 close
               </Button>
-              {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                dataList.map((item: Record<string, any>) => (
-                  <Box
-                    onClick={() => {
-                      const ids = watch(column);
-                      setSelectedIds((state) => [...state, item[column_ref]]);
-                      setValue(column, [...(ids ?? []), item[column_ref]]);
-                      setOpenSearchResult(false);
-                    }}
-                  >
-                    {!!renderDisplay === true
-                      ? renderDisplay(item)
-                      : item[display_column]}
-                  </Box>
-                ))
-              }
+              <Flex flexFlow={"column wrap"}>
+                {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  dataList.map((item: Record<string, any>) => {
+                    const selected = ids.some((id) => item[column_ref] === id);
+                    return (
+                      <Box
+                        cursor={"pointer"}
+                        onClick={() => {
+                          const newSet = new Set([
+                            ...(ids ?? []),
+                            item[column_ref],
+                          ]);
+                          setSelectedIds(() => [...newSet]);
+                          setValue(column, [...newSet]);
+                          if (!isMultiple) {
+                            setOpenSearchResult(false);
+                          }
+                        }}
+                        {...(selected ? { color: "gray.400/50" } : {})}
+                      >
+                        {!!renderDisplay === true
+                          ? renderDisplay(item)
+                          : item[display_column]}
+                      </Box>
+                    );
+                  })
+                }
+              </Flex>
               {isDirty && (
                 <>
                   {dataList.length <= 0 && <>Empty Search Result</>}{" "}
