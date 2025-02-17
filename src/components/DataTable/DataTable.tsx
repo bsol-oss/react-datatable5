@@ -14,7 +14,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 
 import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
 import { DensityFeature, DensityState } from "../Controls/DensityFeature";
@@ -76,7 +76,6 @@ export const DataTable = <TData,>({
   enableRowSelection = true,
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
-  onRowSelect = () => {},
   columnOrder,
   columnFilters,
   columnVisibility,
@@ -141,14 +140,6 @@ export const DataTable = <TData,>({
     onDensityChange: setDensity,
     onColumnVisibilityChange: setColumnVisibility,
   });
-
-  useEffect(() => {
-    setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
-  }, [table, setColumnOrder]);
-
-  useEffect(() => {
-    onRowSelect(table.getState().rowSelection, data);
-  }, [data, onRowSelect, table]);
 
   return (
     <DataTableContext.Provider

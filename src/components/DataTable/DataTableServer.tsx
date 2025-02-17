@@ -23,7 +23,6 @@ export interface DataTableServerProps<TData> {
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
-  onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
   columnOrder: ColumnOrderState;
   columnFilters: ColumnFiltersState;
   globalFilter: string;
@@ -49,7 +48,6 @@ export const DataTableServer = <TData,>({
   enableRowSelection = true,
   enableMultiRowSelection = true,
   enableSubRowSelection = true,
-  onRowSelect = () => {},
   columnOrder,
   columnFilters,
   columnVisibility,
