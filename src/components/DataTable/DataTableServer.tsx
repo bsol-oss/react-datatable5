@@ -122,6 +122,7 @@ export const DataTableServer = <TData,>({
         table: { ...table },
         globalFilter,
         setGlobalFilter,
+        type: "server",
       }}
     >
       <DataTableServerContext.Provider value={{ url }}>

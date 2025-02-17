@@ -147,6 +147,7 @@ export const DataTable = <TData,>({
         table: { ...table },
         globalFilter: globalFilter,
         setGlobalFilter: setGlobalFilter,
+        type: 'client'
       }}
     >
       {children}
