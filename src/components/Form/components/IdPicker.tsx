@@ -6,16 +6,15 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { RadioCardItem, RadioCardRoot } from "@/components/ui/radio-card";
 import { Tag } from "@/components/ui/tag";
-import { Input, Text } from "@chakra-ui/react";
-import { ChangeEvent, useRef, useState } from "react";
+import { Box, Grid, Input, Text } from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
-import { useQuery } from "@tanstack/react-query";
-import { snakeToLabel } from "../utils/snakeToLabel";
 import { getTableData } from "../utils/getTableData";
+import { snakeToLabel } from "../utils/snakeToLabel";
 import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface IdPickerProps {
@@ -45,13 +44,14 @@ export const IdPicker = ({
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
-  const { gridColumn, gridRow, title } = schema.properties[
+  const { gridColumn, gridRow, title, renderDisplay } = schema.properties[
     column
   ] as CustomJSONSchema7;
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
+  const [idMap, setIdMap] = useState<object>({});
   const ref = useRef<HTMLInputElement>(null);
   const query = useQuery({
     queryKey: [`idpicker`, searchText, in_table, limit],
@@ -75,57 +75,41 @@ export const IdPicker = ({
     setSearchText(event.target.value);
     setLimit(10);
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getItemList = (data: any[]) => {
-    return data.map((item) => {
-      return {
-        label: item[display_column],
-        key: item[column_ref],
-        value: item[column_ref],
-      };
+
+  const newIdMap = Object.fromEntries(
+    dataList.map((item) => {
+      return [
+        item[column_ref],
+        {
+          ...item,
+        },
+      ];
+    })
+  );
+
+  useEffect(() => {
+    setIdMap((state) => {
+      return { ...state, ...newIdMap };
     });
-  };
+  }, [newIdMap]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getIdMap = (data: any[]) => {
-    return Object.fromEntries(
-      data.map((item) => {
-        return [
-          item[column_ref],
-          {
-            ...item,
-          },
-        ];
-      })
-    );
-  };
-
-  const getSelectedName = (id: string) => {
-    const selectedItem = getIdMap(dataList)[id];
-    if (selectedItem == undefined) {
-      return "";
-    }
-    return selectedItem[display_column];
-  };
   if (selectedIds.length >= 1 && isMultiple === false) {
+    const item = idMap[selectedIds[0]];
     return (
       <Field
         label={`${title ?? snakeToLabel(column)}`}
         required={isRequired}
+        cursor={"pointer"}
+        onClick={() => {
+          setSelectedIds([]);
+          setValue(column, "");
+        }}
         {...{
           gridColumn,
           gridRow,
         }}
       >
-        <Tag
-          closable
-          onClick={() => {
-            setSelectedIds([]);
-            setValue(column, "");
-          }}
-        >
-          {getSelectedName(selectedIds[0])}
-        </Tag>
+        {!!renderDisplay === true ? renderDisplay(item) : item[display_column]}
       </Field>
     );
   }
@@ -140,6 +124,10 @@ export const IdPicker = ({
       }}
     >
       {selectedIds.map((id) => {
+        const item = idMap[id];
+        if (item === undefined) {
+          return <>undefined</>;
+        }
         return (
           <Tag
             closable
@@ -148,7 +136,9 @@ export const IdPicker = ({
               setValue(column, "");
             }}
           >
-            {getSelectedName(id)}
+            {!!renderDisplay === true
+              ? renderDisplay(item)
+              : item[display_column]}
           </Tag>
         );
       })}
@@ -173,8 +163,7 @@ export const IdPicker = ({
         <PopoverContent>
           <PopoverBody>
             <PopoverTitle />
-            <RadioCardRoot
-              display={"grid"}
+            <Grid
               gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
               overflow={"auto"}
               maxHeight={"50vh"}
@@ -193,20 +182,19 @@ export const IdPicker = ({
               </Button>
               {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                getItemList(dataList).map((item: any) => (
-                  <RadioCardItem
-                    label={item.label}
-                    description={item.description}
-                    key={item.key}
-                    value={item.value}
+                dataList.map((item: Record<string, any>) => (
+                  <Box
                     onClick={() => {
                       const ids = watch(column);
-                      setSelectedIds((state) => [...state, item.key]);
-                      setValue(column, [...(ids ?? []), item.key]);
+                      setSelectedIds((state) => [...state, item[column_ref]]);
+                      setValue(column, [...(ids ?? []), item[column_ref]]);
                       setOpenSearchResult(false);
                     }}
-                    indicator={false}
-                  />
+                  >
+                    {!!renderDisplay === true
+                      ? renderDisplay(item)
+                      : item[display_column]}
+                  </Box>
                 ))
               }
               {isDirty && (
@@ -231,7 +219,7 @@ export const IdPicker = ({
                   )}
                 </>
               )}
-            </RadioCardRoot>
+            </Grid>
           </PopoverBody>
         </PopoverContent>
       </PopoverRoot>

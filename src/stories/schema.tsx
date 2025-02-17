@@ -687,6 +687,9 @@ export const eventsFilesSchema2 = {
       in_table: "core_files",
       column_ref: "id",
       display_column: "name",
+      renderDisplay: (item)=>{
+        return `${item['name']} ${item['version']}`
+      },
       description:
         "Missing description. Database type: uuid. Default value: null",
       gridColumn: "1/span 8",
