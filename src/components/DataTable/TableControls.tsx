@@ -17,11 +17,12 @@ import {
 
 export interface TableControlsProps {
   totalText?: string;
-  showFilter?: boolean;
   fitTableWidth?: boolean;
   fitTableHeight?: boolean;
   isMobile?: boolean;
   children?: ReactNode;
+  showGlobalFilter?: boolean;
+  showFilter?: boolean;
   showFilterName?: boolean;
   showFilterTags?: boolean;
   showReload?: boolean;
@@ -33,11 +34,12 @@ export interface TableControlsProps {
 
 export const TableControls = ({
   totalText = "Total:",
-  showFilter = false,
   fitTableWidth = false,
   fitTableHeight = false,
   isMobile = false,
   children = <></>,
+  showGlobalFilter = false,
+  showFilter = false,
   showFilterName = false,
   showFilterTags = false,
   showReload = false,
@@ -70,9 +72,9 @@ export const TableControls = ({
                 <Icon as={BsExclamationCircleFill} color={"red.400"} />
               </Tooltip>
             )}
+            {showGlobalFilter && <GlobalFilter />}
             {showFilter && (
               <>
-                <GlobalFilter />
                 <EditFilterButton
                   text={isMobile ? undefined : "Advanced Filter"}
                 />
