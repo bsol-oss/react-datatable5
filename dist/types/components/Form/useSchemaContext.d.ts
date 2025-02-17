@@ -3,7 +3,7 @@ export declare const useSchemaContext: () => {
     serverUrl: string;
     order: string[];
     ignore: string[];
-    onSubmit: import("react-hook-form").SubmitHandler<unknown> | undefined;
+    onSubmit: ((data: unknown) => Promise<void>) | undefined;
     preLoadedValues: object;
     rowNumber: string | number | undefined;
     displayText: import("./Form").DisplayTextProps;

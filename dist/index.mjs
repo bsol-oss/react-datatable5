@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, useDisclosure, Box, Flex, DialogBackdrop, Menu, Text, createRecipeContext, createContext as createContext$1, Pagination, usePaginationContext, HStack, Tag as Tag$1, Grid, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$1, VStack, List, Input, Slider as Slider$1, For, RadioGroup as RadioGroup$1, CheckboxCard as CheckboxCard$1, Group, InputElement, Popover, RadioCard, Field as Field$1, NumberInput, Accordion, Show, Heading, Alert, Center } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, useDisclosure, Box, Flex, DialogBackdrop, Menu, Text, createRecipeContext, createContext as createContext$1, Pagination, usePaginationContext, HStack, Tag as Tag$1, Grid, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$1, VStack, List, RadioGroup as RadioGroup$1, Slider as Slider$1, For, Input, CheckboxCard as CheckboxCard$1, Group, InputElement, Popover, RadioCard, Field as Field$1, NumberInput, Accordion, Show, CheckboxGroup, Heading, Alert, Center } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useEffect, useState, useRef } from 'react';
@@ -15,6 +15,7 @@ import { GrAscend, GrDescend } from 'react-icons/gr';
 import { useQueryClient, useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { IoReload } from 'react-icons/io5';
 import { HiColorSwatch, HiOutlineInformationCircle } from 'react-icons/hi';
+import Dayzed from '@bsol-oss/dayzed-react19';
 import { FaUpDown, FaGripLinesVertical } from 'react-icons/fa6';
 import { CgClose } from 'react-icons/cg';
 import { monitorForElements, draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
@@ -22,7 +23,9 @@ import invariant from 'tiny-invariant';
 import axios from 'axios';
 import { useFormContext, useForm, FormProvider } from 'react-hook-form';
 import dayjs from 'dayjs';
-import Dayzed from '@bsol-oss/dayzed-react19';
+import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/external/adapter';
+import { getFiles } from '@atlaskit/pragmatic-drag-and-drop/external/file';
+import { getText } from '@atlaskit/pragmatic-drag-and-drop/external/text';
 
 const DataTableContext = createContext({
     table: {},
@@ -149,7 +152,7 @@ const ResetSortingButton = ({ text = "Reset Sorting", }) => {
 
 const RowCountText = () => {
     const { table } = useDataTableContext();
-    return jsx(Text, { children: table.getRowCount() });
+    return jsx(Text, { children: table.getFilteredRowModel().flatRows.length ?? 0 });
 };
 
 const { withContext } = createRecipeContext({ key: "button" });
@@ -219,7 +222,7 @@ React.forwardRef(function PaginationPageText(props, ref) {
 // TODO: not working in client side
 const TablePagination = () => {
     const { table } = useDataTableContext();
-    return (jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: table.getRowCount(), pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
+    return (jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: table.getFilteredRowModel().flatRows.length ?? 0, pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
             table.setPageIndex(e.page - 1);
         }, children: jsxs(HStack, { children: [jsx(PaginationPrevTrigger, {}), jsx(PaginationItems, {}), jsx(PaginationNextTrigger, {})] }) }));
 };
@@ -264,20 +267,20 @@ const DataDisplay = ({ variant = "" }) => {
     if (variant == "horizontal") {
         return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", children: row.getVisibleCells().map((cell) => {
-                                return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { children: `${formatValue(cell.getValue())}` })] }, cell.id));
+                                return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                             }) }) }) }, `chakra-table-card-${row.id}`));
             }) }));
     }
     if (variant == "stats") {
         return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "flex", flexFlow: "row", variant: "subtle", overflow: "auto", children: row.getVisibleCells().map((cell) => {
-                                return (jsxs(DataList.Item, { display: "flex", justifyContent: "center", alignItems: "center", flex: "1 0 10rem", children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { children: `${formatValue(cell.getValue())}` })] }, cell.id));
+                                return (jsxs(DataList.Item, { display: "flex", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                             }) }) }) }, `chakra-table-card-${row.id}`));
             }) }));
     }
     return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
             return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", children: row.getVisibleCells().map((cell) => {
-                            return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { children: `${formatValue(cell.getValue())}` })] }, cell.id));
+                            return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                         }) }) }) }, `chakra-table-card-${row.id}`));
         }) }));
 };
@@ -430,7 +433,7 @@ const DataTableServerContext = createContext({
     url: "",
 });
 
-const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url }) => {
+const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }) => {
     const table = useReactTable({
         _features: [DensityFeature],
         data: query.data?.data ?? [],
@@ -490,7 +493,7 @@ const Checkbox = React.forwardRef(function Checkbox(props, ref) {
     return (jsxs(Checkbox$1.Root, { ref: rootRef, ...rest, children: [jsx(Checkbox$1.HiddenInput, { ref: ref, ...inputProps }), jsx(Checkbox$1.Control, { children: icon || jsx(Checkbox$1.Indicator, {}) }), children != null && (jsx(Checkbox$1.Label, { children: children }))] }));
 });
 
-const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
+const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, canResize = true, }) => {
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredRow, setHoveredRow] = useState(-1);
@@ -513,12 +516,25 @@ const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, sho
             : {};
         return tdProps;
     };
+    const getTrProps = ({ hoveredRow, index, }) => {
+        if (hoveredRow === -1) {
+            return {};
+        }
+        if (hoveredRow === index) {
+            return {
+                opacity: "1",
+            };
+        }
+        return {
+            opacity: "0.8",
+        };
+    };
     return (jsx(Table$1.Body, { children: table.getRowModel().rows.map((row, index) => {
-            return (jsxs(Table$1.Row, { display: "flex", _hover: { backgroundColor: "rgba(178,178,178,0.1)" }, zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), children: [showSelector && (jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow, alwaysShowSelector: alwaysShowSelector })), row.getVisibleCells().map((cell, index) => {
+            return (jsxs(Table$1.Row, { display: "flex", zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index }), children: [showSelector && (jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow, alwaysShowSelector: alwaysShowSelector })), row.getVisibleCells().map((cell, index) => {
                         return (jsx(Table$1.Cell, { padding: `${table.getDensityValue()}px`, 
                             // styling resize and pinning start
-                            maxWidth: `${cell.column.getSize()}px`, width: `${cell.column.getSize()}px`, backgroundColor: "white", ...getTdProps(cell), _dark: {
-                                backgroundColor: "gray.950"
+                            flex: `${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`, backgroundColor: "white", ...getTdProps(cell), _dark: {
+                                backgroundColor: "gray.950",
                             }, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
                     })] }, `chakra-table-row-${row.id}`));
         }) }));
@@ -550,7 +566,6 @@ const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gr
         // styling resize and pinning end
         display: "grid", children: [!isCheckBoxVisible(index, row) && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` })), isCheckBoxVisible(index, row) && (jsx(Box, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: row.getIsSelected(),
                     disabled: !row.getCanSelect(),
-                    // indeterminate: row.getIsSomeSelected(),
                     onChange: row.getToggleSelectedHandler() }) }))] }));
 };
 
@@ -629,7 +644,7 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
                                                     jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(BiUpArrow, {})), header.column.getIsSorted() === "desc" && (jsx(BiDownArrow, {}))] })) })] }) }) }) }) }, `chakra-table-footer-${header.column.id}-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
 };
 
-const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, isSticky = true, alwaysShowSelector = true, tHeadProps = {}, }) => {
+const TableHeader = ({ canResize = true, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, isSticky = true, alwaysShowSelector = true, tHeadProps = {}, }) => {
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
@@ -690,7 +705,12 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                     };
                     return (jsxs(Table$1.ColumnHeader, { padding: 0, columnSpan: `${header.colSpan}`, 
                         // styling resize and pinning start
-                        width: `${header.getSize()}px`, display: "grid", gridTemplateColumns: "1fr auto", zIndex: header.index, ...getThProps(header), children: [jsxs(MenuRoot, { children: [jsx(MenuTrigger, { asChild: true, children: jsx(Grid, { padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: "auto", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                        flex: `${canResize ? "0" : "1"} 0 ${header.column.getSize()}px`, display: "grid", gridTemplateColumns: "1fr auto", zIndex: header.index, ...getThProps(header), children: [jsxs(MenuRoot, { children: [jsx(MenuTrigger, { asChild: true, children: jsx(Flex, { padding: `${table.getDensityValue()}px`, alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: "auto", _hover: {
+                                                backgroundColor: "gray.100",
+                                                _dark: {
+                                                    backgroundColor: "gray.700",
+                                                },
+                                            }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                                         ? null
                                                         : flexRender(header.column.columnDef.header, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && jsx(Fragment, {}), header.column.getIsSorted() === "asc" && (jsx(BiUpArrow, {})), header.column.getIsSorted() === "desc" && (jsx(BiDownArrow, {}))] })) }), jsx(Box, { children: header.column.getIsFiltered() && jsx(MdFilterListAlt, {}) })] }) }) }), jsxs(MenuContent, { children: [!header.column.getIsPinned() && (jsx(MenuItem, { asChild: true, value: "pin-column", children: jsxs(Button, { variant: "ghost", onClick: () => {
                                                         header.column.pin("left");
@@ -724,8 +744,11 @@ const TableHeader = ({ canResize, pinnedBgColor = { light: "gray.50", dark: "gra
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const DefaultTable = ({ showFooter = false, showSelector = false, tableProps = {}, tHeadProps = {}, controlProps = {}, }) => {
-    return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { ...tableProps, children: [jsx(TableHeader, { canResize: true, showSelector: showSelector, tHeadProps: tHeadProps }), jsx(TableBody, { showSelector: showSelector }), showFooter && jsx(TableFooter, { showSelector: showSelector })] }) }));
+const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, controlProps = {}, tableFooterProps = {}, variant = "", }) => {
+    if (variant === "greedy") {
+        return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { canResize: false, ...tableProps, children: [jsx(TableHeader, { canResize: false, ...tableHeaderProps }), jsx(TableBody, { canResize: false, ...tableBodyProps }), showFooter && (jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
+    }
+    return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { ...tableProps, children: [jsx(TableHeader, { ...tableHeaderProps }), jsx(TableBody, { ...tableBodyProps }), showFooter && jsx(TableFooter, { ...tableFooterProps })] }) }));
 };
 
 const useDataTableServerContext = () => {
@@ -751,12 +774,12 @@ const EmptyState = React.forwardRef(function EmptyState(props, ref) {
 });
 
 const EmptyResult = (jsx(EmptyState, { icon: jsx(HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxs(List.Root, { variant: "marker", children: [jsx(List.Item, { children: "Try removing filters" }), jsx(List.Item, { children: "Try different keywords" })] }) }));
-const Table = ({ children, emptyComponent = EmptyResult, ...props }) => {
+const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
     const { table } = useDataTableContext();
     if (table.getRowModel().rows.length <= 0) {
         return emptyComponent;
     }
-    return (jsx(Table$1.Root, { stickyHeader: true, variant: "outline", width: table.getCenterTotalSize(), ...props, children: children }));
+    return (jsx(Table$1.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, ...props, children: children }));
 };
 
 const TableCardContainer = ({ children, variant = "", ...props }) => {
@@ -791,9 +814,143 @@ const TableComponent = ({ render = () => {
     return render(table);
 };
 
-const DateRangeFilter = ({ startDate, endDate, setStartDate, setEndDate, }) => {
-    console.log(startDate, endDate, "dflp");
-    return (jsx(Box, { p: "1rem", children: jsxs(VStack, { children: [jsxs(Box, { children: [jsx(Box, { children: "Start Date" }), jsx(Input, { id: "start-date", type: "date", value: startDate, onChange: (e) => setStartDate(e.target.value) })] }), jsxs(Box, { children: [jsx(Box, { children: "End Date" }), jsx(Input, { id: "end-date", type: "date", value: endDate, onChange: (e) => setEndDate(e.target.value) })] })] }) }));
+const Radio = React.forwardRef(function Radio(props, ref) {
+    const { children, inputProps, rootRef, ...rest } = props;
+    return (jsxs(RadioGroup$1.Item, { ref: rootRef, ...rest, children: [jsx(RadioGroup$1.ItemHiddenInput, { ref: ref, ...inputProps }), jsx(RadioGroup$1.ItemIndicator, {}), children && (jsx(RadioGroup$1.ItemText, { children: children }))] }));
+});
+const RadioGroup = RadioGroup$1.Root;
+
+const monthNamesFull = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+];
+const weekdayNamesShort$1 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, selected = [], firstDayOfWeek = 0, }) {
+    const [hoveredDate, setHoveredDate] = useState();
+    const onMouseLeave = () => {
+        setHoveredDate(undefined);
+    };
+    const onMouseEnter = (date) => {
+        setHoveredDate(date);
+    };
+    const isInRange = (date) => {
+        if (selected.length) {
+            const firstSelected = selected[0].getTime();
+            if (selected.length === 2) {
+                const secondSelected = selected[1].getTime();
+                return (firstSelected < date.getTime() && secondSelected > date.getTime());
+            }
+            else {
+                return !!(hoveredDate &&
+                    ((firstSelected < date.getTime() &&
+                        hoveredDate.getTime() >= date.getTime()) ||
+                        (date.getTime() < firstSelected &&
+                            date.getTime() >= hoveredDate.getTime())));
+            }
+        }
+        return false;
+    };
+    if (calendars.length) {
+        return (jsxs(Grid, { onMouseLeave: onMouseLeave, children: [jsxs(Grid, { templateColumns: "repeat(4, auto)", justifyContent: "center", children: [jsx(Button$1, { variant: "ghost", ...getBackProps({
+                                calendars,
+                                offset: 12,
+                            }), children: "<<" }), jsx(Button$1, { variant: "ghost", ...getBackProps({ calendars }), children: "Back" }), jsx(Button$1, { variant: "ghost", ...getForwardProps({ calendars }), children: "Next" }), jsx(Button$1, { variant: "ghost", ...getForwardProps({
+                                calendars,
+                                offset: 12,
+                            }), children: ">>" })] }), jsx(Grid, { templateColumns: "repeat(2, auto)", justifyContent: "center", gap: 4, children: calendars.map((calendar) => (jsxs(Grid, { gap: 4, children: [jsxs(Grid, { justifyContent: "center", children: [monthNamesFull[calendar.month], " ", calendar.year] }), jsx(Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: [0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                                    const weekday = (weekdayNum + firstDayOfWeek) % 7;
+                                    return (jsx(Box, { minWidth: "48px", textAlign: "center", children: weekdayNamesShort$1[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
+                                }) }), jsx(Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: calendar.weeks.map((week, windex) => week.map((dateObj, index) => {
+                                    const key = `${calendar.month}${calendar.year}${windex}${index}`;
+                                    if (!dateObj) {
+                                        return jsx(Box, {}, key);
+                                    }
+                                    const { date, selected, selectable, today } = dateObj;
+                                    const getStyle = ({ selected, unavailable, today, isInRange, }) => {
+                                        if (unavailable) {
+                                            return {
+                                                colorPalette: "gray",
+                                                variant: "solid",
+                                            };
+                                        }
+                                        if (selected) {
+                                            return {
+                                                colorPalette: "blue",
+                                                variant: "solid",
+                                            };
+                                        }
+                                        if (isInRange) {
+                                            return {
+                                                colorPalette: "blue",
+                                                variant: "subtle",
+                                            };
+                                        }
+                                        if (today) {
+                                            return {
+                                                colorPalette: "green",
+                                                variant: "solid",
+                                            };
+                                        }
+                                        return { variant: "ghost" };
+                                    };
+                                    return (jsx(Button$1, { ...getDateProps({
+                                            dateObj,
+                                            onMouseEnter: () => {
+                                                onMouseEnter(date);
+                                            },
+                                        }), ...getStyle({
+                                            selected,
+                                            unavailable: !selectable,
+                                            today,
+                                            isInRange: isInRange(date),
+                                        }), children: selectable ? date.getDate() : "X" }, key));
+                                })) })] }, `${calendar.month}${calendar.year}`))) })] }));
+    }
+    return null;
+}
+class RangeDatePicker extends React__default.Component {
+    render() {
+        return (jsx(Dayzed, { onDateSelected: this.props.onDateSelected, selected: this.props.selected, firstDayOfWeek: this.props.firstDayOfWeek, showOutsideDays: this.props.showOutsideDays, date: this.props.date, minDate: this.props.minDate, maxDate: this.props.maxDate, monthsToDisplay: this.props.monthsToDisplay, render: (dayzedData) => (jsx(Calendar$1, { ...dayzedData,
+                firstDayOfWeek: this.props.firstDayOfWeek,
+                selected: this.props.selected })) }));
+    }
+}
+
+const getRangeDates = ({ selectable, date, selectedDates, }) => {
+    if (!selectable) {
+        return;
+    }
+    const dateTime = date.getTime();
+    const newDates = [...selectedDates];
+    if (selectedDates.length) {
+        if (selectedDates.length === 1) {
+            const firstTime = selectedDates[0].getTime();
+            if (firstTime < dateTime) {
+                newDates.push(date);
+            }
+            else {
+                newDates.unshift(date);
+            }
+            return newDates;
+        }
+        else if (newDates.length === 2) {
+            return [date];
+        }
+    }
+    else {
+        newDates.push(date);
+        return newDates;
+    }
 };
 
 const Slider = React.forwardRef(function Slider(props, ref) {
@@ -840,19 +997,10 @@ const TagFilter = ({ availableTags, selectedTags, onTagChange, }) => {
     return (jsx(Flex, { flexFlow: "wrap", p: "0.5rem", gap: "0.5rem", children: availableTags.map((tag) => (jsx(Tag, { variant: selectedTags.includes(tag) ? "solid" : "outline", cursor: "pointer", closable: selectedTags.includes(tag) ? true : undefined, onClick: () => toggleTag(tag), children: tag }))) }));
 };
 
-const Radio = React.forwardRef(function Radio(props, ref) {
-    const { children, inputProps, rootRef, ...rest } = props;
-    return (jsxs(RadioGroup$1.Item, { ref: rootRef, ...rest, children: [jsx(RadioGroup$1.ItemHiddenInput, { ref: ref, ...inputProps }), jsx(RadioGroup$1.ItemIndicator, {}), children && (jsx(RadioGroup$1.ItemText, { children: children }))] }));
-});
-const RadioGroup = RadioGroup$1.Root;
-
 const Filter = ({ column }) => {
     const { filterVariant } = column.columnDef.meta ?? {};
     const displayName = column.columnDef.meta?.displayName ?? column.id;
     const filterOptions = column.columnDef.meta?.filterOptions ?? [];
-    // const collection = createListCollection({
-    //   items: filterOptions,
-    // });
     if (column.columns.length > 0) {
         return (jsxs(Flex, { flexFlow: "column", gap: 1, children: [jsx(Text, { children: displayName }), jsx(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", gap: 1, children: column.columns.map((column) => {
                         return jsx(Filter, { column: column }, column.id);
@@ -900,17 +1048,15 @@ const Filter = ({ column }) => {
                     }, defaultValue: defaultValue, min: min, max: max, step: step })] }, column.id));
     }
     if (filterVariant === "dateRange") {
-        const [start, end] = column.getFilterValue() ?? [
-            "",
-            "",
-        ];
-        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(DateRangeFilter, { startDate: start, endDate: end, setStartDate: function (value) {
-                        column.setFilterValue((state) => {
-                            return [value, (state ?? ["", ""])[1]];
-                        });
-                    }, setEndDate: function (value) {
-                        column.setFilterValue((state) => {
-                            return [(state ?? ["", ""])[0], value];
+        const filterValue = column.getFilterValue() ?? [];
+        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(RangeDatePicker, { selected: filterValue, onDateSelected: ({ selected, selectable, date }) => {
+                        const newDates = getRangeDates({
+                            selectable,
+                            date,
+                            selectedDates: filterValue,
+                        }) ?? [];
+                        column.setFilterValue(() => {
+                            return newDates;
                         });
                     } })] }, column.id));
     }
@@ -1369,7 +1515,7 @@ const SchemaFormContext = createContext({
     serverUrl: "",
     order: [],
     ignore: [],
-    onSubmit: () => { },
+    onSubmit: async () => { },
     preLoadedValues: {},
     rowNumber: 0,
     displayText: {},
@@ -1422,12 +1568,12 @@ const useSchemaContext = () => {
     };
 };
 
-const getTableData = async ({ serverUrl, in_table, searching = '', where = [], limit = 10, }) => {
+const getTableData = async ({ serverUrl, in_table, searching = "", where = [], limit = 10, }) => {
     if (serverUrl === undefined || serverUrl.length == 0) {
-        throw new Error('The serverUrl is missing');
+        throw new Error("The serverUrl is missing");
     }
     if (in_table === undefined || in_table.length == 0) {
-        throw new Error('The in_table is missing');
+        throw new Error("The in_table is missing");
     }
     const options = {
         method: "GET",
@@ -1453,8 +1599,8 @@ const getTableData = async ({ serverUrl, in_table, searching = '', where = [], l
     }
 };
 
-const IdPicker = ({ column, in_table, column_ref, display_column, }) => {
-    const { formState: { errors }, setValue, } = useFormContext();
+const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = false, }) => {
+    const { watch, formState: { errors }, setValue, } = useFormContext();
     const { schema, serverUrl, displayText } = useSchemaContext();
     const { fieldRequired } = displayText;
     const { required } = schema;
@@ -1463,7 +1609,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, }) => {
         throw new Error("schema properties when using DatePicker");
     }
     const { gridColumn, gridRow, title } = schema.properties[column];
-    const [selectedId, setSelectedId] = useState();
+    const [selectedIds, setSelectedIds] = useState([]);
     const [searchText, setSearchText] = useState();
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
@@ -1509,31 +1655,37 @@ const IdPicker = ({ column, in_table, column_ref, display_column, }) => {
             ];
         }));
     };
-    const getSelectedName = () => {
-        const selectedItem = getIdMap(dataList)[selectedId ?? ""];
+    const getSelectedName = (id) => {
+        const selectedItem = getIdMap(dataList)[id];
         if (selectedItem == undefined) {
             return "";
         }
         return selectedItem[display_column];
     };
-    if (selectedId != undefined) {
+    if (selectedIds.length >= 1 && isMultiple === false) {
         return (jsx(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, gridColumn,
             gridRow, children: jsx(Tag, { closable: true, onClick: () => {
-                    setSelectedId(undefined);
+                    setSelectedIds([]);
                     setValue(column, "");
-                }, children: getSelectedName() }) }));
+                }, children: getSelectedName(selectedIds[0]) }) }));
     }
     return (jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsx(Input, { placeholder: "Type to search", onChange: (event) => {
+        gridRow, children: [selectedIds.map((id) => {
+                return (jsx(Tag, { closable: true, onClick: () => {
+                        setSelectedIds([]);
+                        setValue(column, "");
+                    }, children: getSelectedName(id) }));
+            }), jsx(Input, { placeholder: "Type to search", onChange: (event) => {
                     onSearchChange(event);
                     setOpenSearchResult(true);
-                }, autoComplete: "off", ref: ref }), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsxs(RadioCardRoot, { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), isError && jsx(Fragment, { children: "isError" }), jsx(Text, { children: `Search Result: ${count}, Showing ${limit}` }), jsx(Button, { onClick: async () => {
+                }, autoComplete: "off", ref: ref }), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsxs(RadioCardRoot, { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), isError && jsx(Fragment, { children: "isError" }), jsx(Text, { children: `Search Result: ${count}, Showing ${limit}` }), jsx(Button, { onClick: async () => {
                                                 setOpenSearchResult(false);
                                             }, children: "close" }), 
                                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                         getItemList(dataList).map((item) => (jsx(RadioCardItem, { label: item.label, description: item.description, value: item.value, onClick: () => {
-                                                setSelectedId(item.key);
-                                                setValue(column, item.key);
+                                                const ids = watch(column);
+                                                setSelectedIds((state) => [...state, item.key]);
+                                                setValue(column, [...(ids ?? []), item.key]);
                                                 setOpenSearchResult(false);
                                             }, indicator: false }, item.key))), isDirty && (jsxs(Fragment, { children: [dataList.length <= 0 && jsx(Fragment, { children: "Empty Search Result" }), " ", count > dataList.length && (jsx(Fragment, { children: jsx(Button, { onClick: async () => {
                                                             setLimit((limit) => limit + 10);
@@ -1679,8 +1831,8 @@ const monthNamesShort = [
     "Nov",
     "Dec",
 ];
-const weekdayNamesShort$1 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const Calendar$1 = ({ calendars, getBackProps, getForwardProps, getDateProps, firstDayOfWeek = 0, }) => {
+const weekdayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const Calendar = ({ calendars, getBackProps, getForwardProps, getDateProps, firstDayOfWeek = 0, }) => {
     if (calendars.length) {
         return (jsxs(Grid, { children: [jsxs(Grid, { templateColumns: "repeat(4, auto)", justifyContent: "center", children: [jsx(Button$1, { variant: "ghost", ...getBackProps({
                                 calendars,
@@ -1690,7 +1842,7 @@ const Calendar$1 = ({ calendars, getBackProps, getForwardProps, getDateProps, fi
                                 offset: 12,
                             }), children: ">>" })] }), jsx(Grid, { templateColumns: "repeat(2, auto)", justifyContent: "center", children: calendars.map((calendar) => (jsxs(Grid, { gap: 4, children: [jsxs(Grid, { justifyContent: "center", children: [monthNamesShort[calendar.month], " ", calendar.year] }), jsxs(Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: [[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
                                         const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                                        return (jsx(Text, { textAlign: "center", children: weekdayNamesShort$1[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
+                                        return (jsx(Text, { textAlign: "center", children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
                                     }), calendar.weeks.map((week, weekIndex) => week.map((dateObj, index) => {
                                         const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
                                         if (!dateObj) {
@@ -1711,13 +1863,13 @@ const Calendar$1 = ({ calendars, getBackProps, getForwardProps, getDateProps, fi
                                         };
                                         const getVariant = ({ today, selected, selectable, }) => {
                                             if (!selectable) {
-                                                return "solid";
+                                                return "surface";
                                             }
                                             if (selected) {
                                                 return "solid";
                                             }
                                             if (today) {
-                                                return "solid";
+                                                return "surface";
                                             }
                                             return "ghost";
                                         };
@@ -1730,7 +1882,7 @@ const Calendar$1 = ({ calendars, getBackProps, getForwardProps, getDateProps, fi
 };
 let DatePicker$1 = class DatePicker extends React__default.Component {
     render() {
-        return (jsx(Dayzed, { onDateSelected: this.props.onDateSelected, selected: this.props.selected, firstDayOfWeek: this.props.firstDayOfWeek, showOutsideDays: this.props.showOutsideDays, date: this.props.date, minDate: this.props.minDate, maxDate: this.props.maxDate, monthsToDisplay: this.props.monthsToDisplay, render: (dayzedData) => (jsx(Calendar$1, { ...dayzedData, firstDayOfWeek: this.props.firstDayOfWeek })) }));
+        return (jsx(Dayzed, { onDateSelected: this.props.onDateSelected, selected: this.props.selected, firstDayOfWeek: this.props.firstDayOfWeek, showOutsideDays: this.props.showOutsideDays, date: this.props.date, minDate: this.props.minDate, maxDate: this.props.maxDate, monthsToDisplay: this.props.monthsToDisplay, render: (dayzedData) => (jsx(Calendar, { ...dayzedData, firstDayOfWeek: this.props.firstDayOfWeek })) }));
     }
 };
 
@@ -1814,8 +1966,164 @@ const ObjectInput = ({ column }) => {
                 }, children: addNew ?? "Add New" }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
+const TagPicker = ({ column }) => {
+    const { watch, formState: { errors }, setValue, } = useFormContext();
+    const { schema, serverUrl } = useSchemaContext();
+    if (schema.properties == undefined) {
+        throw new Error("schema properties undefined when using DatePicker");
+    }
+    const { gridColumn, gridRow, in_table, object_id_column } = schema.properties[column];
+    if (in_table === undefined) {
+        throw new Error("in_table is undefined when using TagPicker");
+    }
+    if (object_id_column === undefined) {
+        throw new Error("object_id_column is undefined when using TagPicker");
+    }
+    const query = useQuery({
+        queryKey: [`tagpicker`, in_table],
+        queryFn: async () => {
+            return await getTableData({
+                serverUrl,
+                in_table: "tables_tags_view",
+                where: [
+                    {
+                        id: "table_name",
+                        value: [in_table],
+                    },
+                ],
+                limit: 100,
+            });
+        },
+        staleTime: 10000,
+    });
+    const object_id = watch(object_id_column);
+    const existingTagsQuery = useQuery({
+        queryKey: [`existing`, in_table, object_id_column, object_id],
+        queryFn: async () => {
+            return await getTableData({
+                serverUrl,
+                in_table: in_table,
+                where: [
+                    {
+                        id: object_id_column,
+                        value: [object_id],
+                    },
+                ],
+                limit: 100,
+            });
+        },
+        enabled: object_id != undefined,
+        staleTime: 10000,
+    });
+    const { isLoading, isFetching, data, isPending, isError } = query;
+    const dataList = data?.data ?? [];
+    const existingTagList = existingTagsQuery.data?.data ?? [];
+    if (!!object_id === false) {
+        return jsx(Fragment, {});
+    }
+    return (jsxs(Flex, { flexFlow: "column", gap: 4, gridColumn,
+        gridRow, children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), isError && jsx(Fragment, { children: "isError" }), dataList.map(({ parent_tag_name, all_tags, is_mutually_exclusive }) => {
+                return (jsxs(Flex, { flexFlow: "column", gap: 2, children: [jsx(Text, { children: parent_tag_name }), is_mutually_exclusive && (jsx(RadioCardRoot, { defaultValue: "next", variant: "surface", onValueChange: (tagIds) => {
+                                const existedTags = Object.values(all_tags)
+                                    .filter(({ id }) => {
+                                    return existingTagList.some(({ tag_id }) => tag_id === id);
+                                })
+                                    .map(({ id }) => {
+                                    return id;
+                                });
+                                setValue(`${column}.${parent_tag_name}.current`, [
+                                    tagIds.value,
+                                ]);
+                                setValue(`${column}.${parent_tag_name}.old`, existedTags);
+                            }, children: jsx(Flex, { flexFlow: "wrap", gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
+                                    if (existingTagList.some(({ tag_id }) => tag_id === id)) {
+                                        return (jsx(RadioCardItem, { label: tagName, value: id, flex: "0 0 0%", disabled: true }, `${tagName}-${id}`));
+                                    }
+                                    return (jsx(RadioCardItem, { label: tagName, value: id, flex: "0 0 0%", colorPalette: "blue" }, `${tagName}-${id}`));
+                                }) }) })), !is_mutually_exclusive && (jsx(CheckboxGroup, { onValueChange: (tagIds) => {
+                                setValue(`${column}.${parent_tag_name}.current`, tagIds);
+                            }, children: jsx(Flex, { flexFlow: "wrap", gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
+                                    if (existingTagList.some(({ tag_id }) => tag_id === id)) {
+                                        return (jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%", disabled: true, colorPalette: "blue" }, `${tagName}-${id}`));
+                                    }
+                                    return (jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%" }, `${tagName}-${id}`));
+                                }) }) }))] }));
+            }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
+};
+
+const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }, placeholder = "Drop files here or click to upload", }) => {
+    const ref = useRef(null);
+    const [isDraggedOver, setIsDraggedOver] = useState(false);
+    useEffect(() => {
+        const el = ref.current;
+        invariant(el);
+        return dropTargetForExternal({
+            element: el,
+            onDragEnter: () => setIsDraggedOver(true),
+            onDragLeave: () => setIsDraggedOver(false),
+            //   canDrop: some(containsFiles, containsText),
+            onDrop: ({ source }) => {
+                const files = getFiles({ source });
+                const text = getText({ source });
+                console.log(files, text, "dfposa");
+                onDrop({ files, text });
+            },
+        });
+    }, [onDrop]);
+    // const isDark = (location + location) % 2 === 1;
+    function getColor(isDraggedOver) {
+        if (isDraggedOver) {
+            return {
+                backgroundColor: "blue.400",
+                _dark: {
+                    backgroundColor: "blue.400",
+                },
+            };
+        }
+        // return isDark ? "lightgrey" : "white";
+        return {
+            backgroundColor: undefined,
+            _dark: {
+                backgroundColor: undefined,
+            },
+        };
+    }
+    const fileInput = useRef(null);
+    const handleClick = () => {
+        fileInput.current?.click();
+    };
+    const handleChange = (event) => {
+        // @ts-expect-error find appropriate types for event target files
+        const filesArray = [...event.target.files];
+        onDrop({ files: filesArray });
+    };
+    return (jsxs(Grid, { ...getColor(isDraggedOver), ref: ref, cursor: "pointer", onClick: handleClick, borderStyle: "dashed", borderColor: "gray.400", alignContent: "center", justifyContent: "center", borderWidth: 1, borderRadius: 4, ...gridProps, children: [children, !!children === false && (jsxs(Fragment, { children: [jsx(Flex, { children: placeholder }), jsx(Input, { type: "file", multiple: true, style: { display: "none" }, ref: fileInput, onChange: handleChange })] }))] }));
+};
+
+const FilePicker = ({ column }) => {
+    const { setValue, formState: { errors }, watch, } = useFormContext();
+    const { schema, displayText } = useSchemaContext();
+    const { fieldRequired } = displayText;
+    const { required } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    if (schema.properties == undefined) {
+        throw new Error("schema properties when using String Input Field");
+    }
+    const { gridColumn, gridRow, title } = schema.properties[column];
+    const currentFiles = (watch(column) ?? []);
+    return (jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", display: "grid", gridTemplateRows: 'auto 1fr auto', alignItems: 'stretch', children: [jsx(FileDropzone, { onDrop: ({ files }) => {
+                    const newFiles = files.filter(({ name }) => !currentFiles.some((cur) => cur.name === name));
+                    setValue(column, [...currentFiles, ...newFiles]);
+                } }), jsx(Flex, { flexFlow: "wrap", alignItems: "start", gap: 1, children: currentFiles.map((file) => {
+                    return (jsx(Tag, { cursor: "pointer", onClick: () => {
+                            setValue(column, currentFiles.filter(({ name }) => {
+                                return name !== file.name;
+                            }));
+                        }, children: file.name }));
+                }) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
+};
+
 const idPickerSanityCheck = (column, in_table, column_ref, display_column) => {
-    console.log(!!in_table, "okgsd");
     if (!!in_table == false) {
         throw new Error(`The key in_table does not exist in properties of column ${column}.`);
     }
@@ -1849,19 +2157,10 @@ const FormInternal = () => {
     const onSubmitSuccess = () => {
         setIsSuccess(true);
     };
-    const defaultOnSubmit = async (data) => {
-        const options = {
-            method: "POST",
-            url: `${serverUrl}/api/g/${schema.title}`,
-            headers: {
-                Apikey: "YOUR_SECRET_TOKEN",
-                "Content-Type": "application/json",
-            },
-            data: clearEmptyString(data),
-        };
+    const defaultOnSubmit = async (promise) => {
         try {
             onBeforeSubmit();
-            await axios.request(options);
+            await promise;
             onSubmitSuccess();
         }
         catch (error) {
@@ -1873,13 +2172,25 @@ const FormInternal = () => {
             onAfterSubmit();
         }
     };
+    const defaultSubmitPromise = (data) => {
+        const options = {
+            method: "POST",
+            url: `${serverUrl}/api/g/${schema.title}`,
+            headers: {
+                Apikey: "YOUR_SECRET_TOKEN",
+                "Content-Type": "application/json",
+            },
+            data: clearEmptyString(data),
+        };
+        return axios.request(options);
+    };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFormSubmit = async (data) => {
         if (onSubmit === undefined) {
-            defaultOnSubmit(data);
+            await defaultOnSubmit(defaultSubmitPromise(data));
             return;
         }
-        onSubmit(data);
+        await defaultOnSubmit(onSubmit(data));
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onValid = (data) => {
@@ -1971,7 +2282,18 @@ const FormInternal = () => {
                             return (jsx(DataListItem, { gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 4", label: `${snakeToLabel(column)}`, ...getDataListProps((validatedData ?? {})[column]) }, `form-${key}`));
                         }
                         if (type === "array") {
-                            return jsx(Fragment, { children: `array ${column}` });
+                            if (variant === "tag-picker") {
+                                const value = (validatedData ?? {})[column];
+                                return (jsx(DataListItem, { gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", label: `${snakeToLabel(column)}`, ...getDataListProps(JSON.stringify(value)) }, `form-${key}`));
+                            }
+                            if (variant === "file-picker") {
+                                const fileNames = ((validatedData ?? {})[column] ?? []).map((file) => {
+                                    return file.name;
+                                });
+                                return (jsx(DataListItem, { gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 4", label: `${snakeToLabel(column)}`, ...getDataListProps(JSON.stringify(fileNames)) }, `form-${key}`));
+                            }
+                            const objectString = JSON.stringify((validatedData ?? {})[column]);
+                            return (jsx(DataListItem, { gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 4", label: `${snakeToLabel(column)}`, ...getDataListProps(objectString) }, `form-${key}`));
                         }
                         if (type === "null") {
                             return jsx(Fragment, { children: `null ${column}` });
@@ -2017,6 +2339,16 @@ const FormInternal = () => {
                                 return (jsx(Fragment, { children: jsx(ObjectInput, { column: key }, `form-${key}`) }));
                             }
                             if (type === "array") {
+                                if (variant === "id-picker") {
+                                    idPickerSanityCheck(column, in_table, column_ref, display_column);
+                                    return (jsx(IdPicker, { column: key, in_table: in_table, column_ref: column_ref, display_column: display_column, isMultiple: true }, `form-${key}`));
+                                }
+                                if (variant === "tag-picker") {
+                                    return jsx(TagPicker, { column: key }, `form-${key}`);
+                                }
+                                if (variant === "file-picker") {
+                                    return jsx(FilePicker, { column: key }, `form-${key}`);
+                                }
                                 return jsx(Fragment, { children: `array ${column}` });
                             }
                             if (type === "null") {
@@ -2062,138 +2394,5 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
         return [...selectedDates, selectedDate];
     }
 };
-
-const getRangeDates = ({ selectable, date, selectedDates, }) => {
-    if (!selectable) {
-        return;
-    }
-    const dateTime = date.getTime();
-    const newDates = [...selectedDates];
-    if (selectedDates.length) {
-        if (selectedDates.length === 1) {
-            const firstTime = selectedDates[0].getTime();
-            if (firstTime < dateTime) {
-                newDates.push(date);
-            }
-            else {
-                newDates.unshift(date);
-            }
-            return newDates;
-        }
-        else if (newDates.length === 2) {
-            return [date];
-        }
-    }
-    else {
-        newDates.push(date);
-        return newDates;
-    }
-};
-
-const monthNamesFull = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-];
-const weekdayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-function Calendar({ calendars, getBackProps, getForwardProps, getDateProps, selected = [], firstDayOfWeek = 0, }) {
-    const [hoveredDate, setHoveredDate] = useState();
-    const onMouseLeave = () => {
-        setHoveredDate(undefined);
-    };
-    const onMouseEnter = (date) => {
-        setHoveredDate(date);
-    };
-    const isInRange = (date) => {
-        if (selected.length) {
-            const firstSelected = selected[0].getTime();
-            if (selected.length === 2) {
-                const secondSelected = selected[1].getTime();
-                return (firstSelected < date.getTime() && secondSelected > date.getTime());
-            }
-            else {
-                return !!(hoveredDate &&
-                    ((firstSelected < date.getTime() &&
-                        hoveredDate.getTime() >= date.getTime()) ||
-                        (date.getTime() < firstSelected &&
-                            date.getTime() >= hoveredDate.getTime())));
-            }
-        }
-        return false;
-    };
-    if (calendars.length) {
-        return (jsxs(Grid, { onMouseLeave: onMouseLeave, children: [jsxs(Grid, { templateColumns: "repeat(4, auto)", justifyContent: "center", children: [jsx(Button$1, { variant: "ghost", ...getBackProps({
-                                calendars,
-                                offset: 12,
-                            }), children: "<<" }), jsx(Button$1, { variant: "ghost", ...getBackProps({ calendars }), children: "Back" }), jsx(Button$1, { variant: "ghost", ...getForwardProps({ calendars }), children: "Next" }), jsx(Button$1, { variant: "ghost", ...getForwardProps({
-                                calendars,
-                                offset: 12,
-                            }), children: ">>" })] }), jsx(Grid, { templateColumns: "repeat(2, auto)", justifyContent: "center", gap: 4, children: calendars.map((calendar) => (jsxs(Grid, { gap: 4, children: [jsxs(Grid, { justifyContent: "center", children: [monthNamesFull[calendar.month], " ", calendar.year] }), jsx(Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: [0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-                                    const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                                    return (jsx(Box, { minWidth: "48px", textAlign: 'center', children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
-                                }) }), jsx(Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: calendar.weeks.map((week, windex) => week.map((dateObj, index) => {
-                                    const key = `${calendar.month}${calendar.year}${windex}${index}`;
-                                    if (!dateObj) {
-                                        return jsx(Box, {}, key);
-                                    }
-                                    const { date, selected, selectable, today } = dateObj;
-                                    const getStyle = ({ selected, unavailable, today, isInRange, }) => {
-                                        if (unavailable) {
-                                            return {
-                                                colorPalette: "gray",
-                                                variant: "solid",
-                                            };
-                                        }
-                                        if (selected) {
-                                            return {
-                                                colorPalette: "blue",
-                                                variant: "solid",
-                                            };
-                                        }
-                                        if (isInRange) {
-                                            return {
-                                                colorPalette: "blue",
-                                                variant: "subtle",
-                                            };
-                                        }
-                                        if (today) {
-                                            return {
-                                                colorPalette: "green",
-                                                variant: "solid",
-                                            };
-                                        }
-                                        return { variant: "ghost" };
-                                    };
-                                    return (jsx(Button$1, { ...getDateProps({
-                                            dateObj,
-                                            onMouseEnter: () => {
-                                                onMouseEnter(date);
-                                            },
-                                        }), ...getStyle({
-                                            selected,
-                                            unavailable: !selectable,
-                                            today,
-                                            isInRange: isInRange(date),
-                                        }), children: selectable ? date.getDate() : "X" }, key));
-                                })) })] }, `${calendar.month}${calendar.year}`))) })] }));
-    }
-    return null;
-}
-class RangeDatePicker extends React__default.Component {
-    render() {
-        return (jsx(Dayzed, { onDateSelected: this.props.onDateSelected, selected: this.props.selected, firstDayOfWeek: this.props.firstDayOfWeek, showOutsideDays: this.props.showOutsideDays, date: this.props.date, minDate: this.props.minDate, maxDate: this.props.maxDate, monthsToDisplay: this.props.monthsToDisplay, render: (dayzedData) => (jsx(Calendar, { ...dayzedData,
-                firstDayOfWeek: this.props.firstDayOfWeek,
-                selected: this.props.selected })) }));
-    }
-}
 
 export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, FilterOptions, Form, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, getColumns, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, widthSanityCheck };

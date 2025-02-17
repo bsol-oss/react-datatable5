@@ -2,7 +2,10 @@ export interface GetTableDataConfig {
     serverUrl: string;
     in_table: string;
     limit?: number;
-    where?: object[];
+    where?: {
+        id: string;
+        value: string[];
+    }[];
     searching?: string;
 }
 export interface GetTableResponse {

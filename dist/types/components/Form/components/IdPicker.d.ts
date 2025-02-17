@@ -3,5 +3,6 @@ export interface IdPickerProps {
     in_table: string;
     column_ref: string;
     display_column: string;
+    isMultiple?: boolean;
 }
-export declare const IdPicker: ({ column, in_table, column_ref, display_column, }: IdPickerProps) => import("react/jsx-runtime").JSX.Element;
+export declare const IdPicker: ({ column, in_table, column_ref, display_column, isMultiple, }: IdPickerProps) => import("react/jsx-runtime").JSX.Element;

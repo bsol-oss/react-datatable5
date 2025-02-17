@@ -10,7 +10,7 @@ export interface GetStyleProps {
     unavailable: boolean;
     isInRange: boolean;
 }
-export interface RangeDatePickerProps extends Props {
+export interface RangeDatePickerProps extends Props, RangeCalendarProps {
 }
 declare class RangeDatePicker extends React.Component<RangeDatePickerProps> {
     render(): import("react/jsx-runtime").JSX.Element;
