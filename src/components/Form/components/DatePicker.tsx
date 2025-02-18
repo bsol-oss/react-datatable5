@@ -73,7 +73,6 @@ export const DatePicker = ({ column }: DatePickerProps) => {
             <ChakraDatePicker
               selected={new Date(getValues(column))}
               onDateSelected={({ selected, selectable, date }) => {
-                console.log(date, selected, selectable, "jasdio");
                 setValue(column, dayjs(date).format("YYYY-MM-DD"));
                 setOpen(false);
               }}
