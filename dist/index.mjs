@@ -1,8 +1,8 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, useDisclosure, Box, Flex, DialogBackdrop, Menu, Text, createRecipeContext, createContext as createContext$1, Pagination, usePaginationContext, HStack, Tag as Tag$1, Grid, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$1, VStack, List, RadioGroup as RadioGroup$1, Slider as Slider$1, For, Input, CheckboxCard as CheckboxCard$1, Group, InputElement, Popover, RadioCard, Field as Field$1, NumberInput, Accordion, Show, CheckboxGroup, Heading, Alert, Center } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, useDisclosure, Box, Flex, DialogBackdrop, Menu, Text, createRecipeContext, createContext as createContext$1, Pagination, usePaginationContext, HStack, Tag as Tag$1, Grid, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$1, VStack, List, RadioGroup as RadioGroup$1, Slider as Slider$1, For, Input, CheckboxCard as CheckboxCard$1, Group, InputElement, Popover, Field as Field$1, NumberInput, Accordion, Show, RadioCard, CheckboxGroup, Heading, Alert, Center } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
-import React__default, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React__default, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
 import { MdFilterAlt, MdOutlineMoveDown, MdOutlineSort, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdArrowUpward, MdArrowDownward, MdOutlineChecklist, MdClose, MdSearch } from 'react-icons/md';
 import { LuX, LuCheck, LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
@@ -21,6 +21,7 @@ import { CgClose } from 'react-icons/cg';
 import { monitorForElements, draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import invariant from 'tiny-invariant';
 import axios from 'axios';
+import { useDebounce } from '@uidotdev/usehooks';
 import { useFormContext, useForm, FormProvider } from 'react-hook-form';
 import dayjs from 'dayjs';
 import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/external/adapter';
@@ -31,6 +32,7 @@ const DataTableContext = createContext({
     table: {},
     globalFilter: "",
     setGlobalFilter: () => { },
+    type: "client",
 });
 
 const useDataTableContext = () => {
@@ -151,8 +153,14 @@ const ResetSortingButton = ({ text = "Reset Sorting", }) => {
 };
 
 const RowCountText = () => {
-    const { table } = useDataTableContext();
-    return jsx(Text, { children: table.getFilteredRowModel().flatRows.length ?? 0 });
+    const { table, type } = useDataTableContext();
+    const getCount = () => {
+        if (type === "client") {
+            return table.getFilteredRowModel().flatRows.length ?? 0;
+        }
+        return table.getRowCount();
+    };
+    return jsx(Text, { children: getCount() });
 };
 
 const { withContext } = createRecipeContext({ key: "button" });
@@ -221,8 +229,14 @@ React.forwardRef(function PaginationPageText(props, ref) {
 
 // TODO: not working in client side
 const TablePagination = () => {
-    const { table } = useDataTableContext();
-    return (jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: table.getFilteredRowModel().flatRows.length ?? 0, pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
+    const { table, type } = useDataTableContext();
+    const getCount = () => {
+        if (type === "client") {
+            return table.getFilteredRowModel().flatRows.length ?? 0;
+        }
+        return table.getRowCount();
+    };
+    return (jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: getCount(), pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
             table.setPageIndex(e.page - 1);
         }, children: jsxs(HStack, { children: [jsx(PaginationPrevTrigger, {}), jsx(PaginationItems, {}), jsx(PaginationNextTrigger, {})] }) }));
 };
@@ -369,7 +383,7 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
     // Return if the item should be filtered in/out
     return itemRank.passed;
 };
-const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }) => {
+function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }) {
     const table = useReactTable({
         _features: [DensityFeature],
         data: data,
@@ -416,24 +430,19 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         onDensityChange: setDensity,
         onColumnVisibilityChange: setColumnVisibility,
     });
-    useEffect(() => {
-        setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
-    }, [table, setColumnOrder]);
-    useEffect(() => {
-        onRowSelect(table.getState().rowSelection, data);
-    }, [data, onRowSelect, table]);
     return (jsx(DataTableContext.Provider, { value: {
             table: { ...table },
             globalFilter: globalFilter,
             setGlobalFilter: setGlobalFilter,
+            type: "client",
         }, children: children }));
-};
+}
 
 const DataTableServerContext = createContext({
     url: "",
 });
 
-const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }) => {
+function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }) {
     const table = useReactTable({
         _features: [DensityFeature],
         data: query.data?.data ?? [],
@@ -485,8 +494,9 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
             table: { ...table },
             globalFilter,
             setGlobalFilter,
+            type: "server",
         }, children: jsx(DataTableServerContext.Provider, { value: { url }, children: children }) }));
-};
+}
 
 const Checkbox = React.forwardRef(function Checkbox(props, ref) {
     const { icon, children, inputProps, rootRef, ...rest } = props;
@@ -576,8 +586,8 @@ const Tooltip = React.forwardRef(function Tooltip(props, ref) {
     return (jsxs(Tooltip$1.Root, { ...rest, children: [jsx(Tooltip$1.Trigger, { asChild: true, children: children }), jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Tooltip$1.Positioner, { children: jsxs(Tooltip$1.Content, { ref: ref, ...contentProps, children: [showArrow && (jsx(Tooltip$1.Arrow, { children: jsx(Tooltip$1.ArrowTip, {}) })), content] }) }) })] }));
 });
 
-const TableControls = ({ totalText = "Total:", showFilter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsx(Fragment, {}), showFilterName = false, showFilterTags = false, showReload = false, filterOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, }) => {
-    return (jsxs(Grid, { templateRows: "auto 1fr auto", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxs(Flex, { flexFlow: "column", gap: 2, children: [jsxs(Flex, { justifyContent: "space-between", children: [jsx(Box, { children: jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { content: "An error occurred while fetching data", children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) })), showFilter && (jsxs(Fragment, { children: [jsx(GlobalFilter, {}), jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })), showReload && jsx(ReloadButton, {}), extraItems] })] }), filterOptions.length > 0 && (jsx(Flex, { flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
+const TableControls = ({ totalText = "Total:", fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsx(Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, filterOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, }) => {
+    return (jsxs(Grid, { templateRows: "auto 1fr auto", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxs(Flex, { flexFlow: "column", gap: 2, children: [jsxs(Flex, { justifyContent: "space-between", children: [jsx(Box, { children: jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { content: "An error occurred while fetching data", children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) })), showGlobalFilter && jsx(GlobalFilter, {}), showFilter && (jsx(Fragment, { children: jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" }) })), showReload && jsx(ReloadButton, {}), extraItems] })] }), filterOptions.length > 0 && (jsx(Flex, { flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
                             return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxs(Text, { children: [column, ":"] }), jsx(FilterOptions, { column: column })] }, column));
                         }) })), showFilterTags && (jsx(Flex, { children: jsx(TableFilterTags, {}) }))] }), jsx(Box, { overflow: "auto", width: "100%", height: "100%", backgroundColor: "gray.50", _dark: {
                     backgroundColor: "gray.900",
@@ -1378,7 +1388,7 @@ const useDataTableServer = ({ url, default: { sorting: defaultSorting = [], pagi
         searching: globalFilter,
     };
     const query = useQuery({
-        queryKey: [url, params],
+        queryKey: [url, JSON.stringify(params)],
         queryFn: () => {
             return axios
                 .get(url, {
@@ -1504,8 +1514,16 @@ const InputGroup = React.forwardRef(function InputGroup(props, ref) {
 
 const GlobalFilter = () => {
     const { table } = useDataTableContext();
+    const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
+    useEffect(() => {
+        const searchHN = async () => {
+            table.setGlobalFilter(debouncedSearchTerm);
+        };
+        searchHN();
+    }, [debouncedSearchTerm]);
     return (jsx(Fragment, { children: jsx(InputGroup, { flex: "1", startElement: jsx(MdSearch, {}), children: jsx(Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
-                    table.setGlobalFilter(e.target.value);
+                    setSearchTerm(e.target.value);
                 } }) }) }));
 };
 
@@ -1538,16 +1556,6 @@ Popover.Header;
 const PopoverRoot = Popover.Root;
 const PopoverBody = Popover.Body;
 const PopoverTrigger = Popover.Trigger;
-
-const RadioCardItem = React.forwardRef(function RadioCardItem(props, ref) {
-    const { inputProps, label, description, addon, icon, indicator = jsx(RadioCard.ItemIndicator, {}), indicatorPlacement = "end", ...rest } = props;
-    const hasContent = label || description || icon;
-    const ContentWrapper = indicator ? RadioCard.ItemContent : React.Fragment;
-    return (jsxs(RadioCard.Item, { ...rest, children: [jsx(RadioCard.ItemHiddenInput, { ref: ref, ...inputProps }), jsxs(RadioCard.ItemControl, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxs(ContentWrapper, { children: [icon, label && jsx(RadioCard.ItemText, { children: label }), description && (jsx(RadioCard.ItemDescription, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsx(RadioCard.ItemAddon, { children: addon })] }));
-});
-const RadioCardRoot = RadioCard.Root;
-RadioCard.Label;
-RadioCard.ItemIndicator;
 
 const Field = React.forwardRef(function Field(props, ref) {
     const { label, children, helperText, errorText, optionalText, ...rest } = props;
@@ -1608,11 +1616,13 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     if (schema.properties == undefined) {
         throw new Error("schema properties when using DatePicker");
     }
-    const { gridColumn, gridRow, title } = schema.properties[column];
+    const { total, showing, close, typeToSearch, showMore } = displayText;
+    const { gridColumn, gridRow, title, renderDisplay } = schema.properties[column];
     const [selectedIds, setSelectedIds] = useState([]);
     const [searchText, setSearchText] = useState();
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
+    const [idMap, setIdMap] = useState({});
     const ref = useRef(null);
     const query = useQuery({
         queryKey: [`idpicker`, searchText, in_table, limit],
@@ -1634,68 +1644,70 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
         setSearchText(event.target.value);
         setLimit(10);
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getItemList = (data) => {
-        return data.map((item) => {
-            return {
-                label: item[display_column],
-                key: item[column_ref],
-                value: item[column_ref],
-            };
+    const ids = (watch(column) ?? []);
+    const newIdMap = useMemo(() => Object.fromEntries(dataList.map((item) => {
+        return [
+            item[column_ref],
+            {
+                ...item,
+            },
+        ];
+    })), [dataList, column_ref]);
+    useEffect(() => {
+        setIdMap((state) => {
+            return { ...state, ...newIdMap };
         });
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getIdMap = (data) => {
-        return Object.fromEntries(data.map((item) => {
-            return [
-                item[column_ref],
-                {
-                    ...item,
-                },
-            ];
-        }));
-    };
-    const getSelectedName = (id) => {
-        const selectedItem = getIdMap(dataList)[id];
-        if (selectedItem == undefined) {
-            return "";
-        }
-        return selectedItem[display_column];
-    };
-    if (selectedIds.length >= 1 && isMultiple === false) {
-        return (jsx(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, gridColumn,
-            gridRow, children: jsx(Tag, { closable: true, onClick: () => {
-                    setSelectedIds([]);
-                    setValue(column, "");
-                }, children: getSelectedName(selectedIds[0]) }) }));
-    }
+    }, [newIdMap]);
     return (jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [selectedIds.map((id) => {
-                return (jsx(Tag, { closable: true, onClick: () => {
-                        setSelectedIds([]);
-                        setValue(column, "");
-                    }, children: getSelectedName(id) }));
-            }), jsx(Input, { placeholder: "Type to search", onChange: (event) => {
-                    onSearchChange(event);
+        gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [selectedIds.map((id) => {
+                        const item = idMap[id];
+                        if (item === undefined) {
+                            return jsx(Fragment, { children: "undefined" });
+                        }
+                        return (jsx(Tag, { closable: true, onClick: () => {
+                                setSelectedIds((state) => state.filter((id) => id != item[column_ref]));
+                                setValue(column, ids.filter((id) => id != item[column_ref]));
+                            }, children: !!renderDisplay === true
+                                ? renderDisplay(item)
+                                : item[display_column] }));
+                    }), jsx(Tag, { cursor: "pointer", onClick: () => {
+                            setOpenSearchResult(true);
+                        }, children: "Add" })] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: (event) => {
                     setOpenSearchResult(true);
-                }, autoComplete: "off", ref: ref }), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsxs(RadioCardRoot, { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), isError && jsx(Fragment, { children: "isError" }), jsx(Text, { children: `Search Result: ${count}, Showing ${limit}` }), jsx(Button, { onClick: async () => {
+                }, children: selectedIds[0] ? idMap[selectedIds[0]][display_column] ?? "" : "" })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(Input, { placeholder: typeToSearch, onChange: (event) => {
+                                        onSearchChange(event);
+                                        setOpenSearchResult(true);
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), isError && jsx(Fragment, { children: "isError" }), jsx(Text, { children: `${total ?? "Total"} ${count}, ${showing ?? "Showing"} ${limit}` }), jsx(Button, { onClick: async () => {
                                                 setOpenSearchResult(false);
-                                            }, children: "close" }), 
-                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                        getItemList(dataList).map((item) => (jsx(RadioCardItem, { label: item.label, description: item.description, value: item.value, onClick: () => {
-                                                const ids = watch(column);
-                                                setSelectedIds((state) => [...state, item.key]);
-                                                setValue(column, [...(ids ?? []), item.key]);
-                                                setOpenSearchResult(false);
-                                            }, indicator: false }, item.key))), isDirty && (jsxs(Fragment, { children: [dataList.length <= 0 && jsx(Fragment, { children: "Empty Search Result" }), " ", count > dataList.length && (jsx(Fragment, { children: jsx(Button, { onClick: async () => {
-                                                            setLimit((limit) => limit + 10);
-                                                            await getTableData({
-                                                                serverUrl,
-                                                                searching: searchText ?? "",
-                                                                in_table: in_table,
-                                                                limit: limit + 10,
-                                                            });
-                                                        }, children: "show more" }) }))] }))] })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
+                                            }, children: close ?? "Close" }), jsx(Flex, { flexFlow: "column wrap", children: 
+                                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                            dataList.map((item) => {
+                                                const selected = ids.some((id) => item[column_ref] === id);
+                                                return (jsx(Box, { cursor: "pointer", onClick: () => {
+                                                        if (!isMultiple) {
+                                                            setOpenSearchResult(false);
+                                                            setSelectedIds(() => [item[column_ref]]);
+                                                            setValue(column, [item[column_ref]]);
+                                                            return;
+                                                        }
+                                                        const newSet = new Set([
+                                                            ...(ids ?? []),
+                                                            item[column_ref],
+                                                        ]);
+                                                        setSelectedIds(() => [...newSet]);
+                                                        setValue(column, [...newSet]);
+                                                    }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
+                                                        ? renderDisplay(item)
+                                                        : item[display_column] }));
+                                            }) }), isDirty && (jsxs(Fragment, { children: [dataList.length <= 0 && jsx(Fragment, { children: "Empty Search Result" }), " "] })), count > dataList.length && (jsx(Fragment, { children: jsx(Button, { onClick: async () => {
+                                                    setLimit((limit) => limit + 10);
+                                                    await getTableData({
+                                                        serverUrl,
+                                                        searching: searchText ?? "",
+                                                        in_table: in_table,
+                                                        limit: limit + 10,
+                                                    });
+                                                }, children: showMore ?? "Show More" }) }))] })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
 const ToggleTip = React.forwardRef(function ToggleTip(props, ref) {
@@ -1903,7 +1915,6 @@ const DatePicker = ({ column }) => {
                             }, children: getValues(column) !== undefined
                                 ? dayjs(getValues(column)).format("YYYY-MM-DD")
                                 : "" }) }), jsx(PopoverContent, { width: "auto", children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1, { selected: new Date(getValues(column)), onDateSelected: ({ selected, selectable, date }) => {
-                                        console.log(date, selected, selectable, "jasdio");
                                         setValue(column, dayjs(date).format("YYYY-MM-DD"));
                                         setOpen(false);
                                     } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
@@ -1966,6 +1977,16 @@ const ObjectInput = ({ column }) => {
                 }, children: addNew ?? "Add New" }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
+const RadioCardItem = React.forwardRef(function RadioCardItem(props, ref) {
+    const { inputProps, label, description, addon, icon, indicator = jsx(RadioCard.ItemIndicator, {}), indicatorPlacement = "end", ...rest } = props;
+    const hasContent = label || description || icon;
+    const ContentWrapper = indicator ? RadioCard.ItemContent : React.Fragment;
+    return (jsxs(RadioCard.Item, { ...rest, children: [jsx(RadioCard.ItemHiddenInput, { ref: ref, ...inputProps }), jsxs(RadioCard.ItemControl, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxs(ContentWrapper, { children: [icon, label && jsx(RadioCard.ItemText, { children: label }), description && (jsx(RadioCard.ItemDescription, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsx(RadioCard.ItemAddon, { children: addon })] }));
+});
+const RadioCardRoot = RadioCard.Root;
+RadioCard.Label;
+RadioCard.ItemIndicator;
+
 const TagPicker = ({ column }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { schema, serverUrl } = useSchemaContext();
@@ -2006,7 +2027,7 @@ const TagPicker = ({ column }) => {
                 where: [
                     {
                         id: object_id_column,
-                        value: [object_id],
+                        value: object_id[0],
                     },
                 ],
                 limit: 100,
@@ -2121,6 +2142,65 @@ const FilePicker = ({ column }) => {
                             }));
                         }, children: file.name }));
                 }) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
+};
+
+const EnumPicker = ({ column, isMultiple = false }) => {
+    const { watch, formState: { errors }, setValue, } = useFormContext();
+    const { schema, serverUrl, displayText } = useSchemaContext();
+    const { fieldRequired } = displayText;
+    const { required } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    if (schema.properties == undefined) {
+        throw new Error("schema properties when using DatePicker");
+    }
+    const { gridColumn, gridRow, title, renderDisplay } = schema.properties[column];
+    const [selectedEnums, setSelectedEnums] = useState([]);
+    const [searchText, setSearchText] = useState();
+    const [limit, setLimit] = useState(10);
+    const [openSearchResult, setOpenSearchResult] = useState();
+    const ref = useRef(null);
+    const watchEnums = (watch(column) ?? []);
+    const properties = (schema.properties[column] ?? {});
+    const dataList = properties.enum ?? [];
+    const count = properties.enum?.length ?? 0;
+    const isDirty = (searchText?.length ?? 0) > 0;
+    const onSearchChange = async (event) => {
+        setSearchText(event.target.value);
+        setLimit(10);
+    };
+    return (jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
+        gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [selectedEnums.map((enumValue) => {
+                        const item = enumValue;
+                        if (item === undefined) {
+                            return jsx(Fragment, { children: "undefined" });
+                        }
+                        return (jsx(Tag, { closable: true, onClick: () => {
+                                setSelectedEnums((state) => state.filter((id) => id != item));
+                                setValue(column, watchEnums.filter((id) => id != item));
+                            }, children: !!renderDisplay === true ? renderDisplay(item) : item }));
+                    }), jsx(Tag, { cursor: "pointer", onClick: () => {
+                            setOpenSearchResult(true);
+                        }, children: "Add" })] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: (event) => {
+                    setOpenSearchResult(true);
+                }, children: selectedEnums[0] })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(Input, { placeholder: "Type to search", onChange: (event) => {
+                                        onSearchChange(event);
+                                        setOpenSearchResult(true);
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Text, { children: `Search Result: ${count}, Showing ${limit}` }), jsx(Button, { onClick: async () => {
+                                                setOpenSearchResult(false);
+                                            }, children: "close" }), jsx(Flex, { flexFlow: "column wrap", children: dataList.map((item) => {
+                                                const selected = watchEnums.some((enumValue) => item === enumValue);
+                                                return (jsx(Box, { cursor: "pointer", onClick: () => {
+                                                        if (!isMultiple) {
+                                                            setOpenSearchResult(false);
+                                                            setSelectedEnums(() => [item]);
+                                                            setValue(column, [item]);
+                                                            return;
+                                                        }
+                                                        const newSet = new Set([...(watchEnums ?? []), item]);
+                                                        setSelectedEnums(() => [...newSet]);
+                                                        setValue(column, [...newSet]);
+                                                    }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true ? renderDisplay(item) : item }, `${column}-${item}`));
+                                            }) }), isDirty && (jsxs(Fragment, { children: [dataList.length <= 0 && jsx(Fragment, { children: "Empty Search Result" }), " "] }))] })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
 const idPickerSanityCheck = (column, in_table, column_ref, display_column) => {
@@ -2320,6 +2400,9 @@ const FormInternal = () => {
                             //@ts-expect-error TODO: add more fields to support form-creation
                             const { type, variant, in_table, column_ref, display_column } = values;
                             if (type === "string") {
+                                if ((values.enum ?? []).length > 0) {
+                                    return jsx(EnumPicker, { column: key }, `form-${key}`);
+                                }
                                 if (variant === "id-picker") {
                                     idPickerSanityCheck(column, in_table, column_ref, display_column);
                                     return (jsx(IdPicker, { column: key, in_table: in_table, column_ref: column_ref, display_column: display_column }, `form-${key}`));

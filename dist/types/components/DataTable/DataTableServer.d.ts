@@ -8,7 +8,6 @@ export interface DataTableServerProps<TData> {
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
-    onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
     columnOrder: ColumnOrderState;
     columnFilters: ColumnFiltersState;
     globalFilter: string;
@@ -28,4 +27,4 @@ export interface DataTableServerProps<TData> {
     query: UseQueryResult<TData>;
     url: string;
 }
-export declare const DataTableServer: <TData>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }: DataTableServerProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare function DataTableServer<TData = unknown>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }: DataTableServerProps<TData>): import("react/jsx-runtime").JSX.Element;

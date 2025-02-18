@@ -22,6 +22,7 @@ var cg = require('react-icons/cg');
 var adapter = require('@atlaskit/pragmatic-drag-and-drop/element/adapter');
 var invariant = require('tiny-invariant');
 var axios = require('axios');
+var usehooks = require('@uidotdev/usehooks');
 var reactHookForm = require('react-hook-form');
 var dayjs = require('dayjs');
 var adapter$1 = require('@atlaskit/pragmatic-drag-and-drop/external/adapter');
@@ -51,6 +52,7 @@ const DataTableContext = React.createContext({
     table: {},
     globalFilter: "",
     setGlobalFilter: () => { },
+    type: "client",
 });
 
 const useDataTableContext = () => {
@@ -171,8 +173,14 @@ const ResetSortingButton = ({ text = "Reset Sorting", }) => {
 };
 
 const RowCountText = () => {
-    const { table } = useDataTableContext();
-    return jsxRuntime.jsx(react.Text, { children: table.getFilteredRowModel().flatRows.length ?? 0 });
+    const { table, type } = useDataTableContext();
+    const getCount = () => {
+        if (type === "client") {
+            return table.getFilteredRowModel().flatRows.length ?? 0;
+        }
+        return table.getRowCount();
+    };
+    return jsxRuntime.jsx(react.Text, { children: getCount() });
 };
 
 const { withContext } = react.createRecipeContext({ key: "button" });
@@ -241,8 +249,14 @@ React__namespace.forwardRef(function PaginationPageText(props, ref) {
 
 // TODO: not working in client side
 const TablePagination = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: table.getFilteredRowModel().flatRows.length ?? 0, pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
+    const { table, type } = useDataTableContext();
+    const getCount = () => {
+        if (type === "client") {
+            return table.getFilteredRowModel().flatRows.length ?? 0;
+        }
+        return table.getRowCount();
+    };
+    return (jsxRuntime.jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: getCount(), pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
             table.setPageIndex(e.page - 1);
         }, children: jsxRuntime.jsxs(react.HStack, { children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), jsxRuntime.jsx(PaginationItems, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) }));
 };
@@ -389,7 +403,7 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
     // Return if the item should be filtered in/out
     return itemRank.passed;
 };
-const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }) => {
+function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
         data: data,
@@ -436,24 +450,19 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
         onDensityChange: setDensity,
         onColumnVisibilityChange: setColumnVisibility,
     });
-    React.useEffect(() => {
-        setColumnOrder(table.getAllLeafColumns().map((column) => column.id));
-    }, [table, setColumnOrder]);
-    React.useEffect(() => {
-        onRowSelect(table.getState().rowSelection, data);
-    }, [data, onRowSelect, table]);
     return (jsxRuntime.jsx(DataTableContext.Provider, { value: {
             table: { ...table },
             globalFilter: globalFilter,
             setGlobalFilter: setGlobalFilter,
+            type: "client",
         }, children: children }));
-};
+}
 
 const DataTableServerContext = React.createContext({
     url: "",
 });
 
-const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, onRowSelect = () => { }, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }) => {
+function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
         data: query.data?.data ?? [],
@@ -505,8 +514,9 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
             table: { ...table },
             globalFilter,
             setGlobalFilter,
+            type: "server",
         }, children: jsxRuntime.jsx(DataTableServerContext.Provider, { value: { url }, children: children }) }));
-};
+}
 
 const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
     const { icon, children, inputProps, rootRef, ...rest } = props;
@@ -596,8 +606,8 @@ const Tooltip = React__namespace.forwardRef(function Tooltip(props, ref) {
     return (jsxRuntime.jsxs(react.Tooltip.Root, { ...rest, children: [jsxRuntime.jsx(react.Tooltip.Trigger, { asChild: true, children: children }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, container: portalRef, children: jsxRuntime.jsx(react.Tooltip.Positioner, { children: jsxRuntime.jsxs(react.Tooltip.Content, { ref: ref, ...contentProps, children: [showArrow && (jsxRuntime.jsx(react.Tooltip.Arrow, { children: jsxRuntime.jsx(react.Tooltip.ArrowTip, {}) })), content] }) }) })] }));
 });
 
-const TableControls = ({ totalText = "Total:", showFilter = false, fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showFilterName = false, showFilterTags = false, showReload = false, filterOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, }) => {
-    return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto 1fr auto", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsxRuntime.jsx(react.Spinner, { size: "sm" }), hasError && (jsxRuntime.jsx(Tooltip, { content: "An error occurred while fetching data", children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: "red.400" }) })), showFilter && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(GlobalFilter, {}), jsxRuntime.jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" })] })), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), filterOptions.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
+const TableControls = ({ totalText = "Total:", fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, filterOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, }) => {
+    return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto 1fr auto", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", justifySelf: "center", alignSelf: "center", gap: "0.5rem", children: [jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsxRuntime.jsx(react.Spinner, { size: "sm" }), hasError && (jsxRuntime.jsx(Tooltip, { content: "An error occurred while fetching data", children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: "red.400" }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" }) })), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), filterOptions.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
                             return (jsxRuntime.jsxs(react.Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxRuntime.jsxs(react.Text, { children: [column, ":"] }), jsxRuntime.jsx(FilterOptions, { column: column })] }, column));
                         }) })), showFilterTags && (jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(TableFilterTags, {}) }))] }), jsxRuntime.jsx(react.Box, { overflow: "auto", width: "100%", height: "100%", backgroundColor: "gray.50", _dark: {
                     backgroundColor: "gray.900",
@@ -1398,7 +1408,7 @@ const useDataTableServer = ({ url, default: { sorting: defaultSorting = [], pagi
         searching: globalFilter,
     };
     const query = reactQuery.useQuery({
-        queryKey: [url, params],
+        queryKey: [url, JSON.stringify(params)],
         queryFn: () => {
             return axios
                 .get(url, {
@@ -1524,8 +1534,16 @@ const InputGroup = React__namespace.forwardRef(function InputGroup(props, ref) {
 
 const GlobalFilter = () => {
     const { table } = useDataTableContext();
+    const [searchTerm, setSearchTerm] = React.useState("");
+    const debouncedSearchTerm = usehooks.useDebounce(searchTerm, 500);
+    React.useEffect(() => {
+        const searchHN = async () => {
+            table.setGlobalFilter(debouncedSearchTerm);
+        };
+        searchHN();
+    }, [debouncedSearchTerm]);
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(InputGroup, { flex: "1", startElement: jsxRuntime.jsx(md.MdSearch, {}), children: jsxRuntime.jsx(react.Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
-                    table.setGlobalFilter(e.target.value);
+                    setSearchTerm(e.target.value);
                 } }) }) }));
 };
 
@@ -1558,16 +1576,6 @@ react.Popover.Header;
 const PopoverRoot = react.Popover.Root;
 const PopoverBody = react.Popover.Body;
 const PopoverTrigger = react.Popover.Trigger;
-
-const RadioCardItem = React__namespace.forwardRef(function RadioCardItem(props, ref) {
-    const { inputProps, label, description, addon, icon, indicator = jsxRuntime.jsx(react.RadioCard.ItemIndicator, {}), indicatorPlacement = "end", ...rest } = props;
-    const hasContent = label || description || icon;
-    const ContentWrapper = indicator ? react.RadioCard.ItemContent : React__namespace.Fragment;
-    return (jsxRuntime.jsxs(react.RadioCard.Item, { ...rest, children: [jsxRuntime.jsx(react.RadioCard.ItemHiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsxs(react.RadioCard.ItemControl, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxRuntime.jsxs(ContentWrapper, { children: [icon, label && jsxRuntime.jsx(react.RadioCard.ItemText, { children: label }), description && (jsxRuntime.jsx(react.RadioCard.ItemDescription, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsxRuntime.jsx(react.RadioCard.ItemAddon, { children: addon })] }));
-});
-const RadioCardRoot = react.RadioCard.Root;
-react.RadioCard.Label;
-react.RadioCard.ItemIndicator;
 
 const Field = React__namespace.forwardRef(function Field(props, ref) {
     const { label, children, helperText, errorText, optionalText, ...rest } = props;
@@ -1628,11 +1636,13 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     if (schema.properties == undefined) {
         throw new Error("schema properties when using DatePicker");
     }
-    const { gridColumn, gridRow, title } = schema.properties[column];
+    const { total, showing, close, typeToSearch, showMore } = displayText;
+    const { gridColumn, gridRow, title, renderDisplay } = schema.properties[column];
     const [selectedIds, setSelectedIds] = React.useState([]);
     const [searchText, setSearchText] = React.useState();
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
+    const [idMap, setIdMap] = React.useState({});
     const ref = React.useRef(null);
     const query = reactQuery.useQuery({
         queryKey: [`idpicker`, searchText, in_table, limit],
@@ -1654,68 +1664,70 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
         setSearchText(event.target.value);
         setLimit(10);
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getItemList = (data) => {
-        return data.map((item) => {
-            return {
-                label: item[display_column],
-                key: item[column_ref],
-                value: item[column_ref],
-            };
+    const ids = (watch(column) ?? []);
+    const newIdMap = React.useMemo(() => Object.fromEntries(dataList.map((item) => {
+        return [
+            item[column_ref],
+            {
+                ...item,
+            },
+        ];
+    })), [dataList, column_ref]);
+    React.useEffect(() => {
+        setIdMap((state) => {
+            return { ...state, ...newIdMap };
         });
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getIdMap = (data) => {
-        return Object.fromEntries(data.map((item) => {
-            return [
-                item[column_ref],
-                {
-                    ...item,
-                },
-            ];
-        }));
-    };
-    const getSelectedName = (id) => {
-        const selectedItem = getIdMap(dataList)[id];
-        if (selectedItem == undefined) {
-            return "";
-        }
-        return selectedItem[display_column];
-    };
-    if (selectedIds.length >= 1 && isMultiple === false) {
-        return (jsxRuntime.jsx(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, gridColumn,
-            gridRow, children: jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
-                    setSelectedIds([]);
-                    setValue(column, "");
-                }, children: getSelectedName(selectedIds[0]) }) }));
-    }
+    }, [newIdMap]);
     return (jsxRuntime.jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [selectedIds.map((id) => {
-                return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
-                        setSelectedIds([]);
-                        setValue(column, "");
-                    }, children: getSelectedName(id) }));
-            }), jsxRuntime.jsx(react.Input, { placeholder: "Type to search", onChange: (event) => {
-                    onSearchChange(event);
+        gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: "wrap", gap: 1, children: [selectedIds.map((id) => {
+                        const item = idMap[id];
+                        if (item === undefined) {
+                            return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "undefined" });
+                        }
+                        return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
+                                setSelectedIds((state) => state.filter((id) => id != item[column_ref]));
+                                setValue(column, ids.filter((id) => id != item[column_ref]));
+                            }, children: !!renderDisplay === true
+                                ? renderDisplay(item)
+                                : item[display_column] }));
+                    }), jsxRuntime.jsx(Tag, { cursor: "pointer", onClick: () => {
+                            setOpenSearchResult(true);
+                        }, children: "Add" })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: (event) => {
                     setOpenSearchResult(true);
-                }, autoComplete: "off", ref: ref }), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsxs(RadioCardRoot, { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), isError && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isError" }), jsxRuntime.jsx(react.Text, { children: `Search Result: ${count}, Showing ${limit}` }), jsxRuntime.jsx(Button, { onClick: async () => {
+                }, children: selectedIds[0] ? idMap[selectedIds[0]][display_column] ?? "" : "" })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(react.Input, { placeholder: typeToSearch, onChange: (event) => {
+                                        onSearchChange(event);
+                                        setOpenSearchResult(true);
+                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), isError && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isError" }), jsxRuntime.jsx(react.Text, { children: `${total ?? "Total"} ${count}, ${showing ?? "Showing"} ${limit}` }), jsxRuntime.jsx(Button, { onClick: async () => {
                                                 setOpenSearchResult(false);
-                                            }, children: "close" }), 
-                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                        getItemList(dataList).map((item) => (jsxRuntime.jsx(RadioCardItem, { label: item.label, description: item.description, value: item.value, onClick: () => {
-                                                const ids = watch(column);
-                                                setSelectedIds((state) => [...state, item.key]);
-                                                setValue(column, [...(ids ?? []), item.key]);
-                                                setOpenSearchResult(false);
-                                            }, indicator: false }, item.key))), isDirty && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [dataList.length <= 0 && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Empty Search Result" }), " ", count > dataList.length && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Button, { onClick: async () => {
-                                                            setLimit((limit) => limit + 10);
-                                                            await getTableData({
-                                                                serverUrl,
-                                                                searching: searchText ?? "",
-                                                                in_table: in_table,
-                                                                limit: limit + 10,
-                                                            });
-                                                        }, children: "show more" }) }))] }))] })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
+                                            }, children: close ?? "Close" }), jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: 
+                                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                            dataList.map((item) => {
+                                                const selected = ids.some((id) => item[column_ref] === id);
+                                                return (jsxRuntime.jsx(react.Box, { cursor: "pointer", onClick: () => {
+                                                        if (!isMultiple) {
+                                                            setOpenSearchResult(false);
+                                                            setSelectedIds(() => [item[column_ref]]);
+                                                            setValue(column, [item[column_ref]]);
+                                                            return;
+                                                        }
+                                                        const newSet = new Set([
+                                                            ...(ids ?? []),
+                                                            item[column_ref],
+                                                        ]);
+                                                        setSelectedIds(() => [...newSet]);
+                                                        setValue(column, [...newSet]);
+                                                    }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
+                                                        ? renderDisplay(item)
+                                                        : item[display_column] }));
+                                            }) }), isDirty && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [dataList.length <= 0 && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Empty Search Result" }), " "] })), count > dataList.length && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Button, { onClick: async () => {
+                                                    setLimit((limit) => limit + 10);
+                                                    await getTableData({
+                                                        serverUrl,
+                                                        searching: searchText ?? "",
+                                                        in_table: in_table,
+                                                        limit: limit + 10,
+                                                    });
+                                                }, children: showMore ?? "Show More" }) }))] })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
 const ToggleTip = React__namespace.forwardRef(function ToggleTip(props, ref) {
@@ -1923,7 +1935,6 @@ const DatePicker = ({ column }) => {
                             }, children: getValues(column) !== undefined
                                 ? dayjs(getValues(column)).format("YYYY-MM-DD")
                                 : "" }) }), jsxRuntime.jsx(PopoverContent, { width: "auto", children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DatePicker$1, { selected: new Date(getValues(column)), onDateSelected: ({ selected, selectable, date }) => {
-                                        console.log(date, selected, selectable, "jasdio");
                                         setValue(column, dayjs(date).format("YYYY-MM-DD"));
                                         setOpen(false);
                                     } })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
@@ -1986,6 +1997,16 @@ const ObjectInput = ({ column }) => {
                 }, children: addNew ?? "Add New" }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
+const RadioCardItem = React__namespace.forwardRef(function RadioCardItem(props, ref) {
+    const { inputProps, label, description, addon, icon, indicator = jsxRuntime.jsx(react.RadioCard.ItemIndicator, {}), indicatorPlacement = "end", ...rest } = props;
+    const hasContent = label || description || icon;
+    const ContentWrapper = indicator ? react.RadioCard.ItemContent : React__namespace.Fragment;
+    return (jsxRuntime.jsxs(react.RadioCard.Item, { ...rest, children: [jsxRuntime.jsx(react.RadioCard.ItemHiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsxs(react.RadioCard.ItemControl, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxRuntime.jsxs(ContentWrapper, { children: [icon, label && jsxRuntime.jsx(react.RadioCard.ItemText, { children: label }), description && (jsxRuntime.jsx(react.RadioCard.ItemDescription, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsxRuntime.jsx(react.RadioCard.ItemAddon, { children: addon })] }));
+});
+const RadioCardRoot = react.RadioCard.Root;
+react.RadioCard.Label;
+react.RadioCard.ItemIndicator;
+
 const TagPicker = ({ column }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { schema, serverUrl } = useSchemaContext();
@@ -2026,7 +2047,7 @@ const TagPicker = ({ column }) => {
                 where: [
                     {
                         id: object_id_column,
-                        value: [object_id],
+                        value: object_id[0],
                     },
                 ],
                 limit: 100,
@@ -2141,6 +2162,65 @@ const FilePicker = ({ column }) => {
                             }));
                         }, children: file.name }));
                 }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
+};
+
+const EnumPicker = ({ column, isMultiple = false }) => {
+    const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
+    const { schema, serverUrl, displayText } = useSchemaContext();
+    const { fieldRequired } = displayText;
+    const { required } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    if (schema.properties == undefined) {
+        throw new Error("schema properties when using DatePicker");
+    }
+    const { gridColumn, gridRow, title, renderDisplay } = schema.properties[column];
+    const [selectedEnums, setSelectedEnums] = React.useState([]);
+    const [searchText, setSearchText] = React.useState();
+    const [limit, setLimit] = React.useState(10);
+    const [openSearchResult, setOpenSearchResult] = React.useState();
+    const ref = React.useRef(null);
+    const watchEnums = (watch(column) ?? []);
+    const properties = (schema.properties[column] ?? {});
+    const dataList = properties.enum ?? [];
+    const count = properties.enum?.length ?? 0;
+    const isDirty = (searchText?.length ?? 0) > 0;
+    const onSearchChange = async (event) => {
+        setSearchText(event.target.value);
+        setLimit(10);
+    };
+    return (jsxRuntime.jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
+        gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: "wrap", gap: 1, children: [selectedEnums.map((enumValue) => {
+                        const item = enumValue;
+                        if (item === undefined) {
+                            return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "undefined" });
+                        }
+                        return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
+                                setSelectedEnums((state) => state.filter((id) => id != item));
+                                setValue(column, watchEnums.filter((id) => id != item));
+                            }, children: !!renderDisplay === true ? renderDisplay(item) : item }));
+                    }), jsxRuntime.jsx(Tag, { cursor: "pointer", onClick: () => {
+                            setOpenSearchResult(true);
+                        }, children: "Add" })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: (event) => {
+                    setOpenSearchResult(true);
+                }, children: selectedEnums[0] })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(react.Input, { placeholder: "Type to search", onChange: (event) => {
+                                        onSearchChange(event);
+                                        setOpenSearchResult(true);
+                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Text, { children: `Search Result: ${count}, Showing ${limit}` }), jsxRuntime.jsx(Button, { onClick: async () => {
+                                                setOpenSearchResult(false);
+                                            }, children: "close" }), jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: dataList.map((item) => {
+                                                const selected = watchEnums.some((enumValue) => item === enumValue);
+                                                return (jsxRuntime.jsx(react.Box, { cursor: "pointer", onClick: () => {
+                                                        if (!isMultiple) {
+                                                            setOpenSearchResult(false);
+                                                            setSelectedEnums(() => [item]);
+                                                            setValue(column, [item]);
+                                                            return;
+                                                        }
+                                                        const newSet = new Set([...(watchEnums ?? []), item]);
+                                                        setSelectedEnums(() => [...newSet]);
+                                                        setValue(column, [...newSet]);
+                                                    }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true ? renderDisplay(item) : item }, `${column}-${item}`));
+                                            }) }), isDirty && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [dataList.length <= 0 && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Empty Search Result" }), " "] }))] })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
 const idPickerSanityCheck = (column, in_table, column_ref, display_column) => {
@@ -2340,6 +2420,9 @@ const FormInternal = () => {
                             //@ts-expect-error TODO: add more fields to support form-creation
                             const { type, variant, in_table, column_ref, display_column } = values;
                             if (type === "string") {
+                                if ((values.enum ?? []).length > 0) {
+                                    return jsxRuntime.jsx(EnumPicker, { column: key }, `form-${key}`);
+                                }
                                 if (variant === "id-picker") {
                                     idPickerSanityCheck(column, in_table, column_ref, display_column);
                                     return (jsxRuntime.jsx(IdPicker, { column: key, in_table: in_table, column_ref: column_ref, display_column: display_column }, `form-${key}`));

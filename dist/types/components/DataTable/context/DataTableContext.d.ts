@@ -4,5 +4,6 @@ export interface DataTableContext<TData> {
     table: Table<TData>;
     globalFilter: string;
     setGlobalFilter: OnChangeFn<string>;
+    type: "client" | "server";
 }
 export declare const DataTableContext: import("react").Context<DataTableContext<any>>;

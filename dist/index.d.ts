@@ -142,7 +142,7 @@ interface DataTableProps<TData> {
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
 }
-declare const DataTable: <TData>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }: DataTableProps<TData>) => react_jsx_runtime.JSX.Element;
+declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }: DataTableProps<TData>): react_jsx_runtime.JSX.Element;
 
 interface DataTableServerProps<TData> {
     children: ReactNode | ReactNode[];
@@ -150,7 +150,6 @@ interface DataTableServerProps<TData> {
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
-    onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
     columnOrder: ColumnOrderState;
     columnFilters: ColumnFiltersState;
     globalFilter: string;
@@ -170,7 +169,7 @@ interface DataTableServerProps<TData> {
     query: UseQueryResult<TData>;
     url: string;
 }
-declare const DataTableServer: <TData>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, onRowSelect, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }: DataTableServerProps<TData>) => react_jsx_runtime.JSX.Element;
+declare function DataTableServer<TData = unknown>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
 
 interface TableBodyProps {
     pinnedBgColor?: {
@@ -195,11 +194,12 @@ declare const TableBody: ({ pinnedBgColor, showSelector, alwaysShowSelector, can
 
 interface TableControlsProps {
     totalText?: string;
-    showFilter?: boolean;
     fitTableWidth?: boolean;
     fitTableHeight?: boolean;
     isMobile?: boolean;
     children?: ReactNode;
+    showGlobalFilter?: boolean;
+    showFilter?: boolean;
     showFilterName?: boolean;
     showFilterTags?: boolean;
     showReload?: boolean;
@@ -208,7 +208,7 @@ interface TableControlsProps {
     loading?: boolean;
     hasError?: boolean;
 }
-declare const TableControls: ({ totalText, showFilter, fitTableWidth, fitTableHeight, isMobile, children, showFilterName, showFilterTags, showReload, filterOptions, extraItems, loading, hasError, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
+declare const TableControls: ({ totalText, fitTableWidth, fitTableHeight, isMobile, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, filterOptions, extraItems, loading, hasError, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
 
 interface TableFooterProps {
     pinnedBgColor?: {
@@ -344,6 +344,7 @@ interface DataTableContext<TData> {
     table: Table$1<TData>;
     globalFilter: string;
     setGlobalFilter: OnChangeFn<string>;
+    type: "client" | "server";
 }
 declare const DataTableContext: React$1.Context<DataTableContext<any>>;
 
@@ -405,6 +406,11 @@ interface DisplayTextProps {
     submitSuccess?: string;
     submitAgain?: string;
     fieldRequired?: string;
+    total: string;
+    showing: string;
+    close: string;
+    typeToSearch: string;
+    showMore: string;
 }
 interface FormProps<TData extends FieldValues> {
     schema: JSONSchema7;
@@ -414,7 +420,7 @@ interface FormProps<TData extends FieldValues> {
     onSubmit?: SubmitHandler<TData>;
     preLoadedValues?: object;
     rowNumber?: number | string;
-    displayText?: DisplayTextProps;
+    displayText?: Partial<DisplayTextProps>;
 }
 interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;

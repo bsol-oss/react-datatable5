@@ -11,6 +11,11 @@ export interface DisplayTextProps {
     submitSuccess?: string;
     submitAgain?: string;
     fieldRequired?: string;
+    total: string;
+    showing: string;
+    close: string;
+    typeToSearch: string;
+    showMore: string;
 }
 export interface FormProps<TData extends FieldValues> {
     schema: JSONSchema7;
@@ -20,7 +25,7 @@ export interface FormProps<TData extends FieldValues> {
     onSubmit?: SubmitHandler<TData>;
     preLoadedValues?: object;
     rowNumber?: number | string;
-    displayText?: DisplayTextProps;
+    displayText?: Partial<DisplayTextProps>;
 }
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
