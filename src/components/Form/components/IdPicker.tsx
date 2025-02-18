@@ -95,26 +95,6 @@ export const IdPicker = ({
     });
   }, [newIdMap]);
 
-  if (selectedIds.length >= 1 && isMultiple === false) {
-    const item = idMap[selectedIds[0]];
-    return (
-      <Field
-        label={`${title ?? snakeToLabel(column)}`}
-        required={isRequired}
-        cursor={"pointer"}
-        onClick={() => {
-          setSelectedIds([]);
-          setValue(column, []);
-        }}
-        {...{
-          gridColumn,
-          gridRow,
-        }}
-      >
-        {!!renderDisplay === true ? renderDisplay(item) : item[display_column]}
-      </Field>
-    );
-  }
   return (
     <Field
       label={`${title ?? snakeToLabel(column)}`}
@@ -125,32 +105,33 @@ export const IdPicker = ({
         gridRow,
       }}
     >
-      <Flex flexFlow={"wrap"} gap={1}>
-        {selectedIds.map((id) => {
-          const item = idMap[id];
-          if (item === undefined) {
-            return <>undefined</>;
-          }
-          return (
-            <Tag
-              closable
-              onClick={() => {
-                setSelectedIds((state) =>
-                  state.filter((id) => id != item[column_ref])
-                );
-                setValue(
-                  column,
-                  ids.filter((id: string) => id != item[column_ref])
-                );
-              }}
-            >
-              {!!renderDisplay === true
-                ? renderDisplay(item)
-                : item[display_column]}
-            </Tag>
-          );
-        })}
-        {isMultiple && (
+      {isMultiple && (
+        <Flex flexFlow={"wrap"} gap={1}>
+          {selectedIds.map((id) => {
+            const item = idMap[id];
+            if (item === undefined) {
+              return <>undefined</>;
+            }
+            return (
+              <Tag
+                closable
+                onClick={() => {
+                  setSelectedIds((state) =>
+                    state.filter((id) => id != item[column_ref])
+                  );
+                  setValue(
+                    column,
+                    ids.filter((id: string) => id != item[column_ref])
+                  );
+                }}
+              >
+                {!!renderDisplay === true
+                  ? renderDisplay(item)
+                  : item[display_column]}
+              </Tag>
+            );
+          })}
+
           <Tag
             cursor={"pointer"}
             onClick={() => {
@@ -159,19 +140,18 @@ export const IdPicker = ({
           >
             Add
           </Tag>
-        )}
-        {!isMultiple && (
-          <Input
-            placeholder="Type to search"
-            onChange={(event) => {
-              onSearchChange(event);
-              setOpenSearchResult(true);
-            }}
-            autoComplete="off"
-            ref={ref}
-          />
-        )}
-      </Flex>
+        </Flex>
+      )}
+      {!isMultiple && (
+        <Button
+          variant={"outline"}
+          onClick={(event) => {
+            setOpenSearchResult(true);
+          }}
+        >
+          {idMap[selectedIds[0]][display_column] ?? ""}
+        </Button>
+      )}
 
       <PopoverRoot
         open={openSearchResult}
@@ -219,16 +199,21 @@ export const IdPicker = ({
                       <Box
                         cursor={"pointer"}
                         onClick={() => {
+                          if (!isMultiple) {
+                            setOpenSearchResult(false);
+                            setSelectedIds(() => [item[column_ref]]);
+                            setValue(column, [item[column_ref]]);
+                            return;
+                          }
                           const newSet = new Set([
                             ...(ids ?? []),
                             item[column_ref],
                           ]);
                           setSelectedIds(() => [...newSet]);
                           setValue(column, [...newSet]);
-                          if (!isMultiple) {
-                            setOpenSearchResult(false);
-                          }
                         }}
+                        opacity={0.7}
+                        _hover={{ opacity: 1 }}
                         {...(selected ? { color: "gray.400/50" } : {})}
                       >
                         {!!renderDisplay === true
