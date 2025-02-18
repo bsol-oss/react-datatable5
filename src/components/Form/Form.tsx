@@ -55,6 +55,11 @@ export interface DisplayTextProps {
   submitSuccess?: string;
   submitAgain?: string;
   fieldRequired?: string;
+  total: string;
+  showing: string;
+  close: string;
+  typeToSearch: string;
+  showMore: string;
 }
 
 export interface FormProps<TData extends FieldValues> {
@@ -65,7 +70,7 @@ export interface FormProps<TData extends FieldValues> {
   onSubmit?: SubmitHandler<TData>;
   preLoadedValues?: object;
   rowNumber?: number | string;
-  displayText?: DisplayTextProps;
+  displayText?: Partial<DisplayTextProps>;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -504,12 +509,7 @@ const FormInternal = <TData extends FieldValues>() => {
               values;
             if (type === "string") {
               if (((values.enum ?? []) as string[]).length > 0) {
-                return (
-                  <EnumPicker
-                    key={`form-${key}`}
-                    column={key}
-                  />
-                );
+                return <EnumPicker key={`form-${key}`} column={key} />;
               }
               if (variant === "id-picker") {
                 idPickerSanityCheck(

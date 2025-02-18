@@ -44,6 +44,7 @@ export const IdPicker = ({
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
+  const { total, showing, close, typeToSearch, showMore } = displayText;
   const { gridColumn, gridRow, title, renderDisplay } = schema.properties[
     column
   ] as CustomJSONSchema7;
@@ -168,7 +169,7 @@ export const IdPicker = ({
         <PopoverContent>
           <PopoverBody>
             <Input
-              placeholder="Type to search"
+              placeholder={typeToSearch}
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
@@ -186,13 +187,13 @@ export const IdPicker = ({
               {isLoading && <>isLoading</>}
               {isPending && <>isPending</>}
               {isError && <>isError</>}
-              <Text>{`Search Result: ${count}, Showing ${limit}`}</Text>
+              <Text>{`${total ?? "Total"} ${count}, ${showing ?? "Showing"} ${limit}`}</Text>
               <Button
                 onClick={async () => {
                   setOpenSearchResult(false);
                 }}
               >
-                close
+                {close ?? "Close"}
               </Button>
               <Flex flexFlow={"column wrap"}>
                 {
@@ -229,25 +230,23 @@ export const IdPicker = ({
                 }
               </Flex>
               {isDirty && (
+                <>{dataList.length <= 0 && <>Empty Search Result</>} </>
+              )}
+              {count > dataList.length && (
                 <>
-                  {dataList.length <= 0 && <>Empty Search Result</>}{" "}
-                  {count > dataList.length && (
-                    <>
-                      <Button
-                        onClick={async () => {
-                          setLimit((limit) => limit + 10);
-                          await getTableData({
-                            serverUrl,
-                            searching: searchText ?? "",
-                            in_table: in_table,
-                            limit: limit + 10,
-                          });
-                        }}
-                      >
-                        show more
-                      </Button>
-                    </>
-                  )}
+                  <Button
+                    onClick={async () => {
+                      setLimit((limit) => limit + 10);
+                      await getTableData({
+                        serverUrl,
+                        searching: searchText ?? "",
+                        in_table: in_table,
+                        limit: limit + 10,
+                      });
+                    }}
+                  >
+                   {showMore ?? "Show More"}
+                  </Button>
                 </>
               )}
             </Grid>
