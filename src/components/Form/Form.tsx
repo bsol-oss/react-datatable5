@@ -42,6 +42,7 @@ import { DatePicker } from "./components/DatePicker";
 import { ObjectInput } from "./components/ObjectInput";
 import { TagPicker } from "./components/TagPicker";
 import { FilePicker } from "./components/FilePicker";
+import { EnumPicker } from "./components/EnumPicker";
 
 export interface DisplayTextProps {
   title?: string;
@@ -502,6 +503,14 @@ const FormInternal = <TData extends FieldValues>() => {
             const { type, variant, in_table, column_ref, display_column } =
               values;
             if (type === "string") {
+              if (((values.enum ?? []) as string[]).length > 0) {
+                return (
+                  <EnumPicker
+                    key={`form-${key}`}
+                    column={key}
+                  />
+                );
+              }
               if (variant === "id-picker") {
                 idPickerSanityCheck(
                   column,

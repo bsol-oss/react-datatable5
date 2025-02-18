@@ -290,28 +290,28 @@ export const eventsSchema = {
       description:
         "Missing description. Database type: uuid. Default value: uuid_generate_v4()",
     },
-    fee: {
-      type: "number",
-      description:
-        "Missing description. Database type: numeric. Default value: null",
-      gridColumn: "1/span 3",
-      gridRow: "7/span 1",
-    },
-    quota: {
-      type: "integer",
-      description:
-        "Missing description. Database type: integer. Default value: null",
-      gridColumn: "4/span 3",
-      gridRow: "7/span 1",
-      title: `限額`,
-    },
-    status: {
-      type: "string",
-      description:
-        "Missing description. Database type: text. Default value: 'draft'",
-      gridColumn: "7/span 2",
-      gridRow: "7/span 1",
-    },
+    // fee: {
+    //   type: "number",
+    //   description:
+    //     "Missing description. Database type: numeric. Default value: null",
+    //   gridColumn: "1/span 3",
+    //   gridRow: "7/span 1",
+    // },
+    // quota: {
+    //   type: "integer",
+    //   description:
+    //     "Missing description. Database type: integer. Default value: null",
+    //   gridColumn: "4/span 3",
+    //   gridRow: "7/span 1",
+    //   title: `限額`,
+    // },
+    // status: {
+    //   type: "string",
+    //   description:
+    //     "Missing description. Database type: text. Default value: 'draft'",
+    //   gridColumn: "7/span 2",
+    //   gridRow: "7/span 1",
+    // },
     remarks: {
       type: "string",
       description:
@@ -409,6 +409,7 @@ export const eventsSchema = {
         "Missing description. Database type: text. Default value: null",
       gridColumn: "7/span 3",
       gridRow: "5/span 1",
+      enum: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
     },
     recurring_type: {
       type: "string",
@@ -424,6 +425,10 @@ export const eventsSchema = {
         "Missing description. Database type: uuid. Default value: null",
       gridColumn: "1/span 6",
       gridRow: "2/span 1",
+      variant: "id-picker",
+      in_table: "core_events",
+      column_ref: "id",
+      display_column: "event_name",
     },
   },
   description: "Missing description",
@@ -664,7 +669,6 @@ export const eventsFilesSchema = {
   additionalProperties: false,
 };
 
-
 export const eventsFilesSchema2 = {
   $id: "http://api.localhost.com/schema/public/events_files.json",
   type: "object",
@@ -687,8 +691,8 @@ export const eventsFilesSchema2 = {
       in_table: "core_files",
       column_ref: "id",
       display_column: "name",
-      renderDisplay: (item)=>{
-        return `${item['name']} ${item['version']}`
+      renderDisplay: (item) => {
+        return `${item["name"]} ${item["version"]}`;
       },
       description:
         "Missing description. Database type: uuid. Default value: null",

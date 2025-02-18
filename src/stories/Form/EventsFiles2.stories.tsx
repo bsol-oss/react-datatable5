@@ -3,7 +3,7 @@ import { Provider } from "@/components/ui/provider";
 import type { Meta, StoryObj } from "@storybook/react";
 import axios from "axios";
 import { JSONSchema7 } from "json-schema";
-import { eventsFilesSchema, eventsFilesSchema2 } from "../schema";
+import { eventsFilesSchema2 } from "../schema";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -41,18 +41,16 @@ export const EventsFiles2: Story = {
           }}
           onSubmit={async (data) => {
             console.log(data, "dskfop");
-            const formData = new FormData();
-            for await (const file of data.file_id) {
-              // Append the file to the FormData object
-              formData.append("file", file);
-            }
+            const body = data["file_id"].map((file_id: string) => {
+              return {
+                file_id,
+                event_id: data["event_id"],
+              };
+            });
 
-            const response = await axios.post(
-              "http://localhost:8080/upload",
-              formData
-            );
-
-            console.log(response, "dskfop");
+            await axios.post("http://localhost:8081/api/g/events_files/many", {
+              data: body,
+            });
           }}
         />
       </Provider>
