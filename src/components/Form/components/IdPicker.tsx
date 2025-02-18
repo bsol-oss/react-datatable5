@@ -104,7 +104,7 @@ export const IdPicker = ({
         cursor={"pointer"}
         onClick={() => {
           setSelectedIds([]);
-          setValue(column, "");
+          setValue(column, []);
         }}
         {...{
           gridColumn,
