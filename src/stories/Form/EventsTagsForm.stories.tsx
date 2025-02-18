@@ -51,7 +51,7 @@ export const EventsTags: Story = {
               .map((tag_id: string) => {
                 return {
                   tag_id,
-                  event_id: data["event_id"],
+                  event_id: data["event_id"][0],
                 };
               });
 
@@ -78,7 +78,7 @@ export const EventsTags: Story = {
               .map((tag_id: string) => {
                 return {
                   tag_id,
-                  event_id: data["event_id"],
+                  event_id: data["event_id"][0],
                 };
               });
 

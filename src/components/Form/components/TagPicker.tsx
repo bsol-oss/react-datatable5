@@ -85,7 +85,7 @@ export const TagPicker = ({ column }: TagPickerProps) => {
         where: [
           {
             id: object_id_column,
-            value: [object_id],
+            value: object_id,
           },
         ],
         limit: 100,

@@ -388,14 +388,6 @@ export const eventsSchema = {
       gridColumn: "1/span 12",
       gridRow: "6/span 1",
     },
-    location_id: {
-      type: "string",
-      format: "uuid",
-      description:
-        "Missing description. Database type: uuid. Default value: null",
-      gridColumn: "1/span 6",
-      gridRow: "3/span 1",
-    },
     is_recurring: {
       type: "boolean",
       description:
@@ -417,7 +409,7 @@ export const eventsSchema = {
         "Missing description. Database type: text. Default value: null",
       gridColumn: "4/span 3",
       gridRow: "5/span 1",
-      enum: ['daily', 'weekly', 'biweekly', 'monthly'],
+      enum: ["daily", "weekly", "biweekly", "monthly"],
     },
     parent_event_id: {
       type: "string",
@@ -711,6 +703,115 @@ export const eventsFilesSchema2 = {
       display_column: "event_name",
       gridColumn: "1/span 6",
       gridRow: "1/span 1",
+    },
+  },
+  description: "Missing description",
+  additionalProperties: false,
+};
+
+export const geolocationSchema = {
+  $id: "http://api.localhost.com/schema/public/core_geolocations.json",
+  type: "object",
+  title: "core_geolocations",
+  $schema: "http://json-schema.org/draft-07/schema#",
+  example: {
+    id: "e64acd97-be1c-0246-4f1c-1439080ea585",
+    city: "in ut reprehenderit adipisicing minim",
+    region: "ea officia Duis adipisi",
+    street: "ex sed ipsum sit dolore",
+    country: "occaecat laborum in",
+    district: "aute dolor consequat ipsum non",
+    latitude: -63893440.47333396,
+    longitude: 60203406.060307205,
+    created_at: "1900-01-14T02:43:59.0Z",
+    deleted_at: "1969-06-26T22:59:31.0Z",
+    extra_info: { cillum7: "reprehenderit Excepteur" },
+    updated_at: "1924-02-28T03:15:20.0Z",
+    description: "magna",
+    location_name: "id veniam magna esse irure",
+  },
+  required: ["location_name"],
+  properties: {
+    id: {
+      type: "string",
+      format: "uuid",
+      description:
+        "Missing description. Database type: uuid. Default value: uuid_generate_v4()",
+    },
+    city: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    region: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    street: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    country: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    district: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
+    },
+    latitude: {
+      type: "number",
+      description:
+        "Missing description. Database type: double precision. Default value: null",
+    },
+    longitude: {
+      type: "number",
+      description:
+        "Missing description. Database type: double precision. Default value: null",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      description:
+        "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
+    },
+    deleted_at: {
+      type: "string",
+      format: "date-time",
+      description:
+        "Missing description. Database type: timestamp with time zone. Default value: null",
+    },
+    extra_info: {
+      type: "object",
+      properties: {},
+      description:
+        "Missing description. Database type: jsonb. Default value: null",
+    },
+    updated_at: {
+      type: "string",
+      format: "date-time",
+      description:
+        "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
+    },
+    description: {
+      type: "string",
+      description:
+        "Missing description. Database type: text. Default value: null",
+    },
+    location_name: {
+      type: "string",
+      maxLength: 255,
+      description:
+        "Missing description. Database type: character varying. Default value: null",
     },
   },
   description: "Missing description",
