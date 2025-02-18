@@ -9,7 +9,7 @@ import {
 import { Tag } from "@/components/ui/tag";
 import { Box, Flex, Grid, Input, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
@@ -78,15 +78,19 @@ export const IdPicker = ({
     setLimit(10);
   };
   const ids = (watch(column) ?? []) as string[];
-  const newIdMap = Object.fromEntries(
-    dataList.map((item: Record<string, string>) => {
-      return [
-        item[column_ref],
-        {
-          ...item,
-        },
-      ];
-    })
+  const newIdMap = useMemo(
+    () =>
+      Object.fromEntries(
+        dataList.map((item: Record<string, string>) => {
+          return [
+            item[column_ref],
+            {
+              ...item,
+            },
+          ];
+        })
+      ),
+    [dataList, column_ref]
   );
 
   useEffect(() => {
@@ -149,7 +153,7 @@ export const IdPicker = ({
             setOpenSearchResult(true);
           }}
         >
-          {idMap[selectedIds[0]][display_column] ?? ""}
+          {selectedIds[0] ? idMap[selectedIds[0]][display_column] ?? "" : ""}
         </Button>
       )}
 

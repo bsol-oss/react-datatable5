@@ -145,6 +145,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
                   );
                   return (
                     <Box
+                      key={`${column}-${item}`}
                       cursor={"pointer"}
                       onClick={() => {
                         if (!isMultiple) {

@@ -417,6 +417,7 @@ export const eventsSchema = {
         "Missing description. Database type: text. Default value: null",
       gridColumn: "4/span 3",
       gridRow: "5/span 1",
+      enum: ['daily', 'weekly', 'biweekly', 'monthly'],
     },
     parent_event_id: {
       type: "string",
