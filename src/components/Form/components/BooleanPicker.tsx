@@ -12,6 +12,7 @@ export interface DatePickerProps {
 
 export const BooleanPicker = ({ column }: DatePickerProps) => {
   const {
+    watch,
     formState: { errors },
     setValue,
     getValues,
@@ -20,6 +21,7 @@ export const BooleanPicker = ({ column }: DatePickerProps) => {
   const { fieldRequired } = displayText;
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
+  const value = watch(column);
   if (schema.properties == undefined) {
     throw new Error("schema properties when using BooleanPicker");
   }
@@ -37,8 +39,7 @@ export const BooleanPicker = ({ column }: DatePickerProps) => {
       }}
     >
       <CheckboxCard
-        // label={snakeToLabel(column)}
-        value={getValues(column)}
+        checked={value}
         variant={"surface"}
         onSelect={() => {
           setValue(column, !getValues(column));

@@ -10,7 +10,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
   ignore: string[];
   displayText: DisplayTextProps;
   onSubmit?: (data: TData) => Promise<void>;
-  preLoadedValues: object;
   rowNumber?: number | string;
 }
 
@@ -21,7 +20,6 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   order: [],
   ignore: [],
   onSubmit: async () => {},
-  preLoadedValues: {},
   rowNumber: 0,
-  displayText: {},
+  displayText: {} as DisplayTextProps,
 });

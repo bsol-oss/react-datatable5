@@ -48,7 +48,6 @@ export const IdPicker = ({
   const { gridColumn, gridRow, title, renderDisplay } = schema.properties[
     column
   ] as CustomJSONSchema7;
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
@@ -56,6 +55,8 @@ export const IdPicker = ({
     {}
   );
   const ref = useRef<HTMLInputElement>(null);
+  const selectedIds = watch(column) ?? [];
+
   const query = useQuery({
     queryKey: [`idpicker`, searchText, in_table, limit],
     queryFn: async () => {
@@ -66,12 +67,27 @@ export const IdPicker = ({
         limit: limit,
       });
     },
+    enabled: (searchText ?? "")?.length > 0,
+    staleTime: 10000,
+  });
+
+  const idQuery = useQuery({
+    queryKey: [`idpicker`, ...selectedIds],
+    queryFn: async () => {
+      return await getTableData({
+        serverUrl,
+        searching: searchText ?? "",
+        in_table: in_table,
+        limit: limit,
+      });
+    },
+    enabled: (selectedIds ?? []).length > 0,
     staleTime: 10000,
   });
 
   const { isLoading, isFetching, data, isPending, isError } = query;
 
-  const dataList = data?.data ?? [];
+  const dataList = useMemo(() => data?.data ?? [], [data]);
   const count = data?.count ?? 0;
   const isDirty = (searchText?.length ?? 0) > 0;
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -79,26 +95,55 @@ export const IdPicker = ({
     setLimit(10);
   };
   const ids = (watch(column) ?? []) as string[];
-  const newIdMap = useMemo(
+  const newIdMap = useMemo(() => {
+    if (dataList === undefined) return;
+    return Object.fromEntries(
+      dataList.map((item: Record<string, string>) => {
+        return [
+          item[column_ref],
+          {
+            ...item,
+          },
+        ];
+      })
+    );
+  }, [dataList, column_ref]);
+  const existingIds = useMemo(
     () =>
       Object.fromEntries(
-        dataList.map((item: Record<string, string>) => {
-          return [
-            item[column_ref],
-            {
-              ...item,
-            },
-          ];
-        })
+        (idQuery?.data ?? { data: [] }).data.map(
+          (item: Record<string, string>) => {
+            return [
+              item[column_ref],
+              {
+                ...item,
+              },
+            ];
+          }
+        )
       ),
-    [dataList, column_ref]
+    [idQuery, column_ref]
   );
+
+  const getPickedValue = () => {
+    if (selectedIds.length <= 0) {
+      return "";
+    }
+    if (Object.keys(idMap).length <= 0) {
+      return "";
+    }
+    const record = idMap[selectedIds[0]];
+    if (record === undefined) {
+      return "";
+    }
+    return record[display_column];
+  };
 
   useEffect(() => {
     setIdMap((state) => {
-      return { ...state, ...newIdMap };
+      return { ...state, ...newIdMap, ...existingIds };
     });
-  }, [newIdMap]);
+  }, [newIdMap, existingIds]);
 
   return (
     <Field
@@ -112,7 +157,7 @@ export const IdPicker = ({
     >
       {isMultiple && (
         <Flex flexFlow={"wrap"} gap={1}>
-          {selectedIds.map((id) => {
+          {selectedIds.map((id: string) => {
             const item = idMap[id];
             if (item === undefined) {
               return <>undefined</>;
@@ -121,9 +166,6 @@ export const IdPicker = ({
               <Tag
                 closable
                 onClick={() => {
-                  setSelectedIds((state) =>
-                    state.filter((id) => id != item[column_ref])
-                  );
                   setValue(
                     column,
                     ids.filter((id: string) => id != item[column_ref])
@@ -150,11 +192,11 @@ export const IdPicker = ({
       {!isMultiple && (
         <Button
           variant={"outline"}
-          onClick={(event) => {
+          onClick={() => {
             setOpenSearchResult(true);
           }}
         >
-          {selectedIds[0] ? idMap[selectedIds[0]][display_column] ?? "" : ""}
+          {getPickedValue()}
         </Button>
       )}
 
@@ -206,7 +248,6 @@ export const IdPicker = ({
                         onClick={() => {
                           if (!isMultiple) {
                             setOpenSearchResult(false);
-                            setSelectedIds(() => [item[column_ref]]);
                             setValue(column, [item[column_ref]]);
                             return;
                           }
@@ -214,7 +255,6 @@ export const IdPicker = ({
                             ...(ids ?? []),
                             item[column_ref],
                           ]);
-                          setSelectedIds(() => [...newSet]);
                           setValue(column, [...newSet]);
                         }}
                         opacity={0.7}
@@ -245,7 +285,7 @@ export const IdPicker = ({
                       });
                     }}
                   >
-                   {showMore ?? "Show More"}
+                    {showMore ?? "Show More"}
                   </Button>
                 </>
               )}

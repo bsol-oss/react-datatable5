@@ -8,8 +8,8 @@ export interface DataTableContext<TData> {
   type: "client" | "server";
 }
 
-export const DataTableContext = createContext<DataTableContext<any>>({
-  table: {} as Table<any>,
+export const DataTableContext = createContext<DataTableContext<unknown>>({
+  table: {} as Table<unknown>,
   globalFilter: "",
   setGlobalFilter: () => {},
   type: "client",

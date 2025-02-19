@@ -49,12 +49,24 @@ export const EventRow: Story = {
             "is_recurring",
             "recurring_days",
             "recurring_type",
-            "location_id",
             "description",
           ]}
           ignore={["id", "created_at", "updated_at"]}
           serverUrl={"http://localhost:8081"}
-          preLoadedValues={{}}
+          preLoadedValues={{
+            recurring_days: ["mon"],
+            remarks: "kookkook",
+            start_date: "2025-02-13",
+            event_name: "ckodsp",
+            parent_event_id: ["98cfc50d-7fca-40da-ae7c-192f36cf766a"],
+            is_recurring: true,
+            end_date: "2025-02-14",
+            description: "dfkgjpaoskdf",
+            recurring_type: ["weekly"],
+            extra_info: {
+              nice: "job",
+            },
+          }}
           rowNumber={9}
           displayText={{
             title: "標題",

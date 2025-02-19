@@ -106,16 +106,8 @@ const idPickerSanityCheck = (
 };
 
 const FormInternal = <TData extends FieldValues>() => {
-  const {
-    schema,
-    serverUrl,
-    displayText,
-    order,
-    ignore,
-    onSubmit,
-    preLoadedValues,
-    rowNumber,
-  } = useSchemaContext();
+  const { schema, serverUrl, displayText, order, ignore, onSubmit, rowNumber } =
+    useSchemaContext();
   const { title, submit, empty, cancel, submitSuccess, submitAgain, confirm } =
     displayText;
   const methods = useFormContext();
@@ -201,15 +193,6 @@ const FormInternal = <TData extends FieldValues>() => {
       value: value,
     };
   };
-
-  useEffect(() => {
-    const loadData = () => {
-      Object.entries(preLoadedValues).map(([column, value]) => {
-        methods.setValue(column, value);
-      });
-    };
-    loadData();
-  }, [preLoadedValues, methods]);
 
   if (isSuccess) {
     return (
@@ -608,7 +591,7 @@ export const Form = <TData extends FieldValues>({
   displayText = {},
 }: FormProps<TData>) => {
   const queryClient = new QueryClient();
-  const methods = useForm();
+  const methods = useForm({ values: preLoadedValues });
 
   const { properties } = schema;
 
@@ -631,7 +614,6 @@ export const Form = <TData extends FieldValues>({
           ignore,
           // @ts-expect-error TODO: find appropriate types
           onSubmit,
-          preLoadedValues,
           rowNumber,
         }}
       >

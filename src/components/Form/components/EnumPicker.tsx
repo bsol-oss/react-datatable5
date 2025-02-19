@@ -27,7 +27,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema, serverUrl, displayText } = useSchemaContext();
+  const { schema, displayText } = useSchemaContext();
   const { fieldRequired } = displayText;
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
@@ -37,7 +37,6 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
   const { gridColumn, gridRow, title, renderDisplay } = schema.properties[
     column
   ] as CustomJSONSchema7;
-  const [selectedEnums, setSelectedEnums] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
@@ -65,7 +64,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
     >
       {isMultiple && (
         <Flex flexFlow={"wrap"} gap={1}>
-          {selectedEnums.map((enumValue) => {
+          {watchEnums.map((enumValue) => {
             const item = enumValue;
             if (item === undefined) {
               return <>undefined</>;
@@ -98,11 +97,11 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
       {!isMultiple && (
         <Button
           variant={"outline"}
-          onClick={(event) => {
+          onClick={() => {
             setOpenSearchResult(true);
           }}
         >
-          {selectedEnums[0]}
+          {watchEnums[0]}
         </Button>
       )}
       <PopoverRoot
@@ -150,12 +149,10 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
                       onClick={() => {
                         if (!isMultiple) {
                           setOpenSearchResult(false);
-                          setSelectedEnums(() => [item]);
                           setValue(column, [item]);
                           return;
                         }
                         const newSet = new Set([...(watchEnums ?? []), item]);
-                        setSelectedEnums(() => [...newSet]);
                         setValue(column, [...newSet]);
                       }}
                       {...(selected ? { color: "gray.400/50" } : {})}

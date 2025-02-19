@@ -22,15 +22,16 @@ export interface DatePickerProps {
 
 export const DatePicker = ({ column }: DatePickerProps) => {
   const {
+    watch,
     formState: { errors },
     setValue,
-    getValues,
   } = useFormContext();
   const { schema, displayText } = useSchemaContext();
   const { fieldRequired } = displayText;
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const [open, setOpen] = useState(false);
+  const selectedDate = watch(column);
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
@@ -51,7 +52,6 @@ export const DatePicker = ({ column }: DatePickerProps) => {
         open={open}
         onOpenChange={(e) => setOpen(e.open)}
         closeOnInteractOutside
-        positioning={{ sameWidth: true }}
       >
         <PopoverTrigger asChild>
           <Button
@@ -61,17 +61,14 @@ export const DatePicker = ({ column }: DatePickerProps) => {
               setOpen(true);
             }}
           >
-            {}
-            {getValues(column) !== undefined
-              ? dayjs(getValues(column)).format("YYYY-MM-DD")
-              : ""}
+            {selectedDate !== undefined ? selectedDate : ""}
           </Button>
         </PopoverTrigger>
-        <PopoverContent width="auto">
+        <PopoverContent >
           <PopoverBody>
             <PopoverTitle />
             <ChakraDatePicker
-              selected={new Date(getValues(column))}
+              selected={new Date(selectedDate)}
               onDateSelected={({ selected, selectable, date }) => {
                 setValue(column, dayjs(date).format("YYYY-MM-DD"));
                 setOpen(false);
