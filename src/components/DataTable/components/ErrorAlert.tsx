@@ -1,5 +1,4 @@
 import { Alert } from "@chakra-ui/react";
-import { useDataTableContext } from "../context/useDataTableContext";
 import { useDataTableServerContext } from "../context/useDataTableServerContext";
 export interface ErrorAlertProps {
   showMessage?: boolean;

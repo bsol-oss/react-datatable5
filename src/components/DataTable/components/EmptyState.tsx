@@ -1,10 +1,7 @@
 import { EmptyState as ChakraEmptyState, VStack } from "@chakra-ui/react";
-import { UseQueryResult } from "@tanstack/react-query";
 import { HiColorSwatch } from "react-icons/hi";
-import { useDataTableServer } from "../useDataTableServer";
 import { useDataTableServerContext } from "../context/useDataTableServerContext";
 export interface EmptyStateProps {
-  query: UseQueryResult;
   title?: string;
   description?: string;
 }
