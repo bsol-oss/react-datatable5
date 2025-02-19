@@ -60,12 +60,26 @@ export const IdPicker = ({
   const query = useQuery({
     queryKey: [`idpicker`, searchText, in_table, limit],
     queryFn: async () => {
-      return await getTableData({
+      const data = await getTableData({
         serverUrl,
         searching: searchText ?? "",
         in_table: in_table,
         limit: limit,
       });
+      const newMap = Object.fromEntries(
+        (data ?? { data: [] }).data.map((item: Record<string, string>) => {
+          return [
+            item[column_ref],
+            {
+              ...item,
+            },
+          ];
+        })
+      );
+      setIdMap((state) => {
+        return { ...state, ...newMap };
+      });
+      return data;
     },
     enabled: (searchText ?? "")?.length > 0,
     staleTime: 10000,
@@ -74,12 +88,25 @@ export const IdPicker = ({
   const idQuery = useQuery({
     queryKey: [`idpicker`, ...selectedIds],
     queryFn: async () => {
-      return await getTableData({
+      const data = await getTableData({
         serverUrl,
-        searching: searchText ?? "",
         in_table: in_table,
         limit: limit,
       });
+      const newMap = Object.fromEntries(
+        (data ?? { data: [] }).data.map((item: Record<string, string>) => {
+          return [
+            item[column_ref],
+            {
+              ...item,
+            },
+          ];
+        })
+      );
+      setIdMap((state) => {
+        return { ...state, ...newMap };
+      });
+      return data;
     },
     enabled: (selectedIds ?? []).length > 0,
     staleTime: 10000,
@@ -95,35 +122,6 @@ export const IdPicker = ({
     setLimit(10);
   };
   const ids = (watch(column) ?? []) as string[];
-  const newIdMap = useMemo(() => {
-    if (dataList === undefined) return;
-    return Object.fromEntries(
-      dataList.map((item: Record<string, string>) => {
-        return [
-          item[column_ref],
-          {
-            ...item,
-          },
-        ];
-      })
-    );
-  }, [dataList, column_ref]);
-  const existingIds = useMemo(
-    () =>
-      Object.fromEntries(
-        (idQuery?.data ?? { data: [] }).data.map(
-          (item: Record<string, string>) => {
-            return [
-              item[column_ref],
-              {
-                ...item,
-              },
-            ];
-          }
-        )
-      ),
-    [idQuery, column_ref]
-  );
 
   const getPickedValue = () => {
     if (selectedIds.length <= 0) {
@@ -138,12 +136,6 @@ export const IdPicker = ({
     }
     return record[display_column];
   };
-
-  useEffect(() => {
-    setIdMap((state) => {
-      return { ...state, ...newIdMap, ...existingIds };
-    });
-  }, [newIdMap, existingIds]);
 
   return (
     <Field

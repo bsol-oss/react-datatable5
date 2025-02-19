@@ -328,6 +328,7 @@ const FormInternal = <TData extends FieldValues>() => {
                 <Flex
                   flexFlow={"column"}
                   gap={2}
+                  key={`form-${key}`}
                   gridColumn={gridColumn ?? "span 4"}
                   gridRow={gridRow ?? "span 1"}
                 >
@@ -523,11 +524,7 @@ const FormInternal = <TData extends FieldValues>() => {
               return <BooleanPicker key={`form-${key}`} column={key} />;
             }
             if (type === "object") {
-              return (
-                <>
-                  <ObjectInput key={`form-${key}`} column={key} />
-                </>
-              );
+              return <ObjectInput key={`form-${key}`} column={key} />;
             }
             if (type === "array") {
               if (variant === "id-picker") {
