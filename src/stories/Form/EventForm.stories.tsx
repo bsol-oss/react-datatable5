@@ -61,6 +61,7 @@ export const EventRow: Story = {
             parent_event_id: ["98cfc50d-7fca-40da-ae7c-192f36cf766a"],
             is_recurring: true,
             end_date: "2025-02-14",
+            end_time: "14:30:00Z",
             description: "dfkgjpaoskdf",
             recurring_type: ["weekly"],
             extra_info: {
