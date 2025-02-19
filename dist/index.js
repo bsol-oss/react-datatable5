@@ -1506,7 +1506,7 @@ const EmptyState = ({ title = "No records", description = "Add a new events to g
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: (data ?? { count: 0 }).count <= 0 && (jsxRuntime.jsx(react.EmptyState.Root, { children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [jsxRuntime.jsx(react.EmptyState.Indicator, { children: jsxRuntime.jsx(hi.HiColorSwatch, {}) }), jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })] }) })) }));
 };
 
-const ErrorAlert = ({ showMessage }) => {
+const ErrorAlert = ({ showMessage = true }) => {
     const { query } = useDataTableContext();
     const { isError, error } = query;
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isError && (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsxs(react.Alert.Content, { children: [jsxRuntime.jsx(react.Alert.Title, { children: error.name }), showMessage && (jsxRuntime.jsx(react.Alert.Description, { children: error.message }))] })] })) }));

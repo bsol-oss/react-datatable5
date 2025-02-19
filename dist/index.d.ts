@@ -389,13 +389,13 @@ declare const widthSanityCheck: <K extends unknown>(widthList: number[], ignoreL
 declare const getColumns: <TData extends unknown>({ schema, ignore, width, meta, defaultWidth, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
 
 interface EmptyStateProps {
-    title: string;
-    description: string;
+    title?: string;
+    description?: string;
 }
 declare const EmptyState: ({ title, description, }: EmptyStateProps) => react_jsx_runtime.JSX.Element;
 
 interface ErrorAlertProps {
-    showMessage: boolean;
+    showMessage?: boolean;
 }
 declare const ErrorAlert: ({ showMessage }: ErrorAlertProps) => react_jsx_runtime.JSX.Element;
 
