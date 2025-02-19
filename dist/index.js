@@ -846,7 +846,7 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
             globalFilter,
             setGlobalFilter,
             type: "server",
-        }, children: jsxRuntime.jsx(DataTableServerContext.Provider, { value: { url }, children: children }) }));
+        }, children: jsxRuntime.jsx(DataTableServerContext.Provider, { value: { url, query }, children: children }) }));
 }
 
 const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
@@ -1113,7 +1113,10 @@ const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = 
 };
 
 const useDataTableServerContext = () => {
-    return React.useContext(DataTableServerContext);
+    const context = React.useContext(DataTableServerContext);
+    const { query } = context;
+    const isEmpty = (query.data?.count ?? 0) <= 0;
+    return { ...context, isEmpty };
 };
 
 const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
@@ -1501,9 +1504,8 @@ const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth =
 };
 
 const EmptyState = ({ title = "No records", description = "Add a new events to get started or refine your search", }) => {
-    const { query } = useDataTableContext();
-    const { data } = query;
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: (data ?? { count: 0 }).count <= 0 && (jsxRuntime.jsx(react.EmptyState.Root, { children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [jsxRuntime.jsx(react.EmptyState.Indicator, { children: jsxRuntime.jsx(hi.HiColorSwatch, {}) }), jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })] }) })) }));
+    const { isEmpty } = useDataTableServerContext();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isEmpty && (jsxRuntime.jsx(react.EmptyState.Root, { children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [jsxRuntime.jsx(react.EmptyState.Indicator, { children: jsxRuntime.jsx(hi.HiColorSwatch, {}) }), jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })] }) })) }));
 };
 
 const ErrorAlert = ({ showMessage = true }) => {

@@ -1,4 +1,6 @@
+import { UseQueryResult } from "@tanstack/react-query";
 export interface EmptyStateProps {
+    query: UseQueryResult;
     title?: string;
     description?: string;
 }

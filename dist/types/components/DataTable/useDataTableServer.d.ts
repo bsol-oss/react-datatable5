@@ -18,10 +18,10 @@ export interface UseDataTableServerProps extends UseDataTableProps {
 export interface UseDataTableServerReturn<TData> extends UseDataTableReturn {
     query: UseQueryResult<DataResponse<TData>, Error>;
 }
-export interface Result<T> {
+export interface Result<T = unknown> {
     data: T[];
 }
-export interface DataResponse<T> extends Result<T> {
+export interface DataResponse<T = unknown> extends Result<T> {
     count: number;
 }
 export declare const useDataTableServer: <TData>({ url, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }: UseDataTableServerProps) => UseDataTableServerReturn<TData>;

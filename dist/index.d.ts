@@ -144,7 +144,66 @@ interface DataTableProps<TData> {
 }
 declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }: DataTableProps<TData>): react_jsx_runtime.JSX.Element;
 
-interface DataTableServerProps<TData> {
+interface DataTableDefaultState {
+    sorting?: SortingState;
+    columnFilters?: ColumnFiltersState;
+    pagination?: PaginationState;
+    rowSelection?: RowSelectionState;
+    columnOrder?: ColumnOrderState;
+    globalFilter?: string;
+    columnVisibility?: VisibilityState;
+    density?: DensityState;
+}
+interface UseDataTableProps {
+    default?: DataTableDefaultState;
+}
+interface UseDataTableReturn {
+    sorting: SortingState;
+    columnFilters: ColumnFiltersState;
+    pagination: PaginationState;
+    rowSelection: RowSelectionState;
+    columnOrder: ColumnOrderState;
+    globalFilter: string;
+    columnVisibility: VisibilityState;
+    density: DensityState;
+    setPagination: OnChangeFn<PaginationState>;
+    setSorting: OnChangeFn<SortingState>;
+    setColumnFilters: OnChangeFn<ColumnFiltersState>;
+    setRowSelection: OnChangeFn<RowSelectionState>;
+    setGlobalFilter: OnChangeFn<string>;
+    setColumnOrder: OnChangeFn<ColumnOrderState>;
+    setDensity: OnChangeFn<DensityState>;
+    setColumnVisibility: OnChangeFn<VisibilityState>;
+}
+declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }?: UseDataTableProps) => UseDataTableReturn;
+
+interface UseDataTableServerProps extends UseDataTableProps {
+    /**
+     * Delay to send the request if the `refreshData` called multiple times
+     *
+     * default: `true`
+     */
+    debounce?: boolean;
+    /**
+     * The time to wait before sending the request
+     *
+     * default: `1000`
+     */
+    debounceDelay?: number;
+    url: string;
+}
+interface UseDataTableServerReturn<TData> extends UseDataTableReturn {
+    query: UseQueryResult<DataResponse<TData>, Error>;
+}
+interface Result<T = unknown> {
+    data: T[];
+}
+interface DataResponse<T = unknown> extends Result<T> {
+    count: number;
+}
+declare const useDataTableServer: <TData>({ url, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }: UseDataTableServerProps) => UseDataTableServerReturn<TData>;
+
+interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown>> {
     children: ReactNode | ReactNode[];
     columns: ColumnDef<TData>[];
     enableRowSelection?: boolean;
@@ -169,7 +228,7 @@ interface DataTableServerProps<TData> {
     query: UseQueryResult<TData>;
     url: string;
 }
-declare function DataTableServer<TData = unknown>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
+declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
 
 interface TableBodyProps {
     pinnedBgColor?: {
@@ -307,39 +366,6 @@ interface TextCellProps {
 }
 declare const TextCell: ({ label, containerProps, textProps, children, }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
-interface DataTableDefaultState {
-    sorting?: SortingState;
-    columnFilters?: ColumnFiltersState;
-    pagination?: PaginationState;
-    rowSelection?: RowSelectionState;
-    columnOrder?: ColumnOrderState;
-    globalFilter?: string;
-    columnVisibility?: VisibilityState;
-    density?: DensityState;
-}
-interface UseDataTableProps {
-    default?: DataTableDefaultState;
-}
-interface UseDataTableReturn {
-    sorting: SortingState;
-    columnFilters: ColumnFiltersState;
-    pagination: PaginationState;
-    rowSelection: RowSelectionState;
-    columnOrder: ColumnOrderState;
-    globalFilter: string;
-    columnVisibility: VisibilityState;
-    density: DensityState;
-    setPagination: OnChangeFn<PaginationState>;
-    setSorting: OnChangeFn<SortingState>;
-    setColumnFilters: OnChangeFn<ColumnFiltersState>;
-    setRowSelection: OnChangeFn<RowSelectionState>;
-    setGlobalFilter: OnChangeFn<string>;
-    setColumnOrder: OnChangeFn<ColumnOrderState>;
-    setDensity: OnChangeFn<DensityState>;
-    setColumnVisibility: OnChangeFn<VisibilityState>;
-}
-declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }?: UseDataTableProps) => UseDataTableReturn;
-
 interface DataTableContext<TData> {
     table: Table$1<TData>;
     globalFilter: string;
@@ -349,32 +375,6 @@ interface DataTableContext<TData> {
 declare const DataTableContext: React$1.Context<DataTableContext<any>>;
 
 declare const useDataTableContext: <TData>() => DataTableContext<TData>;
-
-interface UseDataTableServerProps extends UseDataTableProps {
-    /**
-     * Delay to send the request if the `refreshData` called multiple times
-     *
-     * default: `true`
-     */
-    debounce?: boolean;
-    /**
-     * The time to wait before sending the request
-     *
-     * default: `1000`
-     */
-    debounceDelay?: number;
-    url: string;
-}
-interface UseDataTableServerReturn<TData> extends UseDataTableReturn {
-    query: UseQueryResult<DataResponse<TData>, Error>;
-}
-interface Result<T> {
-    data: T[];
-}
-interface DataResponse<T> extends Result<T> {
-    count: number;
-}
-declare const useDataTableServer: <TData>({ url, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }: UseDataTableServerProps) => UseDataTableServerReturn<TData>;
 
 interface GetColumnsConfigs<K extends RowData> {
     schema: JSONSchema7;
@@ -389,6 +389,7 @@ declare const widthSanityCheck: <K extends unknown>(widthList: number[], ignoreL
 declare const getColumns: <TData extends unknown>({ schema, ignore, width, meta, defaultWidth, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
 
 interface EmptyStateProps {
+    query: UseQueryResult;
     title?: string;
     description?: string;
 }

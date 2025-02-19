@@ -826,7 +826,7 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
             globalFilter,
             setGlobalFilter,
             type: "server",
-        }, children: jsx(DataTableServerContext.Provider, { value: { url }, children: children }) }));
+        }, children: jsx(DataTableServerContext.Provider, { value: { url, query }, children: children }) }));
 }
 
 const Checkbox = React.forwardRef(function Checkbox(props, ref) {
@@ -1093,7 +1093,10 @@ const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = 
 };
 
 const useDataTableServerContext = () => {
-    return useContext(DataTableServerContext);
+    const context = useContext(DataTableServerContext);
+    const { query } = context;
+    const isEmpty = (query.data?.count ?? 0) <= 0;
+    return { ...context, isEmpty };
 };
 
 const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
@@ -1481,9 +1484,8 @@ const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth =
 };
 
 const EmptyState = ({ title = "No records", description = "Add a new events to get started or refine your search", }) => {
-    const { query } = useDataTableContext();
-    const { data } = query;
-    return (jsx(Fragment, { children: (data ?? { count: 0 }).count <= 0 && (jsx(EmptyState$2.Root, { children: jsxs(EmptyState$2.Content, { children: [jsx(EmptyState$2.Indicator, { children: jsx(HiColorSwatch, {}) }), jsxs(VStack, { textAlign: "center", children: [jsx(EmptyState$2.Title, { children: title }), jsx(EmptyState$2.Description, { children: description })] })] }) })) }));
+    const { isEmpty } = useDataTableServerContext();
+    return (jsx(Fragment, { children: isEmpty && (jsx(EmptyState$2.Root, { children: jsxs(EmptyState$2.Content, { children: [jsx(EmptyState$2.Indicator, { children: jsx(HiColorSwatch, {}) }), jsxs(VStack, { textAlign: "center", children: [jsx(EmptyState$2.Title, { children: title }), jsx(EmptyState$2.Description, { children: description })] })] }) })) }));
 };
 
 const ErrorAlert = ({ showMessage = true }) => {
