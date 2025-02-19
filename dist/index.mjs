@@ -1489,7 +1489,7 @@ const EmptyState = ({ title = "No records", description = "Add a new events to g
 };
 
 const ErrorAlert = ({ showMessage = true }) => {
-    const { query } = useDataTableContext();
+    const { query } = useDataTableServerContext();
     const { isError, error } = query;
     return (jsx(Fragment, { children: isError && (jsxs(Alert.Root, { status: "error", children: [jsx(Alert.Indicator, {}), jsxs(Alert.Content, { children: [jsx(Alert.Title, { children: error.name }), showMessage && (jsx(Alert.Description, { children: error.message }))] })] })) }));
 };
