@@ -33,11 +33,11 @@ export interface UseDataTableServerReturn<TData> extends UseDataTableReturn {
   query: UseQueryResult<DataResponse<TData>, Error>;
 }
 
-export interface Result<T> {
+export interface Result<T = unknown> {
   data: T[];
 }
 
-export interface DataResponse<T> extends Result<T> {
+export interface DataResponse<T = unknown> extends Result<T> {
   count: number;
 }
 

@@ -16,8 +16,11 @@ import {
 import { DensityFeature, DensityState } from "../Controls/DensityFeature";
 import { DataTableContext } from "./context/DataTableContext";
 import { DataTableServerContext } from "./context/DataTableServerContext";
+import { DataResponse } from "./useDataTableServer";
 
-export interface DataTableServerProps<TData> {
+export interface DataTableServerProps<
+  TData extends DataResponse = DataResponse<unknown>,
+> {
   children: ReactNode | ReactNode[];
   columns: ColumnDef<TData>[]; // TODO: find the appropriate types
   enableRowSelection?: boolean;
@@ -43,7 +46,9 @@ export interface DataTableServerProps<TData> {
   url: string;
 }
 
-export function DataTableServer<TData = unknown>({
+export function DataTableServer<
+  TData extends DataResponse = DataResponse<unknown>,
+>({
   columns,
   enableRowSelection = true,
   enableMultiRowSelection = true,
@@ -125,7 +130,7 @@ export function DataTableServer<TData = unknown>({
         type: "server",
       }}
     >
-      <DataTableServerContext.Provider value={{ url }}>
+      <DataTableServerContext.Provider value={{ url, query }}>
         {children}
       </DataTableServerContext.Provider>
     </DataTableContext.Provider>
