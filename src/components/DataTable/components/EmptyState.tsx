@@ -2,8 +2,8 @@ import { EmptyState as ChakraEmptyState, VStack } from "@chakra-ui/react";
 import { HiColorSwatch } from "react-icons/hi";
 import { useDataTableContext } from "../context/useDataTableContext";
 export interface EmptyStateProps {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
 }
 
 export const EmptyState = ({
