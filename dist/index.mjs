@@ -1640,25 +1640,48 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     const query = useQuery({
         queryKey: [`idpicker`, searchText, in_table, limit],
         queryFn: async () => {
-            return await getTableData({
+            const data = await getTableData({
                 serverUrl,
                 searching: searchText ?? "",
                 in_table: in_table,
                 limit: limit,
             });
+            const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
+                return [
+                    item[column_ref],
+                    {
+                        ...item,
+                    },
+                ];
+            }));
+            setIdMap((state) => {
+                return { ...state, ...newMap };
+            });
+            return data;
         },
         enabled: (searchText ?? "")?.length > 0,
         staleTime: 10000,
     });
-    const idQuery = useQuery({
+    useQuery({
         queryKey: [`idpicker`, ...selectedIds],
         queryFn: async () => {
-            return await getTableData({
+            const data = await getTableData({
                 serverUrl,
-                searching: searchText ?? "",
                 in_table: in_table,
                 limit: limit,
             });
+            const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
+                return [
+                    item[column_ref],
+                    {
+                        ...item,
+                    },
+                ];
+            }));
+            setIdMap((state) => {
+                return { ...state, ...newMap };
+            });
+            return data;
         },
         enabled: (selectedIds ?? []).length > 0,
         staleTime: 10000,
@@ -1672,26 +1695,6 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
         setLimit(10);
     };
     const ids = (watch(column) ?? []);
-    const newIdMap = useMemo(() => {
-        if (dataList === undefined)
-            return;
-        return Object.fromEntries(dataList.map((item) => {
-            return [
-                item[column_ref],
-                {
-                    ...item,
-                },
-            ];
-        }));
-    }, [dataList, column_ref]);
-    const existingIds = useMemo(() => Object.fromEntries((idQuery?.data ?? { data: [] }).data.map((item) => {
-        return [
-            item[column_ref],
-            {
-                ...item,
-            },
-        ];
-    })), [idQuery, column_ref]);
     const getPickedValue = () => {
         if (selectedIds.length <= 0) {
             return "";
@@ -1705,11 +1708,6 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
         }
         return record[display_column];
     };
-    useEffect(() => {
-        setIdMap((state) => {
-            return { ...state, ...newIdMap, ...existingIds };
-        });
-    }, [newIdMap, existingIds]);
     return (jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [selectedIds.map((id) => {
                         const item = idMap[id];
@@ -2387,7 +2385,7 @@ const FormInternal = () => {
                             }
                             return (jsxs(Flex, { flexFlow: "column", gap: 2, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsx(Text, { children: snakeToLabel(column) }), jsx(DataListRoot, { orientation: "horizontal", padding: 4, borderColor: "gray.200", borderWidth: 1, borderRadius: 4, children: Object.entries(value).map(([key, value]) => {
                                             return (jsx(DataListItem, { label: `${key}`, ...getDataListProps(value) }, `form-${column}-${key}`));
-                                        }) })] }));
+                                        }) })] }, `form-${key}`));
                         }
                         if (type === "boolean") {
                             return (jsx(DataListItem, { gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 4", label: `${snakeToLabel(column)}`, ...getDataListProps((validatedData ?? {})[column]) }, `form-${key}`));
@@ -2453,7 +2451,7 @@ const FormInternal = () => {
                                 return jsx(BooleanPicker, { column: key }, `form-${key}`);
                             }
                             if (type === "object") {
-                                return (jsx(Fragment, { children: jsx(ObjectInput, { column: key }, `form-${key}`) }));
+                                return jsx(ObjectInput, { column: key }, `form-${key}`);
                             }
                             if (type === "array") {
                                 if (variant === "id-picker") {
