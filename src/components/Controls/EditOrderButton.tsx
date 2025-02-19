@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import React from "react";
 import { MdOutlineMoveDown } from "react-icons/md";
-import { TableOrderer } from "../../index";
+import { TableOrderer } from "../DataTable/TableOrderer";
 
 export interface EditOrderButtonProps {
   title?: string;

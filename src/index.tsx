@@ -102,6 +102,8 @@ export * from "./components/DataTable/useDataTable";
 export * from "./components/DataTable/context/useDataTableContext";
 export * from "./components/DataTable/useDataTableServer";
 export * from "./components/DataTable/utils/getColumns";
+export * from "./components/DataTable/components/EmptyState";
+export * from "./components/DataTable/components/ErrorAlert";
 
 export * from "./components/Filter/FilterOptions";
 export * from "./components/Filter/GlobalFilter";

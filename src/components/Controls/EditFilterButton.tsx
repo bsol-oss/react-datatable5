@@ -1,6 +1,5 @@
 import { Box, Button, Flex, useDisclosure } from "@chakra-ui/react";
 import { MdFilterAlt } from "react-icons/md";
-import { ResetFilteringButton, TableFilter } from "../../index";
 
 import {
   DialogActionTrigger,
@@ -13,6 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { TableFilter } from "../DataTable/TableFilters";
+import { ResetFilteringButton } from "./ResetFilteringButton";
 
 export interface EditFilterButtonProps {
   text?: string;
@@ -35,7 +36,7 @@ export const EditFilterButton = ({
       <DialogRoot size={["full", "full", "md", "md"]} open={filterModal.open}>
         <DialogRoot>
           <DialogTrigger asChild>
-            <Button as={Box} variant={'ghost'} onClick={filterModal.onOpen}>
+            <Button as={Box} variant={"ghost"} onClick={filterModal.onOpen}>
               {icon} {text}
             </Button>
           </DialogTrigger>

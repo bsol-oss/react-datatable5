@@ -6,8 +6,11 @@ var ai = require('react-icons/ai');
 var React = require('react');
 var md = require('react-icons/md');
 var lu = require('react-icons/lu');
-var io = require('react-icons/io');
+var Dayzed = require('@bsol-oss/dayzed-react19');
+var fa6 = require('react-icons/fa6');
 var bi = require('react-icons/bi');
+var cg = require('react-icons/cg');
+var io = require('react-icons/io');
 var hi2 = require('react-icons/hi2');
 var reactTable = require('@tanstack/react-table');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
@@ -16,9 +19,6 @@ var gr = require('react-icons/gr');
 var reactQuery = require('@tanstack/react-query');
 var io5 = require('react-icons/io5');
 var hi = require('react-icons/hi');
-var Dayzed = require('@bsol-oss/dayzed-react19');
-var fa6 = require('react-icons/fa6');
-var cg = require('react-icons/cg');
 var adapter = require('@atlaskit/pragmatic-drag-and-drop/element/adapter');
 var invariant = require('tiny-invariant');
 var axios = require('axios');
@@ -94,13 +94,363 @@ react.Dialog.Description;
 const DialogTrigger = react.Dialog.Trigger;
 const DialogActionTrigger = react.Dialog.ActionTrigger;
 
+const Radio = React__namespace.forwardRef(function Radio(props, ref) {
+    const { children, inputProps, rootRef, ...rest } = props;
+    return (jsxRuntime.jsxs(react.RadioGroup.Item, { ref: rootRef, ...rest, children: [jsxRuntime.jsx(react.RadioGroup.ItemHiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsx(react.RadioGroup.ItemIndicator, {}), children && (jsxRuntime.jsx(react.RadioGroup.ItemText, { children: children }))] }));
+});
+const RadioGroup = react.RadioGroup.Root;
+
+const monthNamesFull = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+];
+const weekdayNamesShort$1 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, selected = [], firstDayOfWeek = 0, }) {
+    const [hoveredDate, setHoveredDate] = React.useState();
+    const onMouseLeave = () => {
+        setHoveredDate(undefined);
+    };
+    const onMouseEnter = (date) => {
+        setHoveredDate(date);
+    };
+    const isInRange = (date) => {
+        if (selected.length) {
+            const firstSelected = selected[0].getTime();
+            if (selected.length === 2) {
+                const secondSelected = selected[1].getTime();
+                return (firstSelected < date.getTime() && secondSelected > date.getTime());
+            }
+            else {
+                return !!(hoveredDate &&
+                    ((firstSelected < date.getTime() &&
+                        hoveredDate.getTime() >= date.getTime()) ||
+                        (date.getTime() < firstSelected &&
+                            date.getTime() >= hoveredDate.getTime())));
+            }
+        }
+        return false;
+    };
+    if (calendars.length) {
+        return (jsxRuntime.jsxs(react.Grid, { onMouseLeave: onMouseLeave, children: [jsxRuntime.jsxs(react.Grid, { templateColumns: "repeat(4, auto)", justifyContent: "center", children: [jsxRuntime.jsx(react.Button, { variant: "ghost", ...getBackProps({
+                                calendars,
+                                offset: 12,
+                            }), children: "<<" }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...getBackProps({ calendars }), children: "Back" }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...getForwardProps({ calendars }), children: "Next" }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...getForwardProps({
+                                calendars,
+                                offset: 12,
+                            }), children: ">>" })] }), jsxRuntime.jsx(react.Grid, { templateColumns: "repeat(2, auto)", justifyContent: "center", gap: 4, children: calendars.map((calendar) => (jsxRuntime.jsxs(react.Grid, { gap: 4, children: [jsxRuntime.jsxs(react.Grid, { justifyContent: "center", children: [monthNamesFull[calendar.month], " ", calendar.year] }), jsxRuntime.jsx(react.Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: [0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                                    const weekday = (weekdayNum + firstDayOfWeek) % 7;
+                                    return (jsxRuntime.jsx(react.Box, { minWidth: "48px", textAlign: "center", children: weekdayNamesShort$1[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
+                                }) }), jsxRuntime.jsx(react.Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: calendar.weeks.map((week, windex) => week.map((dateObj, index) => {
+                                    const key = `${calendar.month}${calendar.year}${windex}${index}`;
+                                    if (!dateObj) {
+                                        return jsxRuntime.jsx(react.Box, {}, key);
+                                    }
+                                    const { date, selected, selectable, today } = dateObj;
+                                    const getStyle = ({ selected, unavailable, today, isInRange, }) => {
+                                        if (unavailable) {
+                                            return {
+                                                colorPalette: "gray",
+                                                variant: "solid",
+                                            };
+                                        }
+                                        if (selected) {
+                                            return {
+                                                colorPalette: "blue",
+                                                variant: "solid",
+                                            };
+                                        }
+                                        if (isInRange) {
+                                            return {
+                                                colorPalette: "blue",
+                                                variant: "subtle",
+                                            };
+                                        }
+                                        if (today) {
+                                            return {
+                                                colorPalette: "green",
+                                                variant: "solid",
+                                            };
+                                        }
+                                        return { variant: "ghost" };
+                                    };
+                                    return (jsxRuntime.jsx(react.Button, { ...getDateProps({
+                                            dateObj,
+                                            onMouseEnter: () => {
+                                                onMouseEnter(date);
+                                            },
+                                        }), ...getStyle({
+                                            selected,
+                                            unavailable: !selectable,
+                                            today,
+                                            isInRange: isInRange(date),
+                                        }), children: selectable ? date.getDate() : "X" }, key));
+                                })) })] }, `${calendar.month}${calendar.year}`))) })] }));
+    }
+    return null;
+}
+class RangeDatePicker extends React.Component {
+    render() {
+        return (jsxRuntime.jsx(Dayzed, { onDateSelected: this.props.onDateSelected, selected: this.props.selected, firstDayOfWeek: this.props.firstDayOfWeek, showOutsideDays: this.props.showOutsideDays, date: this.props.date, minDate: this.props.minDate, maxDate: this.props.maxDate, monthsToDisplay: this.props.monthsToDisplay, render: (dayzedData) => (jsxRuntime.jsx(Calendar$1, { ...dayzedData,
+                firstDayOfWeek: this.props.firstDayOfWeek,
+                selected: this.props.selected })) }));
+    }
+}
+
+const getRangeDates = ({ selectable, date, selectedDates, }) => {
+    if (!selectable) {
+        return;
+    }
+    const dateTime = date.getTime();
+    const newDates = [...selectedDates];
+    if (selectedDates.length) {
+        if (selectedDates.length === 1) {
+            const firstTime = selectedDates[0].getTime();
+            if (firstTime < dateTime) {
+                newDates.push(date);
+            }
+            else {
+                newDates.unshift(date);
+            }
+            return newDates;
+        }
+        else if (newDates.length === 2) {
+            return [date];
+        }
+    }
+    else {
+        newDates.push(date);
+        return newDates;
+    }
+};
+
+const Slider = React__namespace.forwardRef(function Slider(props, ref) {
+    const { marks: marksProp, label, showValue, ...rest } = props;
+    const value = props.defaultValue ?? props.value;
+    const marks = marksProp?.map((mark) => {
+        if (typeof mark === "number")
+            return { value: mark, label: undefined };
+        return mark;
+    });
+    const hasMarkLabel = !!marks?.some((mark) => mark.label);
+    return (jsxRuntime.jsxs(react.Slider.Root, { ref: ref, thumbAlignment: "center", ...rest, children: [label && !showValue && (jsxRuntime.jsx(react.Slider.Label, { children: label })), label && showValue && (jsxRuntime.jsxs(react.HStack, { justify: "space-between", children: [jsxRuntime.jsx(react.Slider.Label, { children: label }), jsxRuntime.jsx(react.Slider.ValueText, {})] })), jsxRuntime.jsxs(react.Slider.Control, { "data-has-mark-label": hasMarkLabel || undefined, children: [jsxRuntime.jsx(react.Slider.Track, { children: jsxRuntime.jsx(react.Slider.Range, {}) }), jsxRuntime.jsx(SliderThumbs, { value: value }), jsxRuntime.jsx(SliderMarks, { marks: marks })] })] }));
+});
+function SliderThumbs(props) {
+    const { value } = props;
+    return (jsxRuntime.jsx(react.For, { each: value, children: (_, index) => (jsxRuntime.jsx(react.Slider.Thumb, { index: index, children: jsxRuntime.jsx(react.Slider.HiddenInput, {}) }, index)) }));
+}
+const SliderMarks = React__namespace.forwardRef(function SliderMarks(props, ref) {
+    const { marks } = props;
+    if (!marks?.length)
+        return null;
+    return (jsxRuntime.jsx(react.Slider.MarkerGroup, { ref: ref, children: marks.map((mark, index) => {
+            const value = typeof mark === "number" ? mark : mark.value;
+            const label = typeof mark === "number" ? undefined : mark.label;
+            return (jsxRuntime.jsxs(react.Slider.Marker, { value: value, children: [jsxRuntime.jsx(react.Slider.MarkerIndicator, {}), label] }, index));
+        }) }));
+});
+
+const RangeFilter = ({ range, setRange, defaultValue, min, max, step, }) => {
+    return (jsxRuntime.jsxs(react.Flex, { p: 2, gap: 2, flexFlow: 'column', children: [jsxRuntime.jsx(react.Text, { children: `${range[0]} - ${range[1]}` }), jsxRuntime.jsx(Slider, { width: "full", min: min, max: max, defaultValue: defaultValue, step: step, name: `Selected Range: ${range[0]} - ${range[1]}`, 
+                // value={field.value}
+                onValueChange: (val) => setRange(val.value) })] }));
+};
+
+const Tag = React__namespace.forwardRef(function Tag(props, ref) {
+    const { startElement, endElement, onClose, closable = !!onClose, children, ...rest } = props;
+    return (jsxRuntime.jsxs(react.Tag.Root, { ref: ref, ...rest, children: [startElement && (jsxRuntime.jsx(react.Tag.StartElement, { children: startElement })), jsxRuntime.jsx(react.Tag.Label, { children: children }), endElement && (jsxRuntime.jsx(react.Tag.EndElement, { children: endElement })), closable && (jsxRuntime.jsx(react.Tag.EndElement, { children: jsxRuntime.jsx(react.Tag.CloseTrigger, { onClick: onClose }) }))] }));
+});
+
+const TagFilter = ({ availableTags, selectedTags, onTagChange, }) => {
+    const toggleTag = (tag) => {
+        if (selectedTags.includes(tag)) {
+            onTagChange(selectedTags.filter((t) => t !== tag));
+        }
+        else {
+            onTagChange([...selectedTags, tag]);
+        }
+    };
+    return (jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", p: "0.5rem", gap: "0.5rem", children: availableTags.map((tag) => (jsxRuntime.jsx(Tag, { variant: selectedTags.includes(tag) ? "solid" : "outline", cursor: "pointer", closable: selectedTags.includes(tag) ? true : undefined, onClick: () => toggleTag(tag), children: tag }))) }));
+};
+
+const Filter = ({ column }) => {
+    const { filterVariant } = column.columnDef.meta ?? {};
+    const displayName = column.columnDef.meta?.displayName ?? column.id;
+    const filterOptions = column.columnDef.meta?.filterOptions ?? [];
+    if (column.columns.length > 0) {
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 1, children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", gap: 1, children: column.columns.map((column) => {
+                        return jsxRuntime.jsx(Filter, { column: column }, column.id);
+                    }) }, column.id)] }));
+    }
+    if (!column.getCanFilter()) {
+        return jsxRuntime.jsx(jsxRuntime.Fragment, {});
+    }
+    if (filterVariant === "select") {
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(RadioGroup, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", onValueChange: (details) => {
+                        column.setFilterValue(details.value);
+                    }, children: jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", gap: "0.5rem", children: filterOptions.map((item) => (jsxRuntime.jsx(Radio, { value: item, children: item }, item))) }) })] }, column.id));
+    }
+    if (filterVariant === "tag") {
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(TagFilter, { availableTags: filterOptions, selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
+                        if (tags.length === 0) {
+                            return column.setFilterValue(undefined);
+                        }
+                        column.setFilterValue(tags);
+                    } })] }, column.id));
+    }
+    if (filterVariant === "boolean") {
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(TagFilter, { availableTags: ["true", "false"], selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
+                        if (tags.length === 0) {
+                            return column.setFilterValue(undefined);
+                        }
+                        column.setFilterValue(tags);
+                    } })] }, column.id));
+    }
+    if (filterVariant === "range") {
+        const filterValue = column.getFilterValue() ?? [
+            undefined,
+            undefined,
+        ];
+        const { min, max, step, defaultValue } = column.columnDef.meta
+            ?.filterRangeConfig ?? {
+            min: 0,
+            max: 100,
+            step: 1,
+            defaultValue: [4, 50],
+        };
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(RangeFilter, { range: filterValue, setRange: function (value) {
+                        // throw new Error("Function not implemented.");
+                        column.setFilterValue(value);
+                    }, defaultValue: defaultValue, min: min, max: max, step: step })] }, column.id));
+    }
+    if (filterVariant === "dateRange") {
+        const filterValue = column.getFilterValue() ?? [];
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(RangeDatePicker, { selected: filterValue, onDateSelected: ({ selected, selectable, date }) => {
+                        const newDates = getRangeDates({
+                            selectable,
+                            date,
+                            selectedDates: filterValue,
+                        }) ?? [];
+                        column.setFilterValue(() => {
+                            return newDates;
+                        });
+                    } })] }, column.id));
+    }
+    if (filterVariant === "custom") {
+        const renderFilter = column.columnDef.meta?.renderFilter;
+        if (renderFilter === undefined) {
+            throw new Error("renderFilter is undefined");
+        }
+        return jsxRuntime.jsx(jsxRuntime.Fragment, { children: renderFilter(column) });
+    }
+    return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(react.Input, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", onChange: (e) => {
+                    column.setFilterValue(e.target.value);
+                } })] }, column.id));
+};
+const TableFilter = () => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getAllColumns().map((column) => {
+            return jsxRuntime.jsx(Filter, { column: column }, column.id);
+        }) }));
+};
+
+const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(react.Button, { onClick: () => {
+            table.resetColumnFilters();
+        }, children: text }));
+};
+
 const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsxRuntime.jsx(md.MdFilterAlt, {}), }) => {
     const filterModal = react.useDisclosure();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(DialogRoot, { size: ["full", "full", "md", "md"], open: filterModal.open, children: jsxRuntime.jsxs(DialogRoot, { children: [jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: 'ghost', onClick: filterModal.onOpen, children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogHeader, { children: jsxRuntime.jsx(DialogTitle, { children: title }) }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "1rem", children: [jsxRuntime.jsx(TableFilter, {}), jsxRuntime.jsx(ResetFilteringButton, { text: resetText })] }) }), jsxRuntime.jsxs(DialogFooter, { children: [jsxRuntime.jsx(DialogActionTrigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { onClick: filterModal.onClose, children: closeText }) }), jsxRuntime.jsx(react.Button, { children: "Save" })] }), jsxRuntime.jsx(DialogCloseTrigger, {})] })] }) }) }));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(DialogRoot, { size: ["full", "full", "md", "md"], open: filterModal.open, children: jsxRuntime.jsxs(DialogRoot, { children: [jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", onClick: filterModal.onOpen, children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogHeader, { children: jsxRuntime.jsx(DialogTitle, { children: title }) }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "1rem", children: [jsxRuntime.jsx(TableFilter, {}), jsxRuntime.jsx(ResetFilteringButton, { text: resetText })] }) }), jsxRuntime.jsxs(DialogFooter, { children: [jsxRuntime.jsx(DialogActionTrigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { onClick: filterModal.onClose, children: closeText }) }), jsxRuntime.jsx(react.Button, { children: "Save" })] }), jsxRuntime.jsx(DialogCloseTrigger, {})] })] }) }) }));
+};
+
+const ColumnOrderChanger = ({ columns }) => {
+    const [order, setOrder] = React.useState([]);
+    const [originalOrder, setOriginalOrder] = React.useState([]);
+    const { table } = useDataTableContext();
+    const handleChangeOrder = (startIndex, endIndex) => {
+        const newOrder = Array.from(order);
+        const [removed] = newOrder.splice(startIndex, 1);
+        newOrder.splice(endIndex, 0, removed);
+        setOrder(newOrder);
+    };
+    React.useEffect(() => {
+        setOrder(columns);
+    }, [columns]);
+    React.useEffect(() => {
+        if (originalOrder.length > 0) {
+            return;
+        }
+        if (columns.length <= 0) {
+            return;
+        }
+        setOriginalOrder(columns);
+    }, [columns]);
+    return (jsxRuntime.jsxs(react.Flex, { gap: 2, flexFlow: "column", children: [jsxRuntime.jsx(react.Flex, { gap: 2, flexFlow: "column", children: order.map((columnId, index) => (jsxRuntime.jsxs(react.Flex, { gap: 2, alignItems: "center", justifyContent: "space-between", children: [jsxRuntime.jsx(react.IconButton, { onClick: () => {
+                                const prevIndex = index - 1;
+                                if (prevIndex >= 0) {
+                                    handleChangeOrder(index, prevIndex);
+                                }
+                            }, disabled: index === 0, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowUpward, {}) }), table
+                            .getAllFlatColumns()
+                            .filter((column) => {
+                            return column.id === columnId;
+                        })
+                            .map((column) => {
+                            const displayName = column.columnDef.meta === undefined
+                                ? column.id
+                                : column.columnDef.meta.displayName;
+                            return jsxRuntime.jsx("span", { children: displayName }, column.id);
+                        }), jsxRuntime.jsx(react.IconButton, { onClick: () => {
+                                const nextIndex = index + 1;
+                                if (nextIndex < order.length) {
+                                    handleChangeOrder(index, nextIndex);
+                                }
+                            }, disabled: index === order.length - 1, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowDownward, {}) })] }, columnId))) }), jsxRuntime.jsxs(react.Flex, { gap: "0.25rem", children: [jsxRuntime.jsx(react.Button, { onClick: () => {
+                            table.setColumnOrder(order);
+                        }, children: "Apply" }), jsxRuntime.jsx(react.Button, { onClick: () => {
+                            table.setColumnOrder(originalOrder);
+                        }, children: "Reset" })] })] }));
+};
+const TableOrderer = () => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
 };
 
 const EditOrderButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineMoveDown, {}), title = "Change Order", }) => {
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(DialogRoot, { size: "cover", children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, {}), title] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: jsxRuntime.jsx(TableOrderer, {}) }) }), jsxRuntime.jsx(DialogFooter, {})] })] }) }));
+};
+
+const TableSorter = () => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsx(jsxRuntime.Fragment, { children: headerGroup.headers.map((header) => {
+                const displayName = header.column.columnDef.meta === undefined
+                    ? header.column.id
+                    : header.column.columnDef.meta.displayName;
+                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanSort() && (jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsxs(react.Button, { variant: "ghost", onClick: () => {
+                                    header.column.toggleSorting();
+                                }, children: [header.column.getIsSorted() === false && jsxRuntime.jsx(fa6.FaUpDown, {}), header.column.getIsSorted() === "asc" && jsxRuntime.jsx(bi.BiDownArrow, {}), header.column.getIsSorted() === "desc" && jsxRuntime.jsx(bi.BiUpArrow, {})] }), header.column.getIsSorted() && (jsxRuntime.jsx(react.Button, { onClick: () => {
+                                    header.column.clearSorting();
+                                }, children: jsxRuntime.jsx(cg.CgClose, {}) }))] })) }));
+            }) }))) }));
+};
+
+const ResetSortingButton = ({ text = "Reset Sorting", }) => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(react.Button, { onClick: () => {
+            table.resetSorting();
+        }, children: text }));
 };
 
 const EditSortingButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineSort, {}), title = "Edit Sorting", }) => {
@@ -151,24 +501,10 @@ const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
                         }, children: pageSize }, `chakra-table-pageSize-${pageSize}`))) })] }) }));
 };
 
-const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(react.Button, { onClick: () => {
-            table.resetColumnFilters();
-        }, children: text }));
-};
-
 const ResetSelectionButton = ({ text = "Reset Selection", }) => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsx(react.Button, { onClick: () => {
             table.resetRowSelection();
-        }, children: text }));
-};
-
-const ResetSortingButton = ({ text = "Reset Sorting", }) => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(react.Button, { onClick: () => {
-            table.resetSorting();
         }, children: text }));
 };
 
@@ -260,11 +596,6 @@ const TablePagination = () => {
             table.setPageIndex(e.page - 1);
         }, children: jsxRuntime.jsxs(react.HStack, { children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), jsxRuntime.jsx(PaginationItems, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) }));
 };
-
-const Tag = React__namespace.forwardRef(function Tag(props, ref) {
-    const { startElement, endElement, onClose, closable = !!onClose, children, ...rest } = props;
-    return (jsxRuntime.jsxs(react.Tag.Root, { ref: ref, ...rest, children: [startElement && (jsxRuntime.jsx(react.Tag.StartElement, { children: startElement })), jsxRuntime.jsx(react.Tag.Label, { children: children }), endElement && (jsxRuntime.jsx(react.Tag.EndElement, { children: endElement })), closable && (jsxRuntime.jsx(react.Tag.EndElement, { children: jsxRuntime.jsx(react.Tag.CloseTrigger, { onClick: onClose }) }))] }));
-});
 
 const CardHeader = ({ row, imageColumnId = undefined, titleColumnId = undefined, tagColumnId = undefined, tagIcon = undefined, showTag = true, imageProps = {}, }) => {
     if (!!row.original === false) {
@@ -798,12 +1129,12 @@ const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
         }, children: [jsxRuntime.jsx(io5.IoReload, {}), " ", text] }));
 };
 
-const EmptyState = React__namespace.forwardRef(function EmptyState(props, ref) {
+const EmptyState$1 = React__namespace.forwardRef(function EmptyState(props, ref) {
     const { title, description, icon, children, ...rest } = props;
     return (jsxRuntime.jsx(react.EmptyState.Root, { ref: ref, ...rest, children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [icon && (jsxRuntime.jsx(react.EmptyState.Indicator, { children: icon })), description ? (jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })) : (jsxRuntime.jsx(react.EmptyState.Title, { children: title })), children] }) }));
 });
 
-const EmptyResult = (jsxRuntime.jsx(EmptyState, { icon: jsxRuntime.jsx(hi.HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxRuntime.jsxs(react.List.Root, { variant: "marker", children: [jsxRuntime.jsx(react.List.Item, { children: "Try removing filters" }), jsxRuntime.jsx(react.List.Item, { children: "Try different keywords" })] }) }));
+const EmptyResult = (jsxRuntime.jsx(EmptyState$1, { icon: jsxRuntime.jsx(hi.HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxRuntime.jsxs(react.List.Root, { variant: "marker", children: [jsxRuntime.jsx(react.List.Item, { children: "Try removing filters" }), jsxRuntime.jsx(react.List.Item, { children: "Try different keywords" })] }) }));
 const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
     const { table } = useDataTableContext();
     if (table.getRowModel().rows.length <= 0) {
@@ -844,270 +1175,6 @@ const TableComponent = ({ render = () => {
     return render(table);
 };
 
-const Radio = React__namespace.forwardRef(function Radio(props, ref) {
-    const { children, inputProps, rootRef, ...rest } = props;
-    return (jsxRuntime.jsxs(react.RadioGroup.Item, { ref: rootRef, ...rest, children: [jsxRuntime.jsx(react.RadioGroup.ItemHiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsx(react.RadioGroup.ItemIndicator, {}), children && (jsxRuntime.jsx(react.RadioGroup.ItemText, { children: children }))] }));
-});
-const RadioGroup = react.RadioGroup.Root;
-
-const monthNamesFull = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-];
-const weekdayNamesShort$1 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, selected = [], firstDayOfWeek = 0, }) {
-    const [hoveredDate, setHoveredDate] = React.useState();
-    const onMouseLeave = () => {
-        setHoveredDate(undefined);
-    };
-    const onMouseEnter = (date) => {
-        setHoveredDate(date);
-    };
-    const isInRange = (date) => {
-        if (selected.length) {
-            const firstSelected = selected[0].getTime();
-            if (selected.length === 2) {
-                const secondSelected = selected[1].getTime();
-                return (firstSelected < date.getTime() && secondSelected > date.getTime());
-            }
-            else {
-                return !!(hoveredDate &&
-                    ((firstSelected < date.getTime() &&
-                        hoveredDate.getTime() >= date.getTime()) ||
-                        (date.getTime() < firstSelected &&
-                            date.getTime() >= hoveredDate.getTime())));
-            }
-        }
-        return false;
-    };
-    if (calendars.length) {
-        return (jsxRuntime.jsxs(react.Grid, { onMouseLeave: onMouseLeave, children: [jsxRuntime.jsxs(react.Grid, { templateColumns: "repeat(4, auto)", justifyContent: "center", children: [jsxRuntime.jsx(react.Button, { variant: "ghost", ...getBackProps({
-                                calendars,
-                                offset: 12,
-                            }), children: "<<" }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...getBackProps({ calendars }), children: "Back" }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...getForwardProps({ calendars }), children: "Next" }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...getForwardProps({
-                                calendars,
-                                offset: 12,
-                            }), children: ">>" })] }), jsxRuntime.jsx(react.Grid, { templateColumns: "repeat(2, auto)", justifyContent: "center", gap: 4, children: calendars.map((calendar) => (jsxRuntime.jsxs(react.Grid, { gap: 4, children: [jsxRuntime.jsxs(react.Grid, { justifyContent: "center", children: [monthNamesFull[calendar.month], " ", calendar.year] }), jsxRuntime.jsx(react.Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: [0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-                                    const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                                    return (jsxRuntime.jsx(react.Box, { minWidth: "48px", textAlign: "center", children: weekdayNamesShort$1[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
-                                }) }), jsxRuntime.jsx(react.Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: calendar.weeks.map((week, windex) => week.map((dateObj, index) => {
-                                    const key = `${calendar.month}${calendar.year}${windex}${index}`;
-                                    if (!dateObj) {
-                                        return jsxRuntime.jsx(react.Box, {}, key);
-                                    }
-                                    const { date, selected, selectable, today } = dateObj;
-                                    const getStyle = ({ selected, unavailable, today, isInRange, }) => {
-                                        if (unavailable) {
-                                            return {
-                                                colorPalette: "gray",
-                                                variant: "solid",
-                                            };
-                                        }
-                                        if (selected) {
-                                            return {
-                                                colorPalette: "blue",
-                                                variant: "solid",
-                                            };
-                                        }
-                                        if (isInRange) {
-                                            return {
-                                                colorPalette: "blue",
-                                                variant: "subtle",
-                                            };
-                                        }
-                                        if (today) {
-                                            return {
-                                                colorPalette: "green",
-                                                variant: "solid",
-                                            };
-                                        }
-                                        return { variant: "ghost" };
-                                    };
-                                    return (jsxRuntime.jsx(react.Button, { ...getDateProps({
-                                            dateObj,
-                                            onMouseEnter: () => {
-                                                onMouseEnter(date);
-                                            },
-                                        }), ...getStyle({
-                                            selected,
-                                            unavailable: !selectable,
-                                            today,
-                                            isInRange: isInRange(date),
-                                        }), children: selectable ? date.getDate() : "X" }, key));
-                                })) })] }, `${calendar.month}${calendar.year}`))) })] }));
-    }
-    return null;
-}
-class RangeDatePicker extends React.Component {
-    render() {
-        return (jsxRuntime.jsx(Dayzed, { onDateSelected: this.props.onDateSelected, selected: this.props.selected, firstDayOfWeek: this.props.firstDayOfWeek, showOutsideDays: this.props.showOutsideDays, date: this.props.date, minDate: this.props.minDate, maxDate: this.props.maxDate, monthsToDisplay: this.props.monthsToDisplay, render: (dayzedData) => (jsxRuntime.jsx(Calendar$1, { ...dayzedData,
-                firstDayOfWeek: this.props.firstDayOfWeek,
-                selected: this.props.selected })) }));
-    }
-}
-
-const getRangeDates = ({ selectable, date, selectedDates, }) => {
-    if (!selectable) {
-        return;
-    }
-    const dateTime = date.getTime();
-    const newDates = [...selectedDates];
-    if (selectedDates.length) {
-        if (selectedDates.length === 1) {
-            const firstTime = selectedDates[0].getTime();
-            if (firstTime < dateTime) {
-                newDates.push(date);
-            }
-            else {
-                newDates.unshift(date);
-            }
-            return newDates;
-        }
-        else if (newDates.length === 2) {
-            return [date];
-        }
-    }
-    else {
-        newDates.push(date);
-        return newDates;
-    }
-};
-
-const Slider = React__namespace.forwardRef(function Slider(props, ref) {
-    const { marks: marksProp, label, showValue, ...rest } = props;
-    const value = props.defaultValue ?? props.value;
-    const marks = marksProp?.map((mark) => {
-        if (typeof mark === "number")
-            return { value: mark, label: undefined };
-        return mark;
-    });
-    const hasMarkLabel = !!marks?.some((mark) => mark.label);
-    return (jsxRuntime.jsxs(react.Slider.Root, { ref: ref, thumbAlignment: "center", ...rest, children: [label && !showValue && (jsxRuntime.jsx(react.Slider.Label, { children: label })), label && showValue && (jsxRuntime.jsxs(react.HStack, { justify: "space-between", children: [jsxRuntime.jsx(react.Slider.Label, { children: label }), jsxRuntime.jsx(react.Slider.ValueText, {})] })), jsxRuntime.jsxs(react.Slider.Control, { "data-has-mark-label": hasMarkLabel || undefined, children: [jsxRuntime.jsx(react.Slider.Track, { children: jsxRuntime.jsx(react.Slider.Range, {}) }), jsxRuntime.jsx(SliderThumbs, { value: value }), jsxRuntime.jsx(SliderMarks, { marks: marks })] })] }));
-});
-function SliderThumbs(props) {
-    const { value } = props;
-    return (jsxRuntime.jsx(react.For, { each: value, children: (_, index) => (jsxRuntime.jsx(react.Slider.Thumb, { index: index, children: jsxRuntime.jsx(react.Slider.HiddenInput, {}) }, index)) }));
-}
-const SliderMarks = React__namespace.forwardRef(function SliderMarks(props, ref) {
-    const { marks } = props;
-    if (!marks?.length)
-        return null;
-    return (jsxRuntime.jsx(react.Slider.MarkerGroup, { ref: ref, children: marks.map((mark, index) => {
-            const value = typeof mark === "number" ? mark : mark.value;
-            const label = typeof mark === "number" ? undefined : mark.label;
-            return (jsxRuntime.jsxs(react.Slider.Marker, { value: value, children: [jsxRuntime.jsx(react.Slider.MarkerIndicator, {}), label] }, index));
-        }) }));
-});
-
-const RangeFilter = ({ range, setRange, defaultValue, min, max, step, }) => {
-    return (jsxRuntime.jsxs(react.Flex, { p: 2, gap: 2, flexFlow: 'column', children: [jsxRuntime.jsx(react.Text, { children: `${range[0]} - ${range[1]}` }), jsxRuntime.jsx(Slider, { width: "full", min: min, max: max, defaultValue: defaultValue, step: step, name: `Selected Range: ${range[0]} - ${range[1]}`, 
-                // value={field.value}
-                onValueChange: (val) => setRange(val.value) })] }));
-};
-
-const TagFilter = ({ availableTags, selectedTags, onTagChange, }) => {
-    const toggleTag = (tag) => {
-        if (selectedTags.includes(tag)) {
-            onTagChange(selectedTags.filter((t) => t !== tag));
-        }
-        else {
-            onTagChange([...selectedTags, tag]);
-        }
-    };
-    return (jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", p: "0.5rem", gap: "0.5rem", children: availableTags.map((tag) => (jsxRuntime.jsx(Tag, { variant: selectedTags.includes(tag) ? "solid" : "outline", cursor: "pointer", closable: selectedTags.includes(tag) ? true : undefined, onClick: () => toggleTag(tag), children: tag }))) }));
-};
-
-const Filter = ({ column }) => {
-    const { filterVariant } = column.columnDef.meta ?? {};
-    const displayName = column.columnDef.meta?.displayName ?? column.id;
-    const filterOptions = column.columnDef.meta?.filterOptions ?? [];
-    if (column.columns.length > 0) {
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 1, children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", gap: 1, children: column.columns.map((column) => {
-                        return jsxRuntime.jsx(Filter, { column: column }, column.id);
-                    }) }, column.id)] }));
-    }
-    if (!column.getCanFilter()) {
-        return jsxRuntime.jsx(jsxRuntime.Fragment, {});
-    }
-    if (filterVariant === "select") {
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(RadioGroup, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", onValueChange: (details) => {
-                        column.setFilterValue(details.value);
-                    }, children: jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", gap: "0.5rem", children: filterOptions.map((item) => (jsxRuntime.jsx(Radio, { value: item, children: item }, item))) }) })] }, column.id));
-    }
-    if (filterVariant === "tag") {
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(TagFilter, { availableTags: filterOptions, selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
-                        if (tags.length === 0) {
-                            return column.setFilterValue(undefined);
-                        }
-                        column.setFilterValue(tags);
-                    } })] }, column.id));
-    }
-    if (filterVariant === "boolean") {
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(TagFilter, { availableTags: ["true", "false"], selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
-                        if (tags.length === 0) {
-                            return column.setFilterValue(undefined);
-                        }
-                        column.setFilterValue(tags);
-                    } })] }, column.id));
-    }
-    if (filterVariant === "range") {
-        const filterValue = column.getFilterValue() ?? [
-            undefined,
-            undefined,
-        ];
-        const { min, max, step, defaultValue } = column.columnDef.meta
-            ?.filterRangeConfig ?? {
-            min: 0,
-            max: 100,
-            step: 1,
-            defaultValue: [4, 50],
-        };
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(RangeFilter, { range: filterValue, setRange: function (value) {
-                        // throw new Error("Function not implemented.");
-                        column.setFilterValue(value);
-                    }, defaultValue: defaultValue, min: min, max: max, step: step })] }, column.id));
-    }
-    if (filterVariant === "dateRange") {
-        const filterValue = column.getFilterValue() ?? [];
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(RangeDatePicker, { selected: filterValue, onDateSelected: ({ selected, selectable, date }) => {
-                        const newDates = getRangeDates({
-                            selectable,
-                            date,
-                            selectedDates: filterValue,
-                        }) ?? [];
-                        column.setFilterValue(() => {
-                            return newDates;
-                        });
-                    } })] }, column.id));
-    }
-    if (filterVariant === "custom") {
-        const renderFilter = column.columnDef.meta?.renderFilter;
-        if (renderFilter === undefined) {
-            throw new Error("renderFilter is undefined");
-        }
-        return jsxRuntime.jsx(jsxRuntime.Fragment, { children: renderFilter(column) });
-    }
-    return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(react.Input, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", onChange: (e) => {
-                    column.setFilterValue(e.target.value);
-                } })] }, column.id));
-};
-const TableFilter = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getAllColumns().map((column) => {
-            return jsxRuntime.jsx(Filter, { column: column }, column.id);
-        }) }));
-};
-
 const TableFilterTags = () => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsx(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }) => {
@@ -1124,59 +1191,6 @@ const TableLoadingComponent = ({ render, }) => {
     return jsxRuntime.jsx(jsxRuntime.Fragment, { children: render(loading) });
 };
 
-const ColumnOrderChanger = ({ columns }) => {
-    const [order, setOrder] = React.useState([]);
-    const [originalOrder, setOriginalOrder] = React.useState([]);
-    const { table } = useDataTableContext();
-    const handleChangeOrder = (startIndex, endIndex) => {
-        const newOrder = Array.from(order);
-        const [removed] = newOrder.splice(startIndex, 1);
-        newOrder.splice(endIndex, 0, removed);
-        setOrder(newOrder);
-    };
-    React.useEffect(() => {
-        setOrder(columns);
-    }, [columns]);
-    React.useEffect(() => {
-        if (originalOrder.length > 0) {
-            return;
-        }
-        if (columns.length <= 0) {
-            return;
-        }
-        setOriginalOrder(columns);
-    }, [columns]);
-    return (jsxRuntime.jsxs(react.Flex, { gap: 2, flexFlow: "column", children: [jsxRuntime.jsx(react.Flex, { gap: 2, flexFlow: "column", children: order.map((columnId, index) => (jsxRuntime.jsxs(react.Flex, { gap: 2, alignItems: "center", justifyContent: "space-between", children: [jsxRuntime.jsx(react.IconButton, { onClick: () => {
-                                const prevIndex = index - 1;
-                                if (prevIndex >= 0) {
-                                    handleChangeOrder(index, prevIndex);
-                                }
-                            }, disabled: index === 0, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowUpward, {}) }), table
-                            .getAllFlatColumns()
-                            .filter((column) => {
-                            return column.id === columnId;
-                        })
-                            .map((column) => {
-                            const displayName = column.columnDef.meta === undefined
-                                ? column.id
-                                : column.columnDef.meta.displayName;
-                            return jsxRuntime.jsx("span", { children: displayName }, column.id);
-                        }), jsxRuntime.jsx(react.IconButton, { onClick: () => {
-                                const nextIndex = index + 1;
-                                if (nextIndex < order.length) {
-                                    handleChangeOrder(index, nextIndex);
-                                }
-                            }, disabled: index === order.length - 1, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowDownward, {}) })] }, columnId))) }), jsxRuntime.jsxs(react.Flex, { gap: "0.25rem", children: [jsxRuntime.jsx(react.Button, { onClick: () => {
-                            table.setColumnOrder(order);
-                        }, children: "Apply" }), jsxRuntime.jsx(react.Button, { onClick: () => {
-                            table.setColumnOrder(originalOrder);
-                        }, children: "Reset" })] })] }));
-};
-const TableOrderer = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
-};
-
 const SelectAllRowsToggle = ({ selectAllIcon = jsxRuntime.jsx(md.MdOutlineChecklist, {}), clearAllIcon = jsxRuntime.jsx(md.MdClear, {}), selectAllText = "", clearAllText = "", }) => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!selectAllText === false && (jsxRuntime.jsx(react.IconButton, { variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
@@ -1191,20 +1205,6 @@ const TableSelector = () => {
     return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [table.getSelectedRowModel().rows.length > 0 && (jsxRuntime.jsxs(react.Button, { onClick: () => { }, variant: "ghost", display: "flex", gap: "0.25rem", children: [jsxRuntime.jsx(react.Box, { fontSize: "sm", children: `${table.getSelectedRowModel().rows.length}` }), jsxRuntime.jsx(io.IoMdCheckbox, {})] })), !table.getIsAllPageRowsSelected() && jsxRuntime.jsx(SelectAllRowsToggle, {}), table.getSelectedRowModel().rows.length > 0 && (jsxRuntime.jsx(react.IconButton, { variant: "ghost", onClick: () => {
                     table.resetRowSelection();
                 }, "aria-label": "reset selection", children: jsxRuntime.jsx(md.MdClear, {}) }))] }));
-};
-
-const TableSorter = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsx(jsxRuntime.Fragment, { children: headerGroup.headers.map((header) => {
-                const displayName = header.column.columnDef.meta === undefined
-                    ? header.column.id
-                    : header.column.columnDef.meta.displayName;
-                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanSort() && (jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsxs(react.Button, { variant: "ghost", onClick: () => {
-                                    header.column.toggleSorting();
-                                }, children: [header.column.getIsSorted() === false && jsxRuntime.jsx(fa6.FaUpDown, {}), header.column.getIsSorted() === "asc" && jsxRuntime.jsx(bi.BiDownArrow, {}), header.column.getIsSorted() === "desc" && jsxRuntime.jsx(bi.BiUpArrow, {})] }), header.column.getIsSorted() && (jsxRuntime.jsx(react.Button, { onClick: () => {
-                                    header.column.clearSorting();
-                                }, children: jsxRuntime.jsx(cg.CgClose, {}) }))] })) }));
-            }) }))) }));
 };
 
 const CheckboxCard = React__namespace.forwardRef(function CheckboxCard(props, ref) {
@@ -1498,6 +1498,18 @@ const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth =
         }),
     ];
     return columns;
+};
+
+const EmptyState = ({ title = "No records", description = "Add a new events to get started or refine your search", }) => {
+    const { query } = useDataTableContext();
+    const { data } = query;
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: (data ?? { count: 0 }).count <= 0 && (jsxRuntime.jsx(react.EmptyState.Root, { children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [jsxRuntime.jsx(react.EmptyState.Indicator, { children: jsxRuntime.jsx(hi.HiColorSwatch, {}) }), jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })] }) })) }));
+};
+
+const ErrorAlert = ({ showMessage }) => {
+    const { query } = useDataTableContext();
+    const { isError, error } = query;
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isError && (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsxs(react.Alert.Content, { children: [jsxRuntime.jsx(react.Alert.Title, { children: error.name }), showMessage && (jsxRuntime.jsx(react.Alert.Description, { children: error.message }))] })] })) }));
 };
 
 const FilterOptions = ({ column }) => {
@@ -2509,6 +2521,8 @@ exports.EditFilterButton = EditFilterButton;
 exports.EditOrderButton = EditOrderButton;
 exports.EditSortingButton = EditSortingButton;
 exports.EditViewButton = EditViewButton;
+exports.EmptyState = EmptyState;
+exports.ErrorAlert = ErrorAlert;
 exports.FilterOptions = FilterOptions;
 exports.Form = Form;
 exports.GlobalFilter = GlobalFilter;
