@@ -6,4 +6,4 @@ export interface DataTableContext<TData> {
     setGlobalFilter: OnChangeFn<string>;
     type: "client" | "server";
 }
-export declare const DataTableContext: import("react").Context<DataTableContext<any>>;
+export declare const DataTableContext: import("react").Context<DataTableContext<unknown>>;

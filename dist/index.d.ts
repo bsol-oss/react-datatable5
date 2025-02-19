@@ -372,7 +372,7 @@ interface DataTableContext<TData> {
     setGlobalFilter: OnChangeFn<string>;
     type: "client" | "server";
 }
-declare const DataTableContext: React$1.Context<DataTableContext<any>>;
+declare const DataTableContext: React$1.Context<DataTableContext<unknown>>;
 
 declare const useDataTableContext: <TData>() => DataTableContext<TData>;
 
@@ -389,7 +389,6 @@ declare const widthSanityCheck: <K extends unknown>(widthList: number[], ignoreL
 declare const getColumns: <TData extends unknown>({ schema, ignore, width, meta, defaultWidth, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
 
 interface EmptyStateProps {
-    query: UseQueryResult;
     title?: string;
     description?: string;
 }

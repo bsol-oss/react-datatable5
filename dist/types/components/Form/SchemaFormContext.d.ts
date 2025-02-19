@@ -9,7 +9,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
     ignore: string[];
     displayText: DisplayTextProps;
     onSubmit?: (data: TData) => Promise<void>;
-    preLoadedValues: object;
     rowNumber?: number | string;
 }
 export declare const SchemaFormContext: import("react").Context<SchemaFormContext<unknown>>;

@@ -4,7 +4,7 @@ export declare const useSchemaContext: () => {
     order: string[];
     ignore: string[];
     onSubmit: ((data: unknown) => Promise<void>) | undefined;
-    preLoadedValues: object;
+    preLoadedValues: any;
     rowNumber: string | number | undefined;
     displayText: import("./Form").DisplayTextProps;
 };

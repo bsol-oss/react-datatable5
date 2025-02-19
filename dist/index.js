@@ -1568,7 +1568,6 @@ const SchemaFormContext = React.createContext({
     order: [],
     ignore: [],
     onSubmit: async () => { },
-    preLoadedValues: {},
     rowNumber: 0,
     displayText: {},
 });
@@ -1652,12 +1651,12 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     }
     const { total, showing, close, typeToSearch, showMore } = displayText;
     const { gridColumn, gridRow, title, renderDisplay } = schema.properties[column];
-    const [selectedIds, setSelectedIds] = React.useState([]);
     const [searchText, setSearchText] = React.useState();
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
     const [idMap, setIdMap] = React.useState({});
     const ref = React.useRef(null);
+    const selectedIds = watch(column) ?? [];
     const query = reactQuery.useQuery({
         queryKey: [`idpicker`, searchText, in_table, limit],
         queryFn: async () => {
@@ -1668,10 +1667,24 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                 limit: limit,
             });
         },
+        enabled: (searchText ?? "")?.length > 0,
+        staleTime: 10000,
+    });
+    const idQuery = reactQuery.useQuery({
+        queryKey: [`idpicker`, ...selectedIds],
+        queryFn: async () => {
+            return await getTableData({
+                serverUrl,
+                searching: searchText ?? "",
+                in_table: in_table,
+                limit: limit,
+            });
+        },
+        enabled: (selectedIds ?? []).length > 0,
         staleTime: 10000,
     });
     const { isLoading, isFetching, data, isPending, isError } = query;
-    const dataList = data?.data ?? [];
+    const dataList = React.useMemo(() => data?.data ?? [], [data]);
     const count = data?.count ?? 0;
     const isDirty = (searchText?.length ?? 0) > 0;
     const onSearchChange = async (event) => {
@@ -1679,19 +1692,44 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
         setLimit(10);
     };
     const ids = (watch(column) ?? []);
-    const newIdMap = React.useMemo(() => Object.fromEntries(dataList.map((item) => {
+    const newIdMap = React.useMemo(() => {
+        if (dataList === undefined)
+            return;
+        return Object.fromEntries(dataList.map((item) => {
+            return [
+                item[column_ref],
+                {
+                    ...item,
+                },
+            ];
+        }));
+    }, [dataList, column_ref]);
+    const existingIds = React.useMemo(() => Object.fromEntries((idQuery?.data ?? { data: [] }).data.map((item) => {
         return [
             item[column_ref],
             {
                 ...item,
             },
         ];
-    })), [dataList, column_ref]);
+    })), [idQuery, column_ref]);
+    const getPickedValue = () => {
+        if (selectedIds.length <= 0) {
+            return "";
+        }
+        if (Object.keys(idMap).length <= 0) {
+            return "";
+        }
+        const record = idMap[selectedIds[0]];
+        if (record === undefined) {
+            return "";
+        }
+        return record[display_column];
+    };
     React.useEffect(() => {
         setIdMap((state) => {
-            return { ...state, ...newIdMap };
+            return { ...state, ...newIdMap, ...existingIds };
         });
-    }, [newIdMap]);
+    }, [newIdMap, existingIds]);
     return (jsxRuntime.jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: "wrap", gap: 1, children: [selectedIds.map((id) => {
                         const item = idMap[id];
@@ -1699,16 +1737,15 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                             return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "undefined" });
                         }
                         return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
-                                setSelectedIds((state) => state.filter((id) => id != item[column_ref]));
                                 setValue(column, ids.filter((id) => id != item[column_ref]));
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
                                 : item[display_column] }));
                     }), jsxRuntime.jsx(Tag, { cursor: "pointer", onClick: () => {
                             setOpenSearchResult(true);
-                        }, children: "Add" })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: (event) => {
+                        }, children: "Add" })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, children: selectedIds[0] ? idMap[selectedIds[0]][display_column] ?? "" : "" })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(react.Input, { placeholder: typeToSearch, onChange: (event) => {
+                }, children: getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(react.Input, { placeholder: typeToSearch, onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
                                     }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), isError && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isError" }), jsxRuntime.jsx(react.Text, { children: `${total ?? "Total"} ${count}, ${showing ?? "Showing"} ${limit}` }), jsxRuntime.jsx(Button, { onClick: async () => {
@@ -1720,7 +1757,6 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                                                 return (jsxRuntime.jsx(react.Box, { cursor: "pointer", onClick: () => {
                                                         if (!isMultiple) {
                                                             setOpenSearchResult(false);
-                                                            setSelectedIds(() => [item[column_ref]]);
                                                             setValue(column, [item[column_ref]]);
                                                             return;
                                                         }
@@ -1728,7 +1764,6 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                                                             ...(ids ?? []),
                                                             item[column_ref],
                                                         ]);
-                                                        setSelectedIds(() => [...newSet]);
                                                         setValue(column, [...newSet]);
                                                     }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
                                                         ? renderDisplay(item)
@@ -1844,21 +1879,18 @@ const AccordionRoot = react.Accordion.Root;
 const AccordionItem = react.Accordion.Item;
 
 const BooleanPicker = ({ column }) => {
-    const { formState: { errors }, setValue, getValues, } = reactHookForm.useFormContext();
+    const { watch, formState: { errors }, setValue, getValues, } = reactHookForm.useFormContext();
     const { schema, displayText } = useSchemaContext();
     const { fieldRequired } = displayText;
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
+    const value = watch(column);
     if (schema.properties == undefined) {
         throw new Error("schema properties when using BooleanPicker");
     }
     const { gridColumn, gridRow, title } = schema.properties[column];
     return (jsxRuntime.jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsxRuntime.jsx(CheckboxCard
-            // label={snakeToLabel(column)}
-            , { 
-                // label={snakeToLabel(column)}
-                value: getValues(column), variant: "surface", onSelect: () => {
+        gridRow, children: [jsxRuntime.jsx(CheckboxCard, { checked: value, variant: "surface", onSelect: () => {
                     setValue(column, !getValues(column));
                 } }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
@@ -1933,22 +1965,21 @@ let DatePicker$1 = class DatePicker extends React.Component {
 };
 
 const DatePicker = ({ column }) => {
-    const { formState: { errors }, setValue, getValues, } = reactHookForm.useFormContext();
+    const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { schema, displayText } = useSchemaContext();
     const { fieldRequired } = displayText;
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const [open, setOpen] = React.useState(false);
+    const selectedDate = watch(column);
     if (schema.properties == undefined) {
         throw new Error("schema properties when using DatePicker");
     }
     const { gridColumn, gridRow, title } = schema.properties[column];
     return (jsxRuntime.jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsxRuntime.jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, positioning: { sameWidth: true }, children: [jsxRuntime.jsx(PopoverTrigger, { asChild: true, children: jsxRuntime.jsx(Button, { size: "sm", variant: "outline", onClick: () => {
+        gridRow, children: [jsxRuntime.jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(PopoverTrigger, { asChild: true, children: jsxRuntime.jsx(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
-                            }, children: getValues(column) !== undefined
-                                ? dayjs(getValues(column)).format("YYYY-MM-DD")
-                                : "" }) }), jsxRuntime.jsx(PopoverContent, { width: "auto", children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DatePicker$1, { selected: new Date(getValues(column)), onDateSelected: ({ selected, selectable, date }) => {
+                            }, children: selectedDate !== undefined ? selectedDate : "" }) }), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DatePicker$1, { selected: new Date(selectedDate), onDateSelected: ({ selected, selectable, date }) => {
                                         setValue(column, dayjs(date).format("YYYY-MM-DD"));
                                         setOpen(false);
                                     } })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
@@ -2180,7 +2211,7 @@ const FilePicker = ({ column }) => {
 
 const EnumPicker = ({ column, isMultiple = false }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { schema, serverUrl, displayText } = useSchemaContext();
+    const { schema, displayText } = useSchemaContext();
     const { fieldRequired } = displayText;
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -2188,7 +2219,6 @@ const EnumPicker = ({ column, isMultiple = false }) => {
         throw new Error("schema properties when using DatePicker");
     }
     const { gridColumn, gridRow, title, renderDisplay } = schema.properties[column];
-    const [selectedEnums, setSelectedEnums] = React.useState([]);
     const [searchText, setSearchText] = React.useState();
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
@@ -2203,7 +2233,7 @@ const EnumPicker = ({ column, isMultiple = false }) => {
         setLimit(10);
     };
     return (jsxRuntime.jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: "wrap", gap: 1, children: [selectedEnums.map((enumValue) => {
+        gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: "wrap", gap: 1, children: [watchEnums.map((enumValue) => {
                         const item = enumValue;
                         if (item === undefined) {
                             return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "undefined" });
@@ -2214,9 +2244,9 @@ const EnumPicker = ({ column, isMultiple = false }) => {
                             }, children: !!renderDisplay === true ? renderDisplay(item) : item }));
                     }), jsxRuntime.jsx(Tag, { cursor: "pointer", onClick: () => {
                             setOpenSearchResult(true);
-                        }, children: "Add" })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: (event) => {
+                        }, children: "Add" })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, children: selectedEnums[0] })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(react.Input, { placeholder: "Type to search", onChange: (event) => {
+                }, children: watchEnums[0] })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(react.Input, { placeholder: "Type to search", onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
                                     }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Text, { children: `Search Result: ${count}, Showing ${limit}` }), jsxRuntime.jsx(Button, { onClick: async () => {
@@ -2226,12 +2256,10 @@ const EnumPicker = ({ column, isMultiple = false }) => {
                                                 return (jsxRuntime.jsx(react.Box, { cursor: "pointer", onClick: () => {
                                                         if (!isMultiple) {
                                                             setOpenSearchResult(false);
-                                                            setSelectedEnums(() => [item]);
                                                             setValue(column, [item]);
                                                             return;
                                                         }
                                                         const newSet = new Set([...(watchEnums ?? []), item]);
-                                                        setSelectedEnums(() => [...newSet]);
                                                         setValue(column, [...newSet]);
                                                     }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true ? renderDisplay(item) : item }, `${column}-${item}`));
                                             }) }), isDirty && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [dataList.length <= 0 && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Empty Search Result" }), " "] }))] })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
@@ -2249,7 +2277,7 @@ const idPickerSanityCheck = (column, in_table, column_ref, display_column) => {
     }
 };
 const FormInternal = () => {
-    const { schema, serverUrl, displayText, order, ignore, onSubmit, preLoadedValues, rowNumber, } = useSchemaContext();
+    const { schema, serverUrl, displayText, order, ignore, onSubmit, rowNumber } = useSchemaContext();
     const { title, submit, empty, cancel, submitSuccess, submitAgain, confirm } = displayText;
     const methods = reactHookForm.useFormContext();
     const [isSuccess, setIsSuccess] = React.useState(false);
@@ -2328,14 +2356,6 @@ const FormInternal = () => {
             value: value,
         };
     };
-    React.useEffect(() => {
-        const loadData = () => {
-            Object.entries(preLoadedValues).map(([column, value]) => {
-                methods.setValue(column, value);
-            });
-        };
-        loadData();
-    }, [preLoadedValues, methods]);
     if (isSuccess) {
         return (jsxRuntime.jsxs(react.Grid, { gap: 2, children: [jsxRuntime.jsx(react.Heading, { children: title ?? snakeToLabel(schema.title ?? "") }), jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Title, { children: submitSuccess ?? "Data uploaded to the server. Fire on!" })] }), jsxRuntime.jsx(Button, { onClick: () => {
                         setIsError(false);
@@ -2478,7 +2498,7 @@ const FormInternal = () => {
 };
 const Form = ({ schema, serverUrl, order = [], ignore = [], onSubmit = undefined, preLoadedValues = {}, rowNumber = undefined, displayText = {}, }) => {
     const queryClient = new reactQuery.QueryClient();
-    const methods = reactHookForm.useForm();
+    const methods = reactHookForm.useForm({ values: preLoadedValues });
     const { properties } = schema;
     idListSanityCheck("order", order, properties);
     idListSanityCheck("ignore", ignore, properties);
@@ -2491,7 +2511,6 @@ const Form = ({ schema, serverUrl, order = [], ignore = [], onSubmit = undefined
                 ignore,
                 // @ts-expect-error TODO: find appropriate types
                 onSubmit,
-                preLoadedValues,
                 rowNumber,
             }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...methods, children: jsxRuntime.jsx(FormInternal, {}) }) }) }));
 };
