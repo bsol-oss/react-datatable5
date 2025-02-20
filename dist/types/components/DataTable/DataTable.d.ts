@@ -10,7 +10,7 @@ declare module "@tanstack/react-table" {
         itemRank: RankingInfo;
     }
 }
-export interface DataTableProps<TData> {
+export interface DataTableProps<TData = unknown> {
     children?: ReactNode | ReactNode[];
     data: TData[];
     columns: ColumnDef<TData, unknown>[];

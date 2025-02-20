@@ -117,7 +117,7 @@ declare module "@tanstack/react-table" {
         itemRank: RankingInfo;
     }
 }
-interface DataTableProps<TData> {
+interface DataTableProps<TData = unknown> {
     children?: ReactNode | ReactNode[];
     data: TData[];
     columns: ColumnDef<TData, unknown>[];
@@ -366,7 +366,7 @@ interface TextCellProps {
 }
 declare const TextCell: ({ label, containerProps, textProps, children, }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
-interface DataTableContext<TData> {
+interface DataTableContext<TData = unknown> {
     table: Table$1<TData>;
     globalFilter: string;
     setGlobalFilter: OnChangeFn<string>;

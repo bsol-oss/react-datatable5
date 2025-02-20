@@ -833,7 +833,7 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
         onColumnVisibilityChange: setColumnVisibility,
     });
     return (jsxRuntime.jsx(DataTableContext.Provider, { value: {
-            table: { ...table },
+            table: table,
             globalFilter: globalFilter,
             setGlobalFilter: setGlobalFilter,
             type: "client",
@@ -1706,7 +1706,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     const [searchText, setSearchText] = React.useState();
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
-    const [page, setPage] = React.useState(1);
+    const [page, setPage] = React.useState(0);
     const [idMap, setIdMap] = React.useState({});
     const ref = React.useRef(null);
     const selectedIds = watch(column) ?? [];
@@ -1767,7 +1767,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     const isDirty = (searchText?.length ?? 0) > 0;
     const onSearchChange = async (event) => {
         setSearchText(event.target.value);
-        setPage(1);
+        setPage(0);
         setLimit(10);
     };
     const watchId = watch(column);
@@ -1820,7 +1820,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                                                             }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
                                                                 ? renderDisplay(item)
                                                                 : item[display_column] }, item[column_ref]));
-                                                    }) }), isDirty && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [dataList.length <= 0 && jsxRuntime.jsx(react.Text, { children: "Empty Search Result" }), " "] }))] }), jsxRuntime.jsx(PaginationRoot, { justifySelf: "center", count: query?.data?.count ?? 0, pageSize: 10, defaultPage: 1, page: page, onPageChange: (e) => setPage(e.page), children: jsxRuntime.jsxs(react.HStack, { gap: "4", children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), jsxRuntime.jsx(PaginationPageText, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
+                                                    }) }), isDirty && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [dataList.length <= 0 && jsxRuntime.jsx(react.Text, { children: "Empty Search Result" }), " "] }))] }), jsxRuntime.jsx(PaginationRoot, { justifySelf: "center", count: query?.data?.count ?? 0, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxRuntime.jsxs(react.HStack, { gap: "4", children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), jsxRuntime.jsx(PaginationPageText, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
 const ToggleTip = React__namespace.forwardRef(function ToggleTip(props, ref) {

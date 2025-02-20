@@ -813,7 +813,7 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
         onColumnVisibilityChange: setColumnVisibility,
     });
     return (jsx(DataTableContext.Provider, { value: {
-            table: { ...table },
+            table: table,
             globalFilter: globalFilter,
             setGlobalFilter: setGlobalFilter,
             type: "client",
@@ -1686,7 +1686,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     const [searchText, setSearchText] = useState();
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(0);
     const [idMap, setIdMap] = useState({});
     const ref = useRef(null);
     const selectedIds = watch(column) ?? [];
@@ -1747,7 +1747,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     const isDirty = (searchText?.length ?? 0) > 0;
     const onSearchChange = async (event) => {
         setSearchText(event.target.value);
-        setPage(1);
+        setPage(0);
         setLimit(10);
     };
     const watchId = watch(column);
@@ -1800,7 +1800,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                                                             }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
                                                                 ? renderDisplay(item)
                                                                 : item[display_column] }, item[column_ref]));
-                                                    }) }), isDirty && (jsxs(Fragment, { children: [dataList.length <= 0 && jsx(Text, { children: "Empty Search Result" }), " "] }))] }), jsx(PaginationRoot, { justifySelf: "center", count: query?.data?.count ?? 0, pageSize: 10, defaultPage: 1, page: page, onPageChange: (e) => setPage(e.page), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
+                                                    }) }), isDirty && (jsxs(Fragment, { children: [dataList.length <= 0 && jsx(Text, { children: "Empty Search Result" }), " "] }))] }), jsx(PaginationRoot, { justifySelf: "center", count: query?.data?.count ?? 0, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
 const ToggleTip = React.forwardRef(function ToggleTip(props, ref) {
