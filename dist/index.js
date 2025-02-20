@@ -570,7 +570,7 @@ const PaginationItems = (props) => {
             return page.type === "ellipsis" ? (jsxRuntime.jsx(PaginationEllipsis, { index: index, ...props }, index)) : (jsxRuntime.jsx(PaginationItem, { type: "page", value: page.value, ...props }, index));
         }) }));
 };
-React__namespace.forwardRef(function PaginationPageText(props, ref) {
+const PaginationPageText = React__namespace.forwardRef(function PaginationPageText(props, ref) {
     const { format = "compact", ...rest } = props;
     const { page, totalPages, pageRange, count } = react.usePaginationContext();
     const content = React__namespace.useMemo(() => {
@@ -1660,7 +1660,7 @@ const useSchemaContext = () => {
     };
 };
 
-const getTableData = async ({ serverUrl, in_table, searching = "", where = [], limit = 10, }) => {
+const getTableData = async ({ serverUrl, in_table, searching = "", where = [], limit = 10, offset = 0, }) => {
     if (serverUrl === undefined || serverUrl.length == 0) {
         throw new Error("The serverUrl is missing");
     }
@@ -1678,6 +1678,7 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
             searching,
             where,
             limit,
+            offset
         },
     };
     try {
@@ -1700,22 +1701,24 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     if (schema.properties == undefined) {
         throw new Error("schema properties when using DatePicker");
     }
-    const { total, showing, close, typeToSearch, showMore } = displayText;
+    const { total, showing, typeToSearch } = displayText;
     const { gridColumn, gridRow, title, renderDisplay } = schema.properties[column];
     const [searchText, setSearchText] = React.useState();
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
+    const [page, setPage] = React.useState(1);
     const [idMap, setIdMap] = React.useState({});
     const ref = React.useRef(null);
     const selectedIds = watch(column) ?? [];
     const query = reactQuery.useQuery({
-        queryKey: [`idpicker`, searchText, in_table, limit],
+        queryKey: [`idpicker`, { searchText, in_table, limit, page }],
         queryFn: async () => {
             const data = await getTableData({
                 serverUrl,
                 searching: searchText ?? "",
                 in_table: in_table,
                 limit: limit,
+                offset: page * 10,
             });
             const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
                 return [
@@ -1731,15 +1734,15 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
             return data;
         },
         enabled: (searchText ?? "")?.length > 0,
-        staleTime: 10000,
+        staleTime: 300000,
     });
     reactQuery.useQuery({
-        queryKey: [`idpicker`, ...selectedIds],
+        queryKey: [`idpicker`, { selectedIds }],
         queryFn: async () => {
             const data = await getTableData({
                 serverUrl,
                 in_table: in_table,
-                limit: limit,
+                limit: 1,
                 where: [{ id: column_ref, value: watchId }],
             });
             const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
@@ -1756,7 +1759,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
             return data;
         },
         enabled: (selectedIds ?? []).length > 0,
-        staleTime: 10000,
+        staleTime: 300000,
     });
     const { isLoading, isFetching, data, isPending, isError } = query;
     const dataList = React.useMemo(() => data?.data ?? [], [data]);
@@ -1764,6 +1767,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     const isDirty = (searchText?.length ?? 0) > 0;
     const onSearchChange = async (event) => {
         setSearchText(event.target.value);
+        setPage(1);
         setLimit(10);
     };
     const watchId = watch(column);
@@ -1793,40 +1797,30 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                             setOpenSearchResult(true);
                         }, children: "Add" })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, children: getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(react.Input, { placeholder: typeToSearch, onChange: (event) => {
+                }, children: getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: typeToSearch ?? "Type To Search", onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), isError && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isError" }), jsxRuntime.jsx(react.Text, { children: `${total ?? "Total"} ${count}, ${showing ?? "Showing"} ${limit}` }), jsxRuntime.jsx(Button, { onClick: async () => {
-                                                setOpenSearchResult(false);
-                                            }, children: close ?? "Close" }), jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: 
-                                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                            dataList.map((item) => {
-                                                const selected = isMultiple
-                                                    ? watchIds.some((id) => item[column_ref] === id)
-                                                    : watchId === item[column_ref];
-                                                return (jsxRuntime.jsx(react.Box, { cursor: "pointer", onClick: () => {
-                                                        if (!isMultiple) {
-                                                            setOpenSearchResult(false);
-                                                            setValue(column, item[column_ref]);
-                                                            return;
-                                                        }
-                                                        const newSet = new Set([
-                                                            ...(watchIds ?? []),
-                                                            item[column_ref],
-                                                        ]);
-                                                        setValue(column, [...newSet]);
-                                                    }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
-                                                        ? renderDisplay(item)
-                                                        : item[display_column] }, item[column_ref]));
-                                            }) }), isDirty && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [dataList.length <= 0 && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Empty Search Result" }), " "] })), count > dataList.length && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Button, { onClick: async () => {
-                                                    setLimit((limit) => limit + 10);
-                                                    await getTableData({
-                                                        serverUrl,
-                                                        searching: searchText ?? "",
-                                                        in_table: in_table,
-                                                        limit: limit + 10,
-                                                    });
-                                                }, children: showMore ?? "Show More" }) }))] })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
+                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), isError && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isError" }), jsxRuntime.jsx(react.Text, { justifySelf: "center", children: `${total ?? "Total"} ${count}, ${showing ?? "Showing"} ${limit}` }), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: 
+                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                    dataList.map((item) => {
+                                                        const selected = isMultiple
+                                                            ? watchIds.some((id) => item[column_ref] === id)
+                                                            : watchId === item[column_ref];
+                                                        return (jsxRuntime.jsx(react.Box, { cursor: "pointer", onClick: () => {
+                                                                if (!isMultiple) {
+                                                                    setOpenSearchResult(false);
+                                                                    setValue(column, item[column_ref]);
+                                                                    return;
+                                                                }
+                                                                const newSet = new Set([
+                                                                    ...(watchIds ?? []),
+                                                                    item[column_ref],
+                                                                ]);
+                                                                setValue(column, [...newSet]);
+                                                            }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
+                                                                ? renderDisplay(item)
+                                                                : item[display_column] }, item[column_ref]));
+                                                    }) }), isDirty && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [dataList.length <= 0 && jsxRuntime.jsx(react.Text, { children: "Empty Search Result" }), " "] }))] }), jsxRuntime.jsx(PaginationRoot, { justifySelf: "center", count: query?.data?.count ?? 0, pageSize: 10, defaultPage: 1, page: page, onPageChange: (e) => setPage(e.page), children: jsxRuntime.jsxs(react.HStack, { gap: "4", children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), jsxRuntime.jsx(PaginationPageText, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
 const ToggleTip = React__namespace.forwardRef(function ToggleTip(props, ref) {
@@ -2259,10 +2253,20 @@ const FilePicker = ({ column }) => {
                 }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
+function filterArray(array, searchTerm) {
+    // Convert the search term to lower case for case-insensitive comparison
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    // Use the filter method to return an array of matching items
+    return array.filter((item) => {
+        // Convert each item to a string and check if it includes the search term
+        return item.toString().toLowerCase().includes(lowerCaseSearchTerm);
+    });
+}
+
 const EnumPicker = ({ column, isMultiple = false }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { schema, displayText } = useSchemaContext();
-    const { fieldRequired } = displayText;
+    const { fieldRequired, total, showing, typeToSearch } = displayText;
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     if (schema.properties == undefined) {
@@ -2297,12 +2301,10 @@ const EnumPicker = ({ column, isMultiple = false }) => {
                             setOpenSearchResult(true);
                         }, children: "Add" })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, children: watchEnum })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(react.Input, { placeholder: "Type to search", onChange: (event) => {
+                }, children: watchEnum })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: typeToSearch ?? "Type to search", onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Text, { children: `Search Result: ${count}, Showing ${limit}` }), jsxRuntime.jsx(Button, { onClick: async () => {
-                                                setOpenSearchResult(false);
-                                            }, children: "close" }), jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: dataList.map((item) => {
+                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(react.Text, { children: `${total ?? "Total"}: ${count}, ${showing ?? "Showing"} ${limit}` }), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: filterArray(dataList, searchText ?? "").map((item) => {
                                                 const selected = isMultiple
                                                     ? watchEnums.some((enumValue) => item === enumValue)
                                                     : watchEnum == item;
