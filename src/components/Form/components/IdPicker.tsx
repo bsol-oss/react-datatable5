@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
 import {
+  PaginationNextTrigger,
+  PaginationPageText,
+  PaginationPrevTrigger,
+  PaginationRoot,
+} from "@/components/ui/pagination";
+import {
   PopoverBody,
   PopoverContent,
   PopoverRoot,
@@ -7,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tag } from "@/components/ui/tag";
-import { Box, Flex, Grid, Input, Text } from "@chakra-ui/react";
+import { Box, Flex, Grid, HStack, Input, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { ChangeEvent, useMemo, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -44,13 +50,14 @@ export const IdPicker = ({
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
-  const { total, showing, close, typeToSearch, showMore } = displayText;
+  const { total, showing, typeToSearch } = displayText;
   const { gridColumn, gridRow, title, renderDisplay } = schema.properties[
     column
   ] as CustomJSONSchema7;
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
+  const [page, setPage] = useState(1);
   const [idMap, setIdMap] = useState<Record<string, Record<string, string>>>(
     {}
   );
@@ -58,13 +65,14 @@ export const IdPicker = ({
   const selectedIds = watch(column) ?? [];
 
   const query = useQuery({
-    queryKey: [`idpicker`, searchText, in_table, limit],
+    queryKey: [`idpicker`, { searchText, in_table, limit, page }],
     queryFn: async () => {
       const data = await getTableData({
         serverUrl,
         searching: searchText ?? "",
         in_table: in_table,
         limit: limit,
+        offset: page * 10,
       });
       const newMap = Object.fromEntries(
         (data ?? { data: [] }).data.map((item: Record<string, string>) => {
@@ -82,16 +90,16 @@ export const IdPicker = ({
       return data;
     },
     enabled: (searchText ?? "")?.length > 0,
-    staleTime: 10000,
+    staleTime: 300000,
   });
 
   const idQuery = useQuery({
-    queryKey: [`idpicker`, ...selectedIds],
+    queryKey: [`idpicker`, { selectedIds }],
     queryFn: async () => {
       const data = await getTableData({
         serverUrl,
         in_table: in_table,
-        limit: limit,
+        limit: 1,
         where: [{ id: column_ref, value: watchId }],
       });
       const newMap = Object.fromEntries(
@@ -110,7 +118,7 @@ export const IdPicker = ({
       return data;
     },
     enabled: (selectedIds ?? []).length > 0,
-    staleTime: 10000,
+    staleTime: 300000,
   });
 
   const { isLoading, isFetching, data, isPending, isError } = query;
@@ -120,6 +128,7 @@ export const IdPicker = ({
   const isDirty = (searchText?.length ?? 0) > 0;
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
+    setPage(1);
     setLimit(10);
   };
   const watchId = watch(column);
@@ -197,13 +206,13 @@ export const IdPicker = ({
         onOpenChange={(e) => setOpenSearchResult(e.open)}
         closeOnInteractOutside
         initialFocusEl={() => ref.current}
-        positioning={{ placement: "bottom-start" }}
+        positioning={{ placement: "bottom-start", strategy: "fixed" }}
       >
         <PopoverTrigger />
         <PopoverContent>
-          <PopoverBody>
+          <PopoverBody display={"grid"} gap={1}>
             <Input
-              placeholder={typeToSearch}
+              placeholder={typeToSearch ?? "Type To Search"}
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
@@ -212,79 +221,77 @@ export const IdPicker = ({
               ref={ref}
             />
             <PopoverTitle />
-            <Grid
-              gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
-              overflow={"auto"}
-              maxHeight={"50vh"}
-            >
-              {isFetching && <>isFetching</>}
-              {isLoading && <>isLoading</>}
-              {isPending && <>isPending</>}
-              {isError && <>isError</>}
-              <Text>{`${total ?? "Total"} ${count}, ${showing ?? "Showing"} ${limit}`}</Text>
-              <Button
-                onClick={async () => {
-                  setOpenSearchResult(false);
-                }}
-              >
-                {close ?? "Close"}
-              </Button>
-              <Flex flexFlow={"column wrap"}>
-                {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  dataList.map((item: Record<string, any>) => {
-                    const selected = isMultiple
-                      ? watchIds.some((id) => item[column_ref] === id)
-                      : watchId === item[column_ref];
-                    return (
-                      <Box
-                        key={item[column_ref]}
-                        cursor={"pointer"}
-                        onClick={() => {
-                          if (!isMultiple) {
-                            setOpenSearchResult(false);
-                            setValue(column, item[column_ref]);
-                            return;
-                          }
-                          const newSet = new Set([
-                            ...(watchIds ?? []),
-                            item[column_ref],
-                          ]);
-                          setValue(column, [...newSet]);
-                        }}
-                        opacity={0.7}
-                        _hover={{ opacity: 1 }}
-                        {...(selected ? { color: "gray.400/50" } : {})}
-                      >
-                        {!!renderDisplay === true
-                          ? renderDisplay(item)
-                          : item[display_column]}
-                      </Box>
-                    );
-                  })
-                }
-              </Flex>
-              {isDirty && (
-                <>{dataList.length <= 0 && <>Empty Search Result</>} </>
-              )}
-              {count > dataList.length && (
-                <>
-                  <Button
-                    onClick={async () => {
-                      setLimit((limit) => limit + 10);
-                      await getTableData({
-                        serverUrl,
-                        searching: searchText ?? "",
-                        in_table: in_table,
-                        limit: limit + 10,
-                      });
-                    }}
-                  >
-                    {showMore ?? "Show More"}
-                  </Button>
-                </>
-              )}
-            </Grid>
+            {(searchText?.length ?? 0) > 0 && (
+              <>
+                {isFetching && <>isFetching</>}
+                {isLoading && <>isLoading</>}
+                {isPending && <>isPending</>}
+                {isError && <>isError</>}
+                <Text
+                  justifySelf={"center"}
+                >{`${total ?? "Total"} ${count}, ${showing ?? "Showing"} ${limit}`}</Text>
+                <Grid
+                  gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
+                  overflow={"auto"}
+                  maxHeight={"50vh"}
+                >
+                  <Flex flexFlow={"column wrap"}>
+                    {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      dataList.map((item: Record<string, any>) => {
+                        const selected = isMultiple
+                          ? watchIds.some((id) => item[column_ref] === id)
+                          : watchId === item[column_ref];
+                        return (
+                          <Box
+                            key={item[column_ref]}
+                            cursor={"pointer"}
+                            onClick={() => {
+                              if (!isMultiple) {
+                                setOpenSearchResult(false);
+                                setValue(column, item[column_ref]);
+                                return;
+                              }
+                              const newSet = new Set([
+                                ...(watchIds ?? []),
+                                item[column_ref],
+                              ]);
+                              setValue(column, [...newSet]);
+                            }}
+                            opacity={0.7}
+                            _hover={{ opacity: 1 }}
+                            {...(selected ? { color: "gray.400/50" } : {})}
+                          >
+                            {!!renderDisplay === true
+                              ? renderDisplay(item)
+                              : item[display_column]}
+                          </Box>
+                        );
+                      })
+                    }
+                  </Flex>
+                  {isDirty && (
+                    <>
+                      {dataList.length <= 0 && <Text>Empty Search Result</Text>}{" "}
+                    </>
+                  )}
+                </Grid>
+                <PaginationRoot
+                  justifySelf={"center"}
+                  count={query?.data?.count ?? 0}
+                  pageSize={10}
+                  defaultPage={1}
+                  page={page}
+                  onPageChange={(e) => setPage(e.page)}
+                >
+                  <HStack gap="4">
+                    <PaginationPrevTrigger />
+                    <PaginationPageText />
+                    <PaginationNextTrigger />
+                  </HStack>
+                </PaginationRoot>
+              </>
+            )}
           </PopoverBody>
         </PopoverContent>
       </PopoverRoot>

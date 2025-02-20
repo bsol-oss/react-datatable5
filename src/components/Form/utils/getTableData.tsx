@@ -4,6 +4,7 @@ export interface GetTableDataConfig {
   serverUrl: string;
   in_table: string;
   limit?: number;
+  offset?: number;
   where?: { id: string; value: string[] }[];
   searching?: string;
 }
@@ -19,6 +20,7 @@ export const getTableData = async ({
   searching = "",
   where = [],
   limit = 10,
+  offset = 0,
 }: GetTableDataConfig) => {
   if (serverUrl === undefined || serverUrl.length == 0) {
     throw new Error("The serverUrl is missing");
@@ -38,6 +40,7 @@ export const getTableData = async ({
       searching,
       where,
       limit,
+      offset
     },
   };
 

@@ -13,6 +13,7 @@ import { ChangeEvent, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
+import { filterArray } from "../utils/filterArray";
 import { snakeToLabel } from "../utils/snakeToLabel";
 import { CustomJSONSchema7 } from "./StringInputField";
 
@@ -28,7 +29,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
     setValue,
   } = useFormContext();
   const { schema, displayText } = useSchemaContext();
-  const { fieldRequired } = displayText;
+  const { fieldRequired, total, showing, typeToSearch } = displayText;
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   if (schema.properties == undefined) {
@@ -114,9 +115,9 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
       >
         <PopoverTrigger />
         <PopoverContent>
-          <PopoverBody>
+          <PopoverBody display={"grid"} gap={1}>
             <Input
-              placeholder="Type to search"
+              placeholder={typeToSearch ?? "Type to search"}
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
@@ -125,43 +126,39 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
               ref={ref}
             />
             <PopoverTitle />
+            <Text>{`${total ?? "Total"}: ${count}, ${showing ?? "Showing"} ${limit}`}</Text>
+
             <Grid
               gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
               overflow={"auto"}
               maxHeight={"50vh"}
             >
-              <Text>{`Search Result: ${count}, Showing ${limit}`}</Text>
-              <Button
-                onClick={async () => {
-                  setOpenSearchResult(false);
-                }}
-              >
-                close
-              </Button>
               <Flex flexFlow={"column wrap"}>
-                {dataList.map((item: string) => {
-                  const selected = isMultiple
-                    ? watchEnums.some((enumValue) => item === enumValue)
-                    : watchEnum == item;
-                  return (
-                    <Box
-                      key={`${column}-${item}`}
-                      cursor={"pointer"}
-                      onClick={() => {
-                        if (!isMultiple) {
-                          setOpenSearchResult(false);
-                          setValue(column, item);
-                          return;
-                        }
-                        const newSet = new Set([...(watchEnums ?? []), item]);
-                        setValue(column, [...newSet]);
-                      }}
-                      {...(selected ? { color: "gray.400/50" } : {})}
-                    >
-                      {!!renderDisplay === true ? renderDisplay(item) : item}
-                    </Box>
-                  );
-                })}
+                {filterArray(dataList as string[], searchText ?? "").map(
+                  (item: string) => {
+                    const selected = isMultiple
+                      ? watchEnums.some((enumValue) => item === enumValue)
+                      : watchEnum == item;
+                    return (
+                      <Box
+                        key={`${column}-${item}`}
+                        cursor={"pointer"}
+                        onClick={() => {
+                          if (!isMultiple) {
+                            setOpenSearchResult(false);
+                            setValue(column, item);
+                            return;
+                          }
+                          const newSet = new Set([...(watchEnums ?? []), item]);
+                          setValue(column, [...newSet]);
+                        }}
+                        {...(selected ? { color: "gray.400/50" } : {})}
+                      >
+                        {!!renderDisplay === true ? renderDisplay(item) : item}
+                      </Box>
+                    );
+                  }
+                )}
               </Flex>
               {isDirty && (
                 <>{dataList.length <= 0 && <>Empty Search Result</>} </>
