@@ -596,8 +596,8 @@ const RecordDisplay = ({ object, boxProps }) => {
     if (object === null) {
         return jsx(Fragment, { children: "null" });
     }
-    return (jsx(Box, { rowGap: 1, columnGap: 2, display: "grid", gridTemplateColumns: "auto 1fr", overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
-            return (jsxs(Fragment, { children: [jsx(Text, { color: "gray.400", children: snakeToLabel(field) }), jsx(Text, { children: typeof value === "object" ? JSON.stringify(value) : value })] }));
+    return (jsx(Grid, { rowGap: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
+            return (jsxs(Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsx(Text, { color: "gray.400", children: snakeToLabel(field) }), jsx(Text, { children: typeof value === "object" ? JSON.stringify(value) : value })] }, field));
         }) }));
 };
 
@@ -623,7 +623,7 @@ const DataDisplay = ({ variant = "" }) => {
                 return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", children: row.getVisibleCells().map((cell) => {
                                 const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
                                 if (showCustomDataDisplay) {
-                                    return (jsx(Fragment, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                                    return (jsx(Flex, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
                                 }
                                 const value = cell.getValue();
                                 if (typeof value === "object") {
@@ -644,7 +644,7 @@ const DataDisplay = ({ variant = "" }) => {
                 return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "flex", flexFlow: "row", variant: "subtle", overflow: "auto", children: row.getVisibleCells().map((cell) => {
                                 const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
                                 if (showCustomDataDisplay) {
-                                    return (jsx(Fragment, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                                    return (jsx(Flex, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
                                 }
                                 const value = cell.getValue();
                                 if (typeof value === "object") {
@@ -664,7 +664,7 @@ const DataDisplay = ({ variant = "" }) => {
             return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", children: row.getVisibleCells().map((cell) => {
                             const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
                             if (showCustomDataDisplay) {
-                                return (jsx(Fragment, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                                return (jsx(Flex, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
                             }
                             const value = cell.getValue();
                             if (typeof value === "object") {
@@ -1762,13 +1762,13 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
         gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [selectedIds.map((id) => {
                         const item = idMap[id];
                         if (item === undefined) {
-                            return jsx(Fragment, { children: "undefined" });
+                            return jsx(Text, { children: "undefined" }, id);
                         }
                         return (jsx(Tag, { closable: true, onClick: () => {
                                 setValue(column, watchIds.filter((id) => id != item[column_ref]));
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
-                                : item[display_column] }));
+                                : item[display_column] }, id));
                     }), jsx(Tag, { cursor: "pointer", onClick: () => {
                             setOpenSearchResult(true);
                         }, children: "Add" })] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: () => {
@@ -1797,7 +1797,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                                                         setValue(column, [...newSet]);
                                                     }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
                                                         ? renderDisplay(item)
-                                                        : item[display_column] }));
+                                                        : item[display_column] }, item[column_ref]));
                                             }) }), isDirty && (jsxs(Fragment, { children: [dataList.length <= 0 && jsx(Fragment, { children: "Empty Search Result" }), " "] })), count > dataList.length && (jsx(Fragment, { children: jsx(Button, { onClick: async () => {
                                                     setLimit((limit) => limit + 10);
                                                     await getTableData({
@@ -1921,7 +1921,7 @@ const BooleanPicker = ({ column }) => {
     const { gridColumn, gridRow, title } = schema.properties[column];
     return (jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsx(CheckboxCard, { checked: value, variant: "surface", onSelect: () => {
-                    setValue(column, !getValues(column));
+                    setValue(column, !value);
                 } }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
@@ -2163,7 +2163,7 @@ const TagPicker = ({ column }) => {
                                         return (jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%", disabled: true, colorPalette: "blue" }, `${tagName}-${id}`));
                                     }
                                     return (jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%" }, `${tagName}-${id}`));
-                                }) }) }))] }));
+                                }) }) }))] }, `tag-${parent_tag_name}`));
             }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
 };
 
@@ -2519,12 +2519,12 @@ const FormInternal = () => {
                                 if (variant === "file-picker") {
                                     return jsx(FilePicker, { column: key }, `form-${key}`);
                                 }
-                                return jsx(Fragment, { children: `array ${column}` });
+                                return jsx(Text, { children: `array ${column}` }, `form-${key}`);
                             }
                             if (type === "null") {
-                                return jsx(Fragment, { children: `null ${column}` });
+                                return jsx(Text, { children: `null ${column}` }, `form-${key}`);
                             }
-                            return jsx(Fragment, { children: "missing type" });
+                            return jsx(Text, { children: "missing type" }, `form-${key}`);
                         }) }), jsx(Button, { onClick: () => {
                             methods.handleSubmit(onValid)();
                         }, formNoValidate: true, children: submit ?? "Submit" })] }), isError && (jsxs(Fragment, { children: ["isError", jsxs(Fragment, { children: [" ", `${error}`] })] }))] }));

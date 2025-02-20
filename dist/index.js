@@ -616,8 +616,8 @@ const RecordDisplay = ({ object, boxProps }) => {
     if (object === null) {
         return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "null" });
     }
-    return (jsxRuntime.jsx(react.Box, { rowGap: 1, columnGap: 2, display: "grid", gridTemplateColumns: "auto 1fr", overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
-            return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(react.Text, { color: "gray.400", children: snakeToLabel(field) }), jsxRuntime.jsx(react.Text, { children: typeof value === "object" ? JSON.stringify(value) : value })] }));
+    return (jsxRuntime.jsx(react.Grid, { rowGap: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
+            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsxRuntime.jsx(react.Text, { color: "gray.400", children: snakeToLabel(field) }), jsxRuntime.jsx(react.Text, { children: typeof value === "object" ? JSON.stringify(value) : value })] }, field));
         }) }));
 };
 
@@ -643,7 +643,7 @@ const DataDisplay = ({ variant = "" }) => {
                 return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { children: jsxRuntime.jsx(react.DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", children: row.getVisibleCells().map((cell) => {
                                 const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
                                 if (showCustomDataDisplay) {
-                                    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                                    return (jsxRuntime.jsx(react.Flex, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
                                 }
                                 const value = cell.getValue();
                                 if (typeof value === "object") {
@@ -664,7 +664,7 @@ const DataDisplay = ({ variant = "" }) => {
                 return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { children: jsxRuntime.jsx(react.DataList.Root, { gap: 4, padding: 4, display: "flex", flexFlow: "row", variant: "subtle", overflow: "auto", children: row.getVisibleCells().map((cell) => {
                                 const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
                                 if (showCustomDataDisplay) {
-                                    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                                    return (jsxRuntime.jsx(react.Flex, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
                                 }
                                 const value = cell.getValue();
                                 if (typeof value === "object") {
@@ -684,7 +684,7 @@ const DataDisplay = ({ variant = "" }) => {
             return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { children: jsxRuntime.jsx(react.DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", children: row.getVisibleCells().map((cell) => {
                             const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
                             if (showCustomDataDisplay) {
-                                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                                return (jsxRuntime.jsx(react.Flex, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
                             }
                             const value = cell.getValue();
                             if (typeof value === "object") {
@@ -1782,13 +1782,13 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
         gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: "wrap", gap: 1, children: [selectedIds.map((id) => {
                         const item = idMap[id];
                         if (item === undefined) {
-                            return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "undefined" });
+                            return jsxRuntime.jsx(react.Text, { children: "undefined" }, id);
                         }
                         return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
                                 setValue(column, watchIds.filter((id) => id != item[column_ref]));
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
-                                : item[display_column] }));
+                                : item[display_column] }, id));
                     }), jsxRuntime.jsx(Tag, { cursor: "pointer", onClick: () => {
                             setOpenSearchResult(true);
                         }, children: "Add" })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
@@ -1817,7 +1817,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                                                         setValue(column, [...newSet]);
                                                     }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
                                                         ? renderDisplay(item)
-                                                        : item[display_column] }));
+                                                        : item[display_column] }, item[column_ref]));
                                             }) }), isDirty && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [dataList.length <= 0 && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Empty Search Result" }), " "] })), count > dataList.length && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Button, { onClick: async () => {
                                                     setLimit((limit) => limit + 10);
                                                     await getTableData({
@@ -1941,7 +1941,7 @@ const BooleanPicker = ({ column }) => {
     const { gridColumn, gridRow, title } = schema.properties[column];
     return (jsxRuntime.jsxs(Field, { label: `${title ?? snakeToLabel(column)}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxRuntime.jsx(CheckboxCard, { checked: value, variant: "surface", onSelect: () => {
-                    setValue(column, !getValues(column));
+                    setValue(column, !value);
                 } }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
@@ -2183,7 +2183,7 @@ const TagPicker = ({ column }) => {
                                         return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%", disabled: true, colorPalette: "blue" }, `${tagName}-${id}`));
                                     }
                                     return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%" }, `${tagName}-${id}`));
-                                }) }) }))] }));
+                                }) }) }))] }, `tag-${parent_tag_name}`));
             }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
 };
 
@@ -2539,12 +2539,12 @@ const FormInternal = () => {
                                 if (variant === "file-picker") {
                                     return jsxRuntime.jsx(FilePicker, { column: key }, `form-${key}`);
                                 }
-                                return jsxRuntime.jsx(jsxRuntime.Fragment, { children: `array ${column}` });
+                                return jsxRuntime.jsx(react.Text, { children: `array ${column}` }, `form-${key}`);
                             }
                             if (type === "null") {
-                                return jsxRuntime.jsx(jsxRuntime.Fragment, { children: `null ${column}` });
+                                return jsxRuntime.jsx(react.Text, { children: `null ${column}` }, `form-${key}`);
                             }
-                            return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "missing type" });
+                            return jsxRuntime.jsx(react.Text, { children: "missing type" }, `form-${key}`);
                         }) }), jsxRuntime.jsx(Button, { onClick: () => {
                             methods.handleSubmit(onValid)();
                         }, formNoValidate: true, children: submit ?? "Submit" })] }), isError && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: ["isError", jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [" ", `${error}`] })] }))] }));
