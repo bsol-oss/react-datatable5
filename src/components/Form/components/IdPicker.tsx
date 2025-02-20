@@ -9,7 +9,7 @@ import {
 import { Tag } from "@/components/ui/tag";
 import { Box, Flex, Grid, Input, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
@@ -92,6 +92,7 @@ export const IdPicker = ({
         serverUrl,
         in_table: in_table,
         limit: limit,
+        where: [{ id: column_ref, value: watchId }],
       });
       const newMap = Object.fromEntries(
         (data ?? { data: [] }).data.map((item: Record<string, string>) => {
@@ -121,16 +122,14 @@ export const IdPicker = ({
     setSearchText(event.target.value);
     setLimit(10);
   };
-  const ids = (watch(column) ?? []) as string[];
+  const watchId = watch(column);
+  const watchIds = (watch(column) ?? []) as string[];
 
   const getPickedValue = () => {
-    if (selectedIds.length <= 0) {
-      return "";
-    }
     if (Object.keys(idMap).length <= 0) {
       return "";
     }
-    const record = idMap[selectedIds[0]];
+    const record = idMap[watchId];
     if (record === undefined) {
       return "";
     }
@@ -160,7 +159,7 @@ export const IdPicker = ({
                 onClick={() => {
                   setValue(
                     column,
-                    ids.filter((id: string) => id != item[column_ref])
+                    watchIds.filter((id: string) => id != item[column_ref])
                   );
                 }}
               >
@@ -233,18 +232,20 @@ export const IdPicker = ({
                 {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   dataList.map((item: Record<string, any>) => {
-                    const selected = ids.some((id) => item[column_ref] === id);
+                    const selected = isMultiple
+                      ? watchIds.some((id) => item[column_ref] === id)
+                      : watchId === item[column_ref];
                     return (
                       <Box
                         cursor={"pointer"}
                         onClick={() => {
                           if (!isMultiple) {
                             setOpenSearchResult(false);
-                            setValue(column, [item[column_ref]]);
+                            setValue(column, item[column_ref]);
                             return;
                           }
                           const newSet = new Set([
-                            ...(ids ?? []),
+                            ...(watchIds ?? []),
                             item[column_ref],
                           ]);
                           setValue(column, [...newSet]);

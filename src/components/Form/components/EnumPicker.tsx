@@ -41,6 +41,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const ref = useRef<HTMLInputElement>(null);
+  const watchEnum = watch(column);
   const watchEnums = (watch(column) ?? []) as string[];
 
   const properties = (schema.properties[column] ?? {}) as JSONSchema7;
@@ -101,7 +102,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
             setOpenSearchResult(true);
           }}
         >
-          {watchEnums[0]}
+          {watchEnum}
         </Button>
       )}
       <PopoverRoot
@@ -139,9 +140,9 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
               </Button>
               <Flex flexFlow={"column wrap"}>
                 {dataList.map((item: string) => {
-                  const selected = watchEnums.some(
-                    (enumValue) => item === enumValue
-                  );
+                  const selected = isMultiple
+                    ? watchEnums.some((enumValue) => item === enumValue)
+                    : watchEnum == item;
                   return (
                     <Box
                       key={`${column}-${item}`}
@@ -149,7 +150,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
                       onClick={() => {
                         if (!isMultiple) {
                           setOpenSearchResult(false);
-                          setValue(column, [item]);
+                          setValue(column, item);
                           return;
                         }
                         const newSet = new Set([...(watchEnums ?? []), item]);
