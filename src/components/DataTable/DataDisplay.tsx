@@ -1,8 +1,4 @@
-import {
-  Card,
-  DataList as ChakraDataList,
-  Flex
-} from "@chakra-ui/react";
+import { Card, DataList as ChakraDataList, Flex } from "@chakra-ui/react";
 import { snakeToLabel } from "../Form/utils/snakeToLabel";
 import { RecordDisplay } from "./components/RecordDisplay";
 import { useDataTableContext } from "./context/useDataTableContext";
@@ -86,6 +82,10 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   overflow={"auto"}
                 >
                   {row.getVisibleCells().map((cell) => {
+                    const value = cell.getValue();
+                    if (typeof value === "object") {
+                      return <RecordDisplay object={value} />;
+                    }
                     return (
                       <ChakraDataList.Item
                         key={cell.id}
@@ -127,6 +127,10 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                 gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
               >
                 {row.getVisibleCells().map((cell) => {
+                  const value = cell.getValue();
+                  if (typeof value === "object") {
+                    return <RecordDisplay object={value} />;
+                  }
                   return (
                     <ChakraDataList.Item key={cell.id}>
                       <ChakraDataList.ItemLabel>

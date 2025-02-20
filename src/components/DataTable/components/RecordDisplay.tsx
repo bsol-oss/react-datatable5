@@ -1,13 +1,9 @@
 import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 import { DataListItem, DataListRoot } from "@/components/ui/data-list";
-import {
-  DataListItemLabel,
-  DataListItemValue,
-  DataListRootProps,
-} from "@chakra-ui/react";
+import { DataListRootProps } from "@chakra-ui/react";
 
 export interface RecordDisplayProps {
-  object: Record<string, string>;
+  object: object | null;
   dataListProps?: DataListRootProps;
 }
 
@@ -15,6 +11,9 @@ export const RecordDisplay = ({
   object,
   dataListProps,
 }: RecordDisplayProps) => {
+  if (object === null) {
+    return <>null</>;
+  }
   return (
     <DataListRoot
       gap={4}
