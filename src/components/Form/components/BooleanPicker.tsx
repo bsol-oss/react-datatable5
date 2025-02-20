@@ -42,7 +42,7 @@ export const BooleanPicker = ({ column }: DatePickerProps) => {
         checked={value}
         variant={"surface"}
         onSelect={() => {
-          setValue(column, !getValues(column));
+          setValue(column, !value);
         }}
       />
       {errors[`${column}`] && (
