@@ -551,12 +551,12 @@ const FormInternal = <TData extends FieldValues>() => {
               if (variant === "file-picker") {
                 return <FilePicker key={`form-${key}`} column={key} />;
               }
-              return <>{`array ${column}`}</>;
+              return <Text key={`form-${key}`}>{`array ${column}`}</Text>;
             }
             if (type === "null") {
-              return <>{`null ${column}`}</>;
+              return <Text key={`form-${key}`}>{`null ${column}`}</Text>;
             }
-            return <>missing type</>;
+            return <Text key={`form-${key}`}>missing type</Text>;
           })}
         </Grid>
         <Button

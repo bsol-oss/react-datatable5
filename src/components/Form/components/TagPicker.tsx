@@ -118,7 +118,7 @@ export const TagPicker = ({ column }: TagPickerProps) => {
       {isError && <>isError</>}
       {dataList.map(({ parent_tag_name, all_tags, is_mutually_exclusive }) => {
         return (
-          <Flex flexFlow={"column"} gap={2}>
+          <Flex key={`tag-${parent_tag_name}`} flexFlow={"column"} gap={2}>
             <Text>{parent_tag_name}</Text>
             {is_mutually_exclusive && (
               <RadioCardRoot

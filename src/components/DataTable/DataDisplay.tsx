@@ -52,12 +52,12 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                       cell.column.columnDef.meta?.showCustomDisplay ?? false;
                     if (showCustomDataDisplay) {
                       return (
-                        <>
+                        <Flex key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
                           )}
-                        </>
+                        </Flex>
                       );
                     }
                     const value = cell.getValue();
@@ -121,12 +121,12 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                       cell.column.columnDef.meta?.showCustomDisplay ?? false;
                     if (showCustomDataDisplay) {
                       return (
-                        <>
+                        <Flex key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
                           )}
-                        </>
+                        </Flex>
                       );
                     }
                     const value = cell.getValue();
@@ -200,12 +200,12 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                     cell.column.columnDef.meta?.showCustomDisplay ?? false;
                   if (showCustomDataDisplay) {
                     return (
-                      <>
+                      <Flex key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
                         )}
-                      </>
+                      </Flex>
                     );
                   }
                   const value = cell.getValue();

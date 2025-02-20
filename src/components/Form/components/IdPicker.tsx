@@ -151,10 +151,11 @@ export const IdPicker = ({
           {selectedIds.map((id: string) => {
             const item = idMap[id];
             if (item === undefined) {
-              return <>undefined</>;
+              return <Text key={id}>undefined</Text>;
             }
             return (
               <Tag
+                key={id}
                 closable
                 onClick={() => {
                   setValue(
@@ -237,6 +238,7 @@ export const IdPicker = ({
                       : watchId === item[column_ref];
                     return (
                       <Box
+                        key={item[column_ref]}
                         cursor={"pointer"}
                         onClick={() => {
                           if (!isMultiple) {

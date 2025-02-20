@@ -1,5 +1,5 @@
 import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
-import { Box, BoxProps, Text } from "@chakra-ui/react";
+import { Box, BoxProps, Grid, Text } from "@chakra-ui/react";
 
 export interface RecordDisplayProps {
   object: object | null;
@@ -11,24 +11,17 @@ export const RecordDisplay = ({ object, boxProps }: RecordDisplayProps) => {
     return <>null</>;
   }
   return (
-    <Box
-      rowGap={1}
-      columnGap={2}
-      display={"grid"}
-      gridTemplateColumns={"auto 1fr"}
-      overflow={"auto"}
-      {...boxProps}
-    >
+    <Grid rowGap={1} overflow={"auto"} {...boxProps}>
       {Object.entries(object).map(([field, value]) => {
         return (
-          <>
+          <Grid key={field} columnGap={2} gridTemplateColumns={"auto 1fr"}>
             <Text color={"gray.400"}>{snakeToLabel(field)}</Text>
             <Text>
               {typeof value === "object" ? JSON.stringify(value) : value}
             </Text>
-          </>
+          </Grid>
         );
       })}
-    </Box>
+    </Grid>
   );
 };
