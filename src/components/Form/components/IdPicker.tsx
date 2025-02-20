@@ -57,7 +57,7 @@ export const IdPicker = ({
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [idMap, setIdMap] = useState<Record<string, Record<string, string>>>(
     {}
   );
@@ -128,7 +128,7 @@ export const IdPicker = ({
   const isDirty = (searchText?.length ?? 0) > 0;
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
-    setPage(1);
+    setPage(0);
     setLimit(10);
   };
   const watchId = watch(column);
@@ -281,8 +281,8 @@ export const IdPicker = ({
                   count={query?.data?.count ?? 0}
                   pageSize={10}
                   defaultPage={1}
-                  page={page}
-                  onPageChange={(e) => setPage(e.page)}
+                  page={page + 1}
+                  onPageChange={(e) => setPage(e.page - 1)}
                 >
                   <HStack gap="4">
                     <PaginationPrevTrigger />
