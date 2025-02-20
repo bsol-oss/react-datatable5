@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Flex, Text, Tag as Tag$1, Input, useDisclosure, DialogBackdrop, Menu, createRecipeContext, createContext as createContext$1, Pagination, usePaginationContext, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$2, VStack, List, CheckboxCard as CheckboxCard$1, Alert, Group, InputElement, Popover, Field as Field$1, NumberInput, Accordion, Show, RadioCard, CheckboxGroup, Heading, Center } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Flex, Text, Tag as Tag$1, Input, useDisclosure, DialogBackdrop, Menu, createRecipeContext, createContext as createContext$1, Pagination, usePaginationContext, Image, Popover, DataList, Card, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$2, VStack, List, CheckboxCard as CheckboxCard$1, Alert, Group, InputElement, Field as Field$1, NumberInput, Accordion, Show, RadioCard, CheckboxGroup, Heading, Center } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
@@ -11,13 +11,13 @@ import { BiDownArrow, BiUpArrow } from 'react-icons/bi';
 import { CgClose } from 'react-icons/cg';
 import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
 import { HiMiniEllipsisHorizontal, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
+import { HiOutlineInformationCircle, HiColorSwatch } from 'react-icons/hi';
 import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender, createColumnHelper } from '@tanstack/react-table';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import { BsExclamationCircleFill } from 'react-icons/bs';
 import { GrAscend, GrDescend } from 'react-icons/gr';
 import { useQueryClient, useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { IoReload } from 'react-icons/io5';
-import { HiColorSwatch, HiOutlineInformationCircle } from 'react-icons/hi';
 import { monitorForElements, draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import invariant from 'tiny-invariant';
 import axios from 'axios';
@@ -592,6 +592,27 @@ const snakeToLabel = (str) => {
         .join(" "); // Join with space
 };
 
+const ToggleTip = React.forwardRef(function ToggleTip(props, ref) {
+    const { showArrow, children, portalled = true, content, portalRef, ...rest } = props;
+    return (jsxs(Popover.Root, { ...rest, positioning: { ...rest.positioning, gutter: 4 }, children: [jsx(Popover.Trigger, { asChild: true, children: children }), jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Popover.Positioner, { children: jsxs(Popover.Content, { width: "auto", px: "2", py: "1", textStyle: "xs", rounded: "sm", ref: ref, children: [showArrow && (jsx(Popover.Arrow, { children: jsx(Popover.ArrowTip, {}) })), content] }) }) })] }));
+});
+const InfoTip = React.forwardRef(function InfoTip(props, ref) {
+    const { children, ...rest } = props;
+    return (jsx(ToggleTip, { content: children, ...rest, ref: ref, children: jsx(IconButton, { variant: "ghost", "aria-label": "info", size: "2xs", colorPalette: "gray", children: jsx(HiOutlineInformationCircle, {}) }) }));
+});
+
+const DataListRoot = DataList.Root;
+const DataListItem = React.forwardRef(function DataListItem(props, ref) {
+    const { label, info, value, children, grow, ...rest } = props;
+    return (jsxs(DataList.Item, { ref: ref, ...rest, children: [jsxs(DataList.ItemLabel, { flex: grow ? "1" : undefined, children: [label, info && jsx(InfoTip, { children: info })] }), jsx(DataList.ItemValue, { flex: grow ? "1" : undefined, children: value }), children] }));
+});
+
+const RecordDisplay = ({ object, dataListProps, }) => {
+    return (jsx(DataListRoot, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", ...dataListProps, children: Object.entries(object).map(([field, value]) => {
+            return (jsx(DataListItem, { label: snakeToLabel(field), value: JSON.stringify(value) }, field));
+        }) }));
+};
+
 const formatValue = (value) => {
     if (typeof value === "object") {
         return JSON.stringify(value);
@@ -612,6 +633,10 @@ const DataDisplay = ({ variant = "" }) => {
     if (variant == "horizontal") {
         return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", children: row.getVisibleCells().map((cell) => {
+                                const value = cell.getValue();
+                                if (typeof value === "object") {
+                                    return jsx(RecordDisplay, { object: value });
+                                }
                                 return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                             }) }) }) }, `chakra-table-card-${row.id}`));
             }) }));
@@ -1757,21 +1782,6 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                                                     });
                                                 }, children: showMore ?? "Show More" }) }))] })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
-
-const ToggleTip = React.forwardRef(function ToggleTip(props, ref) {
-    const { showArrow, children, portalled = true, content, portalRef, ...rest } = props;
-    return (jsxs(Popover.Root, { ...rest, positioning: { ...rest.positioning, gutter: 4 }, children: [jsx(Popover.Trigger, { asChild: true, children: children }), jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Popover.Positioner, { children: jsxs(Popover.Content, { width: "auto", px: "2", py: "1", textStyle: "xs", rounded: "sm", ref: ref, children: [showArrow && (jsx(Popover.Arrow, { children: jsx(Popover.ArrowTip, {}) })), content] }) }) })] }));
-});
-const InfoTip = React.forwardRef(function InfoTip(props, ref) {
-    const { children, ...rest } = props;
-    return (jsx(ToggleTip, { content: children, ...rest, ref: ref, children: jsx(IconButton, { variant: "ghost", "aria-label": "info", size: "2xs", colorPalette: "gray", children: jsx(HiOutlineInformationCircle, {}) }) }));
-});
-
-const DataListRoot = DataList.Root;
-const DataListItem = React.forwardRef(function DataListItem(props, ref) {
-    const { label, info, value, children, grow, ...rest } = props;
-    return (jsxs(DataList.Item, { ref: ref, ...rest, children: [jsxs(DataList.ItemLabel, { flex: grow ? "1" : undefined, children: [label, info && jsx(InfoTip, { children: info })] }), jsx(DataList.ItemValue, { flex: grow ? "1" : undefined, children: value }), children] }));
-});
 
 const IdViewer = ({ value, in_table, column_ref, display_column, column, }) => {
     const { schema, serverUrl } = useSchemaContext();

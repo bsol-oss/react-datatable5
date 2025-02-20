@@ -12,13 +12,13 @@ var bi = require('react-icons/bi');
 var cg = require('react-icons/cg');
 var io = require('react-icons/io');
 var hi2 = require('react-icons/hi2');
+var hi = require('react-icons/hi');
 var reactTable = require('@tanstack/react-table');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
 var bs = require('react-icons/bs');
 var gr = require('react-icons/gr');
 var reactQuery = require('@tanstack/react-query');
 var io5 = require('react-icons/io5');
-var hi = require('react-icons/hi');
 var adapter = require('@atlaskit/pragmatic-drag-and-drop/element/adapter');
 var invariant = require('tiny-invariant');
 var axios = require('axios');
@@ -612,6 +612,27 @@ const snakeToLabel = (str) => {
         .join(" "); // Join with space
 };
 
+const ToggleTip = React__namespace.forwardRef(function ToggleTip(props, ref) {
+    const { showArrow, children, portalled = true, content, portalRef, ...rest } = props;
+    return (jsxRuntime.jsxs(react.Popover.Root, { ...rest, positioning: { ...rest.positioning, gutter: 4 }, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: children }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, container: portalRef, children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsxs(react.Popover.Content, { width: "auto", px: "2", py: "1", textStyle: "xs", rounded: "sm", ref: ref, children: [showArrow && (jsxRuntime.jsx(react.Popover.Arrow, { children: jsxRuntime.jsx(react.Popover.ArrowTip, {}) })), content] }) }) })] }));
+});
+const InfoTip = React__namespace.forwardRef(function InfoTip(props, ref) {
+    const { children, ...rest } = props;
+    return (jsxRuntime.jsx(ToggleTip, { content: children, ...rest, ref: ref, children: jsxRuntime.jsx(react.IconButton, { variant: "ghost", "aria-label": "info", size: "2xs", colorPalette: "gray", children: jsxRuntime.jsx(hi.HiOutlineInformationCircle, {}) }) }));
+});
+
+const DataListRoot = react.DataList.Root;
+const DataListItem = React__namespace.forwardRef(function DataListItem(props, ref) {
+    const { label, info, value, children, grow, ...rest } = props;
+    return (jsxRuntime.jsxs(react.DataList.Item, { ref: ref, ...rest, children: [jsxRuntime.jsxs(react.DataList.ItemLabel, { flex: grow ? "1" : undefined, children: [label, info && jsxRuntime.jsx(InfoTip, { children: info })] }), jsxRuntime.jsx(react.DataList.ItemValue, { flex: grow ? "1" : undefined, children: value }), children] }));
+});
+
+const RecordDisplay = ({ object, dataListProps, }) => {
+    return (jsxRuntime.jsx(DataListRoot, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", ...dataListProps, children: Object.entries(object).map(([field, value]) => {
+            return (jsxRuntime.jsx(DataListItem, { label: snakeToLabel(field), value: JSON.stringify(value) }, field));
+        }) }));
+};
+
 const formatValue = (value) => {
     if (typeof value === "object") {
         return JSON.stringify(value);
@@ -632,6 +653,10 @@ const DataDisplay = ({ variant = "" }) => {
     if (variant == "horizontal") {
         return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { children: jsxRuntime.jsx(react.DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", children: row.getVisibleCells().map((cell) => {
+                                const value = cell.getValue();
+                                if (typeof value === "object") {
+                                    return jsxRuntime.jsx(RecordDisplay, { object: value });
+                                }
                                 return (jsxRuntime.jsxs(react.DataList.Item, { children: [jsxRuntime.jsx(react.DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsxRuntime.jsx(react.DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                             }) }) }) }, `chakra-table-card-${row.id}`));
             }) }));
@@ -1777,21 +1802,6 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                                                     });
                                                 }, children: showMore ?? "Show More" }) }))] })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
-
-const ToggleTip = React__namespace.forwardRef(function ToggleTip(props, ref) {
-    const { showArrow, children, portalled = true, content, portalRef, ...rest } = props;
-    return (jsxRuntime.jsxs(react.Popover.Root, { ...rest, positioning: { ...rest.positioning, gutter: 4 }, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: children }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, container: portalRef, children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsxs(react.Popover.Content, { width: "auto", px: "2", py: "1", textStyle: "xs", rounded: "sm", ref: ref, children: [showArrow && (jsxRuntime.jsx(react.Popover.Arrow, { children: jsxRuntime.jsx(react.Popover.ArrowTip, {}) })), content] }) }) })] }));
-});
-const InfoTip = React__namespace.forwardRef(function InfoTip(props, ref) {
-    const { children, ...rest } = props;
-    return (jsxRuntime.jsx(ToggleTip, { content: children, ...rest, ref: ref, children: jsxRuntime.jsx(react.IconButton, { variant: "ghost", "aria-label": "info", size: "2xs", colorPalette: "gray", children: jsxRuntime.jsx(hi.HiOutlineInformationCircle, {}) }) }));
-});
-
-const DataListRoot = react.DataList.Root;
-const DataListItem = React__namespace.forwardRef(function DataListItem(props, ref) {
-    const { label, info, value, children, grow, ...rest } = props;
-    return (jsxRuntime.jsxs(react.DataList.Item, { ref: ref, ...rest, children: [jsxRuntime.jsxs(react.DataList.ItemLabel, { flex: grow ? "1" : undefined, children: [label, info && jsxRuntime.jsx(InfoTip, { children: info })] }), jsxRuntime.jsx(react.DataList.ItemValue, { flex: grow ? "1" : undefined, children: value }), children] }));
-});
 
 const IdViewer = ({ value, in_table, column_ref, display_column, column, }) => {
     const { schema, serverUrl } = useSchemaContext();
