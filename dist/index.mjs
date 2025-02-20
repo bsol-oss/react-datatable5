@@ -11,7 +11,7 @@ import { BiDownArrow, BiUpArrow } from 'react-icons/bi';
 import { CgClose } from 'react-icons/cg';
 import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
 import { HiMiniEllipsisHorizontal, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
-import { makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender, createColumnHelper } from '@tanstack/react-table';
+import { flexRender, makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, createColumnHelper } from '@tanstack/react-table';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import { BsExclamationCircleFill } from 'react-icons/bs';
 import { GrAscend, GrDescend } from 'react-icons/gr';
@@ -621,6 +621,10 @@ const DataDisplay = ({ variant = "" }) => {
     if (variant == "horizontal") {
         return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", children: row.getVisibleCells().map((cell) => {
+                                const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
+                                if (showCustomDataDisplay) {
+                                    return (jsx(Fragment, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                                }
                                 const value = cell.getValue();
                                 if (typeof value === "object") {
                                     return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(RecordDisplay, { boxProps: {
@@ -638,6 +642,10 @@ const DataDisplay = ({ variant = "" }) => {
     if (variant == "stats") {
         return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "flex", flexFlow: "row", variant: "subtle", overflow: "auto", children: row.getVisibleCells().map((cell) => {
+                                const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
+                                if (showCustomDataDisplay) {
+                                    return (jsx(Fragment, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                                }
                                 const value = cell.getValue();
                                 if (typeof value === "object") {
                                     return (jsxs(DataList.Item, { display: "inline-flex", flexFlow: "column", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(RecordDisplay, { boxProps: {
@@ -654,6 +662,10 @@ const DataDisplay = ({ variant = "" }) => {
     }
     return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
             return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", children: row.getVisibleCells().map((cell) => {
+                            const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
+                            if (showCustomDataDisplay) {
+                                return (jsx(Fragment, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                            }
                             const value = cell.getValue();
                             if (typeof value === "object") {
                                 return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(RecordDisplay, { boxProps: {

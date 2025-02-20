@@ -490,6 +490,12 @@ interface RangeDatePickerProps extends Props, RangeCalendarProps {
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData extends RowData, TValue> {
         /**
+         * If `showCustomDisplay` is `true`, it will use the cell render to render the value.
+         *
+         * Effective in components: `DataDisplay`
+         */
+        showCustomDisplay?: boolean;
+        /**
          * The display name of the column, used for rendering headers.
          */
         displayName?: string;

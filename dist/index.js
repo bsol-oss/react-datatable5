@@ -641,6 +641,10 @@ const DataDisplay = ({ variant = "" }) => {
     if (variant == "horizontal") {
         return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { children: jsxRuntime.jsx(react.DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", children: row.getVisibleCells().map((cell) => {
+                                const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
+                                if (showCustomDataDisplay) {
+                                    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                                }
                                 const value = cell.getValue();
                                 if (typeof value === "object") {
                                     return (jsxRuntime.jsxs(react.DataList.Item, { children: [jsxRuntime.jsx(react.DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsxRuntime.jsx(RecordDisplay, { boxProps: {
@@ -658,6 +662,10 @@ const DataDisplay = ({ variant = "" }) => {
     if (variant == "stats") {
         return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { children: jsxRuntime.jsx(react.DataList.Root, { gap: 4, padding: 4, display: "flex", flexFlow: "row", variant: "subtle", overflow: "auto", children: row.getVisibleCells().map((cell) => {
+                                const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
+                                if (showCustomDataDisplay) {
+                                    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                                }
                                 const value = cell.getValue();
                                 if (typeof value === "object") {
                                     return (jsxRuntime.jsxs(react.DataList.Item, { display: "inline-flex", flexFlow: "column", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsxRuntime.jsx(react.DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsxRuntime.jsx(RecordDisplay, { boxProps: {
@@ -674,6 +682,10 @@ const DataDisplay = ({ variant = "" }) => {
     }
     return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
             return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { children: jsxRuntime.jsx(react.DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", children: row.getVisibleCells().map((cell) => {
+                            const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
+                            if (showCustomDataDisplay) {
+                                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }));
+                            }
                             const value = cell.getValue();
                             if (typeof value === "object") {
                                 return (jsxRuntime.jsxs(react.DataList.Item, { children: [jsxRuntime.jsx(react.DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsxRuntime.jsx(RecordDisplay, { boxProps: {
