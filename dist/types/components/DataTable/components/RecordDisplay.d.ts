@@ -1,6 +1,6 @@
-import { DataListRootProps } from "@chakra-ui/react";
+import { BoxProps } from "@chakra-ui/react";
 export interface RecordDisplayProps {
     object: object | null;
-    dataListProps?: DataListRootProps;
+    boxProps?: BoxProps;
 }
-export declare const RecordDisplay: ({ object, dataListProps, }: RecordDisplayProps) => import("react/jsx-runtime").JSX.Element;
+export declare const RecordDisplay: ({ object, boxProps }: RecordDisplayProps) => import("react/jsx-runtime").JSX.Element;
