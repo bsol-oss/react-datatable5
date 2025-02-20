@@ -1689,6 +1689,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                 serverUrl,
                 in_table: in_table,
                 limit: limit,
+                where: [{ id: column_ref, value: watchId }],
             });
             const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
                 return [
@@ -1714,15 +1715,13 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
         setSearchText(event.target.value);
         setLimit(10);
     };
-    const ids = (watch(column) ?? []);
+    const watchId = watch(column);
+    const watchIds = (watch(column) ?? []);
     const getPickedValue = () => {
-        if (selectedIds.length <= 0) {
-            return "";
-        }
         if (Object.keys(idMap).length <= 0) {
             return "";
         }
-        const record = idMap[selectedIds[0]];
+        const record = idMap[watchId];
         if (record === undefined) {
             return "";
         }
@@ -1735,7 +1734,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                             return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "undefined" });
                         }
                         return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
-                                setValue(column, ids.filter((id) => id != item[column_ref]));
+                                setValue(column, watchIds.filter((id) => id != item[column_ref]));
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
                                 : item[display_column] }));
@@ -1751,15 +1750,17 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
                                             }, children: close ?? "Close" }), jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: 
                                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                             dataList.map((item) => {
-                                                const selected = ids.some((id) => item[column_ref] === id);
+                                                const selected = isMultiple
+                                                    ? watchIds.some((id) => item[column_ref] === id)
+                                                    : watchId === item[column_ref];
                                                 return (jsxRuntime.jsx(react.Box, { cursor: "pointer", onClick: () => {
                                                         if (!isMultiple) {
                                                             setOpenSearchResult(false);
-                                                            setValue(column, [item[column_ref]]);
+                                                            setValue(column, item[column_ref]);
                                                             return;
                                                         }
                                                         const newSet = new Set([
-                                                            ...(ids ?? []),
+                                                            ...(watchIds ?? []),
                                                             item[column_ref],
                                                         ]);
                                                         setValue(column, [...newSet]);
@@ -2221,6 +2222,7 @@ const EnumPicker = ({ column, isMultiple = false }) => {
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
     const ref = React.useRef(null);
+    const watchEnum = watch(column);
     const watchEnums = (watch(column) ?? []);
     const properties = (schema.properties[column] ?? {});
     const dataList = properties.enum ?? [];
@@ -2244,17 +2246,19 @@ const EnumPicker = ({ column, isMultiple = false }) => {
                             setOpenSearchResult(true);
                         }, children: "Add" })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, children: watchEnums[0] })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(react.Input, { placeholder: "Type to search", onChange: (event) => {
+                }, children: watchEnum })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(react.Input, { placeholder: "Type to search", onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
                                     }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Text, { children: `Search Result: ${count}, Showing ${limit}` }), jsxRuntime.jsx(Button, { onClick: async () => {
                                                 setOpenSearchResult(false);
                                             }, children: "close" }), jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: dataList.map((item) => {
-                                                const selected = watchEnums.some((enumValue) => item === enumValue);
+                                                const selected = isMultiple
+                                                    ? watchEnums.some((enumValue) => item === enumValue)
+                                                    : watchEnum == item;
                                                 return (jsxRuntime.jsx(react.Box, { cursor: "pointer", onClick: () => {
                                                         if (!isMultiple) {
                                                             setOpenSearchResult(false);
-                                                            setValue(column, [item]);
+                                                            setValue(column, item);
                                                             return;
                                                         }
                                                         const newSet = new Set([...(watchEnums ?? []), item]);
