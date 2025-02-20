@@ -1,38 +1,34 @@
 import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
-import { DataListItem, DataListRoot } from "@/components/ui/data-list";
-import { DataListRootProps } from "@chakra-ui/react";
+import { Box, BoxProps, Text } from "@chakra-ui/react";
 
 export interface RecordDisplayProps {
   object: object | null;
-  dataListProps?: DataListRootProps;
+  boxProps?: BoxProps;
 }
 
-export const RecordDisplay = ({
-  object,
-  dataListProps,
-}: RecordDisplayProps) => {
+export const RecordDisplay = ({ object, boxProps }: RecordDisplayProps) => {
   if (object === null) {
     return <>null</>;
   }
   return (
-    <DataListRoot
-      gap={4}
-      padding={4}
+    <Box
+      rowGap={1}
+      columnGap={2}
       display={"grid"}
-      variant={"subtle"}
-      orientation={"horizontal"}
+      gridTemplateColumns={"auto 1fr"}
       overflow={"auto"}
-      {...dataListProps}
+      {...boxProps}
     >
       {Object.entries(object).map(([field, value]) => {
         return (
-          <DataListItem
-            key={field}
-            label={snakeToLabel(field)}
-            value={JSON.stringify(value)}
-          ></DataListItem>
+          <>
+            <Text color={"gray.400"}>{snakeToLabel(field)}</Text>
+            <Text>
+              {typeof value === "object" ? JSON.stringify(value) : value}
+            </Text>
+          </>
         );
       })}
-    </DataListRoot>
+    </Box>
   );
 };

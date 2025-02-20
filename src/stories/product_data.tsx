@@ -382,7 +382,10 @@ export const data = [
   },
   {
     id: 21,
-    title: "- Daal Masoor 500 grams",
+    title: {
+      good: 'nice',
+      will: 'son'
+    },
     description: "Fine quality Branded Product Keep in a cool and dry place",
     price: 20,
     discountPercentage: 4.81,

@@ -1,4 +1,10 @@
-import { Card, DataList as ChakraDataList, Flex } from "@chakra-ui/react";
+import {
+  Box,
+  Card,
+  DataList as ChakraDataList,
+  Flex,
+  Text,
+} from "@chakra-ui/react";
 import { snakeToLabel } from "../Form/utils/snakeToLabel";
 import { RecordDisplay } from "./components/RecordDisplay";
 import { useDataTableContext } from "./context/useDataTableContext";
@@ -43,7 +49,23 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   {row.getVisibleCells().map((cell) => {
                     const value = cell.getValue();
                     if (typeof value === "object") {
-                      return <RecordDisplay object={value} />;
+                      return (
+                        <ChakraDataList.Item key={cell.id}>
+                          <ChakraDataList.ItemLabel>
+                            {snakeToLabel(cell.column.id)}
+                          </ChakraDataList.ItemLabel>
+                          <RecordDisplay
+                            boxProps={{
+                              borderWidth: 1,
+                              borderRadius: 4,
+                              borderColor: "gray.400",
+                              paddingX: 4,
+                              paddingY: 2,
+                            }}
+                            object={value}
+                          />
+                        </ChakraDataList.Item>
+                      );
                     }
                     return (
                       <ChakraDataList.Item key={cell.id}>
@@ -84,7 +106,29 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   {row.getVisibleCells().map((cell) => {
                     const value = cell.getValue();
                     if (typeof value === "object") {
-                      return <RecordDisplay object={value} />;
+                      return (
+                        <ChakraDataList.Item
+                          display={"inline-flex"}
+                          flexFlow={"column"}
+                          justifyContent={"center"}
+                          alignItems={"center"}
+                          flex={"1 0 0%"}
+                        >
+                          <ChakraDataList.ItemLabel>
+                            {snakeToLabel(cell.column.id)}
+                          </ChakraDataList.ItemLabel>
+                          <RecordDisplay
+                            boxProps={{
+                              borderWidth: 1,
+                              borderRadius: 4,
+                              borderColor: "gray.400",
+                              paddingX: 4,
+                              paddingY: 2,
+                            }}
+                            object={value}
+                          />
+                        </ChakraDataList.Item>
+                      );
                     }
                     return (
                       <ChakraDataList.Item
@@ -129,7 +173,23 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                 {row.getVisibleCells().map((cell) => {
                   const value = cell.getValue();
                   if (typeof value === "object") {
-                    return <RecordDisplay object={value} />;
+                    return (
+                      <ChakraDataList.Item key={cell.id}>
+                        <ChakraDataList.ItemLabel>
+                          {snakeToLabel(cell.column.id)}
+                        </ChakraDataList.ItemLabel>
+                        <RecordDisplay
+                          boxProps={{
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            borderColor: "gray.400",
+                            paddingX: 4,
+                            paddingY: 2,
+                          }}
+                          object={value}
+                        />
+                      </ChakraDataList.Item>
+                    );
                   }
                   return (
                     <ChakraDataList.Item key={cell.id}>
