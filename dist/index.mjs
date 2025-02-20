@@ -608,6 +608,9 @@ const DataListItem = React.forwardRef(function DataListItem(props, ref) {
 });
 
 const RecordDisplay = ({ object, dataListProps, }) => {
+    if (object === null) {
+        return jsx(Fragment, { children: "null" });
+    }
     return (jsx(DataListRoot, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", ...dataListProps, children: Object.entries(object).map(([field, value]) => {
             return (jsx(DataListItem, { label: snakeToLabel(field), value: JSON.stringify(value) }, field));
         }) }));
@@ -644,12 +647,20 @@ const DataDisplay = ({ variant = "" }) => {
     if (variant == "stats") {
         return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "flex", flexFlow: "row", variant: "subtle", overflow: "auto", children: row.getVisibleCells().map((cell) => {
+                                const value = cell.getValue();
+                                if (typeof value === "object") {
+                                    return jsx(RecordDisplay, { object: value });
+                                }
                                 return (jsxs(DataList.Item, { display: "flex", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                             }) }) }) }, `chakra-table-card-${row.id}`));
             }) }));
     }
     return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
             return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", children: row.getVisibleCells().map((cell) => {
+                            const value = cell.getValue();
+                            if (typeof value === "object") {
+                                return jsx(RecordDisplay, { object: value });
+                            }
                             return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                         }) }) }) }, `chakra-table-card-${row.id}`));
         }) }));

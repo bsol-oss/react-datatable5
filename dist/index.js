@@ -628,6 +628,9 @@ const DataListItem = React__namespace.forwardRef(function DataListItem(props, re
 });
 
 const RecordDisplay = ({ object, dataListProps, }) => {
+    if (object === null) {
+        return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "null" });
+    }
     return (jsxRuntime.jsx(DataListRoot, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", ...dataListProps, children: Object.entries(object).map(([field, value]) => {
             return (jsxRuntime.jsx(DataListItem, { label: snakeToLabel(field), value: JSON.stringify(value) }, field));
         }) }));
@@ -664,12 +667,20 @@ const DataDisplay = ({ variant = "" }) => {
     if (variant == "stats") {
         return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { children: jsxRuntime.jsx(react.DataList.Root, { gap: 4, padding: 4, display: "flex", flexFlow: "row", variant: "subtle", overflow: "auto", children: row.getVisibleCells().map((cell) => {
+                                const value = cell.getValue();
+                                if (typeof value === "object") {
+                                    return jsxRuntime.jsx(RecordDisplay, { object: value });
+                                }
                                 return (jsxRuntime.jsxs(react.DataList.Item, { display: "flex", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsxRuntime.jsx(react.DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsxRuntime.jsx(react.DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                             }) }) }) }, `chakra-table-card-${row.id}`));
             }) }));
     }
     return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
             return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { children: jsxRuntime.jsx(react.DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", children: row.getVisibleCells().map((cell) => {
+                            const value = cell.getValue();
+                            if (typeof value === "object") {
+                                return jsxRuntime.jsx(RecordDisplay, { object: value });
+                            }
                             return (jsxRuntime.jsxs(react.DataList.Item, { children: [jsxRuntime.jsx(react.DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsxRuntime.jsx(react.DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                         }) }) }) }, `chakra-table-card-${row.id}`));
         }) }));
