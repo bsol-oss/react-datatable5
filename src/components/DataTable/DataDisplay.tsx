@@ -8,6 +8,7 @@ import {
 import { snakeToLabel } from "../Form/utils/snakeToLabel";
 import { RecordDisplay } from "./components/RecordDisplay";
 import { useDataTableContext } from "./context/useDataTableContext";
+import { flexRender } from "@tanstack/react-table";
 
 export interface DataDisplayProps {
   variant?: "horizontal" | "stats" | "";
@@ -47,6 +48,18 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   overflow={"auto"}
                 >
                   {row.getVisibleCells().map((cell) => {
+                    const showCustomDataDisplay =
+                      cell.column.columnDef.meta?.showCustomDisplay ?? false;
+                    if (showCustomDataDisplay) {
+                      return (
+                        <>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </>
+                      );
+                    }
                     const value = cell.getValue();
                     if (typeof value === "object") {
                       return (
@@ -104,6 +117,18 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   overflow={"auto"}
                 >
                   {row.getVisibleCells().map((cell) => {
+                    const showCustomDataDisplay =
+                      cell.column.columnDef.meta?.showCustomDisplay ?? false;
+                    if (showCustomDataDisplay) {
+                      return (
+                        <>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </>
+                      );
+                    }
                     const value = cell.getValue();
                     if (typeof value === "object") {
                       return (
@@ -171,6 +196,18 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                 gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
               >
                 {row.getVisibleCells().map((cell) => {
+                  const showCustomDataDisplay =
+                    cell.column.columnDef.meta?.showCustomDisplay ?? false;
+                  if (showCustomDataDisplay) {
+                    return (
+                      <>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </>
+                    );
+                  }
                   const value = cell.getValue();
                   if (typeof value === "object") {
                     return (

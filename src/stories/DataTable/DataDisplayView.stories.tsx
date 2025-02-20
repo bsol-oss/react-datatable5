@@ -75,11 +75,18 @@ const DataDisplayView = () => {
         // Accessor Column
         columnHelper.accessor("description", {
           cell: (props) => {
-            return <TextCell>{props.row.original.description}</TextCell>;
+            return (
+              <Box color={"blue"}>
+                {props.row.original.description}
+              </Box>
+            );
           },
           header: () => <span>Description</span>,
           footer: (props) => props.column.id,
           size: 400,
+          meta: {
+            showCustomDisplay: true,
+          },
         }),
         // Accessor Column
         columnHelper.accessor("price", {
