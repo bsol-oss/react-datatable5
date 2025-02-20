@@ -11,6 +11,7 @@ import {
   PaginationState,
   RowSelectionState,
   SortingState,
+  Table,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
@@ -44,7 +45,7 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed;
 };
 
-export interface DataTableProps<TData> {
+export interface DataTableProps<TData = unknown> {
   children?: ReactNode | ReactNode[];
   data: TData[];
   columns: ColumnDef<TData, unknown>[];
@@ -144,7 +145,7 @@ export function DataTable<TData = unknown>({
   return (
     <DataTableContext.Provider
       value={{
-        table: { ...table },
+        table: table as Table<TData>,
         globalFilter: globalFilter,
         setGlobalFilter: setGlobalFilter,
         type: "client",
