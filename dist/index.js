@@ -2605,11 +2605,12 @@ const snakeToLabel = (str) => {
 };
 
 const RecordDisplay = ({ object, boxProps }) => {
+    console.log(object, "dkfos");
     if (object === null) {
         return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "null" });
     }
-    return (jsxRuntime.jsx(react.Grid, { rowGap: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
-            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsxRuntime.jsx(react.Text, { color: "gray.400", children: snakeToLabel(field) }), jsxRuntime.jsx(react.Text, { children: typeof value === "object" ? JSON.stringify(value) : value })] }, field));
+    return (jsxRuntime.jsx(react.Grid, { rowGap: 1, padding: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
+            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsxRuntime.jsx(react.Text, { color: "gray.400", children: snakeToLabel(field) }), typeof value === "object" ? (jsxRuntime.jsx(RecordDisplay, { object: value })) : (jsxRuntime.jsx(react.Text, { children: JSON.stringify(value) }))] }, field));
         }) }));
 };
 

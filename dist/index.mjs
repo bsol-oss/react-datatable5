@@ -2585,11 +2585,12 @@ const snakeToLabel = (str) => {
 };
 
 const RecordDisplay = ({ object, boxProps }) => {
+    console.log(object, "dkfos");
     if (object === null) {
         return jsx(Fragment, { children: "null" });
     }
-    return (jsx(Grid, { rowGap: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
-            return (jsxs(Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsx(Text, { color: "gray.400", children: snakeToLabel(field) }), jsx(Text, { children: typeof value === "object" ? JSON.stringify(value) : value })] }, field));
+    return (jsx(Grid, { rowGap: 1, padding: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
+            return (jsxs(Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsx(Text, { color: "gray.400", children: snakeToLabel(field) }), typeof value === "object" ? (jsx(RecordDisplay, { object: value })) : (jsx(Text, { children: JSON.stringify(value) }))] }, field));
         }) }));
 };
 
