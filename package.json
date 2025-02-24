@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.3",
+    "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-typescript": "^11.1.6",
     "@storybook/addon-essentials": "^8.4.7",
     "@storybook/addon-interactions": "^8.4.7",
