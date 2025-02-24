@@ -29,7 +29,16 @@ const DataDisplayView = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <Provider>
-        <RecordDisplay object={{ nice: "job",good: "good good good" }} />
+        <RecordDisplay
+          object={{
+            nice: "job",
+            good: "good good good",
+            food: { fruit: "grape","some":{
+              "column": "id",
+              "value": "b1f00432-e623-d6d3-c262-d50f7881f8ab"
+          } },
+          }}
+        />
       </Provider>
     </QueryClientProvider>
   );
