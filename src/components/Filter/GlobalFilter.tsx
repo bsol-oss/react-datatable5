@@ -1,6 +1,6 @@
 import { Input } from "@chakra-ui/react";
 import { MdSearch } from "react-icons/md";
-import { useDataTableContext } from "../../index";
+import { useDataTableContext } from "../DataTable/context/useDataTableContext";
 import { InputGroup } from "@/components/ui/input-group";
 import { useEffect, useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";

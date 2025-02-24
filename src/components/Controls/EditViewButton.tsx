@@ -7,11 +7,11 @@ import {
   DialogRoot,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "../../components/ui/dialog";
 import { Box, Button, DialogBackdrop, useDisclosure } from "@chakra-ui/react";
 import React from "react";
 import { IoMdEye } from "react-icons/io";
-import { TableViewer } from "../../index";
+import { TableViewer } from "../DataTable/TableViewer";
 
 export interface EditViewButtonProps {
   text?: string;

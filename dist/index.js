@@ -11,6 +11,8 @@ var fa6 = require('react-icons/fa6');
 var bi = require('react-icons/bi');
 var cg = require('react-icons/cg');
 var io = require('react-icons/io');
+var adapter = require('@atlaskit/pragmatic-drag-and-drop/element/adapter');
+var invariant = require('tiny-invariant');
 var hi2 = require('react-icons/hi2');
 var reactTable = require('@tanstack/react-table');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
@@ -19,8 +21,6 @@ var gr = require('react-icons/gr');
 var reactQuery = require('@tanstack/react-query');
 var io5 = require('react-icons/io5');
 var hi = require('react-icons/hi');
-var adapter = require('@atlaskit/pragmatic-drag-and-drop/element/adapter');
-var invariant = require('tiny-invariant');
 var axios = require('axios');
 var usehooks = require('@uidotdev/usehooks');
 var reactHookForm = require('react-hook-form');
@@ -456,6 +456,107 @@ const ResetSortingButton = ({ text = "Reset Sorting", }) => {
 const EditSortingButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineSort, {}), title = "Edit Sorting", }) => {
     const sortingModal = react.useDisclosure();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(DialogRoot, { size: ["full", "full", "md", "md"], children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { children: jsxRuntime.jsxs(react.Button, { as: "div", variant: "ghost", onClick: sortingModal.onOpen, children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, {}), title] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(TableSorter, {}), jsxRuntime.jsx(ResetSortingButton, {})] }) }), jsxRuntime.jsx(DialogFooter, {})] })] }) }));
+};
+
+const CheckboxCard = React__namespace.forwardRef(function CheckboxCard(props, ref) {
+    const { inputProps, label, description, icon, addon, indicator = jsxRuntime.jsx(react.CheckboxCard.Indicator, {}), indicatorPlacement = "end", ...rest } = props;
+    const hasContent = label || description || icon;
+    const ContentWrapper = indicator ? react.CheckboxCard.Content : React__namespace.Fragment;
+    return (jsxRuntime.jsxs(react.CheckboxCard.Root, { ...rest, children: [jsxRuntime.jsx(react.CheckboxCard.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsxs(react.CheckboxCard.Control, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxRuntime.jsxs(ContentWrapper, { children: [icon, label && (jsxRuntime.jsx(react.CheckboxCard.Label, { children: label })), description && (jsxRuntime.jsx(react.CheckboxCard.Description, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsxRuntime.jsx(react.CheckboxCard.Addon, { children: addon })] }));
+});
+react.CheckboxCard.Indicator;
+
+function ColumnCard({ columnId }) {
+    const ref = React.useRef(null);
+    const [dragging, setDragging] = React.useState(false); // NEW
+    const { table } = useDataTableContext();
+    const displayName = columnId;
+    const column = table.getColumn(columnId);
+    invariant(column);
+    React.useEffect(() => {
+        const el = ref.current;
+        invariant(el);
+        return adapter.draggable({
+            element: el,
+            getInitialData: () => {
+                return { column: table.getColumn(columnId) };
+            },
+            onDragStart: () => setDragging(true), // NEW
+            onDrop: () => setDragging(false), // NEW
+        });
+    }, [columnId, table]);
+    return (jsxRuntime.jsxs(react.Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsxRuntime.jsx(react.Flex, { alignItems: "center", padding: "0", children: jsxRuntime.jsx(fa6.FaGripLinesVertical, { color: "gray.400" }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "space-between", alignItems: "center", children: jsxRuntime.jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
+}
+function CardContainer({ location, children }) {
+    const ref = React.useRef(null);
+    const [isDraggedOver, setIsDraggedOver] = React.useState(false);
+    React.useEffect(() => {
+        const el = ref.current;
+        invariant(el);
+        return adapter.dropTargetForElements({
+            element: el,
+            getData: () => ({ location }),
+            onDragEnter: () => setIsDraggedOver(true),
+            onDragLeave: () => setIsDraggedOver(false),
+            onDrop: () => setIsDraggedOver(false),
+        });
+    }, [location]);
+    // const isDark = (location + location) % 2 === 1;
+    function getColor(isDraggedOver) {
+        if (isDraggedOver) {
+            return {
+                backgroundColor: "blue.400",
+                _dark: {
+                    backgroundColor: "blue.400",
+                },
+            };
+        }
+        // return isDark ? "lightgrey" : "white";
+        return {
+            backgroundColor: undefined,
+            _dark: {
+                backgroundColor: undefined,
+            },
+        };
+    }
+    return (jsxRuntime.jsx(react.Box, { ...getColor(isDraggedOver), ref: ref, children: children }));
+}
+const TableViewer = () => {
+    const { table } = useDataTableContext();
+    const [order, setOrder] = React.useState(table.getAllLeafColumns().map((column) => {
+        return column.id;
+    }));
+    React.useEffect(() => {
+        return adapter.monitorForElements({
+            onDrop({ source, location }) {
+                const destination = location.current.dropTargets[0];
+                if (!destination) {
+                    return;
+                }
+                const destinationLocation = destination.data.location;
+                // const sourceLocation = source.data.location;
+                const sourceColumn = source.data.column;
+                const columnOrder = order.map((id) => {
+                    if (id == sourceColumn.id) {
+                        return "<marker>";
+                    }
+                    return id;
+                });
+                const columnBefore = columnOrder.slice(0, destinationLocation + 1);
+                const columnAfter = columnOrder.slice(destinationLocation + 1, columnOrder.length);
+                const newOrder = [
+                    ...columnBefore,
+                    sourceColumn.id,
+                    ...columnAfter,
+                ].filter((id) => id != "<marker>");
+                table.setColumnOrder(newOrder);
+                setOrder(newOrder);
+            },
+        });
+    }, [order, table]);
+    return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: table.getState().columnOrder.map((columnId, index) => {
+            return (jsxRuntime.jsx(CardContainer, { location: index, children: jsxRuntime.jsx(ColumnCard, { columnId: columnId }) }));
+        }) }));
 };
 
 const EditViewButton = ({ text, icon = jsxRuntime.jsx(io.IoMdEye, {}), title = "Edit View", }) => {
@@ -1259,107 +1360,6 @@ const TableSelector = () => {
     return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [table.getSelectedRowModel().rows.length > 0 && (jsxRuntime.jsxs(react.Button, { onClick: () => { }, variant: "ghost", display: "flex", gap: "0.25rem", children: [jsxRuntime.jsx(react.Box, { fontSize: "sm", children: `${table.getSelectedRowModel().rows.length}` }), jsxRuntime.jsx(io.IoMdCheckbox, {})] })), !table.getIsAllPageRowsSelected() && jsxRuntime.jsx(SelectAllRowsToggle, {}), table.getSelectedRowModel().rows.length > 0 && (jsxRuntime.jsx(react.IconButton, { variant: "ghost", onClick: () => {
                     table.resetRowSelection();
                 }, "aria-label": "reset selection", children: jsxRuntime.jsx(md.MdClear, {}) }))] }));
-};
-
-const CheckboxCard = React__namespace.forwardRef(function CheckboxCard(props, ref) {
-    const { inputProps, label, description, icon, addon, indicator = jsxRuntime.jsx(react.CheckboxCard.Indicator, {}), indicatorPlacement = "end", ...rest } = props;
-    const hasContent = label || description || icon;
-    const ContentWrapper = indicator ? react.CheckboxCard.Content : React__namespace.Fragment;
-    return (jsxRuntime.jsxs(react.CheckboxCard.Root, { ...rest, children: [jsxRuntime.jsx(react.CheckboxCard.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsxs(react.CheckboxCard.Control, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxRuntime.jsxs(ContentWrapper, { children: [icon, label && (jsxRuntime.jsx(react.CheckboxCard.Label, { children: label })), description && (jsxRuntime.jsx(react.CheckboxCard.Description, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsxRuntime.jsx(react.CheckboxCard.Addon, { children: addon })] }));
-});
-react.CheckboxCard.Indicator;
-
-function ColumnCard({ columnId }) {
-    const ref = React.useRef(null);
-    const [dragging, setDragging] = React.useState(false); // NEW
-    const { table } = useDataTableContext();
-    const displayName = columnId;
-    const column = table.getColumn(columnId);
-    invariant(column);
-    React.useEffect(() => {
-        const el = ref.current;
-        invariant(el);
-        return adapter.draggable({
-            element: el,
-            getInitialData: () => {
-                return { column: table.getColumn(columnId) };
-            },
-            onDragStart: () => setDragging(true), // NEW
-            onDrop: () => setDragging(false), // NEW
-        });
-    }, [columnId, table]);
-    return (jsxRuntime.jsxs(react.Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsxRuntime.jsx(react.Flex, { alignItems: "center", padding: "0", children: jsxRuntime.jsx(fa6.FaGripLinesVertical, { color: "gray.400" }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "space-between", alignItems: "center", children: jsxRuntime.jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
-}
-function CardContainer({ location, children }) {
-    const ref = React.useRef(null);
-    const [isDraggedOver, setIsDraggedOver] = React.useState(false);
-    React.useEffect(() => {
-        const el = ref.current;
-        invariant(el);
-        return adapter.dropTargetForElements({
-            element: el,
-            getData: () => ({ location }),
-            onDragEnter: () => setIsDraggedOver(true),
-            onDragLeave: () => setIsDraggedOver(false),
-            onDrop: () => setIsDraggedOver(false),
-        });
-    }, [location]);
-    // const isDark = (location + location) % 2 === 1;
-    function getColor(isDraggedOver) {
-        if (isDraggedOver) {
-            return {
-                backgroundColor: "blue.400",
-                _dark: {
-                    backgroundColor: "blue.400",
-                },
-            };
-        }
-        // return isDark ? "lightgrey" : "white";
-        return {
-            backgroundColor: undefined,
-            _dark: {
-                backgroundColor: undefined,
-            },
-        };
-    }
-    return (jsxRuntime.jsx(react.Box, { ...getColor(isDraggedOver), ref: ref, children: children }));
-}
-const TableViewer = () => {
-    const { table } = useDataTableContext();
-    const [order, setOrder] = React.useState(table.getAllLeafColumns().map((column) => {
-        return column.id;
-    }));
-    React.useEffect(() => {
-        return adapter.monitorForElements({
-            onDrop({ source, location }) {
-                const destination = location.current.dropTargets[0];
-                if (!destination) {
-                    return;
-                }
-                const destinationLocation = destination.data.location;
-                // const sourceLocation = source.data.location;
-                const sourceColumn = source.data.column;
-                const columnOrder = order.map((id) => {
-                    if (id == sourceColumn.id) {
-                        return "<marker>";
-                    }
-                    return id;
-                });
-                const columnBefore = columnOrder.slice(0, destinationLocation + 1);
-                const columnAfter = columnOrder.slice(destinationLocation + 1, columnOrder.length);
-                const newOrder = [
-                    ...columnBefore,
-                    sourceColumn.id,
-                    ...columnAfter,
-                ].filter((id) => id != "<marker>");
-                table.setColumnOrder(newOrder);
-                setOrder(newOrder);
-            },
-        });
-    }, [order, table]);
-    return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: table.getState().columnOrder.map((columnId, index) => {
-            return (jsxRuntime.jsx(CardContainer, { location: index, children: jsxRuntime.jsx(ColumnCard, { columnId: columnId }) }));
-        }) }));
 };
 
 const TextCell = ({ label, containerProps = {}, textProps = {}, children, }) => {

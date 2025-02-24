@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Flex, Text, Tag as Tag$1, Input, useDisclosure, DialogBackdrop, Menu, createRecipeContext, createContext as createContext$1, Pagination, usePaginationContext, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$2, VStack, List, CheckboxCard as CheckboxCard$1, Alert, Group, InputElement, Popover, Field as Field$1, NumberInput, Accordion, Show, RadioCard, CheckboxGroup, Heading, Center } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Flex, Text, Tag as Tag$1, Input, useDisclosure, DialogBackdrop, CheckboxCard as CheckboxCard$1, Menu, createRecipeContext, createContext as createContext$1, Pagination, usePaginationContext, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$2, VStack, List, Alert, Group, InputElement, Popover, Field as Field$1, NumberInput, Accordion, Show, RadioCard, CheckboxGroup, Heading, Center } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
@@ -10,6 +10,8 @@ import { FaUpDown, FaGripLinesVertical } from 'react-icons/fa6';
 import { BiDownArrow, BiUpArrow } from 'react-icons/bi';
 import { CgClose } from 'react-icons/cg';
 import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
+import { monitorForElements, draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import invariant from 'tiny-invariant';
 import { HiMiniEllipsisHorizontal, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import { flexRender, makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, createColumnHelper } from '@tanstack/react-table';
 import { rankItem } from '@tanstack/match-sorter-utils';
@@ -18,8 +20,6 @@ import { GrAscend, GrDescend } from 'react-icons/gr';
 import { useQueryClient, useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { IoReload } from 'react-icons/io5';
 import { HiColorSwatch, HiOutlineInformationCircle } from 'react-icons/hi';
-import { monitorForElements, draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import invariant from 'tiny-invariant';
 import axios from 'axios';
 import { useDebounce } from '@uidotdev/usehooks';
 import { useFormContext, useForm, FormProvider } from 'react-hook-form';
@@ -436,6 +436,107 @@ const ResetSortingButton = ({ text = "Reset Sorting", }) => {
 const EditSortingButton = ({ text, icon = jsx(MdOutlineSort, {}), title = "Edit Sorting", }) => {
     const sortingModal = useDisclosure();
     return (jsx(Fragment, { children: jsxs(DialogRoot, { size: ["full", "full", "md", "md"], children: [jsx(DialogBackdrop, {}), jsx(DialogTrigger, { children: jsxs(Button$1, { as: "div", variant: "ghost", onClick: sortingModal.onOpen, children: [icon, " ", text] }) }), jsxs(DialogContent, { children: [jsx(DialogCloseTrigger, {}), jsxs(DialogHeader, { children: [jsx(DialogTitle, {}), title] }), jsx(DialogBody, { children: jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(TableSorter, {}), jsx(ResetSortingButton, {})] }) }), jsx(DialogFooter, {})] })] }) }));
+};
+
+const CheckboxCard = React.forwardRef(function CheckboxCard(props, ref) {
+    const { inputProps, label, description, icon, addon, indicator = jsx(CheckboxCard$1.Indicator, {}), indicatorPlacement = "end", ...rest } = props;
+    const hasContent = label || description || icon;
+    const ContentWrapper = indicator ? CheckboxCard$1.Content : React.Fragment;
+    return (jsxs(CheckboxCard$1.Root, { ...rest, children: [jsx(CheckboxCard$1.HiddenInput, { ref: ref, ...inputProps }), jsxs(CheckboxCard$1.Control, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxs(ContentWrapper, { children: [icon, label && (jsx(CheckboxCard$1.Label, { children: label })), description && (jsx(CheckboxCard$1.Description, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsx(CheckboxCard$1.Addon, { children: addon })] }));
+});
+CheckboxCard$1.Indicator;
+
+function ColumnCard({ columnId }) {
+    const ref = useRef(null);
+    const [dragging, setDragging] = useState(false); // NEW
+    const { table } = useDataTableContext();
+    const displayName = columnId;
+    const column = table.getColumn(columnId);
+    invariant(column);
+    useEffect(() => {
+        const el = ref.current;
+        invariant(el);
+        return draggable({
+            element: el,
+            getInitialData: () => {
+                return { column: table.getColumn(columnId) };
+            },
+            onDragStart: () => setDragging(true), // NEW
+            onDrop: () => setDragging(false), // NEW
+        });
+    }, [columnId, table]);
+    return (jsxs(Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsx(Flex, { alignItems: "center", padding: "0", children: jsx(FaGripLinesVertical, { color: "gray.400" }) }), jsx(Flex, { justifyContent: "space-between", alignItems: "center", children: jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
+}
+function CardContainer({ location, children }) {
+    const ref = useRef(null);
+    const [isDraggedOver, setIsDraggedOver] = useState(false);
+    useEffect(() => {
+        const el = ref.current;
+        invariant(el);
+        return dropTargetForElements({
+            element: el,
+            getData: () => ({ location }),
+            onDragEnter: () => setIsDraggedOver(true),
+            onDragLeave: () => setIsDraggedOver(false),
+            onDrop: () => setIsDraggedOver(false),
+        });
+    }, [location]);
+    // const isDark = (location + location) % 2 === 1;
+    function getColor(isDraggedOver) {
+        if (isDraggedOver) {
+            return {
+                backgroundColor: "blue.400",
+                _dark: {
+                    backgroundColor: "blue.400",
+                },
+            };
+        }
+        // return isDark ? "lightgrey" : "white";
+        return {
+            backgroundColor: undefined,
+            _dark: {
+                backgroundColor: undefined,
+            },
+        };
+    }
+    return (jsx(Box, { ...getColor(isDraggedOver), ref: ref, children: children }));
+}
+const TableViewer = () => {
+    const { table } = useDataTableContext();
+    const [order, setOrder] = useState(table.getAllLeafColumns().map((column) => {
+        return column.id;
+    }));
+    useEffect(() => {
+        return monitorForElements({
+            onDrop({ source, location }) {
+                const destination = location.current.dropTargets[0];
+                if (!destination) {
+                    return;
+                }
+                const destinationLocation = destination.data.location;
+                // const sourceLocation = source.data.location;
+                const sourceColumn = source.data.column;
+                const columnOrder = order.map((id) => {
+                    if (id == sourceColumn.id) {
+                        return "<marker>";
+                    }
+                    return id;
+                });
+                const columnBefore = columnOrder.slice(0, destinationLocation + 1);
+                const columnAfter = columnOrder.slice(destinationLocation + 1, columnOrder.length);
+                const newOrder = [
+                    ...columnBefore,
+                    sourceColumn.id,
+                    ...columnAfter,
+                ].filter((id) => id != "<marker>");
+                table.setColumnOrder(newOrder);
+                setOrder(newOrder);
+            },
+        });
+    }, [order, table]);
+    return (jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: table.getState().columnOrder.map((columnId, index) => {
+            return (jsx(CardContainer, { location: index, children: jsx(ColumnCard, { columnId: columnId }) }));
+        }) }));
 };
 
 const EditViewButton = ({ text, icon = jsx(IoMdEye, {}), title = "Edit View", }) => {
@@ -1239,107 +1340,6 @@ const TableSelector = () => {
     return (jsxs(Fragment, { children: [table.getSelectedRowModel().rows.length > 0 && (jsxs(Button$1, { onClick: () => { }, variant: "ghost", display: "flex", gap: "0.25rem", children: [jsx(Box, { fontSize: "sm", children: `${table.getSelectedRowModel().rows.length}` }), jsx(IoMdCheckbox, {})] })), !table.getIsAllPageRowsSelected() && jsx(SelectAllRowsToggle, {}), table.getSelectedRowModel().rows.length > 0 && (jsx(IconButton, { variant: "ghost", onClick: () => {
                     table.resetRowSelection();
                 }, "aria-label": "reset selection", children: jsx(MdClear, {}) }))] }));
-};
-
-const CheckboxCard = React.forwardRef(function CheckboxCard(props, ref) {
-    const { inputProps, label, description, icon, addon, indicator = jsx(CheckboxCard$1.Indicator, {}), indicatorPlacement = "end", ...rest } = props;
-    const hasContent = label || description || icon;
-    const ContentWrapper = indicator ? CheckboxCard$1.Content : React.Fragment;
-    return (jsxs(CheckboxCard$1.Root, { ...rest, children: [jsx(CheckboxCard$1.HiddenInput, { ref: ref, ...inputProps }), jsxs(CheckboxCard$1.Control, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxs(ContentWrapper, { children: [icon, label && (jsx(CheckboxCard$1.Label, { children: label })), description && (jsx(CheckboxCard$1.Description, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsx(CheckboxCard$1.Addon, { children: addon })] }));
-});
-CheckboxCard$1.Indicator;
-
-function ColumnCard({ columnId }) {
-    const ref = useRef(null);
-    const [dragging, setDragging] = useState(false); // NEW
-    const { table } = useDataTableContext();
-    const displayName = columnId;
-    const column = table.getColumn(columnId);
-    invariant(column);
-    useEffect(() => {
-        const el = ref.current;
-        invariant(el);
-        return draggable({
-            element: el,
-            getInitialData: () => {
-                return { column: table.getColumn(columnId) };
-            },
-            onDragStart: () => setDragging(true), // NEW
-            onDrop: () => setDragging(false), // NEW
-        });
-    }, [columnId, table]);
-    return (jsxs(Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsx(Flex, { alignItems: "center", padding: "0", children: jsx(FaGripLinesVertical, { color: "gray.400" }) }), jsx(Flex, { justifyContent: "space-between", alignItems: "center", children: jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
-}
-function CardContainer({ location, children }) {
-    const ref = useRef(null);
-    const [isDraggedOver, setIsDraggedOver] = useState(false);
-    useEffect(() => {
-        const el = ref.current;
-        invariant(el);
-        return dropTargetForElements({
-            element: el,
-            getData: () => ({ location }),
-            onDragEnter: () => setIsDraggedOver(true),
-            onDragLeave: () => setIsDraggedOver(false),
-            onDrop: () => setIsDraggedOver(false),
-        });
-    }, [location]);
-    // const isDark = (location + location) % 2 === 1;
-    function getColor(isDraggedOver) {
-        if (isDraggedOver) {
-            return {
-                backgroundColor: "blue.400",
-                _dark: {
-                    backgroundColor: "blue.400",
-                },
-            };
-        }
-        // return isDark ? "lightgrey" : "white";
-        return {
-            backgroundColor: undefined,
-            _dark: {
-                backgroundColor: undefined,
-            },
-        };
-    }
-    return (jsx(Box, { ...getColor(isDraggedOver), ref: ref, children: children }));
-}
-const TableViewer = () => {
-    const { table } = useDataTableContext();
-    const [order, setOrder] = useState(table.getAllLeafColumns().map((column) => {
-        return column.id;
-    }));
-    useEffect(() => {
-        return monitorForElements({
-            onDrop({ source, location }) {
-                const destination = location.current.dropTargets[0];
-                if (!destination) {
-                    return;
-                }
-                const destinationLocation = destination.data.location;
-                // const sourceLocation = source.data.location;
-                const sourceColumn = source.data.column;
-                const columnOrder = order.map((id) => {
-                    if (id == sourceColumn.id) {
-                        return "<marker>";
-                    }
-                    return id;
-                });
-                const columnBefore = columnOrder.slice(0, destinationLocation + 1);
-                const columnAfter = columnOrder.slice(destinationLocation + 1, columnOrder.length);
-                const newOrder = [
-                    ...columnBefore,
-                    sourceColumn.id,
-                    ...columnAfter,
-                ].filter((id) => id != "<marker>");
-                table.setColumnOrder(newOrder);
-                setOrder(newOrder);
-            },
-        });
-    }, [order, table]);
-    return (jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: table.getState().columnOrder.map((columnId, index) => {
-            return (jsx(CardContainer, { location: index, children: jsx(ColumnCard, { columnId: columnId }) }));
-        }) }));
 };
 
 const TextCell = ({ label, containerProps = {}, textProps = {}, children, }) => {

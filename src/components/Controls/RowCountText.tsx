@@ -1,5 +1,5 @@
 import { Text } from "@chakra-ui/react";
-import { useDataTableContext } from "../../index";
+import { useDataTableContext } from "../DataTable/context/useDataTableContext";
 
 export const RowCountText = () => {
   const { table, type } = useDataTableContext();

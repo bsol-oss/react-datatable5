@@ -1,6 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { MdClose } from "react-icons/md";
-import { useDataTableContext } from "../../index";
+import { useDataTableContext } from "../DataTable/context/useDataTableContext";
 
 export interface FilterOptionsProps {
   column: string;

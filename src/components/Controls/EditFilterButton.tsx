@@ -11,7 +11,7 @@ import {
   DialogRoot,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "../../components/ui/dialog";
 import { TableFilter } from "../DataTable/TableFilters";
 import { ResetFilteringButton } from "./ResetFilteringButton";
 
