@@ -1,9 +1,9 @@
 import { TableHeaderProps as ChakraHeaderProps } from "@chakra-ui/react";
-import { Table, TableProps } from "../../index";
 import { TableBody, TableBodyProps } from "./TableBody";
 import { TableControls, TableControlsProps } from "./TableControls";
 import { TableFooter, TableFooterProps } from "./TableFooter";
 import { TableHeader, TableHeaderProps } from "./TableHeader";
+import { Table, TableProps } from "./Table";
 
 export interface DefaultTableProps {
   showFooter?: boolean;

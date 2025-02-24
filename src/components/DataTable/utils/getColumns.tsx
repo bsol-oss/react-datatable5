@@ -2,7 +2,7 @@ import { idListSanityCheck } from "@/components/Form/utils/idListSanityCheck";
 import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 import { ColumnDef, createColumnHelper, RowData } from "@tanstack/react-table";
 import { JSONSchema7 } from "json-schema";
-import { TextCell } from "../../../index";
+import { TextCell } from "../TextCell";
 
 export interface GetColumnsConfigs<K extends RowData> {
   schema: JSONSchema7;
