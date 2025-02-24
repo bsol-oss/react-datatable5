@@ -17,9 +17,9 @@ import { flexRender, makeStateUpdater, functionalUpdate, useReactTable, getCoreR
 import { rankItem } from '@tanstack/match-sorter-utils';
 import { BsExclamationCircleFill } from 'react-icons/bs';
 import { GrAscend, GrDescend } from 'react-icons/gr';
+import { HiColorSwatch, HiOutlineInformationCircle } from 'react-icons/hi';
 import { useQueryClient, useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { IoReload } from 'react-icons/io5';
-import { HiColorSwatch, HiOutlineInformationCircle } from 'react-icons/hi';
 import axios from 'axios';
 import { useDebounce } from '@uidotdev/usehooks';
 import { useFormContext, useForm, FormProvider } from 'react-hook-form';
@@ -1237,6 +1237,20 @@ const TableHeader = ({ canResize = true, pinnedBgColor = { light: "gray.50", dar
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
+const EmptyState$1 = React.forwardRef(function EmptyState(props, ref) {
+    const { title, description, icon, children, ...rest } = props;
+    return (jsx(EmptyState$2.Root, { ref: ref, ...rest, children: jsxs(EmptyState$2.Content, { children: [icon && (jsx(EmptyState$2.Indicator, { children: icon })), description ? (jsxs(VStack, { textAlign: "center", children: [jsx(EmptyState$2.Title, { children: title }), jsx(EmptyState$2.Description, { children: description })] })) : (jsx(EmptyState$2.Title, { children: title })), children] }) }));
+});
+
+const EmptyResult = (jsx(EmptyState$1, { icon: jsx(HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxs(List.Root, { variant: "marker", children: [jsx(List.Item, { children: "Try removing filters" }), jsx(List.Item, { children: "Try different keywords" })] }) }));
+const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
+    const { table } = useDataTableContext();
+    if (table.getRowModel().rows.length <= 0) {
+        return emptyComponent;
+    }
+    return (jsx(Table$1.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, ...props, children: children }));
+};
+
 const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, controlProps = {}, tableFooterProps = {}, variant = "", }) => {
     if (variant === "greedy") {
         return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { canResize: false, ...tableProps, children: [jsx(TableHeader, { canResize: false, ...tableHeaderProps }), jsx(TableBody, { canResize: false, ...tableBodyProps }), showFooter && (jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
@@ -1262,20 +1276,6 @@ const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
     return (jsxs(Button, { variant: "ghost", onClick: () => {
             queryClient.invalidateQueries({ queryKey: [url] });
         }, children: [jsx(IoReload, {}), " ", text] }));
-};
-
-const EmptyState$1 = React.forwardRef(function EmptyState(props, ref) {
-    const { title, description, icon, children, ...rest } = props;
-    return (jsx(EmptyState$2.Root, { ref: ref, ...rest, children: jsxs(EmptyState$2.Content, { children: [icon && (jsx(EmptyState$2.Indicator, { children: icon })), description ? (jsxs(VStack, { textAlign: "center", children: [jsx(EmptyState$2.Title, { children: title }), jsx(EmptyState$2.Description, { children: description })] })) : (jsx(EmptyState$2.Title, { children: title })), children] }) }));
-});
-
-const EmptyResult = (jsx(EmptyState$1, { icon: jsx(HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxs(List.Root, { variant: "marker", children: [jsx(List.Item, { children: "Try removing filters" }), jsx(List.Item, { children: "Try different keywords" })] }) }));
-const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
-    const { table } = useDataTableContext();
-    if (table.getRowModel().rows.length <= 0) {
-        return emptyComponent;
-    }
-    return (jsx(Table$1.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, ...props, children: children }));
 };
 
 const TableCardContainer = ({ children, variant = "", ...props }) => {

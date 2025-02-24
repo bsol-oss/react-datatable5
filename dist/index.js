@@ -18,9 +18,9 @@ var reactTable = require('@tanstack/react-table');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
 var bs = require('react-icons/bs');
 var gr = require('react-icons/gr');
+var hi = require('react-icons/hi');
 var reactQuery = require('@tanstack/react-query');
 var io5 = require('react-icons/io5');
-var hi = require('react-icons/hi');
 var axios = require('axios');
 var usehooks = require('@uidotdev/usehooks');
 var reactHookForm = require('react-hook-form');
@@ -1257,6 +1257,20 @@ const TableHeader = ({ canResize = true, pinnedBgColor = { light: "gray.50", dar
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
+const EmptyState$1 = React__namespace.forwardRef(function EmptyState(props, ref) {
+    const { title, description, icon, children, ...rest } = props;
+    return (jsxRuntime.jsx(react.EmptyState.Root, { ref: ref, ...rest, children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [icon && (jsxRuntime.jsx(react.EmptyState.Indicator, { children: icon })), description ? (jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })) : (jsxRuntime.jsx(react.EmptyState.Title, { children: title })), children] }) }));
+});
+
+const EmptyResult = (jsxRuntime.jsx(EmptyState$1, { icon: jsxRuntime.jsx(hi.HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxRuntime.jsxs(react.List.Root, { variant: "marker", children: [jsxRuntime.jsx(react.List.Item, { children: "Try removing filters" }), jsxRuntime.jsx(react.List.Item, { children: "Try different keywords" })] }) }));
+const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
+    const { table } = useDataTableContext();
+    if (table.getRowModel().rows.length <= 0) {
+        return emptyComponent;
+    }
+    return (jsxRuntime.jsx(react.Table.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, ...props, children: children }));
+};
+
 const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, controlProps = {}, tableFooterProps = {}, variant = "", }) => {
     if (variant === "greedy") {
         return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { canResize: false, ...tableProps, children: [jsxRuntime.jsx(TableHeader, { canResize: false, ...tableHeaderProps }), jsxRuntime.jsx(TableBody, { canResize: false, ...tableBodyProps }), showFooter && (jsxRuntime.jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
@@ -1282,20 +1296,6 @@ const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
     return (jsxRuntime.jsxs(Button, { variant: "ghost", onClick: () => {
             queryClient.invalidateQueries({ queryKey: [url] });
         }, children: [jsxRuntime.jsx(io5.IoReload, {}), " ", text] }));
-};
-
-const EmptyState$1 = React__namespace.forwardRef(function EmptyState(props, ref) {
-    const { title, description, icon, children, ...rest } = props;
-    return (jsxRuntime.jsx(react.EmptyState.Root, { ref: ref, ...rest, children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [icon && (jsxRuntime.jsx(react.EmptyState.Indicator, { children: icon })), description ? (jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })) : (jsxRuntime.jsx(react.EmptyState.Title, { children: title })), children] }) }));
-});
-
-const EmptyResult = (jsxRuntime.jsx(EmptyState$1, { icon: jsxRuntime.jsx(hi.HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxRuntime.jsxs(react.List.Root, { variant: "marker", children: [jsxRuntime.jsx(react.List.Item, { children: "Try removing filters" }), jsxRuntime.jsx(react.List.Item, { children: "Try different keywords" })] }) }));
-const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
-    const { table } = useDataTableContext();
-    if (table.getRowModel().rows.length <= 0) {
-        return emptyComponent;
-    }
-    return (jsxRuntime.jsx(react.Table.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, ...props, children: children }));
 };
 
 const TableCardContainer = ({ children, variant = "", ...props }) => {

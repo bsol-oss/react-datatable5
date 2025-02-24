@@ -292,6 +292,15 @@ interface TableHeaderProps {
 }
 declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, isSticky, alwaysShowSelector, tHeadProps, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
 
+interface TableProps extends TableRootProps {
+    showLoading?: boolean;
+    loadingComponent?: ReactNode;
+    emptyComponent?: ReactNode;
+    canResize?: boolean;
+    children: ReactNode;
+}
+declare const Table: ({ children, emptyComponent, canResize, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | React$1.ReactPortal | React$1.ReactElement<unknown, string | React$1.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null;
+
 interface DefaultTableProps {
     showFooter?: boolean;
     showSelector?: boolean;
@@ -310,15 +319,6 @@ interface ReloadButtonProps {
     variant?: string;
 }
 declare const ReloadButton: ({ text, variant, }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
-
-interface TableProps extends TableRootProps {
-    showLoading?: boolean;
-    loadingComponent?: ReactNode;
-    emptyComponent?: ReactNode;
-    canResize?: boolean;
-    children: ReactNode;
-}
-declare const Table: ({ children, emptyComponent, canResize, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | React$1.ReactPortal | React$1.ReactElement<unknown, string | React$1.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null;
 
 interface TableCardContainerProps extends GridProps {
     children: ReactNode;
