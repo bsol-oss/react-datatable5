@@ -7,33 +7,28 @@ import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface IdViewerProps {
   value: string | undefined;
-  in_table: string;
-  column_ref: string;
-  display_column: string;
   column: string;
 }
 
-export const IdViewer = ({
-  value,
-  in_table,
-  column_ref,
-  display_column,
-  column,
-}: IdViewerProps) => {
+export const IdViewer = ({ value, column }: IdViewerProps) => {
   const { schema, serverUrl } = useSchemaContext();
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
-  const { title } = schema.properties[column] as CustomJSONSchema7;
+  const { title, foreign_key } = schema.properties[column] as CustomJSONSchema7;
+  if(foreign_key === undefined){
+    throw new Error('foreign_key when variant is id-picker')
+  }
+  const { table, column: foreginKeyColumn, display_column } = foreign_key;
   const query = useQuery({
-    queryKey: [`idpicker`, in_table, value],
+    queryKey: [`idpicker`, table, value],
     queryFn: async () => {
       return await getTableData({
         serverUrl,
-        in_table: in_table,
+        in_table: foreginKeyColumn ?? '',
         where: [
           {
-            id: column_ref,
+            id: column,
             value: value,
           },
         ],

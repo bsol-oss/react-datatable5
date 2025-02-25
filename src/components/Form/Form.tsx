@@ -84,23 +84,32 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
 
 const idPickerSanityCheck = (
   column: string,
-  in_table?: string,
-  column_ref?: string,
-  display_column?: string
+  foreign_key?: {
+    table?: string;
+    column?: string;
+    display_column?: string;
+  }
 ) => {
-  if (!!in_table == false) {
+  if (!!foreign_key == false) {
     throw new Error(
-      `The key in_table does not exist in properties of column ${column}.`
+      `The key foreign_key does not exist in properties of column ${column} when using id-picker.`
     );
   }
-  if (!!column_ref == false) {
+  const { table, column: foreignKeyColumn, display_column } = foreign_key;
+
+  if (!!table == false) {
     throw new Error(
-      `The key column_ref does not exist in properties of column ${column}.`
+      `The key table does not exist in properties of column ${table} when using id-picker.`
     );
   }
   if (!!display_column == false) {
     throw new Error(
-      `The key display_column does not exist in properties of column ${column}.`
+      `The key display_column does not exist in properties of column ${column} when using id-picker.`
+    );
+  }
+  if (!!foreignKeyColumn == false) {
+    throw new Error(
+      `The key column does not exist in properties of column ${column} when using id-picker.`
     );
   }
 };
@@ -244,31 +253,16 @@ const FormInternal = <TData extends FieldValues>() => {
               return <></>;
             }
 
-            const {
-              type,
-              variant,
-              in_table,
-              column_ref,
-              display_column,
-              gridColumn,
-              gridRow,
-            } = values as CustomJSONSchema7Definition;
+            const { type, variant, gridColumn, gridRow, foreign_key } =
+              values as CustomJSONSchema7Definition;
             if (type === "string") {
               if (variant === "id-picker") {
-                idPickerSanityCheck(
-                  column,
-                  in_table,
-                  column_ref,
-                  display_column
-                );
+                idPickerSanityCheck(column, foreign_key);
                 return (
                   <IdViewer
                     key={`form-${key}`}
                     value={(validatedData ?? {})[column]}
                     {...{
-                      in_table,
-                      column_ref,
-                      display_column,
                       column,
                       gridColumn,
                       gridRow,
@@ -489,28 +483,14 @@ const FormInternal = <TData extends FieldValues>() => {
               return <></>;
             }
             //@ts-expect-error TODO: add more fields to support form-creation
-            const { type, variant, in_table, column_ref, display_column } =
-              values;
+            const { type, variant, in_table, column_ref, foreign_key } = values;
             if (type === "string") {
               if (((values.enum ?? []) as string[]).length > 0) {
                 return <EnumPicker key={`form-${key}`} column={key} />;
               }
               if (variant === "id-picker") {
-                idPickerSanityCheck(
-                  column,
-                  in_table,
-                  column_ref,
-                  display_column
-                );
-                return (
-                  <IdPicker
-                    key={`form-${key}`}
-                    column={key}
-                    in_table={in_table}
-                    column_ref={column_ref}
-                    display_column={display_column}
-                  />
-                );
+                idPickerSanityCheck(column, foreign_key);
+                return <IdPicker key={`form-${key}`} column={key} />;
               }
               if (variant === "date-picker") {
                 return <DatePicker key={`form-${key}`} column={key} />;
@@ -528,22 +508,8 @@ const FormInternal = <TData extends FieldValues>() => {
             }
             if (type === "array") {
               if (variant === "id-picker") {
-                idPickerSanityCheck(
-                  column,
-                  in_table,
-                  column_ref,
-                  display_column
-                );
-                return (
-                  <IdPicker
-                    key={`form-${key}`}
-                    column={key}
-                    in_table={in_table}
-                    column_ref={column_ref}
-                    display_column={display_column}
-                    isMultiple
-                  />
-                );
+                idPickerSanityCheck(column, foreign_key);
+                return <IdPicker key={`form-${key}`} column={key} isMultiple />;
               }
               if (variant === "tag-picker") {
                 return <TagPicker key={`form-${key}`} column={key} />;

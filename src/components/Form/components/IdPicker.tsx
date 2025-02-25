@@ -25,19 +25,10 @@ import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface IdPickerProps {
   column: string;
-  in_table: string;
-  column_ref: string;
-  display_column: string;
   isMultiple?: boolean;
 }
 
-export const IdPicker = ({
-  column,
-  in_table,
-  column_ref,
-  display_column,
-  isMultiple = false,
-}: IdPickerProps) => {
+export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
   const {
     watch,
     formState: { errors },
@@ -51,9 +42,9 @@ export const IdPicker = ({
     throw new Error("schema properties when using DatePicker");
   }
   const { total, showing, typeToSearch } = displayText;
-  const { gridColumn, gridRow, title, renderDisplay } = schema.properties[
-    column
-  ] as CustomJSONSchema7;
+  const { gridColumn, gridRow, title, renderDisplay, foreign_key } = schema
+    .properties[column] as CustomJSONSchema7;
+  const { table: in_table, column: column_ref, display_column } = foreign_key;
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
@@ -65,7 +56,7 @@ export const IdPicker = ({
   const selectedIds = watch(column) ?? [];
 
   const query = useQuery({
-    queryKey: [`idpicker`, { searchText, in_table, limit, page }],
+    queryKey: [`idpicker`, { searchText, limit, page }],
     queryFn: async () => {
       const data = await getTableData({
         serverUrl,
