@@ -1,14 +1,12 @@
 import {
-  Box,
   Card,
   DataList as ChakraDataList,
-  Flex,
-  Text,
+  Flex
 } from "@chakra-ui/react";
+import { flexRender } from "@tanstack/react-table";
 import { snakeToLabel } from "../Form/utils/snakeToLabel";
 import { RecordDisplay } from "./components/RecordDisplay";
 import { useDataTableContext } from "./context/useDataTableContext";
-import { flexRender } from "@tanstack/react-table";
 
 export interface DataDisplayProps {
   variant?: "horizontal" | "stats" | "";
