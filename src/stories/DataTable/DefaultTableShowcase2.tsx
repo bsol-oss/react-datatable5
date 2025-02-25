@@ -5,7 +5,6 @@ import { useDataTable } from "../../components/DataTable/useDataTable";
 import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
 import { Employee, staffData } from "../staff_data";
 
-
 interface RowActionsProps {
   row: Employee;
 }
@@ -121,7 +120,7 @@ const DefaultTableShowcase2 = () => {
           },
           header: () => <span>university</span>,
           footer: () => <span>university</span>,
-          size: 100,
+          size: 400,
           filterFn: (row, col, filterValue) => {
             return true;
           },
@@ -168,7 +167,12 @@ const DefaultTableShowcase2 = () => {
           />
         </Box>
 
-        <Text> {"fitTable={true}"}</Text>
+        <Text>
+          {`controlProps={{
+              showFilter: true,
+              fitTableWidth: true,
+            }}`}
+        </Text>
 
         <Box width="400px" height={"400px"}>
           <DefaultTable
@@ -178,16 +182,6 @@ const DefaultTableShowcase2 = () => {
             }}
           />
         </Box>
-        <Box width="2400px" height={"2400px"}>
-          <DefaultTable
-            controlProps={{
-              showFilter: true,
-              fitTableWidth: true,
-              fitTableHeight: true,
-            }}
-          />
-        </Box>
-
         <Box width="2400px" height={"2400px"}>
           <DefaultTable
             controlProps={{

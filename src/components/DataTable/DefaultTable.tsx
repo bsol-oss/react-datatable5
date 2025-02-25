@@ -29,7 +29,7 @@ export const DefaultTable = ({
   if (variant === "greedy") {
     return (
       <TableControls {...controlProps}>
-        <Table {...{ canResize: false, ...tableProps }}>
+        <Table {...{ canResize: false, ...{...tableProps} }}>
           <TableHeader {...{ canResize: false, ...tableHeaderProps }} />
           <TableBody {...{ canResize: false, ...tableBodyProps }} />
           {showFooter && (

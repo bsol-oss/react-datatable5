@@ -67,7 +67,7 @@ export const TableHeader = ({
             : `${header.getStart("left")}px`,
           background: pinnedBgColor.light,
           position: "sticky",
-          zIndex: 1,
+          zIndex: 100+1,
           _dark: {
             backgroundColor: pinnedBgColor.dark,
           },
@@ -152,7 +152,7 @@ export const TableHeader = ({
                 flex={`${canResize ? "0" : "1"} 0 ${header.column.getSize()}px`}
                 display={"grid"}
                 gridTemplateColumns={"1fr auto"}
-                zIndex={header.index}
+                zIndex={1500 + header.index}
                 {...getThProps(header)}
               >
                 <MenuRoot>

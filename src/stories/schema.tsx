@@ -683,9 +683,11 @@ export const eventsFilesSchema2 = {
       type: "array",
       format: "uuid",
       variant: "id-picker",
-      in_table: "core_files",
-      column_ref: "id",
-      display_column: "name",
+      foreign_key: {
+        table: "core_files",
+        column: "id",
+        display_column: "name",
+      },
       renderDisplay: (item) => {
         return `${item["name"]} ${item["version"]}`;
       },
@@ -700,9 +702,11 @@ export const eventsFilesSchema2 = {
       description:
         "Missing description. Database type: uuid. Default value: null",
       variant: "id-picker",
-      in_table: "core_events",
-      column_ref: "id",
-      display_column: "event_name",
+      foreign_key: {
+        table: "core_events",
+        column: "id",
+        display_column: "event_name",
+      },
       gridColumn: "1/span 6",
       gridRow: "1/span 1",
     },

@@ -42,6 +42,9 @@ export const Table = ({
       stickyHeader
       variant={"outline"}
       width={canResize ? table.getCenterTotalSize() : undefined}
+      display={"grid"}
+      alignContent={"start"}
+      overflowY={"auto"}
       {...props}
     >
       {children}

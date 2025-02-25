@@ -53,8 +53,6 @@ export const TableControls = ({
       templateRows={"auto 1fr auto"}
       width={fitTableWidth ? "fit-content" : "100%"}
       height={fitTableHeight ? "fit-content" : "100%"}
-      justifySelf={"center"}
-      alignSelf={"center"}
       gap={"0.5rem"}
     >
       <Flex flexFlow={"column"} gap={2}>
@@ -108,17 +106,15 @@ export const TableControls = ({
         )}
       </Flex>
 
-      <Box
+      <Grid
         overflow={"auto"}
-        width={"100%"}
-        height={"100%"}
         backgroundColor={"gray.50"}
         _dark={{
           backgroundColor: "gray.900",
         }}
       >
         {children}
-      </Box>
+      </Grid>
       <Flex justifyContent={"space-between"}>
         <Flex gap={"1rem"} alignItems={"center"}>
           <PageSizeControl />
