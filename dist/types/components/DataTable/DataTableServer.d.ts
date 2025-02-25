@@ -5,6 +5,13 @@ import { DensityState } from "../Controls/DensityFeature";
 import { DataResponse } from "./useDataTableServer";
 export interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown>> {
     children: ReactNode | ReactNode[];
+    /**
+     * Column definitions for the table.
+     *
+     * It will pass into as the column definitions in `@tanstack/react-table`
+     *
+     * @link https://tanstack.com/table/latest/docs/guide/column-defs
+     */
     columns: ColumnDef<TData>[];
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
@@ -28,4 +35,15 @@ export interface DataTableServerProps<TData extends DataResponse = DataResponse<
     query: UseQueryResult<TData>;
     url: string;
 }
+/**
+ * DataTableServer will create a context to hold all values to
+ * help the render of the DataTable in serverside
+ *
+ * The query is required to be a GET request that can receive
+ * specified params and return a specified response
+ *
+ * The `useDataTableServer` can help to create the specified request and response
+ *
+ * @link https://tanstack.com/table/latest/docs/guide/column-defs
+ */
 export declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }: DataTableServerProps<TData>): import("react/jsx-runtime").JSX.Element;

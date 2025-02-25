@@ -2778,6 +2778,16 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
     // Return if the item should be filtered in/out
     return itemRank.passed;
 };
+/**
+ * DataTable will create a context to hold all values to
+ * help the render of the DataTable in serverside
+ *
+ *
+ * The query is required to be a GET request that can receive
+ * specified params and return a specified response
+ *
+ * @link https://tanstack.com/table/latest/docs/guide/column-defs
+ */
 function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
@@ -2837,6 +2847,17 @@ const DataTableServerContext = React.createContext({
     url: "",
 });
 
+/**
+ * DataTableServer will create a context to hold all values to
+ * help the render of the DataTable in serverside
+ *
+ * The query is required to be a GET request that can receive
+ * specified params and return a specified response
+ *
+ * The `useDataTableServer` can help to create the specified request and response
+ *
+ * @link https://tanstack.com/table/latest/docs/guide/column-defs
+ */
 function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
@@ -3424,7 +3445,7 @@ const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth =
                     // @ts-expect-error find type for unknown
                     const value = props.row.original[column];
                     if (typeof value === "object") {
-                        return jsxRuntime.jsx(TextCell, { children: JSON.stringify(value) });
+                        return (jsxRuntime.jsx(react.Grid, { overflow: "auto", children: jsxRuntime.jsx(RecordDisplay, { object: value }) }));
                     }
                     return jsxRuntime.jsx(TextCell, { children: value });
                 },
@@ -3584,7 +3605,7 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
     }
 };
 
-const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = false, }) => {
+const IdPicker = ({ column, isMultiple = false }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { schema, serverUrl, displayText } = useSchemaContext();
     const { fieldRequired } = displayText;
@@ -3594,7 +3615,9 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
         throw new Error("schema properties when using DatePicker");
     }
     const { total, showing, typeToSearch } = displayText;
-    const { gridColumn, gridRow, title, renderDisplay } = schema.properties[column];
+    const { gridColumn, gridRow, title, renderDisplay, foreign_key } = schema
+        .properties[column];
+    const { table: in_table, column: column_ref, display_column } = foreign_key;
     const [searchText, setSearchText] = React.useState();
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
@@ -3603,7 +3626,7 @@ const IdPicker = ({ column, in_table, column_ref, display_column, isMultiple = f
     const ref = React.useRef(null);
     const selectedIds = watch(column) ?? [];
     const query = reactQuery.useQuery({
-        queryKey: [`idpicker`, { searchText, in_table, limit, page }],
+        queryKey: [`idpicker`, { searchText, limit, page }],
         queryFn: async () => {
             const data = await getTableData({
                 serverUrl,
@@ -3730,21 +3753,25 @@ const DataListItem = React__namespace.forwardRef(function DataListItem(props, re
     return (jsxRuntime.jsxs(react.DataList.Item, { ref: ref, ...rest, children: [jsxRuntime.jsxs(react.DataList.ItemLabel, { flex: grow ? "1" : undefined, children: [label, info && jsxRuntime.jsx(InfoTip, { children: info })] }), jsxRuntime.jsx(react.DataList.ItemValue, { flex: grow ? "1" : undefined, children: value }), children] }));
 });
 
-const IdViewer = ({ value, in_table, column_ref, display_column, column, }) => {
+const IdViewer = ({ value, column }) => {
     const { schema, serverUrl } = useSchemaContext();
     if (schema.properties == undefined) {
         throw new Error("schema properties when using DatePicker");
     }
-    const { title } = schema.properties[column];
+    const { title, foreign_key } = schema.properties[column];
+    if (foreign_key === undefined) {
+        throw new Error('foreign_key when variant is id-picker');
+    }
+    const { table, column: foreginKeyColumn, display_column } = foreign_key;
     const query = reactQuery.useQuery({
-        queryKey: [`idpicker`, in_table, value],
+        queryKey: [`idpicker`, table, value],
         queryFn: async () => {
             return await getTableData({
                 serverUrl,
-                in_table: in_table,
+                in_table: foreginKeyColumn ?? '',
                 where: [
                     {
-                        id: column_ref,
+                        id: column,
                         value: value,
                     },
                 ],
@@ -4515,15 +4542,19 @@ const EnumPicker = ({ column, isMultiple = false }) => {
                                             }) }), isDirty && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [dataList.length <= 0 && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "Empty Search Result" }), " "] }))] })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: fieldRequired ?? "The field is requried" }))] }));
 };
 
-const idPickerSanityCheck = (column, in_table, column_ref, display_column) => {
-    if (!!in_table == false) {
-        throw new Error(`The key in_table does not exist in properties of column ${column}.`);
+const idPickerSanityCheck = (column, foreign_key) => {
+    if (!!foreign_key == false) {
+        throw new Error(`The key foreign_key does not exist in properties of column ${column} when using id-picker.`);
     }
-    if (!!column_ref == false) {
-        throw new Error(`The key column_ref does not exist in properties of column ${column}.`);
+    const { table, column: foreignKeyColumn, display_column } = foreign_key;
+    if (!!table == false) {
+        throw new Error(`The key table does not exist in properties of column ${table} when using id-picker.`);
     }
     if (!!display_column == false) {
-        throw new Error(`The key display_column does not exist in properties of column ${column}.`);
+        throw new Error(`The key display_column does not exist in properties of column ${column} when using id-picker.`);
+    }
+    if (!!foreignKeyColumn == false) {
+        throw new Error(`The key column does not exist in properties of column ${column} when using id-picker.`);
     }
 };
 const FormInternal = () => {
@@ -4629,14 +4660,11 @@ const FormInternal = () => {
                         if (shouldIgnore) {
                             return jsxRuntime.jsx(jsxRuntime.Fragment, {});
                         }
-                        const { type, variant, in_table, column_ref, display_column, gridColumn, gridRow, } = values;
+                        const { type, variant, gridColumn, gridRow, foreign_key } = values;
                         if (type === "string") {
                             if (variant === "id-picker") {
-                                idPickerSanityCheck(column, in_table, column_ref, display_column);
-                                return (jsxRuntime.jsx(IdViewer, { value: (validatedData ?? {})[column], in_table,
-                                    column_ref,
-                                    display_column,
-                                    column,
+                                idPickerSanityCheck(column, foreign_key);
+                                return (jsxRuntime.jsx(IdViewer, { value: (validatedData ?? {})[column], column,
                                     gridColumn,
                                     gridRow }, `form-${key}`));
                             }
@@ -4702,14 +4730,14 @@ const FormInternal = () => {
                                 return jsxRuntime.jsx(jsxRuntime.Fragment, {});
                             }
                             //@ts-expect-error TODO: add more fields to support form-creation
-                            const { type, variant, in_table, column_ref, display_column } = values;
+                            const { type, variant, in_table, column_ref, foreign_key } = values;
                             if (type === "string") {
                                 if ((values.enum ?? []).length > 0) {
                                     return jsxRuntime.jsx(EnumPicker, { column: key }, `form-${key}`);
                                 }
                                 if (variant === "id-picker") {
-                                    idPickerSanityCheck(column, in_table, column_ref, display_column);
-                                    return (jsxRuntime.jsx(IdPicker, { column: key, in_table: in_table, column_ref: column_ref, display_column: display_column }, `form-${key}`));
+                                    idPickerSanityCheck(column, foreign_key);
+                                    return jsxRuntime.jsx(IdPicker, { column: key }, `form-${key}`);
                                 }
                                 if (variant === "date-picker") {
                                     return jsxRuntime.jsx(DatePicker, { column: key }, `form-${key}`);
@@ -4727,8 +4755,8 @@ const FormInternal = () => {
                             }
                             if (type === "array") {
                                 if (variant === "id-picker") {
-                                    idPickerSanityCheck(column, in_table, column_ref, display_column);
-                                    return (jsxRuntime.jsx(IdPicker, { column: key, in_table: in_table, column_ref: column_ref, display_column: display_column, isMultiple: true }, `form-${key}`));
+                                    idPickerSanityCheck(column, foreign_key);
+                                    return jsxRuntime.jsx(IdPicker, { column: key, isMultiple: true }, `form-${key}`);
                                 }
                                 if (variant === "tag-picker") {
                                     return jsxRuntime.jsx(TagPicker, { column: key }, `form-${key}`);
