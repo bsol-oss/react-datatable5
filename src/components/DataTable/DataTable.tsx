@@ -47,7 +47,21 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 
 export interface DataTableProps<TData = unknown> {
   children?: ReactNode | ReactNode[];
+  /**
+   * Data array for the table.
+   * 
+   * It will pass into as the data in `@tanstack/react-table`
+   * 
+   */
   data: TData[];
+
+  /**
+   * Column definitions for the table. 
+   * 
+   * It will pass into as the column definitions in `@tanstack/react-table`
+   * 
+   * @link https://tanstack.com/table/latest/docs/guide/column-defs
+   */
   columns: ColumnDef<TData, unknown>[];
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
@@ -71,6 +85,16 @@ export interface DataTableProps<TData = unknown> {
   setColumnVisibility: OnChangeFn<VisibilityState>;
 }
 
+/**
+ * DataTable will create a context to hold all values to
+ * help the render of the DataTable in serverside
+ *
+ *
+ * The query is required to be a GET request that can receive
+ * specified params and return a specified response
+ *
+ * @link https://tanstack.com/table/latest/docs/guide/column-defs
+ */
 export function DataTable<TData = unknown>({
   columns,
   data,
