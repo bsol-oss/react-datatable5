@@ -3,6 +3,8 @@ import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 import { ColumnDef, createColumnHelper, RowData } from "@tanstack/react-table";
 import { JSONSchema7 } from "json-schema";
 import { TextCell } from "../TextCell";
+import { RecordDisplay } from "../components/RecordDisplay";
+import { Grid } from "@chakra-ui/react";
 
 export interface GetColumnsConfigs<K extends RowData> {
   schema: JSONSchema7;
@@ -64,7 +66,11 @@ export const getColumns = <TData extends RowData>({
           // @ts-expect-error find type for unknown
           const value = props.row.original[column];
           if (typeof value === "object") {
-            return <TextCell>{JSON.stringify(value)}</TextCell>;
+            return (
+              <Grid overflow={"auto"}>
+                <RecordDisplay object={value} />
+              </Grid>
+            );
           }
           return <TextCell>{value}</TextCell>;
         },
