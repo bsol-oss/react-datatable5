@@ -21,7 +21,7 @@ import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
 import { getTableData } from "../utils/getTableData";
 import { snakeToLabel } from "../utils/snakeToLabel";
-import { CustomJSONSchema7 } from "./StringInputField";
+import { CustomJSONSchema7, ForeignKeyProps } from "./StringInputField";
 
 export interface IdPickerProps {
   column: string;
@@ -34,7 +34,8 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema, serverUrl, displayText } = useSchemaContext();
+  const { schema, serverUrl, displayText, idMap, setIdMap } =
+    useSchemaContext();
   const { fieldRequired } = displayText;
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
@@ -44,24 +45,25 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
   const { total, showing, typeToSearch } = displayText;
   const { gridColumn, gridRow, title, renderDisplay, foreign_key } = schema
     .properties[column] as CustomJSONSchema7;
-  const { table: in_table, column: column_ref, display_column } = foreign_key;
+  const {
+    table,
+    column: column_ref,
+    display_column,
+  } = foreign_key as ForeignKeyProps;
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const [page, setPage] = useState(0);
-  const [idMap, setIdMap] = useState<Record<string, Record<string, string>>>(
-    {}
-  );
   const ref = useRef<HTMLInputElement>(null);
   const selectedIds = watch(column) ?? [];
 
   const query = useQuery({
-    queryKey: [`idpicker`, { searchText, limit, page }],
+    queryKey: [`idpicker`, { column, searchText, limit, page }],
     queryFn: async () => {
       const data = await getTableData({
         serverUrl,
         searching: searchText ?? "",
-        in_table: in_table,
+        in_table: table,
         limit: limit,
         offset: page * 10,
       });
@@ -84,37 +86,9 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
     staleTime: 300000,
   });
 
-  const idQuery = useQuery({
-    queryKey: [`idpicker`, { selectedIds }],
-    queryFn: async () => {
-      const data = await getTableData({
-        serverUrl,
-        in_table: in_table,
-        limit: 1,
-        where: [{ id: column_ref, value: watchId }],
-      });
-      const newMap = Object.fromEntries(
-        (data ?? { data: [] }).data.map((item: Record<string, string>) => {
-          return [
-            item[column_ref],
-            {
-              ...item,
-            },
-          ];
-        })
-      );
-      setIdMap((state) => {
-        return { ...state, ...newMap };
-      });
-      return data;
-    },
-    enabled: (selectedIds ?? []).length > 0,
-    staleTime: 300000,
-  });
-
   const { isLoading, isFetching, data, isPending, isError } = query;
 
-  const dataList = useMemo(() => data?.data ?? [], [data]);
+  const dataList = data?.data ?? [];
   const count = data?.count ?? 0;
   const isDirty = (searchText?.length ?? 0) > 0;
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {

@@ -688,9 +688,6 @@ export const eventsFilesSchema2 = {
         column: "id",
         display_column: "name",
       },
-      renderDisplay: (item) => {
-        return `${item["name"]} ${item["version"]}`;
-      },
       description:
         "Missing description. Database type: uuid. Default value: null",
       gridColumn: "1/span 8",

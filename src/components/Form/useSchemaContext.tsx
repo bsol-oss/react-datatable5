@@ -8,9 +8,10 @@ export const useSchemaContext = () => {
     order,
     ignore,
     onSubmit,
-    preLoadedValues,
     rowNumber,
     displayText,
+    idMap,
+    setIdMap,
   } = useContext(SchemaFormContext);
 
   return {
@@ -19,8 +20,9 @@ export const useSchemaContext = () => {
     order,
     ignore,
     onSubmit,
-    preLoadedValues,
     rowNumber,
     displayText,
+    idMap,
+    setIdMap,
   };
 };

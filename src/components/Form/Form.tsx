@@ -2,7 +2,10 @@ import { SchemaFormContext } from "@/components/Form/SchemaFormContext";
 import { IdPicker } from "@/components/Form/components/IdPicker";
 import { IdViewer } from "@/components/Form/components/IdViewer";
 import { NumberInputField } from "@/components/Form/components/NumberInputField";
-import { StringInputField } from "@/components/Form/components/StringInputField";
+import {
+  ForeignKeyProps,
+  StringInputField,
+} from "@/components/Form/components/StringInputField";
 import { useSchemaContext } from "@/components/Form/useSchemaContext";
 import { clearEmptyString } from "@/components/Form/utils/clearEmptyString";
 import { idListSanityCheck } from "@/components/Form/utils/idListSanityCheck";
@@ -29,7 +32,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import dayjs from "dayjs";
 import { JSONSchema7 } from "json-schema";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   FieldValues,
   FormProvider,
@@ -39,10 +42,10 @@ import {
 } from "react-hook-form";
 import { BooleanPicker } from "./components/BooleanPicker";
 import { DatePicker } from "./components/DatePicker";
+import { EnumPicker } from "./components/EnumPicker";
+import { FilePicker } from "./components/FilePicker";
 import { ObjectInput } from "./components/ObjectInput";
 import { TagPicker } from "./components/TagPicker";
-import { FilePicker } from "./components/FilePicker";
-import { EnumPicker } from "./components/EnumPicker";
 
 export interface DisplayTextProps {
   title?: string;
@@ -80,6 +83,7 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
   display_column: string;
   gridColumn: string;
   gridRow: string;
+  foreign_key: ForeignKeyProps;
 }
 
 const idPickerSanityCheck = (
@@ -483,8 +487,9 @@ const FormInternal = <TData extends FieldValues>() => {
               return <></>;
             }
             //@ts-expect-error TODO: add more fields to support form-creation
-            const { type, variant, in_table, column_ref, foreign_key } = values;
+            const { type, variant, foreign_key } = values;
             if (type === "string") {
+              // @ts-expect-error enum should exists
               if (((values.enum ?? []) as string[]).length > 0) {
                 return <EnumPicker key={`form-${key}`} column={key} />;
               }
@@ -555,7 +560,7 @@ export const Form = <TData extends FieldValues>({
 }: FormProps<TData>) => {
   const queryClient = new QueryClient();
   const methods = useForm({ values: preLoadedValues });
-
+  const [idMap, setIdMap] = useState<Record<string, object>>({});
   const { properties } = schema;
 
   idListSanityCheck("order", order, properties as object);
@@ -578,6 +583,8 @@ export const Form = <TData extends FieldValues>({
           // @ts-expect-error TODO: find appropriate types
           onSubmit,
           rowNumber,
+          idMap,
+          setIdMap,
         }}
       >
         <FormProvider {...methods}>

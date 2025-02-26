@@ -1,5 +1,5 @@
 import { JSONSchema7 } from "json-schema";
-import { createContext } from "react";
+import { createContext, Dispatch, SetStateAction } from "react";
 import { FieldValues } from "react-hook-form";
 import { DisplayTextProps } from "./Form";
 
@@ -8,9 +8,11 @@ export interface SchemaFormContext<TData extends FieldValues> {
   serverUrl: string;
   order: string[];
   ignore: string[];
-  displayText: DisplayTextProps;
+  displayText: Partial<DisplayTextProps>;
   onSubmit?: (data: TData) => Promise<void>;
   rowNumber?: number | string;
+  idMap: Record<string, object>;
+  setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
 }
 
 //@ts-expect-error TODO: find appropriate type
