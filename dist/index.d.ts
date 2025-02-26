@@ -8,6 +8,7 @@ import { IconType } from 'react-icons';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { UseQueryResult } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
+import { ForeignKeyProps } from '@/components/Form/components/StringInputField';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import { RenderProps, Props } from '@bsol-oss/dayzed-react19';
 
@@ -481,6 +482,7 @@ interface CustomJSONSchema7Definition extends JSONSchema7 {
     display_column: string;
     gridColumn: string;
     gridRow: string;
+    foreign_key: ForeignKeyProps;
 }
 declare const Form: <TData extends FieldValues>({ schema, serverUrl, order, ignore, onSubmit, preLoadedValues, rowNumber, displayText, }: FormProps<TData>) => react_jsx_runtime.JSX.Element;
 

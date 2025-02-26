@@ -1,3 +1,4 @@
+import { ForeignKeyProps } from "@/components/Form/components/StringInputField";
 import { JSONSchema7 } from "json-schema";
 import { FieldValues, SubmitHandler } from "react-hook-form";
 export interface DisplayTextProps {
@@ -34,5 +35,6 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
     display_column: string;
     gridColumn: string;
     gridRow: string;
+    foreign_key: ForeignKeyProps;
 }
 export declare const Form: <TData extends FieldValues>({ schema, serverUrl, order, ignore, onSubmit, preLoadedValues, rowNumber, displayText, }: FormProps<TData>) => import("react/jsx-runtime").JSX.Element;
