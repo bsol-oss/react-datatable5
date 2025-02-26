@@ -3,6 +3,7 @@ import { IdPicker } from "@/components/Form/components/IdPicker";
 import { IdViewer } from "@/components/Form/components/IdViewer";
 import { NumberInputField } from "@/components/Form/components/NumberInputField";
 import {
+  CustomJSONSchema7,
   ForeignKeyProps,
   StringInputField,
 } from "@/components/Form/components/StringInputField";
@@ -46,6 +47,7 @@ import { EnumPicker } from "./components/EnumPicker";
 import { FilePicker } from "./components/FilePicker";
 import { ObjectInput } from "./components/ObjectInput";
 import { TagPicker } from "./components/TagPicker";
+import { RecordDisplay } from "../DataTable/components/RecordDisplay";
 
 export interface DisplayTextProps {
   title?: string;
@@ -119,8 +121,16 @@ const idPickerSanityCheck = (
 };
 
 const FormInternal = <TData extends FieldValues>() => {
-  const { schema, serverUrl, displayText, order, ignore, onSubmit, rowNumber } =
-    useSchemaContext();
+  const {
+    schema,
+    serverUrl,
+    displayText,
+    order,
+    ignore,
+    onSubmit,
+    rowNumber,
+    idMap,
+  } = useSchemaContext();
   const { title, submit, empty, cancel, submitSuccess, submitAgain, confirm } =
     displayText;
   const methods = useFormContext();
@@ -268,8 +278,7 @@ const FormInternal = <TData extends FieldValues>() => {
                     value={(validatedData ?? {})[column]}
                     {...{
                       column,
-                      gridColumn,
-                      gridRow,
+                      dataListItemProps: { gridColumn, gridRow },
                     }}
                   />
                 );
@@ -376,6 +385,7 @@ const FormInternal = <TData extends FieldValues>() => {
             if (type === "array") {
               if (variant === "tag-picker") {
                 const value = (validatedData ?? {})[column];
+
                 return (
                   <DataListItem
                     gridColumn={gridColumn ?? "span 4"}
@@ -400,6 +410,38 @@ const FormInternal = <TData extends FieldValues>() => {
                     label={`${snakeToLabel(column)}`}
                     {...getDataListProps(JSON.stringify(fileNames))}
                   />
+                );
+              }
+              if (variant === "id-picker") {
+                const value = (validatedData ?? {})[
+                  column
+                ] as unknown as string[];
+
+                if (schema.properties == undefined) {
+                  throw new Error("schema properties when using DatePicker");
+                }
+                const { foreign_key } = schema.properties[
+                  column
+                ] as CustomJSONSchema7;
+                if (foreign_key === undefined) {
+                  throw new Error("foreign_key when variant is id-picker");
+                }
+                const { display_column } = foreign_key;
+                const mapped = value.map((item) => {
+                  return idMap[item][display_column];
+                });
+                return (
+                  <Grid
+                    flexFlow={"column"}
+                    key={`form-${key}`}
+                    {...{
+                      gridColumn,
+                      gridRow,
+                    }}
+                  >
+                    <Text>{snakeToLabel(column)}</Text>
+                    <RecordDisplay object={mapped} />
+                  </Grid>
                 );
               }
               const objectString = JSON.stringify(
