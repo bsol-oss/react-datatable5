@@ -371,7 +371,7 @@ const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
         }, children: text }));
 };
 
-const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsxRuntime.jsx(md.MdFilterAlt, {}), }) => {
+const EditFilterButton$1 = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsxRuntime.jsx(md.MdFilterAlt, {}), }) => {
     const filterModal = react.useDisclosure();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(DialogRoot, { size: ["full", "full", "md", "md"], open: filterModal.open, children: jsxRuntime.jsxs(DialogRoot, { children: [jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", onClick: filterModal.onOpen, children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogHeader, { children: jsxRuntime.jsx(DialogTitle, { children: title }) }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "1rem", children: [jsxRuntime.jsx(TableFilter, {}), jsxRuntime.jsx(ResetFilteringButton, { text: resetText })] }) }), jsxRuntime.jsxs(DialogFooter, { children: [jsxRuntime.jsx(DialogActionTrigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { onClick: filterModal.onClose, children: closeText }) }), jsxRuntime.jsx(react.Button, { children: "Save" })] }), jsxRuntime.jsx(DialogCloseTrigger, {})] })] }) }) }));
 };
@@ -2450,7 +2450,7 @@ const TableViewer = () => {
         }) }));
 };
 
-const EditViewButton = ({ text, icon = jsxRuntime.jsx(io.IoMdEye, {}), title = "Edit View", }) => {
+const EditViewButton$1 = ({ text, icon = jsxRuntime.jsx(io.IoMdEye, {}), title = "Edit View", }) => {
     const viewModel = react.useDisclosure();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(DialogRoot, { children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", onClick: viewModel.onOpen, children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, {}), title] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsx(TableViewer, {}) }), jsxRuntime.jsx(DialogFooter, {})] })] }) }));
 };
@@ -3197,7 +3197,7 @@ const useDataTableServerContext = () => {
     return { ...context, isEmpty };
 };
 
-const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
+const ReloadButton$1 = ({ text = "Reload", variant = "icon", }) => {
     const { url } = useDataTableServerContext();
     const queryClient = reactQuery.useQueryClient();
     if (variant === "icon") {
@@ -3242,7 +3242,7 @@ const TableComponent = ({ render = () => {
     return render(table);
 };
 
-const TableFilterTags = () => {
+const TableFilterTags$1 = () => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsx(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }) => {
             return (jsxRuntime.jsx(Tag, { gap: "0.5rem", closable: true, cursor: "pointer", onClick: () => {
@@ -3477,7 +3477,7 @@ const ErrorAlert = ({ showMessage = true }) => {
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isError && (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsxs(react.Alert.Content, { children: [jsxRuntime.jsx(react.Alert.Title, { children: error.name }), showMessage && (jsxRuntime.jsx(react.Alert.Description, { children: error.message }))] })] })) }));
 };
 
-const FilterOptions = ({ column }) => {
+const FilterOptions$1 = ({ column }) => {
     const { table } = useDataTableContext();
     const tableColumn = table.getColumn(column);
     const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
@@ -3509,7 +3509,7 @@ const InputGroup = React__namespace.forwardRef(function InputGroup(props, ref) {
             }), endElement && (jsxRuntime.jsx(react.InputElement, { placement: "end", ...endElementProps, children: endElement }))] }));
 });
 
-const GlobalFilter = () => {
+const GlobalFilter$1 = () => {
     const { table } = useDataTableContext();
     const [searchTerm, setSearchTerm] = React.useState("");
     const debouncedSearchTerm = usehooks.useDebounce(searchTerm, 500);
@@ -4796,18 +4796,18 @@ exports.DataTableServer = DataTableServer;
 exports.DefaultCardTitle = DefaultCardTitle;
 exports.DefaultTable = DefaultTable;
 exports.DensityToggleButton = DensityToggleButton;
-exports.EditFilterButton = EditFilterButton;
+exports.EditFilterButton = EditFilterButton$1;
 exports.EditOrderButton = EditOrderButton;
 exports.EditSortingButton = EditSortingButton;
-exports.EditViewButton = EditViewButton;
+exports.EditViewButton = EditViewButton$1;
 exports.EmptyState = EmptyState;
 exports.ErrorAlert = ErrorAlert;
-exports.FilterOptions = FilterOptions;
+exports.FilterOptions = FilterOptions$1;
 exports.Form = Form;
-exports.GlobalFilter = GlobalFilter;
+exports.GlobalFilter = GlobalFilter$1;
 exports.PageSizeControl = PageSizeControl;
 exports.RecordDisplay = RecordDisplay;
-exports.ReloadButton = ReloadButton;
+exports.ReloadButton = ReloadButton$1;
 exports.ResetFilteringButton = ResetFilteringButton;
 exports.ResetSelectionButton = ResetSelectionButton;
 exports.ResetSortingButton = ResetSortingButton;
@@ -4819,7 +4819,7 @@ exports.TableCards = TableCards;
 exports.TableComponent = TableComponent;
 exports.TableControls = TableControls;
 exports.TableFilter = TableFilter;
-exports.TableFilterTags = TableFilterTags;
+exports.TableFilterTags = TableFilterTags$1;
 exports.TableFooter = TableFooter;
 exports.TableHeader = TableHeader;
 exports.TableLoadingComponent = TableLoadingComponent;
