@@ -1,5 +1,5 @@
 import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
-import { Box, BoxProps, Grid, Text } from "@chakra-ui/react";
+import { BoxProps, Grid, Text } from "@chakra-ui/react";
 
 export interface RecordDisplayProps {
   object: object | null;
@@ -7,7 +7,6 @@ export interface RecordDisplayProps {
 }
 
 export const RecordDisplay = ({ object, boxProps }: RecordDisplayProps) => {
-  console.log(object, "dkfos");
   if (object === null) {
     return <>null</>;
   }
