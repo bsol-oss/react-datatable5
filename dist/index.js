@@ -21,12 +21,12 @@ var hi2 = require('react-icons/hi2');
 var reactTable = require('@tanstack/react-table');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
 var bs = require('react-icons/bs');
-var gr = require('react-icons/gr');
-var hi = require('react-icons/hi');
+var usehooks = require('@uidotdev/usehooks');
 var reactQuery = require('@tanstack/react-query');
 var io5 = require('react-icons/io5');
+var gr = require('react-icons/gr');
+var hi = require('react-icons/hi');
 var axios = require('axios');
-var usehooks = require('@uidotdev/usehooks');
 var reactHookForm = require('react-hook-form');
 var dayjs = require('dayjs');
 
@@ -371,7 +371,7 @@ const ResetFilteringButton = ({ text = "Reset Filtering", }) => {
         }, children: text }));
 };
 
-const EditFilterButton$1 = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsxRuntime.jsx(md.MdFilterAlt, {}), }) => {
+const EditFilterButton = ({ text, title = "Edit Filter", closeText = "Close", resetText = "Reset", icon = jsxRuntime.jsx(md.MdFilterAlt, {}), }) => {
     const filterModal = react.useDisclosure();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(DialogRoot, { size: ["full", "full", "md", "md"], open: filterModal.open, children: jsxRuntime.jsxs(DialogRoot, { children: [jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", onClick: filterModal.onOpen, children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogHeader, { children: jsxRuntime.jsx(DialogTitle, { children: title }) }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "1rem", children: [jsxRuntime.jsx(TableFilter, {}), jsxRuntime.jsx(ResetFilteringButton, { text: resetText })] }) }), jsxRuntime.jsxs(DialogFooter, { children: [jsxRuntime.jsx(DialogActionTrigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { onClick: filterModal.onClose, children: closeText }) }), jsxRuntime.jsx(react.Button, { children: "Save" })] }), jsxRuntime.jsx(DialogCloseTrigger, {})] })] }) }) }));
 };
@@ -2450,7 +2450,7 @@ const TableViewer = () => {
         }) }));
 };
 
-const EditViewButton$1 = ({ text, icon = jsxRuntime.jsx(io.IoMdEye, {}), title = "Edit View", }) => {
+const EditViewButton = ({ text, icon = jsxRuntime.jsx(io.IoMdEye, {}), title = "Edit View", }) => {
     const viewModel = react.useDisclosure();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(DialogRoot, { children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", onClick: viewModel.onOpen, children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, {}), title] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsx(TableViewer, {}) }), jsxRuntime.jsx(DialogFooter, {})] })] }) }));
 };
@@ -3001,12 +3001,90 @@ const Tooltip = React__namespace.forwardRef(function Tooltip(props, ref) {
     return (jsxRuntime.jsxs(react.Tooltip.Root, { ...rest, children: [jsxRuntime.jsx(react.Tooltip.Trigger, { asChild: true, children: children }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, container: portalRef, children: jsxRuntime.jsx(react.Tooltip.Positioner, { children: jsxRuntime.jsxs(react.Tooltip.Content, { ref: ref, ...contentProps, children: [showArrow && (jsxRuntime.jsx(react.Tooltip.Arrow, { children: jsxRuntime.jsx(react.Tooltip.ArrowTip, {}) })), content] }) }) })] }));
 });
 
-const TableControls = ({ totalText = "Total:", fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, filterOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, }) => {
+const InputGroup = React__namespace.forwardRef(function InputGroup(props, ref) {
+    const { startElement, startElementProps, endElement, endElementProps, children, startOffset = "6px", endOffset = "6px", ...rest } = props;
+    return (jsxRuntime.jsxs(react.Group, { ref: ref, ...rest, children: [startElement && (jsxRuntime.jsx(react.InputElement, { pointerEvents: "none", ...startElementProps, children: startElement })), React__namespace.cloneElement(children, {
+                ...(startElement && {
+                    ps: `calc(var(--input-height) - ${startOffset})`,
+                }),
+                ...(endElement && { pe: `calc(var(--input-height) - ${endOffset})` }),
+                // @ts-expect-error chakra generated files
+                ...children.props,
+            }), endElement && (jsxRuntime.jsx(react.InputElement, { placement: "end", ...endElementProps, children: endElement }))] }));
+});
+
+const GlobalFilter = () => {
+    const { table } = useDataTableContext();
+    const [searchTerm, setSearchTerm] = React.useState("");
+    const debouncedSearchTerm = usehooks.useDebounce(searchTerm, 500);
+    React.useEffect(() => {
+        const searchHN = async () => {
+            table.setGlobalFilter(debouncedSearchTerm);
+        };
+        searchHN();
+    }, [debouncedSearchTerm]);
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(InputGroup, { flex: "1", startElement: jsxRuntime.jsx(md.MdSearch, {}), children: jsxRuntime.jsx(react.Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
+                    setSearchTerm(e.target.value);
+                } }) }) }));
+};
+
+const useDataTableServerContext = () => {
+    const context = React.useContext(DataTableServerContext);
+    const { query } = context;
+    const isEmpty = (query.data?.count ?? 0) <= 0;
+    return { ...context, isEmpty };
+};
+
+const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
+    const { url } = useDataTableServerContext();
+    const queryClient = reactQuery.useQueryClient();
+    if (variant === "icon") {
+        return (jsxRuntime.jsx(Tooltip, { showArrow: true, content: "This is the tooltip content", children: jsxRuntime.jsx(Button, { variant: "ghost", onClick: () => {
+                    queryClient.invalidateQueries({ queryKey: [url] });
+                }, "aria-label": "refresh", children: jsxRuntime.jsx(io5.IoReload, {}) }) }));
+    }
+    return (jsxRuntime.jsxs(Button, { variant: "ghost", onClick: () => {
+            queryClient.invalidateQueries({ queryKey: [url] });
+        }, children: [jsxRuntime.jsx(io5.IoReload, {}), " ", text] }));
+};
+
+const FilterOptions = ({ column }) => {
+    const { table } = useDataTableContext();
+    const tableColumn = table.getColumn(column);
+    const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: options.map((option) => {
+            const selected = table.getColumn(column)?.getFilterValue() === option;
+            return (jsxRuntime.jsxs(react.Button, { size: "sm", onClick: () => {
+                    if (selected) {
+                        table.setColumnFilters((state) => {
+                            return state.filter((filter) => {
+                                return filter.id !== column;
+                            });
+                        });
+                        return;
+                    }
+                    table.getColumn(column)?.setFilterValue(option);
+                }, variant: selected ? "solid" : "outline", display: "flex", gap: "0.25rem", children: [option, selected && jsxRuntime.jsx(md.MdClose, {})] }, option));
+        }) }));
+};
+
+const TableFilterTags = () => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }) => {
+            return (jsxRuntime.jsx(Tag, { gap: "0.5rem", closable: true, cursor: "pointer", onClick: () => {
+                    table.setColumnFilters(table.getState().columnFilters.filter((filter) => {
+                        return filter.value != value;
+                    }));
+                }, children: `${id}: ${value}` }, `${id}-${value}`));
+        }) }));
+};
+
+const TableControls = ({ totalText = "Total:", fitTableWidth = false, fitTableHeight = false, isMobile = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, filterOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, }) => {
     return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto 1fr auto", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", gap: "0.5rem", children: [jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsx(EditViewButton, { text: isMobile ? undefined : "View", icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsxRuntime.jsx(react.Spinner, { size: "sm" }), hasError && (jsxRuntime.jsx(Tooltip, { content: "An error occurred while fetching data", children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: "red.400" }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(EditFilterButton, { text: isMobile ? undefined : "Advanced Filter" }) })), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), filterOptions.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
                             return (jsxRuntime.jsxs(react.Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxRuntime.jsxs(react.Text, { children: [column, ":"] }), jsxRuntime.jsx(FilterOptions, { column: column })] }, column));
                         }) })), showFilterTags && (jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(TableFilterTags, {}) }))] }), jsxRuntime.jsx(react.Grid, { overflow: "auto", backgroundColor: "gray.50", _dark: {
                     backgroundColor: "gray.900",
-                }, children: children }), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsxs(react.Flex, { gap: "1rem", alignItems: "center", children: [jsxRuntime.jsx(PageSizeControl, {}), jsxRuntime.jsxs(react.Flex, { children: [jsxRuntime.jsx(react.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] })] }), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: jsxRuntime.jsx(TablePagination, {}) })] })] }));
+                }, children: children }), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsxs(react.Flex, { gap: "1rem", alignItems: "center", children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && (jsxRuntime.jsxs(react.Flex, { children: [jsxRuntime.jsx(react.Text, { paddingRight: "0.5rem", children: totalText }), jsxRuntime.jsx(RowCountText, {})] }))] }), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: showPagination && jsxRuntime.jsx(TablePagination, {}) })] })] }));
 };
 
 const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
@@ -3190,26 +3268,6 @@ const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = 
     return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { ...tableProps, children: [jsxRuntime.jsx(TableHeader, { ...tableHeaderProps }), jsxRuntime.jsx(TableBody, { ...tableBodyProps }), showFooter && jsxRuntime.jsx(TableFooter, { ...tableFooterProps })] }) }));
 };
 
-const useDataTableServerContext = () => {
-    const context = React.useContext(DataTableServerContext);
-    const { query } = context;
-    const isEmpty = (query.data?.count ?? 0) <= 0;
-    return { ...context, isEmpty };
-};
-
-const ReloadButton$1 = ({ text = "Reload", variant = "icon", }) => {
-    const { url } = useDataTableServerContext();
-    const queryClient = reactQuery.useQueryClient();
-    if (variant === "icon") {
-        return (jsxRuntime.jsx(Tooltip, { showArrow: true, content: "This is the tooltip content", children: jsxRuntime.jsx(Button, { variant: "ghost", onClick: () => {
-                    queryClient.invalidateQueries({ queryKey: [url] });
-                }, "aria-label": "refresh", children: jsxRuntime.jsx(io5.IoReload, {}) }) }));
-    }
-    return (jsxRuntime.jsxs(Button, { variant: "ghost", onClick: () => {
-            queryClient.invalidateQueries({ queryKey: [url] });
-        }, children: [jsxRuntime.jsx(io5.IoReload, {}), " ", text] }));
-};
-
 const TableCardContainer = ({ children, variant = "", ...props }) => {
     if (variant === "carousel") {
         return (jsxRuntime.jsx(react.Flex, { overflow: "scroll", gap: "1rem", children: children }));
@@ -3240,17 +3298,6 @@ const TableComponent = ({ render = () => {
 }, }) => {
     const { table } = useDataTableContext();
     return render(table);
-};
-
-const TableFilterTags$1 = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }) => {
-            return (jsxRuntime.jsx(Tag, { gap: "0.5rem", closable: true, cursor: "pointer", onClick: () => {
-                    table.setColumnFilters(table.getState().columnFilters.filter((filter) => {
-                        return filter.value != value;
-                    }));
-                }, children: `${id}: ${value}` }, `${id}-${value}`));
-        }) }));
 };
 
 const TableLoadingComponent = ({ render, }) => {
@@ -3475,53 +3522,6 @@ const ErrorAlert = ({ showMessage = true }) => {
     const { query } = useDataTableServerContext();
     const { isError, error } = query;
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isError && (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsxs(react.Alert.Content, { children: [jsxRuntime.jsx(react.Alert.Title, { children: error.name }), showMessage && (jsxRuntime.jsx(react.Alert.Description, { children: error.message }))] })] })) }));
-};
-
-const FilterOptions$1 = ({ column }) => {
-    const { table } = useDataTableContext();
-    const tableColumn = table.getColumn(column);
-    const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: options.map((option) => {
-            const selected = table.getColumn(column)?.getFilterValue() === option;
-            return (jsxRuntime.jsxs(react.Button, { size: "sm", onClick: () => {
-                    if (selected) {
-                        table.setColumnFilters((state) => {
-                            return state.filter((filter) => {
-                                return filter.id !== column;
-                            });
-                        });
-                        return;
-                    }
-                    table.getColumn(column)?.setFilterValue(option);
-                }, variant: selected ? "solid" : "outline", display: "flex", gap: "0.25rem", children: [option, selected && jsxRuntime.jsx(md.MdClose, {})] }, option));
-        }) }));
-};
-
-const InputGroup = React__namespace.forwardRef(function InputGroup(props, ref) {
-    const { startElement, startElementProps, endElement, endElementProps, children, startOffset = "6px", endOffset = "6px", ...rest } = props;
-    return (jsxRuntime.jsxs(react.Group, { ref: ref, ...rest, children: [startElement && (jsxRuntime.jsx(react.InputElement, { pointerEvents: "none", ...startElementProps, children: startElement })), React__namespace.cloneElement(children, {
-                ...(startElement && {
-                    ps: `calc(var(--input-height) - ${startOffset})`,
-                }),
-                ...(endElement && { pe: `calc(var(--input-height) - ${endOffset})` }),
-                // @ts-expect-error chakra generated files
-                ...children.props,
-            }), endElement && (jsxRuntime.jsx(react.InputElement, { placement: "end", ...endElementProps, children: endElement }))] }));
-});
-
-const GlobalFilter$1 = () => {
-    const { table } = useDataTableContext();
-    const [searchTerm, setSearchTerm] = React.useState("");
-    const debouncedSearchTerm = usehooks.useDebounce(searchTerm, 500);
-    React.useEffect(() => {
-        const searchHN = async () => {
-            table.setGlobalFilter(debouncedSearchTerm);
-        };
-        searchHN();
-    }, [debouncedSearchTerm]);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(InputGroup, { flex: "1", startElement: jsxRuntime.jsx(md.MdSearch, {}), children: jsxRuntime.jsx(react.Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
-                    setSearchTerm(e.target.value);
-                } }) }) }));
 };
 
 //@ts-expect-error TODO: find appropriate type
@@ -4796,18 +4796,18 @@ exports.DataTableServer = DataTableServer;
 exports.DefaultCardTitle = DefaultCardTitle;
 exports.DefaultTable = DefaultTable;
 exports.DensityToggleButton = DensityToggleButton;
-exports.EditFilterButton = EditFilterButton$1;
+exports.EditFilterButton = EditFilterButton;
 exports.EditOrderButton = EditOrderButton;
 exports.EditSortingButton = EditSortingButton;
-exports.EditViewButton = EditViewButton$1;
+exports.EditViewButton = EditViewButton;
 exports.EmptyState = EmptyState;
 exports.ErrorAlert = ErrorAlert;
-exports.FilterOptions = FilterOptions$1;
+exports.FilterOptions = FilterOptions;
 exports.Form = Form;
-exports.GlobalFilter = GlobalFilter$1;
+exports.GlobalFilter = GlobalFilter;
 exports.PageSizeControl = PageSizeControl;
 exports.RecordDisplay = RecordDisplay;
-exports.ReloadButton = ReloadButton$1;
+exports.ReloadButton = ReloadButton;
 exports.ResetFilteringButton = ResetFilteringButton;
 exports.ResetSelectionButton = ResetSelectionButton;
 exports.ResetSortingButton = ResetSortingButton;
@@ -4819,7 +4819,7 @@ exports.TableCards = TableCards;
 exports.TableComponent = TableComponent;
 exports.TableControls = TableControls;
 exports.TableFilter = TableFilter;
-exports.TableFilterTags = TableFilterTags$1;
+exports.TableFilterTags = TableFilterTags;
 exports.TableFooter = TableFooter;
 exports.TableHeader = TableHeader;
 exports.TableLoadingComponent = TableLoadingComponent;

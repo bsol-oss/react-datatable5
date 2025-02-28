@@ -304,12 +304,15 @@ interface TableControlsProps {
     showFilterName?: boolean;
     showFilterTags?: boolean;
     showReload?: boolean;
+    showPagination?: boolean;
+    showPageSizeControl?: boolean;
+    showPageCountText?: boolean;
     filterOptions?: string[];
     extraItems?: ReactNode;
     loading?: boolean;
     hasError?: boolean;
 }
-declare const TableControls: ({ totalText, fitTableWidth, fitTableHeight, isMobile, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, filterOptions, extraItems, loading, hasError, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
+declare const TableControls: ({ totalText, fitTableWidth, fitTableHeight, isMobile, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, filterOptions, extraItems, loading, hasError, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
 
 interface TableFooterProps {
     pinnedBgColor?: {
