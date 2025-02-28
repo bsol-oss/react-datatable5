@@ -2605,7 +2605,6 @@ const snakeToLabel = (str) => {
 };
 
 const RecordDisplay = ({ object, boxProps }) => {
-    console.log(object, "dkfos");
     if (object === null) {
         return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "null" });
     }
@@ -4807,6 +4806,7 @@ exports.FilterOptions = FilterOptions;
 exports.Form = Form;
 exports.GlobalFilter = GlobalFilter;
 exports.PageSizeControl = PageSizeControl;
+exports.RecordDisplay = RecordDisplay;
 exports.ReloadButton = ReloadButton;
 exports.ResetFilteringButton = ResetFilteringButton;
 exports.ResetSelectionButton = ResetSelectionButton;

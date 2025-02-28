@@ -103,3 +103,4 @@ export * from "./components/DatePicker/DatePicker";
 export * from "./components/DatePicker/getMultiDates";
 export * from "./components/DatePicker/getRangeDates";
 export * from "./components/DatePicker/RangeDatePicker";
+export * from "./components/DataTable/components/RecordDisplay";

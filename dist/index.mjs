@@ -2585,7 +2585,6 @@ const snakeToLabel = (str) => {
 };
 
 const RecordDisplay = ({ object, boxProps }) => {
-    console.log(object, "dkfos");
     if (object === null) {
         return jsx(Fragment, { children: "null" });
     }
@@ -4770,4 +4769,4 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
     }
 };
 
-export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, EmptyState, ErrorAlert, FilterOptions, Form, GlobalFilter, PageSizeControl, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, getColumns, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, widthSanityCheck };
+export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, EmptyState, ErrorAlert, FilterOptions, Form, GlobalFilter, PageSizeControl, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, getColumns, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, widthSanityCheck };
