@@ -3,17 +3,9 @@ import { ReactNode } from "react";
 import { BsExclamationCircleFill } from "react-icons/bs";
 import { MdOutlineViewColumn } from "react-icons/md";
 import { Tooltip } from "../../components/ui/tooltip";
-import {
-  EditFilterButton,
-  EditViewButton,
-  FilterOptions,
-  GlobalFilter,
-  PageSizeControl,
-  ReloadButton,
-  RowCountText,
-  TableFilterTags,
-  TablePagination,
-} from "../../index";
+import { PageSizeControl } from "../Controls/PageSizeControl";
+import { RowCountText } from "../Controls/RowCountText";
+import { TablePagination } from "../Controls/TablePagination";
 
 export interface TableControlsProps {
   totalText?: string;
