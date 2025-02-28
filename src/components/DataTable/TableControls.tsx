@@ -6,6 +6,12 @@ import { Tooltip } from "../../components/ui/tooltip";
 import { PageSizeControl } from "../Controls/PageSizeControl";
 import { RowCountText } from "../Controls/RowCountText";
 import { TablePagination } from "../Controls/TablePagination";
+import { EditViewButton } from "../Controls/EditViewButton";
+import { GlobalFilter } from "../Filter/GlobalFilter";
+import { EditFilterButton } from "../Controls/EditFilterButton";
+import { ReloadButton } from "./ReloadButton";
+import { FilterOptions } from "../Filter/FilterOptions";
+import { TableFilterTags } from "./TableFilterTags";
 
 export interface TableControlsProps {
   totalText?: string;
@@ -18,6 +24,9 @@ export interface TableControlsProps {
   showFilterName?: boolean;
   showFilterTags?: boolean;
   showReload?: boolean;
+  showPagination?: boolean;
+  showPageSizeControl?: boolean;
+  showPageCountText?: boolean;
   filterOptions?: string[];
   extraItems?: ReactNode;
   loading?: boolean;
@@ -35,6 +44,9 @@ export const TableControls = ({
   showFilterName = false,
   showFilterTags = false,
   showReload = false,
+  showPagination = true,
+  showPageSizeControl = true,
+  showPageCountText = true,
   filterOptions = [],
   extraItems = <></>,
   loading = false,
@@ -109,15 +121,15 @@ export const TableControls = ({
       </Grid>
       <Flex justifyContent={"space-between"}>
         <Flex gap={"1rem"} alignItems={"center"}>
-          <PageSizeControl />
-          <Flex>
-            <Text paddingRight={"0.5rem"}>{totalText}</Text>
-            <RowCountText />
-          </Flex>
+          {showPageSizeControl && <PageSizeControl />}
+          {showPageCountText && (
+            <Flex>
+              <Text paddingRight={"0.5rem"}>{totalText}</Text>
+              <RowCountText />
+            </Flex>
+          )}
         </Flex>
-        <Box justifySelf={"end"}>
-          <TablePagination />
-        </Box>
+        <Box justifySelf={"end"}>{showPagination && <TablePagination />}</Box>
       </Flex>
     </Grid>
   );
