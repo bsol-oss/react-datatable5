@@ -14,7 +14,6 @@ import {
   useTranslation,
 } from "react-i18next";
 import i18n from "i18next";
-import { useTransition } from "react";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
