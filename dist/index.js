@@ -29,6 +29,7 @@ var hi = require('react-icons/hi');
 var axios = require('axios');
 var reactHookForm = require('react-hook-form');
 var dayjs = require('dayjs');
+var ti = require('react-icons/ti');
 var reactI18next = require('react-i18next');
 
 function _interopNamespaceDefault(e) {
@@ -2570,8 +2571,8 @@ const PaginationPageText = React__namespace.forwardRef(function PaginationPageTe
         if (format === "short")
             return `${page} / ${totalPages}`;
         if (format === "compact")
-            return `${page} of ${totalPages}`;
-        return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} of ${count}`;
+            return `${page} / ${totalPages}`;
+        return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} / ${count}`;
     }, [format, page, totalPages, pageRange, count]);
     return (jsxRuntime.jsx(react.Text, { fontWeight: "medium", ref: ref, ...rest, children: content }));
 });
@@ -4329,23 +4330,22 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
 const FilePicker = ({ column }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { schema, translate } = useSchemaContext();
-    displayText;
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     if (schema.properties == undefined) {
         throw new Error("schema properties when using String Input Field");
     }
-    const { gridColumn, gridRow, title } = schema.properties[column];
+    const { gridColumn, gridRow } = schema.properties[column];
     const currentFiles = (watch(column) ?? []);
     return (jsxRuntime.jsxs(Field, { label: `${translate.t(`${column}.fieldLabel`)}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", display: "grid", gridTemplateRows: "auto 1fr auto", alignItems: "stretch", children: [jsxRuntime.jsx(FileDropzone, { onDrop: ({ files }) => {
                     const newFiles = files.filter(({ name }) => !currentFiles.some((cur) => cur.name === name));
                     setValue(column, [...currentFiles, ...newFiles]);
-                }, placeholder: translate.t(`${column}.fileDropzone`) }), jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", alignItems: "start", gap: 1, children: currentFiles.map((file) => {
-                    return (jsxRuntime.jsx(Tag, { cursor: "pointer", onClick: () => {
-                            setValue(column, currentFiles.filter(({ name }) => {
-                                return name !== file.name;
-                            }));
-                        }, children: file.name }));
+                }, placeholder: translate.t(`${column}.fileDropzone`) }), jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: 1, children: currentFiles.map((file) => {
+                    return (jsxRuntime.jsx(react.Card.Root, { variant: "subtle", children: jsxRuntime.jsxs(react.Card.Body, { gap: "2", cursor: "pointer", onClick: () => {
+                                setValue(column, currentFiles.filter(({ name }) => {
+                                    return name !== file.name;
+                                }));
+                            }, display: "flex", flexFlow: 'row', alignItems: 'center', padding: '2', children: [jsxRuntime.jsx(react.Box, { children: file.name }), jsxRuntime.jsx(ti.TiDeleteOutline, {})] }) }, file.name));
                 }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.fieldRequired`) }))] }));
 };
 

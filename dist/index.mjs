@@ -28,6 +28,7 @@ import { HiColorSwatch, HiOutlineInformationCircle } from 'react-icons/hi';
 import axios from 'axios';
 import { useFormContext, FormProvider, useForm as useForm$1 } from 'react-hook-form';
 import dayjs from 'dayjs';
+import { TiDeleteOutline } from 'react-icons/ti';
 import { useTranslation } from 'react-i18next';
 
 const DataTableContext = createContext({
@@ -2550,8 +2551,8 @@ const PaginationPageText = React.forwardRef(function PaginationPageText(props, r
         if (format === "short")
             return `${page} / ${totalPages}`;
         if (format === "compact")
-            return `${page} of ${totalPages}`;
-        return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} of ${count}`;
+            return `${page} / ${totalPages}`;
+        return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} / ${count}`;
     }, [format, page, totalPages, pageRange, count]);
     return (jsx(Text, { fontWeight: "medium", ref: ref, ...rest, children: content }));
 });
@@ -4309,23 +4310,22 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
 const FilePicker = ({ column }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
     const { schema, translate } = useSchemaContext();
-    displayText;
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     if (schema.properties == undefined) {
         throw new Error("schema properties when using String Input Field");
     }
-    const { gridColumn, gridRow, title } = schema.properties[column];
+    const { gridColumn, gridRow } = schema.properties[column];
     const currentFiles = (watch(column) ?? []);
     return (jsxs(Field, { label: `${translate.t(`${column}.fieldLabel`)}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", display: "grid", gridTemplateRows: "auto 1fr auto", alignItems: "stretch", children: [jsx(FileDropzone, { onDrop: ({ files }) => {
                     const newFiles = files.filter(({ name }) => !currentFiles.some((cur) => cur.name === name));
                     setValue(column, [...currentFiles, ...newFiles]);
-                }, placeholder: translate.t(`${column}.fileDropzone`) }), jsx(Flex, { flexFlow: "wrap", alignItems: "start", gap: 1, children: currentFiles.map((file) => {
-                    return (jsx(Tag, { cursor: "pointer", onClick: () => {
-                            setValue(column, currentFiles.filter(({ name }) => {
-                                return name !== file.name;
-                            }));
-                        }, children: file.name }));
+                }, placeholder: translate.t(`${column}.fileDropzone`) }), jsx(Flex, { flexFlow: "column", gap: 1, children: currentFiles.map((file) => {
+                    return (jsx(Card.Root, { variant: "subtle", children: jsxs(Card.Body, { gap: "2", cursor: "pointer", onClick: () => {
+                                setValue(column, currentFiles.filter(({ name }) => {
+                                    return name !== file.name;
+                                }));
+                            }, display: "flex", flexFlow: 'row', alignItems: 'center', padding: '2', children: [jsx(Box, { children: file.name }), jsx(TiDeleteOutline, {})] }) }, file.name));
                 }) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.fieldRequired`) }))] }));
 };
 
