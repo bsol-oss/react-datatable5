@@ -1,20 +1,21 @@
-import { DataListItem } from "@/components/ui/data-list";
+import { RecordDisplay } from "@/components/DataTable/components/RecordDisplay";
+import { DataListItemProps, Flex, Text } from "@chakra-ui/react";
+
+import {
+  HoverCardArrow,
+  HoverCardContent,
+  HoverCardRoot,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { useSchemaContext } from "../useSchemaContext";
-import { snakeToLabel } from "../utils/snakeToLabel";
 import { CustomJSONSchema7 } from "./StringInputField";
-import { DataListItemProps } from "@chakra-ui/react";
 
 export interface IdViewerProps {
   value: string | undefined;
   column: string;
-  dataListItemProps?: DataListItemProps;
 }
 
-export const IdViewer = ({
-  value,
-  column,
-  dataListItemProps,
-}: IdViewerProps) => {
+export const IdViewer = ({ value, column }: IdViewerProps) => {
   const { schema, idMap, translate } = useSchemaContext();
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
@@ -25,26 +26,28 @@ export const IdViewer = ({
   }
   const { display_column } = foreign_key;
 
-  const getDataListProps = (value: string | undefined) => {
-    if (value == undefined || value.length <= 0) {
-      return {
-        value: "<empty>",
-        color: "gray.400",
-      };
-    }
-    return {
-      value: value,
-    };
-  };
   if (value === undefined) {
-    return <>undefined</>;
+    return (
+      <Flex flexFlow={"column"}>
+        <Text>{translate.t(`${column}.fieldLabel`)}</Text>
+        <Text>{translate.t(`empty`)}</Text>
+      </Flex>
+    );
   }
 
   return (
-    <DataListItem
-      label={`${translate.t(`${column}.fieldLabel`)}`}
-      {...getDataListProps(idMap[value][display_column])}
-      {...dataListItemProps}
-    />
+    <Flex flexFlow={"column"}>
+      <Text>{translate.t(`${column}.fieldLabel`)}</Text>
+
+      <HoverCardRoot>
+        <HoverCardTrigger asChild>
+          <Text cursor={'pointer'}>{idMap[value][display_column]}</Text>
+        </HoverCardTrigger>
+        <HoverCardContent>
+          <HoverCardArrow />
+          <RecordDisplay object={idMap[value]} />
+        </HoverCardContent>
+      </HoverCardRoot>
+    </Flex>
   );
 };
