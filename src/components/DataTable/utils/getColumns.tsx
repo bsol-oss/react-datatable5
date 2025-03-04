@@ -5,6 +5,7 @@ import { JSONSchema7 } from "json-schema";
 import { TextCell } from "../TextCell";
 import { RecordDisplay } from "../components/RecordDisplay";
 import { Grid } from "@chakra-ui/react";
+import { UseTranslationResponse } from "react-i18next";
 
 export interface GetColumnsConfigs<K extends RowData> {
   schema: JSONSchema7;
@@ -14,6 +15,7 @@ export interface GetColumnsConfigs<K extends RowData> {
     [key in K as string]?: object;
   };
   defaultWidth?: number;
+  translate?: UseTranslationResponse<any, any>;
 }
 
 export const widthSanityCheck = <K extends RowData>(
@@ -47,11 +49,19 @@ export const getColumns = <TData extends RowData>({
   width = [],
   meta = {},
   defaultWidth = 400,
+  translate,
 }: GetColumnsConfigs<TData>): ColumnDef<TData>[] => {
   const { properties } = schema;
   idListSanityCheck("ignore", ignore as string[], properties as object);
   widthSanityCheck(width, ignore, properties as object);
   idListSanityCheck("meta", Object.keys(meta), properties as object);
+
+  const getColumn = ({ column }) => {
+    if (translate !== undefined) {
+      return translate.t(`${column}`);
+    }
+    return snakeToLabel(column);
+  };
   const keys = Object.keys(properties as object);
   const ignored = keys.filter((key) => {
     return !ignore.some((shouldIgnoreKey) => key === shouldIgnoreKey);
@@ -68,7 +78,7 @@ export const getColumns = <TData extends RowData>({
           if (typeof value === "object") {
             return (
               <Grid overflow={"auto"}>
-                <RecordDisplay object={value} />
+                <RecordDisplay object={value} {...{ translate }} />
               </Grid>
             );
           }
@@ -77,14 +87,14 @@ export const getColumns = <TData extends RowData>({
         header: (columnHeader) => {
           const displayName =
             columnHeader.column.columnDef.meta?.displayName ??
-            snakeToLabel(column);
+            getColumn({ column });
 
           return <span>{displayName}</span>;
         },
         footer: (columnFooter) => {
           const displayName =
             columnFooter.column.columnDef.meta?.displayName ??
-            snakeToLabel(column);
+            getColumn({ column });
 
           return <span>{displayName}</span>;
         },
