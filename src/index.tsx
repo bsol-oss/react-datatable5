@@ -116,6 +116,7 @@ export * from "./components/Filter/FilterOptions";
 export * from "./components/Filter/GlobalFilter";
 
 export * from "./components/Form/Form";
+export * from "./components/Form/useForm";
 
 export * from "./components/DatePicker/DatePicker";
 export * from "./components/DatePicker/getMultiDates";
