@@ -5,14 +5,14 @@ import React__default, { ReactNode, Dispatch, SetStateAction } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import { ImageProps, TableHeaderProps as TableHeaderProps$1, TableRootProps, GridProps, CardBodyProps, FlexProps, TextProps, BoxProps } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
+import * as react_i18next from 'react-i18next';
+import { UseTranslationResponse } from 'react-i18next';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { UseQueryResult } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 import { ForeignKeyProps } from '@/components/Form/components/StringInputField';
 import * as react_hook_form from 'react-hook-form';
 import { FieldValues, UseFormReturn, SubmitHandler } from 'react-hook-form';
-import * as react_i18next from 'react-i18next';
-import { UseTranslationResponse } from 'react-i18next';
 import { RenderProps, Props } from '@bsol-oss/dayzed-react19';
 
 interface DensityToggleButtonProps {
@@ -88,8 +88,9 @@ declare const CardHeader: <TData>({ row, imageColumnId, titleColumnId, tagColumn
 
 interface DataDisplayProps {
     variant?: "horizontal" | "stats" | "";
+    translate?: UseTranslationResponse<any, any>;
 }
-declare const DataDisplay: ({ variant }: DataDisplayProps) => react_jsx_runtime.JSX.Element;
+declare const DataDisplay: ({ variant, translate }: DataDisplayProps) => react_jsx_runtime.JSX.Element;
 
 type DensityState = "sm" | "md" | "lg";
 interface DensityTableState {

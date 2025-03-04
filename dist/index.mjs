@@ -2610,8 +2610,14 @@ const formatValue = (value) => {
     }
     throw new Error(`value is unknown, ${typeof value}`);
 };
-const DataDisplay = ({ variant = "" }) => {
+const DataDisplay = ({ variant = "", translate }) => {
     const { table } = useDataTableContext();
+    const getLabel = ({ columnId }) => {
+        if (translate !== undefined) {
+            return translate.t(`${columnId}`);
+        }
+        return snakeToLabel(columnId);
+    };
     if (variant == "horizontal") {
         return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
                 return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", children: row.getVisibleCells().map((cell) => {
@@ -2621,7 +2627,7 @@ const DataDisplay = ({ variant = "" }) => {
                                 }
                                 const value = cell.getValue();
                                 if (typeof value === "object") {
-                                    return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(RecordDisplay, { boxProps: {
+                                    return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(RecordDisplay, { boxProps: {
                                                     borderWidth: 1,
                                                     borderRadius: 4,
                                                     borderColor: "gray.400",
@@ -2629,7 +2635,7 @@ const DataDisplay = ({ variant = "" }) => {
                                                     paddingY: 2,
                                                 }, object: value })] }, cell.id));
                                 }
-                                return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
+                                return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                             }) }) }) }, `chakra-table-card-${row.id}`));
             }) }));
     }
@@ -2642,7 +2648,7 @@ const DataDisplay = ({ variant = "" }) => {
                                 }
                                 const value = cell.getValue();
                                 if (typeof value === "object") {
-                                    return (jsxs(DataList.Item, { display: "inline-flex", flexFlow: "column", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(RecordDisplay, { boxProps: {
+                                    return (jsxs(DataList.Item, { display: "inline-flex", flexFlow: "column", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(RecordDisplay, { boxProps: {
                                                     borderWidth: 1,
                                                     borderRadius: 4,
                                                     borderColor: "gray.400",
@@ -2650,7 +2656,7 @@ const DataDisplay = ({ variant = "" }) => {
                                                     paddingY: 2,
                                                 }, object: value })] }));
                                 }
-                                return (jsxs(DataList.Item, { display: "flex", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
+                                return (jsxs(DataList.Item, { display: "flex", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                             }) }) }) }, `chakra-table-card-${row.id}`));
             }) }));
     }
@@ -2662,7 +2668,7 @@ const DataDisplay = ({ variant = "" }) => {
                             }
                             const value = cell.getValue();
                             if (typeof value === "object") {
-                                return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(RecordDisplay, { boxProps: {
+                                return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(RecordDisplay, { boxProps: {
                                                 borderWidth: 1,
                                                 borderRadius: 4,
                                                 borderColor: "gray.400",
@@ -2670,7 +2676,7 @@ const DataDisplay = ({ variant = "" }) => {
                                                 paddingY: 2,
                                             }, object: value })] }, cell.id));
                             }
-                            return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: snakeToLabel(cell.column.id) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
+                            return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
                         }) }) }) }, `chakra-table-card-${row.id}`));
         }) }));
 };
