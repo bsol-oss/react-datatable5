@@ -9,9 +9,9 @@ export const useSchemaContext = () => {
     ignore,
     onSubmit,
     rowNumber,
-    displayText,
     idMap,
     setIdMap,
+    translate,
   } = useContext(SchemaFormContext);
 
   return {
@@ -21,8 +21,8 @@ export const useSchemaContext = () => {
     ignore,
     onSubmit,
     rowNumber,
-    displayText,
     idMap,
     setIdMap,
+    translate,
   };
 };

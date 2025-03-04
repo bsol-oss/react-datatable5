@@ -15,11 +15,11 @@ export const IdViewer = ({
   column,
   dataListItemProps,
 }: IdViewerProps) => {
-  const { schema, idMap } = useSchemaContext();
+  const { schema, idMap, translate } = useSchemaContext();
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
-  const { title, foreign_key } = schema.properties[column] as CustomJSONSchema7;
+  const { foreign_key } = schema.properties[column] as CustomJSONSchema7;
   if (foreign_key === undefined) {
     throw new Error("foreign_key when variant is id-picker");
   }
@@ -42,10 +42,9 @@ export const IdViewer = ({
 
   return (
     <DataListItem
-      label={`${title ?? snakeToLabel(column)}`}
+      label={`${translate.t(`${column}.fieldLabel`)}`}
       {...getDataListProps(idMap[value][display_column])}
       {...dataListItemProps}
-
     />
   );
 };

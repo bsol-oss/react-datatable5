@@ -14,7 +14,6 @@ import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
 import { filterArray } from "../utils/filterArray";
-import { snakeToLabel } from "../utils/snakeToLabel";
 import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface IdPickerProps {
@@ -28,14 +27,13 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema, displayText } = useSchemaContext();
-  const { fieldRequired, total, showing, typeToSearch } = displayText;
+  const { schema, translate } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
-  const { gridColumn, gridRow, title, renderDisplay } = schema.properties[
+  const { gridColumn, gridRow, renderDisplay } = schema.properties[
     column
   ] as CustomJSONSchema7;
   const [searchText, setSearchText] = useState<string>();
@@ -56,7 +54,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
 
   return (
     <Field
-      label={`${title ?? snakeToLabel(column)}`}
+      label={`${translate.t(`${column}.fieldLabel`)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -75,7 +73,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
               <Tag
                 closable
                 onClick={() => {
-                  setSelectedEnums((state) => state.filter((id) => id != item));
+                  // setSelectedEnums((state) => state.filter((id) => id != item));
                   setValue(
                     column,
                     watchEnums.filter((id: string) => id != item)
@@ -117,7 +115,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
         <PopoverContent>
           <PopoverBody display={"grid"} gap={1}>
             <Input
-              placeholder={typeToSearch ?? "Type to search"}
+              placeholder={translate.t(`${column}.typeToSearch`)}
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
@@ -126,7 +124,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
               ref={ref}
             />
             <PopoverTitle />
-            <Text>{`${total ?? "Total"}: ${count}, ${showing ?? "Showing"} ${limit}`}</Text>
+            <Text>{`${translate.t(`${column}.total`)}: ${count}, ${translate.t(`${column}.showing`)} ${limit}`}</Text>
 
             <Grid
               gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
@@ -169,9 +167,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
       </PopoverRoot>
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {fieldRequired ?? "The field is requried"}
-        </Text>
+        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
       )}
     </Field>
   );

@@ -1,5 +1,5 @@
 import ChakraDatePicker from "@/components/DatePicker/DatePicker";
-import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
+import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import {
   PopoverBody,
@@ -8,12 +8,11 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Text } from "@chakra-ui/react";
+import dayjs from "dayjs";
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../useSchemaContext";
-import { useState } from "react";
-import { Text } from "@chakra-ui/react";
-import { Button } from "@/components/ui/button";
-import dayjs from "dayjs";
 import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface DatePickerProps {
@@ -26,8 +25,7 @@ export const DatePicker = ({ column }: DatePickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema, displayText } = useSchemaContext();
-  const { fieldRequired } = displayText;
+  const { schema, translate } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const [open, setOpen] = useState(false);
@@ -35,12 +33,12 @@ export const DatePicker = ({ column }: DatePickerProps) => {
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
-  const { gridColumn, gridRow, title } = schema.properties[
+  const { gridColumn, gridRow } = schema.properties[
     column
   ] as CustomJSONSchema7;
   return (
     <Field
-      label={`${title ?? snakeToLabel(column)}`}
+      label={`${translate.t(`${column}.fieldLabel`)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -64,11 +62,13 @@ export const DatePicker = ({ column }: DatePickerProps) => {
             {selectedDate !== undefined ? selectedDate : ""}
           </Button>
         </PopoverTrigger>
-        <PopoverContent >
+        <PopoverContent>
           <PopoverBody>
             <PopoverTitle />
             <ChakraDatePicker
+              // @ts-expect-error TODO: find appropriate types
               selected={new Date(selectedDate)}
+              // @ts-expect-error TODO: find appropriate types
               onDateSelected={({ selected, selectable, date }) => {
                 setValue(column, dayjs(date).format("YYYY-MM-DD"));
                 setOpen(false);
@@ -79,9 +79,7 @@ export const DatePicker = ({ column }: DatePickerProps) => {
       </PopoverRoot>
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {fieldRequired ?? "The field is requried"}
-        </Text>
+        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
       )}
     </Field>
   );

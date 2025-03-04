@@ -5,6 +5,8 @@ import { eventsSchema } from "../schema";
 import { Provider } from "@/components/ui/provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useForm } from "@/components/Form/useForm";
+import { I18nextProvider, initReactI18next } from "react-i18next";
+import i18n from "i18next";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -20,25 +22,44 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 const queryClient = new QueryClient();
 
+i18n
+  .use(initReactI18next) // bind react-i18next to the instance
+  .init({
+    fallbackLng: "en",
+    debug: true,
+
+    interpolation: {
+      escapeValue: false, // not needed for react!!
+    },
+  });
+
 export const Event: Story = {
   render: () => {
-    const { form, idMap, setIdMap } = useForm({});
-
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <Form
-            schema={eventsSchema as JSONSchema7}
-            order={[]}
-            ignore={["id", "created_at", "updated_at"]}
-            serverUrl={"http://localhost:8081"}
-            preLoadedValues={{}}
-            {...{ form, idMap, setIdMap }}
-          />
+          <I18nextProvider i18n={i18n} defaultNS={"translation"}>
+            <SomeForm />
+          </I18nextProvider>
         </QueryClientProvider>
       </Provider>
     );
   },
+};
+
+const SomeForm = () => {
+  const { form, idMap, setIdMap, translate } = useForm({keyPrefix: "nice"});
+
+  return (
+    <Form
+      schema={eventsSchema as JSONSchema7}
+      order={[]}
+      ignore={["id", "created_at", "updated_at"]}
+      serverUrl={"http://localhost:8081"}
+      preLoadedValues={{}}
+      {...{ form, idMap, setIdMap, translate }}
+    />
+  );
 };
 
 export const EventRow: Story = {
@@ -77,18 +98,6 @@ export const EventRow: Story = {
             },
           }}
           rowNumber={9}
-          displayText={{
-            title: "標題",
-            addNew: "新增",
-            submit: "提交",
-            confirm: "確定",
-            save: "儲存",
-            empty: "空",
-            cancel: "取消",
-            submitSuccess: "提交成功",
-            submitAgain: "提交",
-            fieldRequired: "必填項目",
-          }}
         />
       </Provider>
     );

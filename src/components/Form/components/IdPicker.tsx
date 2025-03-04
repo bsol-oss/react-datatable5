@@ -15,12 +15,11 @@ import {
 import { Tag } from "@/components/ui/tag";
 import { Box, Flex, Grid, HStack, Input, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { ChangeEvent, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
 import { getTableData } from "../utils/getTableData";
-import { snakeToLabel } from "../utils/snakeToLabel";
 import { CustomJSONSchema7, ForeignKeyProps } from "./StringInputField";
 
 export interface IdPickerProps {
@@ -34,17 +33,15 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema, serverUrl, displayText, idMap, setIdMap } =
-    useSchemaContext();
-  const { fieldRequired } = displayText;
+  const { schema, serverUrl, idMap, setIdMap, translate } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   if (schema.properties == undefined) {
-    throw new Error("schema properties when using DatePicker");
+    throw new Error("schema properties is undefined when using DatePicker");
   }
-  const { total, showing, typeToSearch } = displayText;
-  const { gridColumn, gridRow, title, renderDisplay, foreign_key } = schema
-    .properties[column] as CustomJSONSchema7;
+  const { gridColumn, gridRow, renderDisplay, foreign_key } = schema.properties[
+    column
+  ] as CustomJSONSchema7;
   const {
     table,
     column: column_ref,
@@ -112,7 +109,7 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
 
   return (
     <Field
-      label={`${title ?? snakeToLabel(column)}`}
+      label={`${translate.t(`${column}.fieldLabel`)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -177,7 +174,7 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
         <PopoverContent>
           <PopoverBody display={"grid"} gap={1}>
             <Input
-              placeholder={typeToSearch ?? "Type To Search"}
+              placeholder={translate.t(`${column}.typeToSearch`)}
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
@@ -194,7 +191,7 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
                 {isError && <>isError</>}
                 <Text
                   justifySelf={"center"}
-                >{`${total ?? "Total"} ${count}, ${showing ?? "Showing"} ${limit}`}</Text>
+                >{`${translate.t(`${column}.total`)} ${count}, ${translate.t(`${column}.showing`)} ${limit}`}</Text>
                 <Grid
                   gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
                   overflow={"auto"}
@@ -237,7 +234,11 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
                   </Flex>
                   {isDirty && (
                     <>
-                      {dataList.length <= 0 && <Text>Empty Search Result</Text>}{" "}
+                      {dataList.length <= 0 && (
+                        <Text>
+                          {translate.t(`${column}.emptySearchResult`)}
+                        </Text>
+                      )}
                     </>
                   )}
                 </Grid>
@@ -262,9 +263,7 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
       </PopoverRoot>
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {fieldRequired ?? "The field is requried"}
-        </Text>
+        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
       )}
     </Field>
   );

@@ -1,4 +1,3 @@
-import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 import { CheckboxCard } from "@/components/ui/checkbox-card";
 import { Field } from "@/components/ui/field";
 import { Text } from "@chakra-ui/react";
@@ -15,22 +14,20 @@ export const BooleanPicker = ({ column }: DatePickerProps) => {
     watch,
     formState: { errors },
     setValue,
-    getValues,
   } = useFormContext();
-  const { schema, displayText } = useSchemaContext();
-  const { fieldRequired } = displayText;
+  const { schema, translate } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const value = watch(column);
   if (schema.properties == undefined) {
     throw new Error("schema properties when using BooleanPicker");
   }
-  const { gridColumn, gridRow, title } = schema.properties[
+  const { gridColumn, gridRow } = schema.properties[
     column
   ] as CustomJSONSchema7;
   return (
     <Field
-      label={`${title ?? snakeToLabel(column)}`}
+      label={`${translate.t(`${column}.fieldLabel`)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -46,9 +43,7 @@ export const BooleanPicker = ({ column }: DatePickerProps) => {
         }}
       />
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {fieldRequired ?? "The field is requried"}
-        </Text>
+        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
       )}
     </Field>
   );

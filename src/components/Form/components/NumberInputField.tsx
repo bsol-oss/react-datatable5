@@ -6,7 +6,6 @@ import { Text } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
 import { useSchemaContext } from "../useSchemaContext";
-import { snakeToLabel } from "../utils/snakeToLabel";
 import { CustomJSONSchema7 } from "./StringInputField";
 export interface NumberInputFieldProps {
   column: string;
@@ -17,19 +16,18 @@ export const NumberInputField = ({ column }: NumberInputFieldProps) => {
     register,
     formState: { errors },
   } = useFormContext();
-  const { schema, displayText } = useSchemaContext();
-  const { fieldRequired } = displayText;
+  const { schema, translate } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   if (schema.properties == undefined) {
     throw new Error("schema properties when using String Input Field");
   }
-  const { gridColumn, gridRow, title } = schema.properties[
+  const { gridColumn, gridRow } = schema.properties[
     column
   ] as CustomJSONSchema7;
   return (
     <Field
-      label={`${title ?? snakeToLabel(column)}`}
+      label={`${translate.t(`${column}.fieldLabel`)}`}
       required={isRequired}
       {...{ gridColumn, gridRow }}
     >
@@ -39,9 +37,7 @@ export const NumberInputField = ({ column }: NumberInputFieldProps) => {
         />
       </NumberInputRoot>
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {fieldRequired ?? "The field is requried"}
-        </Text>
+        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
       )}
     </Field>
   );

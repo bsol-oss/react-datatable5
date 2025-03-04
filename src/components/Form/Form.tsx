@@ -47,24 +47,7 @@ import { EnumPicker } from "./components/EnumPicker";
 import { FilePicker } from "./components/FilePicker";
 import { ObjectInput } from "./components/ObjectInput";
 import { TagPicker } from "./components/TagPicker";
-
-export interface DisplayTextProps {
-  title?: string;
-  addNew?: string;
-  submit?: string;
-  confirm?: string;
-  save?: string;
-  empty?: string;
-  cancel?: string;
-  submitSuccess?: string;
-  submitAgain?: string;
-  fieldRequired?: string;
-  total: string;
-  showing: string;
-  close: string;
-  typeToSearch: string;
-  showMore: string;
-}
+import { UseTranslationResponse } from "react-i18next";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -72,12 +55,12 @@ export interface FormProps<TData extends FieldValues> {
   idMap: Record<string, object>;
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
   form: UseFormReturn;
+  translate: UseTranslationResponse<any, any>;
   order?: string[];
   ignore?: string[];
   onSubmit?: SubmitHandler<TData>;
   preLoadedValues?: object;
   rowNumber?: number | string;
-  displayText?: Partial<DisplayTextProps>;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -126,15 +109,14 @@ const FormInternal = <TData extends FieldValues>() => {
   const {
     schema,
     serverUrl,
-    displayText,
     order,
     ignore,
     onSubmit,
     rowNumber,
     idMap,
+    translate,
   } = useSchemaContext();
-  const { title, submit, empty, cancel, submitSuccess, submitAgain, confirm } =
-    displayText;
+
   const methods = useFormContext();
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -210,7 +192,7 @@ const FormInternal = <TData extends FieldValues>() => {
   const getDataListProps = (value: string | undefined) => {
     if (value == undefined || value.length <= 0) {
       return {
-        value: `<${empty ?? "Empty"}>`,
+        value: `<${translate.t("empty") ?? "Empty"}>`,
         color: "gray.400",
       };
     }
@@ -222,12 +204,10 @@ const FormInternal = <TData extends FieldValues>() => {
   if (isSuccess) {
     return (
       <Grid gap={2}>
-        <Heading>{title ?? snakeToLabel(schema.title ?? "")}</Heading>
+        <Heading>{translate.t("title")}</Heading>
         <Alert.Root status="success">
           <Alert.Indicator />
-          <Alert.Title>
-            {submitSuccess ?? "Data uploaded to the server. Fire on!"}
-          </Alert.Title>
+          <Alert.Title>{translate.t("submitSuccess")}</Alert.Title>
         </Alert.Root>
         <Button
           onClick={() => {
@@ -240,7 +220,7 @@ const FormInternal = <TData extends FieldValues>() => {
           }}
           formNoValidate
         >
-          {submitAgain ?? "Submit Again"}
+          {translate.t("submitAgain")}
         </Button>
       </Grid>
     );
@@ -248,7 +228,7 @@ const FormInternal = <TData extends FieldValues>() => {
   if (isConfirming) {
     return (
       <Grid gap={2}>
-        <Heading>{title ?? snakeToLabel(schema.title ?? "")}</Heading>
+        <Heading> {translate.t("title")}</Heading>
         <DataListRoot
           orientation="horizontal"
           gap={4}
@@ -294,7 +274,7 @@ const FormInternal = <TData extends FieldValues>() => {
                       gridColumn={gridColumn ?? "span 4"}
                       gridRow={gridRow ?? "span 1"}
                       key={`form-${key}`}
-                      label={`${snakeToLabel(column)}`}
+                      label={`${translate.t(`${column}.fieldLabel`)}`}
                       {...getDataListProps(undefined)}
                     />
                   );
@@ -305,7 +285,7 @@ const FormInternal = <TData extends FieldValues>() => {
                     gridColumn={gridColumn ?? "span 4"}
                     gridRow={gridRow ?? "span 1"}
                     key={`form-${key}`}
-                    label={`${snakeToLabel(column)}`}
+                    label={`${translate.t(`${column}.fieldLabel`)}`}
                     {...getDataListProps(date)}
                   />
                 );
@@ -315,7 +295,7 @@ const FormInternal = <TData extends FieldValues>() => {
                   gridColumn={gridColumn ?? "span 4"}
                   gridRow={gridRow ?? "span 4"}
                   key={`form-${key}`}
-                  label={`${snakeToLabel(column)}`}
+                  label={`${translate.t(`${column}.fieldLabel`)}`}
                   {...getDataListProps((validatedData ?? {})[column])}
                 />
               );
@@ -328,7 +308,7 @@ const FormInternal = <TData extends FieldValues>() => {
                     gridColumn={gridColumn ?? "span 4"}
                     gridRow={gridRow ?? "span 1"}
                     key={`form-${key}`}
-                    label={`${snakeToLabel(column)}`}
+                    label={`${translate.t(`${column}.fieldLabel`)}`}
                     {...getDataListProps(undefined)}
                   />
                 );
@@ -341,7 +321,7 @@ const FormInternal = <TData extends FieldValues>() => {
                   gridColumn={gridColumn ?? "span 4"}
                   gridRow={gridRow ?? "span 1"}
                 >
-                  <Text>{snakeToLabel(column)}</Text>
+                  <Text>{translate.t(`input.${column}`)}</Text>
                   <DataListRoot
                     orientation={"horizontal"}
                     padding={4}
@@ -368,7 +348,7 @@ const FormInternal = <TData extends FieldValues>() => {
                   gridColumn={gridColumn ?? "span 4"}
                   gridRow={gridRow ?? "span 4"}
                   key={`form-${key}`}
-                  label={`${snakeToLabel(column)}`}
+                  label={`${translate.t(`${column}.fieldLabel`)}`}
                   {...getDataListProps((validatedData ?? {})[column])}
                 />
               );
@@ -379,7 +359,7 @@ const FormInternal = <TData extends FieldValues>() => {
                   gridColumn={gridColumn ?? "span 4"}
                   gridRow={gridRow ?? "span 4"}
                   key={`form-${key}`}
-                  label={`${snakeToLabel(column)}`}
+                  label={`${translate.t(`${column}.fieldLabel`)}`}
                   {...getDataListProps((validatedData ?? {})[column])}
                 />
               );
@@ -393,7 +373,7 @@ const FormInternal = <TData extends FieldValues>() => {
                     gridColumn={gridColumn ?? "span 4"}
                     gridRow={gridRow ?? "span 1"}
                     key={`form-${key}`}
-                    label={`${snakeToLabel(column)}`}
+                    label={`${translate.t(`${column}.fieldLabel`)}`}
                     {...getDataListProps(JSON.stringify(value))}
                   />
                 );
@@ -409,7 +389,7 @@ const FormInternal = <TData extends FieldValues>() => {
                     gridColumn={gridColumn ?? "span 4"}
                     gridRow={gridRow ?? "span 4"}
                     key={`form-${key}`}
-                    label={`${snakeToLabel(column)}`}
+                    label={`${translate.t(`${column}.fieldLabel`)}`}
                     {...getDataListProps(JSON.stringify(fileNames))}
                   />
                 );
@@ -441,7 +421,7 @@ const FormInternal = <TData extends FieldValues>() => {
                       gridRow,
                     }}
                   >
-                    <Text>{snakeToLabel(column)}</Text>
+                    <Text>{translate.t(`input.${column}`)}</Text>
                     <RecordDisplay object={mapped} />
                   </Grid>
                 );
@@ -454,7 +434,7 @@ const FormInternal = <TData extends FieldValues>() => {
                   gridColumn={gridColumn ?? "span 4"}
                   gridRow={gridRow ?? "span 4"}
                   key={`form-${key}`}
-                  label={`${snakeToLabel(column)}`}
+                  label={`${translate.t(`${column}.fieldLabel`)}`}
                   {...getDataListProps(objectString)}
                 />
               );
@@ -470,7 +450,7 @@ const FormInternal = <TData extends FieldValues>() => {
             onFormSubmit(validatedData);
           }}
         >
-          {confirm ?? "Confirm"}
+          {translate.t("confirm")}
         </Button>
         <Button
           onClick={() => {
@@ -478,7 +458,7 @@ const FormInternal = <TData extends FieldValues>() => {
           }}
           variant={"subtle"}
         >
-          {cancel ?? "Cancel"}
+          {translate.t("cancel")}
         </Button>
 
         {isSubmiting && (
@@ -512,7 +492,7 @@ const FormInternal = <TData extends FieldValues>() => {
   return (
     <>
       <Grid gap={2}>
-        <Heading>{title ?? snakeToLabel(schema.title ?? "")}</Heading>
+        <Heading> {translate.t("title")}</Heading>
         <Grid
           gap={4}
           gridTemplateColumns={"repeat(12, 1fr)"}
@@ -580,7 +560,7 @@ const FormInternal = <TData extends FieldValues>() => {
           }}
           formNoValidate
         >
-          {submit ?? "Submit"}
+          {translate.t("submit")}
         </Button>
       </Grid>
       {isError && (
@@ -598,12 +578,12 @@ export const Form = <TData extends FieldValues>({
   setIdMap,
   form,
   serverUrl,
+  translate,
   order = [],
   ignore = [],
   onSubmit = undefined,
   preLoadedValues = {},
   rowNumber = undefined,
-  displayText = {},
 }: FormProps<TData>) => {
   const { properties } = schema;
 
@@ -620,7 +600,6 @@ export const Form = <TData extends FieldValues>({
       value={{
         schema,
         serverUrl,
-        displayText,
         order,
         ignore,
         // @ts-expect-error TODO: find appropriate types
@@ -628,6 +607,7 @@ export const Form = <TData extends FieldValues>({
         rowNumber,
         idMap,
         setIdMap,
+        translate,
       }}
     >
       <FormProvider {...form}>

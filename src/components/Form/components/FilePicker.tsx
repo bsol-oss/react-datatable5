@@ -13,7 +13,7 @@ export const FilePicker = ({ column }) => {
     formState: { errors },
     watch,
   } = useFormContext();
-  const { schema, displayText } = useSchemaContext();
+  const { schema, translate } = useSchemaContext();
   const { fieldRequired } = displayText;
   const { required } = schema as CustomJSONSchema7;
   const isRequired = required?.some((columnId) => columnId === column);
@@ -27,13 +27,13 @@ export const FilePicker = ({ column }) => {
 
   return (
     <Field
-      label={`${title ?? snakeToLabel(column)}`}
+      label={`${translate.t(`${column}.fieldLabel`)}`}
       required={isRequired}
       gridColumn={gridColumn ?? "span 4"}
       gridRow={gridRow ?? "span 1"}
       display={"grid"}
-      gridTemplateRows={'auto 1fr auto'}
-      alignItems={'stretch'}
+      gridTemplateRows={"auto 1fr auto"}
+      alignItems={"stretch"}
     >
       <FileDropzone
         onDrop={({ files }) => {
@@ -42,6 +42,7 @@ export const FilePicker = ({ column }) => {
           );
           setValue(column, [...currentFiles, ...newFiles]);
         }}
+        placeholder={translate.t(`${column}.fileDropzone`)}
       />
       <Flex flexFlow={"wrap"} alignItems={"start"} gap={1}>
         {currentFiles.map((file) => {
@@ -63,9 +64,7 @@ export const FilePicker = ({ column }) => {
         })}
       </Flex>
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {fieldRequired ?? "The field is requried"}
-        </Text>
+        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
       )}
     </Field>
   );

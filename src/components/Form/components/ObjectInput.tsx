@@ -1,14 +1,6 @@
-import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import {
-  Card,
-  Grid,
-  IconButton,
-  Input,
-  Show,
-  Text
-} from "@chakra-ui/react";
+import { Card, Grid, IconButton, Input, Show, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { CgClose } from "react-icons/cg";
@@ -25,8 +17,7 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
     setValue,
     getValues,
   } = useFormContext();
-  const { schema, displayText } = useSchemaContext();
-  const { addNew, fieldRequired, save } = displayText;
+  const { schema, translate } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const entries = Object.entries(getValues(column) ?? {});
@@ -36,12 +27,12 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
-  const { gridColumn, gridRow, title } = schema.properties[
+  const { gridColumn, gridRow } = schema.properties[
     column
   ] as CustomJSONSchema7;
   return (
     <Field
-      label={`${title ?? snakeToLabel(column)}`}
+      label={`${translate.t(`${column}.fieldLabel`)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{ gridColumn, gridRow }}
@@ -134,7 +125,7 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
                 setNewValue(undefined);
               }}
             >
-              {save ?? "Save"}
+               {translate.t(`${column}.save`)}
             </Button>
           </Card.Footer>
         </Card.Root>
@@ -146,12 +137,10 @@ export const ObjectInput = ({ column }: DatePickerProps) => {
           setNewValue(undefined);
         }}
       >
-        {addNew ?? "Add New"}
+        {translate.t(`${column}.addNew`)}
       </Button>
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {fieldRequired ?? "The field is requried"}
-        </Text>
+        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
       )}
     </Field>
   );

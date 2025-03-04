@@ -30,21 +30,20 @@ export const StringInputField = ({ column }: StringInputFieldProps) => {
     register,
     formState: { errors },
   } = useFormContext();
-  const { schema, displayText } = useSchemaContext();
-  const { fieldRequired } = displayText;
+  const { schema, translate} = useSchemaContext();
   const { required } = schema as CustomJSONSchema7;
   const isRequired = required?.some((columnId) => columnId === column);
   if (schema.properties == undefined) {
     throw new Error("schema properties when using String Input Field");
   }
-  const { gridColumn, gridRow, title } = schema.properties[
+  const { gridColumn, gridRow} = schema.properties[
     column
   ] as CustomJSONSchema7;
 
   return (
     <>
       <Field
-        label={`${title ?? snakeToLabel(column)}`}
+      label={`${translate.t(`${column}.fieldLabel`)}`}
         required={isRequired}
         gridColumn={gridColumn ?? "span 4"}
         gridRow={gridRow ?? "span 1"}
@@ -55,7 +54,7 @@ export const StringInputField = ({ column }: StringInputFieldProps) => {
         />
         {errors[`${column}`] && (
           <Text color={"red.400"}>
-            {fieldRequired ?? "The field is requried"}
+             {translate.t(`${column}.fieldRequired`)}
           </Text>
         )}
       </Field>
