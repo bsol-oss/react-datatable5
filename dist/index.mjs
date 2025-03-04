@@ -26,8 +26,9 @@ import { IoReload } from 'react-icons/io5';
 import { GrAscend, GrDescend } from 'react-icons/gr';
 import { HiColorSwatch, HiOutlineInformationCircle } from 'react-icons/hi';
 import axios from 'axios';
-import { useFormContext, FormProvider } from 'react-hook-form';
+import { useFormContext, FormProvider, useForm as useForm$1 } from 'react-hook-form';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 const DataTableContext = createContext({
     table: {},
@@ -4745,6 +4746,18 @@ const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [],
         }, children: jsx(FormProvider, { ...form, children: jsx(FormInternal, {}) }) }));
 };
 
+const useForm = ({ preLoadedValues, keyPrefix }) => {
+    const form = useForm$1({ values: preLoadedValues });
+    const [idMap, setIdMap] = useState({});
+    const translate = useTranslation("", { keyPrefix });
+    return {
+        form,
+        idMap,
+        setIdMap,
+        translate,
+    };
+};
+
 const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) => {
     if (!selectable) {
         return [...selectedDates];
@@ -4761,4 +4774,4 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
     }
 };
 
-export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, EmptyState, ErrorAlert, FilterOptions, Form, GlobalFilter, PageSizeControl, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, getColumns, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, widthSanityCheck };
+export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultTable, DensityToggleButton, EditFilterButton, EditOrderButton, EditSortingButton, EditViewButton, EmptyState, ErrorAlert, FilterOptions, Form, GlobalFilter, PageSizeControl, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TablePagination, TableSelector, TableSorter, TableViewer, TextCell, getColumns, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };

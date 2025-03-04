@@ -29,6 +29,7 @@ var hi = require('react-icons/hi');
 var axios = require('axios');
 var reactHookForm = require('react-hook-form');
 var dayjs = require('dayjs');
+var reactI18next = require('react-i18next');
 
 function _interopNamespaceDefault(e) {
     var n = Object.create(null);
@@ -4765,6 +4766,18 @@ const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [],
         }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: jsxRuntime.jsx(FormInternal, {}) }) }));
 };
 
+const useForm = ({ preLoadedValues, keyPrefix }) => {
+    const form = reactHookForm.useForm({ values: preLoadedValues });
+    const [idMap, setIdMap] = React.useState({});
+    const translate = reactI18next.useTranslation("", { keyPrefix });
+    return {
+        form,
+        idMap,
+        setIdMap,
+        translate,
+    };
+};
+
 const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) => {
     if (!selectable) {
         return [...selectedDates];
@@ -4827,4 +4840,5 @@ exports.getRangeDates = getRangeDates;
 exports.useDataTable = useDataTable;
 exports.useDataTableContext = useDataTableContext;
 exports.useDataTableServer = useDataTableServer;
+exports.useForm = useForm;
 exports.widthSanityCheck = widthSanityCheck;
