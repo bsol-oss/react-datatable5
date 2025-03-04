@@ -6,7 +6,7 @@ export declare const useSchemaContext: () => {
     ignore: string[];
     onSubmit: ((data: unknown) => Promise<void>) | undefined;
     rowNumber: string | number | undefined;
-    displayText: Partial<import("./Form").DisplayTextProps>;
     idMap: Record<string, object>;
     setIdMap: import("react").Dispatch<import("react").SetStateAction<Record<string, object>>>;
+    translate: import("react-i18next").UseTranslationResponse<any, any>;
 };

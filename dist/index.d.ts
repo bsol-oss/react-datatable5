@@ -1,7 +1,7 @@
 /// <reference types="react" />
 import { Row, RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnOrderState, ColumnFiltersState, PaginationState, SortingState, VisibilityState, Table as Table$1, Column } from '@tanstack/react-table';
 import * as React$1 from 'react';
-import React__default, { ReactNode } from 'react';
+import React__default, { ReactNode, Dispatch, SetStateAction } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import { ImageProps, TableHeaderProps as TableHeaderProps$1, TableRootProps, GridProps, CardBodyProps, FlexProps, TextProps, BoxProps } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
@@ -9,7 +9,8 @@ import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { UseQueryResult } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 import { ForeignKeyProps } from '@/components/Form/components/StringInputField';
-import { FieldValues, SubmitHandler } from 'react-hook-form';
+import { FieldValues, UseFormReturn, SubmitHandler } from 'react-hook-form';
+import { UseTranslationResponse } from 'react-i18next';
 import { RenderProps, Props } from '@bsol-oss/dayzed-react19';
 
 interface DensityToggleButtonProps {
@@ -451,32 +452,18 @@ declare const FilterOptions: ({ column }: FilterOptionsProps) => react_jsx_runti
 
 declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
 
-interface DisplayTextProps {
-    title?: string;
-    addNew?: string;
-    submit?: string;
-    confirm?: string;
-    save?: string;
-    empty?: string;
-    cancel?: string;
-    submitSuccess?: string;
-    submitAgain?: string;
-    fieldRequired?: string;
-    total: string;
-    showing: string;
-    close: string;
-    typeToSearch: string;
-    showMore: string;
-}
 interface FormProps<TData extends FieldValues> {
     schema: JSONSchema7;
     serverUrl: string;
+    idMap: Record<string, object>;
+    setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
+    form: UseFormReturn;
+    translate: UseTranslationResponse<any, any>;
     order?: string[];
     ignore?: string[];
     onSubmit?: SubmitHandler<TData>;
     preLoadedValues?: object;
     rowNumber?: number | string;
-    displayText?: Partial<DisplayTextProps>;
 }
 interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
@@ -487,7 +474,7 @@ interface CustomJSONSchema7Definition extends JSONSchema7 {
     gridRow: string;
     foreign_key: ForeignKeyProps;
 }
-declare const Form: <TData extends FieldValues>({ schema, serverUrl, order, ignore, onSubmit, preLoadedValues, rowNumber, displayText, }: FormProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const Form: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, order, ignore, onSubmit, preLoadedValues, rowNumber, }: FormProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface CalendarProps extends RenderProps {
     firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -597,4 +584,4 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerProps, DefaultCardTitle, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type DisplayTextProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, FilterOptions, type FilterOptionsProps, Form, type FormProps, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, TablePagination, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, getColumns, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, widthSanityCheck };
+export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerProps, DefaultCardTitle, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, FilterOptions, type FilterOptionsProps, Form, type FormProps, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, TablePagination, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, getColumns, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, widthSanityCheck };
