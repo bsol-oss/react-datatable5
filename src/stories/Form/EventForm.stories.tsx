@@ -3,6 +3,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { JSONSchema7 } from "json-schema";
 import { eventsSchema } from "../schema";
 import { Provider } from "@/components/ui/provider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useForm } from "@/components/Form/useForm";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -16,18 +18,24 @@ const meta = {
 type Story = StoryObj<typeof meta>;
 
 export default meta;
+const queryClient = new QueryClient();
 
 export const Event: Story = {
   render: () => {
+    const { form, idMap, setIdMap } = useForm({});
+
     return (
       <Provider>
-        <Form
-          schema={eventsSchema as JSONSchema7}
-          order={[]}
-          ignore={["id", "created_at", "updated_at"]}
-          serverUrl={"http://localhost:8081"}
-          preLoadedValues={{}}
-        />
+        <QueryClientProvider client={queryClient}>
+          <Form
+            schema={eventsSchema as JSONSchema7}
+            order={[]}
+            ignore={["id", "created_at", "updated_at"]}
+            serverUrl={"http://localhost:8081"}
+            preLoadedValues={{}}
+            {...{ form, idMap, setIdMap }}
+          />
+        </QueryClientProvider>
       </Provider>
     );
   },

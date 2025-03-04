@@ -29,25 +29,24 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import dayjs from "dayjs";
 import { JSONSchema7 } from "json-schema";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import {
   FieldValues,
   FormProvider,
   SubmitHandler,
-  useForm,
   useFormContext,
+  UseFormReturn,
 } from "react-hook-form";
+import { RecordDisplay } from "../DataTable/components/RecordDisplay";
 import { BooleanPicker } from "./components/BooleanPicker";
 import { DatePicker } from "./components/DatePicker";
 import { EnumPicker } from "./components/EnumPicker";
 import { FilePicker } from "./components/FilePicker";
 import { ObjectInput } from "./components/ObjectInput";
 import { TagPicker } from "./components/TagPicker";
-import { RecordDisplay } from "../DataTable/components/RecordDisplay";
 
 export interface DisplayTextProps {
   title?: string;
@@ -70,6 +69,9 @@ export interface DisplayTextProps {
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
   serverUrl: string;
+  idMap: Record<string, object>;
+  setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
+  form: UseFormReturn;
   order?: string[];
   ignore?: string[];
   onSubmit?: SubmitHandler<TData>;
@@ -592,6 +594,9 @@ const FormInternal = <TData extends FieldValues>() => {
 
 export const Form = <TData extends FieldValues>({
   schema,
+  idMap,
+  setIdMap,
+  form,
   serverUrl,
   order = [],
   ignore = [],
@@ -600,9 +605,6 @@ export const Form = <TData extends FieldValues>({
   rowNumber = undefined,
   displayText = {},
 }: FormProps<TData>) => {
-  const queryClient = new QueryClient();
-  const methods = useForm({ values: preLoadedValues });
-  const [idMap, setIdMap] = useState<Record<string, object>>({});
   const { properties } = schema;
 
   idListSanityCheck("order", order, properties as object);
@@ -614,25 +616,23 @@ export const Form = <TData extends FieldValues>({
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <SchemaFormContext.Provider
-        value={{
-          schema,
-          serverUrl,
-          displayText,
-          order,
-          ignore,
-          // @ts-expect-error TODO: find appropriate types
-          onSubmit,
-          rowNumber,
-          idMap,
-          setIdMap,
-        }}
-      >
-        <FormProvider {...methods}>
-          <FormInternal />
-        </FormProvider>
-      </SchemaFormContext.Provider>
-    </QueryClientProvider>
+    <SchemaFormContext.Provider
+      value={{
+        schema,
+        serverUrl,
+        displayText,
+        order,
+        ignore,
+        // @ts-expect-error TODO: find appropriate types
+        onSubmit,
+        rowNumber,
+        idMap,
+        setIdMap,
+      }}
+    >
+      <FormProvider {...form}>
+        <FormInternal />
+      </FormProvider>
+    </SchemaFormContext.Provider>
   );
 };
