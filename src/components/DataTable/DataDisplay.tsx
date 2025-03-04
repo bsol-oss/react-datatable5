@@ -1,15 +1,13 @@
-import {
-  Card,
-  DataList as ChakraDataList,
-  Flex
-} from "@chakra-ui/react";
+import { Card, DataList as ChakraDataList, Flex } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
 import { snakeToLabel } from "../Form/utils/snakeToLabel";
 import { RecordDisplay } from "./components/RecordDisplay";
 import { useDataTableContext } from "./context/useDataTableContext";
+import { UseTranslationResponse } from "react-i18next";
 
 export interface DataDisplayProps {
   variant?: "horizontal" | "stats" | "";
+  translate?: UseTranslationResponse<any, any>;
 }
 
 const formatValue = (value: unknown): string => {
@@ -28,8 +26,15 @@ const formatValue = (value: unknown): string => {
   throw new Error(`value is unknown, ${typeof value}`);
 };
 
-export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
+export const DataDisplay = ({ variant = "", translate }: DataDisplayProps) => {
   const { table } = useDataTableContext();
+
+  const getLabel = ({ columnId }: { columnId: string }) => {
+    if (translate !== undefined) {
+      return translate.t(`${columnId}`);
+    }
+    return snakeToLabel(columnId);
+  };
   if (variant == "horizontal") {
     return (
       <Flex flexFlow={"column"} gap={"1"}>
@@ -63,7 +68,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                       return (
                         <ChakraDataList.Item key={cell.id}>
                           <ChakraDataList.ItemLabel>
-                            {snakeToLabel(cell.column.id)}
+                            {getLabel({ columnId: cell.column.id })}
                           </ChakraDataList.ItemLabel>
                           <RecordDisplay
                             boxProps={{
@@ -81,7 +86,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                     return (
                       <ChakraDataList.Item key={cell.id}>
                         <ChakraDataList.ItemLabel>
-                          {snakeToLabel(cell.column.id)}
+                          {getLabel({ columnId: cell.column.id })}
                         </ChakraDataList.ItemLabel>
                         <ChakraDataList.ItemValue
                           wordBreak={"break-word"}
@@ -138,7 +143,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                           flex={"1 0 0%"}
                         >
                           <ChakraDataList.ItemLabel>
-                            {snakeToLabel(cell.column.id)}
+                            {getLabel({ columnId: cell.column.id })}
                           </ChakraDataList.ItemLabel>
                           <RecordDisplay
                             boxProps={{
@@ -162,7 +167,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                         flex={"1 0 0%"}
                       >
                         <ChakraDataList.ItemLabel>
-                          {snakeToLabel(cell.column.id)}
+                          {getLabel({ columnId: cell.column.id })}
                         </ChakraDataList.ItemLabel>
                         <ChakraDataList.ItemValue
                           wordBreak={"break-word"}
@@ -211,7 +216,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                     return (
                       <ChakraDataList.Item key={cell.id}>
                         <ChakraDataList.ItemLabel>
-                          {snakeToLabel(cell.column.id)}
+                          {getLabel({ columnId: cell.column.id })}
                         </ChakraDataList.ItemLabel>
                         <RecordDisplay
                           boxProps={{
@@ -229,7 +234,7 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                   return (
                     <ChakraDataList.Item key={cell.id}>
                       <ChakraDataList.ItemLabel>
-                        {snakeToLabel(cell.column.id)}
+                        {getLabel({ columnId: cell.column.id })}
                       </ChakraDataList.ItemLabel>
                       <ChakraDataList.ItemValue
                         wordBreak={"break-word"}

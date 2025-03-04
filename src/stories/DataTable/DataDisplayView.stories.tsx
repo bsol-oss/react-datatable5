@@ -8,6 +8,13 @@ import { Box, Text } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { data, Product } from "../product_data";
+import {
+  I18nextProvider,
+  initReactI18next,
+  useTranslation,
+} from "react-i18next";
+import i18n from "i18next";
+import { useTransition } from "react";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -22,9 +29,24 @@ type Story = StoryObj<typeof meta>;
 
 export default meta;
 
+i18n
+  .use(initReactI18next) // bind react-i18next to the instance
+  .init({
+    fallbackLng: "en",
+    debug: true,
+
+    interpolation: {
+      escapeValue: false, // not needed for react!!
+    },
+  });
+
 export const DataDisplayStory: Story = {
   render: () => {
-    return <DataDisplayView />;
+    return (
+      <I18nextProvider i18n={i18n} defaultNS={"translation"}>
+        <DataDisplayView />
+      </I18nextProvider>
+    );
   },
 };
 
@@ -36,6 +58,7 @@ const DataDisplayView = () => {
   const datatable = useDataTable({
     default: { sorting: [{ id: "title", desc: false }] },
   });
+  const translate = useTranslation("", { keyPrefix: "goood" });
   const columnHelper = createColumnHelper<Product>();
   const columns: ColumnDef<Product>[] = [
     // Display Column
@@ -75,11 +98,7 @@ const DataDisplayView = () => {
         // Accessor Column
         columnHelper.accessor("description", {
           cell: (props) => {
-            return (
-              <Box color={"blue"}>
-                {props.row.original.description}
-              </Box>
-            );
+            return <Box color={"blue"}>{props.row.original.description}</Box>;
           },
           header: () => <span>Description</span>,
           footer: (props) => props.column.id,
@@ -167,7 +186,7 @@ const DataDisplayView = () => {
     <Provider>
       <DataTable columns={columns} data={data} {...datatable}>
         <DataDisplay />
-        <DataDisplay variant="stats" />
+        <DataDisplay variant="stats" translate={translate} />
         <Box width={"20rem"}>
           <DataDisplay variant="horizontal" />
         </Box>
