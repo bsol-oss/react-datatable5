@@ -290,28 +290,6 @@ export const eventsSchema = {
       description:
         "Missing description. Database type: uuid. Default value: uuid_generate_v4()",
     },
-    // fee: {
-    //   type: "number",
-    //   description:
-    //     "Missing description. Database type: numeric. Default value: null",
-    //   gridColumn: "1/span 3",
-    //   gridRow: "7/span 1",
-    // },
-    // quota: {
-    //   type: "integer",
-    //   description:
-    //     "Missing description. Database type: integer. Default value: null",
-    //   gridColumn: "4/span 3",
-    //   gridRow: "7/span 1",
-    //   title: `限額`,
-    // },
-    // status: {
-    //   type: "string",
-    //   description:
-    //     "Missing description. Database type: text. Default value: 'draft'",
-    //   gridColumn: "7/span 2",
-    //   gridRow: "7/span 1",
-    // },
     remarks: {
       type: "string",
       description:
@@ -653,11 +631,13 @@ export const eventsFilesSchema = {
       description:
         "Missing description. Database type: uuid. Default value: null",
       variant: "id-picker",
-      in_table: "core_events",
-      column_ref: "id",
-      display_column: "event_name",
       gridColumn: "1/span 6",
       gridRow: "1/span 1",
+      foreign_key: {
+        display_column: "event_name",
+        table: "core_events",
+        column: "id",
+      },
     },
   },
   description: "Missing description",
