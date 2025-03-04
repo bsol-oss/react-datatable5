@@ -433,9 +433,10 @@ interface GetColumnsConfigs<K extends RowData> {
         [key in K as string]?: object;
     };
     defaultWidth?: number;
+    translate?: UseTranslationResponse<any, any>;
 }
 declare const widthSanityCheck: <K extends unknown>(widthList: number[], ignoreList: K[], properties: { [key in K as string]?: object | undefined; }) => void;
-declare const getColumns: <TData extends unknown>({ schema, ignore, width, meta, defaultWidth, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
+declare const getColumns: <TData extends unknown>({ schema, ignore, width, meta, defaultWidth, translate, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
 
 interface EmptyStateProps {
     title?: string;
@@ -537,8 +538,10 @@ interface RangeDatePickerProps extends Props, RangeCalendarProps {
 interface RecordDisplayProps {
     object: object | null;
     boxProps?: BoxProps;
+    translate?: UseTranslationResponse<any, any>;
+    prefix?: string;
 }
-declare const RecordDisplay: ({ object, boxProps }: RecordDisplayProps) => react_jsx_runtime.JSX.Element;
+declare const RecordDisplay: ({ object, boxProps, translate, prefix, }: RecordDisplayProps) => react_jsx_runtime.JSX.Element;
 
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData extends RowData, TValue> {

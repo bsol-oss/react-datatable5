@@ -2586,12 +2586,18 @@ const snakeToLabel = (str) => {
         .join(" "); // Join with space
 };
 
-const RecordDisplay = ({ object, boxProps }) => {
+const RecordDisplay = ({ object, boxProps, translate, prefix = "", }) => {
+    const getColumn = ({ field }) => {
+        if (translate !== undefined) {
+            return translate.t(`${prefix}${field}`);
+        }
+        return snakeToLabel(field);
+    };
     if (object === null) {
         return jsx(Fragment, { children: "null" });
     }
     return (jsx(Grid, { rowGap: 1, padding: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
-            return (jsxs(Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsx(Text, { color: "gray.400", children: snakeToLabel(field) }), typeof value === "object" ? (jsx(RecordDisplay, { object: value })) : (jsx(Text, { children: JSON.stringify(value) }))] }, field));
+            return (jsxs(Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsx(Text, { color: "gray.400", children: getColumn({ field }) }), typeof value === "object" ? (jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.`, translate: translate })) : (jsx(Text, { children: JSON.stringify(value) }))] }, field));
         }) }));
 };
 
@@ -3461,11 +3467,17 @@ const widthSanityCheck = (widthList, ignoreList, properties) => {
         throw new Error(`The width list is too long given from the number of remaining properties after ignore some.`);
     }
 };
-const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth = 400, }) => {
+const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth = 400, translate, }) => {
     const { properties } = schema;
     idListSanityCheck("ignore", ignore, properties);
     widthSanityCheck(width, ignore, properties);
     idListSanityCheck("meta", Object.keys(meta), properties);
+    const getColumn = ({ column }) => {
+        if (translate !== undefined) {
+            return translate.t(`${column}`);
+        }
+        return snakeToLabel(column);
+    };
     const keys = Object.keys(properties);
     const ignored = keys.filter((key) => {
         return !ignore.some((shouldIgnoreKey) => key === shouldIgnoreKey);
@@ -3479,18 +3491,18 @@ const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth =
                     // @ts-expect-error find type for unknown
                     const value = props.row.original[column];
                     if (typeof value === "object") {
-                        return (jsx(Grid, { overflow: "auto", children: jsx(RecordDisplay, { object: value }) }));
+                        return (jsx(Grid, { overflow: "auto", children: jsx(RecordDisplay, { object: value, translate }) }));
                     }
                     return jsx(TextCell, { children: value });
                 },
                 header: (columnHeader) => {
                     const displayName = columnHeader.column.columnDef.meta?.displayName ??
-                        snakeToLabel(column);
+                        getColumn({ column });
                     return jsx("span", { children: displayName });
                 },
                 footer: (columnFooter) => {
                     const displayName = columnFooter.column.columnDef.meta?.displayName ??
-                        snakeToLabel(column);
+                        getColumn({ column });
                     return jsx("span", { children: displayName });
                 },
                 size: width[index] ?? defaultWidth,
