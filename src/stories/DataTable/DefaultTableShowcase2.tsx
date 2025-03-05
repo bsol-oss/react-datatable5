@@ -4,6 +4,11 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
 import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
 import { Employee, staffData } from "../staff_data";
+import {
+  I18nextProvider,
+  initReactI18next,
+} from "react-i18next";
+import i18n from "i18next";
 
 interface RowActionsProps {
   row: Employee;
@@ -135,69 +140,87 @@ const DefaultTableShowcase2 = () => {
     }),
   ];
 
+  i18n
+  .use(initReactI18next) // bind react-i18next to the instance
+  .init({
+    fallbackLng: "en",
+    debug: true,
+
+    interpolation: {
+      escapeValue: false, // not needed for react!!
+    },
+  });
+
+
   return (
     <Provider>
-      <DataTable columns={columns} data={staffData} {...datatable}>
-        <DefaultTable
-          controlProps={{
-            showFilter: true,
-            showFilterName: true,
-            showFilterTags: true,
-            filterOptions: ["category", "brand"],
-          }}
-          variant="greedy"
-        />
-        <TableComponent
-          render={(table) => {
-            return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
-          }}
-        />
-        <Box width="400px" height={"400px"}>
+      <I18nextProvider i18n={i18n} defaultNS={"translation"}>
+        <DataTable columns={columns} data={staffData} {...datatable}>
           <DefaultTable
             controlProps={{
               showFilter: true,
+              showFilterName: true,
+              showFilterTags: true,
+              filterOptions: ["category", "brand"],
+            }}
+            variant="greedy"
+          />
+          <TableComponent
+            render={(table) => {
+              return (
+                <Text>Table state: {JSON.stringify(table.getState())}</Text>
+              );
             }}
           />
-        </Box>
-        <Box width="2400px" height={"2400px"}>
-          <DefaultTable
-            controlProps={{
-              showFilter: true,
-            }}
-          />
-        </Box>
+          <Box width="400px" height={"400px"}>
+            <DefaultTable
+              controlProps={{
+                showFilter: true,
+              }}
+            />
+          </Box>
+          <Box width="2400px" height={"2400px"}>
+            <DefaultTable
+              controlProps={{
+                showFilter: true,
+              }}
+            />
+          </Box>
 
-        <Text>
-          {`controlProps={{
+          <Text>
+            {`controlProps={{
               showFilter: true,
               fitTableWidth: true,
             }}`}
-        </Text>
+          </Text>
 
-        <Box width="400px" height={"400px"}>
-          <DefaultTable
-            controlProps={{
-              showFilter: true,
-              fitTableWidth: true,
+          <Box width="400px" height={"400px"}>
+            <DefaultTable
+              controlProps={{
+                showFilter: true,
+                fitTableWidth: true,
+              }}
+            />
+          </Box>
+          <Box width="2400px" height={"2400px"}>
+            <DefaultTable
+              controlProps={{
+                showFilter: true,
+                fitTableWidth: true,
+                fitTableHeight: true,
+              }}
+            />
+          </Box>
+
+          <TableComponent
+            render={(table) => {
+              return (
+                <Text>Table state: {JSON.stringify(table.getState())}</Text>
+              );
             }}
           />
-        </Box>
-        <Box width="2400px" height={"2400px"}>
-          <DefaultTable
-            controlProps={{
-              showFilter: true,
-              fitTableWidth: true,
-              fitTableHeight: true,
-            }}
-          />
-        </Box>
-
-        <TableComponent
-          render={(table) => {
-            return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
-          }}
-        />
-      </DataTable>
+        </DataTable>
+      </I18nextProvider>
     </Provider>
   );
 };
