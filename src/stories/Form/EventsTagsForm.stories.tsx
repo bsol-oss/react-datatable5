@@ -27,18 +27,6 @@ export const EventsTags: Story = {
           serverUrl={"http://localhost:8081"}
           preLoadedValues={{}}
           rowNumber={9}
-          displayText={{
-            title: "標題",
-            addNew: "新增",
-            submit: "提交",
-            confirm: "確定",
-            save: "儲存",
-            empty: "空",
-            cancel: "取消",
-            submitSuccess: "提交成功",
-            submitAgain: "提交",
-            fieldRequired: "必填項目",
-          }}
           onSubmit={async (data) => {
             const newRecords = Object.values(data["tag_id"])
               .map(({ current }: any) => {

@@ -56,7 +56,6 @@ const SomeForm = () => {
     <Form
       schema={eventsFilesSchema as JSONSchema7}
       serverUrl={"http://localhost:8081"}
-      preLoadedValues={{}}
       rowNumber={20}
       onSubmit={async (data) => {
         const formData = new FormData();

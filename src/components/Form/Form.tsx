@@ -10,7 +10,6 @@ import {
 import { useSchemaContext } from "@/components/Form/useSchemaContext";
 import { clearEmptyString } from "@/components/Form/utils/clearEmptyString";
 import { idListSanityCheck } from "@/components/Form/utils/idListSanityCheck";
-import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 import {
   AccordionItem,
   AccordionItemContent,
@@ -29,7 +28,7 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import dayjs from "dayjs";
 import { JSONSchema7 } from "json-schema";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -52,6 +51,7 @@ import { UseTranslationResponse } from "react-i18next";
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
   serverUrl: string;
+  requestUrl?: string;
   idMap: Record<string, object>;
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
   form: UseFormReturn;
@@ -59,8 +59,8 @@ export interface FormProps<TData extends FieldValues> {
   order?: string[];
   ignore?: string[];
   onSubmit?: SubmitHandler<TData>;
-  preLoadedValues?: object;
   rowNumber?: number | string;
+  requestOptions?: AxiosRequestConfig;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -108,13 +108,14 @@ const idPickerSanityCheck = (
 const FormInternal = <TData extends FieldValues>() => {
   const {
     schema,
-    serverUrl,
+    requestUrl,
     order,
     ignore,
     onSubmit,
     rowNumber,
     idMap,
     translate,
+    requestOptions,
   } = useSchemaContext();
 
   const methods = useFormContext();
@@ -155,12 +156,9 @@ const FormInternal = <TData extends FieldValues>() => {
   const defaultSubmitPromise = (data: TData) => {
     const options = {
       method: "POST",
-      url: `${serverUrl}/api/g/${schema.title}`,
-      headers: {
-        Apikey: "YOUR_SECRET_TOKEN",
-        "Content-Type": "application/json",
-      },
+      url: `${requestUrl}`,
       data: clearEmptyString(data),
+      ...requestOptions,
     };
     return axios.request(options);
   };
@@ -584,6 +582,7 @@ export const Form = <TData extends FieldValues>({
   onSubmit = undefined,
   preLoadedValues = {},
   rowNumber = undefined,
+  requestOptions = {},
 }: FormProps<TData>) => {
   const { properties } = schema;
 
@@ -608,6 +607,7 @@ export const Form = <TData extends FieldValues>({
         idMap,
         setIdMap,
         translate,
+        requestOptions,
       }}
     >
       <FormProvider {...form}>

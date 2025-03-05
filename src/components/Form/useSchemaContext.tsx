@@ -5,6 +5,7 @@ export const useSchemaContext = () => {
   const {
     schema,
     serverUrl,
+    requestUrl,
     order,
     ignore,
     onSubmit,
@@ -12,11 +13,13 @@ export const useSchemaContext = () => {
     idMap,
     setIdMap,
     translate,
+    requestOptions,
   } = useContext(SchemaFormContext);
 
   return {
     schema,
     serverUrl,
+    requestUrl,
     order,
     ignore,
     onSubmit,
@@ -24,5 +27,6 @@ export const useSchemaContext = () => {
     idMap,
     setIdMap,
     translate,
+    requestOptions,
   };
 };
