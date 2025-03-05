@@ -8,9 +8,9 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
 import {
   DataTable,
-  EditFilterButton,
+  FilterDialog,
   EditOrderButton,
-  EditViewButton,
+  ViewDialog,
   GlobalFilter,
   PageSizeControl,
   RowCountText,
@@ -20,7 +20,7 @@ import {
   TableFilter,
   TableFooter,
   TableHeader,
-  TablePagination,
+  Pagination,
   TableSelector,
   TextCell,
 } from "../../index";
@@ -117,9 +117,9 @@ const TableViewShowcase = () => {
     <Provider>
       <DataTable columns={columns} data={data} {...datatable}>
         <Flex>
-          <TablePagination />
-          <EditViewButton />
-          <EditFilterButton />
+          <Pagination />
+          <ViewDialog />
+          <FilterDialog />
           <EditOrderButton />
           <PageSizeControl />
           <TableSelector />
@@ -136,7 +136,7 @@ const TableViewShowcase = () => {
           <TableFooter />
         </Table>
         <PageSizeControl />
-        <TablePagination />
+        <Pagination />
         <TableComponent
           render={(table) => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;

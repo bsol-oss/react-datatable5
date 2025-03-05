@@ -3,14 +3,14 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import {
   CardHeader,
   DataTable,
-  EditFilterButton,
+  FilterDialog,
   EditOrderButton,
   EditSortingButton,
-  EditViewButton,
+  ViewDialog,
   PageSizeControl,
   TableCardContainer,
   TableCards,
-  TablePagination,
+  Pagination,
   TableSelector,
   TextCell,
 } from "../../index";
@@ -84,9 +84,9 @@ const CardViewShowcase = () => {
     <Provider>
       <DataTable columns={columns} data={data} {...datatable}>
         <Flex gap="0.25rem">
-          <TablePagination />
-          <EditViewButton />
-          <EditFilterButton />
+          <Pagination />
+          <ViewDialog />
+          <FilterDialog />
           <EditSortingButton />
           <EditOrderButton />
           <PageSizeControl />
@@ -130,7 +130,7 @@ const CardViewShowcase = () => {
             cardBodyProps={{ minWidth: "10rem" }}
           />
         </TableCardContainer>
-        <TablePagination />
+        <Pagination />
       </DataTable>
     </Provider>
   );

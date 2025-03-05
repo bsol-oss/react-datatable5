@@ -7,14 +7,14 @@ import {
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import {
   DataTableServer,
-  EditFilterButton,
+  FilterDialog,
   EditOrderButton,
   EditSortingButton,
-  EditViewButton,
+  ViewDialog,
   PageSizeControl,
   TableCardContainer,
   TableCards,
-  TablePagination,
+  Pagination,
   TableSelector,
   TextCell,
   useDataTableServer,
@@ -120,9 +120,9 @@ const CardViewShowcase = () => {
     <Provider>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <Flex gap="0.25rem">
-          <TablePagination />
-          <EditViewButton />
-          <EditFilterButton />
+          <Pagination />
+          <ViewDialog />
+          <FilterDialog />
           <EditSortingButton />
           <EditOrderButton />
           <PageSizeControl />
@@ -131,7 +131,7 @@ const CardViewShowcase = () => {
         <TableCardContainer>
           <TableCards />
         </TableCardContainer>
-        <TablePagination />
+        <Pagination />
       </DataTableServer>
     </Provider>
   );

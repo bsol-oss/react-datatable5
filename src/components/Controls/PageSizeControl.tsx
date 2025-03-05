@@ -17,27 +17,25 @@ export const PageSizeControl = ({
   const { table } = useDataTableContext();
 
   return (
-    <>
-      <MenuRoot>
-        <MenuTrigger asChild>
-          <Button variant={"ghost"} gap={"0.5rem"}>
-            {table.getState().pagination.pageSize} <BiDownArrow />
-          </Button>
-        </MenuTrigger>
-        <MenuContent>
-          {pageSizes.map((pageSize) => (
-            <MenuItem
-              key={`chakra-table-pageSize-${pageSize}`}
-              value={`chakra-table-pageSize-${pageSize}`}
-              onClick={() => {
-                table.setPageSize(Number(pageSize));
-              }}
-            >
-              {pageSize}
-            </MenuItem>
-          ))}
-        </MenuContent>
-      </MenuRoot>
-    </>
+    <MenuRoot>
+      <MenuTrigger asChild>
+        <Button variant={"ghost"} gap={"0.5rem"}>
+          {table.getState().pagination.pageSize} <BiDownArrow />
+        </Button>
+      </MenuTrigger>
+      <MenuContent>
+        {pageSizes.map((pageSize) => (
+          <MenuItem
+            key={`chakra-table-pageSize-${pageSize}`}
+            value={`chakra-table-pageSize-${pageSize}`}
+            onClick={() => {
+              table.setPageSize(Number(pageSize));
+            }}
+          >
+            {pageSize}
+          </MenuItem>
+        ))}
+      </MenuContent>
+    </MenuRoot>
   );
 };

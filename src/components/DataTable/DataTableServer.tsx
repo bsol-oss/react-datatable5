@@ -17,6 +17,7 @@ import { DensityFeature, DensityState } from "../Controls/DensityFeature";
 import { DataTableContext } from "./context/DataTableContext";
 import { DataTableServerContext } from "./context/DataTableServerContext";
 import { DataResponse } from "./useDataTableServer";
+import { UseTranslationResponse } from "react-i18next";
 
 export interface DataTableServerProps<
   TData extends DataResponse = DataResponse<unknown>,
@@ -52,6 +53,7 @@ export interface DataTableServerProps<
   setColumnVisibility: OnChangeFn<VisibilityState>;
   query: UseQueryResult<TData>;
   url: string;
+  translate: UseTranslationResponse<any, any>;
 }
 
 /**
@@ -60,7 +62,7 @@ export interface DataTableServerProps<
  *
  * The query is required to be a GET request that can receive
  * specified params and return a specified response
- * 
+ *
  * The `useDataTableServer` can help to create the specified request and response
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
@@ -89,8 +91,9 @@ export function DataTableServer<
   setDensity,
   setColumnVisibility,
   query,
-  children,
   url,
+  translate,
+  children,
 }: DataTableServerProps<TData>) {
   const table = useReactTable<TData>({
     _features: [DensityFeature],
@@ -147,6 +150,7 @@ export function DataTableServer<
         globalFilter,
         setGlobalFilter,
         type: "server",
+        translate,
       }}
     >
       <DataTableServerContext.Provider value={{ url, query }}>

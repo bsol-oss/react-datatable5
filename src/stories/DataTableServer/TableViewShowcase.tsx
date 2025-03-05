@@ -4,9 +4,9 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import {
   DataTableServer,
   DensityToggleButton,
-  EditFilterButton,
+  FilterDialog,
   EditOrderButton,
-  EditViewButton,
+  ViewDialog,
   FilterOptions,
   GlobalFilter,
   PageSizeControl,
@@ -18,7 +18,7 @@ import {
   TableFilterTags,
   TableFooter,
   TableHeader,
-  TablePagination,
+  Pagination,
   TableSelector,
   TextCell,
   useDataTableServer,
@@ -155,9 +155,9 @@ const TableViewShowcase = () => {
         {...dataTable}
       >
         <Flex flexFlow={"wrap"}>
-          <TablePagination />
-          <EditViewButton text={"View"} />
-          <EditFilterButton text={"Filter"} />
+          <Pagination />
+          <ViewDialog text={"View"} />
+          <FilterDialog text={"Filter"} />
           <DensityToggleButton text={"Toggle Density"} />
           <EditOrderButton text={"Order"} />
           <PageSizeControl pageSizes={[25, 50]} />

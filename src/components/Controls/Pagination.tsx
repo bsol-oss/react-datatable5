@@ -9,7 +9,7 @@ import {
 } from "../ui/pagination";
 
 // TODO: not working in client side
-export const TablePagination = () => {
+export const Pagination = () => {
   const { table, type } = useDataTableContext();
   const getCount = () => {
     if (type === "client") {

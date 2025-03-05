@@ -11,6 +11,7 @@ import axios from "axios";
 import { useState } from "react";
 import { DensityState } from "../Controls/DensityFeature";
 import { UseDataTableProps, UseDataTableReturn } from "./useDataTable";
+import { useTranslation } from "react-i18next";
 
 export interface UseDataTableServerProps extends UseDataTableProps {
   /**
@@ -68,8 +69,7 @@ export const useDataTableServer = <TData,>({
     globalFilter: "",
     density: "sm",
   },
-  // debounce = true,
-  // debounceDelay = 1000,
+  keyPrefix,
 }: UseDataTableServerProps): UseDataTableServerReturn<TData> => {
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] =
@@ -108,6 +108,7 @@ export const useDataTableServer = <TData,>({
       data: [],
     },
   });
+  const translate = useTranslation("", { keyPrefix });
 
   return {
     sorting,
@@ -127,5 +128,6 @@ export const useDataTableServer = <TData,>({
     columnVisibility,
     setColumnVisibility,
     query,
+    translate,
   };
 };

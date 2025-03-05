@@ -73,16 +73,16 @@ declare module "@tanstack/react-table" {
 }
 
 export * from "./components/Controls/DensityToggleButton";
-export * from "./components/Controls/EditFilterButton";
+export * from "./components/Controls/FilterDialog";
 export * from "./components/Controls/EditOrderButton";
 export * from "./components/Controls/EditSortingButton";
-export * from "./components/Controls/EditViewButton";
+export * from "./components/Controls/ViewDialog";
 export * from "./components/Controls/PageSizeControl";
 export * from "./components/Controls/ResetFilteringButton";
 export * from "./components/Controls/ResetSelectionButton";
 export * from "./components/Controls/ResetSortingButton";
 export * from "./components/Controls/RowCountText";
-export * from "./components/Controls/TablePagination";
+export * from "./components/Controls/Pagination";
 export * from "./components/DataTable/CardHeader";
 export * from "./components/DataTable/DataDisplay";
 export * from "./components/DataTable/DataTable";

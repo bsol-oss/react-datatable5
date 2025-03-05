@@ -2,15 +2,15 @@ import { Box, Flex } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable/DataTable";
 import {
-  EditFilterButton,
+  FilterDialog,
   EditOrderButton,
-  EditViewButton,
+  ViewDialog,
   GlobalFilter,
   PageSizeControl,
   TableBody,
   TableFooter,
   TableHeader,
-  TablePagination,
+  Pagination,
   TableSelector,
   Table as TableWithData,
   TextCell,
@@ -47,9 +47,9 @@ const Template = (args: any) => {
     <Provider>
       <DataTable {...args} {...datatable}>
         <Flex>
-          <TablePagination />
-          <EditViewButton />
-          <EditFilterButton />
+          <Pagination />
+          <ViewDialog />
+          <FilterDialog />
           <EditOrderButton />
           <PageSizeControl />
           <TableSelector />
@@ -61,7 +61,7 @@ const Template = (args: any) => {
           <TableFooter />
         </TableWithData>
         <PageSizeControl />
-        <TablePagination />
+        <Pagination />
       </DataTable>
     </Provider>
   );

@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { DensityState } from "../Controls/DensityFeature";
+import { useTranslation, UseTranslationResponse } from "react-i18next";
 
 export interface DataTableDefaultState {
   sorting?: SortingState;
@@ -23,6 +24,7 @@ export interface DataTableDefaultState {
 
 export interface UseDataTableProps {
   default?: DataTableDefaultState;
+  keyPrefix?: string;
 }
 
 export interface UseDataTableReturn {
@@ -42,6 +44,7 @@ export interface UseDataTableReturn {
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
+  translate: UseTranslationResponse<any, any>;
 }
 
 export const useDataTable = (
@@ -71,6 +74,7 @@ export const useDataTable = (
       globalFilter: "",
       density: "sm",
     },
+    keyPrefix = "",
   }: UseDataTableProps = {
     default: {
       sorting: [],
@@ -101,6 +105,7 @@ export const useDataTable = (
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     defaultColumnVisibility
   );
+  const translate = useTranslation("", { keyPrefix });
   return {
     sorting,
     setSorting,
@@ -118,5 +123,6 @@ export const useDataTable = (
     setDensity,
     columnVisibility,
     setColumnVisibility,
+    translate,
   };
 };

@@ -8,13 +8,13 @@ import { Provider } from "@/components/ui/provider";
 import {
   DataTableServer,
   EditOrderButton,
-  EditViewButton,
+  ViewDialog,
   PageSizeControl,
   Table,
   TableBody,
   TableFooter,
   TableHeader,
-  TablePagination,
+  Pagination,
   TableSelector,
   TextCell,
   useDataTableServer,
@@ -136,8 +136,8 @@ const TablePinningShowcase = () => {
     <Provider>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <Flex gap="0.25rem">
-          <TablePagination />
-          <EditViewButton />
+          <Pagination />
+          <ViewDialog />
           <EditOrderButton />
           <PageSizeControl />
           <TableSelector />

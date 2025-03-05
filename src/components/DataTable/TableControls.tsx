@@ -5,19 +5,19 @@ import { MdOutlineViewColumn } from "react-icons/md";
 import { Tooltip } from "../../components/ui/tooltip";
 import { PageSizeControl } from "../Controls/PageSizeControl";
 import { RowCountText } from "../Controls/RowCountText";
-import { TablePagination } from "../Controls/TablePagination";
-import { EditViewButton } from "../Controls/EditViewButton";
+import { Pagination } from "../Controls/Pagination";
+import { ViewDialog } from "../Controls/ViewDialog";
 import { GlobalFilter } from "../Filter/GlobalFilter";
-import { EditFilterButton } from "../Controls/EditFilterButton";
+import { FilterDialog } from "../Controls/FilterDialog";
 import { ReloadButton } from "./ReloadButton";
 import { FilterOptions } from "../Filter/FilterOptions";
 import { TableFilterTags } from "./TableFilterTags";
+import { useDataTableContext } from "./context/useDataTableContext";
 
 export interface TableControlsProps {
   totalText?: string;
   fitTableWidth?: boolean;
   fitTableHeight?: boolean;
-  isMobile?: boolean;
   children?: ReactNode;
   showGlobalFilter?: boolean;
   showFilter?: boolean;
@@ -27,6 +27,7 @@ export interface TableControlsProps {
   showPagination?: boolean;
   showPageSizeControl?: boolean;
   showPageCountText?: boolean;
+  showView?: boolean;
   filterOptions?: string[];
   extraItems?: ReactNode;
   loading?: boolean;
@@ -34,10 +35,8 @@ export interface TableControlsProps {
 }
 
 export const TableControls = ({
-  totalText = "Total:",
   fitTableWidth = false,
   fitTableHeight = false,
-  isMobile = false,
   children = <></>,
   showGlobalFilter = false,
   showFilter = false,
@@ -47,11 +46,14 @@ export const TableControls = ({
   showPagination = true,
   showPageSizeControl = true,
   showPageCountText = true,
+  showView = true,
   filterOptions = [],
   extraItems = <></>,
   loading = false,
   hasError = false,
 }: TableControlsProps) => {
+  const { translate } = useDataTableContext();
+
   return (
     <Grid
       templateRows={"auto 1fr auto"}
@@ -61,27 +63,16 @@ export const TableControls = ({
     >
       <Flex flexFlow={"column"} gap={2}>
         <Flex justifyContent={"space-between"}>
-          <Box>
-            <EditViewButton
-              text={isMobile ? undefined : "View"}
-              icon={<MdOutlineViewColumn />}
-            />
-          </Box>
+          <Box>{showView && <ViewDialog icon={<MdOutlineViewColumn />} />}</Box>
           <Flex gap={"0.5rem"} alignItems={"center"} justifySelf={"end"}>
             {loading && <Spinner size={"sm"} />}
             {hasError && (
-              <Tooltip content="An error occurred while fetching data">
+              <Tooltip content={translate.t("hasError")}>
                 <Icon as={BsExclamationCircleFill} color={"red.400"} />
               </Tooltip>
             )}
             {showGlobalFilter && <GlobalFilter />}
-            {showFilter && (
-              <>
-                <EditFilterButton
-                  text={isMobile ? undefined : "Advanced Filter"}
-                />
-              </>
-            )}
+            {showFilter && <FilterDialog />}
             {showReload && <ReloadButton />}
             {extraItems}
           </Flex>
@@ -124,12 +115,14 @@ export const TableControls = ({
           {showPageSizeControl && <PageSizeControl />}
           {showPageCountText && (
             <Flex>
-              <Text paddingRight={"0.5rem"}>{totalText}</Text>
+              <Text paddingRight={"0.5rem"}>
+                {translate.t("rowcount.total")}
+              </Text>
               <RowCountText />
             </Flex>
           )}
         </Flex>
-        <Box justifySelf={"end"}>{showPagination && <TablePagination />}</Box>
+        <Box justifySelf={"end"}>{showPagination && <Pagination />}</Box>
       </Flex>
     </Grid>
   );

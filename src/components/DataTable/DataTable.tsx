@@ -20,6 +20,7 @@ import { ReactNode } from "react";
 import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
 import { DensityFeature, DensityState } from "../Controls/DensityFeature";
 import { DataTableContext } from "./context/DataTableContext";
+import { UseTranslationResponse } from "react-i18next";
 
 declare module "@tanstack/react-table" {
   //add fuzzy filter to the filterFns
@@ -49,17 +50,17 @@ export interface DataTableProps<TData = unknown> {
   children?: ReactNode | ReactNode[];
   /**
    * Data array for the table.
-   * 
+   *
    * It will pass into as the data in `@tanstack/react-table`
-   * 
+   *
    */
   data: TData[];
 
   /**
-   * Column definitions for the table. 
-   * 
+   * Column definitions for the table.
+   *
    * It will pass into as the column definitions in `@tanstack/react-table`
-   * 
+   *
    * @link https://tanstack.com/table/latest/docs/guide/column-defs
    */
   columns: ColumnDef<TData, unknown>[];
@@ -83,6 +84,7 @@ export interface DataTableProps<TData = unknown> {
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
+  translate: UseTranslationResponse<any, any>;
 }
 
 /**
@@ -117,6 +119,7 @@ export function DataTable<TData = unknown>({
   setColumnOrder,
   setDensity,
   setColumnVisibility,
+  translate,
   children,
 }: DataTableProps<TData>) {
   const table = useReactTable<TData>({
@@ -170,9 +173,10 @@ export function DataTable<TData = unknown>({
     <DataTableContext.Provider
       value={{
         table: table as Table<TData>,
-        globalFilter: globalFilter,
-        setGlobalFilter: setGlobalFilter,
+        globalFilter,
+        setGlobalFilter,
         type: "client",
+        translate,
       }}
     >
       {children}
