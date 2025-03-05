@@ -45,7 +45,7 @@ export const FilterDialog = ({
             {translate.t("filterDialog.close")}
           </Button>
         </DialogFooter>
-        <DialogCloseTrigger />
+        <DialogCloseTrigger onClick={filterModal.onClose}/>
       </DialogContent>
     </DialogRoot>
   );
