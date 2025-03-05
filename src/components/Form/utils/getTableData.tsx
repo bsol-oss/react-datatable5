@@ -32,10 +32,6 @@ export const getTableData = async ({
   const options: AxiosRequestConfig = {
     method: "GET",
     url: `${serverUrl}/api/g/${in_table}`,
-    headers: {
-      Apikey: "YOUR_SECRET_TOKEN",
-      "Content-Type": "application/json",
-    },
     params: {
       searching,
       where,
