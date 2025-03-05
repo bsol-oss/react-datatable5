@@ -11,6 +11,7 @@ import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { UseQueryResult } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 import { ForeignKeyProps } from '@/components/Form/components/StringInputField';
+import { AxiosRequestConfig } from 'axios';
 import * as react_hook_form from 'react-hook-form';
 import { FieldValues, UseFormReturn, SubmitHandler } from 'react-hook-form';
 import { RenderProps, Props } from '@bsol-oss/dayzed-react19';
@@ -458,6 +459,7 @@ declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
 interface FormProps<TData extends FieldValues> {
     schema: JSONSchema7;
     serverUrl: string;
+    requestUrl?: string;
     idMap: Record<string, object>;
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
     form: UseFormReturn;
@@ -465,8 +467,8 @@ interface FormProps<TData extends FieldValues> {
     order?: string[];
     ignore?: string[];
     onSubmit?: SubmitHandler<TData>;
-    preLoadedValues?: object;
     rowNumber?: number | string;
+    requestOptions?: AxiosRequestConfig;
 }
 interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
@@ -477,7 +479,7 @@ interface CustomJSONSchema7Definition extends JSONSchema7 {
     gridRow: string;
     foreign_key: ForeignKeyProps;
 }
-declare const Form: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, order, ignore, onSubmit, preLoadedValues, rowNumber, }: FormProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const Form: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, order, ignore, onSubmit, preLoadedValues, rowNumber, requestOptions, }: FormProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface UseFormProps {
     preLoadedValues?: FieldValues | undefined;

@@ -3555,11 +3555,12 @@ const ErrorAlert = ({ showMessage = true }) => {
 const SchemaFormContext = React.createContext({
     schema: {},
     serverUrl: "",
+    requestUrl: "",
     order: [],
     ignore: [],
     onSubmit: async () => { },
     rowNumber: 0,
-    displayText: {},
+    requestOptions: {},
 });
 
 const PopoverContent = React__namespace.forwardRef(function PopoverContent(props, ref) {
@@ -3586,10 +3587,11 @@ const Field = React__namespace.forwardRef(function Field(props, ref) {
 });
 
 const useSchemaContext = () => {
-    const { schema, serverUrl, order, ignore, onSubmit, rowNumber, idMap, setIdMap, translate, } = React.useContext(SchemaFormContext);
+    const { schema, serverUrl, requestUrl, order, ignore, onSubmit, rowNumber, idMap, setIdMap, translate, requestOptions, } = React.useContext(SchemaFormContext);
     return {
         schema,
         serverUrl,
+        requestUrl,
         order,
         ignore,
         onSubmit,
@@ -3597,6 +3599,7 @@ const useSchemaContext = () => {
         idMap,
         setIdMap,
         translate,
+        requestOptions,
     };
 };
 
@@ -3610,10 +3613,6 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
     const options = {
         method: "GET",
         url: `${serverUrl}/api/g/${in_table}`,
-        headers: {
-            Apikey: "YOUR_SECRET_TOKEN",
-            "Content-Type": "application/json",
-        },
         params: {
             searching,
             where,
@@ -4541,7 +4540,7 @@ const idPickerSanityCheck = (column, foreign_key) => {
     }
 };
 const FormInternal = () => {
-    const { schema, serverUrl, order, ignore, onSubmit, rowNumber, idMap, translate, } = useSchemaContext();
+    const { schema, requestUrl, order, ignore, onSubmit, rowNumber, idMap, translate, requestOptions, } = useSchemaContext();
     const methods = reactHookForm.useFormContext();
     const [isSuccess, setIsSuccess] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
@@ -4580,12 +4579,9 @@ const FormInternal = () => {
     const defaultSubmitPromise = (data) => {
         const options = {
             method: "POST",
-            url: `${serverUrl}/api/g/${schema.title}`,
-            headers: {
-                Apikey: "YOUR_SECRET_TOKEN",
-                "Content-Type": "application/json",
-            },
+            url: `${requestUrl}`,
             data: clearEmptyString(data),
+            ...requestOptions,
         };
         return axios.request(options);
     };
@@ -4772,7 +4768,7 @@ const FormInternal = () => {
                             methods.handleSubmit(onValid)();
                         }, formNoValidate: true, children: translate.t("submit") })] }), isError && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: ["isError", jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [" ", `${error}`] })] }))] }));
 };
-const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], onSubmit = undefined, preLoadedValues = {}, rowNumber = undefined, }) => {
+const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], onSubmit = undefined, preLoadedValues = {}, rowNumber = undefined, requestOptions = {}, }) => {
     const { properties } = schema;
     idListSanityCheck("order", order, properties);
     idListSanityCheck("ignore", ignore, properties);
@@ -4788,6 +4784,7 @@ const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [],
             idMap,
             setIdMap,
             translate,
+            requestOptions,
         }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: jsxRuntime.jsx(FormInternal, {}) }) }));
 };
 
