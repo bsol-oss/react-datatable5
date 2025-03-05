@@ -24,4 +24,4 @@ export interface Result<T = unknown> {
 export interface DataResponse<T = unknown> extends Result<T> {
     count: number;
 }
-export declare const useDataTableServer: <TData>({ url, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }: UseDataTableServerProps) => UseDataTableServerReturn<TData>;
+export declare const useDataTableServer: <TData>({ url, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, keyPrefix, }: UseDataTableServerProps) => UseDataTableServerReturn<TData>;

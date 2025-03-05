@@ -1,5 +1,6 @@
 import { ColumnFiltersState, ColumnOrderState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { DensityState } from "../Controls/DensityFeature";
+import { UseTranslationResponse } from "react-i18next";
 export interface DataTableDefaultState {
     sorting?: SortingState;
     columnFilters?: ColumnFiltersState;
@@ -12,6 +13,7 @@ export interface DataTableDefaultState {
 }
 export interface UseDataTableProps {
     default?: DataTableDefaultState;
+    keyPrefix?: string;
 }
 export interface UseDataTableReturn {
     sorting: SortingState;
@@ -30,5 +32,6 @@ export interface UseDataTableReturn {
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
+    translate: UseTranslationResponse<any, any>;
 }
-export declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }?: UseDataTableProps) => UseDataTableReturn;
+export declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, keyPrefix, }?: UseDataTableProps) => UseDataTableReturn;

@@ -3,6 +3,7 @@ import { UseQueryResult } from "@tanstack/react-query";
 import { ColumnDef, ColumnFiltersState, ColumnOrderState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { DensityState } from "../Controls/DensityFeature";
 import { DataResponse } from "./useDataTableServer";
+import { UseTranslationResponse } from "react-i18next";
 export interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown>> {
     children: ReactNode | ReactNode[];
     /**
@@ -34,6 +35,7 @@ export interface DataTableServerProps<TData extends DataResponse = DataResponse<
     setColumnVisibility: OnChangeFn<VisibilityState>;
     query: UseQueryResult<TData>;
     url: string;
+    translate: UseTranslationResponse<any, any>;
 }
 /**
  * DataTableServer will create a context to hold all values to
@@ -46,4 +48,4 @@ export interface DataTableServerProps<TData extends DataResponse = DataResponse<
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-export declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }: DataTableServerProps<TData>): import("react/jsx-runtime").JSX.Element;
+export declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, }: DataTableServerProps<TData>): import("react/jsx-runtime").JSX.Element;

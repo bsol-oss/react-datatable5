@@ -22,13 +22,9 @@ interface DensityToggleButtonProps {
 declare const DensityToggleButton: ({ text, icon, }: DensityToggleButtonProps) => react_jsx_runtime.JSX.Element;
 
 interface EditFilterButtonProps {
-    text?: string;
-    title?: string;
-    closeText?: string;
-    resetText?: string;
     icon?: React.ReactElement;
 }
-declare const EditFilterButton: ({ text, title, closeText, resetText, icon, }: EditFilterButtonProps) => react_jsx_runtime.JSX.Element;
+declare const FilterDialog: ({ icon, }: EditFilterButtonProps) => react_jsx_runtime.JSX.Element;
 
 interface EditOrderButtonProps {
     title?: string;
@@ -45,11 +41,9 @@ interface EditSortingButtonProps {
 declare const EditSortingButton: ({ text, icon, title, }: EditSortingButtonProps) => react_jsx_runtime.JSX.Element;
 
 interface EditViewButtonProps {
-    text?: string;
     icon?: React__default.ReactElement;
-    title?: string;
 }
-declare const EditViewButton: ({ text, icon, title, }: EditViewButtonProps) => react_jsx_runtime.JSX.Element;
+declare const ViewDialog: ({ icon }: EditViewButtonProps) => react_jsx_runtime.JSX.Element;
 
 interface PageSizeControlProps {
     pageSizes?: number[];
@@ -73,7 +67,7 @@ declare const ResetSortingButton: ({ text, }: ResetSortingButtonProps) => react_
 
 declare const RowCountText: () => react_jsx_runtime.JSX.Element;
 
-declare const TablePagination: () => react_jsx_runtime.JSX.Element;
+declare const Pagination: () => react_jsx_runtime.JSX.Element;
 
 interface CardHeaderProps<TData> {
     row: Row<TData>;
@@ -159,6 +153,7 @@ interface DataTableProps<TData = unknown> {
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
+    translate: UseTranslationResponse<any, any>;
 }
 /**
  * DataTable will create a context to hold all values to
@@ -170,7 +165,7 @@ interface DataTableProps<TData = unknown> {
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, }: DataTableProps<TData>): react_jsx_runtime.JSX.Element;
+declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, }: DataTableProps<TData>): react_jsx_runtime.JSX.Element;
 
 interface DataTableDefaultState {
     sorting?: SortingState;
@@ -184,6 +179,7 @@ interface DataTableDefaultState {
 }
 interface UseDataTableProps {
     default?: DataTableDefaultState;
+    keyPrefix?: string;
 }
 interface UseDataTableReturn {
     sorting: SortingState;
@@ -202,8 +198,9 @@ interface UseDataTableReturn {
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
+    translate: UseTranslationResponse<any, any>;
 }
-declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }?: UseDataTableProps) => UseDataTableReturn;
+declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, keyPrefix, }?: UseDataTableProps) => UseDataTableReturn;
 
 interface UseDataTableServerProps extends UseDataTableProps {
     /**
@@ -229,7 +226,7 @@ interface Result<T = unknown> {
 interface DataResponse<T = unknown> extends Result<T> {
     count: number;
 }
-declare const useDataTableServer: <TData>({ url, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }: UseDataTableServerProps) => UseDataTableServerReturn<TData>;
+declare const useDataTableServer: <TData>({ url, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, keyPrefix, }: UseDataTableServerProps) => UseDataTableServerReturn<TData>;
 
 interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown>> {
     children: ReactNode | ReactNode[];
@@ -262,6 +259,7 @@ interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown
     setColumnVisibility: OnChangeFn<VisibilityState>;
     query: UseQueryResult<TData>;
     url: string;
+    translate: UseTranslationResponse<any, any>;
 }
 /**
  * DataTableServer will create a context to hold all values to
@@ -274,7 +272,7 @@ interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, children, url, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
+declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
 
 interface TableBodyProps {
     pinnedBgColor?: {
@@ -301,7 +299,6 @@ interface TableControlsProps {
     totalText?: string;
     fitTableWidth?: boolean;
     fitTableHeight?: boolean;
-    isMobile?: boolean;
     children?: ReactNode;
     showGlobalFilter?: boolean;
     showFilter?: boolean;
@@ -311,12 +308,13 @@ interface TableControlsProps {
     showPagination?: boolean;
     showPageSizeControl?: boolean;
     showPageCountText?: boolean;
+    showView?: boolean;
     filterOptions?: string[];
     extraItems?: ReactNode;
     loading?: boolean;
     hasError?: boolean;
 }
-declare const TableControls: ({ totalText, fitTableWidth, fitTableHeight, isMobile, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, filterOptions, extraItems, loading, hasError, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
+declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterOptions, extraItems, loading, hasError, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
 
 interface TableFooterProps {
     pinnedBgColor?: {
@@ -420,6 +418,7 @@ interface DataTableContext<TData = unknown> {
     globalFilter: string;
     setGlobalFilter: OnChangeFn<string>;
     type: "client" | "server";
+    translate: UseTranslationResponse<any, any>;
 }
 declare const DataTableContext: React$1.Context<DataTableContext<unknown>>;
 
@@ -601,4 +600,4 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerProps, DefaultCardTitle, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, EditFilterButton, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, EditViewButton, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, FilterOptions, type FilterOptionsProps, Form, type FormProps, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, TablePagination, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, getColumns, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerProps, DefaultCardTitle, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditOrderButton, type EditOrderButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, FilterDialog, FilterOptions, type FilterOptionsProps, Form, type FormProps, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, Pagination, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, TableOrderer, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, ViewDialog, getColumns, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
