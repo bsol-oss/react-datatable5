@@ -1,6 +1,6 @@
 # React Datatable
 
-The datetable package is built on top of `@tanstack/react-table` and `chakra-ui` to create a robust datatable. This hook simplifies to initialize the state management for controlling the datatable, and it offers several predefined tables and controls in to enhance data visualization.
+The datetable package is built on top of `@tanstack/react-table` and `chakra-ui` to create a datatable. This hook simplifies to initialize the state management for controlling the datatable, and it offers several predefined tables and controls in to enhance data visualization.
 
 ## Installation
 
@@ -23,22 +23,7 @@ const datatableServer = useDataTableServer({ url: "<some-url>" });
 
 ```tsx
 <DataTable columns={columns} data={data} {...datatable}>
-  <Flex>
-    <TablePagination />
-    <EditViewButton />
-    <EditFilterButton />
-    <EditOrderButton />
-    <PageSizeControl />
-    <TableSelector />
-    <GlobalFilter />
-  </Flex>
-  <Table>
-    <TableHeader canResize />
-    <TableBody />
-    <TableFooter />
-  </Table>
-  <PageSizeControl />
-  <TablePagination />
+  <DataDisplay />
 </DataTable>
 ```
 
@@ -46,29 +31,7 @@ const datatableServer = useDataTableServer({ url: "<some-url>" });
 
 ```tsx
 <DataTableServer columns={columns} {...datatable}>
-  <Flex>
-    <TablePagination />
-    <EditViewButton />
-    <EditFilterButton />
-    <DensityToggleButton />
-    <EditOrderButton />
-    <PageSizeControl />
-    <TableSelector />
-    <GlobalFilter />
-  </Flex>
-  <Table>
-    <TableHeader canResize />
-    <TableBody />
-    <TableFooter />
-  </Table>
-  <Flex>
-    <TablePagination />
-    <EditViewButton />
-    <EditFilterButton />
-    <EditOrderButton />
-    <PageSizeControl />
-    <TableSelector />
-  </Flex>
+  <DataDisplay />
 </DataTableServer>
 ```
 
