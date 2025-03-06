@@ -11,7 +11,7 @@ export interface DatePickerProps {
   column: string;
 }
 
-export const ObjectInput = ({ column }: DatePickerProps) => {
+export const RecordInput = ({ column }: DatePickerProps) => {
   const {
     formState: { errors },
     setValue,

@@ -1,11 +1,8 @@
 import { SchemaFormContext } from "@/components/Form/SchemaFormContext";
-import { IdPicker } from "@/components/Form/components/IdPicker";
 import { IdViewer } from "@/components/Form/components/IdViewer";
-import { NumberInputField } from "@/components/Form/components/NumberInputField";
 import {
   CustomJSONSchema7,
-  ForeignKeyProps,
-  StringInputField,
+  ForeignKeyProps
 } from "@/components/Form/components/StringInputField";
 import { useSchemaContext } from "@/components/Form/useSchemaContext";
 import { clearEmptyString } from "@/components/Form/utils/clearEmptyString";
@@ -39,14 +36,9 @@ import {
   useFormContext,
   UseFormReturn,
 } from "react-hook-form";
-import { RecordDisplay } from "../DataTable/components/RecordDisplay";
-import { BooleanPicker } from "./components/BooleanPicker";
-import { DatePicker } from "./components/DatePicker";
-import { EnumPicker } from "./components/EnumPicker";
-import { FilePicker } from "./components/FilePicker";
-import { ObjectInput } from "./components/ObjectInput";
-import { TagPicker } from "./components/TagPicker";
 import { UseTranslationResponse } from "react-i18next";
+import { RecordDisplay } from "../DataTable/components/RecordDisplay";
+import { ColumnRenderer } from "./components/ColumnRenderer";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -73,7 +65,7 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
   foreign_key: ForeignKeyProps;
 }
 
-const idPickerSanityCheck = (
+export const idPickerSanityCheck = (
   column: string,
   foreign_key?: {
     table?: string;
@@ -497,59 +489,15 @@ const FormInternal = <TData extends FieldValues>() => {
           gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, auto)`}
         >
           {ordered.map((column) => {
-            if (properties === undefined) {
-              return <></>;
-            }
-            const key = column;
-            const values = properties[column];
+            console.log(properties,column,"hkltrp")
+          
             const shouldIgnore = ignore.some((column) => {
-              return column == key;
+              return column == column;
             });
             if (shouldIgnore) {
               return <></>;
             }
-            //@ts-expect-error TODO: add more fields to support form-creation
-            const { type, variant, foreign_key } = values;
-            if (type === "string") {
-              // @ts-expect-error enum should exists
-              if (((values.enum ?? []) as string[]).length > 0) {
-                return <EnumPicker key={`form-${key}`} column={key} />;
-              }
-              if (variant === "id-picker") {
-                idPickerSanityCheck(column, foreign_key);
-                return <IdPicker key={`form-${key}`} column={key} />;
-              }
-              if (variant === "date-picker") {
-                return <DatePicker key={`form-${key}`} column={key} />;
-              }
-              return <StringInputField key={`form-${key}`} column={key} />;
-            }
-            if (type === "number" || type === "integer") {
-              return <NumberInputField key={`form-${key}`} column={key} />;
-            }
-            if (type === "boolean") {
-              return <BooleanPicker key={`form-${key}`} column={key} />;
-            }
-            if (type === "object") {
-              return <ObjectInput key={`form-${key}`} column={key} />;
-            }
-            if (type === "array") {
-              if (variant === "id-picker") {
-                idPickerSanityCheck(column, foreign_key);
-                return <IdPicker key={`form-${key}`} column={key} isMultiple />;
-              }
-              if (variant === "tag-picker") {
-                return <TagPicker key={`form-${key}`} column={key} />;
-              }
-              if (variant === "file-picker") {
-                return <FilePicker key={`form-${key}`} column={key} />;
-              }
-              return <Text key={`form-${key}`}>{`array ${column}`}</Text>;
-            }
-            if (type === "null") {
-              return <Text key={`form-${key}`}>{`null ${column}`}</Text>;
-            }
-            return <Text key={`form-${key}`}>missing type</Text>;
+            return <ColumnRenderer key={`form-${column}`} {...{ column }} />;
           })}
         </Grid>
         <Button
