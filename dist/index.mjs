@@ -4748,11 +4748,10 @@ const FormInternal = () => {
                             methods.handleSubmit(onValid)();
                         }, formNoValidate: true, children: translate.t("submit") })] }), isError && (jsxs(Fragment, { children: ["isError", jsxs(Fragment, { children: [" ", `${error}`] })] }))] }));
 };
-const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], onSubmit = undefined, preLoadedValues = {}, rowNumber = undefined, requestOptions = {}, }) => {
+const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, }) => {
     const { properties } = schema;
     idListSanityCheck("order", order, properties);
     idListSanityCheck("ignore", ignore, properties);
-    idListSanityCheck("preLoadedValues", Object.keys(preLoadedValues), properties);
     return (jsx(SchemaFormContext.Provider, { value: {
             schema,
             serverUrl,

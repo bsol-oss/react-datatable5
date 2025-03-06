@@ -4768,11 +4768,10 @@ const FormInternal = () => {
                             methods.handleSubmit(onValid)();
                         }, formNoValidate: true, children: translate.t("submit") })] }), isError && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: ["isError", jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [" ", `${error}`] })] }))] }));
 };
-const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], onSubmit = undefined, preLoadedValues = {}, rowNumber = undefined, requestOptions = {}, }) => {
+const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, }) => {
     const { properties } = schema;
     idListSanityCheck("order", order, properties);
     idListSanityCheck("ignore", ignore, properties);
-    idListSanityCheck("preLoadedValues", Object.keys(preLoadedValues), properties);
     return (jsxRuntime.jsx(SchemaFormContext.Provider, { value: {
             schema,
             serverUrl,
