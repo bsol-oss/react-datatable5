@@ -50,16 +50,14 @@ export const EventsFiles2: Story = {
 };
 
 const SomeForm = () => {
-  const { form, idMap, setIdMap, translate } = useForm({ keyPrefix: "nice" });
+  const form = useForm({ keyPrefix: "nice" });
 
   return (
     <Form
       schema={eventsFilesSchema2 as JSONSchema7}
       serverUrl={"http://localhost:8081"}
-      preLoadedValues={{}}
       rowNumber={20}
       onSubmit={async (data) => {
-        console.log(data, "dskfop");
         const body = data["file_id"].map((file_id: string) => {
           return {
             file_id,
@@ -71,7 +69,7 @@ const SomeForm = () => {
           data: body,
         });
       }}
-      {...{ form, idMap, setIdMap, translate }}
+      {...form}
     />
   );
 };
