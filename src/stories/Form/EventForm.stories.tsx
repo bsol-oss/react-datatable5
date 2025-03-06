@@ -53,53 +53,9 @@ const SomeForm = () => {
   return (
     <Form
       schema={eventsSchema as JSONSchema7}
-      order={[]}
       ignore={["id", "created_at", "updated_at"]}
       serverUrl={"http://localhost:8081"}
       {...form}
     />
   );
 };
-
-// export const EventRow: Story = {
-//   render: () => {
-//     return (
-//       <Provider>
-//         <Form
-//           requestUrl={"http://localhost:8081/api"}
-//           schema={eventsSchema as JSONSchema7}
-//           order={[
-//             "event_name",
-//             "parent_event_id",
-//             "start_date",
-//             "start_time",
-//             "end_date",
-//             "end_time",
-//             "is_recurring",
-//             "recurring_days",
-//             "recurring_type",
-//             "description",
-//           ]}
-//           ignore={["id", "created_at", "updated_at"]}
-//           serverUrl={"http://localhost:8081"}
-//           preLoadedValues={{
-//             recurring_days: ["mon"],
-//             remarks: "kookkook",
-//             start_date: "2025-02-13",
-//             event_name: "ckodsp",
-//             parent_event_id: ["98cfc50d-7fca-40da-ae7c-192f36cf766a"],
-//             is_recurring: true,
-//             end_date: "2025-02-14",
-//             end_time: "14:30:00Z",
-//             description: "dfkgjpaoskdf",
-//             recurring_type: ["weekly"],
-//             extra_info: {
-//               nice: "job",
-//             },
-//           }}
-//           rowNumber={9}
-//         />
-//       </Provider>
-//     );
-//   },
-// };

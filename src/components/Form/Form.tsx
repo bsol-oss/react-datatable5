@@ -580,7 +580,6 @@ export const Form = <TData extends FieldValues>({
   order = [],
   ignore = [],
   onSubmit = undefined,
-  preLoadedValues = {},
   rowNumber = undefined,
   requestOptions = {},
 }: FormProps<TData>) => {
@@ -588,11 +587,6 @@ export const Form = <TData extends FieldValues>({
 
   idListSanityCheck("order", order, properties as object);
   idListSanityCheck("ignore", ignore, properties as object);
-  idListSanityCheck(
-    "preLoadedValues",
-    Object.keys(preLoadedValues),
-    properties as object
-  );
 
   return (
     <SchemaFormContext.Provider
