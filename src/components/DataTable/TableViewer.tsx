@@ -45,7 +45,7 @@ function ColumnCard({ columnId }: ColumnCardProps) {
       alignItems="center"
       style={dragging ? { opacity: 0.4 } : {}} // fading the piece during dragging
     >
-      <Flex alignItems="center" padding="0">
+      <Flex alignItems="center" padding="0" cursor={'grab'}>
         <FaGripLinesVertical color="gray.400" />
       </Flex>
       <Flex justifyContent="space-between" alignItems="center">
@@ -112,11 +112,12 @@ function CardContainer({ location, children }: CardContainerProps) {
 export const TableViewer = () => {
   const { table } = useDataTableContext();
 
-  const [order, setOrder] = useState<string[]>(
-    table.getAllLeafColumns().map((column) => {
-      return column.id;
-    })
-  );
+  const order =
+    table.getState().columnOrder.length > 0
+      ? table.getState().columnOrder
+      : table.getAllLeafColumns().map(({ id }) => {
+          return id;
+        });
 
   useEffect(() => {
     return monitorForElements({
@@ -128,6 +129,7 @@ export const TableViewer = () => {
         const destinationLocation = destination.data.location as number;
         // const sourceLocation = source.data.location;
         const sourceColumn = source.data.column as Column<any>;
+
         const columnOrder = order.map((id) => {
           if (id == sourceColumn.id) {
             return "<marker>";
@@ -147,13 +149,12 @@ export const TableViewer = () => {
         ].filter((id) => id != "<marker>");
 
         table.setColumnOrder(newOrder);
-        setOrder(newOrder);
       },
     });
-  }, [order, table]);
+  }, [table]);
   return (
     <Flex flexFlow={"column"} gap={"0.25rem"}>
-      {table.getState().columnOrder.map((columnId, index) => {
+      {order.map((columnId, index) => {
         return (
           <CardContainer location={index}>
             <ColumnCard columnId={columnId}></ColumnCard>
