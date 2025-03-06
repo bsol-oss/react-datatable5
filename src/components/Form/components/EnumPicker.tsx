@@ -19,6 +19,7 @@ import { CustomJSONSchema7 } from "./StringInputField";
 export interface IdPickerProps {
   column: string;
   isMultiple?: boolean;
+  schema: CustomJSONSchema7;
 }
 
 export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
@@ -27,15 +28,13 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema, translate } = useSchemaContext();
+  const { translate } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   if (schema.properties == undefined) {
     throw new Error("schema properties when using DatePicker");
   }
-  const { gridColumn, gridRow, renderDisplay } = schema.properties[
-    column
-  ] as CustomJSONSchema7;
+  const { gridColumn, gridRow, renderDisplay } = schema;
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();

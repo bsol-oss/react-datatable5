@@ -2,7 +2,7 @@ import { SchemaFormContext } from "@/components/Form/SchemaFormContext";
 import { IdViewer } from "@/components/Form/components/IdViewer";
 import {
   CustomJSONSchema7,
-  ForeignKeyProps
+  ForeignKeyProps,
 } from "@/components/Form/components/StringInputField";
 import { useSchemaContext } from "@/components/Form/useSchemaContext";
 import { clearEmptyString } from "@/components/Form/utils/clearEmptyString";
@@ -489,15 +489,15 @@ const FormInternal = <TData extends FieldValues>() => {
           gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, auto)`}
         >
           {ordered.map((column) => {
-            console.log(properties,column,"hkltrp")
-          
-            const shouldIgnore = ignore.some((column) => {
-              return column == column;
-            });
-            if (shouldIgnore) {
-              return <></>;
-            }
-            return <ColumnRenderer key={`form-${column}`} {...{ column }} />;
+            return (
+              <ColumnRenderer
+                // @ts-expect-error find suitable types
+                properties={properties}
+                prefix={``}
+                key={`form-${column}`}
+                {...{ column }}
+              />
+            );
           })}
         </Grid>
         <Button

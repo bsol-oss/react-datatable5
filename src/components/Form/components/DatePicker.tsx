@@ -17,28 +17,25 @@ import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface DatePickerProps {
   column: string;
+  schema: CustomJSONSchema7;
+  prefix: string;
 }
 
-export const DatePicker = ({ column }: DatePickerProps) => {
+export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
   const {
     watch,
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema, translate } = useSchemaContext();
-  const { required } = schema;
+  const { translate } = useSchemaContext();
+  const { required, gridColumn, gridRow } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
+  const colLabel = `${prefix}${column}`;
   const [open, setOpen] = useState(false);
-  const selectedDate = watch(column);
-  if (schema.properties == undefined) {
-    throw new Error("schema properties when using DatePicker");
-  }
-  const { gridColumn, gridRow } = schema.properties[
-    column
-  ] as CustomJSONSchema7;
+  const selectedDate = watch(colLabel);
   return (
     <Field
-      label={`${translate.t(`${column}.fieldLabel`)}`}
+      label={`${translate.t(`${colLabel}.fieldLabel`)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -69,7 +66,7 @@ export const DatePicker = ({ column }: DatePickerProps) => {
               // @ts-expect-error TODO: find appropriate types
               selected={new Date(selectedDate)}
               // @ts-expect-error TODO: find appropriate types
-              onDateSelected={({ selected, selectable, date }) => {
+              onDateSelected={({ date }) => {
                 setValue(column, dayjs(date).format("YYYY-MM-DD"));
                 setOpen(false);
               }}

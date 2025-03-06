@@ -1,6 +1,5 @@
 import { RecordDisplay } from "@/components/DataTable/components/RecordDisplay";
-import { DataListItemProps, Flex, Text } from "@chakra-ui/react";
-
+import { Flex, Text } from "@chakra-ui/react";
 import {
   HoverCardArrow,
   HoverCardContent,

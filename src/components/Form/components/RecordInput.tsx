@@ -8,28 +8,25 @@ import { useSchemaContext } from "../useSchemaContext";
 import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface DatePickerProps {
+  schema: CustomJSONSchema7;
   column: string;
+  prefix: string;
 }
 
-export const RecordInput = ({ column }: DatePickerProps) => {
+export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
   const {
     formState: { errors },
     setValue,
     getValues,
   } = useFormContext();
-  const { schema, translate } = useSchemaContext();
-  const { required } = schema;
+  const { translate } = useSchemaContext();
+  const { required, gridColumn, gridRow } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const entries = Object.entries(getValues(column) ?? {});
   const [showNewEntries, setShowNewEntries] = useState<boolean>(false);
   const [newKey, setNewKey] = useState<string>();
   const [newValue, setNewValue] = useState<string>();
-  if (schema.properties == undefined) {
-    throw new Error("schema properties when using DatePicker");
-  }
-  const { gridColumn, gridRow } = schema.properties[
-    column
-  ] as CustomJSONSchema7;
+
   return (
     <Field
       label={`${translate.t(`${column}.fieldLabel`)}`}
@@ -125,7 +122,7 @@ export const RecordInput = ({ column }: DatePickerProps) => {
                 setNewValue(undefined);
               }}
             >
-               {translate.t(`${column}.save`)}
+              {translate.t(`${column}.save`)}
             </Button>
           </Card.Footer>
         </Card.Root>

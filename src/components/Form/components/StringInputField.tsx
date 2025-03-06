@@ -1,13 +1,14 @@
 import { Input, Text } from "@chakra-ui/react";
-import { Field } from "../../ui/field";
-import { useFormContext } from "react-hook-form";
-import { useSchemaContext } from "../useSchemaContext";
-import { snakeToLabel } from "../utils/snakeToLabel";
 import { JSONSchema7 } from "json-schema";
 import { ReactNode } from "react";
+import { useFormContext } from "react-hook-form";
+import { Field } from "../../ui/field";
+import { useSchemaContext } from "../useSchemaContext";
 
 export interface StringInputFieldProps {
   column: string;
+  schema: CustomJSONSchema7;
+  prefix: string;
 }
 
 export interface ForeignKeyProps {
@@ -18,43 +19,39 @@ export interface ForeignKeyProps {
 export interface CustomJSONSchema7 extends JSONSchema7 {
   gridColumn?: string;
   gridRow?: string;
-  title?: string;
-  in_table?: string;
-  object_id_column?: string;
   foreign_key?: ForeignKeyProps;
+  variant?: string;
   renderDisplay: (item: unknown) => ReactNode;
 }
 
-export const StringInputField = ({ column }: StringInputFieldProps) => {
+export const StringInputField = ({
+  column,
+  schema,
+  prefix,
+}: StringInputFieldProps) => {
   const {
     register,
     formState: { errors },
   } = useFormContext();
-  const { schema, translate} = useSchemaContext();
-  const { required } = schema as CustomJSONSchema7;
+  const { translate } = useSchemaContext();
+  const { required, gridColumn, gridRow } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  if (schema.properties == undefined) {
-    throw new Error("schema properties when using String Input Field");
-  }
-  const { gridColumn, gridRow} = schema.properties[
-    column
-  ] as CustomJSONSchema7;
-
+  const colLabel = `${prefix}${column}`;
   return (
     <>
       <Field
-      label={`${translate.t(`${column}.fieldLabel`)}`}
+        label={`${translate.t(`${colLabel}.fieldLabel`)}`}
         required={isRequired}
         gridColumn={gridColumn ?? "span 4"}
         gridRow={gridRow ?? "span 1"}
       >
         <Input
-          {...register(column, { required: isRequired })}
+          {...register(`${colLabel}`, { required: isRequired })}
           autoComplete="off"
         />
-        {errors[`${column}`] && (
+        {errors[colLabel] && (
           <Text color={"red.400"}>
-             {translate.t(`${column}.fieldRequired`)}
+            {translate.t(`${colLabel}.fieldRequired`)}
           </Text>
         )}
       </Field>

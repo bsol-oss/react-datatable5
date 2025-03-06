@@ -54,6 +54,21 @@ const eventsGeolocationsSchema = {
       type: "string",
       format: "uuid",
     },
+    geolocations: {
+      type: "object",
+      properties: {
+        latitude: {
+          type: "number",
+          description:
+            "Missing description. Database type: double precision. Default value: null",
+        },
+        longitude: {
+          type: "number",
+          description:
+            "Missing description. Database type: double precision. Default value: null",
+        },
+      },
+    },
     child_records: {
       type: "array",
       items: {

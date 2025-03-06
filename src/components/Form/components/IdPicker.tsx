@@ -24,24 +24,25 @@ import { CustomJSONSchema7, ForeignKeyProps } from "./StringInputField";
 
 export interface IdPickerProps {
   column: string;
+  schema: CustomJSONSchema7;
+  prefix: string;
   isMultiple?: boolean;
 }
 
-export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
+export const IdPicker = ({
+  column,
+  schema,
+  prefix,
+  isMultiple = false,
+}: IdPickerProps) => {
   const {
     watch,
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema, serverUrl, idMap, setIdMap, translate } = useSchemaContext();
-  const { required } = schema;
+  const { serverUrl, idMap, setIdMap, translate } = useSchemaContext();
+  const { required, gridColumn, gridRow, renderDisplay, foreign_key } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  if (schema.properties == undefined) {
-    throw new Error("schema properties is undefined when using DatePicker");
-  }
-  const { gridColumn, gridRow, renderDisplay, foreign_key } = schema.properties[
-    column
-  ] as CustomJSONSchema7;
   const {
     table,
     column: column_ref,
@@ -53,6 +54,7 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
   const [page, setPage] = useState(0);
   const ref = useRef<HTMLInputElement>(null);
   const selectedIds = watch(column) ?? [];
+  const colLabel = `${prefix}${column}`;
 
   const query = useQuery({
     queryKey: [`idpicker`, { column, searchText, limit, page }],
@@ -109,7 +111,7 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
 
   return (
     <Field
-      label={`${translate.t(`${column}.fieldLabel`)}`}
+      label={`${translate.t(`${colLabel}.fieldLabel`)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -174,7 +176,7 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
         <PopoverContent>
           <PopoverBody display={"grid"} gap={1}>
             <Input
-              placeholder={translate.t(`${column}.typeToSearch`)}
+              placeholder={translate.t(`${colLabel}.typeToSearch`)}
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
@@ -191,7 +193,7 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
                 {isError && <>isError</>}
                 <Text
                   justifySelf={"center"}
-                >{`${translate.t(`${column}.total`)} ${count}, ${translate.t(`${column}.showing`)} ${limit}`}</Text>
+                >{`${translate.t(`${colLabel}.total`)} ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}`}</Text>
                 <Grid
                   gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
                   overflow={"auto"}
@@ -211,7 +213,7 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
                             onClick={() => {
                               if (!isMultiple) {
                                 setOpenSearchResult(false);
-                                setValue(column, item[column_ref]);
+                                setValue(colLabel, item[column_ref]);
                                 return;
                               }
                               const newSet = new Set([
@@ -236,7 +238,7 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
                     <>
                       {dataList.length <= 0 && (
                         <Text>
-                          {translate.t(`${column}.emptySearchResult`)}
+                          {translate.t(`${colLabel}.emptySearchResult`)}
                         </Text>
                       )}
                     </>
@@ -262,8 +264,10 @@ export const IdPicker = ({ column, isMultiple = false }: IdPickerProps) => {
         </PopoverContent>
       </PopoverRoot>
 
-      {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
+      {errors[`${colLabel}`] && (
+        <Text color={"red.400"}>
+          {translate.t(`${colLabel}.fieldRequired`)}
+        </Text>
       )}
     </Field>
   );

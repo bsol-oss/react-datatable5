@@ -9,35 +9,39 @@ import { useSchemaContext } from "../useSchemaContext";
 import { CustomJSONSchema7 } from "./StringInputField";
 export interface NumberInputFieldProps {
   column: string;
+  schema: CustomJSONSchema7;
+  prefix: string;
 }
 
-export const NumberInputField = ({ column }: NumberInputFieldProps) => {
+export const NumberInputField = ({
+  schema,
+  column,
+  prefix,
+}: NumberInputFieldProps) => {
   const {
     register,
     formState: { errors },
   } = useFormContext();
-  const { schema, translate } = useSchemaContext();
-  const { required } = schema;
+  const { translate } = useSchemaContext();
+  const { required, gridColumn, gridRow } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  if (schema.properties == undefined) {
-    throw new Error("schema properties when using String Input Field");
-  }
-  const { gridColumn, gridRow } = schema.properties[
-    column
-  ] as CustomJSONSchema7;
+  const colLabel = `${prefix}${column}`;
+
   return (
     <Field
-      label={`${translate.t(`${column}.fieldLabel`)}`}
+      label={`${translate.t(`${colLabel}.fieldLabel`)}`}
       required={isRequired}
       {...{ gridColumn, gridRow }}
     >
       <NumberInputRoot>
         <ChakraNumberInputField
-          {...register(column, { required: isRequired })}
+          {...register(`${colLabel}`, { required: isRequired })}
         />
       </NumberInputRoot>
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
+        <Text color={"red.400"}>
+          {translate.t(`${colLabel}.fieldRequired`)}
+        </Text>
       )}
     </Field>
   );

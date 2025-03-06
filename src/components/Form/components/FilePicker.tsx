@@ -6,26 +6,21 @@ import { useSchemaContext } from "../useSchemaContext";
 import { FileDropzone } from "./FileDropzone";
 import { CustomJSONSchema7 } from "./StringInputField";
 
-export const FilePicker = ({ column }) => {
+export const FilePicker = ({ column, schema, prefix }) => {
   const {
     setValue,
     formState: { errors },
     watch,
   } = useFormContext();
-  const { schema, translate } = useSchemaContext();
-  const { required } = schema as CustomJSONSchema7;
+  const { translate } = useSchemaContext();
+  const { required, gridColumn, gridRow } = schema as CustomJSONSchema7;
   const isRequired = required?.some((columnId) => columnId === column);
-  if (schema.properties == undefined) {
-    throw new Error("schema properties when using String Input Field");
-  }
-  const { gridColumn, gridRow } = schema.properties[
-    column
-  ] as CustomJSONSchema7;
-  const currentFiles = (watch(column) ?? []) as File[];
 
+  const currentFiles = (watch(column) ?? []) as File[];
+const col = `${prefix}${column}`
   return (
     <Field
-      label={`${translate.t(`${column}.fieldLabel`)}`}
+      label={`${translate.t(`${col}.fieldLabel`)}`}
       required={isRequired}
       gridColumn={gridColumn ?? "span 4"}
       gridRow={gridRow ?? "span 1"}
@@ -38,9 +33,9 @@ export const FilePicker = ({ column }) => {
           const newFiles = files.filter(
             ({ name }) => !currentFiles.some((cur) => cur.name === name)
           );
-          setValue(column, [...currentFiles, ...newFiles]);
+          setValue(col, [...currentFiles, ...newFiles]);
         }}
-        placeholder={translate.t(`${column}.fileDropzone`)}
+        placeholder={translate.t(`${col}.fileDropzone`)}
       />
       <Flex flexFlow={"column"} gap={1}>
         {currentFiles.map((file) => {
@@ -58,9 +53,9 @@ export const FilePicker = ({ column }) => {
                   );
                 }}
                 display={"flex"}
-                flexFlow={'row'}
-                alignItems={'center'}
-                padding={'2'}
+                flexFlow={"row"}
+                alignItems={"center"}
+                padding={"2"}
               >
                 <Box>{file.name}</Box>
                 <TiDeleteOutline />
@@ -69,8 +64,8 @@ export const FilePicker = ({ column }) => {
           );
         })}
       </Flex>
-      {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
+      {errors[`${col}`] && (
+        <Text color={"red.400"}>{translate.t(`${col}.fieldRequired`)}</Text>
       )}
     </Field>
   );

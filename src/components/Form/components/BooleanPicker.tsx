@@ -7,27 +7,24 @@ import { CustomJSONSchema7 } from "./StringInputField";
 
 export interface DatePickerProps {
   column: string;
+  schema: CustomJSONSchema7;
+  prefix: string;
 }
 
-export const BooleanPicker = ({ column }: DatePickerProps) => {
+export const BooleanPicker = ({ schema, column, prefix }: DatePickerProps) => {
   const {
     watch,
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { schema, translate } = useSchemaContext();
-  const { required } = schema;
+  const { translate } = useSchemaContext();
+  const { required, gridColumn, gridRow } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const value = watch(column);
-  if (schema.properties == undefined) {
-    throw new Error("schema properties when using BooleanPicker");
-  }
-  const { gridColumn, gridRow } = schema.properties[
-    column
-  ] as CustomJSONSchema7;
+  const colLabel = `${prefix}${column}`;
+  const value = watch(colLabel);
   return (
     <Field
-      label={`${translate.t(`${column}.fieldLabel`)}`}
+      label={`${translate.t(`${colLabel}.fieldLabel`)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -39,11 +36,13 @@ export const BooleanPicker = ({ column }: DatePickerProps) => {
         checked={value}
         variant={"surface"}
         onSelect={() => {
-          setValue(column, !value);
+          setValue(colLabel, !value);
         }}
       />
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
+        <Text color={"red.400"}>
+          {translate.t(`${colLabel}.fieldRequired`)}
+        </Text>
       )}
     </Field>
   );
