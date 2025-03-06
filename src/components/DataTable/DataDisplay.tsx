@@ -10,22 +10,6 @@ export interface DataDisplayProps {
   translate?: UseTranslationResponse<any, any>;
 }
 
-const formatValue = (value: unknown): string => {
-  if (typeof value === "object") {
-    return JSON.stringify(value);
-  }
-  if (typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number" || typeof value === "boolean") {
-    return `${value}`;
-  }
-  if (value === undefined) {
-    return `undefined`;
-  }
-  throw new Error(`value is unknown, ${typeof value}`);
-};
-
 export const DataDisplay = ({ variant = "", translate }: DataDisplayProps) => {
   const { table } = useDataTableContext();
 
@@ -35,6 +19,26 @@ export const DataDisplay = ({ variant = "", translate }: DataDisplayProps) => {
     }
     return snakeToLabel(columnId);
   };
+
+  const formatValue = (value: unknown): string => {
+    if (typeof value === "object") {
+      return JSON.stringify(value);
+    }
+    if (typeof value === "string") {
+      return value;
+    }
+    if (typeof value === "number" || typeof value === "boolean") {
+      return `${value}`;
+    }
+    if (value === undefined) {
+      if (translate !== undefined) {
+        return translate.t(`undefined`);
+      }
+      return `undefined`;
+    }
+    throw new Error(`value is unknown, ${typeof value}`);
+  };
+  
   if (variant == "horizontal") {
     return (
       <Flex flexFlow={"column"} gap={"1"}>
