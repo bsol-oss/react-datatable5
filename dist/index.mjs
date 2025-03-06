@@ -2360,7 +2360,7 @@ function ColumnCard({ columnId }) {
             onDrop: () => setDragging(false), // NEW
         });
     }, [columnId, table]);
-    return (jsxs(Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsx(Flex, { alignItems: "center", padding: "0", children: jsx(FaGripLinesVertical, { color: "gray.400" }) }), jsx(Flex, { justifyContent: "space-between", alignItems: "center", children: jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
+    return (jsxs(Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsx(Flex, { alignItems: "center", padding: "0", cursor: 'grab', children: jsx(FaGripLinesVertical, { color: "gray.400" }) }), jsx(Flex, { justifyContent: "space-between", alignItems: "center", children: jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
 }
 function CardContainer({ location, children }) {
     const ref = useRef(null);
@@ -2398,9 +2398,11 @@ function CardContainer({ location, children }) {
 }
 const TableViewer = () => {
     const { table } = useDataTableContext();
-    const [order, setOrder] = useState(table.getAllLeafColumns().map((column) => {
-        return column.id;
-    }));
+    const order = table.getState().columnOrder.length > 0
+        ? table.getState().columnOrder
+        : table.getAllLeafColumns().map(({ id }) => {
+            return id;
+        });
     useEffect(() => {
         return monitorForElements({
             onDrop({ source, location }) {
@@ -2425,11 +2427,10 @@ const TableViewer = () => {
                     ...columnAfter,
                 ].filter((id) => id != "<marker>");
                 table.setColumnOrder(newOrder);
-                setOrder(newOrder);
             },
         });
-    }, [order, table]);
-    return (jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: table.getState().columnOrder.map((columnId, index) => {
+    }, [table]);
+    return (jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: order.map((columnId, index) => {
             return (jsx(CardContainer, { location: index, children: jsx(ColumnCard, { columnId: columnId }) }));
         }) }));
 };
@@ -2604,21 +2605,6 @@ const RecordDisplay = ({ object, boxProps, translate, prefix = "", }) => {
         }) }));
 };
 
-const formatValue = (value) => {
-    if (typeof value === "object") {
-        return JSON.stringify(value);
-    }
-    if (typeof value === "string") {
-        return value;
-    }
-    if (typeof value === "number" || typeof value === "boolean") {
-        return `${value}`;
-    }
-    if (value === undefined) {
-        return `undefined`;
-    }
-    throw new Error(`value is unknown, ${typeof value}`);
-};
 const DataDisplay = ({ variant = "", translate }) => {
     const { table } = useDataTableContext();
     const getLabel = ({ columnId }) => {
@@ -2626,6 +2612,24 @@ const DataDisplay = ({ variant = "", translate }) => {
             return translate.t(`${columnId}`);
         }
         return snakeToLabel(columnId);
+    };
+    const formatValue = (value) => {
+        if (typeof value === "object") {
+            return JSON.stringify(value);
+        }
+        if (typeof value === "string") {
+            return value;
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+            return `${value}`;
+        }
+        if (value === undefined) {
+            if (translate !== undefined) {
+                return translate.t(`undefined`);
+            }
+            return `undefined`;
+        }
+        throw new Error(`value is unknown, ${typeof value}`);
     };
     if (variant == "horizontal") {
         return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {

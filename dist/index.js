@@ -2380,7 +2380,7 @@ function ColumnCard({ columnId }) {
             onDrop: () => setDragging(false), // NEW
         });
     }, [columnId, table]);
-    return (jsxRuntime.jsxs(react.Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsxRuntime.jsx(react.Flex, { alignItems: "center", padding: "0", children: jsxRuntime.jsx(fa6.FaGripLinesVertical, { color: "gray.400" }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "space-between", alignItems: "center", children: jsxRuntime.jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
+    return (jsxRuntime.jsxs(react.Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsxRuntime.jsx(react.Flex, { alignItems: "center", padding: "0", cursor: 'grab', children: jsxRuntime.jsx(fa6.FaGripLinesVertical, { color: "gray.400" }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "space-between", alignItems: "center", children: jsxRuntime.jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
 }
 function CardContainer({ location, children }) {
     const ref = React.useRef(null);
@@ -2418,9 +2418,11 @@ function CardContainer({ location, children }) {
 }
 const TableViewer = () => {
     const { table } = useDataTableContext();
-    const [order, setOrder] = React.useState(table.getAllLeafColumns().map((column) => {
-        return column.id;
-    }));
+    const order = table.getState().columnOrder.length > 0
+        ? table.getState().columnOrder
+        : table.getAllLeafColumns().map(({ id }) => {
+            return id;
+        });
     React.useEffect(() => {
         return monitorForElements({
             onDrop({ source, location }) {
@@ -2445,11 +2447,10 @@ const TableViewer = () => {
                     ...columnAfter,
                 ].filter((id) => id != "<marker>");
                 table.setColumnOrder(newOrder);
-                setOrder(newOrder);
             },
         });
-    }, [order, table]);
-    return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: table.getState().columnOrder.map((columnId, index) => {
+    }, [table]);
+    return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: order.map((columnId, index) => {
             return (jsxRuntime.jsx(CardContainer, { location: index, children: jsxRuntime.jsx(ColumnCard, { columnId: columnId }) }));
         }) }));
 };
@@ -2624,21 +2625,6 @@ const RecordDisplay = ({ object, boxProps, translate, prefix = "", }) => {
         }) }));
 };
 
-const formatValue = (value) => {
-    if (typeof value === "object") {
-        return JSON.stringify(value);
-    }
-    if (typeof value === "string") {
-        return value;
-    }
-    if (typeof value === "number" || typeof value === "boolean") {
-        return `${value}`;
-    }
-    if (value === undefined) {
-        return `undefined`;
-    }
-    throw new Error(`value is unknown, ${typeof value}`);
-};
 const DataDisplay = ({ variant = "", translate }) => {
     const { table } = useDataTableContext();
     const getLabel = ({ columnId }) => {
@@ -2646,6 +2632,24 @@ const DataDisplay = ({ variant = "", translate }) => {
             return translate.t(`${columnId}`);
         }
         return snakeToLabel(columnId);
+    };
+    const formatValue = (value) => {
+        if (typeof value === "object") {
+            return JSON.stringify(value);
+        }
+        if (typeof value === "string") {
+            return value;
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+            return `${value}`;
+        }
+        if (value === undefined) {
+            if (translate !== undefined) {
+                return translate.t(`undefined`);
+            }
+            return `undefined`;
+        }
+        throw new Error(`value is unknown, ${typeof value}`);
     };
     if (variant == "horizontal") {
         return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
