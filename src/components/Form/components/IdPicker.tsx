@@ -124,7 +124,9 @@ export const IdPicker = ({
           {selectedIds.map((id: string) => {
             const item = idMap[id];
             if (item === undefined) {
-              return <Text key={id}>undefined</Text>;
+              return (
+                <Text key={id}> {translate.t(`${colLabel}.undefined`)}</Text>
+              );
             }
             return (
               <Tag
@@ -150,7 +152,7 @@ export const IdPicker = ({
               setOpenSearchResult(true);
             }}
           >
-            Add
+            {translate.t(`${colLabel}.addMore`)}
           </Tag>
         </Flex>
       )}
