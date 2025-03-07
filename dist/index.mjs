@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Flex, Text, Tag as Tag$1, Input, useDisclosure, DialogBackdrop, CheckboxCard as CheckboxCard$1, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Group, InputElement, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$2, VStack, List, Alert, Popover, Field as Field$1, HoverCard, NumberInput, Accordion, Show, RadioCard, CheckboxGroup, Heading, Center } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Flex, Text, Tag as Tag$1, Input, useDisclosure, DialogBackdrop, CheckboxCard as CheckboxCard$1, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Group, InputElement, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$2, VStack, List, Alert, HoverCard, Accordion, Popover, Field as Field$1, NumberInput, Show, RadioCard, CheckboxGroup, Heading, Center } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef } from 'react';
@@ -27,8 +27,8 @@ import { GrAscend, GrDescend } from 'react-icons/gr';
 import { HiColorSwatch, HiOutlineInformationCircle } from 'react-icons/hi';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
-import { useFormContext, FormProvider, useForm as useForm$1 } from 'react-hook-form';
 import dayjs from 'dayjs';
+import { useFormContext, FormProvider, useForm as useForm$1 } from 'react-hook-form';
 import { TiDeleteOutline } from 'react-icons/ti';
 
 const DataTableContext = createContext({
@@ -3547,28 +3547,15 @@ const SchemaFormContext = createContext({
     requestOptions: {},
 });
 
-const PopoverContent = React.forwardRef(function PopoverContent(props, ref) {
+const HoverCardContent = React.forwardRef(function HoverCardContent(props, ref) {
     const { portalled = true, portalRef, ...rest } = props;
-    return (jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { ref: ref, ...rest }) }) }));
+    return (jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(HoverCard.Positioner, { children: jsx(HoverCard.Content, { ref: ref, ...rest }) }) }));
 });
-React.forwardRef(function PopoverArrow(props, ref) {
-    return (jsx(Popover.Arrow, { ...props, ref: ref, children: jsx(Popover.ArrowTip, {}) }));
+const HoverCardArrow = React.forwardRef(function HoverCardArrow(props, ref) {
+    return (jsx(HoverCard.Arrow, { ref: ref, ...props, children: jsx(HoverCard.ArrowTip, {}) }));
 });
-React.forwardRef(function PopoverCloseTrigger(props, ref) {
-    return (jsx(Popover.CloseTrigger, { position: "absolute", top: "1", insetEnd: "1", ...props, asChild: true, ref: ref, children: jsx(CloseButton, { size: "sm" }) }));
-});
-const PopoverTitle = Popover.Title;
-Popover.Description;
-Popover.Footer;
-Popover.Header;
-const PopoverRoot = Popover.Root;
-const PopoverBody = Popover.Body;
-const PopoverTrigger = Popover.Trigger;
-
-const Field = React.forwardRef(function Field(props, ref) {
-    const { label, children, helperText, errorText, optionalText, ...rest } = props;
-    return (jsxs(Field$1.Root, { ref: ref, ...rest, children: [label && (jsxs(Field$1.Label, { children: [label, jsx(Field$1.RequiredIndicator, { fallback: optionalText })] })), children, helperText && (jsx(Field$1.HelperText, { children: helperText })), errorText && (jsx(Field$1.ErrorText, { children: errorText }))] }));
-});
+const HoverCardRoot = HoverCard.Root;
+const HoverCardTrigger = HoverCard.Trigger;
 
 const useSchemaContext = () => {
     const { schema, serverUrl, requestUrl, order, ignore, onSubmit, rowNumber, idMap, setIdMap, translate, requestOptions, } = useContext(SchemaFormContext);
@@ -3587,148 +3574,6 @@ const useSchemaContext = () => {
     };
 };
 
-const getTableData = async ({ serverUrl, in_table, searching = "", where = [], limit = 10, offset = 0, }) => {
-    if (serverUrl === undefined || serverUrl.length == 0) {
-        throw new Error("The serverUrl is missing");
-    }
-    if (in_table === undefined || in_table.length == 0) {
-        throw new Error("The in_table is missing");
-    }
-    const options = {
-        method: "GET",
-        url: `${serverUrl}/api/g/${in_table}`,
-        params: {
-            searching,
-            where,
-            limit,
-            offset
-        },
-    };
-    try {
-        const { data } = await axios.request(options);
-        console.log(data);
-        return data;
-    }
-    catch (error) {
-        console.error(error);
-        throw error;
-    }
-};
-
-const IdPicker = ({ column, isMultiple = false }) => {
-    const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { schema, serverUrl, idMap, setIdMap, translate } = useSchemaContext();
-    const { required } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    if (schema.properties == undefined) {
-        throw new Error("schema properties is undefined when using DatePicker");
-    }
-    const { gridColumn, gridRow, renderDisplay, foreign_key } = schema.properties[column];
-    const { table, column: column_ref, display_column, } = foreign_key;
-    const [searchText, setSearchText] = useState();
-    const [limit, setLimit] = useState(10);
-    const [openSearchResult, setOpenSearchResult] = useState();
-    const [page, setPage] = useState(0);
-    const ref = useRef(null);
-    const selectedIds = watch(column) ?? [];
-    const query = useQuery({
-        queryKey: [`idpicker`, { column, searchText, limit, page }],
-        queryFn: async () => {
-            const data = await getTableData({
-                serverUrl,
-                searching: searchText ?? "",
-                in_table: table,
-                limit: limit,
-                offset: page * 10,
-            });
-            const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
-                return [
-                    item[column_ref],
-                    {
-                        ...item,
-                    },
-                ];
-            }));
-            setIdMap((state) => {
-                return { ...state, ...newMap };
-            });
-            return data;
-        },
-        enabled: (searchText ?? "")?.length > 0,
-        staleTime: 300000,
-    });
-    const { isLoading, isFetching, data, isPending, isError } = query;
-    const dataList = data?.data ?? [];
-    const count = data?.count ?? 0;
-    const isDirty = (searchText?.length ?? 0) > 0;
-    const onSearchChange = async (event) => {
-        setSearchText(event.target.value);
-        setPage(0);
-        setLimit(10);
-    };
-    const watchId = watch(column);
-    const watchIds = (watch(column) ?? []);
-    const getPickedValue = () => {
-        if (Object.keys(idMap).length <= 0) {
-            return "";
-        }
-        const record = idMap[watchId];
-        if (record === undefined) {
-            return "";
-        }
-        return record[display_column];
-    };
-    return (jsxs(Field, { label: `${translate.t(`${column}.fieldLabel`)}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [selectedIds.map((id) => {
-                        const item = idMap[id];
-                        if (item === undefined) {
-                            return jsx(Text, { children: "undefined" }, id);
-                        }
-                        return (jsx(Tag, { closable: true, onClick: () => {
-                                setValue(column, watchIds.filter((id) => id != item[column_ref]));
-                            }, children: !!renderDisplay === true
-                                ? renderDisplay(item)
-                                : item[display_column] }, id));
-                    }), jsx(Tag, { cursor: "pointer", onClick: () => {
-                            setOpenSearchResult(true);
-                        }, children: "Add" })] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: () => {
-                    setOpenSearchResult(true);
-                }, children: getPickedValue() })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(`${column}.typeToSearch`), onChange: (event) => {
-                                        onSearchChange(event);
-                                        setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxs(Fragment, { children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), isError && jsx(Fragment, { children: "isError" }), jsx(Text, { justifySelf: "center", children: `${translate.t(`${column}.total`)} ${count}, ${translate.t(`${column}.showing`)} ${limit}` }), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: 
-                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                                    dataList.map((item) => {
-                                                        const selected = isMultiple
-                                                            ? watchIds.some((id) => item[column_ref] === id)
-                                                            : watchId === item[column_ref];
-                                                        return (jsx(Box, { cursor: "pointer", onClick: () => {
-                                                                if (!isMultiple) {
-                                                                    setOpenSearchResult(false);
-                                                                    setValue(column, item[column_ref]);
-                                                                    return;
-                                                                }
-                                                                const newSet = new Set([
-                                                                    ...(watchIds ?? []),
-                                                                    item[column_ref],
-                                                                ]);
-                                                                setValue(column, [...newSet]);
-                                                            }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
-                                                                ? renderDisplay(item)
-                                                                : item[display_column] }, item[column_ref]));
-                                                    }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Text, { children: translate.t(`${column}.emptySearchResult`) })) }))] }), jsx(PaginationRoot, { justifySelf: "center", count: query?.data?.count ?? 0, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.fieldRequired`) }))] }));
-};
-
-const HoverCardContent = React.forwardRef(function HoverCardContent(props, ref) {
-    const { portalled = true, portalRef, ...rest } = props;
-    return (jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(HoverCard.Positioner, { children: jsx(HoverCard.Content, { ref: ref, ...rest }) }) }));
-});
-const HoverCardArrow = React.forwardRef(function HoverCardArrow(props, ref) {
-    return (jsx(HoverCard.Arrow, { ref: ref, ...props, children: jsx(HoverCard.ArrowTip, {}) }));
-});
-const HoverCardRoot = HoverCard.Root;
-const HoverCardTrigger = HoverCard.Trigger;
-
 const IdViewer = ({ value, column }) => {
     const { schema, idMap, translate } = useSchemaContext();
     if (schema.properties == undefined) {
@@ -3743,38 +3588,6 @@ const IdViewer = ({ value, column }) => {
         return (jsxs(Flex, { flexFlow: "column", children: [jsx(Text, { children: translate.t(`${column}.fieldLabel`) }), jsx(Text, { children: translate.t(`empty`) })] }));
     }
     return (jsxs(Flex, { flexFlow: "column", children: [jsx(Text, { children: translate.t(`${column}.fieldLabel`) }), jsxs(HoverCardRoot, { children: [jsx(HoverCardTrigger, { asChild: true, children: jsx(Text, { cursor: 'pointer', children: idMap[value][display_column] }) }), jsxs(HoverCardContent, { children: [jsx(HoverCardArrow, {}), jsx(RecordDisplay, { object: idMap[value] })] })] })] }));
-};
-
-const NumberInputRoot = React.forwardRef(function NumberInput$1(props, ref) {
-    const { children, ...rest } = props;
-    return (jsxs(NumberInput.Root, { ref: ref, variant: "outline", ...rest, children: [children, jsxs(NumberInput.Control, { children: [jsx(NumberInput.IncrementTrigger, {}), jsx(NumberInput.DecrementTrigger, {})] })] }));
-});
-const NumberInputField$1 = NumberInput.Input;
-NumberInput.Scrubber;
-NumberInput.Label;
-
-const NumberInputField = ({ column }) => {
-    const { register, formState: { errors }, } = useFormContext();
-    const { schema, translate } = useSchemaContext();
-    const { required } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    if (schema.properties == undefined) {
-        throw new Error("schema properties when using String Input Field");
-    }
-    const { gridColumn, gridRow } = schema.properties[column];
-    return (jsxs(Field, { label: `${translate.t(`${column}.fieldLabel`)}`, required: isRequired, gridColumn, gridRow, children: [jsx(NumberInputRoot, { children: jsx(NumberInputField$1, { ...register(column, { required: isRequired }) }) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.fieldRequired`) }))] }));
-};
-
-const StringInputField = ({ column }) => {
-    const { register, formState: { errors }, } = useFormContext();
-    const { schema, translate } = useSchemaContext();
-    const { required } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    if (schema.properties == undefined) {
-        throw new Error("schema properties when using String Input Field");
-    }
-    const { gridColumn, gridRow } = schema.properties[column];
-    return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(`${column}.fieldLabel`)}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsx(Input, { ...register(column, { required: isRequired }), autoComplete: "off" }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.fieldRequired`) }))] }) }));
 };
 
 const clearEmptyString = (object) => {
@@ -3806,20 +3619,22 @@ const DataListItem = React.forwardRef(function DataListItem(props, ref) {
     return (jsxs(DataList.Item, { ref: ref, ...rest, children: [jsxs(DataList.ItemLabel, { flex: grow ? "1" : undefined, children: [label, info && jsx(InfoTip, { children: info })] }), jsx(DataList.ItemValue, { flex: grow ? "1" : undefined, children: value }), children] }));
 });
 
-const BooleanPicker = ({ column }) => {
+const Field = React.forwardRef(function Field(props, ref) {
+    const { label, children, helperText, errorText, optionalText, ...rest } = props;
+    return (jsxs(Field$1.Root, { ref: ref, ...rest, children: [label && (jsxs(Field$1.Label, { children: [label, jsx(Field$1.RequiredIndicator, { fallback: optionalText })] })), children, helperText && (jsx(Field$1.HelperText, { children: helperText })), errorText && (jsx(Field$1.ErrorText, { children: errorText }))] }));
+});
+
+const BooleanPicker = ({ schema, column, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { schema, translate } = useSchemaContext();
-    const { required } = schema;
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const value = watch(column);
-    if (schema.properties == undefined) {
-        throw new Error("schema properties when using BooleanPicker");
-    }
-    const { gridColumn, gridRow } = schema.properties[column];
-    return (jsxs(Field, { label: `${translate.t(`${column}.fieldLabel`)}`, required: isRequired, alignItems: "stretch", gridColumn,
+    const colLabel = `${prefix}${column}`;
+    const value = watch(colLabel);
+    return (jsxs(Field, { label: `${translate.t(`${colLabel}.fieldLabel`)}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsx(CheckboxCard, { checked: value, variant: "surface", onSelect: () => {
-                    setValue(column, !value);
-                } }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.fieldRequired`) }))] }));
+                    setValue(colLabel, !value);
+                } }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${colLabel}.fieldRequired`) }))] }));
 };
 
 const monthNamesShort = [
@@ -3891,18 +3706,33 @@ let DatePicker$1 = class DatePicker extends React__default.Component {
     }
 };
 
-const DatePicker = ({ column }) => {
+const PopoverContent = React.forwardRef(function PopoverContent(props, ref) {
+    const { portalled = true, portalRef, ...rest } = props;
+    return (jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { ref: ref, ...rest }) }) }));
+});
+React.forwardRef(function PopoverArrow(props, ref) {
+    return (jsx(Popover.Arrow, { ...props, ref: ref, children: jsx(Popover.ArrowTip, {}) }));
+});
+React.forwardRef(function PopoverCloseTrigger(props, ref) {
+    return (jsx(Popover.CloseTrigger, { position: "absolute", top: "1", insetEnd: "1", ...props, asChild: true, ref: ref, children: jsx(CloseButton, { size: "sm" }) }));
+});
+const PopoverTitle = Popover.Title;
+Popover.Description;
+Popover.Footer;
+Popover.Header;
+const PopoverRoot = Popover.Root;
+const PopoverBody = Popover.Body;
+const PopoverTrigger = Popover.Trigger;
+
+const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { schema, translate } = useSchemaContext();
-    const { required } = schema;
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
-    const selectedDate = watch(column);
-    if (schema.properties == undefined) {
-        throw new Error("schema properties when using DatePicker");
-    }
-    const { gridColumn, gridRow } = schema.properties[column];
-    return (jsxs(Field, { label: `${translate.t(`${column}.fieldLabel`)}`, required: isRequired, alignItems: "stretch", gridColumn,
+    const selectedDate = watch(colLabel);
+    return (jsxs(Field, { label: `${translate.t(`${colLabel}.fieldLabel`)}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsx(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
                             }, children: selectedDate !== undefined ? selectedDate : "" }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1
@@ -3911,7 +3741,7 @@ const DatePicker = ({ column }) => {
                                     // @ts-expect-error TODO: find appropriate types
                                     selected: new Date(selectedDate), 
                                     // @ts-expect-error TODO: find appropriate types
-                                    onDateSelected: ({ selected, selectable, date }) => {
+                                    onDateSelected: ({ date }) => {
                                         setValue(column, dayjs(date).format("YYYY-MM-DD"));
                                         setOpen(false);
                                     } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.fieldRequired`) }))] }));
@@ -3927,29 +3757,26 @@ function filterArray(array, searchTerm) {
     });
 }
 
-const EnumPicker = ({ column, isMultiple = false }) => {
+const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { schema, translate } = useSchemaContext();
+    const { translate } = useSchemaContext();
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    if (schema.properties == undefined) {
-        throw new Error("schema properties when using DatePicker");
-    }
-    const { gridColumn, gridRow, renderDisplay } = schema.properties[column];
+    const { gridColumn, gridRow, renderDisplay } = schema;
     const [searchText, setSearchText] = useState();
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
     const ref = useRef(null);
     const watchEnum = watch(column);
     const watchEnums = (watch(column) ?? []);
-    const properties = (schema.properties[column] ?? {});
-    const dataList = properties.enum ?? [];
-    const count = properties.enum?.length ?? 0;
+    const dataList = schema.enum ?? [];
+    const count = schema.enum?.length ?? 0;
     const isDirty = (searchText?.length ?? 0) > 0;
     const onSearchChange = async (event) => {
         setSearchText(event.target.value);
         setLimit(10);
     };
+    const col = `${prefix}${column}`;
     return (jsxs(Field, { label: `${translate.t(`${column}.fieldLabel`)}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [watchEnums.map((enumValue) => {
                         const item = enumValue;
@@ -3979,8 +3806,10 @@ const EnumPicker = ({ column, isMultiple = false }) => {
                                                         }
                                                         const newSet = new Set([...(watchEnums ?? []), item]);
                                                         setValue(column, [...newSet]);
-                                                    }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true ? renderDisplay(item) : item }, `${column}-${item}`));
-                                            }) }), isDirty && (jsxs(Fragment, { children: [dataList.length <= 0 && jsx(Fragment, { children: "Empty Search Result" }), " "] }))] })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.fieldRequired`) }))] }));
+                                                    }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
+                                                        ? renderDisplay(item)
+                                                        : translate.t(`${col}.${item}`) }, `${column}-${item}`));
+                                            }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Fragment, { children: translate.t(`${col}.emptySearchResult`) })) }))] })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${col}.fieldRequired`) }))] }));
 };
 
 function isEnteringWindow(_ref) {
@@ -4335,41 +4164,193 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
     return (jsxs(Grid, { ...getColor(isDraggedOver), ref: ref, cursor: "pointer", onClick: handleClick, borderStyle: "dashed", borderColor: "gray.400", alignContent: "center", justifyContent: "center", borderWidth: 1, borderRadius: 4, ...gridProps, children: [children, !!children === false && (jsxs(Fragment, { children: [jsx(Flex, { children: placeholder }), jsx(Input, { type: "file", multiple: true, style: { display: "none" }, ref: fileInput, onChange: handleChange })] }))] }));
 };
 
-const FilePicker = ({ column }) => {
+const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
-    const { schema, translate } = useSchemaContext();
-    const { required } = schema;
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    if (schema.properties == undefined) {
-        throw new Error("schema properties when using String Input Field");
-    }
-    const { gridColumn, gridRow } = schema.properties[column];
     const currentFiles = (watch(column) ?? []);
-    return (jsxs(Field, { label: `${translate.t(`${column}.fieldLabel`)}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", display: "grid", gridTemplateRows: "auto 1fr auto", alignItems: "stretch", children: [jsx(FileDropzone, { onDrop: ({ files }) => {
+    const col = `${prefix}${column}`;
+    return (jsxs(Field, { label: `${translate.t(`${col}.fieldLabel`)}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", display: "grid", gridTemplateRows: "auto 1fr auto", alignItems: "stretch", children: [jsx(FileDropzone, { onDrop: ({ files }) => {
                     const newFiles = files.filter(({ name }) => !currentFiles.some((cur) => cur.name === name));
-                    setValue(column, [...currentFiles, ...newFiles]);
-                }, placeholder: translate.t(`${column}.fileDropzone`) }), jsx(Flex, { flexFlow: "column", gap: 1, children: currentFiles.map((file) => {
+                    setValue(col, [...currentFiles, ...newFiles]);
+                }, placeholder: translate.t(`${col}.fileDropzone`) }), jsx(Flex, { flexFlow: "column", gap: 1, children: currentFiles.map((file) => {
                     return (jsx(Card.Root, { variant: "subtle", children: jsxs(Card.Body, { gap: "2", cursor: "pointer", onClick: () => {
                                 setValue(column, currentFiles.filter(({ name }) => {
                                     return name !== file.name;
                                 }));
-                            }, display: "flex", flexFlow: 'row', alignItems: 'center', padding: '2', children: [jsx(Box, { children: file.name }), jsx(TiDeleteOutline, {})] }) }, file.name));
-                }) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.fieldRequired`) }))] }));
+                            }, display: "flex", flexFlow: "row", alignItems: "center", padding: "2", children: [jsx(Box, { children: file.name }), jsx(TiDeleteOutline, {})] }) }, file.name));
+                }) }), errors[`${col}`] && (jsx(Text, { color: "red.400", children: translate.t(`${col}.fieldRequired`) }))] }));
 };
 
-const ObjectInput = ({ column }) => {
+const getTableData = async ({ serverUrl, in_table, searching = "", where = [], limit = 10, offset = 0, }) => {
+    if (serverUrl === undefined || serverUrl.length == 0) {
+        throw new Error("The serverUrl is missing");
+    }
+    if (in_table === undefined || in_table.length == 0) {
+        throw new Error("The in_table is missing");
+    }
+    const options = {
+        method: "GET",
+        url: `${serverUrl}/api/g/${in_table}`,
+        params: {
+            searching,
+            where,
+            limit,
+            offset
+        },
+    };
+    try {
+        const { data } = await axios.request(options);
+        console.log(data);
+        return data;
+    }
+    catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
+const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
+    const { watch, formState: { errors }, setValue, } = useFormContext();
+    const { serverUrl, idMap, setIdMap, translate } = useSchemaContext();
+    const { required, gridColumn, gridRow, renderDisplay, foreign_key } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const { table, column: column_ref, display_column, } = foreign_key;
+    const [searchText, setSearchText] = useState();
+    const [limit, setLimit] = useState(10);
+    const [openSearchResult, setOpenSearchResult] = useState();
+    const [page, setPage] = useState(0);
+    const ref = useRef(null);
+    const selectedIds = watch(column) ?? [];
+    const colLabel = `${prefix}${column}`;
+    const query = useQuery({
+        queryKey: [`idpicker`, { column, searchText, limit, page }],
+        queryFn: async () => {
+            const data = await getTableData({
+                serverUrl,
+                searching: searchText ?? "",
+                in_table: table,
+                limit: limit,
+                offset: page * 10,
+            });
+            const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
+                return [
+                    item[column_ref],
+                    {
+                        ...item,
+                    },
+                ];
+            }));
+            setIdMap((state) => {
+                return { ...state, ...newMap };
+            });
+            return data;
+        },
+        enabled: (searchText ?? "")?.length > 0,
+        staleTime: 300000,
+    });
+    const { isLoading, isFetching, data, isPending, isError } = query;
+    const dataList = data?.data ?? [];
+    const count = data?.count ?? 0;
+    const isDirty = (searchText?.length ?? 0) > 0;
+    const onSearchChange = async (event) => {
+        setSearchText(event.target.value);
+        setPage(0);
+        setLimit(10);
+    };
+    const watchId = watch(column);
+    const watchIds = (watch(column) ?? []);
+    const getPickedValue = () => {
+        if (Object.keys(idMap).length <= 0) {
+            return "";
+        }
+        const record = idMap[watchId];
+        if (record === undefined) {
+            return "";
+        }
+        return record[display_column];
+    };
+    return (jsxs(Field, { label: `${translate.t(`${colLabel}.fieldLabel`)}`, required: isRequired, alignItems: "stretch", gridColumn,
+        gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [selectedIds.map((id) => {
+                        const item = idMap[id];
+                        if (item === undefined) {
+                            return (jsxs(Text, { children: [" ", translate.t(`${colLabel}.undefined`)] }, id));
+                        }
+                        return (jsx(Tag, { closable: true, onClick: () => {
+                                setValue(column, watchIds.filter((id) => id != item[column_ref]));
+                            }, children: !!renderDisplay === true
+                                ? renderDisplay(item)
+                                : item[display_column] }, id));
+                    }), jsx(Tag, { cursor: "pointer", onClick: () => {
+                            setOpenSearchResult(true);
+                        }, children: translate.t(`${colLabel}.addMore`) })] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: () => {
+                    setOpenSearchResult(true);
+                }, children: getPickedValue() })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(`${colLabel}.typeToSearch`), onChange: (event) => {
+                                        onSearchChange(event);
+                                        setOpenSearchResult(true);
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxs(Fragment, { children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), isError && jsx(Fragment, { children: "isError" }), jsx(Text, { justifySelf: "center", children: `${translate.t(`${colLabel}.total`)} ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}` }), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: 
+                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                    dataList.map((item) => {
+                                                        const selected = isMultiple
+                                                            ? watchIds.some((id) => item[column_ref] === id)
+                                                            : watchId === item[column_ref];
+                                                        return (jsx(Box, { cursor: "pointer", onClick: () => {
+                                                                if (!isMultiple) {
+                                                                    setOpenSearchResult(false);
+                                                                    setValue(colLabel, item[column_ref]);
+                                                                    return;
+                                                                }
+                                                                const newSet = new Set([
+                                                                    ...(watchIds ?? []),
+                                                                    item[column_ref],
+                                                                ]);
+                                                                setValue(column, [...newSet]);
+                                                            }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
+                                                                ? renderDisplay(item)
+                                                                : item[display_column] }, item[column_ref]));
+                                                    }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Text, { children: translate.t(`${colLabel}.emptySearchResult`) })) }))] }), jsx(PaginationRoot, { justifySelf: "center", count: query?.data?.count ?? 0, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(`${colLabel}.fieldRequired`) }))] }));
+};
+
+const NumberInputRoot = React.forwardRef(function NumberInput$1(props, ref) {
+    const { children, ...rest } = props;
+    return (jsxs(NumberInput.Root, { ref: ref, variant: "outline", ...rest, children: [children, jsxs(NumberInput.Control, { children: [jsx(NumberInput.IncrementTrigger, {}), jsx(NumberInput.DecrementTrigger, {})] })] }));
+});
+const NumberInputField$1 = NumberInput.Input;
+NumberInput.Scrubber;
+NumberInput.Label;
+
+const NumberInputField = ({ schema, column, prefix, }) => {
+    const { register, formState: { errors }, } = useFormContext();
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    return (jsxs(Field, { label: `${translate.t(`${colLabel}.fieldLabel`)}`, required: isRequired, gridColumn, gridRow, children: [jsx(NumberInputRoot, { children: jsx(NumberInputField$1, { ...register(`${colLabel}`, { required: isRequired }) }) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${colLabel}.fieldRequired`) }))] }));
+};
+
+const ObjectInput = ({ schema, column, prefix }) => {
+    const { properties } = schema;
+    if (properties === undefined) {
+        throw new Error(`properties is undefined when using ObjectInput`);
+    }
+    return (jsx(Fragment, { children: Object.keys(properties ?? {}).map((key) => {
+            console.log(properties, key, "gkor");
+            return (jsx(ColumnRenderer, { column: `${key}`,
+                prefix: `${prefix}${column}.`,
+                properties }, `form-${column}`));
+        }) }));
+};
+
+const RecordInput = ({ column, schema, prefix }) => {
     const { formState: { errors }, setValue, getValues, } = useFormContext();
-    const { schema, translate } = useSchemaContext();
-    const { required } = schema;
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const entries = Object.entries(getValues(column) ?? {});
     const [showNewEntries, setShowNewEntries] = useState(false);
     const [newKey, setNewKey] = useState();
     const [newValue, setNewValue] = useState();
-    if (schema.properties == undefined) {
-        throw new Error("schema properties when using DatePicker");
-    }
-    const { gridColumn, gridRow } = schema.properties[column];
     return (jsxs(Field, { label: `${translate.t(`${column}.fieldLabel`)}`, required: isRequired, alignItems: "stretch", gridColumn, gridRow, children: [entries.map(([key, value]) => {
                 return (jsxs(Grid, { templateColumns: "1fr 1fr auto", gap: 1, children: [jsx(Input, { value: key, onChange: (e) => {
                                 const filtered = entries.filter(([target]) => {
@@ -4411,6 +4392,15 @@ const ObjectInput = ({ column }) => {
                     setNewKey(undefined);
                     setNewValue(undefined);
                 }, children: translate.t(`${column}.addNew`) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.fieldRequired`) }))] }));
+};
+
+const StringInputField = ({ column, schema, prefix, }) => {
+    const { register, formState: { errors }, } = useFormContext();
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(`${colLabel}.fieldLabel`)}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsx(Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }), errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(`${colLabel}.fieldRequired`) }))] }) }));
 };
 
 const RadioCardItem = React.forwardRef(function RadioCardItem(props, ref) {
@@ -4506,6 +4496,62 @@ const TagPicker = ({ column }) => {
                                     return (jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%" }, `${tagName}-${id}`));
                                 }) }) }))] }, `tag-${parent_tag_name}`));
             }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
+};
+
+const ColumnRenderer = ({ column, properties, prefix, }) => {
+    if (properties === undefined) {
+        return jsx(Fragment, {});
+    }
+    console.log(`${column} does not exist when using ColumnRenderer`, { properties,
+        column,
+        prefix, }, "fdpok");
+    const colSchema = properties[column];
+    if (colSchema === undefined) {
+        throw new Error(`${column} does not exist when using ColumnRenderer`);
+    }
+    const { type, variant, foreign_key, properties: innerProperties } = colSchema;
+    if (type === "string") {
+        if ((properties[column].enum ?? []).length > 0) {
+            return jsx(EnumPicker, { schema: colSchema, prefix, column });
+        }
+        if (variant === "id-picker") {
+            idPickerSanityCheck(column, foreign_key);
+            return jsx(IdPicker, { schema: colSchema, prefix, column });
+        }
+        if (variant === "date-picker") {
+            return jsx(DatePicker, { schema: colSchema, prefix, column });
+        }
+        return jsx(StringInputField, { schema: colSchema, prefix, column });
+    }
+    if (type === "number" || type === "integer") {
+        return jsx(NumberInputField, { schema: colSchema, prefix, column });
+    }
+    if (type === "boolean") {
+        return jsx(BooleanPicker, { schema: colSchema, prefix, column });
+    }
+    if (type === "object") {
+        if (innerProperties) {
+            return jsx(ObjectInput, { schema: colSchema, prefix, column });
+        }
+        return jsx(RecordInput, { schema: colSchema, prefix, column });
+    }
+    if (type === "array") {
+        if (variant === "id-picker") {
+            idPickerSanityCheck(column, foreign_key);
+            return (jsx(IdPicker, { schema: colSchema, prefix, column, isMultiple: true }));
+        }
+        if (variant === "tag-picker") {
+            return jsx(TagPicker, { schema: colSchema, prefix, column });
+        }
+        if (variant === "file-picker") {
+            return jsx(FilePicker, { schema: colSchema, prefix, column });
+        }
+        return jsx(Text, { children: `array ${column}` });
+    }
+    if (type === "null") {
+        return jsx(Text, { children: `null ${column}` });
+    }
+    return jsx(Text, { children: "missing type" });
 };
 
 const idPickerSanityCheck = (column, foreign_key) => {
@@ -4695,59 +4741,11 @@ const FormInternal = () => {
                     }, variant: "subtle", children: translate.t("cancel") }), isSubmiting && (jsx(Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsx(Center, { h: "full", children: jsx(Spinner, { color: "teal.500" }) }) })), isError && (jsx(Fragment, { children: jsx(Alert.Root, { status: "error", children: jsx(Alert.Title, { children: jsx(AccordionRoot, { collapsible: true, defaultValue: ["b"], children: jsxs(AccordionItem, { value: "b", children: [jsxs(AccordionItemTrigger, { children: [jsx(Alert.Indicator, {}), `${error}`] }), jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) }) }))] }));
     }
     return (jsxs(Fragment, { children: [jsxs(Grid, { gap: 2, children: [jsxs(Heading, { children: [" ", translate.t("title")] }), jsx(Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
-                            if (properties === undefined) {
-                                return jsx(Fragment, {});
-                            }
-                            const key = column;
-                            const values = properties[column];
-                            const shouldIgnore = ignore.some((column) => {
-                                return column == key;
-                            });
-                            if (shouldIgnore) {
-                                return jsx(Fragment, {});
-                            }
-                            //@ts-expect-error TODO: add more fields to support form-creation
-                            const { type, variant, foreign_key } = values;
-                            if (type === "string") {
-                                // @ts-expect-error enum should exists
-                                if ((values.enum ?? []).length > 0) {
-                                    return jsx(EnumPicker, { column: key }, `form-${key}`);
-                                }
-                                if (variant === "id-picker") {
-                                    idPickerSanityCheck(column, foreign_key);
-                                    return jsx(IdPicker, { column: key }, `form-${key}`);
-                                }
-                                if (variant === "date-picker") {
-                                    return jsx(DatePicker, { column: key }, `form-${key}`);
-                                }
-                                return jsx(StringInputField, { column: key }, `form-${key}`);
-                            }
-                            if (type === "number" || type === "integer") {
-                                return jsx(NumberInputField, { column: key }, `form-${key}`);
-                            }
-                            if (type === "boolean") {
-                                return jsx(BooleanPicker, { column: key }, `form-${key}`);
-                            }
-                            if (type === "object") {
-                                return jsx(ObjectInput, { column: key }, `form-${key}`);
-                            }
-                            if (type === "array") {
-                                if (variant === "id-picker") {
-                                    idPickerSanityCheck(column, foreign_key);
-                                    return jsx(IdPicker, { column: key, isMultiple: true }, `form-${key}`);
-                                }
-                                if (variant === "tag-picker") {
-                                    return jsx(TagPicker, { column: key }, `form-${key}`);
-                                }
-                                if (variant === "file-picker") {
-                                    return jsx(FilePicker, { column: key }, `form-${key}`);
-                                }
-                                return jsx(Text, { children: `array ${column}` }, `form-${key}`);
-                            }
-                            if (type === "null") {
-                                return jsx(Text, { children: `null ${column}` }, `form-${key}`);
-                            }
-                            return jsx(Text, { children: "missing type" }, `form-${key}`);
+                            return (jsx(ColumnRenderer
+                            // @ts-expect-error find suitable types
+                            , { 
+                                // @ts-expect-error find suitable types
+                                properties: properties, prefix: ``, column }, `form-${column}`));
                         }) }), jsx(Button, { onClick: () => {
                             methods.handleSubmit(onValid)();
                         }, formNoValidate: true, children: translate.t("submit") })] }), isError && (jsxs(Fragment, { children: ["isError", jsxs(Fragment, { children: [" ", `${error}`] })] }))] }));
@@ -4799,4 +4797,4 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
     }
 };
 
-export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultTable, DensityToggleButton, EditOrderButton, EditSortingButton, EmptyState, ErrorAlert, FilterDialog, FilterOptions, Form, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, getColumns, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultTable, DensityToggleButton, EditOrderButton, EditSortingButton, EmptyState, ErrorAlert, FilterDialog, FilterOptions, Form, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };

@@ -1,7 +1,7 @@
 import { CustomJSONSchema7 } from "./StringInputField";
 export interface DatePickerProps {
-    column: string;
     schema: CustomJSONSchema7;
+    column: string;
     prefix: string;
 }
-export declare const DatePicker: ({ column, schema, prefix }: DatePickerProps) => import("react/jsx-runtime").JSX.Element;
+export declare const RecordInput: ({ column, schema, prefix }: DatePickerProps) => import("react/jsx-runtime").JSX.Element;
