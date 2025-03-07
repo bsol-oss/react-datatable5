@@ -199,7 +199,7 @@ const FormInternal = <TData extends FieldValues>() => {
           <Alert.Indicator />
           <Alert.Title>{translate.t("submitSuccess")}</Alert.Title>
         </Alert.Root>
-        <Flex justifyContent={'end'}>
+        <Flex justifyContent={"end"}>
           <Button
             onClick={() => {
               setIsError(false);
@@ -485,10 +485,10 @@ const FormInternal = <TData extends FieldValues>() => {
 
   return (
     <>
-      <Grid gap={2}>
+      <Grid gap="2">
         <Heading> {translate.t("title")}</Heading>
         <Grid
-          gap={4}
+          gap="4"
           gridTemplateColumns={"repeat(12, 1fr)"}
           gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, auto)`}
         >
@@ -523,11 +523,6 @@ const FormInternal = <TData extends FieldValues>() => {
           </Button>
         </Flex>
       </Grid>
-      {isError && (
-        <>
-          isError<> {`${error}`}</>
-        </>
-      )}
     </>
   );
 };
