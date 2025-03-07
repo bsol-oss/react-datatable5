@@ -1,4 +1,4 @@
-import { Box, Grid,Text } from "@chakra-ui/react";
+import { Box, Grid, Text } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../useSchemaContext";
 import { ColumnRenderer } from "./ColumnRenderer";
@@ -37,7 +37,6 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
         gridTemplateRows={`repeat("auto-fit", auto)`}
       >
         {Object.keys(properties ?? {}).map((key) => {
-          console.log(properties, key, "gkor");
           return (
             // @ts-expect-error find suitable types
             <ColumnRenderer

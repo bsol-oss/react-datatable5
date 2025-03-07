@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Grid, Text } from "@chakra-ui/react";
 import { useSchemaContext } from "../useSchemaContext";
 import { CustomJSONSchema7 } from "./StringInputField";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -37,30 +37,44 @@ export const ArrayRenderer = ({
         {isRequired && <span>*</span>}
       </Box>
       {fields.map((field, index) => (
-        <Grid
-          gap="4"
-          padding={"4"}
-          gridTemplateColumns={"repeat(12, 1fr)"}
-          gridTemplateRows={`repeat("auto-fit", auto)`}
-        >
-          {/* @ts-expect-error find suitable types*/}
-          <SchemaRenderer
-            key={`form-${column}`}
-            {...{
-              column: `${column}.${index}`,
-              prefix: `${prefix}`,
-              schema: items,
-            }}
-          />
-        </Grid>
+        <Flex flexFlow={"column"}>
+          <Grid
+            gap="4"
+            padding={"4"}
+            gridTemplateColumns={"repeat(12, 1fr)"}
+            gridTemplateRows={`repeat("auto-fit", auto)`}
+          >
+            {/* @ts-expect-error find suitable types*/}
+            <SchemaRenderer
+              key={`form-${column}`}
+              {...{
+                column: `${column}.${index}`,
+                prefix: `${prefix}`,
+                schema: items,
+              }}
+            />
+          </Grid>
+          <Flex justifyContent={"end"}>
+            <Button
+              variant={"ghost"}
+              onClick={() => {
+                remove(index);
+              }}
+            >
+              {translate.t(`${colLabel}.remove`)}
+            </Button>
+          </Flex>
+        </Flex>
       ))}
-      <Button
-        onClick={() => {
-          append({});
-        }}
-      >
-        {translate.t(`${colLabel}.add`)}
-      </Button>
+      <Flex>
+        <Button
+          onClick={() => {
+            append({});
+          }}
+        >
+          {translate.t(`${colLabel}.add`)}
+        </Button>
+      </Flex>
 
       {errors[`${column}`] && (
         <Text color={"red.400"}>
