@@ -64,8 +64,14 @@ const eventsGeolocationsSchema = {
         },
         longitude: {
           type: "number",
-          description:
-            "Missing description. Database type: double precision. Default value: null",
+        },
+        address: {
+          type: "object",
+          properties: {
+            district: {
+              type: "string",
+            }
+          }
         },
       },
     },
