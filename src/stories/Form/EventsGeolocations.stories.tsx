@@ -172,13 +172,17 @@ const eventsGeolocationsSchema = {
 };
 
 const SomeForm = () => {
-  const form = useForm({ keyPrefix: "nice" });
+  const form = useForm({
+    keyPrefix: "nice",
+    preLoadedValues: { parent_id: "nice" },
+  });
 
   return (
     <Form
       schema={eventsGeolocationsSchema as JSONSchema7}
       // ignore={["id", "created_at", "updated_at"]}
       serverUrl={"http://localhost:8081"}
+      onSubmit={()=>{}}
       {...form}
     />
   );

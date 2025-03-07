@@ -199,19 +199,21 @@ const FormInternal = <TData extends FieldValues>() => {
           <Alert.Indicator />
           <Alert.Title>{translate.t("submitSuccess")}</Alert.Title>
         </Alert.Root>
-        <Button
-          onClick={() => {
-            setIsError(false);
-            setIsSubmiting(false);
-            setIsSuccess(false);
-            setIsConfirming(false);
-            setValidatedData(undefined);
-            methods.reset();
-          }}
-          formNoValidate
-        >
-          {translate.t("submitAgain")}
-        </Button>
+        <Flex justifyContent={'end'}>
+          <Button
+            onClick={() => {
+              setIsError(false);
+              setIsSubmiting(false);
+              setIsSuccess(false);
+              setIsConfirming(false);
+              setValidatedData(undefined);
+              methods.reset();
+            }}
+            formNoValidate
+          >
+            {translate.t("submitAgain")}
+          </Button>
+        </Flex>
       </Grid>
     );
   }
@@ -435,21 +437,23 @@ const FormInternal = <TData extends FieldValues>() => {
             return <>{`unknown type ${column}`}</>;
           })}
         </DataListRoot>
-        <Button
-          onClick={() => {
-            onFormSubmit(validatedData);
-          }}
-        >
-          {translate.t("confirm")}
-        </Button>
-        <Button
-          onClick={() => {
-            setIsConfirming(false);
-          }}
-          variant={"subtle"}
-        >
-          {translate.t("cancel")}
-        </Button>
+        <Flex justifyContent={"end"} gap={"2"}>
+          <Button
+            onClick={() => {
+              setIsConfirming(false);
+            }}
+            variant={"subtle"}
+          >
+            {translate.t("cancel")}
+          </Button>
+          <Button
+            onClick={() => {
+              onFormSubmit(validatedData);
+            }}
+          >
+            {translate.t("confirm")}
+          </Button>
+        </Flex>
 
         {isSubmiting && (
           <Box pos="absolute" inset="0" bg="bg/80">
@@ -500,14 +504,24 @@ const FormInternal = <TData extends FieldValues>() => {
             );
           })}
         </Grid>
-        <Button
-          onClick={() => {
-            methods.handleSubmit(onValid)();
-          }}
-          formNoValidate
-        >
-          {translate.t("submit")}
-        </Button>
+        <Flex justifyContent={"end"} gap="2">
+          <Button
+            onClick={() => {
+              methods.reset();
+            }}
+            variant={"subtle"}
+          >
+            {translate.t("reset")}
+          </Button>
+          <Button
+            onClick={() => {
+              methods.handleSubmit(onValid)();
+            }}
+            formNoValidate
+          >
+            {translate.t("submit")}
+          </Button>
+        </Flex>
       </Grid>
       {isError && (
         <>

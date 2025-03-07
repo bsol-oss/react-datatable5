@@ -7,7 +7,9 @@ export interface UseFormProps {
   keyPrefix?: string;
 }
 export const useForm = ({ preLoadedValues, keyPrefix }: UseFormProps) => {
-  const form = useReactHookForm({ values: preLoadedValues });
+  const form = useReactHookForm({
+    values: preLoadedValues,
+  });
   const [idMap, setIdMap] = useState<Record<string, object>>({});
   const translate = useTranslation("", { keyPrefix });
   return {

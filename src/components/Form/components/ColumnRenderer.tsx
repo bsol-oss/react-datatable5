@@ -27,16 +27,12 @@ export const ColumnRenderer = ({
   }
   console.log(
     `${column} does not exist when using ColumnRenderer`,
-   { properties,
-    column,
-    prefix,},
+    { properties, column, prefix },
     "fdpok"
   );
   const colSchema = properties[column];
   if (colSchema === undefined) {
     throw new Error(`${column} does not exist when using ColumnRenderer`);
-
-    return <></>;
   }
   const { type, variant, foreign_key, properties: innerProperties } = colSchema;
 
