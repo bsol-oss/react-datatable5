@@ -17,6 +17,9 @@ export const ArrayRenderer = ({
   prefix,
 }: ArrayRendererProps) => {
   const { gridRow, gridColumn = "1/span 12", required, items } = schema;
+  // @ts-expect-error TODO: find suitable types
+  const { type } = items;
+
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
@@ -43,8 +46,8 @@ export const ArrayRenderer = ({
             {/* @ts-expect-error find suitable types*/}
             <SchemaRenderer
               {...{
-                column: `${colLabel}.${index}`,
-                prefix: `${prefix}`,
+                column: `${index}`,
+                prefix: `${colLabel}.`,
                 schema: items,
               }}
             />
@@ -61,7 +64,7 @@ export const ArrayRenderer = ({
                 );
               }}
             >
-              {translate.t(`${colLabel}.remove`)}
+              {translate.t(removeIndex(`${colLabel}.remove`))}
             </Button>
           </Flex>
         </Flex>
@@ -69,10 +72,18 @@ export const ArrayRenderer = ({
       <Flex>
         <Button
           onClick={() => {
+            if (type === "number") {
+              setValue(colLabel, [...fields, 0]);
+              return;
+            }
+            if (type === "string") {
+              setValue(colLabel, [...fields, ""]);
+              return;
+            }
             setValue(colLabel, [...fields, {}]);
           }}
         >
-          {translate.t(`${colLabel}.add`)}
+          {translate.t(removeIndex(`${colLabel}.add`))}
         </Button>
       </Flex>
 

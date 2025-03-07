@@ -39,8 +39,8 @@ export const ArrayViewer = ({ schema, column, prefix }: ArrayViewerProps) => {
             {/* @ts-expect-error find suitable types*/}
             <SchemaViewer
               {...{
-                column: `${colLabel}.${index}`,
-                prefix: `${prefix}`,
+                column: `${index}`,
+                prefix: `${colLabel}.`,
                 schema: items,
               }}
             />

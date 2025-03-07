@@ -22,12 +22,12 @@ export const NumberInputField = ({
   const {
     register,
     formState: { errors },
+    watch
   } = useFormContext();
   const { translate } = useSchemaContext();
   const { required, gridColumn, gridRow } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
-
   return (
     <Field
       label={`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}

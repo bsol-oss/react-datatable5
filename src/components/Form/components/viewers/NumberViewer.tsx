@@ -24,7 +24,6 @@ export const NumberViewer = ({
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
-
   return (
     <Field
       label={`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}
