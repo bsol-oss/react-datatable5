@@ -9,14 +9,27 @@ import { IdPicker } from "./IdPicker";
 import { NumberInputField } from "./NumberInputField";
 import { ObjectInput } from "./ObjectInput";
 import { RecordInput } from "./RecordInput";
-import { StringInputField } from "./StringInputField";
+import { CustomJSONSchema7, StringInputField } from "./StringInputField";
 import { TagPicker } from "./TagPicker";
 
+export interface SchemaRendererProps {
+  column: string;
+  schema: CustomJSONSchema7;
+  prefix: string;
+}
 
-export const SchemaRenderer = ({ schema, prefix, column }) => {
+export const SchemaRenderer = ({
+  schema,
+  prefix,
+  column,
+}: SchemaRendererProps) => {
   const colSchema = schema;
   const {
-    type, variant, properties: innerProperties, foreign_key, items,
+    type,
+    variant,
+    properties: innerProperties,
+    foreign_key,
+    items,
   } = schema;
   if (type === "string") {
     if ((schema.enum ?? []).length > 0) {
@@ -49,7 +62,8 @@ export const SchemaRenderer = ({ schema, prefix, column }) => {
       return (
         <IdPicker
           schema={colSchema}
-          {...{ prefix, column, isMultiple: true }} />
+          {...{ prefix, column, isMultiple: true }}
+        />
       );
     }
     if (variant === "tag-picker") {

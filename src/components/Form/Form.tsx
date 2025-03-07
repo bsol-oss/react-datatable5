@@ -1,8 +1,6 @@
 import { SchemaFormContext } from "@/components/Form/SchemaFormContext";
-import { IdViewer } from "@/components/Form/components/IdViewer";
 import {
-  CustomJSONSchema7,
-  ForeignKeyProps,
+  ForeignKeyProps
 } from "@/components/Form/components/StringInputField";
 import { useSchemaContext } from "@/components/Form/useSchemaContext";
 import { clearEmptyString } from "@/components/Form/utils/clearEmptyString";
@@ -14,7 +12,6 @@ import {
   AccordionRoot,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { DataListItem, DataListRoot } from "@/components/ui/data-list";
 import {
   Alert,
   Box,
@@ -22,11 +19,9 @@ import {
   Flex,
   Grid,
   Heading,
-  Spinner,
-  Text,
+  Spinner
 } from "@chakra-ui/react";
 import axios, { AxiosRequestConfig } from "axios";
-import dayjs from "dayjs";
 import { JSONSchema7 } from "json-schema";
 import { Dispatch, SetStateAction, useState } from "react";
 import {
@@ -182,7 +177,7 @@ const FormInternal = <TData extends FieldValues>() => {
   const getDataListProps = (value: string | undefined) => {
     if (value == undefined || value.length <= 0) {
       return {
-        value: `<${translate.t("empty") ?? "Empty"}>`,
+        value: `${translate.t("empty") ?? "<Empty>"}`,
         color: "gray.400",
       };
     }
@@ -221,222 +216,16 @@ const FormInternal = <TData extends FieldValues>() => {
     return (
       <Grid gap={2}>
         <Heading> {translate.t("title")}</Heading>
-        <DataListRoot
-          orientation="horizontal"
+        <Grid
           gap={4}
-          display={"grid"}
           gridTemplateColumns={"repeat(12, 1fr)"}
           gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, auto)`}
         >
-          {ordered.map((column) => {
-            if (properties === undefined) {
-              return <></>;
-            }
-            const key = column;
-            const values = properties[column];
-            const shouldIgnore = ignore.some((column) => {
-              return column == key;
-            });
-            if (shouldIgnore) {
-              return <></>;
-            }
-
-            const { type, variant, gridColumn, gridRow, foreign_key } =
-              values as CustomJSONSchema7Definition;
-            if (type === "string") {
-              if (variant === "id-picker") {
-                idPickerSanityCheck(column, foreign_key);
-                return (
-                  <IdViewer
-                    key={`form-${key}`}
-                    value={(validatedData ?? {})[column]}
-                    {...{
-                      column,
-                      dataListItemProps: { gridColumn, gridRow },
-                    }}
-                  />
-                );
-              }
-
-              if (variant === "date-picker") {
-                const value = (validatedData ?? {})[column];
-                if (!!value === false) {
-                  return (
-                    <DataListItem
-                      gridColumn={gridColumn ?? "span 4"}
-                      gridRow={gridRow ?? "span 1"}
-                      key={`form-${key}`}
-                      label={`${translate.t(`${column}.fieldLabel`)}`}
-                      {...getDataListProps(undefined)}
-                    />
-                  );
-                }
-                const date = dayjs(value).format("YYYY-MM-DD");
-                return (
-                  <DataListItem
-                    gridColumn={gridColumn ?? "span 4"}
-                    gridRow={gridRow ?? "span 1"}
-                    key={`form-${key}`}
-                    label={`${translate.t(`${column}.fieldLabel`)}`}
-                    {...getDataListProps(date)}
-                  />
-                );
-              }
-              return (
-                <DataListItem
-                  gridColumn={gridColumn ?? "span 4"}
-                  gridRow={gridRow ?? "span 4"}
-                  key={`form-${key}`}
-                  label={`${translate.t(`${column}.fieldLabel`)}`}
-                  {...getDataListProps((validatedData ?? {})[column])}
-                />
-              );
-            }
-            if (type === "object") {
-              const value = (validatedData ?? {})[column];
-              if (!!value === false) {
-                return (
-                  <DataListItem
-                    gridColumn={gridColumn ?? "span 4"}
-                    gridRow={gridRow ?? "span 1"}
-                    key={`form-${key}`}
-                    label={`${translate.t(`${column}.fieldLabel`)}`}
-                    {...getDataListProps(undefined)}
-                  />
-                );
-              }
-              return (
-                <Flex
-                  flexFlow={"column"}
-                  gap={2}
-                  key={`form-${key}`}
-                  gridColumn={gridColumn ?? "span 4"}
-                  gridRow={gridRow ?? "span 1"}
-                >
-                  <Text>{translate.t(`input.${column}`)}</Text>
-                  <DataListRoot
-                    orientation={"horizontal"}
-                    padding={4}
-                    borderColor={"gray.200"}
-                    borderWidth={1}
-                    borderRadius={4}
-                  >
-                    {Object.entries(value).map(([key, value]) => {
-                      return (
-                        <DataListItem
-                          key={`form-${column}-${key}`}
-                          label={`${key}`}
-                          {...getDataListProps(value as string | undefined)}
-                        />
-                      );
-                    })}
-                  </DataListRoot>
-                </Flex>
-              );
-            }
-            if (type === "boolean") {
-              return (
-                <DataListItem
-                  gridColumn={gridColumn ?? "span 4"}
-                  gridRow={gridRow ?? "span 4"}
-                  key={`form-${key}`}
-                  label={`${translate.t(`${column}.fieldLabel`)}`}
-                  {...getDataListProps((validatedData ?? {})[column])}
-                />
-              );
-            }
-            if (type === "number" || type === "integer") {
-              return (
-                <DataListItem
-                  gridColumn={gridColumn ?? "span 4"}
-                  gridRow={gridRow ?? "span 4"}
-                  key={`form-${key}`}
-                  label={`${translate.t(`${column}.fieldLabel`)}`}
-                  {...getDataListProps((validatedData ?? {})[column])}
-                />
-              );
-            }
-            if (type === "array") {
-              if (variant === "tag-picker") {
-                const value = (validatedData ?? {})[column];
-
-                return (
-                  <DataListItem
-                    gridColumn={gridColumn ?? "span 4"}
-                    gridRow={gridRow ?? "span 1"}
-                    key={`form-${key}`}
-                    label={`${translate.t(`${column}.fieldLabel`)}`}
-                    {...getDataListProps(JSON.stringify(value))}
-                  />
-                );
-              }
-              if (variant === "file-picker") {
-                const fileNames = (
-                  ((validatedData ?? {})[column] ?? []) as File[]
-                ).map((file) => {
-                  return file.name;
-                });
-                return (
-                  <DataListItem
-                    gridColumn={gridColumn ?? "span 4"}
-                    gridRow={gridRow ?? "span 4"}
-                    key={`form-${key}`}
-                    label={`${translate.t(`${column}.fieldLabel`)}`}
-                    {...getDataListProps(JSON.stringify(fileNames))}
-                  />
-                );
-              }
-              if (variant === "id-picker") {
-                const value = (validatedData ?? {})[
-                  column
-                ] as unknown as string[];
-
-                if (schema.properties == undefined) {
-                  throw new Error("schema properties when using DatePicker");
-                }
-                const { foreign_key } = schema.properties[
-                  column
-                ] as CustomJSONSchema7;
-                if (foreign_key === undefined) {
-                  throw new Error("foreign_key when variant is id-picker");
-                }
-                const { display_column } = foreign_key;
-                const mapped = value.map((item) => {
-                  return idMap[item][display_column];
-                });
-                return (
-                  <Grid
-                    flexFlow={"column"}
-                    key={`form-${key}`}
-                    {...{
-                      gridColumn,
-                      gridRow,
-                    }}
-                  >
-                    <Text>{translate.t(`input.${column}`)}</Text>
-                    <RecordDisplay object={mapped} />
-                  </Grid>
-                );
-              }
-              const objectString = JSON.stringify(
-                (validatedData ?? {})[column]
-              );
-              return (
-                <DataListItem
-                  gridColumn={gridColumn ?? "span 4"}
-                  gridRow={gridRow ?? "span 4"}
-                  key={`form-${key}`}
-                  label={`${translate.t(`${column}.fieldLabel`)}`}
-                  {...getDataListProps(objectString)}
-                />
-              );
-            }
-            if (type === "null") {
-              return <>{`null ${column}`}</>;
-            }
-            return <>{`unknown type ${column}`}</>;
-          })}
-        </DataListRoot>
+          <RecordDisplay
+            object={validatedData ?? {}}
+            boxProps={{ gridColumn: "1/span12" }}
+          />
+        </Grid>
         <Flex justifyContent={"end"} gap={"2"}>
           <Button
             onClick={() => {
