@@ -1,17 +1,17 @@
 import { Box, Grid, Text } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
-import { ColumnRenderer } from "./ColumnRenderer";
+import { ColumnViewer } from "./ColumnViewer";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { removeIndex } from "../../utils/removeIndex";
 
-export interface ObjectInputProps {
+export interface ObjectViewerProps {
   schema: CustomJSONSchema7;
   column: string;
   prefix: string;
 }
 
-export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
+export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
   const { properties, gridRow, gridColumn = "1/span 12", required } = schema;
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
@@ -37,8 +37,8 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
         {Object.keys(properties ?? {}).map((key) => {
           return (
             // @ts-expect-error find suitable types
-            <ColumnRenderer
-              key={`form-${colLabel}-${key}`}
+            <ColumnViewer
+              key={`form-objectviewer-${colLabel}-${key}`}
               {...{
                 column: `${key}`,
                 prefix: `${prefix}${column}.`,

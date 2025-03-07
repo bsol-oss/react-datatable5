@@ -1,39 +1,35 @@
-import { Box, Button, Flex, Grid, Text } from "@chakra-ui/react";
-import { useSchemaContext } from "../../useSchemaContext";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { Box, Flex, Grid, Text } from "@chakra-ui/react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { SchemaRenderer } from "./SchemaRenderer";
+import { useSchemaContext } from "../../useSchemaContext";
 import { removeIndex } from "../../utils/removeIndex";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { SchemaViewer } from "./SchemaViewer";
 
-export interface ArrayRendererProps {
+export interface ArrayViewerProps {
   column: string;
   schema: CustomJSONSchema7;
   prefix: string;
 }
 
-export const ArrayRenderer = ({
-  schema,
-  column,
-  prefix,
-}: ArrayRendererProps) => {
+export const ArrayViewer = ({ schema, column, prefix }: ArrayViewerProps) => {
   const { gridRow, gridColumn = "1/span 12", required, items } = schema;
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
   const {
-    formState: { errors },
-    setValue,
     watch,
+    formState: { errors },
   } = useFormContext();
-  const fields = (watch(colLabel) ?? []) as any[];
+  const values = watch(colLabel) ?? [];
+
   return (
     <Box {...{ gridRow, gridColumn }}>
       <Box as="label" gridColumn={"1/span12"}>
         {`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}
         {isRequired && <span>*</span>}
       </Box>
-      {fields.map((field, index) => (
-        <Flex key={`${colLabel}.${index}`} flexFlow={"column"}>
+      {values.map((field, index) => (
+        <Flex key={`form-${prefix}${column}.${index}`} flexFlow={"column"}>
           <Grid
             gap="4"
             padding={"4"}
@@ -41,7 +37,7 @@ export const ArrayRenderer = ({
             gridTemplateRows={`repeat("auto-fit", auto)`}
           >
             {/* @ts-expect-error find suitable types*/}
-            <SchemaRenderer
+            <SchemaViewer
               {...{
                 column: `${colLabel}.${index}`,
                 prefix: `${prefix}`,
@@ -49,33 +45,8 @@ export const ArrayRenderer = ({
               }}
             />
           </Grid>
-          <Flex justifyContent={"end"}>
-            <Button
-              variant={"ghost"}
-              onClick={() => {
-                setValue(
-                  colLabel,
-                  fields.filter((_, curIndex) => {
-                    return curIndex === index;
-                  })
-                );
-              }}
-            >
-              {translate.t(`${colLabel}.remove`)}
-            </Button>
-          </Flex>
         </Flex>
       ))}
-      <Flex>
-        <Button
-          onClick={() => {
-            setValue(colLabel, [...fields, {}]);
-          }}
-        >
-          {translate.t(`${colLabel}.add`)}
-        </Button>
-      </Flex>
-
       {errors[`${column}`] && (
         <Text color={"red.400"}>
           {translate.t(removeIndex(`${colLabel}.fieldRequired`))}

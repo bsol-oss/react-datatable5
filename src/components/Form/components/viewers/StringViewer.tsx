@@ -16,19 +16,20 @@ export interface ForeignKeyProps {
   table: string;
   display_column: string;
 }
-export const StringInputField = ({
+export const StringViewer = ({
   column,
   schema,
   prefix,
 }: StringInputFieldProps) => {
   const {
-    register,
+    watch,
     formState: { errors },
   } = useFormContext();
   const { translate } = useSchemaContext();
   const { required, gridColumn, gridRow } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
+  const value = watch(colLabel);
   return (
     <>
       <Field
@@ -37,10 +38,7 @@ export const StringInputField = ({
         gridColumn={gridColumn ?? "span 4"}
         gridRow={gridRow ?? "span 1"}
       >
-        <Input
-          {...register(`${colLabel}`, { required: isRequired })}
-          autoComplete="off"
-        />
+        <Text>{value}</Text>
         {errors[colLabel] && (
           <Text color={"red.400"}>
             {translate.t(removeIndex(`${colLabel}.fieldRequired`))}

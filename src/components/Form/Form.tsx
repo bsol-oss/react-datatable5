@@ -1,7 +1,5 @@
 import { SchemaFormContext } from "@/components/Form/SchemaFormContext";
-import {
-  ForeignKeyProps
-} from "@/components/Form/components/fields/StringInputField";
+import { ForeignKeyProps } from "@/components/Form/components/fields/StringInputField";
 import { useSchemaContext } from "@/components/Form/useSchemaContext";
 import { clearEmptyString } from "@/components/Form/utils/clearEmptyString";
 import { idListSanityCheck } from "@/components/Form/utils/idListSanityCheck";
@@ -19,7 +17,7 @@ import {
   Flex,
   Grid,
   Heading,
-  Spinner
+  Spinner,
 } from "@chakra-ui/react";
 import axios, { AxiosRequestConfig } from "axios";
 import { JSONSchema7 } from "json-schema";
@@ -32,8 +30,8 @@ import {
   UseFormReturn,
 } from "react-hook-form";
 import { UseTranslationResponse } from "react-i18next";
-import { RecordDisplay } from "../DataTable/components/RecordDisplay";
 import { ColumnRenderer } from "./components/fields/ColumnRenderer";
+import { ColumnViewer } from "./components/viewers/ColumnViewer";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -97,10 +95,8 @@ const FormInternal = <TData extends FieldValues>() => {
     schema,
     requestUrl,
     order,
-    ignore,
     onSubmit,
     rowNumber,
-    idMap,
     translate,
     requestOptions,
   } = useSchemaContext();
@@ -174,18 +170,6 @@ const FormInternal = <TData extends FieldValues>() => {
 
   const ordered = renderOrder(order, Object.keys(properties as object));
 
-  const getDataListProps = (value: string | undefined) => {
-    if (value == undefined || value.length <= 0) {
-      return {
-        value: `${translate.t("empty") ?? "<Empty>"}`,
-        color: "gray.400",
-      };
-    }
-    return {
-      value: value,
-    };
-  };
-
   if (isSuccess) {
     return (
       <Grid gap={2}>
@@ -221,10 +205,17 @@ const FormInternal = <TData extends FieldValues>() => {
           gridTemplateColumns={"repeat(12, 1fr)"}
           gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, auto)`}
         >
-          <RecordDisplay
-            object={validatedData ?? {}}
-            boxProps={{ gridColumn: "1/span12" }}
-          />
+          {ordered.map((column) => {
+            return (
+              <ColumnViewer
+                // @ts-expect-error find suitable types
+                properties={properties}
+                prefix={``}
+                key={`form-viewer-${column}`}
+                {...{ column }}
+              />
+            );
+          })}
         </Grid>
         <Flex justifyContent={"end"} gap={"2"}>
           <Button
@@ -287,7 +278,7 @@ const FormInternal = <TData extends FieldValues>() => {
                 // @ts-expect-error find suitable types
                 properties={properties}
                 prefix={``}
-                key={`form-${column}`}
+                key={`form-input-${column}`}
                 {...{ column }}
               />
             );

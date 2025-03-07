@@ -22,6 +22,7 @@ import { useSchemaContext } from "../../useSchemaContext";
 import { getTableData } from "../../utils/getTableData";
 import { ForeignKeyProps } from "./StringInputField";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { removeIndex } from "../../utils/removeIndex";
 
 export interface IdPickerProps {
   column: string;
@@ -54,7 +55,6 @@ export const IdPicker = ({
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const [page, setPage] = useState(0);
   const ref = useRef<HTMLInputElement>(null);
-  const selectedIds = watch(column) ?? [];
   const colLabel = `${prefix}${column}`;
 
   const query = useQuery({
@@ -96,9 +96,8 @@ export const IdPicker = ({
     setPage(0);
     setLimit(10);
   };
-  const watchId = watch(column);
-  const watchIds = (watch(column) ?? []) as string[];
-
+  const watchId = watch(colLabel);
+  const watchIds = (watch(colLabel) ?? []) as string[];
   const getPickedValue = () => {
     if (Object.keys(idMap).length <= 0) {
       return "";
@@ -112,7 +111,7 @@ export const IdPicker = ({
 
   return (
     <Field
-      label={`${translate.t(`${colLabel}.fieldLabel`)}`}
+      label={`${translate.t(removeIndex(removeIndex(`${column}.fieldLabel`)))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -122,11 +121,13 @@ export const IdPicker = ({
     >
       {isMultiple && (
         <Flex flexFlow={"wrap"} gap={1}>
-          {selectedIds.map((id: string) => {
+          {watchIds.map((id: string) => {
             const item = idMap[id];
             if (item === undefined) {
               return (
-                <Text key={id}> {translate.t(`${colLabel}.undefined`)}</Text>
+                <Text key={id}>
+                  {translate.t(removeIndex(`${colLabel}.undefined`))}
+                </Text>
               );
             }
             return (
@@ -153,7 +154,7 @@ export const IdPicker = ({
               setOpenSearchResult(true);
             }}
           >
-            {translate.t(`${colLabel}.addMore`)}
+            {translate.t(removeIndex(`${colLabel}.addMore`))}
           </Tag>
         </Flex>
       )}
@@ -179,7 +180,7 @@ export const IdPicker = ({
         <PopoverContent>
           <PopoverBody display={"grid"} gap={1}>
             <Input
-              placeholder={translate.t(`${colLabel}.typeToSearch`)}
+              placeholder={translate.t(removeIndex(`${colLabel}.typeToSearch`))}
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
@@ -196,7 +197,7 @@ export const IdPicker = ({
                 {isError && <>isError</>}
                 <Text
                   justifySelf={"center"}
-                >{`${translate.t(`${colLabel}.total`)} ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}`}</Text>
+                >{`${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}`}</Text>
                 <Grid
                   gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
                   overflow={"auto"}
@@ -223,7 +224,7 @@ export const IdPicker = ({
                                 ...(watchIds ?? []),
                                 item[column_ref],
                               ]);
-                              setValue(column, [...newSet]);
+                              setValue(colLabel, [...newSet]);
                             }}
                             opacity={0.7}
                             _hover={{ opacity: 1 }}
@@ -241,7 +242,9 @@ export const IdPicker = ({
                     <>
                       {dataList.length <= 0 && (
                         <Text>
-                          {translate.t(`${colLabel}.emptySearchResult`)}
+                          {translate.t(
+                            removeIndex(`${colLabel}.emptySearchResult`)
+                          )}
                         </Text>
                       )}
                     </>
@@ -269,7 +272,7 @@ export const IdPicker = ({
 
       {errors[`${colLabel}`] && (
         <Text color={"red.400"}>
-          {translate.t(`${colLabel}.fieldRequired`)}
+          {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
         </Text>
       )}
     </Field>

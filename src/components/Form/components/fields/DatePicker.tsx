@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { removeIndex } from "../../utils/removeIndex";
 
 export interface DatePickerProps {
   column: string;
@@ -35,7 +36,7 @@ export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
   const selectedDate = watch(colLabel);
   return (
     <Field
-      label={`${translate.t(`${colLabel}.fieldLabel`)}`}
+      label={`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -67,7 +68,7 @@ export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
               selected={new Date(selectedDate)}
               // @ts-expect-error TODO: find appropriate types
               onDateSelected={({ date }) => {
-                setValue(column, dayjs(date).format("YYYY-MM-DD"));
+                setValue(colLabel, dayjs(date).format("YYYY-MM-DD"));
                 setOpen(false);
               }}
             />
@@ -76,7 +77,9 @@ export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
       </PopoverRoot>
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
+        <Text color={"red.400"}>
+          {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
+        </Text>
       )}
     </Field>
   );

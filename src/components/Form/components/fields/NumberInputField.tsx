@@ -7,6 +7,7 @@ import { useFormContext } from "react-hook-form";
 import { Field } from "../../../ui/field";
 import { useSchemaContext } from "../../useSchemaContext";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { removeIndex } from "../../utils/removeIndex";
 export interface NumberInputFieldProps {
   column: string;
   schema: CustomJSONSchema7;
@@ -29,7 +30,7 @@ export const NumberInputField = ({
 
   return (
     <Field
-      label={`${translate.t(`${colLabel}.fieldLabel`)}`}
+      label={`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}
       required={isRequired}
       {...{ gridColumn, gridRow }}
     >
@@ -40,7 +41,7 @@ export const NumberInputField = ({
       </NumberInputRoot>
       {errors[`${column}`] && (
         <Text color={"red.400"}>
-          {translate.t(`${colLabel}.fieldRequired`)}
+          {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
         </Text>
       )}
     </Field>

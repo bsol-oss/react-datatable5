@@ -13,6 +13,7 @@ import { useFormContext } from "react-hook-form";
 import { Field } from "../../../ui/field";
 import { useSchemaContext } from "../../useSchemaContext";
 import { filterArray } from "../../utils/filterArray";
+import { removeIndex } from "../../utils/removeIndex";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 
 export interface IdPickerProps {
@@ -41,8 +42,9 @@ export const EnumPicker = ({
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const ref = useRef<HTMLInputElement>(null);
-  const watchEnum = watch(column);
-  const watchEnums = (watch(column) ?? []) as string[];
+  const colLabel = `${prefix}${column}`;
+  const watchEnum = watch(colLabel);
+  const watchEnums = (watch(colLabel) ?? []) as string[];
   const dataList = schema.enum ?? [];
   const count = schema.enum?.length ?? 0;
   const isDirty = (searchText?.length ?? 0) > 0;
@@ -50,11 +52,10 @@ export const EnumPicker = ({
     setSearchText(event.target.value);
     setLimit(10);
   };
-  const col = `${prefix}${column}`;
 
   return (
     <Field
-      label={`${translate.t(`${column}.fieldLabel`)}`}
+      label={`${translate.t(removeIndex(`${column}.fieldLabel`))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -80,7 +81,9 @@ export const EnumPicker = ({
                   );
                 }}
               >
-                {!!renderDisplay === true ? renderDisplay(item) : item}
+                {!!renderDisplay === true
+                  ? renderDisplay(item)
+                  : translate.t(removeIndex(`${colLabel}.${item}`))}
               </Tag>
             );
           })}
@@ -90,7 +93,7 @@ export const EnumPicker = ({
               setOpenSearchResult(true);
             }}
           >
-            Add
+            {translate.t(removeIndex(`${colLabel}.addMore`))}
           </Tag>
         </Flex>
       )}
@@ -101,7 +104,9 @@ export const EnumPicker = ({
             setOpenSearchResult(true);
           }}
         >
-          {watchEnum}
+          {watchEnum === undefined
+            ? ""
+            : translate.t(removeIndex(`${colLabel}.${watchEnum}`))}
         </Button>
       )}
       <PopoverRoot
@@ -139,22 +144,22 @@ export const EnumPicker = ({
                       : watchEnum == item;
                     return (
                       <Box
-                        key={`${column}-${item}`}
+                        key={`${colLabel}-${item}`}
                         cursor={"pointer"}
                         onClick={() => {
                           if (!isMultiple) {
                             setOpenSearchResult(false);
-                            setValue(column, item);
+                            setValue(colLabel, item);
                             return;
                           }
                           const newSet = new Set([...(watchEnums ?? []), item]);
-                          setValue(column, [...newSet]);
+                          setValue(colLabel, [...newSet]);
                         }}
                         {...(selected ? { color: "gray.400/50" } : {})}
                       >
                         {!!renderDisplay === true
                           ? renderDisplay(item)
-                          : translate.t(`${col}.${item}`)}
+                          : translate.t(removeIndex(`${colLabel}.${item}`))}
                       </Box>
                     );
                   }
@@ -163,7 +168,11 @@ export const EnumPicker = ({
               {isDirty && (
                 <>
                   {dataList.length <= 0 && (
-                    <>{translate.t(`${col}.emptySearchResult`)}</>
+                    <>
+                      {translate.t(
+                        removeIndex(`${colLabel}.emptySearchResult`)
+                      )}
+                    </>
                   )}
                 </>
               )}
@@ -173,7 +182,9 @@ export const EnumPicker = ({
       </PopoverRoot>
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${col}.fieldRequired`)}</Text>
+        <Text color={"red.400"}>
+          {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
+        </Text>
       )}
     </Field>
   );

@@ -12,17 +12,10 @@ export const ColumnRenderer = ({
   properties,
   prefix,
 }: ColumnRendererProps) => {
-  if (properties === undefined) {
-    return <></>;
-  }
-  console.log(
-    `${column} does not exist when using ColumnRenderer`,
-    { properties, column, prefix },
-    "fdpok"
-  );
   const colSchema = properties[column];
+  const colLabel = `${prefix}${column}`
   if (colSchema === undefined) {
-    throw new Error(`${column} does not exist when using ColumnRenderer`);
+    throw new Error(`${colLabel} does not exist when using ColumnRenderer`);
   }
   return <SchemaRenderer schema={colSchema} {...{ prefix, column }} />;
 };

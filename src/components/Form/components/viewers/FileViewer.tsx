@@ -7,7 +7,7 @@ import { FileDropzone } from "../FileDropzone";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { removeIndex } from "../../utils/removeIndex";
 
-export const FilePicker = ({ column, schema, prefix }) => {
+export const FileViewer = ({ column, schema, prefix }) => {
   const {
     setValue,
     formState: { errors },
@@ -36,7 +36,7 @@ export const FilePicker = ({ column, schema, prefix }) => {
           );
           setValue(colLabel, [...currentFiles, ...newFiles]);
         }}
-        placeholder={translate.t(removeIndex(`${colLabel}.fileDropzone`))}
+        placeholder={translate.t(`${colLabel}.fileDropzone`)}
       />
       <Flex flexFlow={"column"} gap={1}>
         {currentFiles.map((file) => {
