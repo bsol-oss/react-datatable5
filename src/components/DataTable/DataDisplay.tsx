@@ -88,40 +88,49 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
   return (
     <Flex flexFlow={"column"} gap={"1"}>
       {table.getRowModel().rows.map((row) => {
-        const rowId = row.id
+        const rowId = row.id;
         return (
           <Card.Root key={`chakra-table-card-${rowId}`}>
-            <Card.Body>
-              <Grid gap={4} padding={4} gridTemplateColumns={"repeat(12, 1fr)"}>
-                {table.getAllColumns().map((column) => {
-                  const childCell = row.getAllCells().find((cell) => {
-                    return cell.id === `${rowId}_${column.id}`;
-                  });
-                  if (column.columns.length > 0) {
-                    return (
-                      <Flex flexFlow={"column"} gridColumn={"span 12"}>
-                        <Text> {translate.t(column.id)}</Text>
-                        <Grid
-                          gap={4}
-                          padding={4}
-                          gridTemplateColumns={"repeat(12, 1fr)"}
-                        >
-                          {column.columns.map((column) => {
-                            if (!column.getIsVisible()) {
-                              return <></>;
-                            }
-                            const foundCell = row.getVisibleCells().find((cell) => {
+            <Card.Body
+              display={"grid"}
+              gap={4}
+              padding={4}
+              gridTemplateColumns={"repeat(12, 1fr)"}
+            >
+              {table.getAllColumns().map((column) => {
+                const childCell = row.getAllCells().find((cell) => {
+                  return cell.id === `${rowId}_${column.id}`;
+                });
+                if (column.columns.length > 0) {
+                  return (
+                    <Card.Root
+                      key={`chakra-table-card-${childCell?.id}`}
+                      margin={"1"}
+                      gridColumn={"span 12"}
+                    >
+                      <Card.Header> {translate.t(column.id)}</Card.Header>
+                      <Card.Body
+                        display={"grid"}
+                        gap={"4"}
+                        gridTemplateColumns={"repeat(12, 1fr)"}
+                      >
+                        {column.columns.map((column) => {
+                          if (!column.getIsVisible()) {
+                            return <></>;
+                          }
+                          const foundCell = row
+                            .getVisibleCells()
+                            .find((cell) => {
                               return cell.id === `${rowId}_${column.id}`;
                             });
-                            return <CellRenderer {...{ cell: foundCell }} />;
-                          })}
-                        </Grid>
-                      </Flex>
-                    );
-                  }
-                  return <CellRenderer {...{ cell: childCell }} />;
-                })}
-              </Grid>
+                          return <CellRenderer {...{ cell: foundCell }} />;
+                        })}
+                      </Card.Body>
+                    </Card.Root>
+                  );
+                }
+                return <CellRenderer {...{ cell: childCell }} />;
+              })}
             </Card.Body>
           </Card.Root>
         );
