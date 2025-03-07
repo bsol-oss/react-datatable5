@@ -37,8 +37,8 @@ export const BooleanViewer = ({
     >
       <Text>
         {value
-          ? translate.t(`${colLabel}.true`)
-          : translate.t(`${colLabel}.false`)}
+          ? translate.t(removeIndex(`${colLabel}.true`))
+          : translate.t(removeIndex(`${colLabel}.false`))}
       </Text>
       {errors[`${column}`] && (
         <Text color={"red.400"}>

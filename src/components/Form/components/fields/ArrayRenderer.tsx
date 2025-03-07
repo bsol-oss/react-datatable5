@@ -80,6 +80,10 @@ export const ArrayRenderer = ({
               setValue(colLabel, [...fields, ""]);
               return;
             }
+            if (type === "boolean") {
+              setValue(colLabel, [...fields, false]);
+              return;
+            }
             setValue(colLabel, [...fields, {}]);
           }}
         >

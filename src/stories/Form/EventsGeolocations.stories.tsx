@@ -555,6 +555,18 @@ const eventsGeolocationsSchema = {
               type: "number",
             }
           },
+          strings: {
+            type: "array",
+            items: {
+              type: "string",
+            }
+          },
+          booleans: {
+            type: "array",
+            items: {
+              type: "boolean",
+            }
+          },
         },
       },
     },
