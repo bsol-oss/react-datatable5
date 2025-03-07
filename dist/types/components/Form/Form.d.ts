@@ -1,4 +1,4 @@
-import { ForeignKeyProps } from "@/components/Form/components/StringInputField";
+import { ForeignKeyProps } from "@/components/Form/components/fields/StringInputField";
 import { AxiosRequestConfig } from "axios";
 import { JSONSchema7 } from "json-schema";
 import { Dispatch, SetStateAction } from "react";

@@ -10,7 +10,7 @@ import { UseTranslationResponse } from 'react-i18next';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { UseQueryResult } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
-import { ForeignKeyProps } from '@/components/Form/components/StringInputField';
+import { ForeignKeyProps } from '@/components/Form/components/fields/StringInputField';
 import { AxiosRequestConfig } from 'axios';
 import * as react_hook_form from 'react-hook-form';
 import { FieldValues, UseFormReturn, SubmitHandler } from 'react-hook-form';
