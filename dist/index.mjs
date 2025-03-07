@@ -4413,13 +4413,13 @@ const RadioCardRoot = RadioCard.Root;
 RadioCard.Label;
 RadioCard.ItemIndicator;
 
-const TagPicker = ({ column }) => {
+const TagPicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { schema, serverUrl } = useSchemaContext();
+    const { serverUrl } = useSchemaContext();
     if (schema.properties == undefined) {
         throw new Error("schema properties undefined when using DatePicker");
     }
-    const { gridColumn, gridRow, in_table, object_id_column } = schema.properties[column];
+    const { gridColumn, gridRow, in_table, object_id_column } = schema;
     if (in_table === undefined) {
         throw new Error("in_table is undefined when using TagPicker");
     }
@@ -4445,7 +4445,7 @@ const TagPicker = ({ column }) => {
     });
     const object_id = watch(object_id_column);
     const existingTagsQuery = useQuery({
-        queryKey: [`existing`, in_table, object_id_column, object_id],
+        queryKey: [`existing`, { in_table, object_id_column }, object_id],
         queryFn: async () => {
             return await getTableData({
                 serverUrl,
@@ -4502,9 +4502,7 @@ const ColumnRenderer = ({ column, properties, prefix, }) => {
     if (properties === undefined) {
         return jsx(Fragment, {});
     }
-    console.log(`${column} does not exist when using ColumnRenderer`, { properties,
-        column,
-        prefix, }, "fdpok");
+    console.log(`${column} does not exist when using ColumnRenderer`, { properties, column, prefix }, "fdpok");
     const colSchema = properties[column];
     if (colSchema === undefined) {
         throw new Error(`${column} does not exist when using ColumnRenderer`);
@@ -4646,14 +4644,14 @@ const FormInternal = () => {
         };
     };
     if (isSuccess) {
-        return (jsxs(Grid, { gap: 2, children: [jsx(Heading, { children: translate.t("title") }), jsxs(Alert.Root, { status: "success", children: [jsx(Alert.Indicator, {}), jsx(Alert.Title, { children: translate.t("submitSuccess") })] }), jsx(Button, { onClick: () => {
-                        setIsError(false);
-                        setIsSubmiting(false);
-                        setIsSuccess(false);
-                        setIsConfirming(false);
-                        setValidatedData(undefined);
-                        methods.reset();
-                    }, formNoValidate: true, children: translate.t("submitAgain") })] }));
+        return (jsxs(Grid, { gap: 2, children: [jsx(Heading, { children: translate.t("title") }), jsxs(Alert.Root, { status: "success", children: [jsx(Alert.Indicator, {}), jsx(Alert.Title, { children: translate.t("submitSuccess") })] }), jsx(Flex, { justifyContent: 'end', children: jsx(Button, { onClick: () => {
+                            setIsError(false);
+                            setIsSubmiting(false);
+                            setIsSuccess(false);
+                            setIsConfirming(false);
+                            setValidatedData(undefined);
+                            methods.reset();
+                        }, formNoValidate: true, children: translate.t("submitAgain") }) })] }));
     }
     if (isConfirming) {
         return (jsxs(Grid, { gap: 2, children: [jsxs(Heading, { children: [" ", translate.t("title")] }), jsx(DataListRoot, { orientation: "horizontal", gap: 4, display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
@@ -4734,11 +4732,11 @@ const FormInternal = () => {
                             return jsx(Fragment, { children: `null ${column}` });
                         }
                         return jsx(Fragment, { children: `unknown type ${column}` });
-                    }) }), jsx(Button, { onClick: () => {
-                        onFormSubmit(validatedData);
-                    }, children: translate.t("confirm") }), jsx(Button, { onClick: () => {
-                        setIsConfirming(false);
-                    }, variant: "subtle", children: translate.t("cancel") }), isSubmiting && (jsx(Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsx(Center, { h: "full", children: jsx(Spinner, { color: "teal.500" }) }) })), isError && (jsx(Fragment, { children: jsx(Alert.Root, { status: "error", children: jsx(Alert.Title, { children: jsx(AccordionRoot, { collapsible: true, defaultValue: ["b"], children: jsxs(AccordionItem, { value: "b", children: [jsxs(AccordionItemTrigger, { children: [jsx(Alert.Indicator, {}), `${error}`] }), jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) }) }))] }));
+                    }) }), jsxs(Flex, { justifyContent: "end", gap: "2", children: [jsx(Button, { onClick: () => {
+                                setIsConfirming(false);
+                            }, variant: "subtle", children: translate.t("cancel") }), jsx(Button, { onClick: () => {
+                                onFormSubmit(validatedData);
+                            }, children: translate.t("confirm") })] }), isSubmiting && (jsx(Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsx(Center, { h: "full", children: jsx(Spinner, { color: "teal.500" }) }) })), isError && (jsx(Fragment, { children: jsx(Alert.Root, { status: "error", children: jsx(Alert.Title, { children: jsx(AccordionRoot, { collapsible: true, defaultValue: ["b"], children: jsxs(AccordionItem, { value: "b", children: [jsxs(AccordionItemTrigger, { children: [jsx(Alert.Indicator, {}), `${error}`] }), jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) }) }))] }));
     }
     return (jsxs(Fragment, { children: [jsxs(Grid, { gap: 2, children: [jsxs(Heading, { children: [" ", translate.t("title")] }), jsx(Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
                             return (jsx(ColumnRenderer
@@ -4746,9 +4744,11 @@ const FormInternal = () => {
                             , { 
                                 // @ts-expect-error find suitable types
                                 properties: properties, prefix: ``, column }, `form-${column}`));
-                        }) }), jsx(Button, { onClick: () => {
-                            methods.handleSubmit(onValid)();
-                        }, formNoValidate: true, children: translate.t("submit") })] }), isError && (jsxs(Fragment, { children: ["isError", jsxs(Fragment, { children: [" ", `${error}`] })] }))] }));
+                        }) }), jsxs(Flex, { justifyContent: "end", gap: "2", children: [jsx(Button, { onClick: () => {
+                                    methods.reset();
+                                }, variant: "subtle", children: translate.t("reset") }), jsx(Button, { onClick: () => {
+                                    methods.handleSubmit(onValid)();
+                                }, formNoValidate: true, children: translate.t("submit") })] })] }), isError && (jsxs(Fragment, { children: ["isError", jsxs(Fragment, { children: [" ", `${error}`] })] }))] }));
 };
 const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, }) => {
     const { properties } = schema;
@@ -4770,7 +4770,9 @@ const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [],
 };
 
 const useForm = ({ preLoadedValues, keyPrefix }) => {
-    const form = useForm$1({ values: preLoadedValues });
+    const form = useForm$1({
+        values: preLoadedValues,
+    });
     const [idMap, setIdMap] = useState({});
     const translate = useTranslation("", { keyPrefix });
     return {

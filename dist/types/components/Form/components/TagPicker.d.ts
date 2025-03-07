@@ -1,5 +1,8 @@
+import { CustomJSONSchema7 } from "./StringInputField";
 export interface TagPickerProps {
     column: string;
+    schema: CustomJSONSchema7;
+    prefix: string;
 }
 export interface Tag {
     id: string;
@@ -24,4 +27,4 @@ export interface TagData {
 export interface TagResponse {
     data: TagData[];
 }
-export declare const TagPicker: ({ column }: TagPickerProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TagPicker: ({ column, schema, prefix }: TagPickerProps) => import("react/jsx-runtime").JSX.Element;

@@ -4433,13 +4433,13 @@ const RadioCardRoot = react.RadioCard.Root;
 react.RadioCard.Label;
 react.RadioCard.ItemIndicator;
 
-const TagPicker = ({ column }) => {
+const TagPicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { schema, serverUrl } = useSchemaContext();
+    const { serverUrl } = useSchemaContext();
     if (schema.properties == undefined) {
         throw new Error("schema properties undefined when using DatePicker");
     }
-    const { gridColumn, gridRow, in_table, object_id_column } = schema.properties[column];
+    const { gridColumn, gridRow, in_table, object_id_column } = schema;
     if (in_table === undefined) {
         throw new Error("in_table is undefined when using TagPicker");
     }
@@ -4465,7 +4465,7 @@ const TagPicker = ({ column }) => {
     });
     const object_id = watch(object_id_column);
     const existingTagsQuery = reactQuery.useQuery({
-        queryKey: [`existing`, in_table, object_id_column, object_id],
+        queryKey: [`existing`, { in_table, object_id_column }, object_id],
         queryFn: async () => {
             return await getTableData({
                 serverUrl,
@@ -4522,9 +4522,7 @@ const ColumnRenderer = ({ column, properties, prefix, }) => {
     if (properties === undefined) {
         return jsxRuntime.jsx(jsxRuntime.Fragment, {});
     }
-    console.log(`${column} does not exist when using ColumnRenderer`, { properties,
-        column,
-        prefix, }, "fdpok");
+    console.log(`${column} does not exist when using ColumnRenderer`, { properties, column, prefix }, "fdpok");
     const colSchema = properties[column];
     if (colSchema === undefined) {
         throw new Error(`${column} does not exist when using ColumnRenderer`);
@@ -4666,14 +4664,14 @@ const FormInternal = () => {
         };
     };
     if (isSuccess) {
-        return (jsxRuntime.jsxs(react.Grid, { gap: 2, children: [jsxRuntime.jsx(react.Heading, { children: translate.t("title") }), jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Title, { children: translate.t("submitSuccess") })] }), jsxRuntime.jsx(Button, { onClick: () => {
-                        setIsError(false);
-                        setIsSubmiting(false);
-                        setIsSuccess(false);
-                        setIsConfirming(false);
-                        setValidatedData(undefined);
-                        methods.reset();
-                    }, formNoValidate: true, children: translate.t("submitAgain") })] }));
+        return (jsxRuntime.jsxs(react.Grid, { gap: 2, children: [jsxRuntime.jsx(react.Heading, { children: translate.t("title") }), jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Title, { children: translate.t("submitSuccess") })] }), jsxRuntime.jsx(react.Flex, { justifyContent: 'end', children: jsxRuntime.jsx(Button, { onClick: () => {
+                            setIsError(false);
+                            setIsSubmiting(false);
+                            setIsSuccess(false);
+                            setIsConfirming(false);
+                            setValidatedData(undefined);
+                            methods.reset();
+                        }, formNoValidate: true, children: translate.t("submitAgain") }) })] }));
     }
     if (isConfirming) {
         return (jsxRuntime.jsxs(react.Grid, { gap: 2, children: [jsxRuntime.jsxs(react.Heading, { children: [" ", translate.t("title")] }), jsxRuntime.jsx(DataListRoot, { orientation: "horizontal", gap: 4, display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
@@ -4754,11 +4752,11 @@ const FormInternal = () => {
                             return jsxRuntime.jsx(jsxRuntime.Fragment, { children: `null ${column}` });
                         }
                         return jsxRuntime.jsx(jsxRuntime.Fragment, { children: `unknown type ${column}` });
-                    }) }), jsxRuntime.jsx(Button, { onClick: () => {
-                        onFormSubmit(validatedData);
-                    }, children: translate.t("confirm") }), jsxRuntime.jsx(Button, { onClick: () => {
-                        setIsConfirming(false);
-                    }, variant: "subtle", children: translate.t("cancel") }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Alert.Root, { status: "error", children: jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: ["b"], children: jsxRuntime.jsxs(AccordionItem, { value: "b", children: [jsxRuntime.jsxs(AccordionItemTrigger, { children: [jsxRuntime.jsx(react.Alert.Indicator, {}), `${error}`] }), jsxRuntime.jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) }) }))] }));
+                    }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "end", gap: "2", children: [jsxRuntime.jsx(Button, { onClick: () => {
+                                setIsConfirming(false);
+                            }, variant: "subtle", children: translate.t("cancel") }), jsxRuntime.jsx(Button, { onClick: () => {
+                                onFormSubmit(validatedData);
+                            }, children: translate.t("confirm") })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Alert.Root, { status: "error", children: jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: ["b"], children: jsxRuntime.jsxs(AccordionItem, { value: "b", children: [jsxRuntime.jsxs(AccordionItemTrigger, { children: [jsxRuntime.jsx(react.Alert.Indicator, {}), `${error}`] }), jsxRuntime.jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) }) }))] }));
     }
     return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsxs(react.Grid, { gap: 2, children: [jsxRuntime.jsxs(react.Heading, { children: [" ", translate.t("title")] }), jsxRuntime.jsx(react.Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
                             return (jsxRuntime.jsx(ColumnRenderer
@@ -4766,9 +4764,11 @@ const FormInternal = () => {
                             , { 
                                 // @ts-expect-error find suitable types
                                 properties: properties, prefix: ``, column }, `form-${column}`));
-                        }) }), jsxRuntime.jsx(Button, { onClick: () => {
-                            methods.handleSubmit(onValid)();
-                        }, formNoValidate: true, children: translate.t("submit") })] }), isError && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: ["isError", jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [" ", `${error}`] })] }))] }));
+                        }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "end", gap: "2", children: [jsxRuntime.jsx(Button, { onClick: () => {
+                                    methods.reset();
+                                }, variant: "subtle", children: translate.t("reset") }), jsxRuntime.jsx(Button, { onClick: () => {
+                                    methods.handleSubmit(onValid)();
+                                }, formNoValidate: true, children: translate.t("submit") })] })] }), isError && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: ["isError", jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [" ", `${error}`] })] }))] }));
 };
 const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, }) => {
     const { properties } = schema;
@@ -4790,7 +4790,9 @@ const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [],
 };
 
 const useForm = ({ preLoadedValues, keyPrefix }) => {
-    const form = reactHookForm.useForm({ values: preLoadedValues });
+    const form = reactHookForm.useForm({
+        values: preLoadedValues,
+    });
     const [idMap, setIdMap] = React.useState({});
     const translate = reactI18next.useTranslation("", { keyPrefix });
     return {
