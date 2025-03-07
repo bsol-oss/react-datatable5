@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/popover";
 import { Tag } from "@/components/ui/tag";
 import { Box, Flex, Grid, Input, Text } from "@chakra-ui/react";
-import { JSONSchema7 } from "json-schema";
 import { ChangeEvent, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../ui/field";
@@ -20,9 +19,15 @@ export interface IdPickerProps {
   column: string;
   isMultiple?: boolean;
   schema: CustomJSONSchema7;
+  prefix: string;
 }
 
-export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
+export const EnumPicker = ({
+  column,
+  isMultiple = false,
+  schema,
+  prefix,
+}: IdPickerProps) => {
   const {
     watch,
     formState: { errors },
@@ -31,9 +36,6 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
   const { translate } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  if (schema.properties == undefined) {
-    throw new Error("schema properties when using DatePicker");
-  }
   const { gridColumn, gridRow, renderDisplay } = schema;
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
@@ -41,15 +43,14 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
   const ref = useRef<HTMLInputElement>(null);
   const watchEnum = watch(column);
   const watchEnums = (watch(column) ?? []) as string[];
-
-  const properties = (schema.properties[column] ?? {}) as JSONSchema7;
-  const dataList = properties.enum ?? [];
-  const count = properties.enum?.length ?? 0;
+  const dataList = schema.enum ?? [];
+  const count = schema.enum?.length ?? 0;
   const isDirty = (searchText?.length ?? 0) > 0;
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
     setLimit(10);
   };
+  const col = `${prefix}${column}`;
 
   return (
     <Field
@@ -151,14 +152,20 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
                         }}
                         {...(selected ? { color: "gray.400/50" } : {})}
                       >
-                        {!!renderDisplay === true ? renderDisplay(item) : item}
+                        {!!renderDisplay === true
+                          ? renderDisplay(item)
+                          : translate.t(`${col}.${item}`)}
                       </Box>
                     );
                   }
                 )}
               </Flex>
               {isDirty && (
-                <>{dataList.length <= 0 && <>Empty Search Result</>} </>
+                <>
+                  {dataList.length <= 0 && (
+                    <>{translate.t(`${col}.emptySearchResult`)}</>
+                  )}
+                </>
               )}
             </Grid>
           </PopoverBody>
@@ -166,7 +173,7 @@ export const EnumPicker = ({ column, isMultiple = false }: IdPickerProps) => {
       </PopoverRoot>
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
+        <Text color={"red.400"}>{translate.t(`${col}.fieldRequired`)}</Text>
       )}
     </Field>
   );
