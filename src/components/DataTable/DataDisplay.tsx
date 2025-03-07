@@ -1,4 +1,4 @@
-import { Box, Card, Flex } from "@chakra-ui/react";
+import { Box, Card, Flex, Grid, Text } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
 import { snakeToLabel } from "../Form/utils/snakeToLabel";
 import { RecordDisplay } from "./components/RecordDisplay";
@@ -10,9 +10,8 @@ export interface DataDisplayProps {
   translate?: UseTranslationResponse<any, any>;
 }
 
-export const DataDisplay = ({ variant = "", translate }: DataDisplayProps) => {
-  const { table } = useDataTableContext();
-
+const CellRenderer = ({ cell }) => {
+  const { translate } = useDataTableContext();
   const getLabel = ({ columnId }: { columnId: string }) => {
     if (translate !== undefined) {
       return translate.t(`${columnId}`);
@@ -38,68 +37,90 @@ export const DataDisplay = ({ variant = "", translate }: DataDisplayProps) => {
     }
     throw new Error(`value is unknown, ${typeof value}`);
   };
+  const showCustomDataDisplay =
+    cell.column.columnDef.meta?.showCustomDisplay ?? false;
+  const gridColumn = cell.column.columnDef.meta?.gridColumn ?? [
+    "span 12",
+    "span 6",
+    "span 3",
+  ];
+  const gridRow = cell.column.columnDef.meta?.gridRow ?? {};
+  if (showCustomDataDisplay) {
+    return (
+      <Flex key={cell.id} {...{ gridColumn, gridRow }}>
+        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+      </Flex>
+    );
+  }
+  const value = cell.getValue();
+  if (typeof value === "object") {
+    return (
+      <Box key={cell.id} {...{ gridColumn, gridRow }}>
+        <Box>{getLabel({ columnId: cell.column.id })}</Box>
+        <RecordDisplay
+          boxProps={{
+            borderWidth: 1,
+            borderRadius: 4,
+            borderColor: "gray.400",
+            paddingX: 4,
+            paddingY: 2,
+          }}
+          object={value}
+        />
+      </Box>
+    );
+  }
+  return (
+    <Box key={cell.id} {...{ gridColumn, gridRow }}>
+      <Box>{getLabel({ columnId: cell.column.id })}</Box>
+      <Box
+        wordBreak={"break-word"}
+        textOverflow={"ellipsis"}
+        overflow={"hidden"}
+      >{`${formatValue(cell.getValue())}`}</Box>
+    </Box>
+  );
+};
+
+export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
+  const { table, translate } = useDataTableContext();
 
   return (
     <Flex flexFlow={"column"} gap={"1"}>
-      {table.getRowModel().rows.map((row) => {
+      {Object.entries(table.getRowModel().rowsById).map(([rowId, row]) => {
         return (
-          <Card.Root key={`chakra-table-card-${row.id}`}>
+          <Card.Root key={`chakra-table-card-${rowId}`}>
             <Card.Body>
-              <Box
-                gap={4}
-                padding={4}
-                display={"grid"}
-                gridTemplateColumns={"repeat(12, 1fr)"}
-              >
-                {row.getVisibleCells().map((cell) => {
-                  const showCustomDataDisplay =
-                    cell.column.columnDef.meta?.showCustomDisplay ?? false;
-                  const gridColumn = cell.column.columnDef.meta?.gridColumn ?? [
-                    "span 12",
-                    "span 6",
-                    "span 3",
-                  ];
-                  const gridRow = cell.column.columnDef.meta?.gridRow ?? {};
-                  if (showCustomDataDisplay) {
+              <Grid gap={4} padding={4} gridTemplateColumns={"repeat(12, 1fr)"}>
+                {table.getAllColumns().map((column) => {
+                  const childCell = row.getAllCells().find((cell) => {
+                    return cell.id === `${rowId}_${column.id}`;
+                  });
+                  if (column.columns.length > 0) {
                     return (
-                      <Flex key={cell.id} {...{ gridColumn, gridRow }}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                      <Flex flexFlow={"column"} gridColumn={"span 12"}>
+                        <Text> {translate.t(column.id)}</Text>
+                        <Grid
+                          gap={4}
+                          padding={4}
+                          gridTemplateColumns={"repeat(12, 1fr)"}
+                        >
+                          {column.columns.map((column) => {
+                            if (!column.getIsVisible()) {
+                              return <></>;
+                            }
+                            const foundCell = row.getVisibleCells().find((cell) => {
+                              return cell.id === `${rowId}_${column.id}`;
+                            });
+                            return <CellRenderer {...{ cell: foundCell }} />;
+                          })}
+                        </Grid>
                       </Flex>
                     );
                   }
-                  const value = cell.getValue();
-                  if (typeof value === "object") {
-                    return (
-                      <Box key={cell.id} {...{ gridColumn, gridRow }}>
-                        <Box>{getLabel({ columnId: cell.column.id })}</Box>
-                        <RecordDisplay
-                          boxProps={{
-                            borderWidth: 1,
-                            borderRadius: 4,
-                            borderColor: "gray.400",
-                            paddingX: 4,
-                            paddingY: 2,
-                          }}
-                          object={value}
-                        />
-                      </Box>
-                    );
-                  }
-                  return (
-                    <Box key={cell.id} {...{ gridColumn, gridRow }}>
-                      <Box>{getLabel({ columnId: cell.column.id })}</Box>
-                      <Box
-                        wordBreak={"break-word"}
-                        textOverflow={"ellipsis"}
-                        overflow={"hidden"}
-                      >{`${formatValue(cell.getValue())}`}</Box>
-                    </Box>
-                  );
+                  return <CellRenderer {...{ cell: childCell }} />;
                 })}
-              </Box>
+              </Grid>
             </Card.Body>
           </Card.Root>
         );

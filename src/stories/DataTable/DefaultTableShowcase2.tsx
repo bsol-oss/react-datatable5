@@ -2,12 +2,16 @@ import { Provider } from "@/components/ui/provider";
 import { Box, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
-import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
-import { Employee, staffData } from "../staff_data";
 import {
-  I18nextProvider,
-  initReactI18next,
-} from "react-i18next";
+  DataDisplay,
+  DataTable,
+  DefaultTable,
+  TableComponent,
+  TableControls,
+  TextCell,
+} from "../../index";
+import { Employee, staffData } from "../staff_data";
+import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18n from "i18next";
 
 interface RowActionsProps {
@@ -141,21 +145,24 @@ const DefaultTableShowcase2 = () => {
   ];
 
   i18n
-  .use(initReactI18next) // bind react-i18next to the instance
-  .init({
-    fallbackLng: "en",
-    debug: true,
+    .use(initReactI18next) // bind react-i18next to the instance
+    .init({
+      fallbackLng: "en",
+      debug: true,
 
-    interpolation: {
-      escapeValue: false, // not needed for react!!
-    },
-  });
-
+      interpolation: {
+        escapeValue: false, // not needed for react!!
+      },
+    });
 
   return (
     <Provider>
       <I18nextProvider i18n={i18n} defaultNS={"translation"}>
         <DataTable columns={columns} data={staffData} {...datatable}>
+        <TableControls>
+        <DataDisplay />
+        </TableControls>
+
           <DefaultTable
             controlProps={{
               showFilter: true,
