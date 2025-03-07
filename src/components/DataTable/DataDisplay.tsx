@@ -87,7 +87,8 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
 
   return (
     <Flex flexFlow={"column"} gap={"1"}>
-      {Object.entries(table.getRowModel().rowsById).map(([rowId, row]) => {
+      {table.getRowModel().rows.map((row) => {
+        const rowId = row.id
         return (
           <Card.Root key={`chakra-table-card-${rowId}`}>
             <Card.Body>
