@@ -1,4 +1,4 @@
-import { Card, DataList as ChakraDataList, Flex } from "@chakra-ui/react";
+import { Box, Card, Flex } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
 import { snakeToLabel } from "../Form/utils/snakeToLabel";
 import { RecordDisplay } from "./components/RecordDisplay";
@@ -38,176 +38,31 @@ export const DataDisplay = ({ variant = "", translate }: DataDisplayProps) => {
     }
     throw new Error(`value is unknown, ${typeof value}`);
   };
-  
-  if (variant == "horizontal") {
-    return (
-      <Flex flexFlow={"column"} gap={"1"}>
-        {table.getRowModel().rows.map((row) => {
-          return (
-            <Card.Root key={`chakra-table-card-${row.id}`}>
-              <Card.Body>
-                <ChakraDataList.Root
-                  gap={4}
-                  padding={4}
-                  display={"grid"}
-                  variant={"subtle"}
-                  orientation={"horizontal"}
-                  overflow={"auto"}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const showCustomDataDisplay =
-                      cell.column.columnDef.meta?.showCustomDisplay ?? false;
-                    if (showCustomDataDisplay) {
-                      return (
-                        <Flex key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </Flex>
-                      );
-                    }
-                    const value = cell.getValue();
-                    if (typeof value === "object") {
-                      return (
-                        <ChakraDataList.Item key={cell.id}>
-                          <ChakraDataList.ItemLabel>
-                            {getLabel({ columnId: cell.column.id })}
-                          </ChakraDataList.ItemLabel>
-                          <RecordDisplay
-                            boxProps={{
-                              borderWidth: 1,
-                              borderRadius: 4,
-                              borderColor: "gray.400",
-                              paddingX: 4,
-                              paddingY: 2,
-                            }}
-                            object={value}
-                          />
-                        </ChakraDataList.Item>
-                      );
-                    }
-                    return (
-                      <ChakraDataList.Item key={cell.id}>
-                        <ChakraDataList.ItemLabel>
-                          {getLabel({ columnId: cell.column.id })}
-                        </ChakraDataList.ItemLabel>
-                        <ChakraDataList.ItemValue
-                          wordBreak={"break-word"}
-                          textOverflow={"ellipsis"}
-                          overflow={"hidden"}
-                        >{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
-                      </ChakraDataList.Item>
-                    );
-                  })}
-                </ChakraDataList.Root>
-              </Card.Body>
-            </Card.Root>
-          );
-        })}
-      </Flex>
-    );
-  }
-  if (variant == "stats") {
-    return (
-      <Flex flexFlow={"column"} gap={"1"}>
-        {table.getRowModel().rows.map((row) => {
-          return (
-            <Card.Root key={`chakra-table-card-${row.id}`}>
-              <Card.Body>
-                <ChakraDataList.Root
-                  gap={4}
-                  padding={4}
-                  display={"flex"}
-                  flexFlow={"row"}
-                  variant={"subtle"}
-                  overflow={"auto"}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const showCustomDataDisplay =
-                      cell.column.columnDef.meta?.showCustomDisplay ?? false;
-                    if (showCustomDataDisplay) {
-                      return (
-                        <Flex key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </Flex>
-                      );
-                    }
-                    const value = cell.getValue();
-                    if (typeof value === "object") {
-                      return (
-                        <ChakraDataList.Item
-                          display={"inline-flex"}
-                          flexFlow={"column"}
-                          justifyContent={"center"}
-                          alignItems={"center"}
-                          flex={"1 0 0%"}
-                        >
-                          <ChakraDataList.ItemLabel>
-                            {getLabel({ columnId: cell.column.id })}
-                          </ChakraDataList.ItemLabel>
-                          <RecordDisplay
-                            boxProps={{
-                              borderWidth: 1,
-                              borderRadius: 4,
-                              borderColor: "gray.400",
-                              paddingX: 4,
-                              paddingY: 2,
-                            }}
-                            object={value}
-                          />
-                        </ChakraDataList.Item>
-                      );
-                    }
-                    return (
-                      <ChakraDataList.Item
-                        key={cell.id}
-                        display={"flex"}
-                        justifyContent={"center"}
-                        alignItems={"center"}
-                        flex={"1 0 0%"}
-                      >
-                        <ChakraDataList.ItemLabel>
-                          {getLabel({ columnId: cell.column.id })}
-                        </ChakraDataList.ItemLabel>
-                        <ChakraDataList.ItemValue
-                          wordBreak={"break-word"}
-                          textOverflow={"ellipsis"}
-                          overflow={"hidden"}
-                        >{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
-                      </ChakraDataList.Item>
-                    );
-                  })}
-                </ChakraDataList.Root>
-              </Card.Body>
-            </Card.Root>
-          );
-        })}
-      </Flex>
-    );
-  }
+
   return (
     <Flex flexFlow={"column"} gap={"1"}>
       {table.getRowModel().rows.map((row) => {
         return (
           <Card.Root key={`chakra-table-card-${row.id}`}>
             <Card.Body>
-              <ChakraDataList.Root
+              <Box
                 gap={4}
                 padding={4}
                 display={"grid"}
-                variant={"subtle"}
-                gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
+                gridTemplateColumns={"repeat(12, 1fr)"}
               >
                 {row.getVisibleCells().map((cell) => {
                   const showCustomDataDisplay =
                     cell.column.columnDef.meta?.showCustomDisplay ?? false;
+                  const gridColumn = cell.column.columnDef.meta?.gridColumn ?? [
+                    "span 12",
+                    "span 6",
+                    "span 3",
+                  ];
+                  const gridRow = cell.column.columnDef.meta?.gridRow ?? {};
                   if (showCustomDataDisplay) {
                     return (
-                      <Flex key={cell.id}>
+                      <Flex key={cell.id} {...{ gridColumn, gridRow }}>
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -218,10 +73,8 @@ export const DataDisplay = ({ variant = "", translate }: DataDisplayProps) => {
                   const value = cell.getValue();
                   if (typeof value === "object") {
                     return (
-                      <ChakraDataList.Item key={cell.id}>
-                        <ChakraDataList.ItemLabel>
-                          {getLabel({ columnId: cell.column.id })}
-                        </ChakraDataList.ItemLabel>
+                      <Box key={cell.id} {...{ gridColumn, gridRow }}>
+                        <Box>{getLabel({ columnId: cell.column.id })}</Box>
                         <RecordDisplay
                           boxProps={{
                             borderWidth: 1,
@@ -232,23 +85,21 @@ export const DataDisplay = ({ variant = "", translate }: DataDisplayProps) => {
                           }}
                           object={value}
                         />
-                      </ChakraDataList.Item>
+                      </Box>
                     );
                   }
                   return (
-                    <ChakraDataList.Item key={cell.id}>
-                      <ChakraDataList.ItemLabel>
-                        {getLabel({ columnId: cell.column.id })}
-                      </ChakraDataList.ItemLabel>
-                      <ChakraDataList.ItemValue
+                    <Box key={cell.id} {...{ gridColumn, gridRow }}>
+                      <Box>{getLabel({ columnId: cell.column.id })}</Box>
+                      <Box
                         wordBreak={"break-word"}
                         textOverflow={"ellipsis"}
                         overflow={"hidden"}
-                      >{`${formatValue(cell.getValue())}`}</ChakraDataList.ItemValue>
-                    </ChakraDataList.Item>
+                      >{`${formatValue(cell.getValue())}`}</Box>
+                    </Box>
                   );
                 })}
-              </ChakraDataList.Root>
+              </Box>
             </Card.Body>
           </Card.Root>
         );
