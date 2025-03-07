@@ -1,9 +1,8 @@
 import { Input, Text } from "@chakra-ui/react";
-import { JSONSchema7 } from "json-schema";
-import { ReactNode } from "react";
 import { useFormContext } from "react-hook-form";
-import { Field } from "../../ui/field";
-import { useSchemaContext } from "../useSchemaContext";
+import { Field } from "../../../ui/field";
+import { useSchemaContext } from "../../useSchemaContext";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 
 export interface StringInputFieldProps {
   column: string;
@@ -16,14 +15,6 @@ export interface ForeignKeyProps {
   table: string;
   display_column: string;
 }
-export interface CustomJSONSchema7 extends JSONSchema7 {
-  gridColumn?: string;
-  gridRow?: string;
-  foreign_key?: ForeignKeyProps;
-  variant?: string;
-  renderDisplay: (item: unknown) => ReactNode;
-}
-
 export const StringInputField = ({
   column,
   schema,

@@ -7,7 +7,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { useSchemaContext } from "../useSchemaContext";
-import { CustomJSONSchema7 } from "./StringInputField";
+import { CustomJSONSchema7 } from "./types/CustomJSONSchema7";
 
 export interface IdViewerProps {
   value: string | undefined;

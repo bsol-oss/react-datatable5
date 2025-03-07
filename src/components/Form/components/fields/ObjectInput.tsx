@@ -1,8 +1,8 @@
 import { Box, Grid, Text } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
-import { useSchemaContext } from "../useSchemaContext";
+import { useSchemaContext } from "../../useSchemaContext";
 import { ColumnRenderer } from "./ColumnRenderer";
-import { CustomJSONSchema7 } from "./StringInputField";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 
 export interface ObjectInputProps {
   schema: CustomJSONSchema7;

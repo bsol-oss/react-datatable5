@@ -3,15 +3,9 @@ import { RadioCardItem, RadioCardRoot } from "@/components/ui/radio-card";
 import { CheckboxGroup, Flex, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useFormContext } from "react-hook-form";
-import { useSchemaContext } from "../useSchemaContext";
-import { getTableData } from "../utils/getTableData";
-import { CustomJSONSchema7 } from "./StringInputField";
-export interface TagPickerProps {
-  column: string;
-  schema: CustomJSONSchema7;
-  prefix: string;
-}
-
+import { useSchemaContext } from "../../useSchemaContext";
+import { getTableData } from "../../utils/getTableData";
+import { TagPickerProps } from "../types/CustomJSONSchema7";
 export interface Tag {
   id: string;
   name: string;

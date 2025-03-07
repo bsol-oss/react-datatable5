@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Grid, Text } from "@chakra-ui/react";
-import { useSchemaContext } from "../useSchemaContext";
-import { CustomJSONSchema7 } from "./StringInputField";
+import { useSchemaContext } from "../../useSchemaContext";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { SchemaRenderer } from "./SchemaRenderer";
 

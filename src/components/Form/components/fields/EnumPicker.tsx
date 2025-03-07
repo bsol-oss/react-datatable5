@@ -10,10 +10,10 @@ import { Tag } from "@/components/ui/tag";
 import { Box, Flex, Grid, Input, Text } from "@chakra-ui/react";
 import { ChangeEvent, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { Field } from "../../ui/field";
-import { useSchemaContext } from "../useSchemaContext";
-import { filterArray } from "../utils/filterArray";
-import { CustomJSONSchema7 } from "./StringInputField";
+import { Field } from "../../../ui/field";
+import { useSchemaContext } from "../../useSchemaContext";
+import { filterArray } from "../../utils/filterArray";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 
 export interface IdPickerProps {
   column: string;

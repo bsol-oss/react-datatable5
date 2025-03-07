@@ -17,10 +17,11 @@ import { Box, Flex, Grid, HStack, Input, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { ChangeEvent, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { Field } from "../../ui/field";
-import { useSchemaContext } from "../useSchemaContext";
-import { getTableData } from "../utils/getTableData";
-import { CustomJSONSchema7, ForeignKeyProps } from "./StringInputField";
+import { Field } from "../../../ui/field";
+import { useSchemaContext } from "../../useSchemaContext";
+import { getTableData } from "../../utils/getTableData";
+import { ForeignKeyProps } from "./StringInputField";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 
 export interface IdPickerProps {
   column: string;

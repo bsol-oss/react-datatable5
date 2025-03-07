@@ -2,9 +2,9 @@ import { Field } from "@/components/ui/field";
 import { Box, Card, Flex, Text } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import { TiDeleteOutline } from "react-icons/ti";
-import { useSchemaContext } from "../useSchemaContext";
-import { FileDropzone } from "./FileDropzone";
-import { CustomJSONSchema7 } from "./StringInputField";
+import { useSchemaContext } from "../../useSchemaContext";
+import { FileDropzone } from "../FileDropzone";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 
 export const FilePicker = ({ column, schema, prefix }) => {
   const {

@@ -1,5 +1,5 @@
 import { Text } from "@chakra-ui/react";
-import { idPickerSanityCheck } from "../Form";
+import { idPickerSanityCheck } from "../../Form";
 import { ArrayRenderer } from "./ArrayRenderer";
 import { BooleanPicker } from "./BooleanPicker";
 import { DatePicker } from "./DatePicker";
@@ -9,7 +9,8 @@ import { IdPicker } from "./IdPicker";
 import { NumberInputField } from "./NumberInputField";
 import { ObjectInput } from "./ObjectInput";
 import { RecordInput } from "./RecordInput";
-import { CustomJSONSchema7, StringInputField } from "./StringInputField";
+import { StringInputField } from "./StringInputField";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { TagPicker } from "./TagPicker";
 
 export interface SchemaRendererProps {

@@ -4,8 +4,8 @@ import { Card, Grid, IconButton, Input, Show, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { CgClose } from "react-icons/cg";
-import { useSchemaContext } from "../useSchemaContext";
-import { CustomJSONSchema7 } from "./StringInputField";
+import { useSchemaContext } from "../../useSchemaContext";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 
 export interface DatePickerProps {
   schema: CustomJSONSchema7;

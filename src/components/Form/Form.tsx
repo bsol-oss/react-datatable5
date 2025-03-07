@@ -1,7 +1,7 @@
 import { SchemaFormContext } from "@/components/Form/SchemaFormContext";
 import {
   ForeignKeyProps
-} from "@/components/Form/components/StringInputField";
+} from "@/components/Form/components/fields/StringInputField";
 import { useSchemaContext } from "@/components/Form/useSchemaContext";
 import { clearEmptyString } from "@/components/Form/utils/clearEmptyString";
 import { idListSanityCheck } from "@/components/Form/utils/idListSanityCheck";
@@ -33,7 +33,7 @@ import {
 } from "react-hook-form";
 import { UseTranslationResponse } from "react-i18next";
 import { RecordDisplay } from "../DataTable/components/RecordDisplay";
-import { ColumnRenderer } from "./components/ColumnRenderer";
+import { ColumnRenderer } from "./components/fields/ColumnRenderer";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;

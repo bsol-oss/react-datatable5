@@ -4,9 +4,9 @@ import {
 } from "@/components/ui/number-input";
 import { Text } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
-import { Field } from "../../ui/field";
-import { useSchemaContext } from "../useSchemaContext";
-import { CustomJSONSchema7 } from "./StringInputField";
+import { Field } from "../../../ui/field";
+import { useSchemaContext } from "../../useSchemaContext";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 export interface NumberInputFieldProps {
   column: string;
   schema: CustomJSONSchema7;

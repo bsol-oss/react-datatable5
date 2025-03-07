@@ -1,4 +1,4 @@
-import { CustomJSONSchema7 } from "./StringInputField";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { SchemaRenderer } from "./SchemaRenderer";
 
 export interface ColumnRendererProps {
