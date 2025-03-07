@@ -8,6 +8,8 @@ import { getTableData } from "../utils/getTableData";
 import { CustomJSONSchema7 } from "./StringInputField";
 export interface TagPickerProps {
   column: string;
+  schema: CustomJSONSchema7;
+  prefix: string;
 }
 
 export interface Tag {
@@ -37,20 +39,18 @@ export interface TagResponse {
   data: TagData[];
 }
 
-export const TagPicker = ({ column }: TagPickerProps) => {
+export const TagPicker = ({ column, schema, prefix }: TagPickerProps) => {
   const {
     watch,
     formState: { errors },
     setValue,
   } = useFormContext();
 
-  const { schema, serverUrl } = useSchemaContext();
+  const { serverUrl } = useSchemaContext();
   if (schema.properties == undefined) {
     throw new Error("schema properties undefined when using DatePicker");
   }
-  const { gridColumn, gridRow, in_table, object_id_column } = schema.properties[
-    column
-  ] as CustomJSONSchema7;
+  const { gridColumn, gridRow, in_table, object_id_column } = schema;
   if (in_table === undefined) {
     throw new Error("in_table is undefined when using TagPicker");
   }
@@ -77,7 +77,7 @@ export const TagPicker = ({ column }: TagPickerProps) => {
   });
   const object_id = watch(object_id_column);
   const existingTagsQuery = useQuery({
-    queryKey: [`existing`, in_table, object_id_column, object_id],
+    queryKey: [`existing`, { in_table, object_id_column }, object_id],
     queryFn: async () => {
       return await getTableData({
         serverUrl,
