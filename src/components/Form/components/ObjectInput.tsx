@@ -22,7 +22,7 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
             key={`form-${column}`}
             {...{
               column: `${key}`,
-              prefix: `${prefix}.${column}.`,
+              prefix: `${prefix}${column}.`,
               properties,
             }}
           />
