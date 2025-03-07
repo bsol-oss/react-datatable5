@@ -1,9 +1,8 @@
-import { Box, Grid } from "@chakra-ui/react";
-import { Field } from "@/components/ui/field";
-
+import { Box, Grid,Text } from "@chakra-ui/react";
+import { useFormContext } from "react-hook-form";
+import { useSchemaContext } from "../useSchemaContext";
 import { ColumnRenderer } from "./ColumnRenderer";
 import { CustomJSONSchema7 } from "./StringInputField";
-import { useSchemaContext } from "../useSchemaContext";
 
 export interface ObjectInputProps {
   schema: CustomJSONSchema7;
@@ -16,7 +15,12 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
-
+  const {
+    watch,
+    formState: { errors },
+    setValue,
+    control,
+  } = useFormContext();
   if (properties === undefined) {
     throw new Error(`properties is undefined when using ObjectInput`);
   }
@@ -47,6 +51,11 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
           );
         })}
       </Grid>
+      {errors[`${column}`] && (
+        <Text color={"red.400"}>
+          {translate.t(`${colLabel}.fieldRequired`)}
+        </Text>
+      )}
     </Box>
   );
 };
