@@ -3,4 +3,4 @@ export interface DataDisplayProps {
     variant?: "horizontal" | "stats" | "";
     translate?: UseTranslationResponse<any, any>;
 }
-export declare const DataDisplay: ({ variant, translate }: DataDisplayProps) => import("react/jsx-runtime").JSX.Element;
+export declare const DataDisplay: ({ variant }: DataDisplayProps) => import("react/jsx-runtime").JSX.Element;

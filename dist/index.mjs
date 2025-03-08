@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Flex, Text, Tag as Tag$1, Input, useDisclosure, DialogBackdrop, CheckboxCard as CheckboxCard$1, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Image, Card, DataList, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Group, InputElement, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$2, VStack, List, Alert, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Heading, Center } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Flex, Text, Tag as Tag$1, Input, useDisclosure, DialogBackdrop, CheckboxCard as CheckboxCard$1, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Image, Card, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Group, InputElement, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, EmptyState as EmptyState$2, VStack, List, Alert, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Heading, Center } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef } from 'react';
@@ -2605,8 +2605,8 @@ const RecordDisplay = ({ object, boxProps, translate, prefix = "", }) => {
         }) }));
 };
 
-const DataDisplay = ({ variant = "", translate }) => {
-    const { table } = useDataTableContext();
+const CellRenderer = ({ cell }) => {
+    const { translate } = useDataTableContext();
     const getLabel = ({ columnId }) => {
         if (translate !== undefined) {
             return translate.t(`${columnId}`);
@@ -2631,66 +2631,51 @@ const DataDisplay = ({ variant = "", translate }) => {
         }
         throw new Error(`value is unknown, ${typeof value}`);
     };
-    if (variant == "horizontal") {
-        return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
-                return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", orientation: "horizontal", overflow: "auto", children: row.getVisibleCells().map((cell) => {
-                                const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
-                                if (showCustomDataDisplay) {
-                                    return (jsx(Flex, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
-                                }
-                                const value = cell.getValue();
-                                if (typeof value === "object") {
-                                    return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(RecordDisplay, { boxProps: {
-                                                    borderWidth: 1,
-                                                    borderRadius: 4,
-                                                    borderColor: "gray.400",
-                                                    paddingX: 4,
-                                                    paddingY: 2,
-                                                }, object: value })] }, cell.id));
-                                }
-                                return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
-                            }) }) }) }, `chakra-table-card-${row.id}`));
-            }) }));
+    const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
+    const gridColumn = cell.column.columnDef.meta?.gridColumn ?? [
+        "span 12",
+        "span 6",
+        "span 3",
+    ];
+    const gridRow = cell.column.columnDef.meta?.gridRow ?? {};
+    if (showCustomDataDisplay) {
+        return (jsx(Flex, { gridColumn, gridRow, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
     }
-    if (variant == "stats") {
-        return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
-                return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "flex", flexFlow: "row", variant: "subtle", overflow: "auto", children: row.getVisibleCells().map((cell) => {
-                                const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
-                                if (showCustomDataDisplay) {
-                                    return (jsx(Flex, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
-                                }
-                                const value = cell.getValue();
-                                if (typeof value === "object") {
-                                    return (jsxs(DataList.Item, { display: "inline-flex", flexFlow: "column", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(RecordDisplay, { boxProps: {
-                                                    borderWidth: 1,
-                                                    borderRadius: 4,
-                                                    borderColor: "gray.400",
-                                                    paddingX: 4,
-                                                    paddingY: 2,
-                                                }, object: value })] }));
-                                }
-                                return (jsxs(DataList.Item, { display: "flex", justifyContent: "center", alignItems: "center", flex: "1 0 0%", children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
-                            }) }) }) }, `chakra-table-card-${row.id}`));
-            }) }));
+    const value = cell.getValue();
+    if (typeof value === "object") {
+        return (jsxs(Box, { gridColumn, gridRow, children: [jsx(Box, { children: getLabel({ columnId: cell.column.id }) }), jsx(RecordDisplay, { boxProps: {
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        borderColor: "gray.400",
+                        paddingX: 4,
+                        paddingY: 2,
+                    }, object: value })] }, cell.id));
     }
+    return (jsxs(Box, { gridColumn, gridRow, children: [jsx(Box, { color: 'gray.400', children: getLabel({ columnId: cell.column.id }) }), jsx(Box, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
+};
+const DataDisplay = ({ variant = "" }) => {
+    const { table, translate } = useDataTableContext();
     return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
-            return (jsx(Card.Root, { children: jsx(Card.Body, { children: jsx(DataList.Root, { gap: 4, padding: 4, display: "grid", variant: "subtle", gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", children: row.getVisibleCells().map((cell) => {
-                            const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
-                            if (showCustomDataDisplay) {
-                                return (jsx(Flex, { children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
-                            }
-                            const value = cell.getValue();
-                            if (typeof value === "object") {
-                                return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(RecordDisplay, { boxProps: {
-                                                borderWidth: 1,
-                                                borderRadius: 4,
-                                                borderColor: "gray.400",
-                                                paddingX: 4,
-                                                paddingY: 2,
-                                            }, object: value })] }, cell.id));
-                            }
-                            return (jsxs(DataList.Item, { children: [jsx(DataList.ItemLabel, { children: getLabel({ columnId: cell.column.id }) }), jsx(DataList.ItemValue, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
-                        }) }) }) }, `chakra-table-card-${row.id}`));
+            const rowId = row.id;
+            return (jsx(Card.Root, { children: jsx(Card.Body, { display: "grid", gap: 4, padding: 4, gridTemplateColumns: "repeat(12, 1fr)", children: table.getAllColumns().map((column) => {
+                        const childCell = row.getAllCells().find((cell) => {
+                            return cell.id === `${rowId}_${column.id}`;
+                        });
+                        if (column.columns.length > 0) {
+                            return (jsxs(Card.Root, { margin: "1", gridColumn: "span 12", children: [jsx(Card.Header, { color: "gray.400", children: translate.t(column.id) }), jsx(Card.Body, { display: "grid", gap: "4", gridTemplateColumns: "repeat(12, 1fr)", children: column.columns.map((column) => {
+                                            if (!column.getIsVisible()) {
+                                                return jsx(Fragment, {});
+                                            }
+                                            const foundCell = row
+                                                .getVisibleCells()
+                                                .find((cell) => {
+                                                return cell.id === `${rowId}_${column.id}`;
+                                            });
+                                            return jsx(CellRenderer, { cell: foundCell });
+                                        }) })] }, `chakra-table-card-${childCell?.id}`));
+                        }
+                        return jsx(CellRenderer, { cell: childCell });
+                    }) }) }, `chakra-table-card-${rowId}`));
         }) }));
 };
 
@@ -3478,7 +3463,7 @@ const widthSanityCheck = (widthList, ignoreList, properties) => {
         throw new Error(`The width list is too long given from the number of remaining properties after ignore some.`);
     }
 };
-const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth = 400, translate, }) => {
+const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, defaultWidth = 400, translate, }) => {
     const { properties } = schema;
     idListSanityCheck("ignore", ignore, properties);
     widthSanityCheck(width, ignore, properties);
@@ -3490,7 +3475,8 @@ const getColumns = ({ schema, ignore = [], width = [], meta = {}, defaultWidth =
         return snakeToLabel(column);
     };
     const keys = Object.keys(properties);
-    const ignored = keys.filter((key) => {
+    const included = include.length > 0 ? include : keys;
+    const ignored = included.filter((key) => {
         return !ignore.some((shouldIgnoreKey) => key === shouldIgnoreKey);
     });
     const columnHelper = createColumnHelper();

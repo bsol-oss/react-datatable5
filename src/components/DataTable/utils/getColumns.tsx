@@ -9,6 +9,7 @@ import { UseTranslationResponse } from "react-i18next";
 
 export interface GetColumnsConfigs<K extends RowData> {
   schema: JSONSchema7;
+  include?: K[];
   ignore?: K[];
   width?: number[];
   meta?: {
@@ -45,6 +46,7 @@ export const widthSanityCheck = <K extends RowData>(
 
 export const getColumns = <TData extends RowData>({
   schema,
+  include = [],
   ignore = [],
   width = [],
   meta = {},
@@ -63,7 +65,8 @@ export const getColumns = <TData extends RowData>({
     return snakeToLabel(column);
   };
   const keys = Object.keys(properties as object);
-  const ignored = keys.filter((key) => {
+  const included = include.length > 0 ? include : keys;
+  const ignored = included.filter((key) => {
     return !ignore.some((shouldIgnoreKey) => key === shouldIgnoreKey);
   });
 

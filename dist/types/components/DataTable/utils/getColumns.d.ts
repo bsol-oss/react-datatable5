@@ -3,6 +3,7 @@ import { JSONSchema7 } from "json-schema";
 import { UseTranslationResponse } from "react-i18next";
 export interface GetColumnsConfigs<K extends RowData> {
     schema: JSONSchema7;
+    include?: K[];
     ignore?: K[];
     width?: number[];
     meta?: {
@@ -12,4 +13,4 @@ export interface GetColumnsConfigs<K extends RowData> {
     translate?: UseTranslationResponse<any, any>;
 }
 export declare const widthSanityCheck: <K extends unknown>(widthList: number[], ignoreList: K[], properties: { [key in K as string]?: object | undefined; }) => void;
-export declare const getColumns: <TData extends unknown>({ schema, ignore, width, meta, defaultWidth, translate, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
+export declare const getColumns: <TData extends unknown>({ schema, include, ignore, width, meta, defaultWidth, translate, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];

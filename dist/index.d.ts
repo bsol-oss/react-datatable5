@@ -85,7 +85,7 @@ interface DataDisplayProps {
     variant?: "horizontal" | "stats" | "";
     translate?: UseTranslationResponse<any, any>;
 }
-declare const DataDisplay: ({ variant, translate }: DataDisplayProps) => react_jsx_runtime.JSX.Element;
+declare const DataDisplay: ({ variant }: DataDisplayProps) => react_jsx_runtime.JSX.Element;
 
 type DensityState = "sm" | "md" | "lg";
 interface DensityTableState {
@@ -427,6 +427,7 @@ declare const useDataTableContext: <TData>() => DataTableContext<TData>;
 
 interface GetColumnsConfigs<K extends RowData> {
     schema: JSONSchema7;
+    include?: K[];
     ignore?: K[];
     width?: number[];
     meta?: {
@@ -436,7 +437,7 @@ interface GetColumnsConfigs<K extends RowData> {
     translate?: UseTranslationResponse<any, any>;
 }
 declare const widthSanityCheck: <K extends unknown>(widthList: number[], ignoreList: K[], properties: { [key in K as string]?: object | undefined; }) => void;
-declare const getColumns: <TData extends unknown>({ schema, ignore, width, meta, defaultWidth, translate, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
+declare const getColumns: <TData extends unknown>({ schema, include, ignore, width, meta, defaultWidth, translate, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
 
 interface EmptyStateProps {
     title?: string;
