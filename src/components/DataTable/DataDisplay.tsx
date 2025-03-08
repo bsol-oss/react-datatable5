@@ -72,7 +72,7 @@ const CellRenderer = ({ cell }) => {
   }
   return (
     <Box key={cell.id} {...{ gridColumn, gridRow }}>
-      <Box>{getLabel({ columnId: cell.column.id })}</Box>
+      <Box color={'gray.400'}>{getLabel({ columnId: cell.column.id })}</Box>
       <Box
         wordBreak={"break-word"}
         textOverflow={"ellipsis"}
@@ -108,7 +108,9 @@ export const DataDisplay = ({ variant = "" }: DataDisplayProps) => {
                       margin={"1"}
                       gridColumn={"span 12"}
                     >
-                      <Card.Header> {translate.t(column.id)}</Card.Header>
+                      <Card.Header color={"gray.400"}>
+                        {translate.t(column.id)}
+                      </Card.Header>
                       <Card.Body
                         display={"grid"}
                         gap={"4"}

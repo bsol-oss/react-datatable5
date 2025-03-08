@@ -81,6 +81,21 @@ const AddressApp = () => {
     translate,
   });
 
+  const columnsInclude = getColumns<string>({
+    schema: peopleSchema as JSONSchema7,
+    // ignore: ["building_name"],
+    include: ["first_name"],
+    width: [400, 80, 100],
+    meta: {
+      // created_at: {
+      //   displayName: "Created at",
+      //   filterVariant: "select",
+      //   filterOptions: ["Apple", "Huawei"],
+      // },
+    },
+    translate,
+  });
+
   return (
     <Provider>
       <DataTableServer
@@ -108,6 +123,13 @@ const AddressApp = () => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
           }}
         />
+      </DataTableServer>
+      <DataTableServer
+        url="http://localhost:8081/api/g/core_people"
+        columns={columnsInclude}
+        {...datatable}
+      >
+        <DataDisplay />
       </DataTableServer>
     </Provider>
   );
