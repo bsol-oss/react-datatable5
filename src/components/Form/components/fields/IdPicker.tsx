@@ -97,17 +97,47 @@ export const IdPicker = ({
   });
 
   const { isLoading, isFetching, data, isPending, isError } = query;
-
   const dataList = data?.data ?? [];
   const count = data?.count ?? 0;
   const isDirty = (searchText?.length ?? 0) > 0;
+  const watchId = watch(colLabel);
+  const watchIds = (watch(colLabel) ?? []) as string[];
+
+  const queryDefault = useQuery({
+    queryKey: [`idpicker`, { column, searchText, limit, page }],
+    queryFn: async () => {
+      const data = await getTableData({
+        serverUrl,
+        searching: watchId,
+        in_table: table,
+        limit: limit,
+        offset: page * 10,
+      });
+      const newMap = Object.fromEntries(
+        (data ?? { data: [] }).data.map((item: Record<string, string>) => {
+          return [
+            item[column_ref],
+            {
+              ...item,
+            },
+          ];
+        })
+      );
+      setIdMap((state) => {
+        return { ...state, ...newMap };
+      });
+      return data;
+    },
+    staleTime: 300000,
+  });
+
+
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
     setPage(0);
     setLimit(10);
   };
-  const watchId = watch(colLabel);
-  const watchIds = (watch(colLabel) ?? []) as string[];
+
   const getPickedValue = () => {
     if (Object.keys(idMap).length <= 0) {
       return "";

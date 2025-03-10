@@ -50,7 +50,10 @@ export const EventsFiles: Story = {
 };
 
 const SomeForm = () => {
-  const { form, idMap, setIdMap, translate } = useForm({ keyPrefix: "nice" });
+  const { form, idMap, setIdMap, translate } = useForm({
+    keyPrefix: "nice",
+    preLoadedValues: { event_id: "e4ebad56-c4fc-9ea2-f740-d67485d44d4d" },
+  });
 
   return (
     <Form
