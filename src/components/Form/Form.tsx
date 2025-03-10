@@ -32,6 +32,7 @@ import {
 import { UseTranslationResponse } from "react-i18next";
 import { ColumnRenderer } from "./components/fields/ColumnRenderer";
 import { ColumnViewer } from "./components/viewers/ColumnViewer";
+import { SubmitButton } from "./components/core/SubmitButton";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -102,15 +103,21 @@ const FormInternal = <TData extends FieldValues>() => {
     rowNumber,
     translate,
     requestOptions,
+    isSuccess,
+    setIsSuccess,
+    isError,
+    setIsError,
+    isSubmiting,
+    setIsSubmiting,
+    isConfirming,
+    setIsConfirming,
+    validatedData,
+    setValidatedData,
+    error,
+    setError,
   } = useSchemaContext();
 
   const methods = useFormContext();
-  const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  const [isError, setIsError] = useState<boolean>(false);
-  const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
-  const [isConfirming, setIsConfirming] = useState<boolean>(false);
-  const [validatedData, setValidatedData] = useState();
-  const [error, setError] = useState<unknown>();
 
   const { properties } = schema;
 
@@ -155,13 +162,6 @@ const FormInternal = <TData extends FieldValues>() => {
       return;
     }
     await defaultOnSubmit(onSubmit(data));
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onValid = (data: any) => {
-    setValidatedData(data);
-    setIsError(false);
-    setIsConfirming(true);
   };
 
   interface renderColumnsConfig {
@@ -318,15 +318,8 @@ const FormInternal = <TData extends FieldValues>() => {
           >
             {translate.t("reset")}
           </Button>
-          <Button
-            onClick={() => {
-              methods.handleSubmit(onValid)();
-            }}
-            formNoValidate
-          >
-            {translate.t("submit")}
-          </Button>
         </Flex>
+        <SubmitButton />
       </Grid>
     </>
   );
@@ -351,6 +344,13 @@ export const Form = <TData extends FieldValues>({
   // idListSanityCheck("order", order, properties as object);
   // idListSanityCheck("ignore", ignore, properties as object);
 
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
+  const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
+  const [isConfirming, setIsConfirming] = useState<boolean>(false);
+  const [validatedData, setValidatedData] = useState();
+  const [error, setError] = useState<unknown>();
+
   return (
     <SchemaFormContext.Provider
       value={{
@@ -366,6 +366,18 @@ export const Form = <TData extends FieldValues>({
         setIdMap,
         translate,
         requestOptions,
+        isSuccess,
+        setIsSuccess,
+        isError,
+        setIsError,
+        isSubmiting,
+        setIsSubmiting,
+        isConfirming,
+        setIsConfirming,
+        validatedData,
+        setValidatedData,
+        error,
+        setError,
       }}
     >
       <FormProvider {...form}>

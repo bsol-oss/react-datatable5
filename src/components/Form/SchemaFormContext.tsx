@@ -17,6 +17,18 @@ export interface SchemaFormContext<TData extends FieldValues> {
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
   translate: UseTranslationResponse<any, any>;
   requestOptions: AxiosRequestConfig;
+  isSuccess: boolean;
+  setIsSuccess: Dispatch<SetStateAction<boolean>>;
+  isError: boolean;
+  setIsError: Dispatch<SetStateAction<boolean>>;
+  isSubmiting: boolean;
+  setIsSubmiting: Dispatch<SetStateAction<boolean>>;
+  isConfirming: boolean;
+  setIsConfirming: Dispatch<SetStateAction<boolean>>;
+  validatedData: any;
+  setValidatedData: Dispatch<SetStateAction<any>>;
+  error: unknown;
+  setError: Dispatch<SetStateAction<unknown>>;
 }
 
 //@ts-expect-error TODO: find appropriate type
