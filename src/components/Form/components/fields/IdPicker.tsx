@@ -52,7 +52,13 @@ export const IdPicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { serverUrl, idMap, setIdMap, translate } = useSchemaContext();
+  const {
+    serverUrl,
+    idMap,
+    setIdMap,
+    translate,
+    schema: parentSchema,
+  } = useSchemaContext();
   const { required, gridColumn, gridRow, renderDisplay, foreign_key } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const {
@@ -104,7 +110,10 @@ export const IdPicker = ({
   const watchIds = (watch(colLabel) ?? []) as string[];
 
   const queryDefault = useQuery({
-    queryKey: [`idpicker`, { column, searchText, limit, page }],
+    queryKey: [
+      `idpicker`,
+      { form: parentSchema.title, column, searchText, limit, page },
+    ],
     queryFn: async () => {
       const data = await getTableData({
         serverUrl,
@@ -130,7 +139,6 @@ export const IdPicker = ({
     },
     staleTime: 300000,
   });
-
 
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
