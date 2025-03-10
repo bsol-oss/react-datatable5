@@ -4258,13 +4258,38 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const dataList = data?.data ?? [];
     const count = data?.count ?? 0;
     const isDirty = (searchText?.length ?? 0) > 0;
+    const watchId = watch(colLabel);
+    const watchIds = (watch(colLabel) ?? []);
+    reactQuery.useQuery({
+        queryKey: [`idpicker`, { column, searchText, limit, page }],
+        queryFn: async () => {
+            const data = await getTableData({
+                serverUrl,
+                searching: watchId,
+                in_table: table,
+                limit: limit,
+                offset: page * 10,
+            });
+            const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
+                return [
+                    item[column_ref],
+                    {
+                        ...item,
+                    },
+                ];
+            }));
+            setIdMap((state) => {
+                return { ...state, ...newMap };
+            });
+            return data;
+        },
+        staleTime: 300000,
+    });
     const onSearchChange = async (event) => {
         setSearchText(event.target.value);
         setPage(0);
         setLimit(10);
     };
-    const watchId = watch(colLabel);
-    const watchIds = (watch(colLabel) ?? []);
     const getPickedValue = () => {
         if (Object.keys(idMap).length <= 0) {
             return "";
@@ -4293,7 +4318,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                 }, children: getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(removeIndex(`${colLabel}.typeToSearch`)), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), isError && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isError" }), jsxRuntime.jsx(react.Text, { justifySelf: "center", children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` }), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: 
+                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), (isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, {}), isError && (jsxRuntime.jsx(react.Icon, { color: "red.400", children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsx(react.Text, { justifySelf: "center", children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` }), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: 
                                                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                     dataList.map((item) => {
                                                         const selected = isMultiple
@@ -4313,7 +4338,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                             }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
                                                                 ? renderDisplay(item)
                                                                 : item[display_column] }, item[column_ref]));
-                                                    }) }), isDirty && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: dataList.length <= 0 && (jsxRuntime.jsx(react.Text, { children: translate.t(removeIndex(`${colLabel}.emptySearchResult`)) })) }))] }), jsxRuntime.jsx(PaginationRoot, { justifySelf: "center", count: query?.data?.count ?? 0, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxRuntime.jsxs(react.HStack, { gap: "4", children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), jsxRuntime.jsx(PaginationPageText, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.fieldRequired`)) }))] }));
+                                                    }) }), isDirty && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: dataList.length <= 0 && (jsxRuntime.jsx(react.Text, { children: translate.t(removeIndex(`${colLabel}.emptySearchResult`)) })) }))] }), jsxRuntime.jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxRuntime.jsxs(react.HStack, { gap: "4", children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), count > 0 && jsxRuntime.jsx(PaginationPageText, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.fieldRequired`)) }))] }));
 };
 
 const NumberInputRoot = React__namespace.forwardRef(function NumberInput(props, ref) {

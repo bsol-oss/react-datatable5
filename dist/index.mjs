@@ -7,7 +7,7 @@ import { MdFilterAlt, MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutli
 import { LuX, LuCheck, LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import Dayzed from '@bsol-oss/dayzed-react19';
 import { FaUpDown, FaGripLinesVertical } from 'react-icons/fa6';
-import { BiDownArrow, BiUpArrow } from 'react-icons/bi';
+import { BiDownArrow, BiUpArrow, BiError } from 'react-icons/bi';
 import { CgClose } from 'react-icons/cg';
 import { IoMdEye, IoMdCheckbox } from 'react-icons/io';
 import _slicedToArray from '@babel/runtime/helpers/slicedToArray';
@@ -4238,13 +4238,38 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const dataList = data?.data ?? [];
     const count = data?.count ?? 0;
     const isDirty = (searchText?.length ?? 0) > 0;
+    const watchId = watch(colLabel);
+    const watchIds = (watch(colLabel) ?? []);
+    useQuery({
+        queryKey: [`idpicker`, { column, searchText, limit, page }],
+        queryFn: async () => {
+            const data = await getTableData({
+                serverUrl,
+                searching: watchId,
+                in_table: table,
+                limit: limit,
+                offset: page * 10,
+            });
+            const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
+                return [
+                    item[column_ref],
+                    {
+                        ...item,
+                    },
+                ];
+            }));
+            setIdMap((state) => {
+                return { ...state, ...newMap };
+            });
+            return data;
+        },
+        staleTime: 300000,
+    });
     const onSearchChange = async (event) => {
         setSearchText(event.target.value);
         setPage(0);
         setLimit(10);
     };
-    const watchId = watch(colLabel);
-    const watchIds = (watch(colLabel) ?? []);
     const getPickedValue = () => {
         if (Object.keys(idMap).length <= 0) {
             return "";
@@ -4273,7 +4298,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                 }, children: getPickedValue() })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(removeIndex(`${colLabel}.typeToSearch`)), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxs(Fragment, { children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), isError && jsx(Fragment, { children: "isError" }), jsx(Text, { justifySelf: "center", children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` }), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: 
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxs(Fragment, { children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), (isFetching || isLoading || isPending) && jsx(Spinner, {}), isError && (jsx(Icon, { color: "red.400", children: jsx(BiError, {}) })), jsx(Text, { justifySelf: "center", children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` }), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: 
                                                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                     dataList.map((item) => {
                                                         const selected = isMultiple
@@ -4293,7 +4318,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                             }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
                                                                 ? renderDisplay(item)
                                                                 : item[display_column] }, item[column_ref]));
-                                                    }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Text, { children: translate.t(removeIndex(`${colLabel}.emptySearchResult`)) })) }))] }), jsx(PaginationRoot, { justifySelf: "center", count: query?.data?.count ?? 0, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.fieldRequired`)) }))] }));
+                                                    }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Text, { children: translate.t(removeIndex(`${colLabel}.emptySearchResult`)) })) }))] }), jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), count > 0 && jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.fieldRequired`)) }))] }));
 };
 
 const NumberInputRoot = React.forwardRef(function NumberInput$1(props, ref) {
