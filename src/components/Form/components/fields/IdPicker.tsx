@@ -137,7 +137,6 @@ export const IdPicker = ({
       });
       return data;
     },
-    staleTime: 300000,
   });
 
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
