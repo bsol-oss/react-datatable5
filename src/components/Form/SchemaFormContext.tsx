@@ -10,6 +10,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
   requestUrl: string;
   order: string[];
   ignore: string[];
+  include: string[];
   onSubmit?: (data: TData) => Promise<void>;
   rowNumber?: number | string;
   idMap: Record<string, object>;
@@ -25,6 +26,7 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   requestUrl: "",
   order: [],
   ignore: [],
+  include: [],
   onSubmit: async () => {},
   rowNumber: 0,
   requestOptions: {},

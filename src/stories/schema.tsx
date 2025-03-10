@@ -618,18 +618,13 @@ export const eventsFilesSchema = {
   properties: {
     file_id: {
       type: "array",
-      format: "uuid",
       variant: "file-picker",
-      description:
-        "Missing description. Database type: uuid. Default value: null",
       gridColumn: "1/span 8",
       gridRow: "2/span 8",
     },
     event_id: {
       type: "string",
-      format: "uuid",
-      description:
-        "Missing description. Database type: uuid. Default value: null",
+
       variant: "id-picker",
       gridColumn: "1/span 6",
       gridRow: "1/span 1",
@@ -638,6 +633,12 @@ export const eventsFilesSchema = {
         table: "core_events",
         column: "id",
       },
+    },
+    good: {
+      type: "string",
+    },
+    nice: {
+      type: "string",
     },
   },
   description: "Missing description",

@@ -43,6 +43,7 @@ export interface FormProps<TData extends FieldValues> {
   translate: UseTranslationResponse<any, any>;
   order?: string[];
   ignore?: string[];
+  include?: string[];
   onSubmit?: SubmitHandler<TData>;
   rowNumber?: number | string;
   requestOptions?: AxiosRequestConfig;
@@ -95,6 +96,8 @@ const FormInternal = <TData extends FieldValues>() => {
     schema,
     requestUrl,
     order,
+    ignore,
+    include,
     onSubmit,
     rowNumber,
     translate,
@@ -161,14 +164,36 @@ const FormInternal = <TData extends FieldValues>() => {
     setIsConfirming(true);
   };
 
-  const renderOrder = (order: string[], origin_list: string[]) => {
-    const not_exist = origin_list.filter(
+  interface renderColumnsConfig {
+    order: string[];
+    keys: string[];
+    ignore: string[];
+    include: string[];
+  }
+
+  const renderColumns = ({
+    order,
+    keys,
+    ignore,
+    include,
+  }: renderColumnsConfig) => {
+    const included = include.length > 0 ? include : keys;
+    const not_exist = included.filter(
       (columnA) => !order.some((columnB) => columnA === columnB)
     );
-    return [...order, ...not_exist];
+    const ordered = [...order, ...not_exist];
+    const ignored = ordered.filter(
+      (column) => !ignore.some((shouldIgnore) => column === shouldIgnore)
+    );
+    return ignored;
   };
 
-  const ordered = renderOrder(order, Object.keys(properties as object));
+  const ordered = renderColumns({
+    order,
+    keys: Object.keys(properties as object),
+    ignore,
+    include,
+  });
 
   if (isSuccess) {
     return (
@@ -316,6 +341,7 @@ export const Form = <TData extends FieldValues>({
   translate,
   order = [],
   ignore = [],
+  include = [],
   onSubmit = undefined,
   rowNumber = undefined,
   requestOptions = {},
@@ -332,6 +358,7 @@ export const Form = <TData extends FieldValues>({
         serverUrl,
         order,
         ignore,
+        include,
         // @ts-expect-error TODO: find appropriate types
         onSubmit,
         rowNumber,
