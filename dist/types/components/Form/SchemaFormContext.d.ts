@@ -9,6 +9,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
     requestUrl: string;
     order: string[];
     ignore: string[];
+    include: string[];
     onSubmit?: (data: TData) => Promise<void>;
     rowNumber?: number | string;
     idMap: Record<string, object>;

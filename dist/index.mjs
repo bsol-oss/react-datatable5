@@ -3528,26 +3528,14 @@ const SchemaFormContext = createContext({
     requestUrl: "",
     order: [],
     ignore: [],
+    include: [],
     onSubmit: async () => { },
     rowNumber: 0,
     requestOptions: {},
 });
 
 const useSchemaContext = () => {
-    const { schema, serverUrl, requestUrl, order, ignore, onSubmit, rowNumber, idMap, setIdMap, translate, requestOptions, } = useContext(SchemaFormContext);
-    return {
-        schema,
-        serverUrl,
-        requestUrl,
-        order,
-        ignore,
-        onSubmit,
-        rowNumber,
-        idMap,
-        setIdMap,
-        translate,
-        requestOptions,
-    };
+    return useContext(SchemaFormContext);
 };
 
 const clearEmptyString = (object) => {
@@ -4930,7 +4918,7 @@ const idPickerSanityCheck = (column, foreign_key) => {
     }
 };
 const FormInternal = () => {
-    const { schema, requestUrl, order, onSubmit, rowNumber, translate, requestOptions, } = useSchemaContext();
+    const { schema, requestUrl, order, ignore, include, onSubmit, rowNumber, translate, requestOptions, } = useSchemaContext();
     const methods = useFormContext();
     const [isSuccess, setIsSuccess] = useState(false);
     const [isError, setIsError] = useState(false);
@@ -4989,11 +4977,19 @@ const FormInternal = () => {
         setIsError(false);
         setIsConfirming(true);
     };
-    const renderOrder = (order, origin_list) => {
-        const not_exist = origin_list.filter((columnA) => !order.some((columnB) => columnA === columnB));
-        return [...order, ...not_exist];
+    const renderColumns = ({ order, keys, ignore, include, }) => {
+        const included = include.length > 0 ? include : keys;
+        const not_exist = included.filter((columnA) => !order.some((columnB) => columnA === columnB));
+        const ordered = [...order, ...not_exist];
+        const ignored = ordered.filter((column) => !ignore.some((shouldIgnore) => column === shouldIgnore));
+        return ignored;
     };
-    const ordered = renderOrder(order, Object.keys(properties));
+    const ordered = renderColumns({
+        order,
+        keys: Object.keys(properties),
+        ignore,
+        include,
+    });
     if (isSuccess) {
         return (jsxs(Grid, { gap: 2, children: [jsx(Heading, { children: translate.t("title") }), jsxs(Alert.Root, { status: "success", children: [jsx(Alert.Indicator, {}), jsx(Alert.Title, { children: translate.t("submitSuccess") })] }), jsx(Flex, { justifyContent: "end", children: jsx(Button, { onClick: () => {
                             setIsError(false);
@@ -5029,7 +5025,7 @@ const FormInternal = () => {
                                 methods.handleSubmit(onValid)();
                             }, formNoValidate: true, children: translate.t("submit") })] })] }) }));
 };
-const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, }) => {
+const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, }) => {
     const { properties } = schema;
     idListSanityCheck("order", order, properties);
     idListSanityCheck("ignore", ignore, properties);
@@ -5038,6 +5034,7 @@ const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [],
             serverUrl,
             order,
             ignore,
+            include,
             // @ts-expect-error TODO: find appropriate types
             onSubmit,
             rowNumber,

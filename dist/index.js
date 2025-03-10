@@ -3548,26 +3548,14 @@ const SchemaFormContext = React.createContext({
     requestUrl: "",
     order: [],
     ignore: [],
+    include: [],
     onSubmit: async () => { },
     rowNumber: 0,
     requestOptions: {},
 });
 
 const useSchemaContext = () => {
-    const { schema, serverUrl, requestUrl, order, ignore, onSubmit, rowNumber, idMap, setIdMap, translate, requestOptions, } = React.useContext(SchemaFormContext);
-    return {
-        schema,
-        serverUrl,
-        requestUrl,
-        order,
-        ignore,
-        onSubmit,
-        rowNumber,
-        idMap,
-        setIdMap,
-        translate,
-        requestOptions,
-    };
+    return React.useContext(SchemaFormContext);
 };
 
 const clearEmptyString = (object) => {
@@ -4950,7 +4938,7 @@ const idPickerSanityCheck = (column, foreign_key) => {
     }
 };
 const FormInternal = () => {
-    const { schema, requestUrl, order, onSubmit, rowNumber, translate, requestOptions, } = useSchemaContext();
+    const { schema, requestUrl, order, ignore, include, onSubmit, rowNumber, translate, requestOptions, } = useSchemaContext();
     const methods = reactHookForm.useFormContext();
     const [isSuccess, setIsSuccess] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
@@ -5009,11 +4997,19 @@ const FormInternal = () => {
         setIsError(false);
         setIsConfirming(true);
     };
-    const renderOrder = (order, origin_list) => {
-        const not_exist = origin_list.filter((columnA) => !order.some((columnB) => columnA === columnB));
-        return [...order, ...not_exist];
+    const renderColumns = ({ order, keys, ignore, include, }) => {
+        const included = include.length > 0 ? include : keys;
+        const not_exist = included.filter((columnA) => !order.some((columnB) => columnA === columnB));
+        const ordered = [...order, ...not_exist];
+        const ignored = ordered.filter((column) => !ignore.some((shouldIgnore) => column === shouldIgnore));
+        return ignored;
     };
-    const ordered = renderOrder(order, Object.keys(properties));
+    const ordered = renderColumns({
+        order,
+        keys: Object.keys(properties),
+        ignore,
+        include,
+    });
     if (isSuccess) {
         return (jsxRuntime.jsxs(react.Grid, { gap: 2, children: [jsxRuntime.jsx(react.Heading, { children: translate.t("title") }), jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Title, { children: translate.t("submitSuccess") })] }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(Button, { onClick: () => {
                             setIsError(false);
@@ -5049,7 +5045,7 @@ const FormInternal = () => {
                                 methods.handleSubmit(onValid)();
                             }, formNoValidate: true, children: translate.t("submit") })] })] }) }));
 };
-const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, }) => {
+const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, }) => {
     const { properties } = schema;
     idListSanityCheck("order", order, properties);
     idListSanityCheck("ignore", ignore, properties);
@@ -5058,6 +5054,7 @@ const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [],
             serverUrl,
             order,
             ignore,
+            include,
             // @ts-expect-error TODO: find appropriate types
             onSubmit,
             rowNumber,

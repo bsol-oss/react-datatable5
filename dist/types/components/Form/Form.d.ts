@@ -14,6 +14,7 @@ export interface FormProps<TData extends FieldValues> {
     translate: UseTranslationResponse<any, any>;
     order?: string[];
     ignore?: string[];
+    include?: string[];
     onSubmit?: SubmitHandler<TData>;
     rowNumber?: number | string;
     requestOptions?: AxiosRequestConfig;
@@ -32,4 +33,4 @@ export declare const idPickerSanityCheck: (column: string, foreign_key?: {
     column?: string | undefined;
     display_column?: string | undefined;
 } | undefined) => void;
-export declare const Form: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, order, ignore, onSubmit, rowNumber, requestOptions, }: FormProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const Form: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, order, ignore, include, onSubmit, rowNumber, requestOptions, }: FormProps<TData>) => import("react/jsx-runtime").JSX.Element;

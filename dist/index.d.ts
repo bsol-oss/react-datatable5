@@ -467,6 +467,7 @@ interface FormProps<TData extends FieldValues> {
     translate: UseTranslationResponse<any, any>;
     order?: string[];
     ignore?: string[];
+    include?: string[];
     onSubmit?: SubmitHandler<TData>;
     rowNumber?: number | string;
     requestOptions?: AxiosRequestConfig;
@@ -485,7 +486,7 @@ declare const idPickerSanityCheck: (column: string, foreign_key?: {
     column?: string | undefined;
     display_column?: string | undefined;
 } | undefined) => void;
-declare const Form: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, order, ignore, onSubmit, rowNumber, requestOptions, }: FormProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const Form: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, order, ignore, include, onSubmit, rowNumber, requestOptions, }: FormProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface UseFormProps {
     preLoadedValues?: FieldValues | undefined;
