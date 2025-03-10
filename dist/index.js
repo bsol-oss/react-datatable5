@@ -4274,7 +4274,6 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             });
             return data;
         },
-        staleTime: 300000,
     });
     const onSearchChange = async (event) => {
         setSearchText(event.target.value);
