@@ -20,14 +20,15 @@ export const NumberInputField = ({
   prefix,
 }: NumberInputFieldProps) => {
   const {
-    register,
+    setValue,
     formState: { errors },
-    watch
+    watch,
   } = useFormContext();
   const { translate } = useSchemaContext();
   const { required, gridColumn, gridRow } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
+  const value = watch(`${colLabel}`);
   return (
     <Field
       label={`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}
@@ -36,7 +37,11 @@ export const NumberInputField = ({
     >
       <NumberInputRoot>
         <ChakraNumberInputField
-          {...register(`${colLabel}`, { required: isRequired })}
+          required={isRequired}
+          value={value}
+          onChange={(event) => {
+            setValue(`${colLabel}`, Number(event.target.value));
+          }}
         />
       </NumberInputRoot>
       {errors[`${column}`] && (

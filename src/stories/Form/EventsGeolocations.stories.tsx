@@ -50,6 +50,9 @@ export const EventsGeolocations: Story = {
 const eventsGeolocationsSchema = {
   title: "events_geolocations",
   properties: {
+    someNumbers: {
+      type: "number",
+    },
     parent_id: {
       type: "string",
       format: "uuid",
@@ -553,19 +556,19 @@ const eventsGeolocationsSchema = {
             type: "array",
             items: {
               type: "number",
-            }
+            },
           },
           strings: {
             type: "array",
             items: {
               type: "string",
-            }
+            },
           },
           booleans: {
             type: "array",
             items: {
               type: "boolean",
-            }
+            },
           },
         },
       },
