@@ -346,10 +346,10 @@ export const Form = <TData extends FieldValues>({
   rowNumber = undefined,
   requestOptions = {},
 }: FormProps<TData>) => {
-  const { properties } = schema;
+  // const { properties } = schema;
 
-  idListSanityCheck("order", order, properties as object);
-  idListSanityCheck("ignore", ignore, properties as object);
+  // idListSanityCheck("order", order, properties as object);
+  // idListSanityCheck("ignore", ignore, properties as object);
 
   return (
     <SchemaFormContext.Provider
