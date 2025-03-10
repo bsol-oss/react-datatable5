@@ -4186,7 +4186,7 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
 
 const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { serverUrl, idMap, setIdMap, translate } = useSchemaContext();
+    const { serverUrl, idMap, setIdMap, translate, schema: parentSchema, } = useSchemaContext();
     const { required, gridColumn, gridRow, renderDisplay, foreign_key } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { table, column: column_ref, display_column, } = foreign_key;
@@ -4229,7 +4229,10 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const watchId = watch(colLabel);
     const watchIds = (watch(colLabel) ?? []);
     useQuery({
-        queryKey: [`idpicker`, { column, searchText, limit, page }],
+        queryKey: [
+            `idpicker`,
+            { form: parentSchema.title, column, searchText, limit, page },
+        ],
         queryFn: async () => {
             const data = await getTableData({
                 serverUrl,
