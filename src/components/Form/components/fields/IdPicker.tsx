@@ -13,7 +13,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tag } from "@/components/ui/tag";
-import { Box, Flex, Grid, HStack, Input, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Grid,
+  HStack,
+  Icon,
+  Input,
+  Spinner,
+  Text,
+} from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { ChangeEvent, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -23,6 +32,7 @@ import { getTableData } from "../../utils/getTableData";
 import { ForeignKeyProps } from "./StringInputField";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { removeIndex } from "../../utils/removeIndex";
+import { BiError } from "react-icons/bi";
 
 export interface IdPickerProps {
   column: string;
@@ -194,7 +204,12 @@ export const IdPicker = ({
                 {isFetching && <>isFetching</>}
                 {isLoading && <>isLoading</>}
                 {isPending && <>isPending</>}
-                {isError && <>isError</>}
+                {(isFetching || isLoading || isPending) && <Spinner />}
+                {isError && (
+                  <Icon color={"red.400"}>
+                    <BiError />
+                  </Icon>
+                )}
                 <Text
                   justifySelf={"center"}
                 >{`${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}`}</Text>
@@ -252,7 +267,7 @@ export const IdPicker = ({
                 </Grid>
                 <PaginationRoot
                   justifySelf={"center"}
-                  count={query?.data?.count ?? 0}
+                  count={count}
                   pageSize={10}
                   defaultPage={1}
                   page={page + 1}
@@ -260,7 +275,7 @@ export const IdPicker = ({
                 >
                   <HStack gap="4">
                     <PaginationPrevTrigger />
-                    <PaginationPageText />
+                    {count > 0 && <PaginationPageText />}
                     <PaginationNextTrigger />
                   </HStack>
                 </PaginationRoot>
