@@ -4338,12 +4338,15 @@ react.NumberInput.Scrubber;
 react.NumberInput.Label;
 
 const NumberInputField = ({ schema, column, prefix, }) => {
-    const { register, formState: { errors }, watch } = reactHookForm.useFormContext();
+    const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
     const { required, gridColumn, gridRow } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`, required: isRequired, gridColumn, gridRow, children: [jsxRuntime.jsx(NumberInputRoot, { children: jsxRuntime.jsx(NumberInputField$1, { ...register(`${colLabel}`, { required: isRequired }) }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.fieldRequired`)) }))] }));
+    const value = watch(`${colLabel}`);
+    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`, required: isRequired, gridColumn, gridRow, children: [jsxRuntime.jsx(NumberInputRoot, { children: jsxRuntime.jsx(NumberInputField$1, { required: isRequired, value: value, onChange: (event) => {
+                        setValue(`${colLabel}`, Number(event.target.value));
+                    } }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.fieldRequired`)) }))] }));
 };
 
 const ObjectInput = ({ schema, column, prefix }) => {

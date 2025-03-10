@@ -4318,12 +4318,15 @@ NumberInput.Scrubber;
 NumberInput.Label;
 
 const NumberInputField = ({ schema, column, prefix, }) => {
-    const { register, formState: { errors }, watch } = useFormContext();
+    const { setValue, formState: { errors }, watch, } = useFormContext();
     const { translate } = useSchemaContext();
     const { required, gridColumn, gridRow } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`, required: isRequired, gridColumn, gridRow, children: [jsx(NumberInputRoot, { children: jsx(NumberInputField$1, { ...register(`${colLabel}`, { required: isRequired }) }) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.fieldRequired`)) }))] }));
+    const value = watch(`${colLabel}`);
+    return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`, required: isRequired, gridColumn, gridRow, children: [jsx(NumberInputRoot, { children: jsx(NumberInputField$1, { required: isRequired, value: value, onChange: (event) => {
+                        setValue(`${colLabel}`, Number(event.target.value));
+                    } }) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.fieldRequired`)) }))] }));
 };
 
 const ObjectInput = ({ schema, column, prefix }) => {
