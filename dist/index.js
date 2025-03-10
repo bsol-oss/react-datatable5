@@ -5046,9 +5046,9 @@ const FormInternal = () => {
                             }, formNoValidate: true, children: translate.t("submit") })] })] }) }));
 };
 const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, }) => {
-    const { properties } = schema;
-    idListSanityCheck("order", order, properties);
-    idListSanityCheck("ignore", ignore, properties);
+    // const { properties } = schema;
+    // idListSanityCheck("order", order, properties as object);
+    // idListSanityCheck("ignore", ignore, properties as object);
     return (jsxRuntime.jsx(SchemaFormContext.Provider, { value: {
             schema,
             serverUrl,
