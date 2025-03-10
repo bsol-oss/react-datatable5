@@ -318,8 +318,8 @@ const FormInternal = <TData extends FieldValues>() => {
           >
             {translate.t("reset")}
           </Button>
+          <SubmitButton />
         </Flex>
-        <SubmitButton />
       </Grid>
     </>
   );
