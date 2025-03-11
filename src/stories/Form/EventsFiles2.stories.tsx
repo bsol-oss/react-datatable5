@@ -1,23 +1,22 @@
-import { FormRoot } from "@/components/Form/components/core/FormRoot";
+import { DefaultForm } from "@/components/Form/components/core/DefaultForm";
+import { useForm } from "@/components/Form/useForm";
 import { Provider } from "@/components/ui/provider";
 import type { Meta, StoryObj } from "@storybook/react";
-import axios from "axios";
-import { JSONSchema7 } from "json-schema";
-import { eventsFilesSchema2 } from "../schema";
-import { I18nextProvider, initReactI18next } from "react-i18next";
-import i18n from "i18next";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useForm } from "@/components/Form/useForm";
-import { DefaultForm } from "@/components/Form/components/core/DefaultForm";
+import axios from "axios";
+import i18n from "i18next";
+import { JSONSchema7 } from "json-schema";
+import { I18nextProvider, initReactI18next } from "react-i18next";
+import { eventsFilesSchema2 } from "../schema";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
   title: "react-datatable5/Form",
-  component: FormRoot,
+  component: DefaultForm,
   parameters: {},
 
   argTypes: {},
-} satisfies Meta<typeof FormRoot>;
+} satisfies Meta<typeof DefaultForm>;
 
 type Story = StoryObj<typeof meta>;
 
