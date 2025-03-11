@@ -1,5 +1,5 @@
 import { Text } from "@chakra-ui/react";
-import { idPickerSanityCheck } from "../../Form";
+import { idPickerSanityCheck } from "../core/FormRoot";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { ArrayViewer } from "./ArrayViewer";
 import { BooleanViewer } from "./BooleanViewer";

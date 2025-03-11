@@ -1,9 +1,8 @@
 import { SchemaFormContext } from "@/components/Form/SchemaFormContext";
 import { ForeignKeyProps } from "@/components/Form/components/fields/StringInputField";
-import { Grid } from "@chakra-ui/react";
 import { AxiosRequestConfig } from "axios";
 import { JSONSchema7 } from "json-schema";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import {
   FieldValues,
   FormProvider,
@@ -11,10 +10,8 @@ import {
   UseFormReturn,
 } from "react-hook-form";
 import { UseTranslationResponse } from "react-i18next";
-import { FormTitle } from "./components/core/FormTitle";
-import { FormBody } from "./components/core/FormBody";
 
-export interface FormProps<TData extends FieldValues> {
+export interface FormRootProps<TData extends FieldValues> {
   schema: JSONSchema7;
   serverUrl: string;
   requestUrl?: string;
@@ -22,6 +19,7 @@ export interface FormProps<TData extends FieldValues> {
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
   form: UseFormReturn;
   translate: UseTranslationResponse<any, any>;
+  children: ReactNode;
   order?: string[];
   ignore?: string[];
   include?: string[];
@@ -38,6 +36,7 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
   gridColumn: string;
   gridRow: string;
   foreign_key: ForeignKeyProps;
+  children: ReactNode;
 }
 
 export const idPickerSanityCheck = (
@@ -72,36 +71,21 @@ export const idPickerSanityCheck = (
   }
 };
 
-const FormInternal = <TData extends FieldValues>() => {
-  return (
-    <>
-      <Grid gap="2">
-        <FormTitle />
-        <FormBody />
-      </Grid>
-    </>
-  );
-};
-
-export const Form = <TData extends FieldValues>({
+export const FormRoot = <TData extends FieldValues>({
   schema,
   idMap,
   setIdMap,
   form,
   serverUrl,
   translate,
+  children,
   order = [],
   ignore = [],
   include = [],
   onSubmit = undefined,
   rowNumber = undefined,
   requestOptions = {},
-}: FormProps<TData>) => {
-  // const { properties } = schema;
-
-  // idListSanityCheck("order", order, properties as object);
-  // idListSanityCheck("ignore", ignore, properties as object);
-
+}: FormRootProps<TData>) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
@@ -138,9 +122,7 @@ export const Form = <TData extends FieldValues>({
         setError,
       }}
     >
-      <FormProvider {...form}>
-        <FormInternal />
-      </FormProvider>
+      <FormProvider {...form}>{children}</FormProvider>
     </SchemaFormContext.Provider>
   );
 };

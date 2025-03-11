@@ -1,4 +1,4 @@
-import { Form } from "@/components/Form/Form";
+import { FormRoot } from "@/components/Form/components/core/FormRoot";
 import { Provider } from "@/components/ui/provider";
 import type { Meta, StoryObj } from "@storybook/react";
 import axios from "axios";
@@ -8,15 +8,16 @@ import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18n from "i18next";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useForm } from "@/components/Form/useForm";
+import { DefaultForm } from "@/components/Form/components/core/DefaultForm";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
   title: "react-datatable5/Form",
-  component: Form,
+  component: FormRoot,
   parameters: {},
 
   argTypes: {},
-} satisfies Meta<typeof Form>;
+} satisfies Meta<typeof FormRoot>;
 
 type Story = StoryObj<typeof meta>;
 
@@ -53,23 +54,25 @@ const SomeForm = () => {
   const form = useForm({ keyPrefix: "nice" });
 
   return (
-    <Form
-      schema={eventsFilesSchema2 as JSONSchema7}
-      serverUrl={"http://localhost:8081"}
-      rowNumber={20}
-      onSubmit={async (data) => {
-        const body = data["file_id"].map((file_id: string) => {
-          return {
-            file_id,
-            event_id: data["event_id"],
-          };
-        });
+    <DefaultForm
+      formConfig={{
+        schema: eventsFilesSchema2 as JSONSchema7,
+        ignore: ["id", "created_at", "updated_at"],
+        serverUrl: "http://localhost:8081",
+        onSubmit: async (data) => {
+          const body = data["file_id"].map((file_id: string) => {
+            return {
+              file_id,
+              event_id: data["event_id"],
+            };
+          });
 
-        await axios.post("http://localhost:8081/api/g/events_files/many", {
-          data: body,
-        });
+          await axios.post("http://localhost:8081/api/g/events_files/many", {
+            data: body,
+          });
+        },
+        ...form,
       }}
-      {...form}
     />
   );
 };

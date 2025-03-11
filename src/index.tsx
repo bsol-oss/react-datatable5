@@ -115,7 +115,7 @@ export * from "./components/DataTable/components/ErrorAlert";
 export * from "./components/Filter/FilterOptions";
 export * from "./components/Filter/GlobalFilter";
 
-export * from "./components/Form/Form";
+export * from "./components/Form/components/core/FormRoot";
 export * from "./components/Form/useForm";
 
 export * from "./components/DatePicker/DatePicker";

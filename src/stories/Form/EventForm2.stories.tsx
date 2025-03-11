@@ -1,4 +1,4 @@
-import { Form } from "@/components/Form/Form";
+import { FormRoot } from "@/components/Form/components/core/FormRoot";
 import type { Meta, StoryObj } from "@storybook/react";
 import { JSONSchema7 } from "json-schema";
 import { eventsSchema } from "../schema";
@@ -7,15 +7,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useForm } from "@/components/Form/useForm";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18n from "i18next";
+import { DefaultForm } from "@/components/Form/components/core/DefaultForm";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
   title: "react-datatable5/Form",
-  component: Form,
+  component: FormRoot,
   parameters: {},
 
   argTypes: {},
-} satisfies Meta<typeof Form>;
+} satisfies Meta<typeof FormRoot>;
 
 type Story = StoryObj<typeof meta>;
 
@@ -51,12 +52,14 @@ const SomeForm = () => {
   const form = useForm({ keyPrefix: "nice" });
 
   return (
-    <Form
-      schema={eventsSchema as JSONSchema7}
-      include={["event_name"]}
-      ignore={["id", "created_at", "updated_at"]}
-      serverUrl={"http://localhost:8081"}
-      {...form}
+    <DefaultForm
+      formConfig={{
+        schema: eventsSchema as JSONSchema7,
+        include: ["event_name"],
+        ignore: ["id", "created_at", "updated_at"],
+        serverUrl: "http://localhost:8081",
+        ...form,
+      }}
     />
   );
 };
