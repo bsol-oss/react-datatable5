@@ -254,46 +254,15 @@ export const rewardPointsTransactionsSchema = {
 };
 
 export const eventsSchema = {
-  $id: "http://api.localhost.com/schema/public/core_events.json",
   type: "object",
   title: "core_events",
-  $schema: "http://json-schema.org/draft-07/schema#",
-  example: {
-    id: "96ae1dd7-e13a-0210-5e73-64fda2b38495",
-    fee: -59976193.56805224,
-    quota: -9014054,
-    status: "tempor",
-    remarks: "deserunt ut sed consequat",
-    end_date: "1932-11-22",
-    end_time: "21:18:36.220Z",
-    created_at: "1916-06-22T20:51:15.0Z",
-    event_name: "ut quis nisi cillum",
-    extra_info: {
-      eu_e05: "voluptate dolor veniam proident",
-      veniam_4: "velit dolore culpa reprehenderit",
-      cupidatate9: "esse aliquip laborum do cupidatat",
-    },
-    start_date: "1959-05-20",
-    start_time: "19:13:14.205Z",
-    updated_at: "1896-06-15T18:48:15.0Z",
-    description: "reprehenderit",
-    location_id: "a2cc684e-b50c-35f5-a2a2-c50f521d0f50",
-    is_recurring: true,
-    recurring_days: "eiusmod mollit",
-    parent_event_id: "e73af37d-252d-0022-ae4b-3b8fc70f856e",
-  },
   required: ["event_name"],
   properties: {
     id: {
       type: "string",
-      format: "uuid",
-      description:
-        "Missing description. Database type: uuid. Default value: uuid_generate_v4()",
     },
     remarks: {
       type: "string",
-      description:
-        "Missing description. Database type: text. Default value: null",
       gridColumn: "1/span 12",
       gridRow: "8/span 1",
     },
@@ -303,8 +272,6 @@ export const eventsSchema = {
       format: "date",
       gridColumn: "7/span 3",
       gridRow: "4/span 1",
-      description:
-        "Missing description. Database type: date. Default value: null",
     },
     end_time: {
       type: "string",
@@ -328,36 +295,16 @@ export const eventsSchema = {
       gridColumn: "1/span 12",
       gridRow: "1/span 1",
     },
-    extra_info: {
-      type: "object",
-      properties: {},
-      description:
-        "Missing description. Database type: jsonb. Default value: null",
-      gridColumn: "1/span 4",
-      gridRow: "9/span 1",
-    },
     start_date: {
       type: "string",
       variant: "date-picker",
       gridColumn: "1/span 3",
       gridRow: "4/span 1",
-      format: "date",
-      description:
-        "Missing description. Database type: date. Default value: null",
     },
     start_time: {
       type: "string",
-      format: "time",
       gridColumn: "4/span 3",
       gridRow: "4/span 1",
-      description:
-        "Missing description. Database type: time without time zone. Default value: null",
-    },
-    updated_at: {
-      type: "string",
-      format: "date-time",
-      description:
-        "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
     },
     description: {
       type: "string",
@@ -404,8 +351,6 @@ export const eventsSchema = {
       },
     },
   },
-  description: "Missing description",
-  additionalProperties: false,
 } as JSONSchema7;
 
 export const peopleSchema = {
