@@ -33,6 +33,7 @@ import { UseTranslationResponse } from "react-i18next";
 import { ColumnRenderer } from "./components/fields/ColumnRenderer";
 import { ColumnViewer } from "./components/viewers/ColumnViewer";
 import { SubmitButton } from "./components/core/SubmitButton";
+import { FormTitle } from "./components/core/FormTitle";
 
 export interface FormProps<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -198,7 +199,7 @@ const FormInternal = <TData extends FieldValues>() => {
   if (isSuccess) {
     return (
       <Grid gap={2}>
-        <Heading>{translate.t("title")}</Heading>
+        <FormTitle />
         <Alert.Root status="success">
           <Alert.Indicator />
           <Alert.Title>{translate.t("submitSuccess")}</Alert.Title>
@@ -224,7 +225,7 @@ const FormInternal = <TData extends FieldValues>() => {
   if (isConfirming) {
     return (
       <Grid gap={2}>
-        <Heading> {translate.t("title")}</Heading>
+        <FormTitle />
         <Grid
           gap={4}
           gridTemplateColumns={"repeat(12, 1fr)"}
@@ -291,7 +292,7 @@ const FormInternal = <TData extends FieldValues>() => {
   return (
     <>
       <Grid gap="2">
-        <Heading> {translate.t("title")}</Heading>
+        <FormTitle />
         <Grid
           gap="4"
           gridTemplateColumns={"repeat(12, 1fr)"}
