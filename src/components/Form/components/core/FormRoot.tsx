@@ -26,6 +26,7 @@ export interface FormRootProps<TData extends FieldValues> {
   onSubmit?: SubmitHandler<TData>;
   rowNumber?: number | string;
   requestOptions?: AxiosRequestConfig;
+  getUpdatedData?: () => TData | Promise<TData> | void;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -85,12 +86,13 @@ export const FormRoot = <TData extends FieldValues>({
   onSubmit = undefined,
   rowNumber = undefined,
   requestOptions = {},
+  getUpdatedData = () => {},
 }: FormRootProps<TData>) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
-  const [validatedData, setValidatedData] = useState();
+  const [validatedData, setValidatedData] = useState<unknown>();
   const [error, setError] = useState<unknown>();
 
   return (
@@ -120,6 +122,7 @@ export const FormRoot = <TData extends FieldValues>({
         setValidatedData,
         error,
         setError,
+        getUpdatedData,
       }}
     >
       <FormProvider {...form}>{children}</FormProvider>

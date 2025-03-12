@@ -25,10 +25,11 @@ export interface SchemaFormContext<TData extends FieldValues> {
   setIsSubmiting: Dispatch<SetStateAction<boolean>>;
   isConfirming: boolean;
   setIsConfirming: Dispatch<SetStateAction<boolean>>;
-  validatedData: any;
-  setValidatedData: Dispatch<SetStateAction<any>>;
+  validatedData: TData | undefined;
+  setValidatedData: Dispatch<SetStateAction<TData>>;
   error: unknown;
   setError: Dispatch<SetStateAction<unknown>>;
+  getUpdatedData: () => TData | Promise<TData>;
 }
 
 //@ts-expect-error TODO: find appropriate type

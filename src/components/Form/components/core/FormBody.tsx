@@ -1,4 +1,10 @@
 import {
+  AccordionItem,
+  AccordionItemContent,
+  AccordionItemTrigger,
+  AccordionRoot,
+} from "@/components/ui/accordion";
+import {
   Alert,
   Box,
   Button,
@@ -7,21 +13,15 @@ import {
   Grid,
   Spinner,
 } from "@chakra-ui/react";
-import { ColumnRenderer } from "../fields/ColumnRenderer";
-import { SubmitButton } from "./SubmitButton";
 import axios from "axios";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
 import { clearEmptyString } from "../../utils/clearEmptyString";
+import { ColumnRenderer } from "../fields/ColumnRenderer";
 import { ColumnViewer } from "../viewers/ColumnViewer";
-import {
-  AccordionItem,
-  AccordionItemContent,
-  AccordionItemTrigger,
-  AccordionRoot,
-} from "@/components/ui/accordion";
+import { SubmitButton } from "./SubmitButton";
 
-export const FormBody = () => {
+export const FormBody = <TData extends object>() => {
   const {
     schema,
     requestUrl,
@@ -44,6 +44,7 @@ export const FormBody = () => {
     setValidatedData,
     error,
     setError,
+    getUpdatedData,
   } = useSchemaContext();
 
   const methods = useFormContext();
@@ -56,8 +57,9 @@ export const FormBody = () => {
   const onAfterSubmit = () => {
     setIsSubmiting(false);
   };
-  const onSubmitError = () => {
+  const onSubmitError = (error: unknown) => {
     setIsError(true);
+    setError(error);
   };
   const onSubmitSuccess = () => {
     setIsSuccess(true);
@@ -68,9 +70,7 @@ export const FormBody = () => {
       await promise;
       onSubmitSuccess();
     } catch (error) {
-      setIsError(true);
-      setError(error);
-      onSubmitError();
+      onSubmitError(error);
     } finally {
       onAfterSubmit();
     }
@@ -133,13 +133,14 @@ export const FormBody = () => {
         </Alert.Root>
         <Flex justifyContent={"end"}>
           <Button
-            onClick={() => {
+            onClick={async () => {
               setIsError(false);
               setIsSubmiting(false);
               setIsSuccess(false);
               setIsConfirming(false);
               setValidatedData(undefined);
-              methods.reset();
+              const data = await getUpdatedData();
+              methods.reset(data as TData);
             }}
             formNoValidate
           >
@@ -198,7 +199,7 @@ export const FormBody = () => {
           <>
             <Alert.Root status="error">
               <Alert.Title>
-                <AccordionRoot collapsible defaultValue={["b"]}>
+                <AccordionRoot collapsible defaultValue={[]}>
                   <AccordionItem value={"b"}>
                     <AccordionItemTrigger>
                       <Alert.Indicator />

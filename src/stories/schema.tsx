@@ -253,10 +253,10 @@ export const rewardPointsTransactionsSchema = {
   additionalProperties: false,
 };
 
-export const eventsSchema = {
+export const activitiesSchema = {
   type: "object",
-  title: "core_events",
-  required: ["event_name"],
+  title: "core_activities",
+  required: ["name"],
   properties: {
     id: {
       type: "string",
@@ -287,7 +287,7 @@ export const eventsSchema = {
       description:
         "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
     },
-    event_name: {
+    name: {
       type: "string",
       maxLength: 255,
       description:
@@ -322,16 +322,12 @@ export const eventsSchema = {
     },
     recurring_days: {
       type: "string",
-      description:
-        "Missing description. Database type: text. Default value: null",
       gridColumn: "7/span 3",
       gridRow: "5/span 1",
       enum: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
     },
     recurring_type: {
       type: "string",
-      description:
-        "Missing description. Database type: text. Default value: null",
       gridColumn: "4/span 3",
       gridRow: "5/span 1",
       enum: ["daily", "weekly", "biweekly", "monthly"],
@@ -339,8 +335,6 @@ export const eventsSchema = {
     parent_event_id: {
       type: "string",
       format: "uuid",
-      description:
-        "Missing description. Database type: uuid. Default value: null",
       gridColumn: "1/span 6",
       gridRow: "2/span 1",
       variant: "id-picker",
