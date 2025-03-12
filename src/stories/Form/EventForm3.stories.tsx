@@ -2,11 +2,17 @@ import { DefaultForm } from "@/components/Form/components/core/DefaultForm";
 import { useForm } from "@/components/Form/useForm";
 import { Provider } from "@/components/ui/provider";
 import type { Meta, StoryObj } from "@storybook/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
 import i18n from "i18next";
 import { JSONSchema7 } from "json-schema";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import { activitiesSchema } from "../schema";
+import { getTableData } from "@/components/Form/utils/getTableData";
+import axios from "axios";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -33,7 +39,7 @@ i18n
     },
   });
 
-export const Event2: Story = {
+export const Activities3: Story = {
   render: () => {
     return (
       <Provider>
@@ -48,15 +54,44 @@ export const Event2: Story = {
 };
 
 const SomeForm = () => {
-  const form = useForm({ keyPrefix: "nice" });
+  const query = useQuery({
+    queryKey: [`some_actitivitues`],
+    queryFn: async () => {
+      const data = await getTableData({
+        serverUrl: "http://localhost:8081",
+        searching: "e8ad43bf-e00f-4633-b334-68c0f3fd6ead",
+        in_table: "core_activities",
+        limit: 10,
+        offset: 0,
+      });
+      return data;
+    },
+    staleTime: 300000,
+  });
+  const form = useForm({
+    keyPrefix: "nice",
+    preLoadedValues: (query.data ?? { data: [] }).data[0],
+  });
 
   return (
     <DefaultForm
       formConfig={{
         schema: activitiesSchema as JSONSchema7,
-        include: ["name"],
         ignore: ["id", "created_at", "updated_at"],
         serverUrl: "http://localhost:8081",
+        onSubmit: async (data)=>{
+          await axios.post("http://localhost:8081/api/g/core_activities", data);
+        },
+        getUpdatedData: async () => {
+          const response = await getTableData({
+            serverUrl: "http://localhost:8081",
+            searching: "e8ad43bf-e00f-4633-b334-68c0f3fd6ead",
+            in_table: "core_activities",
+            limit: 10,
+            offset: 0,
+          });
+          return response.data[0]
+        },
         ...form,
       }}
     />

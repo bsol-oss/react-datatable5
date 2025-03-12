@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import i18n from "i18next";
 import { JSONSchema7 } from "json-schema";
 import { I18nextProvider, initReactI18next } from "react-i18next";
-import { eventsSchema } from "../schema";
+import { activitiesSchema } from "../schema";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -53,7 +53,7 @@ const SomeForm = () => {
   return (
     <DefaultForm
       formConfig={{
-        schema: eventsSchema as JSONSchema7,
+        schema: activitiesSchema as JSONSchema7,
         ignore: ["id", "created_at", "updated_at"],
         serverUrl: "http://localhost:8081",
         ...form,
