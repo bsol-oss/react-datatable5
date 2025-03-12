@@ -3772,10 +3772,11 @@ const DatePicker = ({ column, schema, prefix }) => {
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = React.useState(false);
     const selectedDate = watch(colLabel);
+    const formatedDate = dayjs(selectedDate).format("YYYY-MM-DD");
     return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxRuntime.jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(PopoverTrigger, { asChild: true, children: jsxRuntime.jsx(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
-                            }, children: selectedDate !== undefined ? selectedDate : "" }) }), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DatePicker$1
+                            }, children: selectedDate !== undefined ? `${formatedDate}` : "" }) }), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DatePicker$1
                                 // @ts-expect-error TODO: find appropriate types
                                 , { 
                                     // @ts-expect-error TODO: find appropriate types
