@@ -382,10 +382,7 @@ export const data = [
   },
   {
     id: 21,
-    title: {
-      good: 'nice',
-      will: 'son'
-    },
+    title: 'nice',
     description: "Fine quality Branded Product Keep in a cool and dry place",
     price: 20,
     discountPercentage: 4.81,

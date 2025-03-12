@@ -2,7 +2,7 @@ import { idListSanityCheck } from "@/components/Form/utils/idListSanityCheck";
 import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
 import { ColumnDef, createColumnHelper, RowData } from "@tanstack/react-table";
 import { JSONSchema7 } from "json-schema";
-import { TextCell } from "../TextCell";
+import { TextCell } from "../components/TextCell";
 import { RecordDisplay } from "../components/RecordDisplay";
 import { Grid } from "@chakra-ui/react";
 import { UseTranslationResponse } from "react-i18next";

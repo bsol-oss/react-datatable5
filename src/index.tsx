@@ -105,7 +105,7 @@ export * from "./components/DataTable/TableLoadingComponent";
 export * from "./components/DataTable/TableSelector";
 export * from "./components/DataTable/TableSorter";
 export * from "./components/DataTable/TableViewer";
-export * from "./components/DataTable/TextCell";
+export * from "./components/DataTable/components/TextCell";
 export * from "./components/DataTable/useDataTable";
 export * from "./components/DataTable/useDataTableServer";
 export * from "./components/DataTable/utils/getColumns";
