@@ -1,10 +1,10 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, DialogBackdrop, Box, Text, useDisclosure, RadioGroup as RadioGroup$1, Grid, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Group, InputElement, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, List, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Center, Heading } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Group, InputElement, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, List, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Center, Heading } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { LuX, LuCheck, LuChevronRight, LuChevronDown } from 'react-icons/lu';
-import { MdArrowUpward, MdArrowDownward, MdOutlineMoveDown, MdOutlineSort, MdFilterAlt, MdSearch, MdClose, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdOutlineChecklist } from 'react-icons/md';
+import { MdOutlineSort, MdFilterAlt, MdSearch, MdClose, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdOutlineChecklist } from 'react-icons/md';
 import { FaUpDown, FaGripLinesVertical } from 'react-icons/fa6';
 import { BiDownArrow, BiUpArrow, BiError } from 'react-icons/bi';
 import { CgClose } from 'react-icons/cg';
@@ -77,63 +77,6 @@ const DialogTitle = Dialog.Title;
 Dialog.Description;
 const DialogTrigger = Dialog.Trigger;
 Dialog.ActionTrigger;
-
-const ColumnOrderChanger = ({ columns }) => {
-    const [order, setOrder] = useState([]);
-    const [originalOrder, setOriginalOrder] = useState([]);
-    const { table } = useDataTableContext();
-    const handleChangeOrder = (startIndex, endIndex) => {
-        const newOrder = Array.from(order);
-        const [removed] = newOrder.splice(startIndex, 1);
-        newOrder.splice(endIndex, 0, removed);
-        setOrder(newOrder);
-    };
-    useEffect(() => {
-        setOrder(columns);
-    }, [columns]);
-    useEffect(() => {
-        if (originalOrder.length > 0) {
-            return;
-        }
-        if (columns.length <= 0) {
-            return;
-        }
-        setOriginalOrder(columns);
-    }, [columns]);
-    return (jsxs(Flex, { gap: 2, flexFlow: "column", children: [jsx(Flex, { gap: 2, flexFlow: "column", children: order.map((columnId, index) => (jsxs(Flex, { gap: 2, alignItems: "center", justifyContent: "space-between", children: [jsx(IconButton, { onClick: () => {
-                                const prevIndex = index - 1;
-                                if (prevIndex >= 0) {
-                                    handleChangeOrder(index, prevIndex);
-                                }
-                            }, disabled: index === 0, "aria-label": "", children: jsx(MdArrowUpward, {}) }), table
-                            .getAllFlatColumns()
-                            .filter((column) => {
-                            return column.id === columnId;
-                        })
-                            .map((column) => {
-                            const displayName = column.columnDef.meta === undefined
-                                ? column.id
-                                : column.columnDef.meta.displayName;
-                            return jsx("span", { children: displayName }, column.id);
-                        }), jsx(IconButton, { onClick: () => {
-                                const nextIndex = index + 1;
-                                if (nextIndex < order.length) {
-                                    handleChangeOrder(index, nextIndex);
-                                }
-                            }, disabled: index === order.length - 1, "aria-label": "", children: jsx(MdArrowDownward, {}) })] }, columnId))) }), jsxs(Flex, { gap: "0.25rem", children: [jsx(Button$1, { onClick: () => {
-                            table.setColumnOrder(order);
-                        }, children: "Apply" }), jsx(Button$1, { onClick: () => {
-                            table.setColumnOrder(originalOrder);
-                        }, children: "Reset" })] })] }));
-};
-const TableOrderer = () => {
-    const { table } = useDataTableContext();
-    return (jsx(Fragment, { children: jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
-};
-
-const EditOrderButton = ({ text, icon = jsx(MdOutlineMoveDown, {}), title = "Change Order", }) => {
-    return (jsx(Fragment, { children: jsxs(DialogRoot, { size: "cover", children: [jsx(DialogBackdrop, {}), jsx(DialogTrigger, { asChild: true, children: jsxs(Button$1, { as: Box, variant: "ghost", children: [icon, " ", text] }) }), jsxs(DialogContent, { children: [jsx(DialogCloseTrigger, {}), jsxs(DialogHeader, { children: [jsx(DialogTitle, {}), title] }), jsx(DialogBody, { children: jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: jsx(TableOrderer, {}) }) }), jsx(DialogFooter, {})] })] }) }));
-};
 
 const TableSorter = () => {
     const { table } = useDataTableContext();
@@ -2494,13 +2437,16 @@ function ColumnCard({ columnId }) {
             onDrop: () => setDragging(false), // NEW
         });
     }, [columnId, table]);
-    return (jsxs(Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsx(Flex, { alignItems: "center", padding: "0", cursor: 'grab', children: jsx(FaGripLinesVertical, { color: "gray.400" }) }), jsx(Flex, { justifyContent: "space-between", alignItems: "center", children: jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
+    return (jsxs(Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsx(Flex, { alignItems: "center", padding: "0", cursor: "grab", children: jsx(FaGripLinesVertical, { color: "gray.400" }) }), jsx(Flex, { justifyContent: "space-between", alignItems: "center", children: jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
 }
 function CardContainer({ location, children }) {
     const ref = useRef(null);
     const [isDraggedOver, setIsDraggedOver] = useState(false);
     useEffect(() => {
         const el = ref.current;
+        if (el === null) {
+            return;
+        }
         invariant(el);
         return dropTargetForElements({
             element: el,
@@ -5107,4 +5053,4 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
     }
 };
 
-export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditOrderButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FilterOptions, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableOrderer, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FilterOptions, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };

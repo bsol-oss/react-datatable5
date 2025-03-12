@@ -98,63 +98,6 @@ react.Dialog.Description;
 const DialogTrigger = react.Dialog.Trigger;
 react.Dialog.ActionTrigger;
 
-const ColumnOrderChanger = ({ columns }) => {
-    const [order, setOrder] = React.useState([]);
-    const [originalOrder, setOriginalOrder] = React.useState([]);
-    const { table } = useDataTableContext();
-    const handleChangeOrder = (startIndex, endIndex) => {
-        const newOrder = Array.from(order);
-        const [removed] = newOrder.splice(startIndex, 1);
-        newOrder.splice(endIndex, 0, removed);
-        setOrder(newOrder);
-    };
-    React.useEffect(() => {
-        setOrder(columns);
-    }, [columns]);
-    React.useEffect(() => {
-        if (originalOrder.length > 0) {
-            return;
-        }
-        if (columns.length <= 0) {
-            return;
-        }
-        setOriginalOrder(columns);
-    }, [columns]);
-    return (jsxRuntime.jsxs(react.Flex, { gap: 2, flexFlow: "column", children: [jsxRuntime.jsx(react.Flex, { gap: 2, flexFlow: "column", children: order.map((columnId, index) => (jsxRuntime.jsxs(react.Flex, { gap: 2, alignItems: "center", justifyContent: "space-between", children: [jsxRuntime.jsx(react.IconButton, { onClick: () => {
-                                const prevIndex = index - 1;
-                                if (prevIndex >= 0) {
-                                    handleChangeOrder(index, prevIndex);
-                                }
-                            }, disabled: index === 0, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowUpward, {}) }), table
-                            .getAllFlatColumns()
-                            .filter((column) => {
-                            return column.id === columnId;
-                        })
-                            .map((column) => {
-                            const displayName = column.columnDef.meta === undefined
-                                ? column.id
-                                : column.columnDef.meta.displayName;
-                            return jsxRuntime.jsx("span", { children: displayName }, column.id);
-                        }), jsxRuntime.jsx(react.IconButton, { onClick: () => {
-                                const nextIndex = index + 1;
-                                if (nextIndex < order.length) {
-                                    handleChangeOrder(index, nextIndex);
-                                }
-                            }, disabled: index === order.length - 1, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowDownward, {}) })] }, columnId))) }), jsxRuntime.jsxs(react.Flex, { gap: "0.25rem", children: [jsxRuntime.jsx(react.Button, { onClick: () => {
-                            table.setColumnOrder(order);
-                        }, children: "Apply" }), jsxRuntime.jsx(react.Button, { onClick: () => {
-                            table.setColumnOrder(originalOrder);
-                        }, children: "Reset" })] })] }));
-};
-const TableOrderer = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
-};
-
-const EditOrderButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineMoveDown, {}), title = "Change Order", }) => {
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(DialogRoot, { size: "cover", children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, {}), title] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: jsxRuntime.jsx(TableOrderer, {}) }) }), jsxRuntime.jsx(DialogFooter, {})] })] }) }));
-};
-
 const TableSorter = () => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsx(jsxRuntime.Fragment, { children: headerGroup.headers.map((header) => {
@@ -2514,13 +2457,16 @@ function ColumnCard({ columnId }) {
             onDrop: () => setDragging(false), // NEW
         });
     }, [columnId, table]);
-    return (jsxRuntime.jsxs(react.Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsxRuntime.jsx(react.Flex, { alignItems: "center", padding: "0", cursor: 'grab', children: jsxRuntime.jsx(fa6.FaGripLinesVertical, { color: "gray.400" }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "space-between", alignItems: "center", children: jsxRuntime.jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
+    return (jsxRuntime.jsxs(react.Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsxRuntime.jsx(react.Flex, { alignItems: "center", padding: "0", cursor: "grab", children: jsxRuntime.jsx(fa6.FaGripLinesVertical, { color: "gray.400" }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "space-between", alignItems: "center", children: jsxRuntime.jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
 }
 function CardContainer({ location, children }) {
     const ref = React.useRef(null);
     const [isDraggedOver, setIsDraggedOver] = React.useState(false);
     React.useEffect(() => {
         const el = ref.current;
+        if (el === null) {
+            return;
+        }
         invariant(el);
         return dropTargetForElements({
             element: el,
@@ -5135,7 +5081,6 @@ exports.DefaultCardTitle = DefaultCardTitle;
 exports.DefaultForm = DefaultForm;
 exports.DefaultTable = DefaultTable;
 exports.DensityToggleButton = DensityToggleButton;
-exports.EditOrderButton = EditOrderButton;
 exports.EditSortingButton = EditSortingButton;
 exports.EmptyState = EmptyState$1;
 exports.ErrorAlert = ErrorAlert;
@@ -5164,7 +5109,6 @@ exports.TableFilterTags = TableFilterTags;
 exports.TableFooter = TableFooter;
 exports.TableHeader = TableHeader;
 exports.TableLoadingComponent = TableLoadingComponent;
-exports.TableOrderer = TableOrderer;
 exports.TableSelector = TableSelector;
 exports.TableSorter = TableSorter;
 exports.TableViewer = TableViewer;
