@@ -34,6 +34,7 @@ export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
   const colLabel = `${prefix}${column}`;
   const [open, setOpen] = useState(false);
   const selectedDate = watch(colLabel);
+  const formatedDate = dayjs(selectedDate).format("YYYY-MM-DD");
   return (
     <Field
       label={`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}
@@ -57,7 +58,7 @@ export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
               setOpen(true);
             }}
           >
-            {selectedDate !== undefined ? selectedDate : ""}
+            {selectedDate !== undefined ? `${formatedDate}` : ""}
           </Button>
         </PopoverTrigger>
         <PopoverContent>
