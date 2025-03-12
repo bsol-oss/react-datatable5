@@ -4,12 +4,13 @@ var jsxRuntime = require('react/jsx-runtime');
 var react = require('@chakra-ui/react');
 var ai = require('react-icons/ai');
 var React = require('react');
-var md = require('react-icons/md');
 var lu = require('react-icons/lu');
-var Dayzed = require('@bsol-oss/dayzed-react19');
+var md = require('react-icons/md');
 var fa6 = require('react-icons/fa6');
 var bi = require('react-icons/bi');
 var cg = require('react-icons/cg');
+var Dayzed = require('@bsol-oss/dayzed-react19');
+var hi2 = require('react-icons/hi2');
 var io = require('react-icons/io');
 var _slicedToArray = require('@babel/runtime/helpers/slicedToArray');
 var bindEventListener = require('bind-event-listener');
@@ -17,7 +18,7 @@ var _defineProperty = require('@babel/runtime/helpers/defineProperty');
 var _toConsumableArray = require('@babel/runtime/helpers/toConsumableArray');
 var rafSchd = require('raf-schd');
 var invariant = require('tiny-invariant');
-var hi2 = require('react-icons/hi2');
+var hi = require('react-icons/hi');
 var reactTable = require('@tanstack/react-table');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
 var bs = require('react-icons/bs');
@@ -25,7 +26,6 @@ var usehooks = require('@uidotdev/usehooks');
 var reactQuery = require('@tanstack/react-query');
 var io5 = require('react-icons/io5');
 var gr = require('react-icons/gr');
-var hi = require('react-icons/hi');
 var reactI18next = require('react-i18next');
 var axios = require('axios');
 var reactHookForm = require('react-hook-form');
@@ -97,6 +97,89 @@ const DialogTitle = react.Dialog.Title;
 react.Dialog.Description;
 const DialogTrigger = react.Dialog.Trigger;
 react.Dialog.ActionTrigger;
+
+const ColumnOrderChanger = ({ columns }) => {
+    const [order, setOrder] = React.useState([]);
+    const [originalOrder, setOriginalOrder] = React.useState([]);
+    const { table } = useDataTableContext();
+    const handleChangeOrder = (startIndex, endIndex) => {
+        const newOrder = Array.from(order);
+        const [removed] = newOrder.splice(startIndex, 1);
+        newOrder.splice(endIndex, 0, removed);
+        setOrder(newOrder);
+    };
+    React.useEffect(() => {
+        setOrder(columns);
+    }, [columns]);
+    React.useEffect(() => {
+        if (originalOrder.length > 0) {
+            return;
+        }
+        if (columns.length <= 0) {
+            return;
+        }
+        setOriginalOrder(columns);
+    }, [columns]);
+    return (jsxRuntime.jsxs(react.Flex, { gap: 2, flexFlow: "column", children: [jsxRuntime.jsx(react.Flex, { gap: 2, flexFlow: "column", children: order.map((columnId, index) => (jsxRuntime.jsxs(react.Flex, { gap: 2, alignItems: "center", justifyContent: "space-between", children: [jsxRuntime.jsx(react.IconButton, { onClick: () => {
+                                const prevIndex = index - 1;
+                                if (prevIndex >= 0) {
+                                    handleChangeOrder(index, prevIndex);
+                                }
+                            }, disabled: index === 0, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowUpward, {}) }), table
+                            .getAllFlatColumns()
+                            .filter((column) => {
+                            return column.id === columnId;
+                        })
+                            .map((column) => {
+                            const displayName = column.columnDef.meta === undefined
+                                ? column.id
+                                : column.columnDef.meta.displayName;
+                            return jsxRuntime.jsx("span", { children: displayName }, column.id);
+                        }), jsxRuntime.jsx(react.IconButton, { onClick: () => {
+                                const nextIndex = index + 1;
+                                if (nextIndex < order.length) {
+                                    handleChangeOrder(index, nextIndex);
+                                }
+                            }, disabled: index === order.length - 1, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowDownward, {}) })] }, columnId))) }), jsxRuntime.jsxs(react.Flex, { gap: "0.25rem", children: [jsxRuntime.jsx(react.Button, { onClick: () => {
+                            table.setColumnOrder(order);
+                        }, children: "Apply" }), jsxRuntime.jsx(react.Button, { onClick: () => {
+                            table.setColumnOrder(originalOrder);
+                        }, children: "Reset" })] })] }));
+};
+const TableOrderer = () => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
+};
+
+const EditOrderButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineMoveDown, {}), title = "Change Order", }) => {
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(DialogRoot, { size: "cover", children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, {}), title] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: jsxRuntime.jsx(TableOrderer, {}) }) }), jsxRuntime.jsx(DialogFooter, {})] })] }) }));
+};
+
+const TableSorter = () => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsx(jsxRuntime.Fragment, { children: headerGroup.headers.map((header) => {
+                const displayName = header.column.columnDef.meta === undefined
+                    ? header.column.id
+                    : header.column.columnDef.meta.displayName;
+                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanSort() && (jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsxs(react.Button, { variant: "ghost", onClick: () => {
+                                    header.column.toggleSorting();
+                                }, children: [header.column.getIsSorted() === false && jsxRuntime.jsx(fa6.FaUpDown, {}), header.column.getIsSorted() === "asc" && jsxRuntime.jsx(bi.BiDownArrow, {}), header.column.getIsSorted() === "desc" && jsxRuntime.jsx(bi.BiUpArrow, {})] }), header.column.getIsSorted() && (jsxRuntime.jsx(react.Button, { onClick: () => {
+                                    header.column.clearSorting();
+                                }, children: jsxRuntime.jsx(cg.CgClose, {}) }))] })) }));
+            }) }))) }));
+};
+
+const ResetSortingButton = ({ text = "Reset Sorting", }) => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsx(react.Button, { onClick: () => {
+            table.resetSorting();
+        }, children: text }));
+};
+
+const EditSortingButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineSort, {}), title = "Edit Sorting", }) => {
+    const sortingModal = react.useDisclosure();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(DialogRoot, { size: ["full", "full", "md", "md"], children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { children: jsxRuntime.jsxs(react.Button, { as: "div", variant: "ghost", onClick: sortingModal.onOpen, children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, {}), title] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(TableSorter, {}), jsxRuntime.jsx(ResetSortingButton, {})] }) }), jsxRuntime.jsx(DialogFooter, {})] })] }) }));
+};
 
 const Radio = React__namespace.forwardRef(function Radio(props, ref) {
     const { children, inputProps, rootRef, ...rest } = props;
@@ -380,87 +463,138 @@ const FilterDialog = ({ icon = jsxRuntime.jsx(md.MdFilterAlt, {}), }) => {
     return (jsxRuntime.jsxs(DialogRoot, { size: ["full", "full", "md", "md"], open: filterModal.open, children: [jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", onClick: filterModal.onOpen, children: [icon, " ", translate.t("filterDialog.buttonText")] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogHeader, { children: jsxRuntime.jsx(DialogTitle, { children: translate.t("filterDialog.title") }) }), jsxRuntime.jsx(DialogBody, { display: "flex", flexFlow: "column", children: jsxRuntime.jsx(TableFilter, {}) }), jsxRuntime.jsxs(DialogFooter, { children: [jsxRuntime.jsx(ResetFilteringButton, { text: translate.t("filterDialog.reset") }), jsxRuntime.jsx(react.Button, { onClick: filterModal.onClose, variant: "subtle", children: translate.t("filterDialog.close") })] }), jsxRuntime.jsx(DialogCloseTrigger, { onClick: filterModal.onClose })] })] }));
 };
 
-const ColumnOrderChanger = ({ columns }) => {
-    const [order, setOrder] = React.useState([]);
-    const [originalOrder, setOriginalOrder] = React.useState([]);
+const MenuContent = React__namespace.forwardRef(function MenuContent(props, ref) {
+    const { portalled = true, portalRef, ...rest } = props;
+    return (jsxRuntime.jsx(react.Portal, { disabled: !portalled, container: portalRef, children: jsxRuntime.jsx(react.Menu.Positioner, { children: jsxRuntime.jsx(react.Menu.Content, { ref: ref, ...rest }) }) }));
+});
+React__namespace.forwardRef(function MenuArrow(props, ref) {
+    return (jsxRuntime.jsx(react.Menu.Arrow, { ref: ref, ...props, children: jsxRuntime.jsx(react.Menu.ArrowTip, {}) }));
+});
+React__namespace.forwardRef(function MenuCheckboxItem(props, ref) {
+    return (jsxRuntime.jsxs(react.Menu.CheckboxItem, { ref: ref, ...props, children: [jsxRuntime.jsx(react.Menu.ItemIndicator, { hidden: false, children: jsxRuntime.jsx(lu.LuCheck, {}) }), props.children] }));
+});
+React__namespace.forwardRef(function MenuRadioItem(props, ref) {
+    const { children, ...rest } = props;
+    return (jsxRuntime.jsxs(react.Menu.RadioItem, { ps: "8", ref: ref, ...rest, children: [jsxRuntime.jsx(react.AbsoluteCenter, { axis: "horizontal", left: "4", asChild: true, children: jsxRuntime.jsx(react.Menu.ItemIndicator, { children: jsxRuntime.jsx(lu.LuCheck, {}) }) }), jsxRuntime.jsx(react.Menu.ItemText, { children: children })] }));
+});
+React__namespace.forwardRef(function MenuItemGroup(props, ref) {
+    const { title, children, ...rest } = props;
+    return (jsxRuntime.jsxs(react.Menu.ItemGroup, { ref: ref, ...rest, children: [title && (jsxRuntime.jsx(react.Menu.ItemGroupLabel, { userSelect: "none", children: title })), children] }));
+});
+React__namespace.forwardRef(function MenuTriggerItem(props, ref) {
+    const { startIcon, children, ...rest } = props;
+    return (jsxRuntime.jsxs(react.Menu.TriggerItem, { ref: ref, ...rest, children: [startIcon, children, jsxRuntime.jsx(lu.LuChevronRight, {})] }));
+});
+react.Menu.RadioItemGroup;
+react.Menu.ContextTrigger;
+const MenuRoot = react.Menu.Root;
+react.Menu.Separator;
+const MenuItem = react.Menu.Item;
+react.Menu.ItemText;
+react.Menu.ItemCommand;
+const MenuTrigger = react.Menu.Trigger;
+
+const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = useDataTableContext();
-    const handleChangeOrder = (startIndex, endIndex) => {
-        const newOrder = Array.from(order);
-        const [removed] = newOrder.splice(startIndex, 1);
-        newOrder.splice(endIndex, 0, removed);
-        setOrder(newOrder);
+    return (jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "ghost", gap: "0.5rem", children: [table.getState().pagination.pageSize, " ", jsxRuntime.jsx(bi.BiDownArrow, {})] }) }), jsxRuntime.jsx(MenuContent, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(MenuItem, { value: `chakra-table-pageSize-${pageSize}`, onClick: () => {
+                        table.setPageSize(Number(pageSize));
+                    }, children: pageSize }, `chakra-table-pageSize-${pageSize}`))) })] }));
+};
+
+const { withContext } = react.createRecipeContext({ key: "button" });
+// Replace "a" with your framework's link component
+const LinkButton = withContext("a");
+
+const [RootPropsProvider, useRootProps] = react.createContext({
+    name: "RootPropsProvider",
+});
+const variantMap = {
+    outline: { default: "ghost", ellipsis: "plain", current: "outline" },
+    solid: { default: "outline", ellipsis: "outline", current: "solid" },
+    subtle: { default: "ghost", ellipsis: "plain", current: "subtle" },
+};
+const PaginationRoot = React__namespace.forwardRef(function PaginationRoot(props, ref) {
+    const { size = "sm", variant = "outline", getHref, ...rest } = props;
+    return (jsxRuntime.jsx(RootPropsProvider, { value: { size, variantMap: variantMap[variant], getHref }, children: jsxRuntime.jsx(react.Pagination.Root, { ref: ref, type: getHref ? "link" : "button", ...rest }) }));
+});
+const PaginationEllipsis = React__namespace.forwardRef(function PaginationEllipsis(props, ref) {
+    const { size, variantMap } = useRootProps();
+    return (jsxRuntime.jsx(react.Pagination.Ellipsis, { ref: ref, ...props, asChild: true, children: jsxRuntime.jsx(react.Button, { as: "span", variant: variantMap.ellipsis, size: size, children: jsxRuntime.jsx(hi2.HiMiniEllipsisHorizontal, {}) }) }));
+});
+const PaginationItem = React__namespace.forwardRef(function PaginationItem(props, ref) {
+    const { page } = react.usePaginationContext();
+    const { size, variantMap, getHref } = useRootProps();
+    const current = page === props.value;
+    const variant = current ? variantMap.current : variantMap.default;
+    if (getHref) {
+        return (jsxRuntime.jsx(LinkButton, { href: getHref(props.value), variant: variant, size: size, children: props.value }));
+    }
+    return (jsxRuntime.jsx(react.Pagination.Item, { ref: ref, ...props, asChild: true, children: jsxRuntime.jsx(react.Button, { variant: variant, size: size, children: props.value }) }));
+});
+const PaginationPrevTrigger = React__namespace.forwardRef(function PaginationPrevTrigger(props, ref) {
+    const { size, variantMap, getHref } = useRootProps();
+    const { previousPage } = react.usePaginationContext();
+    if (getHref) {
+        return (jsxRuntime.jsx(LinkButton, { href: previousPage != null ? getHref(previousPage) : undefined, variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronLeft, {}) }));
+    }
+    return (jsxRuntime.jsx(react.Pagination.PrevTrigger, { ref: ref, asChild: true, ...props, children: jsxRuntime.jsx(react.IconButton, { variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronLeft, {}) }) }));
+});
+const PaginationNextTrigger = React__namespace.forwardRef(function PaginationNextTrigger(props, ref) {
+    const { size, variantMap, getHref } = useRootProps();
+    const { nextPage } = react.usePaginationContext();
+    if (getHref) {
+        return (jsxRuntime.jsx(LinkButton, { href: nextPage != null ? getHref(nextPage) : undefined, variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronRight, {}) }));
+    }
+    return (jsxRuntime.jsx(react.Pagination.NextTrigger, { ref: ref, asChild: true, ...props, children: jsxRuntime.jsx(react.IconButton, { variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronRight, {}) }) }));
+});
+const PaginationItems = (props) => {
+    return (jsxRuntime.jsx(react.Pagination.Context, { children: ({ pages }) => pages.map((page, index) => {
+            return page.type === "ellipsis" ? (jsxRuntime.jsx(PaginationEllipsis, { index: index, ...props }, index)) : (jsxRuntime.jsx(PaginationItem, { type: "page", value: page.value, ...props }, index));
+        }) }));
+};
+const PaginationPageText = React__namespace.forwardRef(function PaginationPageText(props, ref) {
+    const { format = "compact", ...rest } = props;
+    const { page, totalPages, pageRange, count } = react.usePaginationContext();
+    const content = React__namespace.useMemo(() => {
+        if (format === "short")
+            return `${page} / ${totalPages}`;
+        if (format === "compact")
+            return `${page} / ${totalPages}`;
+        return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} / ${count}`;
+    }, [format, page, totalPages, pageRange, count]);
+    return (jsxRuntime.jsx(react.Text, { fontWeight: "medium", ref: ref, ...rest, children: content }));
+});
+
+// TODO: not working in client side
+const Pagination = () => {
+    const { table, type } = useDataTableContext();
+    const getCount = () => {
+        if (type === "client") {
+            return table.getFilteredRowModel().flatRows.length ?? 0;
+        }
+        return table.getRowCount();
     };
-    React.useEffect(() => {
-        setOrder(columns);
-    }, [columns]);
-    React.useEffect(() => {
-        if (originalOrder.length > 0) {
-            return;
-        }
-        if (columns.length <= 0) {
-            return;
-        }
-        setOriginalOrder(columns);
-    }, [columns]);
-    return (jsxRuntime.jsxs(react.Flex, { gap: 2, flexFlow: "column", children: [jsxRuntime.jsx(react.Flex, { gap: 2, flexFlow: "column", children: order.map((columnId, index) => (jsxRuntime.jsxs(react.Flex, { gap: 2, alignItems: "center", justifyContent: "space-between", children: [jsxRuntime.jsx(react.IconButton, { onClick: () => {
-                                const prevIndex = index - 1;
-                                if (prevIndex >= 0) {
-                                    handleChangeOrder(index, prevIndex);
-                                }
-                            }, disabled: index === 0, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowUpward, {}) }), table
-                            .getAllFlatColumns()
-                            .filter((column) => {
-                            return column.id === columnId;
-                        })
-                            .map((column) => {
-                            const displayName = column.columnDef.meta === undefined
-                                ? column.id
-                                : column.columnDef.meta.displayName;
-                            return jsxRuntime.jsx("span", { children: displayName }, column.id);
-                        }), jsxRuntime.jsx(react.IconButton, { onClick: () => {
-                                const nextIndex = index + 1;
-                                if (nextIndex < order.length) {
-                                    handleChangeOrder(index, nextIndex);
-                                }
-                            }, disabled: index === order.length - 1, "aria-label": "", children: jsxRuntime.jsx(md.MdArrowDownward, {}) })] }, columnId))) }), jsxRuntime.jsxs(react.Flex, { gap: "0.25rem", children: [jsxRuntime.jsx(react.Button, { onClick: () => {
-                            table.setColumnOrder(order);
-                        }, children: "Apply" }), jsxRuntime.jsx(react.Button, { onClick: () => {
-                            table.setColumnOrder(originalOrder);
-                        }, children: "Reset" })] })] }));
-};
-const TableOrderer = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(ColumnOrderChanger, { columns: table.getState().columnOrder }) }));
+    return (jsxRuntime.jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: getCount(), pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
+            table.setPageIndex(e.page - 1);
+        }, children: jsxRuntime.jsxs(react.HStack, { children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), jsxRuntime.jsx(PaginationItems, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) }));
 };
 
-const EditOrderButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineMoveDown, {}), title = "Change Order", }) => {
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(DialogRoot, { size: "cover", children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, {}), title] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.25rem", children: jsxRuntime.jsx(TableOrderer, {}) }) }), jsxRuntime.jsx(DialogFooter, {})] })] }) }));
-};
-
-const TableSorter = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsx(jsxRuntime.Fragment, { children: headerGroup.headers.map((header) => {
-                const displayName = header.column.columnDef.meta === undefined
-                    ? header.column.id
-                    : header.column.columnDef.meta.displayName;
-                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: header.column.getCanSort() && (jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "0.5rem", padding: "0.5rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsxs(react.Button, { variant: "ghost", onClick: () => {
-                                    header.column.toggleSorting();
-                                }, children: [header.column.getIsSorted() === false && jsxRuntime.jsx(fa6.FaUpDown, {}), header.column.getIsSorted() === "asc" && jsxRuntime.jsx(bi.BiDownArrow, {}), header.column.getIsSorted() === "desc" && jsxRuntime.jsx(bi.BiUpArrow, {})] }), header.column.getIsSorted() && (jsxRuntime.jsx(react.Button, { onClick: () => {
-                                    header.column.clearSorting();
-                                }, children: jsxRuntime.jsx(cg.CgClose, {}) }))] })) }));
-            }) }))) }));
-};
-
-const ResetSortingButton = ({ text = "Reset Sorting", }) => {
+const ResetSelectionButton = ({ text = "Reset Selection", }) => {
     const { table } = useDataTableContext();
     return (jsxRuntime.jsx(react.Button, { onClick: () => {
-            table.resetSorting();
+            table.resetRowSelection();
         }, children: text }));
 };
 
-const EditSortingButton = ({ text, icon = jsxRuntime.jsx(md.MdOutlineSort, {}), title = "Edit Sorting", }) => {
-    const sortingModal = react.useDisclosure();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(DialogRoot, { size: ["full", "full", "md", "md"], children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { children: jsxRuntime.jsxs(react.Button, { as: "div", variant: "ghost", onClick: sortingModal.onOpen, children: [icon, " ", text] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, {}), title] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(TableSorter, {}), jsxRuntime.jsx(ResetSortingButton, {})] }) }), jsxRuntime.jsx(DialogFooter, {})] })] }) }));
+const RowCountText = () => {
+    const { table, type } = useDataTableContext();
+    const getCount = () => {
+        if (type === "client") {
+            return table.getFilteredRowModel().flatRows.length ?? 0;
+        }
+        return table.getRowCount();
+    };
+    return jsxRuntime.jsx(react.Text, { children: getCount() });
 };
 
 // pulling this into a separate file so adapter(s) that don't
@@ -2461,146 +2595,34 @@ const ViewDialog = ({ icon = jsxRuntime.jsx(io.IoMdEye, {}) }) => {
     return (jsxRuntime.jsxs(DialogRoot, { children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", onClick: viewModel.onOpen, children: [icon, " ", translate.t("viewDialog.buttonText")] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsx(DialogHeader, { children: jsxRuntime.jsx(DialogTitle, { children: translate.t("viewDialog.title") }) }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsx(TableViewer, {}) }), jsxRuntime.jsx(DialogFooter, {})] })] }));
 };
 
-const MenuContent = React__namespace.forwardRef(function MenuContent(props, ref) {
-    const { portalled = true, portalRef, ...rest } = props;
-    return (jsxRuntime.jsx(react.Portal, { disabled: !portalled, container: portalRef, children: jsxRuntime.jsx(react.Menu.Positioner, { children: jsxRuntime.jsx(react.Menu.Content, { ref: ref, ...rest }) }) }));
-});
-React__namespace.forwardRef(function MenuArrow(props, ref) {
-    return (jsxRuntime.jsx(react.Menu.Arrow, { ref: ref, ...props, children: jsxRuntime.jsx(react.Menu.ArrowTip, {}) }));
-});
-React__namespace.forwardRef(function MenuCheckboxItem(props, ref) {
-    return (jsxRuntime.jsxs(react.Menu.CheckboxItem, { ref: ref, ...props, children: [jsxRuntime.jsx(react.Menu.ItemIndicator, { hidden: false, children: jsxRuntime.jsx(lu.LuCheck, {}) }), props.children] }));
-});
-React__namespace.forwardRef(function MenuRadioItem(props, ref) {
-    const { children, ...rest } = props;
-    return (jsxRuntime.jsxs(react.Menu.RadioItem, { ps: "8", ref: ref, ...rest, children: [jsxRuntime.jsx(react.AbsoluteCenter, { axis: "horizontal", left: "4", asChild: true, children: jsxRuntime.jsx(react.Menu.ItemIndicator, { children: jsxRuntime.jsx(lu.LuCheck, {}) }) }), jsxRuntime.jsx(react.Menu.ItemText, { children: children })] }));
-});
-React__namespace.forwardRef(function MenuItemGroup(props, ref) {
-    const { title, children, ...rest } = props;
-    return (jsxRuntime.jsxs(react.Menu.ItemGroup, { ref: ref, ...rest, children: [title && (jsxRuntime.jsx(react.Menu.ItemGroupLabel, { userSelect: "none", children: title })), children] }));
-});
-React__namespace.forwardRef(function MenuTriggerItem(props, ref) {
-    const { startIcon, children, ...rest } = props;
-    return (jsxRuntime.jsxs(react.Menu.TriggerItem, { ref: ref, ...rest, children: [startIcon, children, jsxRuntime.jsx(lu.LuChevronRight, {})] }));
-});
-react.Menu.RadioItemGroup;
-react.Menu.ContextTrigger;
-const MenuRoot = react.Menu.Root;
-react.Menu.Separator;
-const MenuItem = react.Menu.Item;
-react.Menu.ItemText;
-react.Menu.ItemCommand;
-const MenuTrigger = react.Menu.Trigger;
-
-const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "ghost", gap: "0.5rem", children: [table.getState().pagination.pageSize, " ", jsxRuntime.jsx(bi.BiDownArrow, {})] }) }), jsxRuntime.jsx(MenuContent, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(MenuItem, { value: `chakra-table-pageSize-${pageSize}`, onClick: () => {
-                        table.setPageSize(Number(pageSize));
-                    }, children: pageSize }, `chakra-table-pageSize-${pageSize}`))) })] }));
-};
-
-const ResetSelectionButton = ({ text = "Reset Selection", }) => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(react.Button, { onClick: () => {
-            table.resetRowSelection();
-        }, children: text }));
-};
-
-const RowCountText = () => {
-    const { table, type } = useDataTableContext();
-    const getCount = () => {
-        if (type === "client") {
-            return table.getFilteredRowModel().flatRows.length ?? 0;
-        }
-        return table.getRowCount();
-    };
-    return jsxRuntime.jsx(react.Text, { children: getCount() });
-};
-
-const { withContext } = react.createRecipeContext({ key: "button" });
-// Replace "a" with your framework's link component
-const LinkButton = withContext("a");
-
-const [RootPropsProvider, useRootProps] = react.createContext({
-    name: "RootPropsProvider",
-});
-const variantMap = {
-    outline: { default: "ghost", ellipsis: "plain", current: "outline" },
-    solid: { default: "outline", ellipsis: "outline", current: "solid" },
-    subtle: { default: "ghost", ellipsis: "plain", current: "subtle" },
-};
-const PaginationRoot = React__namespace.forwardRef(function PaginationRoot(props, ref) {
-    const { size = "sm", variant = "outline", getHref, ...rest } = props;
-    return (jsxRuntime.jsx(RootPropsProvider, { value: { size, variantMap: variantMap[variant], getHref }, children: jsxRuntime.jsx(react.Pagination.Root, { ref: ref, type: getHref ? "link" : "button", ...rest }) }));
-});
-const PaginationEllipsis = React__namespace.forwardRef(function PaginationEllipsis(props, ref) {
-    const { size, variantMap } = useRootProps();
-    return (jsxRuntime.jsx(react.Pagination.Ellipsis, { ref: ref, ...props, asChild: true, children: jsxRuntime.jsx(react.Button, { as: "span", variant: variantMap.ellipsis, size: size, children: jsxRuntime.jsx(hi2.HiMiniEllipsisHorizontal, {}) }) }));
-});
-const PaginationItem = React__namespace.forwardRef(function PaginationItem(props, ref) {
-    const { page } = react.usePaginationContext();
-    const { size, variantMap, getHref } = useRootProps();
-    const current = page === props.value;
-    const variant = current ? variantMap.current : variantMap.default;
-    if (getHref) {
-        return (jsxRuntime.jsx(LinkButton, { href: getHref(props.value), variant: variant, size: size, children: props.value }));
-    }
-    return (jsxRuntime.jsx(react.Pagination.Item, { ref: ref, ...props, asChild: true, children: jsxRuntime.jsx(react.Button, { variant: variant, size: size, children: props.value }) }));
-});
-const PaginationPrevTrigger = React__namespace.forwardRef(function PaginationPrevTrigger(props, ref) {
-    const { size, variantMap, getHref } = useRootProps();
-    const { previousPage } = react.usePaginationContext();
-    if (getHref) {
-        return (jsxRuntime.jsx(LinkButton, { href: previousPage != null ? getHref(previousPage) : undefined, variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronLeft, {}) }));
-    }
-    return (jsxRuntime.jsx(react.Pagination.PrevTrigger, { ref: ref, asChild: true, ...props, children: jsxRuntime.jsx(react.IconButton, { variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronLeft, {}) }) }));
-});
-const PaginationNextTrigger = React__namespace.forwardRef(function PaginationNextTrigger(props, ref) {
-    const { size, variantMap, getHref } = useRootProps();
-    const { nextPage } = react.usePaginationContext();
-    if (getHref) {
-        return (jsxRuntime.jsx(LinkButton, { href: nextPage != null ? getHref(nextPage) : undefined, variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronRight, {}) }));
-    }
-    return (jsxRuntime.jsx(react.Pagination.NextTrigger, { ref: ref, asChild: true, ...props, children: jsxRuntime.jsx(react.IconButton, { variant: variantMap.default, size: size, children: jsxRuntime.jsx(hi2.HiChevronRight, {}) }) }));
-});
-const PaginationItems = (props) => {
-    return (jsxRuntime.jsx(react.Pagination.Context, { children: ({ pages }) => pages.map((page, index) => {
-            return page.type === "ellipsis" ? (jsxRuntime.jsx(PaginationEllipsis, { index: index, ...props }, index)) : (jsxRuntime.jsx(PaginationItem, { type: "page", value: page.value, ...props }, index));
-        }) }));
-};
-const PaginationPageText = React__namespace.forwardRef(function PaginationPageText(props, ref) {
-    const { format = "compact", ...rest } = props;
-    const { page, totalPages, pageRange, count } = react.usePaginationContext();
-    const content = React__namespace.useMemo(() => {
-        if (format === "short")
-            return `${page} / ${totalPages}`;
-        if (format === "compact")
-            return `${page} / ${totalPages}`;
-        return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} / ${count}`;
-    }, [format, page, totalPages, pageRange, count]);
-    return (jsxRuntime.jsx(react.Text, { fontWeight: "medium", ref: ref, ...rest, children: content }));
-});
-
-// TODO: not working in client side
-const Pagination = () => {
-    const { table, type } = useDataTableContext();
-    const getCount = () => {
-        if (type === "client") {
-            return table.getFilteredRowModel().flatRows.length ?? 0;
-        }
-        return table.getRowCount();
-    };
-    return (jsxRuntime.jsx(PaginationRoot, { page: table.getState().pagination.pageIndex + 1, count: getCount(), pageSize: table.getState().pagination.pageSize, onPageChange: (e) => {
-            table.setPageIndex(e.page - 1);
-        }, children: jsxRuntime.jsxs(react.HStack, { children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), jsxRuntime.jsx(PaginationItems, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) }));
-};
-
 const CardHeader = ({ row, imageColumnId = undefined, titleColumnId = undefined, tagColumnId = undefined, tagIcon = undefined, showTag = true, imageProps = {}, }) => {
     if (!!row.original === false) {
         return jsxRuntime.jsx(jsxRuntime.Fragment, {});
     }
     const isShowFirstColumn = !!titleColumnId || showTag;
     return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto auto", gap: "1rem", children: [!!imageColumnId && (jsxRuntime.jsx(react.Image, { width: "100%", src: row.original[imageColumnId], ...imageProps })), isShowFirstColumn && (jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: [!!titleColumnId && (jsxRuntime.jsx(react.Text, { fontWeight: "bold", fontSize: "large", children: row.original[titleColumnId] })), showTag && (jsxRuntime.jsx(Tag, { fontSize: "large", startElement: tagIcon && tagIcon({}), children: row.original[tagColumnId] }))] }))] }));
+};
+
+const DataTableServerContext = React.createContext({
+    url: "",
+});
+
+const useDataTableServerContext = () => {
+    const context = React.useContext(DataTableServerContext);
+    const { query } = context;
+    const isEmpty = (query.data?.count ?? 0) <= 0;
+    return { ...context, isEmpty };
+};
+
+const EmptyState$1 = ({ title = "No records", description = "Add a new events to get started or refine your search", }) => {
+    const { isEmpty } = useDataTableServerContext();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isEmpty && (jsxRuntime.jsx(react.EmptyState.Root, { children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [jsxRuntime.jsx(react.EmptyState.Indicator, { children: jsxRuntime.jsx(hi.HiColorSwatch, {}) }), jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })] }) })) }));
+};
+
+const ErrorAlert = ({ showMessage = true }) => {
+    const { query } = useDataTableServerContext();
+    const { isError, error } = query;
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isError && (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsxs(react.Alert.Content, { children: [jsxRuntime.jsx(react.Alert.Title, { children: error.name }), showMessage && (jsxRuntime.jsx(react.Alert.Description, { children: error.message }))] })] })) }));
 };
 
 const snakeToLabel = (str) => {
@@ -2849,10 +2871,6 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
         }, children: children }));
 }
 
-const DataTableServerContext = React.createContext({
-    url: "",
-});
-
 /**
  * DataTableServer will create a context to hold all values to
  * help the render of the DataTable in serverside
@@ -3034,13 +3052,6 @@ const GlobalFilter = () => {
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(InputGroup, { flex: "1", startElement: jsxRuntime.jsx(md.MdSearch, {}), children: jsxRuntime.jsx(react.Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
                     setSearchTerm(e.target.value);
                 } }) }) }));
-};
-
-const useDataTableServerContext = () => {
-    const context = React.useContext(DataTableServerContext);
-    const { query } = context;
-    const isEmpty = (query.data?.count ?? 0) <= 0;
-    return { ...context, isEmpty };
 };
 
 const ReloadButton = ({ text = "Reload", variant = "icon", }) => {
@@ -3256,12 +3267,12 @@ const TableHeader = ({ canResize = true, pinnedBgColor = { light: "gray.50", dar
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const EmptyState$1 = React__namespace.forwardRef(function EmptyState(props, ref) {
+const EmptyState = React__namespace.forwardRef(function EmptyState(props, ref) {
     const { title, description, icon, children, ...rest } = props;
     return (jsxRuntime.jsx(react.EmptyState.Root, { ref: ref, ...rest, children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [icon && (jsxRuntime.jsx(react.EmptyState.Indicator, { children: icon })), description ? (jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })) : (jsxRuntime.jsx(react.EmptyState.Title, { children: title })), children] }) }));
 });
 
-const EmptyResult = (jsxRuntime.jsx(EmptyState$1, { icon: jsxRuntime.jsx(hi.HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxRuntime.jsxs(react.List.Root, { variant: "marker", children: [jsxRuntime.jsx(react.List.Item, { children: "Try removing filters" }), jsxRuntime.jsx(react.List.Item, { children: "Try different keywords" })] }) }));
+const EmptyResult = (jsxRuntime.jsx(EmptyState, { icon: jsxRuntime.jsx(hi.HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxRuntime.jsxs(react.List.Root, { variant: "marker", children: [jsxRuntime.jsx(react.List.Item, { children: "Try removing filters" }), jsxRuntime.jsx(react.List.Item, { children: "Try different keywords" })] }) }));
 const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
     const { table } = useDataTableContext();
     if (table.getRowModel().rows.length <= 0) {
@@ -3530,16 +3541,15 @@ const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, 
     return columns;
 };
 
-const EmptyState = ({ title = "No records", description = "Add a new events to get started or refine your search", }) => {
-    const { isEmpty } = useDataTableServerContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isEmpty && (jsxRuntime.jsx(react.EmptyState.Root, { children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [jsxRuntime.jsx(react.EmptyState.Indicator, { children: jsxRuntime.jsx(hi.HiColorSwatch, {}) }), jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })] }) })) }));
-};
-
-const ErrorAlert = ({ showMessage = true }) => {
-    const { query } = useDataTableServerContext();
-    const { isError, error } = query;
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isError && (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsxs(react.Alert.Content, { children: [jsxRuntime.jsx(react.Alert.Title, { children: error.name }), showMessage && (jsxRuntime.jsx(react.Alert.Description, { children: error.message }))] })] })) }));
-};
+const AccordionItemTrigger = React__namespace.forwardRef(function AccordionItemTrigger(props, ref) {
+    const { children, indicatorPlacement = "end", ...rest } = props;
+    return (jsxRuntime.jsxs(react.Accordion.ItemTrigger, { ...rest, ref: ref, children: [indicatorPlacement === "start" && (jsxRuntime.jsx(react.Accordion.ItemIndicator, { rotate: { base: "-90deg", _open: "0deg" }, children: jsxRuntime.jsx(lu.LuChevronDown, {}) })), jsxRuntime.jsx(react.HStack, { gap: "4", flex: "1", textAlign: "start", width: "full", children: children }), indicatorPlacement === "end" && (jsxRuntime.jsx(react.Accordion.ItemIndicator, { children: jsxRuntime.jsx(lu.LuChevronDown, {}) }))] }));
+});
+const AccordionItemContent = React__namespace.forwardRef(function AccordionItemContent(props, ref) {
+    return (jsxRuntime.jsx(react.Accordion.ItemContent, { children: jsxRuntime.jsx(react.Accordion.ItemBody, { ...props, ref: ref }) }));
+});
+const AccordionRoot = react.Accordion.Root;
+const AccordionItem = react.Accordion.Item;
 
 //@ts-expect-error TODO: find appropriate type
 const SchemaFormContext = React.createContext({
@@ -3562,15 +3572,56 @@ const clearEmptyString = (object) => {
     return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
 };
 
-const AccordionItemTrigger = React__namespace.forwardRef(function AccordionItemTrigger(props, ref) {
-    const { children, indicatorPlacement = "end", ...rest } = props;
-    return (jsxRuntime.jsxs(react.Accordion.ItemTrigger, { ...rest, ref: ref, children: [indicatorPlacement === "start" && (jsxRuntime.jsx(react.Accordion.ItemIndicator, { rotate: { base: "-90deg", _open: "0deg" }, children: jsxRuntime.jsx(lu.LuChevronDown, {}) })), jsxRuntime.jsx(react.HStack, { gap: "4", flex: "1", textAlign: "start", width: "full", children: children }), indicatorPlacement === "end" && (jsxRuntime.jsx(react.Accordion.ItemIndicator, { children: jsxRuntime.jsx(lu.LuChevronDown, {}) }))] }));
-});
-const AccordionItemContent = React__namespace.forwardRef(function AccordionItemContent(props, ref) {
-    return (jsxRuntime.jsx(react.Accordion.ItemContent, { children: jsxRuntime.jsx(react.Accordion.ItemBody, { ...props, ref: ref }) }));
-});
-const AccordionRoot = react.Accordion.Root;
-const AccordionItem = react.Accordion.Item;
+const idPickerSanityCheck = (column, foreign_key) => {
+    if (!!foreign_key == false) {
+        throw new Error(`The key foreign_key does not exist in properties of column ${column} when using id-picker.`);
+    }
+    const { table, column: foreignKeyColumn, display_column } = foreign_key;
+    if (!!table == false) {
+        throw new Error(`The key table does not exist in properties of column ${table} when using id-picker.`);
+    }
+    if (!!display_column == false) {
+        throw new Error(`The key display_column does not exist in properties of column ${column} when using id-picker.`);
+    }
+    if (!!foreignKeyColumn == false) {
+        throw new Error(`The key column does not exist in properties of column ${column} when using id-picker.`);
+    }
+};
+const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, }) => {
+    const [isSuccess, setIsSuccess] = React.useState(false);
+    const [isError, setIsError] = React.useState(false);
+    const [isSubmiting, setIsSubmiting] = React.useState(false);
+    const [isConfirming, setIsConfirming] = React.useState(false);
+    const [validatedData, setValidatedData] = React.useState();
+    const [error, setError] = React.useState();
+    return (jsxRuntime.jsx(SchemaFormContext.Provider, { value: {
+            schema,
+            serverUrl,
+            order,
+            ignore,
+            include,
+            // @ts-expect-error TODO: find appropriate types
+            onSubmit,
+            rowNumber,
+            idMap,
+            setIdMap,
+            translate,
+            requestOptions,
+            isSuccess,
+            setIsSuccess,
+            isError,
+            setIsError,
+            isSubmiting,
+            setIsSubmiting,
+            isConfirming,
+            setIsConfirming,
+            validatedData,
+            setValidatedData,
+            error,
+            setError,
+            getUpdatedData,
+        }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: children }) }));
+};
 
 function removeIndex(str) {
     return str.replace(/\.\d+\./g, '.');
@@ -4927,30 +4978,23 @@ const ColumnViewer = ({ column, properties, prefix, }) => {
     return jsxRuntime.jsx(SchemaViewer, { schema: colSchema, prefix, column });
 };
 
-const idPickerSanityCheck = (column, foreign_key) => {
-    if (!!foreign_key == false) {
-        throw new Error(`The key foreign_key does not exist in properties of column ${column} when using id-picker.`);
-    }
-    const { table, column: foreignKeyColumn, display_column } = foreign_key;
-    if (!!table == false) {
-        throw new Error(`The key table does not exist in properties of column ${table} when using id-picker.`);
-    }
-    if (!!display_column == false) {
-        throw new Error(`The key display_column does not exist in properties of column ${column} when using id-picker.`);
-    }
-    if (!!foreignKeyColumn == false) {
-        throw new Error(`The key column does not exist in properties of column ${column} when using id-picker.`);
-    }
-};
-const FormInternal = () => {
-    const { schema, requestUrl, order, ignore, include, onSubmit, rowNumber, translate, requestOptions, } = useSchemaContext();
+const SubmitButton = () => {
+    const { translate, setValidatedData, setIsError, setIsConfirming } = useSchemaContext();
     const methods = reactHookForm.useFormContext();
-    const [isSuccess, setIsSuccess] = React.useState(false);
-    const [isError, setIsError] = React.useState(false);
-    const [isSubmiting, setIsSubmiting] = React.useState(false);
-    const [isConfirming, setIsConfirming] = React.useState(false);
-    const [validatedData, setValidatedData] = React.useState();
-    const [error, setError] = React.useState();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onValid = (data) => {
+        setValidatedData(data);
+        setIsError(false);
+        setIsConfirming(true);
+    };
+    return (jsxRuntime.jsx(react.Button, { onClick: () => {
+            methods.handleSubmit(onValid)();
+        }, formNoValidate: true, children: translate.t("submit") }));
+};
+
+const FormBody = () => {
+    const { schema, requestUrl, order, ignore, include, onSubmit, rowNumber, translate, requestOptions, isSuccess, setIsSuccess, isError, setIsError, isSubmiting, setIsSubmiting, isConfirming, setIsConfirming, validatedData, setValidatedData, error, setError, getUpdatedData, } = useSchemaContext();
+    const methods = reactHookForm.useFormContext();
     const { properties } = schema;
     const onBeforeSubmit = () => {
         setIsSubmiting(true);
@@ -4958,8 +5002,9 @@ const FormInternal = () => {
     const onAfterSubmit = () => {
         setIsSubmiting(false);
     };
-    const onSubmitError = () => {
+    const onSubmitError = (error) => {
         setIsError(true);
+        setError(error);
     };
     const onSubmitSuccess = () => {
         setIsSuccess(true);
@@ -4971,9 +5016,7 @@ const FormInternal = () => {
             onSubmitSuccess();
         }
         catch (error) {
-            setIsError(true);
-            setError(error);
-            onSubmitError();
+            onSubmitError(error);
         }
         finally {
             onAfterSubmit();
@@ -4996,12 +5039,6 @@ const FormInternal = () => {
         }
         await defaultOnSubmit(onSubmit(data));
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onValid = (data) => {
-        setValidatedData(data);
-        setIsError(false);
-        setIsConfirming(true);
-    };
     const renderColumns = ({ order, keys, ignore, include, }) => {
         const included = include.length > 0 ? include : keys;
         const not_exist = included.filter((columnA) => !order.some((columnB) => columnA === columnB));
@@ -5016,58 +5053,47 @@ const FormInternal = () => {
         include,
     });
     if (isSuccess) {
-        return (jsxRuntime.jsxs(react.Grid, { gap: 2, children: [jsxRuntime.jsx(react.Heading, { children: translate.t("title") }), jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Title, { children: translate.t("submitSuccess") })] }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(Button, { onClick: () => {
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Title, { children: translate.t("submitSuccess") })] }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(react.Button, { onClick: async () => {
                             setIsError(false);
                             setIsSubmiting(false);
                             setIsSuccess(false);
                             setIsConfirming(false);
                             setValidatedData(undefined);
-                            methods.reset();
+                            const data = await getUpdatedData();
+                            methods.reset(data);
                         }, formNoValidate: true, children: translate.t("submitAgain") }) })] }));
     }
     if (isConfirming) {
-        return (jsxRuntime.jsxs(react.Grid, { gap: 2, children: [jsxRuntime.jsxs(react.Heading, { children: [" ", translate.t("title")] }), jsxRuntime.jsx(react.Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
                         return (jsxRuntime.jsx(ColumnViewer
                         // @ts-expect-error find suitable types
                         , { 
                             // @ts-expect-error find suitable types
                             properties: properties, prefix: ``, column }, `form-viewer-${column}`));
-                    }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "end", gap: "2", children: [jsxRuntime.jsx(Button, { onClick: () => {
+                    }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "end", gap: "2", children: [jsxRuntime.jsx(react.Button, { onClick: () => {
                                 setIsConfirming(false);
-                            }, variant: "subtle", children: translate.t("cancel") }), jsxRuntime.jsx(Button, { onClick: () => {
+                            }, variant: "subtle", children: translate.t("cancel") }), jsxRuntime.jsx(react.Button, { onClick: () => {
                                 onFormSubmit(validatedData);
-                            }, children: translate.t("confirm") })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Alert.Root, { status: "error", children: jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: ["b"], children: jsxRuntime.jsxs(AccordionItem, { value: "b", children: [jsxRuntime.jsxs(AccordionItemTrigger, { children: [jsxRuntime.jsx(react.Alert.Indicator, {}), `${error}`] }), jsxRuntime.jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) }) }))] }));
+                            }, children: translate.t("confirm") })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Alert.Root, { status: "error", children: jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "b", children: [jsxRuntime.jsxs(AccordionItemTrigger, { children: [jsxRuntime.jsx(react.Alert.Indicator, {}), `${error}`] }), jsxRuntime.jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) }) }))] }));
     }
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(react.Grid, { gap: "2", children: [jsxRuntime.jsxs(react.Heading, { children: [" ", translate.t("title")] }), jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
-                        return (jsxRuntime.jsx(ColumnRenderer
+    return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
+                    return (jsxRuntime.jsx(ColumnRenderer
+                    // @ts-expect-error find suitable types
+                    , { 
                         // @ts-expect-error find suitable types
-                        , { 
-                            // @ts-expect-error find suitable types
-                            properties: properties, prefix: ``, column }, `form-input-${column}`));
-                    }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "end", gap: "2", children: [jsxRuntime.jsx(Button, { onClick: () => {
-                                methods.reset();
-                            }, variant: "subtle", children: translate.t("reset") }), jsxRuntime.jsx(Button, { onClick: () => {
-                                methods.handleSubmit(onValid)();
-                            }, formNoValidate: true, children: translate.t("submit") })] })] }) }));
+                        properties: properties, prefix: ``, column }, `form-input-${column}`));
+                }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "end", gap: "2", children: [jsxRuntime.jsx(react.Button, { onClick: () => {
+                            methods.reset();
+                        }, variant: "subtle", children: translate.t("reset") }), jsxRuntime.jsx(SubmitButton, {})] })] }));
 };
-const Form = ({ schema, idMap, setIdMap, form, serverUrl, translate, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, }) => {
-    // const { properties } = schema;
-    // idListSanityCheck("order", order, properties as object);
-    // idListSanityCheck("ignore", ignore, properties as object);
-    return (jsxRuntime.jsx(SchemaFormContext.Provider, { value: {
-            schema,
-            serverUrl,
-            order,
-            ignore,
-            include,
-            // @ts-expect-error TODO: find appropriate types
-            onSubmit,
-            rowNumber,
-            idMap,
-            setIdMap,
-            translate,
-            requestOptions,
-        }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: jsxRuntime.jsx(FormInternal, {}) }) }));
+
+const FormTitle = () => {
+    const { translate } = useSchemaContext();
+    return jsxRuntime.jsx(react.Heading, { children: translate.t("title") });
+};
+
+const DefaultForm = ({ formConfig, }) => {
+    return (jsxRuntime.jsx(FormRoot, { ...formConfig, children: jsxRuntime.jsxs(react.Grid, { gap: "2", children: [jsxRuntime.jsx(FormTitle, {}), jsxRuntime.jsx(FormBody, {})] }) }));
 };
 
 const useForm = ({ preLoadedValues, keyPrefix }) => {
@@ -5105,15 +5131,18 @@ exports.DataDisplay = DataDisplay;
 exports.DataTable = DataTable;
 exports.DataTableServer = DataTableServer;
 exports.DefaultCardTitle = DefaultCardTitle;
+exports.DefaultForm = DefaultForm;
 exports.DefaultTable = DefaultTable;
 exports.DensityToggleButton = DensityToggleButton;
 exports.EditOrderButton = EditOrderButton;
 exports.EditSortingButton = EditSortingButton;
-exports.EmptyState = EmptyState;
+exports.EmptyState = EmptyState$1;
 exports.ErrorAlert = ErrorAlert;
 exports.FilterDialog = FilterDialog;
 exports.FilterOptions = FilterOptions;
-exports.Form = Form;
+exports.FormBody = FormBody;
+exports.FormRoot = FormRoot;
+exports.FormTitle = FormTitle;
 exports.GlobalFilter = GlobalFilter;
 exports.PageSizeControl = PageSizeControl;
 exports.Pagination = Pagination;

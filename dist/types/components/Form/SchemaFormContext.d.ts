@@ -16,5 +16,18 @@ export interface SchemaFormContext<TData extends FieldValues> {
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
     translate: UseTranslationResponse<any, any>;
     requestOptions: AxiosRequestConfig;
+    isSuccess: boolean;
+    setIsSuccess: Dispatch<SetStateAction<boolean>>;
+    isError: boolean;
+    setIsError: Dispatch<SetStateAction<boolean>>;
+    isSubmiting: boolean;
+    setIsSubmiting: Dispatch<SetStateAction<boolean>>;
+    isConfirming: boolean;
+    setIsConfirming: Dispatch<SetStateAction<boolean>>;
+    validatedData: TData | undefined;
+    setValidatedData: Dispatch<SetStateAction<TData>>;
+    error: unknown;
+    setError: Dispatch<SetStateAction<unknown>>;
+    getUpdatedData: () => TData | Promise<TData>;
 }
 export declare const SchemaFormContext: import("react").Context<SchemaFormContext<unknown>>;
