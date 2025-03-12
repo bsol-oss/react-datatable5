@@ -1,25 +1,22 @@
+import { Provider } from "@/components/ui/provider";
 import {
   Box,
-  ChakraProvider,
-  Flex,
-  defaultSystem
+  Flex
 } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import {
   DataTableServer,
-  FilterDialog,
-  EditOrderButton,
   EditSortingButton,
-  ViewDialog,
+  FilterDialog,
   PageSizeControl,
+  Pagination,
   TableCardContainer,
   TableCards,
-  Pagination,
   TableSelector,
   TextCell,
+  ViewDialog,
   useDataTableServer,
 } from "../../index";
-import { Provider } from "@/components/ui/provider";
 
 interface ChatRecord {
   session_id: string;
@@ -124,7 +121,6 @@ const CardViewShowcase = () => {
           <ViewDialog />
           <FilterDialog />
           <EditSortingButton />
-          <EditOrderButton />
           <PageSizeControl />
           <TableSelector />
         </Flex>

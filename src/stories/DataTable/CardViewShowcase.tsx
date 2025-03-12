@@ -4,7 +4,6 @@ import {
   CardHeader,
   DataTable,
   FilterDialog,
-  EditOrderButton,
   EditSortingButton,
   ViewDialog,
   PageSizeControl,
@@ -88,7 +87,6 @@ const CardViewShowcase = () => {
           <ViewDialog />
           <FilterDialog />
           <EditSortingButton />
-          <EditOrderButton />
           <PageSizeControl />
           <TableSelector />
         </Flex>

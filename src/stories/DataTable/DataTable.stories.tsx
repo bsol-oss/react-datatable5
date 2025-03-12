@@ -3,7 +3,6 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "../../components/DataTable/DataTable";
 import {
   FilterDialog,
-  EditOrderButton,
   ViewDialog,
   GlobalFilter,
   PageSizeControl,
@@ -50,7 +49,6 @@ const Template = (args: any) => {
           <Pagination />
           <ViewDialog />
           <FilterDialog />
-          <EditOrderButton />
           <PageSizeControl />
           <TableSelector />
           <GlobalFilter />

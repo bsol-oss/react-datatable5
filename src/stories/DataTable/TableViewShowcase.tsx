@@ -9,7 +9,6 @@ import { useDataTable } from "../../components/DataTable/useDataTable";
 import {
   DataTable,
   FilterDialog,
-  EditOrderButton,
   ViewDialog,
   GlobalFilter,
   PageSizeControl,
@@ -120,7 +119,6 @@ const TableViewShowcase = () => {
           <Pagination />
           <ViewDialog />
           <FilterDialog />
-          <EditOrderButton />
           <PageSizeControl />
           <TableSelector />
           <GlobalFilter />
