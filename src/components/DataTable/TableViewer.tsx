@@ -45,7 +45,7 @@ function ColumnCard({ columnId }: ColumnCardProps) {
       alignItems="center"
       style={dragging ? { opacity: 0.4 } : {}} // fading the piece during dragging
     >
-      <Flex alignItems="center" padding="0" cursor={'grab'}>
+      <Flex alignItems="center" padding="0" cursor={"grab"}>
         <FaGripLinesVertical color="gray.400" />
       </Flex>
       <Flex justifyContent="space-between" alignItems="center">
@@ -71,6 +71,9 @@ function CardContainer({ location, children }: CardContainerProps) {
 
   useEffect(() => {
     const el = ref.current;
+    if (el === null) {
+      return;
+    }
     invariant(el);
 
     return dropTargetForElements({
