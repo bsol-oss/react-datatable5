@@ -1,12 +1,12 @@
 import { HStack } from "@chakra-ui/react";
 
-import { useDataTableContext } from "../DataTable/context/useDataTableContext";
+import { useDataTableContext } from "../context/useDataTableContext";
 import {
   PaginationItems,
   PaginationNextTrigger,
   PaginationPrevTrigger,
   PaginationRoot,
-} from "../ui/pagination";
+} from "../../ui/pagination";
 
 // TODO: not working in client side
 export const Pagination = () => {

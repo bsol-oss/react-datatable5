@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table";
 import axios from "axios";
 import { useState } from "react";
-import { DensityState } from "../Controls/DensityFeature";
+import { DensityState } from "./controls/DensityFeature";
 import { UseDataTableProps, UseDataTableReturn } from "./useDataTable";
 import { useTranslation } from "react-i18next";
 

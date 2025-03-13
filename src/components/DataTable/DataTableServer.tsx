@@ -13,7 +13,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { DensityFeature, DensityState } from "../Controls/DensityFeature";
+import { DensityFeature, DensityState } from "./controls/DensityFeature";
 import { DataTableContext } from "./context/DataTableContext";
 import { DataTableServerContext } from "./context/DataTableServerContext";
 import { DataResponse } from "./useDataTableServer";

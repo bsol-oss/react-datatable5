@@ -18,7 +18,7 @@ import {
 import { ReactNode } from "react";
 
 import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
-import { DensityFeature, DensityState } from "../Controls/DensityFeature";
+import { DensityFeature, DensityState } from "./controls/DensityFeature";
 import { DataTableContext } from "./context/DataTableContext";
 import { UseTranslationResponse } from "react-i18next";
 

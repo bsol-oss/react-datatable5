@@ -8,7 +8,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import { DensityState } from "../Controls/DensityFeature";
+import { DensityState } from "./controls/DensityFeature";
 import { useTranslation, UseTranslationResponse } from "react-i18next";
 
 export interface DataTableDefaultState {

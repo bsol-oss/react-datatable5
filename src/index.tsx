@@ -72,16 +72,16 @@ declare module "@tanstack/react-table" {
   }
 }
 
-export * from "./components/Controls/DensityToggleButton";
-export * from "./components/Controls/EditSortingButton";
-export * from "./components/Controls/FilterDialog";
-export * from "./components/Controls/PageSizeControl";
-export * from "./components/Controls/Pagination";
-export * from "./components/Controls/ResetFilteringButton";
-export * from "./components/Controls/ResetSelectionButton";
-export * from "./components/Controls/ResetSortingButton";
-export * from "./components/Controls/RowCountText";
-export * from "./components/Controls/ViewDialog";
+export * from "./components/DataTable/controls/DensityToggleButton";
+export * from "./components/DataTable/controls/EditSortingButton";
+export * from "./components/DataTable/controls/FilterDialog";
+export * from "./components/DataTable/controls/PageSizeControl";
+export * from "./components/DataTable/controls/Pagination";
+export * from "./components/DataTable/controls/ResetFilteringButton";
+export * from "./components/DataTable/controls/ResetSelectionButton";
+export * from "./components/DataTable/controls/ResetSortingButton";
+export * from "./components/DataTable/controls/RowCountText";
+export * from "./components/DataTable/controls/ViewDialog";
 export * from "./components/DataTable/CardHeader";
 export * from "./components/DataTable/components/EmptyState";
 export * from "./components/DataTable/components/ErrorAlert";

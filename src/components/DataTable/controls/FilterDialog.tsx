@@ -10,10 +10,10 @@ import {
   DialogRoot,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { TableFilter } from "../DataTable/TableFilters";
+} from "../../ui/dialog";
+import { TableFilter } from "../TableFilters";
 import { ResetFilteringButton } from "./ResetFilteringButton";
-import { useDataTableContext } from "../DataTable/context/useDataTableContext";
+import { useDataTableContext } from "../context/useDataTableContext";
 
 export interface EditFilterButtonProps {
   icon?: React.ReactElement;

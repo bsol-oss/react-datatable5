@@ -7,12 +7,12 @@ import {
   DialogRoot,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
+} from "../../ui/dialog";
 import { Box, Button, DialogBackdrop, useDisclosure } from "@chakra-ui/react";
 import React from "react";
 import { IoMdEye } from "react-icons/io";
-import { TableViewer } from "../DataTable/TableViewer";
-import { useDataTableContext } from "../DataTable/context/useDataTableContext";
+import { TableViewer } from "../TableViewer";
+import { useDataTableContext } from "../context/useDataTableContext";
 
 export interface EditViewButtonProps {
   icon?: React.ReactElement;
