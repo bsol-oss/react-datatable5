@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { UseQueryResult } from "@tanstack/react-query";
 import { ColumnDef, ColumnFiltersState, ColumnOrderState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
-import { DensityState } from "../Controls/DensityFeature";
+import { DensityState } from "./controls/DensityFeature";
 import { DataResponse } from "./useDataTableServer";
 import { UseTranslationResponse } from "react-i18next";
 export interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown>> {

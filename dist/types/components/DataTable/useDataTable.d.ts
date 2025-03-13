@@ -1,5 +1,5 @@
 import { ColumnFiltersState, ColumnOrderState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
-import { DensityState } from "../Controls/DensityFeature";
+import { DensityState } from "./controls/DensityFeature";
 import { UseTranslationResponse } from "react-i18next";
 export interface DataTableDefaultState {
     sorting?: SortingState;

@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import { Row, Table as Table$1, OnChangeFn, RowData, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnOrderState, ColumnFiltersState, PaginationState, SortingState, VisibilityState, Column } from '@tanstack/react-table';
+import { Row, RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnOrderState, ColumnFiltersState, PaginationState, SortingState, VisibilityState, Table as Table$1, Column } from '@tanstack/react-table';
 import * as React$1 from 'react';
 import React__default, { ReactNode, Dispatch, SetStateAction } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
@@ -85,23 +85,6 @@ interface ErrorAlertProps {
 }
 declare const ErrorAlert: ({ showMessage }: ErrorAlertProps) => react_jsx_runtime.JSX.Element;
 
-interface DataTableContext<TData = unknown> {
-    table: Table$1<TData>;
-    globalFilter: string;
-    setGlobalFilter: OnChangeFn<string>;
-    type: "client" | "server";
-    translate: UseTranslationResponse<any, any>;
-}
-declare const DataTableContext: React$1.Context<DataTableContext<unknown>>;
-
-declare const useDataTableContext: <TData>() => DataTableContext<TData>;
-
-interface DataDisplayProps {
-    variant?: "horizontal" | "stats" | "";
-    translate?: UseTranslationResponse<any, any>;
-}
-declare const DataDisplay: ({ variant }: DataDisplayProps) => react_jsx_runtime.JSX.Element;
-
 type DensityState = "sm" | "md" | "lg";
 interface DensityTableState {
     density: DensityState;
@@ -182,6 +165,23 @@ interface DataTableProps<TData = unknown> {
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
 declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, }: DataTableProps<TData>): react_jsx_runtime.JSX.Element;
+
+interface DataTableContext<TData = unknown> extends DataTableProps {
+    table: Table$1<TData>;
+    globalFilter: string;
+    setGlobalFilter: OnChangeFn<string>;
+    type: "client" | "server";
+    translate: UseTranslationResponse<any, any>;
+}
+declare const DataTableContext: React$1.Context<DataTableContext<unknown>>;
+
+declare const useDataTableContext: <TData>() => DataTableContext<TData>;
+
+interface DataDisplayProps {
+    variant?: "horizontal" | "stats" | "";
+    translate?: UseTranslationResponse<any, any>;
+}
+declare const DataDisplay: ({ variant }: DataDisplayProps) => react_jsx_runtime.JSX.Element;
 
 interface DataTableDefaultState {
     sorting?: SortingState;

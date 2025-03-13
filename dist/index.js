@@ -2814,6 +2814,21 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
             setGlobalFilter,
             type: "client",
             translate,
+            columns,
+            sorting,
+            setSorting,
+            columnFilters,
+            setColumnFilters,
+            pagination,
+            setPagination,
+            rowSelection,
+            setRowSelection,
+            columnOrder,
+            setColumnOrder,
+            density,
+            setDensity,
+            columnVisibility,
+            setColumnVisibility,
         }, children: children }));
 }
 
@@ -2882,6 +2897,21 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
             setGlobalFilter,
             type: "server",
             translate,
+            columns,
+            sorting,
+            setSorting,
+            columnFilters,
+            setColumnFilters,
+            pagination,
+            setPagination,
+            rowSelection,
+            setRowSelection,
+            columnOrder,
+            setColumnOrder,
+            density,
+            setDensity,
+            columnVisibility,
+            setColumnVisibility,
         }, children: jsxRuntime.jsx(DataTableServerContext.Provider, { value: { url, query }, children: children }) }));
 }
 
