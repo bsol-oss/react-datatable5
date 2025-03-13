@@ -82,7 +82,7 @@ export * from "./components/DataTable/controls/ResetSelectionButton";
 export * from "./components/DataTable/controls/ResetSortingButton";
 export * from "./components/DataTable/controls/RowCountText";
 export * from "./components/DataTable/controls/ViewDialog";
-export * from "./components/DataTable/CardHeader";
+export * from "./components/DataTable/display/CardHeader";
 export * from "./components/DataTable/display/EmptyState";
 export * from "./components/DataTable/display/ErrorAlert";
 export * from "./components/DataTable/context/useDataTableContext";
