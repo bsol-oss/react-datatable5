@@ -3498,6 +3498,52 @@ const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, 
     return columns;
 };
 
+const TableDataDisplay = () => {
+    const { table, columns, translate } = useDataTableContext();
+    const { query } = useDataTableServerContext();
+    const { data } = query;
+    const columnDef = table._getColumnDefs();
+    console.log(columnDef, "glp");
+    console.log(columnDef, columns, table.getState().columnOrder, data, "glp");
+    const columnsMap = Object.fromEntries(columns.map((def) => {
+        return [def.accessorKey, def];
+    }));
+    const columnHeaders = Object.keys(columnsMap);
+    const columnWidths = columns
+        .map(({ size }) => {
+        if (!!size === false) {
+            return "1fr";
+        }
+        return `${size}px`;
+    })
+        .join(" ");
+    console.log({ columnWidths }, "hadfg");
+    const cellProps = {
+        flex: "1 0 0%",
+        overflow: "auto",
+        paddingX: "2",
+        py: "1",
+        borderBottomColor: { base: "colorPalette.200", _dark: "colorPalette.800" },
+        borderBottomWidth: "1px",
+    };
+    return (jsxs(Grid, { templateColumns: `${columnWidths}`, overflow: "auto", borderWidth: "1px", borderColor: { base: "colorPalette.200", _dark: "colorPalette.800" }, children: [jsx(Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: "colorPalette.200", _dark: "colorPalette.800" }, children: columnHeaders.map((header) => {
+                    return (jsx(Box, { flex: "1 0 0%", paddingX: "2", py: "1", children: translate.t(`column_header.${header}`) }));
+                }) }), data?.data.map((record) => {
+                return (jsx(Fragment, { children: columnHeaders.map((header) => {
+                        if (!!record === false) {
+                            return (jsx(Box, { ...cellProps, children: translate.t(`column_cell.placeholder`) }));
+                        }
+                        if (!!record[header] === false) {
+                            return (jsx(Box, { ...cellProps, children: translate.t(`column_cell.placeholder`) }));
+                        }
+                        if (typeof record[header] === "object") {
+                            return (jsx(Box, { ...cellProps, children: jsx(RecordDisplay, { object: record[header] }) }));
+                        }
+                        return jsx(Box, { ...cellProps, children: record[header] ?? "" });
+                    }) }));
+            })] }));
+};
+
 const AccordionItemTrigger = React.forwardRef(function AccordionItemTrigger(props, ref) {
     const { children, indicatorPlacement = "end", ...rest } = props;
     return (jsxs(Accordion.ItemTrigger, { ...rest, ref: ref, children: [indicatorPlacement === "start" && (jsx(Accordion.ItemIndicator, { rotate: { base: "-90deg", _open: "0deg" }, children: jsx(LuChevronDown, {}) })), jsx(HStack, { gap: "4", flex: "1", textAlign: "start", width: "full", children: children }), indicatorPlacement === "end" && (jsx(Accordion.ItemIndicator, { children: jsx(LuChevronDown, {}) }))] }));
@@ -5084,4 +5130,4 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
     }
 };
 
-export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FilterOptions, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FilterOptions, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
