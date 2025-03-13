@@ -151,6 +151,21 @@ export function DataTableServer<
         setGlobalFilter,
         type: "server",
         translate,
+        columns,
+        sorting,
+        setSorting,
+        columnFilters,
+        setColumnFilters,
+        pagination,
+        setPagination,
+        rowSelection,
+        setRowSelection,
+        columnOrder,
+        setColumnOrder,
+        density,
+        setDensity,
+        columnVisibility,
+        setColumnVisibility,
       }}
     >
       <DataTableServerContext.Provider value={{ url, query }}>

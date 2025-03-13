@@ -177,6 +177,21 @@ export function DataTable<TData = unknown>({
         setGlobalFilter,
         type: "client",
         translate,
+        columns,
+        sorting,
+        setSorting,
+        columnFilters,
+        setColumnFilters,
+        pagination,
+        setPagination,
+        rowSelection,
+        setRowSelection,
+        columnOrder,
+        setColumnOrder,
+        density,
+        setDensity,
+        columnVisibility,
+        setColumnVisibility,
       }}
     >
       {children}

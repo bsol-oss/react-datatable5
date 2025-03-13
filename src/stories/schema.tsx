@@ -348,21 +348,17 @@ export const activitiesSchema = {
 } as JSONSchema7;
 
 export const peopleSchema = {
-  $id: "http://api.localhost.com/schema/public/core_people.json",
+  $id: "core_people",
   type: "object",
   title: "core_people",
   $schema: "http://json-schema.org/draft-07/schema#",
   example: {
-    id: "fe2b247d-a4d6-61a2-7442-f0533f6714bb",
-    bio: "cillum minim laboris incididunt",
-    tags: {
-      et_7c7: "qui",
-    },
-    email: "eu esse",
-    last_name: "commodo dolore",
-    created_at: "1929-05-03T01:44:20.0Z",
-    first_name: "sit",
-    telephone_number: "incididunt eu",
+    last_name: "non amet",
+    created_at: "1897-01-02T05:48:45.0Z",
+    deleted_at: "1934-04-08T13:37:33.0Z",
+    first_name: "non sed",
+    date_of_birth: "1905-03-09",
+    telephone_number: "in",
   },
   required: ["first_name", "last_name"],
   properties: {
@@ -378,7 +374,7 @@ export const peopleSchema = {
         "Missing description. Database type: text. Default value: null",
     },
     tags: {
-      type: "string",
+      type: "object",
       properties: {},
       description:
         "Missing description. Database type: json. Default value: null",
@@ -400,6 +396,12 @@ export const peopleSchema = {
       format: "date-time",
       description:
         "Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP",
+    },
+    deleted_at: {
+      type: "string",
+      format: "date-time",
+      description:
+        "Missing description. Database type: timestamp with time zone. Default value: null",
     },
     extra_info: {
       type: "object",

@@ -1,8 +1,9 @@
 import { OnChangeFn, Table } from "@tanstack/react-table";
 import { createContext } from "react";
 import { UseTranslationResponse } from "react-i18next";
+import { DataTableProps } from "../DataTable";
 
-export interface DataTableContext<TData = unknown> {
+export interface DataTableContext<TData = unknown> extends DataTableProps {
   table: Table<TData>;
   globalFilter: string;
   setGlobalFilter: OnChangeFn<string>;
