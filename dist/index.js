@@ -2891,6 +2891,7 @@ const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
 });
 
 const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, canResize = true, }) => {
+    "use no memo";
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredRow, setHoveredRow] = React.useState(-1);

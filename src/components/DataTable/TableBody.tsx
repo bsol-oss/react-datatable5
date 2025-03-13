@@ -27,6 +27,7 @@ export const TableBody = ({
   alwaysShowSelector = true,
   canResize = true,
 }: TableBodyProps) => {
+  "use no memo"  
   const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
   const [hoveredRow, setHoveredRow] = useState<number>(-1);
