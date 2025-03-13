@@ -1,12 +1,17 @@
 import { Box, BoxProps, Grid } from "@chakra-ui/react";
 import { useDataTableContext } from "../context/useDataTableContext";
 import { RecordDisplay } from "./RecordDisplay";
+import { ReactNode } from "react";
 
 export interface TableDataDisplayProps {
   colorPalette?: string;
+  emptyComponent?: ReactNode;
 }
 
-export const TableDataDisplay = ({ colorPalette }: TableDataDisplayProps) => {
+export const TableDataDisplay = ({
+  colorPalette,
+  emptyComponent,
+}: TableDataDisplayProps) => {
   const { table, columns, translate, data } = useDataTableContext();
   const columnDef = table._getColumnDefs();
   console.log(columnDef, "glp");
@@ -52,6 +57,9 @@ export const TableDataDisplay = ({ colorPalette }: TableDataDisplayProps) => {
     borderBottomWidth: "1px",
     ...{ colorPalette },
   };
+  if (data.length <= 0) {
+    return <>{emptyComponent}</>;
+  }
   return (
     <Grid
       templateColumns={`${columnWidths}`}
