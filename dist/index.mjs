@@ -3500,7 +3500,7 @@ const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, 
     return columns;
 };
 
-const TableDataDisplay = ({ colorPalette }) => {
+const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
     const { table, columns, translate, data } = useDataTableContext();
     const columnDef = table._getColumnDefs();
     console.log(columnDef, "glp");
@@ -3542,6 +3542,9 @@ const TableDataDisplay = ({ colorPalette }) => {
         borderBottomWidth: "1px",
         ...{ colorPalette },
     };
+    if (data.length <= 0) {
+        return jsx(Fragment, { children: emptyComponent });
+    }
     return (jsxs(Grid, { templateColumns: `${columnWidths}`, overflow: "auto", borderWidth: "1px", borderColor: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: [jsx(Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: columnHeaders.map((header) => {
                     return (jsx(Box, { flex: "1 0 0%", paddingX: "2", py: "1", overflow: "auto", textOverflow: "ellipsis", children: translate.t(`column_header.${header}`) }));
                 }) }), data.map((record) => {

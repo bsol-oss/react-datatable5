@@ -443,8 +443,9 @@ declare const getColumns: <TData extends unknown>({ schema, include, ignore, wid
 
 interface TableDataDisplayProps {
     colorPalette?: string;
+    emptyComponent?: ReactNode;
 }
-declare const TableDataDisplay: ({ colorPalette }: TableDataDisplayProps) => react_jsx_runtime.JSX.Element;
+declare const TableDataDisplay: ({ colorPalette, emptyComponent, }: TableDataDisplayProps) => react_jsx_runtime.JSX.Element;
 
 interface FilterOptionsProps {
     column: string;
