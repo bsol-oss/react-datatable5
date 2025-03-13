@@ -192,6 +192,7 @@ export function DataTable<TData = unknown>({
         setDensity,
         columnVisibility,
         setColumnVisibility,
+        data,
       }}
     >
       {children}

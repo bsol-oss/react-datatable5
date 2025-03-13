@@ -166,6 +166,7 @@ export function DataTableServer<
         setDensity,
         columnVisibility,
         setColumnVisibility,
+        data: query.data?.data ?? [],
       }}
     >
       <DataTableServerContext.Provider value={{ url, query }}>
