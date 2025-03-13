@@ -1,7 +1,7 @@
 import { Flex, Box, Table, MenuRoot, MenuTrigger } from "@chakra-ui/react";
 import { flexRender, Header } from "@tanstack/react-table";
 import { useState } from "react";
-import { useDataTableContext } from "./context/useDataTableContext";import { Checkbox } from "../../components/ui/checkbox";
+import { useDataTableContext } from "../context/useDataTableContext";import { Checkbox } from "../../ui/checkbox";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 
 export interface TableFooterProps {

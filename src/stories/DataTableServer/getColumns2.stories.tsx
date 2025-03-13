@@ -1,7 +1,7 @@
 import { DataDisplay } from "@/components/DataTable/DataDisplay";
 import { DataTableServer } from "@/components/DataTable/DataTableServer";
 import { DefaultTable } from "@/components/DataTable/DefaultTable";
-import { TableComponent } from "@/components/DataTable/TableComponent";
+import { TableComponent } from "@/components/DataTable/display/TableComponent";
 import { useDataTableServer } from "@/components/DataTable/useDataTableServer";
 import { getColumns } from "@/components/DataTable/utils/getColumns";
 import { FilterOptions } from "@/components/Filter/FilterOptions";

@@ -18,8 +18,8 @@ import { useState } from "react";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 import { GrAscend, GrDescend } from "react-icons/gr";
 import { MdPushPin } from "react-icons/md";
-import { Checkbox } from "../../components/ui/checkbox";
-import { useDataTableContext } from "../DataTable/context/useDataTableContext";
+import { Checkbox } from "../../ui/checkbox";
+import { useDataTableContext } from "../context/useDataTableContext";
 
 export interface TableHeaderProps {
   canResize?: boolean;

@@ -1,4 +1,4 @@
-import { RecordDisplay } from "@/components/DataTable/components/RecordDisplay";
+import { RecordDisplay } from "@/components/DataTable/display/RecordDisplay";
 import { DataDisplay } from "@/components/DataTable/DataDisplay";
 import { Provider } from "@/components/ui/provider";
 import type { Meta, StoryObj } from "@storybook/react";

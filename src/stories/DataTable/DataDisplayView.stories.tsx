@@ -1,7 +1,7 @@
 import { DataDisplay } from "@/components/DataTable/DataDisplay";
 import { DataTable } from "@/components/DataTable/DataTable";
-import { TableComponent } from "@/components/DataTable/TableComponent";
-import { TextCell } from "@/components/DataTable/components/TextCell";
+import { TableComponent } from "@/components/DataTable/display/TableComponent";
+import { TextCell } from "@/components/DataTable/display/TextCell";
 import { useDataTable } from "@/components/DataTable/useDataTable";
 import { Provider } from "@/components/ui/provider";
 import { Box, Text } from "@chakra-ui/react";

@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { flexRender, Row } from "@tanstack/react-table";
 import { ReactNode } from "react";
-import { useDataTableContext } from "./context/useDataTableContext";
+import { useDataTableContext } from "../context/useDataTableContext";
 
 export interface TableCardsProps<TData> {
   isSelectable?: boolean;

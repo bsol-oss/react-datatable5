@@ -1,8 +1,8 @@
 import { Box, Table, TableRowProps } from "@chakra-ui/react";
 import { Cell, flexRender, Row } from "@tanstack/react-table";
 import { useState } from "react";
-import { Checkbox } from "../../components/ui/checkbox";
-import { useDataTableContext } from "./context/useDataTableContext";
+import { Checkbox } from "../../ui/checkbox";
+import { useDataTableContext } from "../context/useDataTableContext";
 export interface TableBodyProps {
   pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
