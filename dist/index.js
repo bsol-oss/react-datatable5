@@ -5132,8 +5132,8 @@ const FormTitle = () => {
     return jsxRuntime.jsx(react.Heading, { children: translate.t("title") });
 };
 
-const DefaultForm = ({ formConfig, }) => {
-    return (jsxRuntime.jsx(FormRoot, { ...formConfig, children: jsxRuntime.jsxs(react.Grid, { gap: "2", children: [jsxRuntime.jsx(FormTitle, {}), jsxRuntime.jsx(FormBody, {})] }) }));
+const DefaultForm = ({ formConfig, showTitle = true, }) => {
+    return (jsxRuntime.jsx(FormRoot, { ...formConfig, children: jsxRuntime.jsxs(react.Grid, { gap: "2", children: [showTitle && jsxRuntime.jsx(FormTitle, {}), jsxRuntime.jsx(FormBody, {})] }) }));
 };
 
 const useForm = ({ preLoadedValues, keyPrefix }) => {

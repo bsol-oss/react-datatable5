@@ -489,8 +489,9 @@ declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, f
 
 interface DefaultFormProps<TData extends FieldValues> {
     formConfig: Omit<FormRootProps<TData>, "children">;
+    showTitle?: boolean;
 }
-declare const DefaultForm: <TData extends FieldValues>({ formConfig, }: DefaultFormProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DefaultForm: <TData extends FieldValues>({ formConfig, showTitle, }: DefaultFormProps<TData>) => react_jsx_runtime.JSX.Element;
 
 declare const FormTitle: () => react_jsx_runtime.JSX.Element;
 

@@ -5112,8 +5112,8 @@ const FormTitle = () => {
     return jsx(Heading, { children: translate.t("title") });
 };
 
-const DefaultForm = ({ formConfig, }) => {
-    return (jsx(FormRoot, { ...formConfig, children: jsxs(Grid, { gap: "2", children: [jsx(FormTitle, {}), jsx(FormBody, {})] }) }));
+const DefaultForm = ({ formConfig, showTitle = true, }) => {
+    return (jsx(FormRoot, { ...formConfig, children: jsxs(Grid, { gap: "2", children: [showTitle && jsx(FormTitle, {}), jsx(FormBody, {})] }) }));
 };
 
 const useForm = ({ preLoadedValues, keyPrefix }) => {
