@@ -1,1 +1,4 @@
-export declare const TableDataDisplay: () => import("react/jsx-runtime").JSX.Element;
+export interface TableDataDisplayProps {
+    colorPalette?: string;
+}
+export declare const TableDataDisplay: ({ colorPalette }: TableDataDisplayProps) => import("react/jsx-runtime").JSX.Element;

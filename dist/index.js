@@ -2829,6 +2829,7 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
             setDensity,
             columnVisibility,
             setColumnVisibility,
+            data,
         }, children: children }));
 }
 
@@ -2912,6 +2913,7 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
             setDensity,
             columnVisibility,
             setColumnVisibility,
+            data: query.data?.data ?? [],
         }, children: jsxRuntime.jsx(DataTableServerContext.Provider, { value: { url, query }, children: children }) }));
 }
 
@@ -3518,23 +3520,36 @@ const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, 
     return columns;
 };
 
-const TableDataDisplay = () => {
-    const { table, columns, translate } = useDataTableContext();
-    const { query } = useDataTableServerContext();
-    const { data } = query;
+const TableDataDisplay = ({ colorPalette }) => {
+    const { table, columns, translate, data } = useDataTableContext();
     const columnDef = table._getColumnDefs();
     console.log(columnDef, "glp");
     console.log(columnDef, columns, table.getState().columnOrder, data, "glp");
     const columnsMap = Object.fromEntries(columns.map((def) => {
-        return [def.accessorKey, def];
+        const { accessorKey, id } = def;
+        if (accessorKey) {
+            return [accessorKey, def];
+        }
+        return [id, def];
     }));
     const columnHeaders = Object.keys(columnsMap);
+    const totalWidths = columns
+        .map(({ size }) => {
+        if (!!size === false) {
+            return 0;
+        }
+        if (typeof size === "number") {
+            return size;
+        }
+        return 0;
+    })
+        .reduce((previous, current) => previous + current, 0);
     const columnWidths = columns
         .map(({ size }) => {
         if (!!size === false) {
             return "1fr";
         }
-        return `${size}px`;
+        return `minmax(${size}px, ${(size / totalWidths) * 100}%)`;
     })
         .join(" ");
     console.log({ columnWidths }, "hadfg");
@@ -3545,10 +3560,11 @@ const TableDataDisplay = () => {
         py: "1",
         borderBottomColor: { base: "colorPalette.200", _dark: "colorPalette.800" },
         borderBottomWidth: "1px",
+        ...{ colorPalette },
     };
-    return (jsxRuntime.jsxs(react.Grid, { templateColumns: `${columnWidths}`, overflow: "auto", borderWidth: "1px", borderColor: { base: "colorPalette.200", _dark: "colorPalette.800" }, children: [jsxRuntime.jsx(react.Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: "colorPalette.200", _dark: "colorPalette.800" }, children: columnHeaders.map((header) => {
-                    return (jsxRuntime.jsx(react.Box, { flex: "1 0 0%", paddingX: "2", py: "1", children: translate.t(`column_header.${header}`) }));
-                }) }), data?.data.map((record) => {
+    return (jsxRuntime.jsxs(react.Grid, { templateColumns: `${columnWidths}`, overflow: "auto", borderWidth: "1px", borderColor: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: [jsxRuntime.jsx(react.Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: columnHeaders.map((header) => {
+                    return (jsxRuntime.jsx(react.Box, { flex: "1 0 0%", paddingX: "2", py: "1", overflow: "auto", textOverflow: "ellipsis", children: translate.t(`column_header.${header}`) }));
+                }) }), data.map((record) => {
                 return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: columnHeaders.map((header) => {
                         if (!!record === false) {
                             return (jsxRuntime.jsx(react.Box, { ...cellProps, children: translate.t(`column_cell.placeholder`) }));
