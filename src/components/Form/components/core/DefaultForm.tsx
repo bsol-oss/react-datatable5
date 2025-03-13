@@ -6,15 +6,17 @@ import { FieldValues } from "react-hook-form";
 
 export interface DefaultFormProps<TData extends FieldValues> {
   formConfig: Omit<FormRootProps<TData>, "children">;
+  showTitle?: boolean;
 }
 
 export const DefaultForm = <TData extends FieldValues>({
   formConfig,
+  showTitle = true,
 }: DefaultFormProps<TData>) => {
   return (
     <FormRoot {...formConfig}>
       <Grid gap="2">
-        <FormTitle />
+        {showTitle && <FormTitle />}
         <FormBody />
       </Grid>
     </FormRoot>
