@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { IoReload } from "react-icons/io5";
-import { useDataTableServerContext } from "./context/useDataTableServerContext";
+import { useDataTableServerContext } from "../context/useDataTableServerContext";
 
 export interface ReloadButtonProps {
   text?: string;

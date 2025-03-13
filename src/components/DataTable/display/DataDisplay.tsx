@@ -1,8 +1,8 @@
 import { Box, Card, Flex, Grid, Text } from "@chakra-ui/react";
 import { flexRender } from "@tanstack/react-table";
-import { snakeToLabel } from "../Form/utils/snakeToLabel";
-import { RecordDisplay } from "./display/RecordDisplay";
-import { useDataTableContext } from "./context/useDataTableContext";
+import { snakeToLabel } from "../../Form/utils/snakeToLabel";
+import { RecordDisplay } from "./RecordDisplay";
+import { useDataTableContext } from "../context/useDataTableContext";
 import { UseTranslationResponse } from "react-i18next";
 
 export interface DataDisplayProps {

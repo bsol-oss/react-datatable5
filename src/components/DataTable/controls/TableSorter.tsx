@@ -1,5 +1,5 @@
 import { Button, Flex, Text } from "@chakra-ui/react";
-import { useDataTableContext } from "./context/useDataTableContext";
+import { useDataTableContext } from "../context/useDataTableContext";
 import { FaUpDown } from "react-icons/fa6";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 import { CgClose } from "react-icons/cg";

@@ -1,6 +1,6 @@
 import { Tag } from "@/components/ui/tag";
 import { Flex } from "@chakra-ui/react";
-import { useDataTableContext } from "./context/useDataTableContext";
+import { useDataTableContext } from "../context/useDataTableContext";
 export const TableFilterTags = () => {
   const { table } = useDataTableContext();
 

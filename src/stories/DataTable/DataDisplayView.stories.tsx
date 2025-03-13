@@ -1,4 +1,4 @@
-import { DataDisplay } from "@/components/DataTable/DataDisplay";
+import { DataDisplay } from "@/components/DataTable/display/DataDisplay";
 import { DataTable } from "@/components/DataTable/DataTable";
 import { TableComponent } from "@/components/DataTable/display/TableComponent";
 import { TextCell } from "@/components/DataTable/display/TextCell";

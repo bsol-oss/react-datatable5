@@ -11,7 +11,7 @@ import {
 import { Box, Button, DialogBackdrop, useDisclosure } from "@chakra-ui/react";
 import React from "react";
 import { IoMdEye } from "react-icons/io";
-import { TableViewer } from "../TableViewer";
+import { TableViewer } from "./TableViewer";
 import { useDataTableContext } from "../context/useDataTableContext";
 
 export interface EditViewButtonProps {

@@ -15,7 +15,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { MdOutlineSort } from "react-icons/md";
-import { TableSorter } from "../TableSorter";
+import { TableSorter } from "./TableSorter";
 import { ResetSortingButton } from "./ResetSortingButton";
 
 export interface EditSortingButtonProps {

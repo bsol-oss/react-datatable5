@@ -1,11 +1,11 @@
 import { Radio, RadioGroup } from "@/components/ui/radio";
 import { Flex, Grid, Input, Text } from "@chakra-ui/react";
 import { Column } from "@tanstack/react-table";
-import RangeDatePicker from "../DatePicker/RangeDatePicker";
-import { getRangeDates } from "../DatePicker/getRangeDates";
-import RangeFilter from "../Filter/RangeFilter";
-import { TagFilter } from "../Filter/TagFilter";
-import { useDataTableContext } from "./context/useDataTableContext";
+import RangeDatePicker from "../../DatePicker/RangeDatePicker";
+import { getRangeDates } from "../../DatePicker/getRangeDates";
+import RangeFilter from "../../Filter/RangeFilter";
+import { TagFilter } from "../../Filter/TagFilter";
+import { useDataTableContext } from "../context/useDataTableContext";
 
 const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
   const { filterVariant } = column.columnDef.meta ?? {};

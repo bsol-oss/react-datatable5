@@ -2,17 +2,17 @@ import { Box, Flex, Grid, Icon, Spinner, Text } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import { BsExclamationCircleFill } from "react-icons/bs";
 import { MdOutlineViewColumn } from "react-icons/md";
-import { Tooltip } from "../../components/ui/tooltip";
-import { PageSizeControl } from "./controls/PageSizeControl";
-import { RowCountText } from "./controls/RowCountText";
-import { Pagination } from "./controls/Pagination";
-import { ViewDialog } from "./controls/ViewDialog";
-import { GlobalFilter } from "../Filter/GlobalFilter";
-import { FilterDialog } from "./controls/FilterDialog";
+import { Tooltip } from "../../ui/tooltip";
+import { PageSizeControl } from "./PageSizeControl";
+import { RowCountText } from "./RowCountText";
+import { Pagination } from "./Pagination";
+import { ViewDialog } from "./ViewDialog";
+import { GlobalFilter } from "../../Filter/GlobalFilter";
+import { FilterDialog } from "./FilterDialog";
 import { ReloadButton } from "./ReloadButton";
-import { FilterOptions } from "../Filter/FilterOptions";
+import { FilterOptions } from "../../Filter/FilterOptions";
 import { TableFilterTags } from "./TableFilterTags";
-import { useDataTableContext } from "./context/useDataTableContext";
+import { useDataTableContext } from "../context/useDataTableContext";
 
 export interface TableControlsProps {
   totalText?: string;
