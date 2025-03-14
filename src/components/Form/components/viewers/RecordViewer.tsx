@@ -29,7 +29,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
 
   return (
     <Field
-      label={`${translate.t(`${column}.fieldLabel`)}`}
+      label={`${translate.t(`${column}.field_label`)}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{ gridColumn, gridRow }}
@@ -137,7 +137,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
         {translate.t(`${column}.addNew`)}
       </Button>
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
+        <Text color={"red.400"}>{translate.t(`${column}.field_required`)}</Text>
       )}
     </Field>
   );

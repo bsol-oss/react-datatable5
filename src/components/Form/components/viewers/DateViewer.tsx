@@ -23,7 +23,7 @@ export const DateViewer = ({ column, schema, prefix }: DateViewerProps) => {
   const selectedDate = watch(colLabel);
   return (
     <Field
-      label={`${translate.t(removeIndex(`${column}.fieldLabel`))}`}
+      label={`${translate.t(removeIndex(`${column}.field_label`))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -34,7 +34,7 @@ export const DateViewer = ({ column, schema, prefix }: DateViewerProps) => {
       <Text> {selectedDate !== undefined ? selectedDate : ""}</Text>
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${column}.fieldRequired`)}</Text>
+        <Text color={"red.400"}>{translate.t(`${column}.field_required`)}</Text>
       )}
     </Field>
   );

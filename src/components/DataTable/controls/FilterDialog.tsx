@@ -29,20 +29,20 @@ export const FilterDialog = ({
     <DialogRoot size={["full", "full", "md", "md"]} open={filterModal.open}>
       <DialogTrigger asChild>
         <Button as={Box} variant={"ghost"} onClick={filterModal.onOpen}>
-          {icon} {translate.t("filterDialog.buttonText")}
+          {icon} {translate.t("filter_dialog.button_text")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{translate.t("filterDialog.title")}</DialogTitle>
+          <DialogTitle>{translate.t("filter_dialog.title")}</DialogTitle>
         </DialogHeader>
         <DialogBody display={"flex"} flexFlow={"column"}>
           <TableFilter />
         </DialogBody>
         <DialogFooter>
-          <ResetFilteringButton text={translate.t("filterDialog.reset")} />
+          <ResetFilteringButton text={translate.t("filter_dialog.reset")} />
           <Button onClick={filterModal.onClose} variant={"subtle"}>
-            {translate.t("filterDialog.close")}
+            {translate.t("filter_dialog.close")}
           </Button>
         </DialogFooter>
         <DialogCloseTrigger onClick={filterModal.onClose}/>

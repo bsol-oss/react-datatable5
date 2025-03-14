@@ -129,7 +129,7 @@ export const FormBody = <TData extends object>() => {
       <Flex flexFlow={"column"} gap="2">
         <Alert.Root status="success">
           <Alert.Indicator />
-          <Alert.Title>{translate.t("submitSuccess")}</Alert.Title>
+          <Alert.Title>{translate.t("submit_success")}</Alert.Title>
         </Alert.Root>
         <Flex justifyContent={"end"}>
           <Button

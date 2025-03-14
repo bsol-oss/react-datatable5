@@ -33,7 +33,7 @@ export const EnumViewer = ({
 
   return (
     <Field
-      label={`${translate.t(removeIndex(`${column}.fieldLabel`))}`}
+      label={`${translate.t(removeIndex(`${column}.field_label`))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -64,7 +64,7 @@ export const EnumViewer = ({
 
       {errors[`${column}`] && (
         <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
+          {translate.t(removeIndex(`${colLabel}.field_required`))}
         </Text>
       )}
     </Field>

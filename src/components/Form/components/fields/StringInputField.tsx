@@ -32,7 +32,7 @@ export const StringInputField = ({
   return (
     <>
       <Field
-        label={`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}
+        label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         required={isRequired}
         gridColumn={gridColumn ?? "span 4"}
         gridRow={gridRow ?? "span 1"}
@@ -43,7 +43,7 @@ export const StringInputField = ({
         />
         {errors[colLabel] && (
           <Text color={"red.400"}>
-            {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
+            {translate.t(removeIndex(`${colLabel}.field_required`))}
           </Text>
         )}
       </Field>

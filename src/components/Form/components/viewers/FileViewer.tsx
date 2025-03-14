@@ -21,7 +21,7 @@ export const FileViewer = ({ column, schema, prefix }) => {
   const colLabel = `${prefix}${column}`;
   return (
     <Field
-      label={`${translate.t(`${colLabel}.fieldLabel`)}`}
+      label={`${translate.t(`${colLabel}.field_label`)}`}
       required={isRequired}
       gridColumn={gridColumn ?? "span 4"}
       gridRow={gridRow ?? "span 1"}
@@ -67,7 +67,7 @@ export const FileViewer = ({ column, schema, prefix }) => {
       </Flex>
       {errors[`${colLabel}`] && (
         <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
+          {translate.t(removeIndex(`${colLabel}.field_required`))}
         </Text>
       )}
     </Field>

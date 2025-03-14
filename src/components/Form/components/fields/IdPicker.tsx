@@ -158,7 +158,7 @@ export const IdPicker = ({
 
   return (
     <Field
-      label={`${translate.t(removeIndex(removeIndex(`${column}.fieldLabel`)))}`}
+      label={`${translate.t(removeIndex(removeIndex(`${column}.field_label`)))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -201,7 +201,7 @@ export const IdPicker = ({
               setOpenSearchResult(true);
             }}
           >
-            {translate.t(removeIndex(`${colLabel}.addMore`))}
+            {translate.t(removeIndex(`${colLabel}.add_more`))}
           </Tag>
         </Flex>
       )}
@@ -295,7 +295,7 @@ export const IdPicker = ({
                       {dataList.length <= 0 && (
                         <Text>
                           {translate.t(
-                            removeIndex(`${colLabel}.emptySearchResult`)
+                            removeIndex(`${colLabel}.empty_search_result`)
                           )}
                         </Text>
                       )}
@@ -324,7 +324,7 @@ export const IdPicker = ({
 
       {errors[`${colLabel}`] && (
         <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
+          {translate.t(removeIndex(`${colLabel}.field_required`))}
         </Text>
       )}
     </Field>

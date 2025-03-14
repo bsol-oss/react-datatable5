@@ -25,7 +25,7 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
   return (
     <Box {...{ gridRow, gridColumn }}>
       <Box as="label" gridColumn={"1/span12"}>
-        {`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}
+        {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         {isRequired && <span>*</span>}
       </Box>
       <Grid
@@ -50,7 +50,7 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
       </Grid>
       {errors[`${column}`] && (
         <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
+          {translate.t(removeIndex(`${colLabel}.field_required`))}
         </Text>
       )}
     </Box>

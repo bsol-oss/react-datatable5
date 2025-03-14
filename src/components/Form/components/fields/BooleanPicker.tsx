@@ -25,7 +25,7 @@ export const BooleanPicker = ({ schema, column, prefix }: DatePickerProps) => {
   const value = watch(colLabel);
   return (
     <Field
-      label={`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}
+      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -42,7 +42,7 @@ export const BooleanPicker = ({ schema, column, prefix }: DatePickerProps) => {
       />
       {errors[`${column}`] && (
         <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
+          {translate.t(removeIndex(`${colLabel}.field_required`))}
         </Text>
       )}
     </Field>

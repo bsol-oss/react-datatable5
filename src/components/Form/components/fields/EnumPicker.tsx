@@ -55,7 +55,7 @@ export const EnumPicker = ({
 
   return (
     <Field
-      label={`${translate.t(removeIndex(`${column}.fieldLabel`))}`}
+      label={`${translate.t(removeIndex(`${column}.field_label`))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -93,7 +93,7 @@ export const EnumPicker = ({
               setOpenSearchResult(true);
             }}
           >
-            {translate.t(removeIndex(`${colLabel}.addMore`))}
+            {translate.t(removeIndex(`${colLabel}.add_more`))}
           </Tag>
         </Flex>
       )}
@@ -170,7 +170,7 @@ export const EnumPicker = ({
                   {dataList.length <= 0 && (
                     <>
                       {translate.t(
-                        removeIndex(`${colLabel}.emptySearchResult`)
+                        removeIndex(`${colLabel}.empty_search_result`)
                       )}
                     </>
                   )}
@@ -183,7 +183,7 @@ export const EnumPicker = ({
 
       {errors[`${column}`] && (
         <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
+          {translate.t(removeIndex(`${colLabel}.field_required`))}
         </Text>
       )}
     </Field>

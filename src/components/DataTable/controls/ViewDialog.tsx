@@ -27,13 +27,13 @@ export const ViewDialog = ({ icon = <IoMdEye /> }: EditViewButtonProps) => {
       <DialogBackdrop />
       <DialogTrigger asChild>
         <Button as={Box} variant={"ghost"} onClick={viewModel.onOpen}>
-          {icon} {translate.t("viewDialog.buttonText")}
+          {icon} {translate.t("view_dialog.button_text")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogCloseTrigger />
         <DialogHeader>
-          <DialogTitle>{translate.t("viewDialog.title")}</DialogTitle>
+          <DialogTitle>{translate.t("view_dialog.title")}</DialogTitle>
         </DialogHeader>
         <DialogBody>
           <TableViewer />

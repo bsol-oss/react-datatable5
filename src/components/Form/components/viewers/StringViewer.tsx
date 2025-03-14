@@ -1,9 +1,9 @@
-import { Input, Text } from "@chakra-ui/react";
+import { Text } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../../ui/field";
 import { useSchemaContext } from "../../useSchemaContext";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { removeIndex } from "../../utils/removeIndex";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 
 export interface StringInputFieldProps {
   column: string;
@@ -33,7 +33,7 @@ export const StringViewer = ({
   return (
     <>
       <Field
-        label={`${translate.t(removeIndex(`${colLabel}.fieldLabel`))}`}
+        label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         required={isRequired}
         gridColumn={gridColumn ?? "span 4"}
         gridRow={gridRow ?? "span 1"}
@@ -41,7 +41,7 @@ export const StringViewer = ({
         <Text>{value}</Text>
         {errors[colLabel] && (
           <Text color={"red.400"}>
-            {translate.t(removeIndex(`${colLabel}.fieldRequired`))}
+            {translate.t(removeIndex(`${colLabel}.field_required`))}
           </Text>
         )}
       </Field>

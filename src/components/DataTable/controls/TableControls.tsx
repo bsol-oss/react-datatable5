@@ -67,7 +67,7 @@ export const TableControls = ({
           <Flex gap={"0.5rem"} alignItems={"center"} justifySelf={"end"}>
             {loading && <Spinner size={"sm"} />}
             {hasError && (
-              <Tooltip content={translate.t("hasError")}>
+              <Tooltip content={translate.t("has_error")}>
                 <Icon as={BsExclamationCircleFill} color={"red.400"} />
               </Tooltip>
             )}
