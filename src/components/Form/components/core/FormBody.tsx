@@ -144,7 +144,7 @@ export const FormBody = <TData extends object>() => {
             }}
             formNoValidate
           >
-            {translate.t("submitAgain")}
+            {translate.t("submit_again")}
           </Button>
         </Flex>
       </Flex>
