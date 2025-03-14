@@ -5084,7 +5084,7 @@ const FormBody = () => {
                             setValidatedData(undefined);
                             const data = await getUpdatedData();
                             methods.reset(data);
-                        }, formNoValidate: true, children: translate.t("submitAgain") }) })] }));
+                        }, formNoValidate: true, children: translate.t("submit_again") }) })] }));
     }
     if (isConfirming) {
         return (jsxs(Flex, { flexFlow: "column", gap: "2", children: [jsx(Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
