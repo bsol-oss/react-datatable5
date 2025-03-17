@@ -46,7 +46,7 @@ function ColumnCard({ columnId }: ColumnCardProps) {
       style={dragging ? { opacity: 0.4 } : {}} // fading the piece during dragging
     >
       <Flex alignItems="center" padding="0" cursor={"grab"}>
-        <FaGripLinesVertical color="gray.400" />
+        <FaGripLinesVertical color="colorPalette.400" />
       </Flex>
       <Flex justifyContent="space-between" alignItems="center">
         <CheckboxCard

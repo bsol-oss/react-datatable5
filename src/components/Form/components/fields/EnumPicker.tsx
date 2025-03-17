@@ -154,7 +154,7 @@ export const EnumPicker = ({
                           const newSet = new Set([...(watchEnums ?? []), item]);
                           setValue(colLabel, [...newSet]);
                         }}
-                        {...(selected ? { color: "gray.400/50" } : {})}
+                        {...(selected ? { color: "colorPalette.400/50" } : {})}
                       >
                         {!!renderDisplay === true
                           ? renderDisplay(item)

@@ -151,6 +151,9 @@ const DefaultTableShowcase = () => {
             showPageSizeControl: false,
             showPageCountText: false,
             filterOptions: ["category", "brand"],
+            gridProps: {
+              colorPalette: "red",
+            },
           }}
           tableProps={{
             colorPalette: "red",
@@ -161,9 +164,12 @@ const DefaultTableShowcase = () => {
         <DefaultTable
           controlProps={{
             showPagination: false,
+            gridProps: {
+              colorPalette: "purple",
+            }
           }}
           tableProps={{
-            colorPalette: "purple",
+        
           }}
           tableBodyProps={{ showSelector: true }}
           tableHeaderProps={{

@@ -29,7 +29,7 @@ export const RecordDisplay = ({
       {Object.entries(object).map(([field, value]) => {
         return (
           <Grid key={field} columnGap={2} gridTemplateColumns={"auto 1fr"}>
-            <Text color={"gray.400"}>{getColumn({ field })}</Text>
+            <Text color={"colorPalette.400"}>{getColumn({ field })}</Text>
             {typeof value === "object" ? (
               <RecordDisplay
                 object={value}

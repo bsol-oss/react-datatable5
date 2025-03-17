@@ -45,6 +45,7 @@ export const Table = ({
       display={"grid"}
       alignContent={"start"}
       overflowY={"auto"}
+      {...{ bg: { base: "colorPalette.50", _dark: "colorPalette.950" } }}
       {...props}
     >
       {children}

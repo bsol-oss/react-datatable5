@@ -72,7 +72,9 @@ const CellRenderer = ({ cell }) => {
   }
   return (
     <Box key={cell.id} {...{ gridColumn, gridRow }}>
-      <Box color={'gray.400'}>{getLabel({ columnId: cell.column.id })}</Box>
+      <Box color={"colorPalette.400"}>
+        {getLabel({ columnId: cell.column.id })}
+      </Box>
       <Box
         wordBreak={"break-word"}
         textOverflow={"ellipsis"}

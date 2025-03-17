@@ -1,4 +1,12 @@
-import { Box, Flex, Grid, Icon, Spinner, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Grid,
+  GridProps,
+  Icon,
+  Spinner,
+  Text,
+} from "@chakra-ui/react";
 import { ReactNode } from "react";
 import { BsExclamationCircleFill } from "react-icons/bs";
 import { MdOutlineViewColumn } from "react-icons/md";
@@ -32,6 +40,7 @@ export interface TableControlsProps {
   extraItems?: ReactNode;
   loading?: boolean;
   hasError?: boolean;
+  gridProps?: GridProps;
 }
 
 export const TableControls = ({
@@ -51,6 +60,7 @@ export const TableControls = ({
   extraItems = <></>,
   loading = false,
   hasError = false,
+  gridProps = {},
 }: TableControlsProps) => {
   const { translate } = useDataTableContext();
 
@@ -60,6 +70,7 @@ export const TableControls = ({
       width={fitTableWidth ? "fit-content" : "100%"}
       height={fitTableHeight ? "fit-content" : "100%"}
       gap={"0.5rem"}
+      {...gridProps}
     >
       <Flex flexFlow={"column"} gap={2}>
         <Flex justifyContent={"space-between"}>
@@ -103,10 +114,7 @@ export const TableControls = ({
 
       <Grid
         overflow={"auto"}
-        backgroundColor={"gray.50"}
-        _dark={{
-          backgroundColor: "gray.900",
-        }}
+        {...{ bg: { base: "colorPalette.50", _dark: "colorPalette.950" } }}
       >
         {children}
       </Grid>

@@ -1,17 +1,16 @@
-import { Flex, Box, Table, MenuRoot, MenuTrigger } from "@chakra-ui/react";
-import { flexRender, Header } from "@tanstack/react-table";
+import { Box, Flex, MenuRoot, MenuTrigger, Table } from "@chakra-ui/react";
+import { flexRender } from "@tanstack/react-table";
 import { useState } from "react";
-import { useDataTableContext } from "../context/useDataTableContext";import { Checkbox } from "../../ui/checkbox";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
+import { Checkbox } from "../../ui/checkbox";
+import { useDataTableContext } from "../context/useDataTableContext";
 
 export interface TableFooterProps {
-  pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
   alwaysShowSelector?: boolean;
 }
 
 export const TableFooter = ({
-  pinnedBgColor = { light: "gray.50", dark: "gray.700" },
   showSelector = false,
   alwaysShowSelector = true,
 }: TableFooterProps) => {
@@ -36,23 +35,6 @@ export const TableFooter = ({
     return false;
   };
 
-  const getThProps = (header: Header<unknown, unknown>) => {
-    const thProps = header.column.getIsPinned()
-      ? {
-          left: showSelector
-            ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-            : `${header.getStart("left") + table.getDensityValue() * 2}px`,
-          background: pinnedBgColor.light,
-          position: "sticky",
-          zIndex: 1,
-          _dark: {
-            backgroundColor: pinnedBgColor.dark,
-          },
-        }
-      : {};
-    return thProps;
-  };
-
   return (
     <Table.Footer>
       {table.getFooterGroups().map((footerGroup) => (
@@ -62,18 +44,7 @@ export const TableFooter = ({
         >
           {showSelector && (
             <Table.Header
-              // styling resize and pinning start
               padding={`${table.getDensityValue()}px`}
-              {...(table.getIsSomeColumnsPinned("left")
-                ? {
-                    left: `0px`,
-                    backgroundColor: pinnedBgColor.light,
-                    position: "sticky",
-                    zIndex: 1,
-                    _dark: { backgroundColor: pinnedBgColor.dark },
-                  }
-                : {})}
-              // styling resize and pinning end
               onMouseEnter={() => handleRowHover(true)}
               onMouseLeave={() => handleRowHover(false)}
               display={"grid"}
@@ -118,7 +89,6 @@ export const TableFooter = ({
               maxWidth={`${header.getSize()}px`}
               width={`${header.getSize()}px`}
               display={"grid"}
-              {...getThProps(header)}
             >
               <MenuRoot>
                 <MenuTrigger asChild>
@@ -128,7 +98,6 @@ export const TableFooter = ({
                     alignItems={"center"}
                     justifyContent={"start"}
                     borderRadius={"0rem"}
-                    _hover={{ backgroundColor: "gray.100" }}
                   >
                     <Flex gap="0.5rem" alignItems={"center"}>
                       {header.isPlaceholder

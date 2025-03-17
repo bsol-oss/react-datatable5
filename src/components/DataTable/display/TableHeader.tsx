@@ -57,11 +57,16 @@ export const TableHeader = ({
   };
 
   return (
-    <Table.Header {...(isSticky ? stickyProps : {})} {...tableHeaderProps}>
+    <Table.Header
+      {...(isSticky ? stickyProps : {})}
+      {...{ bgColor: "transparent" }}
+      {...tableHeaderProps}
+    >
       {table.getHeaderGroups().map((headerGroup) => (
         <Table.Row
           display={"flex"}
           key={`chakra-table-headergroup-${headerGroup.id}`}
+          {...{ bgColor: "transparent" }}
           {...tableRowProps}
         >
           {showSelector && (
@@ -124,10 +129,22 @@ export const TableHeader = ({
                       justifyContent={"start"}
                       borderRadius={"0rem"}
                       overflow={"auto"}
-                      _hover={{
-                        backgroundColor: "gray.100",
-                        _dark: {
-                          backgroundColor: "gray.700",
+                      {...{
+                        color: {
+                          base: "colorPalette.800",
+                          _dark: "colorPalette.200",
+                          _hover: {
+                            base: "colorPalette.700",
+                            _dark: "colorPalette.300",
+                          },
+                        },
+                        bg: {
+                          base: "colorPalette.100",
+                          _dark: "colorPalette.900",
+                          _hover: {
+                            base: "colorPalette.200",
+                            _dark: "colorPalette.800",
+                          },
                         },
                       }}
                     >
@@ -246,7 +263,9 @@ export const TableHeader = ({
                   <Box
                     borderRight={"0.2rem solid"}
                     borderRightColor={
-                      header.column.getIsResizing() ? "gray.700" : "transparent"
+                      header.column.getIsResizing()
+                        ? "colorPalette.700"
+                        : "transparent"
                     }
                     position={"relative"}
                     right={"0.1rem"}
@@ -256,8 +275,8 @@ export const TableHeader = ({
                     style={{ touchAction: "none" }}
                     _hover={{
                       borderRightColor: header.column.getIsResizing()
-                        ? "gray.700"
-                        : "gray.400",
+                        ? "colorPalette.700"
+                        : "colorPalette.400",
                     }}
                     {...resizeProps}
                   ></Box>
