@@ -1,5 +1,5 @@
 import { Provider } from "@/components/ui/provider";
-import { Box, Button, Text } from "@chakra-ui/react";
+import { Box, Button, Table, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
 import {
@@ -154,11 +154,16 @@ const DefaultTableShowcase = () => {
             showFilterTags: true,
             filterOptions: ["category", "brand"],
           }}
+          tableProps={{
+            colorPalette: "red",
+          }}
           showSelector
         />
         <TableComponent
           render={(table) => {
-            return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
+            return (
+              <Text>Table state nice: {JSON.stringify(table.getState())}</Text>
+            );
           }}
         />
         <TableComponent

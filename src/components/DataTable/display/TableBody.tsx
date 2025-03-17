@@ -22,12 +22,11 @@ export interface TableRowSelectorProps<TData> {
 }
 
 export const TableBody = ({
-  pinnedBgColor = { light: "gray.50", dark: "gray.700" },
   showSelector = false,
   alwaysShowSelector = true,
   canResize = true,
 }: TableBodyProps) => {
-  "use no memo"  
+  "use no memo";
   const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
   const [hoveredRow, setHoveredRow] = useState<number>(-1);
@@ -42,12 +41,7 @@ export const TableBody = ({
           left: showSelector
             ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
             : `${cell.column.getStart("left")}px`,
-          background: pinnedBgColor.light,
-          position: "sticky",
-          zIndex: -1,
-          _dark: {
-            backgroundColor: pinnedBgColor.dark,
-          },
+          position: "relative",
         }
       : {};
     return tdProps;
@@ -101,11 +95,14 @@ export const TableBody = ({
                   key={`chakra-table-rowcell-${cell.id}-${index}`}
                   // styling resize and pinning start
                   flex={`${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`}
-                  backgroundColor={"white"}
-                  {...getTdProps(cell)}
-                  _dark={{
-                    backgroundColor: "gray.950",
+                  {...{
+                    color: {
+                      base: "colorPalette.900",
+                      _dark: "colorPalette.100",
+                    },
+                    bg: { base: "colorPalette.50", _dark: "colorPalette.950" },
                   }}
+                  {...getTdProps(cell)}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </Table.Cell>

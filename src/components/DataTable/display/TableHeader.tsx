@@ -65,12 +65,8 @@ export const TableHeader = ({
           left: showSelector
             ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
             : `${header.getStart("left")}px`,
-          background: pinnedBgColor.light,
           position: "sticky",
-          zIndex: 100+1,
-          _dark: {
-            backgroundColor: pinnedBgColor.dark,
-          },
+          zIndex: 100 + 1,
         }
       : {};
     return thProps;
@@ -153,6 +149,13 @@ export const TableHeader = ({
                 display={"grid"}
                 gridTemplateColumns={"1fr auto"}
                 zIndex={1500 + header.index}
+                {...{
+                  color: {
+                    base: "colorPalette.800",
+                    _dark: "colorPalette.200",
+                  },
+                  bg: { base: "colorPalette.100", _dark: "colorPalette.900" },
+                }}
                 {...getThProps(header)}
               >
                 <MenuRoot>
