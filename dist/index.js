@@ -2922,7 +2922,7 @@ const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
     return (jsxRuntime.jsxs(react.Checkbox.Root, { ref: rootRef, ...rest, children: [jsxRuntime.jsx(react.Checkbox.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsx(react.Checkbox.Control, { children: icon || jsxRuntime.jsx(react.Checkbox.Indicator, {}) }), children != null && (jsxRuntime.jsx(react.Checkbox.Label, { children: children }))] }));
 });
 
-const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, canResize = true, }) => {
+const TableBody = ({ showSelector = false, alwaysShowSelector = true, canResize = true, }) => {
     "use no memo";
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
@@ -2936,12 +2936,7 @@ const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, sho
                 left: showSelector
                     ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
                     : `${cell.column.getStart("left")}px`,
-                background: pinnedBgColor.light,
-                position: "sticky",
-                zIndex: -1,
-                _dark: {
-                    backgroundColor: pinnedBgColor.dark,
-                },
+                position: "relative",
             }
             : {};
         return tdProps;
@@ -2963,9 +2958,11 @@ const TableBody = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, sho
             return (jsxRuntime.jsxs(react.Table.Row, { display: "flex", zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index }), children: [showSelector && (jsxRuntime.jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow, alwaysShowSelector: alwaysShowSelector })), row.getVisibleCells().map((cell, index) => {
                         return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, 
                             // styling resize and pinning start
-                            flex: `${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`, backgroundColor: "white", ...getTdProps(cell), _dark: {
-                                backgroundColor: "gray.950",
-                            }, children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
+                            flex: `${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`, color: {
+                                base: "colorPalette.900",
+                                _dark: "colorPalette.100",
+                            },
+                            bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, ...getTdProps(cell), children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
                     })] }, `chakra-table-row-${row.id}`));
         }) }));
 };
@@ -3171,12 +3168,8 @@ const TableHeader = ({ canResize = true, pinnedBgColor = { light: "gray.50", dar
                 left: showSelector
                     ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
                     : `${header.getStart("left")}px`,
-                background: pinnedBgColor.light,
                 position: "sticky",
                 zIndex: 100 + 1,
-                _dark: {
-                    backgroundColor: pinnedBgColor.dark,
-                },
             }
             : {};
         return thProps;
@@ -3207,7 +3200,11 @@ const TableHeader = ({ canResize = true, pinnedBgColor = { light: "gray.50", dar
                     };
                     return (jsxRuntime.jsxs(react.Table.ColumnHeader, { padding: 0, columnSpan: `${header.colSpan}`, 
                         // styling resize and pinning start
-                        flex: `${canResize ? "0" : "1"} 0 ${header.column.getSize()}px`, display: "grid", gridTemplateColumns: "1fr auto", zIndex: 1500 + header.index, ...getThProps(header), children: [jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsx(react.Flex, { padding: `${table.getDensityValue()}px`, alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: "auto", _hover: {
+                        flex: `${canResize ? "0" : "1"} 0 ${header.column.getSize()}px`, display: "grid", gridTemplateColumns: "1fr auto", zIndex: 1500 + header.index, color: {
+                            base: "colorPalette.800",
+                            _dark: "colorPalette.200",
+                        },
+                        bg: { base: "colorPalette.100", _dark: "colorPalette.900" }, ...getThProps(header), children: [jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsx(react.Flex, { padding: `${table.getDensityValue()}px`, alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: "auto", _hover: {
                                                 backgroundColor: "gray.100",
                                                 _dark: {
                                                     backgroundColor: "gray.700",
@@ -3871,7 +3868,6 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                             return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "undefined" });
                         }
                         return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
-                                // setSelectedEnums((state) => state.filter((id) => id != item));
                                 setValue(column, watchEnums.filter((id) => id != item));
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
@@ -3882,7 +3878,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                     setOpenSearchResult(true);
                 }, children: watchEnum === undefined
                     ? ""
-                    : translate.t(removeIndex(`${colLabel}.${watchEnum}`)) })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(`${column}.typeToSearch`), onChange: (event) => {
+                    : translate.t(removeIndex(`${colLabel}.${watchEnum}`)) })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(`${column}.type_to_search`), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
                                     }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(react.Text, { children: `${translate.t(`${column}.total`)}: ${count}, ${translate.t(`${column}.showing`)} ${limit}` }), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: filterArray(dataList, searchText ?? "").map((item) => {

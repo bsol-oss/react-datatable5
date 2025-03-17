@@ -18,4 +18,4 @@ export interface TableRowSelectorProps<TData> {
     };
     alwaysShowSelector?: boolean;
 }
-export declare const TableBody: ({ pinnedBgColor, showSelector, alwaysShowSelector, canResize, }: TableBodyProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableBody: ({ showSelector, alwaysShowSelector, canResize, }: TableBodyProps) => import("react/jsx-runtime").JSX.Element;

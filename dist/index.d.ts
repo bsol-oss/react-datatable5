@@ -309,7 +309,7 @@ interface TableRowSelectorProps<TData> {
     };
     alwaysShowSelector?: boolean;
 }
-declare const TableBody: ({ pinnedBgColor, showSelector, alwaysShowSelector, canResize, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
+declare const TableBody: ({ showSelector, alwaysShowSelector, canResize, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
 
 interface TableControlsProps {
     totalText?: string;
