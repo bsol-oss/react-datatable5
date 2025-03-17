@@ -2437,7 +2437,7 @@ function ColumnCard({ columnId }) {
             onDrop: () => setDragging(false), // NEW
         });
     }, [columnId, table]);
-    return (jsxs(Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsx(Flex, { alignItems: "center", padding: "0", cursor: "grab", children: jsx(FaGripLinesVertical, { color: "gray.400" }) }), jsx(Flex, { justifyContent: "space-between", alignItems: "center", children: jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
+    return (jsxs(Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsx(Flex, { alignItems: "center", padding: "0", cursor: "grab", children: jsx(FaGripLinesVertical, { color: "colorPalette.400" }) }), jsx(Flex, { justifyContent: "space-between", alignItems: "center", children: jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
 }
 function CardContainer({ location, children }) {
     const ref = useRef(null);
@@ -2569,7 +2569,7 @@ const RecordDisplay = ({ object, boxProps, translate, prefix = "", }) => {
         return jsx(Fragment, { children: "null" });
     }
     return (jsx(Grid, { rowGap: 1, padding: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
-            return (jsxs(Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsx(Text, { color: "gray.400", children: getColumn({ field }) }), typeof value === "object" ? (jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.`, translate: translate })) : (jsx(Text, { children: JSON.stringify(value) }))] }, field));
+            return (jsxs(Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsx(Text, { color: "colorPalette.400", children: getColumn({ field }) }), typeof value === "object" ? (jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.`, translate: translate })) : (jsx(Text, { children: JSON.stringify(value) }))] }, field));
         }) }));
 };
 
@@ -2619,7 +2619,7 @@ const CellRenderer = ({ cell }) => {
                         paddingY: 2,
                     }, object: value })] }, cell.id));
     }
-    return (jsxs(Box, { gridColumn, gridRow, children: [jsx(Box, { color: 'gray.400', children: getLabel({ columnId: cell.column.id }) }), jsx(Box, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
+    return (jsxs(Box, { gridColumn, gridRow, children: [jsx(Box, { color: "colorPalette.400", children: getLabel({ columnId: cell.column.id }) }), jsx(Box, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
 };
 const DataDisplay = ({ variant = "" }) => {
     const { table, translate } = useDataTableContext();
@@ -2975,13 +2975,11 @@ const TableFilterTags = () => {
         }) }));
 };
 
-const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsx(Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, }) => {
+const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsx(Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
     const { translate } = useDataTableContext();
-    return (jsxs(Grid, { templateRows: "auto 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", gap: "0.5rem", children: [jsxs(Flex, { flexFlow: "column", gap: 2, children: [jsxs(Flex, { justifyContent: "space-between", children: [jsx(Box, { children: showView && jsx(ViewDialog, { icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { content: translate.t("has_error"), children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) })), showGlobalFilter && jsx(GlobalFilter, {}), showFilter && jsx(FilterDialog, {}), showReload && jsx(ReloadButton, {}), extraItems] })] }), filterOptions.length > 0 && (jsx(Flex, { flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
+    return (jsxs(Grid, { templateRows: "auto 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", gap: "0.5rem", ...gridProps, children: [jsxs(Flex, { flexFlow: "column", gap: 2, children: [jsxs(Flex, { justifyContent: "space-between", children: [jsx(Box, { children: showView && jsx(ViewDialog, { icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { content: translate.t("has_error"), children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) })), showGlobalFilter && jsx(GlobalFilter, {}), showFilter && jsx(FilterDialog, {}), showReload && jsx(ReloadButton, {}), extraItems] })] }), filterOptions.length > 0 && (jsx(Flex, { flexFlow: "column", gap: "0.5rem", children: filterOptions.map((column) => {
                             return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxs(Text, { children: [column, ":"] }), jsx(FilterOptions, { column: column })] }, column));
-                        }) })), showFilterTags && (jsx(Flex, { children: jsx(TableFilterTags, {}) }))] }), jsx(Grid, { overflow: "auto", backgroundColor: "gray.50", _dark: {
-                    backgroundColor: "gray.900",
-                }, children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxs(Flex, { justifyContent: "space-between", children: [jsxs(Flex, { gap: "1rem", alignItems: "center", children: [showPageSizeControl && jsx(PageSizeControl, {}), showPageCountText && (jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: translate.t("rowcount.total") }), jsx(RowCountText, {})] }))] }), jsx(Box, { justifySelf: "end", children: showPagination && jsx(Pagination, {}) })] }))] }));
+                        }) })), showFilterTags && (jsx(Flex, { children: jsx(TableFilterTags, {}) }))] }), jsx(Grid, { overflow: "auto", bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxs(Flex, { justifyContent: "space-between", children: [jsxs(Flex, { gap: "1rem", alignItems: "center", children: [showPageSizeControl && jsx(PageSizeControl, {}), showPageCountText && (jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: translate.t("rowcount.total") }), jsx(RowCountText, {})] }))] }), jsx(Box, { justifySelf: "end", children: showPagination && jsx(Pagination, {}) })] }))] }));
 };
 
 const EmptyState = React.forwardRef(function EmptyState(props, ref) {
@@ -2995,7 +2993,7 @@ const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...pr
     if (table.getRowModel().rows.length <= 0) {
         return emptyComponent;
     }
-    return (jsx(Table$1.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, display: "grid", alignContent: "start", overflowY: "auto", ...props, children: children }));
+    return (jsx(Table$1.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, display: "grid", alignContent: "start", overflowY: "auto", bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, ...props, children: children }));
 };
 
 const Checkbox = React.forwardRef(function Checkbox(props, ref) {
@@ -3059,7 +3057,7 @@ const TableRowSelector = ({ index, row, }) => {
             onCheckedChange: row.getToggleSelectedHandler() }) }));
 };
 
-const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
+const TableFooter = ({ showSelector = false, alwaysShowSelector = true, }) => {
     const table = useDataTableContext().table;
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
@@ -3078,41 +3076,11 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
         }
         return false;
     };
-    const getThProps = (header) => {
-        const thProps = header.column.getIsPinned()
-            ? {
-                left: showSelector
-                    ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                    : `${header.getStart("left") + table.getDensityValue() * 2}px`,
-                background: pinnedBgColor.light,
-                position: "sticky",
-                zIndex: 1,
-                _dark: {
-                    backgroundColor: pinnedBgColor.dark,
-                },
-            }
-            : {};
-        return thProps;
-    };
-    return (jsx(Table$1.Footer, { children: table.getFooterGroups().map((footerGroup) => (jsxs(Table$1.Row, { display: "flex", children: [showSelector && (jsxs(Table$1.Header
-                // styling resize and pinning start
-                , { 
-                    // styling resize and pinning start
-                    padding: `${table.getDensityValue()}px`, ...(table.getIsSomeColumnsPinned("left")
-                        ? {
-                            left: `0px`,
-                            backgroundColor: pinnedBgColor.light,
-                            position: "sticky",
-                            zIndex: 1,
-                            _dark: { backgroundColor: pinnedBgColor.dark },
-                        }
-                        : {}), 
-                    // styling resize and pinning end
-                    onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsx(Box, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
+    return (jsx(Table$1.Footer, { children: table.getFooterGroups().map((footerGroup) => (jsxs(Table$1.Row, { display: "flex", children: [showSelector && (jsxs(Table$1.Header, { padding: `${table.getDensityValue()}px`, onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsx(Box, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
                                 // indeterminate: table.getIsSomeRowsSelected(),
                                 onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), footerGroup.headers.map((header) => (jsx(Table$1.Cell, { padding: "0", columnSpan: `${header.colSpan}`, 
                     // styling resize and pinning start
-                    maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: "grid", ...getThProps(header), children: jsx(MenuRoot$1, { children: jsx(MenuTrigger$1, { asChild: true, children: jsx(Box, { padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", _hover: { backgroundColor: "gray.100" }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
+                    maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: "grid", children: jsx(MenuRoot$1, { children: jsx(MenuTrigger$1, { asChild: true, children: jsx(Box, { padding: `${table.getDensityValue()}px`, display: "flex", alignItems: "center", justifyContent: "start", borderRadius: "0rem", children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                             ? null
                                             : flexRender(header.column.columnDef.footer, header.getContext()), jsx(Box, { children: header.column.getCanSort() && (jsxs(Fragment, { children: [header.column.getIsSorted() === false && (
                                                     // <UpDownIcon />
@@ -3138,7 +3106,7 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
         position: "sticky",
         top: 0,
     };
-    return (jsx(Table$1.Header, { ...(isSticky ? stickyProps : {}), ...tableHeaderProps, children: table.getHeaderGroups().map((headerGroup) => (jsxs(Table$1.Row, { display: "flex", ...tableRowProps, children: [showSelector && (jsx(Table$1.ColumnHeader, { padding: `${table.getDensityValue()}px`, display: "grid", color: {
+    return (jsx(Table$1.Header, { ...(isSticky ? stickyProps : {}), bgColor: "transparent", ...tableHeaderProps, children: table.getHeaderGroups().map((headerGroup) => (jsxs(Table$1.Row, { display: "flex", bgColor: "transparent", ...tableRowProps, children: [showSelector && (jsx(Table$1.ColumnHeader, { padding: `${table.getDensityValue()}px`, display: "grid", color: {
                         base: "colorPalette.900",
                         _dark: "colorPalette.100",
                     },
@@ -3156,10 +3124,20 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
                             base: "colorPalette.800",
                             _dark: "colorPalette.200",
                         },
-                        bg: { base: "colorPalette.100", _dark: "colorPalette.900" }, ...getThProps(header), children: [jsxs(MenuRoot, { children: [jsx(MenuTrigger, { asChild: true, children: jsx(Flex, { padding: `${table.getDensityValue()}px`, alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: "auto", _hover: {
-                                                backgroundColor: "gray.100",
-                                                _dark: {
-                                                    backgroundColor: "gray.700",
+                        bg: { base: "colorPalette.100", _dark: "colorPalette.900" }, ...getThProps(header), children: [jsxs(MenuRoot, { children: [jsx(MenuTrigger, { asChild: true, children: jsx(Flex, { padding: `${table.getDensityValue()}px`, alignItems: "center", justifyContent: "start", borderRadius: "0rem", overflow: "auto", color: {
+                                                base: "colorPalette.800",
+                                                _dark: "colorPalette.200",
+                                                _hover: {
+                                                    base: "colorPalette.700",
+                                                    _dark: "colorPalette.300",
+                                                },
+                                            },
+                                            bg: {
+                                                base: "colorPalette.100",
+                                                _dark: "colorPalette.900",
+                                                _hover: {
+                                                    base: "colorPalette.200",
+                                                    _dark: "colorPalette.800",
                                                 },
                                             }, children: jsxs(Flex, { gap: "0.5rem", alignItems: "center", children: [header.isPlaceholder
                                                         ? null
@@ -3187,10 +3165,12 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
                                                                 });
                                                             }, children: [jsx(GrDescend, {}), "Sort Descending"] }) }), header.column.getIsSorted() && (jsx(MenuItem, { asChild: true, value: "sort-descend", children: jsxs(Button, { variant: "ghost", onClick: () => {
                                                                 header.column.clearSorting();
-                                                            }, children: [jsx(MdClear, {}), "Clear Sorting"] }) }))] }))] })] }), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing() ? "gray.700" : "transparent", position: "relative", right: "0.1rem", width: "2px", height: "100%", userSelect: "none", style: { touchAction: "none" }, _hover: {
+                                                            }, children: [jsx(MdClear, {}), "Clear Sorting"] }) }))] }))] })] }), canResize && (jsx(Box, { borderRight: "0.2rem solid", borderRightColor: header.column.getIsResizing()
+                                    ? "colorPalette.700"
+                                    : "transparent", position: "relative", right: "0.1rem", width: "2px", height: "100%", userSelect: "none", style: { touchAction: "none" }, _hover: {
                                     borderRightColor: header.column.getIsResizing()
-                                        ? "gray.700"
-                                        : "gray.400",
+                                        ? "colorPalette.700"
+                                        : "colorPalette.400",
                                 }, ...resizeProps }))] }, `chakra-table-header-${header.id}`));
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
@@ -3831,7 +3811,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                                                         }
                                                         const newSet = new Set([...(watchEnums ?? []), item]);
                                                         setValue(colLabel, [...newSet]);
-                                                    }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
+                                                    }, ...(selected ? { color: "colorPalette.400/50" } : {}), children: !!renderDisplay === true
                                                         ? renderDisplay(item)
                                                         : translate.t(removeIndex(`${colLabel}.${item}`)) }, `${colLabel}-${item}`));
                                             }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Fragment, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
@@ -4186,7 +4166,7 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
         const filesArray = [...event.target.files];
         onDrop({ files: filesArray });
     };
-    return (jsxs(Grid, { ...getColor(isDraggedOver), ref: ref, cursor: "pointer", onClick: handleClick, borderStyle: "dashed", borderColor: "gray.400", alignContent: "center", justifyContent: "center", borderWidth: 1, borderRadius: 4, ...gridProps, children: [children, !!children === false && (jsxs(Fragment, { children: [jsx(Flex, { children: placeholder }), jsx(Input, { type: "file", multiple: true, style: { display: "none" }, ref: fileInput, onChange: handleChange })] }))] }));
+    return (jsxs(Grid, { ...getColor(isDraggedOver), ref: ref, cursor: "pointer", onClick: handleClick, borderStyle: "dashed", borderColor: "colorPalette.400", alignContent: "center", justifyContent: "center", borderWidth: 1, borderRadius: 4, ...gridProps, children: [children, !!children === false && (jsxs(Fragment, { children: [jsx(Flex, { children: placeholder }), jsx(Input, { type: "file", multiple: true, style: { display: "none" }, ref: fileInput, onChange: handleChange })] }))] }));
 };
 
 const FilePicker = ({ column, schema, prefix }) => {
@@ -4357,7 +4337,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                                     item[column_ref],
                                                                 ]);
                                                                 setValue(colLabel, [...newSet]);
-                                                            }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "gray.400/50" } : {}), children: !!renderDisplay === true
+                                                            }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "colorPalette.400/50" } : {}), children: !!renderDisplay === true
                                                                 ? renderDisplay(item)
                                                                 : item[display_column] }, item[column_ref]));
                                                     }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Text, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] }), jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), count > 0 && jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));

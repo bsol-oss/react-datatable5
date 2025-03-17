@@ -1,3 +1,4 @@
+import { GridProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
 export interface TableControlsProps {
     totalText?: string;
@@ -17,5 +18,6 @@ export interface TableControlsProps {
     extraItems?: ReactNode;
     loading?: boolean;
     hasError?: boolean;
+    gridProps?: GridProps;
 }
-export declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterOptions, extraItems, loading, hasError, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;

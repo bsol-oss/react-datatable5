@@ -3,7 +3,7 @@ import { Row, RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionSta
 import * as React$1 from 'react';
 import React__default, { ReactNode, Dispatch, SetStateAction } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { ImageProps, TableRootProps, TableHeaderProps as TableHeaderProps$1, TableRowProps, GridProps, CardBodyProps, FlexProps, TextProps, BoxProps } from '@chakra-ui/react';
+import { ImageProps, GridProps, TableRootProps, TableHeaderProps as TableHeaderProps$1, TableRowProps, CardBodyProps, FlexProps, TextProps, BoxProps } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
 import * as react_i18next from 'react-i18next';
 import { UseTranslationResponse } from 'react-i18next';
@@ -308,8 +308,9 @@ interface TableControlsProps {
     extraItems?: ReactNode;
     loading?: boolean;
     hasError?: boolean;
+    gridProps?: GridProps;
 }
-declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterOptions, extraItems, loading, hasError, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
+declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
 
 interface TableProps extends TableRootProps {
     showLoading?: boolean;
@@ -342,14 +343,10 @@ interface TableRowSelectorProps<TData> {
 declare const TableBody: ({ showSelector, alwaysShowSelector, canResize, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
 
 interface TableFooterProps {
-    pinnedBgColor?: {
-        light: string;
-        dark: string;
-    };
     showSelector?: boolean;
     alwaysShowSelector?: boolean;
 }
-declare const TableFooter: ({ pinnedBgColor, showSelector, alwaysShowSelector, }: TableFooterProps) => react_jsx_runtime.JSX.Element;
+declare const TableFooter: ({ showSelector, alwaysShowSelector, }: TableFooterProps) => react_jsx_runtime.JSX.Element;
 
 interface TableHeaderProps {
     canResize?: boolean;
