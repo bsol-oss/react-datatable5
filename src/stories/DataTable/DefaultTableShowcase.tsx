@@ -159,6 +159,15 @@ const DefaultTableShowcase = () => {
           }}
           showSelector
         />
+        <DefaultTable
+          controlProps={{
+            showPagination: false,
+          }}
+          tableProps={{
+            colorPalette: "purple",
+          }}
+          showSelector
+        />
         <TableComponent
           render={(table) => {
             return (
