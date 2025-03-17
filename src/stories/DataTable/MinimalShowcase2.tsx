@@ -34,7 +34,7 @@ const DefaultTableShowcase = () => {
     columnHelper.display({
       id: "title",
       cell: (props) => {
-        return <TextCell>{props.row.original.title}</TextCell>;
+        return <TextCell>{props.row.original.title}hi</TextCell>;
       },
       header: () => <span>title</span>,
       size: 200,
@@ -58,8 +58,11 @@ const DefaultTableShowcase = () => {
 
   return (
     <DataTable columns={columns} data={data} {...datatable}>
-      <TableDataDisplay />
-    </DataTable>
+      <TableDataDisplay colorPalette="yellow" />
+      <TableDataDisplay colorPalette="red" />
+      <TableDataDisplay colorPalette="blue" />
+      <TableDataDisplay colorPalette="gray" />
+      </DataTable>
   );
 };
 

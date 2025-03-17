@@ -2,6 +2,7 @@ import { Box, BoxProps, Grid } from "@chakra-ui/react";
 import { useDataTableContext } from "../context/useDataTableContext";
 import { RecordDisplay } from "./RecordDisplay";
 import { ReactNode } from "react";
+import { flexRender } from "@tanstack/react-table";
 
 export interface TableDataDisplayProps {
   colorPalette?: string;
@@ -53,6 +54,8 @@ export const TableDataDisplay = ({
     overflow: "auto",
     paddingX: "2",
     py: "1",
+    color: { base: "colorPalette.900", _dark: "colorPalette.100" },
+    bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" },
     borderBottomColor: { base: "colorPalette.200", _dark: "colorPalette.800" },
     borderBottomWidth: "1px",
     ...{ colorPalette },
@@ -65,6 +68,7 @@ export const TableDataDisplay = ({
       templateColumns={`${columnWidths}`}
       overflow={"auto"}
       borderWidth={"1px"}
+      color={{ base: "colorPalette.900", _dark: "colorPalette.100" }}
       borderColor={{ base: "colorPalette.200", _dark: "colorPalette.800" }}
       {...{ colorPalette }}
     >
@@ -93,6 +97,8 @@ export const TableDataDisplay = ({
         return (
           <>
             {columnHeaders.map((header) => {
+              const { cell } = columnsMap[header];
+              const value = record[header];
               if (!!record === false) {
                 return (
                   <Box {...cellProps}>
@@ -100,21 +106,21 @@ export const TableDataDisplay = ({
                   </Box>
                 );
               }
-              if (!!record[header] === false) {
+              if (cell) {
                 return (
                   <Box {...cellProps}>
-                    {translate.t(`column_cell.placeholder`)}
+                    {cell({ row: { original: record } })}
                   </Box>
                 );
               }
-              if (typeof record[header] === "object") {
+              if (typeof value === "object") {
                 return (
                   <Box {...cellProps}>
-                    <RecordDisplay object={record[header]} />
+                    <RecordDisplay object={value} />
                   </Box>
                 );
               }
-              return <Box {...cellProps}>{record[header] ?? ""}</Box>;
+              return <Box {...cellProps}>{value}</Box>;
             })}
           </>
         );
