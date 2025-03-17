@@ -1,10 +1,6 @@
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
-import {
-  DataTable,
-  TableDataDisplay,
-  TextCell
-} from "../../index";
+import { DataTable, TableDataDisplay, TextCell } from "../../index";
 import { Product } from "../product_data";
 
 export const data = [
@@ -51,6 +47,13 @@ const DefaultTableShowcase = () => {
       header: () => <span>description</span>,
       size: 400,
     }),
+    columnHelper.accessor("description2", {
+      cell: (props) => {
+        return <TextCell>{props.row.original.description}</TextCell>;
+      },
+      header: () => <span>description</span>,
+      size: 400,
+    }),
   ];
 
   return (
@@ -66,7 +69,6 @@ const MinimalShowcase2 = () => {
   return (
     <Provider>
       <DefaultTableShowcase />
-     
     </Provider>
   );
 };
