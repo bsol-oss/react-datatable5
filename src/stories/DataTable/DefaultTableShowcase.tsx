@@ -2,12 +2,7 @@ import { Provider } from "@/components/ui/provider";
 import { Box, Button, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
-import {
-  DataTable,
-  DefaultTable,
-  TableComponent,
-  TextCell
-} from "../../index";
+import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
 import { data, Product } from "../product_data";
 
 interface RowActionsProps {
@@ -148,9 +143,13 @@ const DefaultTableShowcase = () => {
       <DataTable columns={columns} data={data} {...datatable}>
         <DefaultTable
           controlProps={{
-            showFilter: true,
-            showFilterName: true,
-            showFilterTags: true,
+            showFilter: false,
+            showView: false,
+            showPagination: false,
+            fitTableHeight: true,
+            fitTableWidth: true,
+            showPageSizeControl: false,
+            showPageCountText: false,
             filterOptions: ["category", "brand"],
           }}
           tableProps={{
@@ -217,7 +216,6 @@ const DefaultTableShowcase = () => {
               showFilter: true,
               fitTableWidth: true,
             }}
-            tHeadProps={{ bgColor: "yellow", _dark: { bgColor: "blue" } }}
           />
         </Box>
         <Box width="2400px" height={"2400px"}>

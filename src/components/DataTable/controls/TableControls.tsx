@@ -56,7 +56,7 @@ export const TableControls = ({
 
   return (
     <Grid
-      templateRows={"auto 1fr auto"}
+      templateRows={"auto 1fr"}
       width={fitTableWidth ? "fit-content" : "100%"}
       height={fitTableHeight ? "fit-content" : "100%"}
       gap={"0.5rem"}
@@ -110,20 +110,22 @@ export const TableControls = ({
       >
         {children}
       </Grid>
-      <Flex justifyContent={"space-between"}>
-        <Flex gap={"1rem"} alignItems={"center"}>
-          {showPageSizeControl && <PageSizeControl />}
-          {showPageCountText && (
-            <Flex>
-              <Text paddingRight={"0.5rem"}>
-                {translate.t("rowcount.total")}
-              </Text>
-              <RowCountText />
-            </Flex>
-          )}
+      {(showPageSizeControl || showPageCountText || showPagination) && (
+        <Flex justifyContent={"space-between"}>
+          <Flex gap={"1rem"} alignItems={"center"}>
+            {showPageSizeControl && <PageSizeControl />}
+            {showPageCountText && (
+              <Flex>
+                <Text paddingRight={"0.5rem"}>
+                  {translate.t("rowcount.total")}
+                </Text>
+                <RowCountText />
+              </Flex>
+            )}
+          </Flex>
+          <Box justifySelf={"end"}>{showPagination && <Pagination />}</Box>
         </Flex>
-        <Box justifySelf={"end"}>{showPagination && <Pagination />}</Box>
-      </Flex>
+      )}
     </Grid>
   );
 };
