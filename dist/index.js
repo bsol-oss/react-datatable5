@@ -3162,7 +3162,9 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
                         base: "colorPalette.900",
                         _dark: "colorPalette.100",
                     },
-                    bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react.Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) })), headerGroup.headers.map((header) => {
+                    bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, checked: table.getIsAllRowsSelected(),
+                        // indeterminate: table.getIsSomeRowsSelected(),
+                        onChange: table.getToggleAllRowsSelectedHandler() }) })), headerGroup.headers.map((header) => {
                     const resizeProps = {
                         onMouseDown: header.getResizeHandler(),
                         onTouchStart: header.getResizeHandler(),
