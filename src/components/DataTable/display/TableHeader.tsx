@@ -19,6 +19,7 @@ import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 import { GrAscend, GrDescend } from "react-icons/gr";
 import { MdPushPin } from "react-icons/md";
 import { useDataTableContext } from "../context/useDataTableContext";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export interface TableHeaderProps {
   canResize?: boolean;
@@ -77,11 +78,16 @@ export const TableHeader = ({
               justifyItems={"center"}
               alignItems={"center"}
             >
-              <Box
+              <Checkbox
                 width={`${SELECTION_BOX_WIDTH}px`}
                 height={`${SELECTION_BOX_WIDTH}px`}
+                {...{
+                  checked: table.getIsAllRowsSelected(),
+                  // indeterminate: table.getIsSomeRowsSelected(),
+                  onChange: table.getToggleAllRowsSelectedHandler(),
+                }}
                 // TODO: select all rows in page
-              ></Box>
+              ></Checkbox>
             </Table.ColumnHeader>
           )}
           {headerGroup.headers.map((header) => {
