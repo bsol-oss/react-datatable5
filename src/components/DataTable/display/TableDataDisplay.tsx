@@ -55,7 +55,7 @@ export const TableDataDisplay = ({
     paddingX: "2",
     py: "1",
     color: { base: "colorPalette.900", _dark: "colorPalette.100" },
-    bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" },
+    bgColor: { base: "colorPalette.50", _dark: "colorPalette.950" },
     borderBottomColor: { base: "colorPalette.200", _dark: "colorPalette.800" },
     borderBottomWidth: "1px",
     ...{ colorPalette },
