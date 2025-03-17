@@ -157,7 +157,8 @@ const DefaultTableShowcase = () => {
           tableProps={{
             colorPalette: "red",
           }}
-          showSelector
+          tableBodyProps={{ showSelector: true }}
+          tableHeaderProps={{ showSelector: true }}
         />
         <DefaultTable
           controlProps={{
@@ -166,7 +167,8 @@ const DefaultTableShowcase = () => {
           tableProps={{
             colorPalette: "purple",
           }}
-          showSelector
+          tableBodyProps={{ showSelector: true }}
+          tableHeaderProps={{ showSelector: true }}
         />
         <TableComponent
           render={(table) => {

@@ -1,19 +1,16 @@
-import { TableHeaderProps as ChakraHeaderProps } from "@chakra-ui/react";
-import { TableBody, TableBodyProps } from "./display/TableBody";
 import { TableControls, TableControlsProps } from "./controls/TableControls";
+import { Table, TableProps } from "./display/Table";
+import { TableBody, TableBodyProps } from "./display/TableBody";
 import { TableFooter, TableFooterProps } from "./display/TableFooter";
 import { TableHeader, TableHeaderProps } from "./display/TableHeader";
-import { Table, TableProps } from "./display/Table";
 
 export interface DefaultTableProps {
   showFooter?: boolean;
-  showSelector?: boolean;
   tableProps?: Omit<TableProps, "children">;
-  tHeadProps?: ChakraHeaderProps;
-  controlProps?: TableControlsProps;
-  tableFooterProps?: TableFooterProps;
-  tableBodyProps?: TableBodyProps;
   tableHeaderProps?: TableHeaderProps;
+  tableBodyProps?: TableBodyProps;
+  tableFooterProps?: TableFooterProps;
+  controlProps?: TableControlsProps;
   variant?: "" | "greedy";
 }
 
@@ -22,14 +19,14 @@ export const DefaultTable = ({
   tableProps = {},
   tableHeaderProps = {},
   tableBodyProps = {},
-  controlProps = {},
   tableFooterProps = {},
+  controlProps = {},
   variant = "",
 }: DefaultTableProps) => {
   if (variant === "greedy") {
     return (
       <TableControls {...controlProps}>
-        <Table {...{ canResize: false, ...{...tableProps} }}>
+        <Table {...{ canResize: false, ...{ ...tableProps } }}>
           <TableHeader {...{ canResize: false, ...tableHeaderProps }} />
           <TableBody {...{ canResize: false, ...tableBodyProps }} />
           {showFooter && (

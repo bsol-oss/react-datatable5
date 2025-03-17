@@ -26,7 +26,6 @@ export interface TableHeaderProps {
   pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
   isSticky?: boolean;
-  alwaysShowSelector?: boolean;
   tHeadProps?: ChakraTableHeaderProps;
 }
 
@@ -35,29 +34,10 @@ export const TableHeader = ({
   pinnedBgColor = { light: "gray.50", dark: "gray.700" },
   showSelector = false,
   isSticky = true,
-  alwaysShowSelector = true,
   tHeadProps = {},
 }: TableHeaderProps) => {
   const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
-  const [hoveredCheckBox, setHoveredCheckBox] = useState<boolean>(false);
-
-  const handleRowHover = (isHovered: boolean) => {
-    setHoveredCheckBox(isHovered);
-  };
-
-  const isCheckBoxVisible = () => {
-    if (alwaysShowSelector) {
-      return true;
-    }
-    if (table.getIsAllRowsSelected()) {
-      return true;
-    }
-    if (hoveredCheckBox) {
-      return true;
-    }
-    return false;
-  };
 
   const getThProps = (header: Header<unknown, unknown>) => {
     const thProps = header.column.getIsPinned()
@@ -85,51 +65,23 @@ export const TableHeader = ({
         >
           {showSelector && (
             <Table.ColumnHeader
-              // styling resize and pinning start
-              {...(table.getIsSomeColumnsPinned("left")
-                ? {
-                    left: `0px`,
-                    backgroundColor: pinnedBgColor.light,
-                    position: "sticky",
-                    zIndex: 1,
-                    _dark: { backgroundColor: pinnedBgColor.dark },
-                  }
-                : {})}
-              // styling resize and pinning end
               padding={`${table.getDensityValue()}px`}
-              onMouseEnter={() => handleRowHover(true)}
-              onMouseLeave={() => handleRowHover(false)}
               display={"grid"}
+              {...{
+                color: {
+                  base: "colorPalette.900",
+                  _dark: "colorPalette.100",
+                },
+                bg: { base: "colorPalette.50", _dark: "colorPalette.950" },
+              }}
+              justifyItems={"center"}
+              alignItems={"center"}
             >
-              {isCheckBoxVisible() && (
-                <Box
-                  margin={"0rem"}
-                  display={"grid"}
-                  justifyItems={"center"}
-                  alignItems={"center"}
-                >
-                  <Checkbox
-                    width={`${SELECTION_BOX_WIDTH}px`}
-                    height={`${SELECTION_BOX_WIDTH}px`}
-                    {...{
-                      isChecked: table.getIsAllRowsSelected(),
-                      // indeterminate: table.getIsSomeRowsSelected(),
-                      onChange: table.getToggleAllRowsSelectedHandler(),
-                    }}
-                  ></Checkbox>
-                </Box>
-              )}
-              {!isCheckBoxVisible() && (
-                <Box
-                  as="span"
-                  margin={"0rem"}
-                  display={"grid"}
-                  justifyItems={"center"}
-                  alignItems={"center"}
-                  width={`${SELECTION_BOX_WIDTH}px`}
-                  height={`${SELECTION_BOX_WIDTH}px`}
-                ></Box>
-              )}
+              <Box
+                width={`${SELECTION_BOX_WIDTH}px`}
+                height={`${SELECTION_BOX_WIDTH}px`}
+                // TODO: select all rows in page
+              ></Box>
             </Table.ColumnHeader>
           )}
           {headerGroup.headers.map((header) => {

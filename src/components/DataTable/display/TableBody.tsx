@@ -85,7 +85,6 @@ export const TableBody = ({
                 index={index}
                 row={row}
                 hoveredRow={hoveredRow}
-                alwaysShowSelector={alwaysShowSelector}
               />
             )}
             {row.getVisibleCells().map((cell, index) => {
@@ -118,73 +117,33 @@ export const TableBody = ({
 const TableRowSelector = <TData,>({
   index,
   row,
-  hoveredRow,
-  pinnedBgColor = { light: "gray.50", dark: "gray.700" },
-  alwaysShowSelector = true,
 }: TableRowSelectorProps<TData>) => {
   const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
-  const isCheckBoxVisible = (
-    current_index: number,
-    current_row: Row<TData>
-  ) => {
-    if (alwaysShowSelector) {
-      return true;
-    }
-    if (current_row.getIsSelected()) {
-      return true;
-    }
-    if (hoveredRow == current_index) {
-      return true;
-    }
-    return false;
-  };
 
   return (
     <Table.Cell
       padding={`${table.getDensityValue()}px`}
-      // styling resize and pinning start
-      {...(table.getIsSomeColumnsPinned("left")
-        ? {
-            left: `0px`,
-            backgroundColor: pinnedBgColor.light,
-            position: "sticky",
-            zIndex: 1,
-            _dark: { backgroundColor: pinnedBgColor.dark },
-          }
-        : {})}
-      // styling resize and pinning end
       display={"grid"}
+      {...{
+        color: {
+          base: "colorPalette.900",
+          _dark: "colorPalette.100",
+        },
+        bg: { base: "colorPalette.50", _dark: "colorPalette.950" },
+      }}
+      justifyItems={"center"}
+      alignItems={"center"}
     >
-      {!isCheckBoxVisible(index, row) && (
-        <Box
-          as="span"
-          margin={"0rem"}
-          display={"grid"}
-          justifyItems={"center"}
-          alignItems={"center"}
-          width={`${SELECTION_BOX_WIDTH}px`}
-          height={`${SELECTION_BOX_WIDTH}px`}
-        ></Box>
-      )}
-      {isCheckBoxVisible(index, row) && (
-        <Box
-          margin={"0rem"}
-          display={"grid"}
-          justifyItems={"center"}
-          alignItems={"center"}
-        >
-          <Checkbox
-            width={`${SELECTION_BOX_WIDTH}px`}
-            height={`${SELECTION_BOX_WIDTH}px`}
-            {...{
-              isChecked: row.getIsSelected(),
-              disabled: !row.getCanSelect(),
-              onChange: row.getToggleSelectedHandler(),
-            }}
-          />
-        </Box>
-      )}
+      <Checkbox
+        width={`${SELECTION_BOX_WIDTH}px`}
+        height={`${SELECTION_BOX_WIDTH}px`}
+        {...{
+          checked: row.getIsSelected(),
+          disabled: !row.getCanSelect(),
+          onCheckedChange: row.getToggleSelectedHandler(),
+        }}
+      />
     </Table.Cell>
   );
 };
