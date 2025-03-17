@@ -74,7 +74,6 @@ export const EnumPicker = ({
               <Tag
                 closable
                 onClick={() => {
-                  // setSelectedEnums((state) => state.filter((id) => id != item));
                   setValue(
                     column,
                     watchEnums.filter((id: string) => id != item)
@@ -120,7 +119,7 @@ export const EnumPicker = ({
         <PopoverContent>
           <PopoverBody display={"grid"} gap={1}>
             <Input
-              placeholder={translate.t(`${column}.typeToSearch`)}
+              placeholder={translate.t(`${column}.type_to_search`)}
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
