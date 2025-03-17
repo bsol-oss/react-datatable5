@@ -3558,6 +3558,8 @@ const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
         overflow: "auto",
         paddingX: "2",
         py: "1",
+        color: { base: "colorPalette.900", _dark: "colorPalette.100" },
+        bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" },
         borderBottomColor: { base: "colorPalette.200", _dark: "colorPalette.800" },
         borderBottomWidth: "1px",
         ...{ colorPalette },
@@ -3565,20 +3567,22 @@ const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
     if (data.length <= 0) {
         return jsxRuntime.jsx(jsxRuntime.Fragment, { children: emptyComponent });
     }
-    return (jsxRuntime.jsxs(react.Grid, { templateColumns: `${columnWidths}`, overflow: "auto", borderWidth: "1px", borderColor: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: [jsxRuntime.jsx(react.Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: columnHeaders.map((header) => {
+    return (jsxRuntime.jsxs(react.Grid, { templateColumns: `${columnWidths}`, overflow: "auto", borderWidth: "1px", color: { base: "colorPalette.900", _dark: "colorPalette.100" }, borderColor: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: [jsxRuntime.jsx(react.Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: columnHeaders.map((header) => {
                     return (jsxRuntime.jsx(react.Box, { flex: "1 0 0%", paddingX: "2", py: "1", overflow: "auto", textOverflow: "ellipsis", children: translate.t(`column_header.${header}`) }));
                 }) }), data.map((record) => {
                 return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: columnHeaders.map((header) => {
+                        const { cell } = columnsMap[header];
+                        const value = record[header];
                         if (!!record === false) {
                             return (jsxRuntime.jsx(react.Box, { ...cellProps, children: translate.t(`column_cell.placeholder`) }));
                         }
-                        if (!!record[header] === false) {
-                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: translate.t(`column_cell.placeholder`) }));
+                        if (cell) {
+                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: cell({ row: { original: record } }) }));
                         }
-                        if (typeof record[header] === "object") {
-                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: jsxRuntime.jsx(RecordDisplay, { object: record[header] }) }));
+                        if (typeof value === "object") {
+                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: jsxRuntime.jsx(RecordDisplay, { object: value }) }));
                         }
-                        return jsxRuntime.jsx(react.Box, { ...cellProps, children: record[header] ?? "" });
+                        return jsxRuntime.jsx(react.Box, { ...cellProps, children: value });
                     }) }));
             })] }));
 };
