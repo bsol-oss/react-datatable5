@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Checkbox as Checkbox$1, Table as Table$1, Tooltip as Tooltip$1, Group, InputElement, Icon, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, List, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Center, Heading } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Tooltip as Tooltip$1, Group, InputElement, Icon, List, Table as Table$1, Checkbox as Checkbox$1, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Center, Heading } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef } from 'react';
@@ -2897,85 +2897,6 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: jsx(DataTableServerContext.Provider, { value: { url, query }, children: children }) }));
 }
 
-const Checkbox = React.forwardRef(function Checkbox(props, ref) {
-    const { icon, children, inputProps, rootRef, ...rest } = props;
-    return (jsxs(Checkbox$1.Root, { ref: rootRef, ...rest, children: [jsx(Checkbox$1.HiddenInput, { ref: ref, ...inputProps }), jsx(Checkbox$1.Control, { children: icon || jsx(Checkbox$1.Indicator, {}) }), children != null && (jsx(Checkbox$1.Label, { children: children }))] }));
-});
-
-const TableBody = ({ showSelector = false, alwaysShowSelector = true, canResize = true, }) => {
-    "use no memo";
-    const { table } = useDataTableContext();
-    const SELECTION_BOX_WIDTH = 20;
-    const [hoveredRow, setHoveredRow] = useState(-1);
-    const handleRowHover = (index) => {
-        setHoveredRow(index);
-    };
-    const getTdProps = (cell) => {
-        const tdProps = cell.column.getIsPinned()
-            ? {
-                left: showSelector
-                    ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                    : `${cell.column.getStart("left")}px`,
-                position: "relative",
-            }
-            : {};
-        return tdProps;
-    };
-    const getTrProps = ({ hoveredRow, index, }) => {
-        if (hoveredRow === -1) {
-            return {};
-        }
-        if (hoveredRow === index) {
-            return {
-                opacity: "1",
-            };
-        }
-        return {
-            opacity: "0.8",
-        };
-    };
-    return (jsx(Table$1.Body, { children: table.getRowModel().rows.map((row, index) => {
-            return (jsxs(Table$1.Row, { display: "flex", zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index }), children: [showSelector && (jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow, alwaysShowSelector: alwaysShowSelector })), row.getVisibleCells().map((cell, index) => {
-                        return (jsx(Table$1.Cell, { padding: `${table.getDensityValue()}px`, 
-                            // styling resize and pinning start
-                            flex: `${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`, color: {
-                                base: "colorPalette.900",
-                                _dark: "colorPalette.100",
-                            },
-                            bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, ...getTdProps(cell), children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
-                    })] }, `chakra-table-row-${row.id}`));
-        }) }));
-};
-const TableRowSelector = ({ index, row, hoveredRow, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, alwaysShowSelector = true, }) => {
-    const { table } = useDataTableContext();
-    const SELECTION_BOX_WIDTH = 20;
-    const isCheckBoxVisible = (current_index, current_row) => {
-        if (alwaysShowSelector) {
-            return true;
-        }
-        if (current_row.getIsSelected()) {
-            return true;
-        }
-        if (hoveredRow == current_index) {
-            return true;
-        }
-        return false;
-    };
-    return (jsxs(Table$1.Cell, { padding: `${table.getDensityValue()}px`, ...(table.getIsSomeColumnsPinned("left")
-            ? {
-                left: `0px`,
-                backgroundColor: pinnedBgColor.light,
-                position: "sticky",
-                zIndex: 1,
-                _dark: { backgroundColor: pinnedBgColor.dark },
-            }
-            : {}), 
-        // styling resize and pinning end
-        display: "grid", children: [!isCheckBoxVisible(index, row) && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` })), isCheckBoxVisible(index, row) && (jsx(Box, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: row.getIsSelected(),
-                    disabled: !row.getCanSelect(),
-                    onChange: row.getToggleSelectedHandler() }) }))] }));
-};
-
 const Tooltip = React.forwardRef(function Tooltip(props, ref) {
     const { showArrow, children, disabled, portalled, content, contentProps, portalRef, ...rest } = props;
     if (disabled)
@@ -3063,6 +2984,81 @@ const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children
                 }, children: children }), jsxs(Flex, { justifyContent: "space-between", children: [jsxs(Flex, { gap: "1rem", alignItems: "center", children: [showPageSizeControl && jsx(PageSizeControl, {}), showPageCountText && (jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: translate.t("rowcount.total") }), jsx(RowCountText, {})] }))] }), jsx(Box, { justifySelf: "end", children: showPagination && jsx(Pagination, {}) })] })] }));
 };
 
+const EmptyState = React.forwardRef(function EmptyState(props, ref) {
+    const { title, description, icon, children, ...rest } = props;
+    return (jsx(EmptyState$2.Root, { ref: ref, ...rest, children: jsxs(EmptyState$2.Content, { children: [icon && (jsx(EmptyState$2.Indicator, { children: icon })), description ? (jsxs(VStack, { textAlign: "center", children: [jsx(EmptyState$2.Title, { children: title }), jsx(EmptyState$2.Description, { children: description })] })) : (jsx(EmptyState$2.Title, { children: title })), children] }) }));
+});
+
+const EmptyResult = (jsx(EmptyState, { icon: jsx(HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxs(List.Root, { variant: "marker", children: [jsx(List.Item, { children: "Try removing filters" }), jsx(List.Item, { children: "Try different keywords" })] }) }));
+const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
+    const { table } = useDataTableContext();
+    if (table.getRowModel().rows.length <= 0) {
+        return emptyComponent;
+    }
+    return (jsx(Table$1.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, display: "grid", alignContent: "start", overflowY: "auto", ...props, children: children }));
+};
+
+const Checkbox = React.forwardRef(function Checkbox(props, ref) {
+    const { icon, children, inputProps, rootRef, ...rest } = props;
+    return (jsxs(Checkbox$1.Root, { ref: rootRef, ...rest, children: [jsx(Checkbox$1.HiddenInput, { ref: ref, ...inputProps }), jsx(Checkbox$1.Control, { children: icon || jsx(Checkbox$1.Indicator, {}) }), children != null && (jsx(Checkbox$1.Label, { children: children }))] }));
+});
+
+const TableBody = ({ showSelector = false, alwaysShowSelector = true, canResize = true, }) => {
+    "use no memo";
+    const { table } = useDataTableContext();
+    const SELECTION_BOX_WIDTH = 20;
+    const [hoveredRow, setHoveredRow] = useState(-1);
+    const handleRowHover = (index) => {
+        setHoveredRow(index);
+    };
+    const getTdProps = (cell) => {
+        const tdProps = cell.column.getIsPinned()
+            ? {
+                left: showSelector
+                    ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+                    : `${cell.column.getStart("left")}px`,
+                position: "relative",
+            }
+            : {};
+        return tdProps;
+    };
+    const getTrProps = ({ hoveredRow, index, }) => {
+        if (hoveredRow === -1) {
+            return {};
+        }
+        if (hoveredRow === index) {
+            return {
+                opacity: "1",
+            };
+        }
+        return {
+            opacity: "0.8",
+        };
+    };
+    return (jsx(Table$1.Body, { children: table.getRowModel().rows.map((row, index) => {
+            return (jsxs(Table$1.Row, { display: "flex", zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index }), children: [showSelector && (jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow })), row.getVisibleCells().map((cell, index) => {
+                        return (jsx(Table$1.Cell, { padding: `${table.getDensityValue()}px`, 
+                            // styling resize and pinning start
+                            flex: `${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`, color: {
+                                base: "colorPalette.900",
+                                _dark: "colorPalette.100",
+                            },
+                            bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, ...getTdProps(cell), children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
+                    })] }, `chakra-table-row-${row.id}`));
+        }) }));
+};
+const TableRowSelector = ({ index, row, }) => {
+    const { table } = useDataTableContext();
+    const SELECTION_BOX_WIDTH = 20;
+    return (jsx(Table$1.Cell, { padding: `${table.getDensityValue()}px`, display: "grid", color: {
+            base: "colorPalette.900",
+            _dark: "colorPalette.100",
+        },
+        bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, checked: row.getIsSelected(),
+            disabled: !row.getCanSelect(),
+            onCheckedChange: row.getToggleSelectedHandler() }) }));
+};
+
 const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, alwaysShowSelector = true, }) => {
     const table = useDataTableContext().table;
     const SELECTION_BOX_WIDTH = 20;
@@ -3123,25 +3119,9 @@ const TableFooter = ({ pinnedBgColor = { light: "gray.50", dark: "gray.700" }, s
                                                     jsx(Fragment, {})), header.column.getIsSorted() === "asc" && (jsx(BiUpArrow, {})), header.column.getIsSorted() === "desc" && (jsx(BiDownArrow, {}))] })) })] }) }) }) }) }, `chakra-table-footer-${header.column.id}-${footerGroup.id}`)))] }, `chakra-table-footergroup-${footerGroup.id}`))) }));
 };
 
-const TableHeader = ({ canResize = true, pinnedBgColor = { light: "gray.50", dark: "gray.700" }, showSelector = false, isSticky = true, alwaysShowSelector = true, tHeadProps = {}, }) => {
+const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, tableHeaderProps = {}, tableRowProps = {}, }) => {
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
-    const [hoveredCheckBox, setHoveredCheckBox] = useState(false);
-    const handleRowHover = (isHovered) => {
-        setHoveredCheckBox(isHovered);
-    };
-    const isCheckBoxVisible = () => {
-        if (alwaysShowSelector) {
-            return true;
-        }
-        if (table.getIsAllRowsSelected()) {
-            return true;
-        }
-        if (hoveredCheckBox) {
-            return true;
-        }
-        return false;
-    };
     const getThProps = (header) => {
         const thProps = header.column.getIsPinned()
             ? {
@@ -3158,21 +3138,11 @@ const TableHeader = ({ canResize = true, pinnedBgColor = { light: "gray.50", dar
         position: "sticky",
         top: 0,
     };
-    return (jsx(Table$1.Header, { ...(isSticky ? stickyProps : {}), ...tHeadProps, children: table.getHeaderGroups().map((headerGroup) => (jsxs(Table$1.Row, { display: "flex", children: [showSelector && (jsxs(Table$1.ColumnHeader
-                // styling resize and pinning start
-                , { ...(table.getIsSomeColumnsPinned("left")
-                        ? {
-                            left: `0px`,
-                            backgroundColor: pinnedBgColor.light,
-                            position: "sticky",
-                            zIndex: 1,
-                            _dark: { backgroundColor: pinnedBgColor.dark },
-                        }
-                        : {}), 
-                    // styling resize and pinning end
-                    padding: `${table.getDensityValue()}px`, onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: "grid", children: [isCheckBoxVisible() && (jsx(Box, { margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: table.getIsAllRowsSelected(),
-                                // indeterminate: table.getIsSomeRowsSelected(),
-                                onChange: table.getToggleAllRowsSelectedHandler() }) })), !isCheckBoxVisible() && (jsx(Box, { as: "span", margin: "0rem", display: "grid", justifyItems: "center", alignItems: "center", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), headerGroup.headers.map((header) => {
+    return (jsx(Table$1.Header, { ...(isSticky ? stickyProps : {}), ...tableHeaderProps, children: table.getHeaderGroups().map((headerGroup) => (jsxs(Table$1.Row, { display: "flex", ...tableRowProps, children: [showSelector && (jsx(Table$1.ColumnHeader, { padding: `${table.getDensityValue()}px`, display: "grid", color: {
+                        base: "colorPalette.900",
+                        _dark: "colorPalette.100",
+                    },
+                    bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, justifyItems: "center", alignItems: "center", children: jsx(Box, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) })), headerGroup.headers.map((header) => {
                     const resizeProps = {
                         onMouseDown: header.getResizeHandler(),
                         onTouchStart: header.getResizeHandler(),
@@ -3223,21 +3193,7 @@ const TableHeader = ({ canResize = true, pinnedBgColor = { light: "gray.50", dar
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const EmptyState = React.forwardRef(function EmptyState(props, ref) {
-    const { title, description, icon, children, ...rest } = props;
-    return (jsx(EmptyState$2.Root, { ref: ref, ...rest, children: jsxs(EmptyState$2.Content, { children: [icon && (jsx(EmptyState$2.Indicator, { children: icon })), description ? (jsxs(VStack, { textAlign: "center", children: [jsx(EmptyState$2.Title, { children: title }), jsx(EmptyState$2.Description, { children: description })] })) : (jsx(EmptyState$2.Title, { children: title })), children] }) }));
-});
-
-const EmptyResult = (jsx(EmptyState, { icon: jsx(HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxs(List.Root, { variant: "marker", children: [jsx(List.Item, { children: "Try removing filters" }), jsx(List.Item, { children: "Try different keywords" })] }) }));
-const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
-    const { table } = useDataTableContext();
-    if (table.getRowModel().rows.length <= 0) {
-        return emptyComponent;
-    }
-    return (jsx(Table$1.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, display: "grid", alignContent: "start", overflowY: "auto", ...props, children: children }));
-};
-
-const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, controlProps = {}, tableFooterProps = {}, variant = "", }) => {
+const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = "", }) => {
     if (variant === "greedy") {
         return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { canResize: false, ...{ ...tableProps }, children: [jsx(TableHeader, { canResize: false, ...tableHeaderProps }), jsx(TableBody, { canResize: false, ...tableBodyProps }), showFooter && (jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
     }

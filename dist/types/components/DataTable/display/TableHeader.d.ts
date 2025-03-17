@@ -1,13 +1,9 @@
-import { TableHeaderProps as ChakraTableHeaderProps } from "@chakra-ui/react";
+import { TableHeaderProps as ChakraTableHeaderProps, TableRowProps } from "@chakra-ui/react";
 export interface TableHeaderProps {
     canResize?: boolean;
-    pinnedBgColor?: {
-        light: string;
-        dark: string;
-    };
     showSelector?: boolean;
     isSticky?: boolean;
-    alwaysShowSelector?: boolean;
-    tHeadProps?: ChakraTableHeaderProps;
+    tableHeaderProps?: ChakraTableHeaderProps;
+    tableRowProps?: TableRowProps;
 }
-export declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, isSticky, alwaysShowSelector, tHeadProps, }: TableHeaderProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableHeader: ({ canResize, showSelector, isSticky, tableHeaderProps, tableRowProps, }: TableHeaderProps) => import("react/jsx-runtime").JSX.Element;

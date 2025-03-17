@@ -3,7 +3,7 @@ import { Row, RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionSta
 import * as React$1 from 'react';
 import React__default, { ReactNode, Dispatch, SetStateAction } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { ImageProps, TableHeaderProps as TableHeaderProps$1, TableRootProps, GridProps, CardBodyProps, FlexProps, TextProps, BoxProps } from '@chakra-ui/react';
+import { ImageProps, TableRootProps, TableHeaderProps as TableHeaderProps$1, TableRowProps, GridProps, CardBodyProps, FlexProps, TextProps, BoxProps } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
 import * as react_i18next from 'react-i18next';
 import { UseTranslationResponse } from 'react-i18next';
@@ -290,27 +290,6 @@ interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown
  */
 declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
 
-interface TableBodyProps {
-    pinnedBgColor?: {
-        light: string;
-        dark: string;
-    };
-    showSelector?: boolean;
-    alwaysShowSelector?: boolean;
-    canResize?: boolean;
-}
-interface TableRowSelectorProps<TData> {
-    index: number;
-    row: Row<TData>;
-    hoveredRow: number;
-    pinnedBgColor?: {
-        light: string;
-        dark: string;
-    };
-    alwaysShowSelector?: boolean;
-}
-declare const TableBody: ({ showSelector, alwaysShowSelector, canResize, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
-
 interface TableControlsProps {
     totalText?: string;
     fitTableWidth?: boolean;
@@ -332,6 +311,36 @@ interface TableControlsProps {
 }
 declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterOptions, extraItems, loading, hasError, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
 
+interface TableProps extends TableRootProps {
+    showLoading?: boolean;
+    loadingComponent?: ReactNode;
+    emptyComponent?: ReactNode;
+    canResize?: boolean;
+    children: ReactNode;
+}
+declare const Table: ({ children, emptyComponent, canResize, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | React$1.ReactPortal | React$1.ReactElement<unknown, string | React$1.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null;
+
+interface TableBodyProps {
+    pinnedBgColor?: {
+        light: string;
+        dark: string;
+    };
+    showSelector?: boolean;
+    alwaysShowSelector?: boolean;
+    canResize?: boolean;
+}
+interface TableRowSelectorProps<TData> {
+    index: number;
+    row: Row<TData>;
+    hoveredRow: number;
+    pinnedBgColor?: {
+        light: string;
+        dark: string;
+    };
+    alwaysShowSelector?: boolean;
+}
+declare const TableBody: ({ showSelector, alwaysShowSelector, canResize, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
+
 interface TableFooterProps {
     pinnedBgColor?: {
         light: string;
@@ -344,38 +353,23 @@ declare const TableFooter: ({ pinnedBgColor, showSelector, alwaysShowSelector, }
 
 interface TableHeaderProps {
     canResize?: boolean;
-    pinnedBgColor?: {
-        light: string;
-        dark: string;
-    };
     showSelector?: boolean;
     isSticky?: boolean;
-    alwaysShowSelector?: boolean;
-    tHeadProps?: TableHeaderProps$1;
+    tableHeaderProps?: TableHeaderProps$1;
+    tableRowProps?: TableRowProps;
 }
-declare const TableHeader: ({ canResize, pinnedBgColor, showSelector, isSticky, alwaysShowSelector, tHeadProps, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
-
-interface TableProps extends TableRootProps {
-    showLoading?: boolean;
-    loadingComponent?: ReactNode;
-    emptyComponent?: ReactNode;
-    canResize?: boolean;
-    children: ReactNode;
-}
-declare const Table: ({ children, emptyComponent, canResize, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | React$1.ReactPortal | React$1.ReactElement<unknown, string | React$1.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null;
+declare const TableHeader: ({ canResize, showSelector, isSticky, tableHeaderProps, tableRowProps, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
 
 interface DefaultTableProps {
     showFooter?: boolean;
-    showSelector?: boolean;
     tableProps?: Omit<TableProps, "children">;
-    tHeadProps?: TableHeaderProps$1;
-    controlProps?: TableControlsProps;
-    tableFooterProps?: TableFooterProps;
-    tableBodyProps?: TableBodyProps;
     tableHeaderProps?: TableHeaderProps;
+    tableBodyProps?: TableBodyProps;
+    tableFooterProps?: TableFooterProps;
+    controlProps?: TableControlsProps;
     variant?: "" | "greedy";
 }
-declare const DefaultTable: ({ showFooter, tableProps, tableHeaderProps, tableBodyProps, controlProps, tableFooterProps, variant, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
+declare const DefaultTable: ({ showFooter, tableProps, tableHeaderProps, tableBodyProps, tableFooterProps, controlProps, variant, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
 
 interface ReloadButtonProps {
     text?: string;
