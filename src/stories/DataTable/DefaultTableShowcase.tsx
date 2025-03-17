@@ -1,13 +1,12 @@
 import { Provider } from "@/components/ui/provider";
-import { Box, Button, Table, Text } from "@chakra-ui/react";
+import { Box, Button, Text } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
 import {
-  DataDisplay,
   DataTable,
   DefaultTable,
   TableComponent,
-  TextCell,
+  TextCell
 } from "../../index";
 import { data, Product } from "../product_data";
 
@@ -168,7 +167,12 @@ const DefaultTableShowcase = () => {
             colorPalette: "purple",
           }}
           tableBodyProps={{ showSelector: true }}
-          tableHeaderProps={{ showSelector: true }}
+          tableHeaderProps={{
+            showSelector: true,
+            tableRowProps: {
+              height: "20",
+            },
+          }}
         />
         <TableComponent
           render={(table) => {

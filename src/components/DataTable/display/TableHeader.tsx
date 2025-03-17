@@ -3,6 +3,7 @@ import {
   TableHeaderProps as ChakraTableHeaderProps,
   Flex,
   Table,
+  TableRowProps,
 } from "@chakra-ui/react";
 import { flexRender, Header } from "@tanstack/react-table";
 import { MdCancel, MdClear, MdFilterListAlt } from "react-icons/md";
@@ -14,27 +15,25 @@ import {
   MenuRoot,
   MenuTrigger,
 } from "@/components/ui/menu";
-import { useState } from "react";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 import { GrAscend, GrDescend } from "react-icons/gr";
 import { MdPushPin } from "react-icons/md";
-import { Checkbox } from "../../ui/checkbox";
 import { useDataTableContext } from "../context/useDataTableContext";
 
 export interface TableHeaderProps {
   canResize?: boolean;
-  pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
   isSticky?: boolean;
-  tHeadProps?: ChakraTableHeaderProps;
+  tableHeaderProps?: ChakraTableHeaderProps;
+  tableRowProps?: TableRowProps;
 }
 
 export const TableHeader = ({
   canResize = true,
-  pinnedBgColor = { light: "gray.50", dark: "gray.700" },
   showSelector = false,
   isSticky = true,
-  tHeadProps = {},
+  tableHeaderProps = {},
+  tableRowProps = {},
 }: TableHeaderProps) => {
   const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
@@ -57,11 +56,12 @@ export const TableHeader = ({
   };
 
   return (
-    <Table.Header {...(isSticky ? stickyProps : {})} {...tHeadProps}>
+    <Table.Header {...(isSticky ? stickyProps : {})} {...tableHeaderProps}>
       {table.getHeaderGroups().map((headerGroup) => (
         <Table.Row
           display={"flex"}
           key={`chakra-table-headergroup-${headerGroup.id}`}
+          {...tableRowProps}
         >
           {showSelector && (
             <Table.ColumnHeader
