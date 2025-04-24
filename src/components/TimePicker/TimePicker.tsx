@@ -18,6 +18,10 @@ interface TimePickerProps {
     minute: number;
     meridiem: "am" | "pm";
   }) => void;
+  meridiemLabel?: {
+    am: string;
+    pm: string;
+  };
 }
 export function TimePicker({
   hour,
@@ -26,6 +30,10 @@ export function TimePicker({
   setMinute,
   meridiem,
   setMeridiem,
+  meridiemLabel = {
+    am: "am",
+    pm: "pm",
+  },
   onChange = () => {},
 }: TimePickerProps) {
   const hours = Array.from({ length: 12 }, (_, i) => {
@@ -52,7 +60,7 @@ export function TimePicker({
   const meridiemsCollection = createListCollection({
     items: ["am", "pm"].map((hour) => ({
       value: hour,
-      label: hour,
+      label: meridiemLabel[hour as "am" | "pm"] ?? hour,
     })),
   });
 
