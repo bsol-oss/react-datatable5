@@ -3658,6 +3658,18 @@ const BooleanPicker = ({ schema, column, prefix }) => {
                 } }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
+const CustomInput = ({ column, schema, prefix }) => {
+    const formContext = reactHookForm.useFormContext();
+    const { inputRender } = schema;
+    return (inputRender &&
+        inputRender({
+            column,
+            schema,
+            prefix,
+            formContext,
+        }));
+};
+
 const monthNamesShort = [
     "Jan",
     "Feb",
@@ -3755,9 +3767,9 @@ const DatePicker = ({ column, schema, prefix }) => {
     const selectedDate = watch(colLabel);
     const formatedDate = dayjs(selectedDate).format("YYYY-MM-DD");
     return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsxRuntime.jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(PopoverTrigger, { asChild: true, children: jsxRuntime.jsx(Button, { size: "sm", variant: "outline", onClick: () => {
+        gridRow, children: [jsxRuntime.jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(PopoverTrigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
-                            }, children: selectedDate !== undefined ? `${formatedDate}` : "" }) }), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DatePicker$1
+                            }, justifyContent: "start", children: [jsxRuntime.jsx(md.MdDateRange, {}), selectedDate !== undefined ? `${formatedDate}` : ""] }) }), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DatePicker$1
                                 // @ts-expect-error TODO: find appropriate types
                                 , { 
                                     // @ts-expect-error TODO: find appropriate types
@@ -3782,7 +3794,7 @@ function filterArray(array, searchTerm) {
 const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required } = schema;
+    const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { gridColumn, gridRow, renderDisplay } = schema;
     const [searchText, setSearchText] = React.useState();
@@ -3799,6 +3811,22 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
         setSearchText(event.target.value);
         setLimit(10);
     };
+    if (variant === "radio") {
+        return (jsxRuntime.jsx(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+            gridRow, children: jsxRuntime.jsx(react.RadioGroup.Root, { defaultValue: "1", children: jsxRuntime.jsx(react.HStack, { gap: "6", children: filterArray(dataList, searchText ?? "").map((item) => {
+                        return (jsxRuntime.jsxs(react.RadioGroup.Item, { onClick: () => {
+                                if (!isMultiple) {
+                                    setOpenSearchResult(false);
+                                    setValue(colLabel, item);
+                                    return;
+                                }
+                                const newSet = new Set([...(watchEnums ?? []), item]);
+                                setValue(colLabel, [...newSet]);
+                            }, value: item, children: [jsxRuntime.jsx(react.RadioGroup.ItemHiddenInput, {}), jsxRuntime.jsx(react.RadioGroup.ItemIndicator, {}), jsxRuntime.jsx(react.RadioGroup.ItemText, { children: !!renderDisplay === true
+                                        ? renderDisplay(item)
+                                        : translate.t(removeIndex(`${colLabel}.${item}`)) })] }, `${colLabel}-${item}`));
+                    }) }) }) }));
+    }
     return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: "wrap", gap: 1, children: [watchEnums.map((enumValue) => {
                         const item = enumValue;
@@ -3814,7 +3842,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                             setOpenSearchResult(true);
                         }, children: translate.t(removeIndex(`${colLabel}.add_more`)) })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, children: watchEnum === undefined
+                }, justifyContent: "start", children: watchEnum === undefined
                     ? ""
                     : translate.t(removeIndex(`${colLabel}.${watchEnum}`)) })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(`${column}.type_to_search`), onChange: (event) => {
                                         onSearchChange(event);
@@ -4204,7 +4232,7 @@ const FilePicker = ({ column, schema, prefix }) => {
                                 setValue(column, currentFiles.filter(({ name }) => {
                                     return name !== file.name;
                                 }));
-                            }, display: "flex", flexFlow: "row", alignItems: "center", padding: "2", children: [jsxRuntime.jsx(react.Box, { children: file.name }), jsxRuntime.jsx(ti.TiDeleteOutline, {})] }) }, file.name));
+                            }, display: "flex", flexFlow: "row", alignItems: "center", padding: "2", children: [file.type.startsWith("image/") && (jsxRuntime.jsx(react.Image, { src: URL.createObjectURL(file), alt: file.name, boxSize: "50px", objectFit: "cover", borderRadius: "md", marginRight: "2" })), jsxRuntime.jsx(react.Box, { children: file.name }), jsxRuntime.jsx(ti.TiDeleteOutline, {})] }) }, file.name));
                 }) }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
@@ -4337,7 +4365,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                             setOpenSearchResult(true);
                         }, children: translate.t(removeIndex(`${colLabel}.add_more`)) })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, children: getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(removeIndex(`${colLabel}.typeToSearch`)), onChange: (event) => {
+                }, justifyContent: "start", children: getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(removeIndex(`${colLabel}.typeToSearch`)), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
                                     }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), (isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, {}), isError && (jsxRuntime.jsx(react.Icon, { color: "red.400", children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsx(react.Text, { justifySelf: "center", children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` }), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: 
@@ -4357,7 +4385,9 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                                     item[column_ref],
                                                                 ]);
                                                                 setValue(colLabel, [...newSet]);
-                                                            }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected ? { color: "colorPalette.400/50" } : {}), children: !!renderDisplay === true
+                                                            }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected
+                                                                ? { color: "colorPalette.400/50" }
+                                                                : {}), children: !!renderDisplay === true
                                                                 ? renderDisplay(item)
                                                                 : item[display_column] }, item[column_ref]));
                                                     }) }), isDirty && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: dataList.length <= 0 && (jsxRuntime.jsx(react.Text, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] }), jsxRuntime.jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxRuntime.jsxs(react.HStack, { gap: "4", children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), count > 0 && jsxRuntime.jsx(PaginationPageText, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
@@ -4557,9 +4587,115 @@ const TagPicker = ({ column, schema, prefix }) => {
             }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
 };
 
+function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem, meridiemLabel = {
+    am: "am",
+    pm: "pm",
+}, onChange = () => { }, }) {
+    const hours = Array.from({ length: 12 }, (_, i) => {
+        const hour = i + 1;
+        return hour.toString().padStart(2, "0");
+    });
+    const minutes = Array.from({ length: 60 }, (_, i) => {
+        return i.toString().padStart(2, "0");
+    });
+    const hoursCollection = react.createListCollection({
+        items: hours.map((hour) => ({
+            value: hour,
+            label: hour,
+        })),
+    });
+    const minutesCollection = react.createListCollection({
+        items: minutes.map((hour) => ({
+            value: hour,
+            label: hour,
+        })),
+    });
+    const meridiemsCollection = react.createListCollection({
+        items: ["am", "pm"].map((hour) => ({
+            value: hour,
+            label: meridiemLabel[hour] ?? hour,
+        })),
+    });
+    return (jsxRuntime.jsxs(react.Grid, { templateColumns: "auto  auto", gap: "4", children: [jsxRuntime.jsxs(react.Flex, { justifyContent: "center", alignItems: "center", gap: "2", children: [jsxRuntime.jsxs(react.Select.Root, { value: [`${hour.toString().padStart(2, "0")}`], onValueChange: (e) => {
+                            setHour(parseInt(e.value[0]));
+                            onChange({ hour: parseInt(e.value[0]), minute, meridiem });
+                        }, collection: hoursCollection, positioning: { sameWidth: true, placement: "bottom" }, children: [jsxRuntime.jsx(react.Select.HiddenSelect, {}), jsxRuntime.jsx(react.Select.Control, { children: jsxRuntime.jsx(react.Select.Trigger, { children: jsxRuntime.jsx(react.Select.ValueText, { placeholder: "Hour" }) }) }), jsxRuntime.jsx(react.Select.Positioner, { children: jsxRuntime.jsx(react.Select.Content, { width: "full", children: hoursCollection.items.map(({ value: hour }) => (jsxRuntime.jsxs(react.Select.Item, { item: hour, children: [hour, jsxRuntime.jsx(react.Select.ItemIndicator, {})] }, hour))) }) })] }), jsxRuntime.jsx(react.Text, { children: ":" }), jsxRuntime.jsxs(react.Select.Root, { value: [`${minute.toString().padStart(2, "0")}`], onValueChange: (e) => {
+                            setMinute(parseInt(e.value[0]));
+                            onChange({ hour, minute: parseInt(e.value[0]), meridiem });
+                        }, collection: minutesCollection, positioning: { sameWidth: true, placement: "bottom" }, children: [jsxRuntime.jsx(react.Select.HiddenSelect, {}), jsxRuntime.jsx(react.Select.Control, { children: jsxRuntime.jsx(react.Select.Trigger, { children: jsxRuntime.jsx(react.Select.ValueText, { placeholder: "Minute" }) }) }), jsxRuntime.jsx(react.Select.Positioner, { children: jsxRuntime.jsx(react.Select.Content, { width: "full", children: minutes.map((minute) => (jsxRuntime.jsxs(react.Select.Item, { item: minute, children: [minute, jsxRuntime.jsx(react.Select.ItemIndicator, {})] }, minute))) }) })] })] }), jsxRuntime.jsxs(react.Select.Root, { value: [meridiem], onValueChange: (e) => {
+                    setMeridiem(e.value[0]);
+                    onChange({ hour, minute, meridiem: e.value[0] });
+                }, collection: meridiemsCollection, positioning: { sameWidth: true, placement: "bottom" }, children: [jsxRuntime.jsx(react.Select.HiddenSelect, {}), jsxRuntime.jsx(react.Select.Control, { children: jsxRuntime.jsx(react.Select.Trigger, { children: jsxRuntime.jsx(react.Select.ValueText, { placeholder: "am/pm" }) }) }), jsxRuntime.jsx(react.Select.Positioner, { children: jsxRuntime.jsx(react.Select.Content, { width: "full", children: meridiemsCollection.items.map(({ value: hour, label }) => (jsxRuntime.jsxs(react.Select.Item, { item: hour, children: [label, jsxRuntime.jsx(react.Select.ItemIndicator, {})] }, hour))) }) })] })] }));
+}
+
+const TimePicker = ({ column, schema, prefix }) => {
+    const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    const [open, setOpen] = React.useState(false);
+    const value = watch(colLabel);
+    const formatedTime = dayjs(value).format("hh:mm A");
+    // Parse the initial time parts from the ISO time string (HH:mm:ss)
+    const parseTime = (isoTime) => {
+        if (!isoTime)
+            return { hour: 12, minute: 0, meridiem: "am" };
+        const parsed = dayjs(isoTime);
+        if (!parsed.isValid())
+            return { hour: 12, minute: 0, meridiem: "am" };
+        let hour = parsed.hour();
+        const minute = parsed.minute();
+        const meridiem = hour >= 12 ? "pm" : "am";
+        if (hour === 0)
+            hour = 12;
+        else if (hour > 12)
+            hour -= 12;
+        return { hour, minute, meridiem };
+    };
+    const initialTime = parseTime(value);
+    const [hour, setHour] = React.useState(initialTime.hour);
+    const [minute, setMinute] = React.useState(initialTime.minute);
+    const [meridiem, setMeridiem] = React.useState(initialTime.meridiem);
+    React.useEffect(() => {
+        const { hour, minute, meridiem } = parseTime(value);
+        setHour(hour);
+        setMinute(minute);
+        setMeridiem(meridiem);
+    }, [value]);
+    // Convert hour, minute, meridiem to 24-hour ISO time string
+    const toIsoTime = (hour, minute, meridiem) => {
+        let h = hour;
+        if (meridiem === "am" && hour === 12)
+            h = 0;
+        else if (meridiem === "pm" && hour < 12)
+            h = hour + 12;
+        return dayjs().hour(h).minute(minute).second(0).toISOString();
+    };
+    // Handle changes to time parts
+    const handleTimeChange = ({ hour: newHour, minute: newMinute, meridiem: newMeridiem, }) => {
+        setHour(newHour);
+        setMinute(newMinute);
+        setMeridiem(newMeridiem);
+        const isoTime = toIsoTime(newHour, newMinute, newMeridiem);
+        setValue(colLabel, isoTime, { shouldValidate: true, shouldDirty: true });
+    };
+    const containerRef = React.useRef(null);
+    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+        gridRow, children: [jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
+                                setOpen(true);
+                            }, justifyContent: "start", children: [jsxRuntime.jsx(io.IoMdClock, {}), value !== undefined ? `${formatedTime}` : ""] }) }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { ref: containerRef, children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
+                                            am: translate.t(removeIndex(`${colLabel}.am`)),
+                                            pm: translate.t(removeIndex(`${colLabel}.pm`)),
+                                        } }) }) }) }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+};
+
 const SchemaRenderer = ({ schema, prefix, column, }) => {
     const colSchema = schema;
     const { type, variant, properties: innerProperties, foreign_key, items, } = schema;
+    if (variant === "custom-input") {
+        return jsxRuntime.jsx(CustomInput, { schema: colSchema, prefix, column });
+    }
     if (type === "string") {
         if ((schema.enum ?? []).length > 0) {
             return jsxRuntime.jsx(EnumPicker, { schema: colSchema, prefix, column });
@@ -4570,6 +4706,9 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         }
         if (variant === "date-picker") {
             return jsxRuntime.jsx(DatePicker, { schema: colSchema, prefix, column });
+        }
+        if (variant === "time-picker") {
+            return jsxRuntime.jsx(TimePicker, { schema: colSchema, prefix, column });
         }
         return jsxRuntime.jsx(StringInputField, { schema: colSchema, prefix, column });
     }
@@ -4674,22 +4813,15 @@ const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
 };
 
 const FileViewer = ({ column, schema, prefix }) => {
-    const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
+    const { watch } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
     const { required, gridColumn, gridRow } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const currentFiles = (watch(column) ?? []);
     const colLabel = `${prefix}${column}`;
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(`${colLabel}.field_label`)}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", display: "grid", gridTemplateRows: "auto 1fr auto", alignItems: "stretch", children: [jsxRuntime.jsx(FileDropzone, { onDrop: ({ files }) => {
-                    const newFiles = files.filter(({ name }) => !currentFiles.some((cur) => cur.name === name));
-                    setValue(colLabel, [...currentFiles, ...newFiles]);
-                }, placeholder: translate.t(`${colLabel}.fileDropzone`) }), jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: 1, children: currentFiles.map((file) => {
-                    return (jsxRuntime.jsx(react.Card.Root, { variant: "subtle", children: jsxRuntime.jsxs(react.Card.Body, { gap: "2", cursor: "pointer", onClick: () => {
-                                setValue(column, currentFiles.filter(({ name }) => {
-                                    return name !== file.name;
-                                }));
-                            }, display: "flex", flexFlow: "row", alignItems: "center", padding: "2", children: [jsxRuntime.jsx(react.Box, { children: file.name }), jsxRuntime.jsx(ti.TiDeleteOutline, {})] }) }, file.name));
-                }) }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+    return (jsxRuntime.jsx(Field, { label: `${translate.t(`${colLabel}.field_label`)}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", display: "grid", gridTemplateRows: "auto 1fr auto", alignItems: "stretch", children: jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: 1, children: currentFiles.map((file) => {
+                return (jsxRuntime.jsx(react.Card.Root, { variant: "subtle", children: jsxRuntime.jsxs(react.Card.Body, { gap: "2", display: "flex", flexFlow: "row", alignItems: "center", padding: "2", children: [file.type.startsWith("image/") && (jsxRuntime.jsx(react.Image, { src: URL.createObjectURL(file), alt: file.name, boxSize: "50px", objectFit: "cover", borderRadius: "md", marginRight: "2" })), jsxRuntime.jsx(react.Box, { children: file.name })] }) }, file.name));
+            }) }) }));
 };
 
 const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
@@ -4898,9 +5030,24 @@ const StringViewer = ({ column, schema, prefix, }) => {
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsxRuntime.jsx(react.Text, { children: value }), errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
 };
 
+const CustomViewer = ({ column, schema, prefix }) => {
+    const formContext = reactHookForm.useFormContext();
+    const { inputViewerRender } = schema;
+    return (inputViewerRender &&
+        inputViewerRender({
+            column,
+            schema,
+            prefix,
+            formContext,
+        }));
+};
+
 const SchemaViewer = ({ schema, prefix, column, }) => {
     const colSchema = schema;
     const { type, variant, properties: innerProperties, foreign_key, items, } = schema;
+    if (variant === "custom-input") {
+        return jsxRuntime.jsx(CustomViewer, { schema: colSchema, prefix, column });
+    }
     if (type === "string") {
         if ((schema.enum ?? []).length > 0) {
             return jsxRuntime.jsx(EnumViewer, { schema: colSchema, prefix, column });

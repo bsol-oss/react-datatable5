@@ -10,10 +10,10 @@ import { UseTranslationResponse } from 'react-i18next';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { UseQueryResult } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
-import { ForeignKeyProps } from '@/components/Form/components/fields/StringInputField';
+import { ForeignKeyProps as ForeignKeyProps$1 } from '@/components/Form/components/fields/StringInputField';
 import { AxiosRequestConfig } from 'axios';
 import * as react_hook_form from 'react-hook-form';
-import { FieldValues, UseFormReturn, SubmitHandler } from 'react-hook-form';
+import { UseFormReturn, FieldValues, SubmitHandler } from 'react-hook-form';
 import { RenderProps, Props } from '@bsol-oss/dayzed-react19';
 
 interface DensityToggleButtonProps {
@@ -445,8 +445,34 @@ declare const FilterOptions: ({ column }: FilterOptionsProps) => react_jsx_runti
 
 declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
 
+interface ForeignKeyProps {
+    column: string;
+    table: string;
+    display_column: string;
+}
+
+interface CustomJSONSchema7 extends JSONSchema7 {
+    gridColumn?: string;
+    gridRow?: string;
+    foreign_key?: ForeignKeyProps;
+    variant?: string;
+    renderDisplay?: (item: unknown) => ReactNode;
+    inputRender?: (props: {
+        column: string;
+        schema: CustomJSONSchema7;
+        prefix: string;
+        formContext: UseFormReturn;
+    }) => ReactNode;
+    inputViewerRender?: (props: {
+        column: string;
+        schema: CustomJSONSchema7;
+        prefix: string;
+        formContext: UseFormReturn;
+    }) => ReactNode;
+}
+
 interface FormRootProps<TData extends FieldValues> {
-    schema: JSONSchema7;
+    schema: CustomJSONSchema7;
     serverUrl: string;
     requestUrl?: string;
     idMap: Record<string, object>;
@@ -469,7 +495,7 @@ interface CustomJSONSchema7Definition extends JSONSchema7 {
     display_column: string;
     gridColumn: string;
     gridRow: string;
-    foreign_key: ForeignKeyProps;
+    foreign_key: ForeignKeyProps$1;
     children: ReactNode;
 }
 declare const idPickerSanityCheck: (column: string, foreign_key?: {
