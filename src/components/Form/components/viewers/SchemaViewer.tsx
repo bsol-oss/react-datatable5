@@ -12,6 +12,7 @@ import { ObjectViewer } from "./ObjectViewer";
 import { RecordInput } from "./RecordViewer";
 import { TagViewer } from "./TagViewer";
 import { StringViewer } from "./StringViewer";
+import { CustomViewer } from "./CustomViewer";
 
 export interface SchemaRendererProps {
   column: string;
@@ -32,6 +33,9 @@ export const SchemaViewer = ({
     foreign_key,
     items,
   } = schema;
+  if (variant === "custom-input") {
+    return <CustomViewer schema={colSchema} {...{ prefix, column }} />;
+  }
   if (type === "string") {
     if ((schema.enum ?? []).length > 0) {
       return <EnumViewer schema={colSchema} {...{ prefix, column }} />;

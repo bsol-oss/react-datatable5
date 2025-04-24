@@ -10,9 +10,10 @@ import {
   UseFormReturn,
 } from "react-hook-form";
 import { UseTranslationResponse } from "react-i18next";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 
 export interface FormRootProps<TData extends FieldValues> {
-  schema: JSONSchema7;
+  schema: CustomJSONSchema7;
   serverUrl: string;
   requestUrl?: string;
   idMap: Record<string, object>;

@@ -1,7 +1,9 @@
 import { Text } from "@chakra-ui/react";
 import { idPickerSanityCheck } from "../core/FormRoot";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { ArrayRenderer } from "./ArrayRenderer";
 import { BooleanPicker } from "./BooleanPicker";
+import { CustomInput } from "./CustomInput";
 import { DatePicker } from "./DatePicker";
 import { EnumPicker } from "./EnumPicker";
 import { FilePicker } from "./FilePicker";
@@ -10,7 +12,6 @@ import { NumberInputField } from "./NumberInputField";
 import { ObjectInput } from "./ObjectInput";
 import { RecordInput } from "./RecordInput";
 import { StringInputField } from "./StringInputField";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { TagPicker } from "./TagPicker";
 import { TimePicker } from "./TimePicker";
 
@@ -33,6 +34,9 @@ export const SchemaRenderer = ({
     foreign_key,
     items,
   } = schema;
+  if (variant === "custom-input") {
+    return <CustomInput schema={colSchema} {...{ prefix, column }} />;
+  }
   if (type === "string") {
     if ((schema.enum ?? []).length > 0) {
       return <EnumPicker schema={colSchema} {...{ prefix, column }} />;
@@ -85,5 +89,6 @@ export const SchemaRenderer = ({
   if (type === "null") {
     return <Text>{`null ${column}`}</Text>;
   }
+
   return <Text>missing type</Text>;
 };
