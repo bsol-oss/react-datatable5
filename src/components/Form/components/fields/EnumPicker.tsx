@@ -7,7 +7,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tag } from "@/components/ui/tag";
-import { Box, Flex, Grid, Input, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Grid,
+  HStack,
+  Input,
+  RadioGroup,
+  Text,
+} from "@chakra-ui/react";
 import { ChangeEvent, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../../ui/field";
@@ -35,7 +43,7 @@ export const EnumPicker = ({
     setValue,
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required } = schema;
+  const { required, variant } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const { gridColumn, gridRow, renderDisplay } = schema;
   const [searchText, setSearchText] = useState<string>();
@@ -52,6 +60,52 @@ export const EnumPicker = ({
     setSearchText(event.target.value);
     setLimit(10);
   };
+
+  if (variant === "radio") {
+    return (
+      <Field
+        label={`${translate.t(removeIndex(`${column}.field_label`))}`}
+        required={isRequired}
+        alignItems={"stretch"}
+        {...{
+          gridColumn,
+          gridRow,
+        }}
+      >
+        <RadioGroup.Root defaultValue="1">
+          <HStack gap="6">
+            {filterArray(dataList as string[], searchText ?? "").map(
+              (item: string) => {
+                return (
+                  <RadioGroup.Item
+                    key={`${colLabel}-${item}`}
+                    onClick={() => {
+                      if (!isMultiple) {
+                        setOpenSearchResult(false);
+                        setValue(colLabel, item);
+                        return;
+                      }
+                      const newSet = new Set([...(watchEnums ?? []), item]);
+                      setValue(colLabel, [...newSet]);
+                    }}
+                    value={item}
+                  >
+                    <RadioGroup.ItemHiddenInput />
+                    <RadioGroup.ItemIndicator />
+                    <RadioGroup.ItemText>
+                      {!!renderDisplay === true
+                        ? renderDisplay(item)
+                        : translate.t(removeIndex(`${colLabel}.${item}`))}
+                    </RadioGroup.ItemText>
+                  </RadioGroup.Item>
+                );
+              }
+            )}
+          </HStack>
+        </RadioGroup.Root>
+      </Field>
+    );
+  }
 
   return (
     <Field

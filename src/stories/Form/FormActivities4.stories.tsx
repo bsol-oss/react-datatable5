@@ -59,8 +59,13 @@ const SomeForm = () => {
           properties: {
             name: {
               type: "string",
+              variant: "radio",
               title: "Name",
               description: "Name of the activity",
+              enum: [
+                "Activity 1",
+                "Activity 2",
+              ]
             },
             description: {
               type: "string",
