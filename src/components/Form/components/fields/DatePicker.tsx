@@ -15,6 +15,7 @@ import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { removeIndex } from "../../utils/removeIndex";
+import { MdDateRange } from "react-icons/md";
 
 export interface DatePickerProps {
   column: string;
@@ -57,7 +58,9 @@ export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
             onClick={() => {
               setOpen(true);
             }}
+            justifyContent={"start"}
           >
+            <MdDateRange />
             {selectedDate !== undefined ? `${formatedDate}` : ""}
           </Button>
         </PopoverTrigger>

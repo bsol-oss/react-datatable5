@@ -102,6 +102,7 @@ export const EnumPicker = ({
           onClick={() => {
             setOpenSearchResult(true);
           }}
+          justifyContent={"start"}
         >
           {watchEnum === undefined
             ? ""

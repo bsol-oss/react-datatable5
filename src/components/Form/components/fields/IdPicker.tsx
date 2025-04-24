@@ -211,6 +211,7 @@ export const IdPicker = ({
           onClick={() => {
             setOpenSearchResult(true);
           }}
+          justifyContent={"start"}
         >
           {getPickedValue()}
         </Button>
@@ -280,7 +281,9 @@ export const IdPicker = ({
                             }}
                             opacity={0.7}
                             _hover={{ opacity: 1 }}
-                            {...(selected ? { color: "colorPalette.400/50" } : {})}
+                            {...(selected
+                              ? { color: "colorPalette.400/50" }
+                              : {})}
                           >
                             {!!renderDisplay === true
                               ? renderDisplay(item)
