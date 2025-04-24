@@ -6,6 +6,7 @@ import { useSchemaContext } from "../../useSchemaContext";
 import { FileDropzone } from "../FileDropzone";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { removeIndex } from "../../utils/removeIndex";
+import { Image } from "@chakra-ui/react";
 
 export const FilePicker = ({ column, schema, prefix }) => {
   const {
@@ -58,6 +59,16 @@ export const FilePicker = ({ column, schema, prefix }) => {
                 alignItems={"center"}
                 padding={"2"}
               >
+                {file.type.startsWith("image/") && (
+                  <Image
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    boxSize="50px"
+                    objectFit="cover"
+                    borderRadius="md"
+                    marginRight="2"
+                  />
+                )}
                 <Box>{file.name}</Box>
                 <TiDeleteOutline />
               </Card.Body>
