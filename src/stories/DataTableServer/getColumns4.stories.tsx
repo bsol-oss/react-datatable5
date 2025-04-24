@@ -68,25 +68,8 @@ const AddressApp = () => {
   });
   const translate = useTranslation("", { keyPrefix: "excell" });
 
-  const columns = getColumns<string>({
-    schema: peopleSchema as JSONSchema7,
-    // ignore: ["building_name"],
-    width: [400, 80, 100],
-    meta: {
-      // created_at: {
-      //   displayName: "Created at",
-      //   filterVariant: "select",
-      //   filterOptions: ["Apple", "Huawei"],
-      // },
-    },
-    translate,
-  });
-
   const columnsInclude = getColumns<string>({
     schema: peopleSchema as JSONSchema7,
-    // ignore: ["building_name"],
-    // include: ["first_name","last_name"],
-    // width: [400, 80, 100],
     meta: {},
     translate,
   });
@@ -99,6 +82,7 @@ const AddressApp = () => {
         {...datatable}
       >
         <TableDataDisplay />
+        {JSON.stringify(datatable.query.data)}
       </DataTableServer>
     </Provider>
   );

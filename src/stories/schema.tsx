@@ -587,18 +587,8 @@ export const eventsFilesSchema = {
 };
 
 export const eventsFilesSchema2 = {
-  $id: "http://api.localhost.com/schema/public/events_files.json",
   type: "object",
   title: "events_files",
-  $schema: "http://json-schema.org/draft-07/schema#",
-  example: {
-    file_id: "4f56b583-9e16-f49a-bbc3-3fdcefd3e68e",
-    event_id: "8df9c8c1-7572-6f33-abfb-cfe0cca4c659",
-    extra_info: {
-      aute__e_: true,
-      mollit_0e: true,
-    },
-  },
   required: ["event_id", "file_id"],
   properties: {
     file_id: {
@@ -610,16 +600,12 @@ export const eventsFilesSchema2 = {
         column: "id",
         display_column: "name",
       },
-      description:
-        "Missing description. Database type: uuid. Default value: null",
       gridColumn: "1/span 8",
       gridRow: "2/span 8",
     },
     event_id: {
       type: "string",
       format: "uuid",
-      description:
-        "Missing description. Database type: uuid. Default value: null",
       variant: "id-picker",
       foreign_key: {
         table: "core_events",
@@ -629,57 +615,36 @@ export const eventsFilesSchema2 = {
       gridColumn: "1/span 6",
       gridRow: "1/span 1",
     },
+    good: {
+      type: "array",
+      variant: "file-picker",
+      properties: {},
+    },
   },
   description: "Missing description",
   additionalProperties: false,
 };
 
 export const geolocationSchema = {
-  $id: "http://api.localhost.com/schema/public/core_geolocations.json",
   type: "object",
   title: "core_geolocations",
-  $schema: "http://json-schema.org/draft-07/schema#",
-  example: {
-    id: "e64acd97-be1c-0246-4f1c-1439080ea585",
-    city: "in ut reprehenderit adipisicing minim",
-    region: "ea officia Duis adipisi",
-    street: "ex sed ipsum sit dolore",
-    country: "occaecat laborum in",
-    district: "aute dolor consequat ipsum non",
-    latitude: -63893440.47333396,
-    longitude: 60203406.060307205,
-    created_at: "1900-01-14T02:43:59.0Z",
-    deleted_at: "1969-06-26T22:59:31.0Z",
-    extra_info: { cillum7: "reprehenderit Excepteur" },
-    updated_at: "1924-02-28T03:15:20.0Z",
-    description: "magna",
-    location_name: "id veniam magna esse irure",
-  },
   required: ["location_name"],
   properties: {
     id: {
       type: "string",
       format: "uuid",
-      description:
-        "Missing description. Database type: uuid. Default value: uuid_generate_v4()",
     },
     city: {
       type: "string",
       maxLength: 255,
-      description:
-        "Missing description. Database type: character varying. Default value: null",
     },
     region: {
       type: "string",
       maxLength: 255,
-      description:
-        "Missing description. Database type: character varying. Default value: null",
     },
     street: {
       type: "string",
       maxLength: 255,
-      description:
-        "Missing description. Database type: character varying. Default value: null",
     },
     country: {
       type: "string",
