@@ -12,6 +12,7 @@ import { RecordInput } from "./RecordInput";
 import { StringInputField } from "./StringInputField";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { TagPicker } from "./TagPicker";
+import { TimePicker } from "./TimePicker";
 
 export interface SchemaRendererProps {
   column: string;
@@ -42,6 +43,9 @@ export const SchemaRenderer = ({
     }
     if (variant === "date-picker") {
       return <DatePicker schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (variant === "time-picker") {
+      return <TimePicker schema={colSchema} {...{ prefix, column }} />;
     }
     return <StringInputField schema={colSchema} {...{ prefix, column }} />;
   }

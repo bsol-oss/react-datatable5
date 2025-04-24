@@ -303,6 +303,7 @@ export const activitiesSchema = {
     },
     start_time: {
       type: "string",
+      variant: "time-picker",
       gridColumn: "4/span 3",
       gridRow: "4/span 1",
     },
