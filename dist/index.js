@@ -57,6 +57,39 @@ const DataTableContext = React.createContext({
     setGlobalFilter: () => { },
     type: "client",
     translate: {},
+    data: [],
+    columns: [],
+    columnOrder: [],
+    columnFilters: [],
+    density: "sm",
+    sorting: [],
+    setPagination: function () {
+        throw new Error("Function not implemented.");
+    },
+    setSorting: function () {
+        throw new Error("Function not implemented.");
+    },
+    setColumnFilters: function () {
+        throw new Error("Function not implemented.");
+    },
+    setRowSelection: function () {
+        throw new Error("Function not implemented.");
+    },
+    setColumnOrder: function () {
+        throw new Error("Function not implemented.");
+    },
+    setDensity: function () {
+        throw new Error("Function not implemented.");
+    },
+    setColumnVisibility: function () {
+        throw new Error("Function not implemented.");
+    },
+    pagination: {
+        pageIndex: 0,
+        pageSize: 10,
+    },
+    rowSelection: {},
+    columnVisibility: {},
 });
 
 const useDataTableContext = () => {
@@ -2441,8 +2474,8 @@ react.CheckboxCard.Indicator;
 function ColumnCard({ columnId }) {
     const ref = React.useRef(null);
     const [dragging, setDragging] = React.useState(false); // NEW
-    const { table } = useDataTableContext();
-    const displayName = columnId;
+    const { table, translate } = useDataTableContext();
+    const displayName = translate.t(columnId);
     const column = table.getColumn(columnId);
     invariant(column);
     React.useEffect(() => {
@@ -4587,6 +4620,15 @@ const TagPicker = ({ column, schema, prefix }) => {
             }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
 };
 
+const TextAreaInput = ({ column, schema, prefix, }) => {
+    const { register, formState: { errors }, } = reactHookForm.useFormContext();
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsxRuntime.jsx(react.Textarea, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }), errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+};
+
 function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem, meridiemLabel = {
     am: "am",
     pm: "pm",
@@ -4710,6 +4752,9 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         if (variant === "time-picker") {
             return jsxRuntime.jsx(TimePicker, { schema: colSchema, prefix, column });
         }
+        if (variant === "text-area") {
+            return jsxRuntime.jsx(TextAreaInput, { schema: colSchema, prefix, column });
+        }
         return jsxRuntime.jsx(StringInputField, { schema: colSchema, prefix, column });
     }
     if (type === "number" || type === "integer") {
@@ -4778,6 +4823,18 @@ const BooleanViewer = ({ schema, column, prefix, }) => {
         gridRow, children: [jsxRuntime.jsx(react.Text, { children: value
                     ? translate.t(removeIndex(`${colLabel}.true`))
                     : translate.t(removeIndex(`${colLabel}.false`)) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+};
+
+const CustomViewer = ({ column, schema, prefix }) => {
+    const formContext = reactHookForm.useFormContext();
+    const { inputViewerRender } = schema;
+    return (inputViewerRender &&
+        inputViewerRender({
+            column,
+            schema,
+            prefix,
+            formContext,
+        }));
 };
 
 const DateViewer = ({ column, schema, prefix }) => {
@@ -4935,6 +4992,16 @@ const RecordInput = ({ column, schema, prefix }) => {
                 }, children: translate.t(`${column}.addNew`) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
 };
 
+const StringViewer = ({ column, schema, prefix, }) => {
+    const { watch, formState: { errors }, } = reactHookForm.useFormContext();
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    const value = watch(colLabel);
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsxRuntime.jsx(react.Text, { children: value }), errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+};
+
 const TagViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { serverUrl } = useSchemaContext();
@@ -5020,26 +5087,27 @@ const TagViewer = ({ column, schema, prefix }) => {
             }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
 };
 
-const StringViewer = ({ column, schema, prefix, }) => {
+const TextAreaViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
     const { required, gridColumn, gridRow } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsxRuntime.jsx(react.Text, { children: value }), errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsxRuntime.jsx(react.Text, { whiteSpace: "pre-wrap", children: value }), " ", errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
 };
 
-const CustomViewer = ({ column, schema, prefix }) => {
-    const formContext = reactHookForm.useFormContext();
-    const { inputViewerRender } = schema;
-    return (inputViewerRender &&
-        inputViewerRender({
-            column,
-            schema,
-            prefix,
-            formContext,
-        }));
+const TimeViewer = ({ column, schema, prefix }) => {
+    const { watch, formState: { errors }, } = reactHookForm.useFormContext();
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    const selectedDate = watch(colLabel);
+    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+        gridRow, children: [jsxRuntime.jsx(react.Text, { children: selectedDate !== undefined
+                    ? dayjs(selectedDate).format("hh:mm A")
+                    : "" }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
 };
 
 const SchemaViewer = ({ schema, prefix, column, }) => {
@@ -5058,6 +5126,12 @@ const SchemaViewer = ({ schema, prefix, column, }) => {
         }
         if (variant === "date-picker") {
             return jsxRuntime.jsx(DateViewer, { schema: colSchema, prefix, column });
+        }
+        if (variant === "time-picker") {
+            return jsxRuntime.jsx(TimeViewer, { schema: colSchema, prefix, column });
+        }
+        if (variant === "text-area") {
+            return jsxRuntime.jsx(TextAreaViewer, { schema: colSchema, prefix, column });
         }
         return jsxRuntime.jsx(StringViewer, { schema: colSchema, prefix, column });
     }

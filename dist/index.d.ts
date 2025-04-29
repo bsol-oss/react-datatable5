@@ -171,7 +171,7 @@ interface DataTableContext<TData = unknown> extends DataTableProps {
     globalFilter: string;
     setGlobalFilter: OnChangeFn<string>;
     type: "client" | "server";
-    translate: UseTranslationResponse<any, any>;
+    translate: UseTranslationResponse<any, unknown>;
 }
 declare const DataTableContext: React$1.Context<DataTableContext<unknown>>;
 

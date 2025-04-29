@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Tooltip as Tooltip$1, Group, InputElement, Icon, List, Table as Table$1, Checkbox as Checkbox$1, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, createListCollection, Select, Center, Heading } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Tooltip as Tooltip$1, Group, InputElement, Icon, List, Table as Table$1, Checkbox as Checkbox$1, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Textarea, createListCollection, Select, Center, Heading } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef } from 'react';
@@ -37,6 +37,39 @@ const DataTableContext = createContext({
     setGlobalFilter: () => { },
     type: "client",
     translate: {},
+    data: [],
+    columns: [],
+    columnOrder: [],
+    columnFilters: [],
+    density: "sm",
+    sorting: [],
+    setPagination: function () {
+        throw new Error("Function not implemented.");
+    },
+    setSorting: function () {
+        throw new Error("Function not implemented.");
+    },
+    setColumnFilters: function () {
+        throw new Error("Function not implemented.");
+    },
+    setRowSelection: function () {
+        throw new Error("Function not implemented.");
+    },
+    setColumnOrder: function () {
+        throw new Error("Function not implemented.");
+    },
+    setDensity: function () {
+        throw new Error("Function not implemented.");
+    },
+    setColumnVisibility: function () {
+        throw new Error("Function not implemented.");
+    },
+    pagination: {
+        pageIndex: 0,
+        pageSize: 10,
+    },
+    rowSelection: {},
+    columnVisibility: {},
 });
 
 const useDataTableContext = () => {
@@ -2421,8 +2454,8 @@ CheckboxCard$1.Indicator;
 function ColumnCard({ columnId }) {
     const ref = useRef(null);
     const [dragging, setDragging] = useState(false); // NEW
-    const { table } = useDataTableContext();
-    const displayName = columnId;
+    const { table, translate } = useDataTableContext();
+    const displayName = translate.t(columnId);
     const column = table.getColumn(columnId);
     invariant(column);
     useEffect(() => {
@@ -4567,6 +4600,15 @@ const TagPicker = ({ column, schema, prefix }) => {
             }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
 };
 
+const TextAreaInput = ({ column, schema, prefix, }) => {
+    const { register, formState: { errors }, } = useFormContext();
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsx(Textarea, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }), errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+};
+
 function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem, meridiemLabel = {
     am: "am",
     pm: "pm",
@@ -4690,6 +4732,9 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         if (variant === "time-picker") {
             return jsx(TimePicker, { schema: colSchema, prefix, column });
         }
+        if (variant === "text-area") {
+            return jsx(TextAreaInput, { schema: colSchema, prefix, column });
+        }
         return jsx(StringInputField, { schema: colSchema, prefix, column });
     }
     if (type === "number" || type === "integer") {
@@ -4758,6 +4803,18 @@ const BooleanViewer = ({ schema, column, prefix, }) => {
         gridRow, children: [jsx(Text, { children: value
                     ? translate.t(removeIndex(`${colLabel}.true`))
                     : translate.t(removeIndex(`${colLabel}.false`)) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+};
+
+const CustomViewer = ({ column, schema, prefix }) => {
+    const formContext = useFormContext();
+    const { inputViewerRender } = schema;
+    return (inputViewerRender &&
+        inputViewerRender({
+            column,
+            schema,
+            prefix,
+            formContext,
+        }));
 };
 
 const DateViewer = ({ column, schema, prefix }) => {
@@ -4915,6 +4972,16 @@ const RecordInput = ({ column, schema, prefix }) => {
                 }, children: translate.t(`${column}.addNew`) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
 };
 
+const StringViewer = ({ column, schema, prefix, }) => {
+    const { watch, formState: { errors }, } = useFormContext();
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    const value = watch(colLabel);
+    return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsx(Text, { children: value }), errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+};
+
 const TagViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { serverUrl } = useSchemaContext();
@@ -5000,26 +5067,27 @@ const TagViewer = ({ column, schema, prefix }) => {
             }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
 };
 
-const StringViewer = ({ column, schema, prefix, }) => {
+const TextAreaViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
     const { required, gridColumn, gridRow } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsx(Text, { children: value }), errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+    return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsx(Text, { whiteSpace: "pre-wrap", children: value }), " ", errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
 };
 
-const CustomViewer = ({ column, schema, prefix }) => {
-    const formContext = useFormContext();
-    const { inputViewerRender } = schema;
-    return (inputViewerRender &&
-        inputViewerRender({
-            column,
-            schema,
-            prefix,
-            formContext,
-        }));
+const TimeViewer = ({ column, schema, prefix }) => {
+    const { watch, formState: { errors }, } = useFormContext();
+    const { translate } = useSchemaContext();
+    const { required, gridColumn, gridRow } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    const selectedDate = watch(colLabel);
+    return (jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+        gridRow, children: [jsx(Text, { children: selectedDate !== undefined
+                    ? dayjs(selectedDate).format("hh:mm A")
+                    : "" }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
 };
 
 const SchemaViewer = ({ schema, prefix, column, }) => {
@@ -5038,6 +5106,12 @@ const SchemaViewer = ({ schema, prefix, column, }) => {
         }
         if (variant === "date-picker") {
             return jsx(DateViewer, { schema: colSchema, prefix, column });
+        }
+        if (variant === "time-picker") {
+            return jsx(TimeViewer, { schema: colSchema, prefix, column });
+        }
+        if (variant === "text-area") {
+            return jsx(TextAreaViewer, { schema: colSchema, prefix, column });
         }
         return jsx(StringViewer, { schema: colSchema, prefix, column });
     }
