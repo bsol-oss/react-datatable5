@@ -13,6 +13,7 @@ import { ObjectInput } from "./ObjectInput";
 import { RecordInput } from "./RecordInput";
 import { StringInputField } from "./StringInputField";
 import { TagPicker } from "./TagPicker";
+import { TextAreaInput } from "./TextAreaInput";
 import { TimePicker } from "./TimePicker";
 
 export interface SchemaRendererProps {
@@ -50,6 +51,9 @@ export const SchemaRenderer = ({
     }
     if (variant === "time-picker") {
       return <TimePicker schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (variant === "text-area") {
+      return <TextAreaInput schema={colSchema} {...{ prefix, column }} />;
     }
     return <StringInputField schema={colSchema} {...{ prefix, column }} />;
   }

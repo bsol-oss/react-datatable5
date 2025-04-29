@@ -3,6 +3,7 @@ import { idPickerSanityCheck } from "../core/FormRoot";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { ArrayViewer } from "./ArrayViewer";
 import { BooleanViewer } from "./BooleanViewer";
+import { CustomViewer } from "./CustomViewer";
 import { DateViewer } from "./DateViewer";
 import { EnumViewer } from "./EnumViewer";
 import { FileViewer } from "./FileViewer";
@@ -10,9 +11,10 @@ import { IdViewer } from "./IdViewer";
 import { NumberViewer } from "./NumberViewer";
 import { ObjectViewer } from "./ObjectViewer";
 import { RecordInput } from "./RecordViewer";
-import { TagViewer } from "./TagViewer";
 import { StringViewer } from "./StringViewer";
-import { CustomViewer } from "./CustomViewer";
+import { TagViewer } from "./TagViewer";
+import { TextAreaViewer } from "./TextAreaViewer";
+import { TimeViewer } from "./TimeViewer";
 
 export interface SchemaRendererProps {
   column: string;
@@ -47,6 +49,13 @@ export const SchemaViewer = ({
     if (variant === "date-picker") {
       return <DateViewer schema={colSchema} {...{ prefix, column }} />;
     }
+    if (variant === "time-picker") {
+      return <TimeViewer schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (variant === "text-area") {
+      return <TextAreaViewer schema={colSchema} {...{ prefix, column }} />;
+    }
+
     return <StringViewer schema={colSchema} {...{ prefix, column }} />;
   }
   if (type === "number" || type === "integer") {

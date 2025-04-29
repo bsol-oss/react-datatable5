@@ -1,11 +1,11 @@
-import { Input, Text } from "@chakra-ui/react";
+import { Text, Textarea } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../../ui/field";
 import { useSchemaContext } from "../../useSchemaContext";
 import { removeIndex } from "../../utils/removeIndex";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 
-export interface StringInputFieldProps {
+export interface TextAreaInputProps {
   column: string;
   schema: CustomJSONSchema7;
   prefix: string;
@@ -16,11 +16,11 @@ export interface ForeignKeyProps {
   table: string;
   display_column: string;
 }
-export const StringInputField = ({
+export const TextAreaInput = ({
   column,
   schema,
   prefix,
-}: StringInputFieldProps) => {
+}: TextAreaInputProps) => {
   const {
     register,
     formState: { errors },
@@ -37,7 +37,7 @@ export const StringInputField = ({
         gridColumn={gridColumn ?? "span 4"}
         gridRow={gridRow ?? "span 1"}
       >
-        <Input
+        <Textarea
           {...register(`${colLabel}`, { required: isRequired })}
           autoComplete="off"
         />

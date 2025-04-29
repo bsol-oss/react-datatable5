@@ -620,6 +620,10 @@ export const eventsFilesSchema2 = {
       variant: "file-picker",
       properties: {},
     },
+    some_text_area: {
+      type: "string",
+      variant: "text-area"
+    }
   },
   description: "Missing description",
   additionalProperties: false,
