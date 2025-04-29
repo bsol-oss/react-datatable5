@@ -566,7 +566,6 @@ export const eventsFilesSchema = {
     },
     event_id: {
       type: "string",
-
       variant: "id-picker",
       gridColumn: "1/span 6",
       gridRow: "1/span 1",
