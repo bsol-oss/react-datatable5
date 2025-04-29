@@ -79,7 +79,7 @@ const SomeForm = () => {
         schema: activitiesSchema as JSONSchema7,
         ignore: ["id", "created_at", "updated_at"],
         serverUrl: "http://localhost:8081",
-        onSubmit: async (data)=>{
+        onSubmit: async (data) => {
           await axios.post("http://localhost:8081/api/g/core_activities", data);
         },
         getUpdatedData: async () => {
@@ -90,7 +90,7 @@ const SomeForm = () => {
             limit: 10,
             offset: 0,
           });
-          return response.data[0]
+          return response.data[0];
         },
         ...form,
       }}

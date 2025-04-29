@@ -309,6 +309,7 @@ export const activitiesSchema = {
     },
     description: {
       type: "string",
+      variant: 'text-area',
       description:
         "Missing description. Database type: text. Default value: null",
       gridColumn: "1/span 12",
