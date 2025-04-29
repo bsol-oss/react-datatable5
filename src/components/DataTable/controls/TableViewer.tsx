@@ -17,9 +17,9 @@ interface ColumnCardProps {
 function ColumnCard({ columnId }: ColumnCardProps) {
   const ref = useRef(null);
   const [dragging, setDragging] = useState<boolean>(false); // NEW
-  const { table } = useDataTableContext();
+  const { table, translate } = useDataTableContext();
 
-  const displayName = columnId;
+  const displayName = translate.t(columnId);
   const column = table.getColumn(columnId);
   invariant(column);
 
