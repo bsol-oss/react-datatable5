@@ -2,9 +2,7 @@
 
 import type { IconButtonProps } from "@chakra-ui/react";
 import { ClientOnly, IconButton, Skeleton } from "@chakra-ui/react";
-// @ts-expect-error chakra generated files
 import { ThemeProvider, useTheme } from "next-themes";
-// @ts-expect-error chakra generated files
 import type { ThemeProviderProps } from "next-themes";
 import * as React from "react";
 import { LuMoon, LuSun } from "react-icons/lu";
