@@ -3773,7 +3773,7 @@ const PopoverTrigger = Popover.Trigger;
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn, gridRow, dateFormat = "YYYY-MM-DD[T]HH:mm:ss[Z]", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
@@ -3789,7 +3789,7 @@ const DatePicker = ({ column, schema, prefix }) => {
                                     selected: new Date(selectedDate), 
                                     // @ts-expect-error TODO: find appropriate types
                                     onDateSelected: ({ date }) => {
-                                        setValue(colLabel, dayjs(date).format("YYYY-MM-DD"));
+                                        setValue(colLabel, dayjs(date).format(dateFormat));
                                         setOpen(false);
                                     } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
