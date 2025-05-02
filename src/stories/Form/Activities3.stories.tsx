@@ -80,7 +80,7 @@ const SomeForm = () => {
         ignore: ["id", "created_at", "updated_at"],
         serverUrl: "http://localhost:8081",
         onSubmit: async (data) => {
-          await axios.post("http://localhost:8081/api/g/core_activities", data);
+          console.log("onSubmit", data);
         },
         getUpdatedData: async () => {
           const response = await getTableData({
