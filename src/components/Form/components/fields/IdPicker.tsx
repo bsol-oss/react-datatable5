@@ -24,7 +24,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, ReactNode, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../../ui/field";
 import { useSchemaContext } from "../../useSchemaContext";
@@ -145,7 +145,7 @@ export const IdPicker = ({
     setLimit(10);
   };
 
-  const getPickedValue = () => {
+  const getPickedValue = (): ReactNode => {
     if (Object.keys(idMap).length <= 0) {
       return "";
     }
@@ -153,6 +153,10 @@ export const IdPicker = ({
     if (record === undefined) {
       return "";
     }
+    if (!!renderDisplay === true) {
+      return renderDisplay(record);
+    }
+
     return record[display_column];
   };
 
@@ -228,7 +232,9 @@ export const IdPicker = ({
         <PopoverContent>
           <PopoverBody display={"grid"} gap={1}>
             <Input
-              placeholder={translate.t(removeIndex(`${colLabel}.typeToSearch`))}
+              placeholder={translate.t(
+                removeIndex(`${colLabel}.type_to_search`)
+              )}
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
