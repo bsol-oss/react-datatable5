@@ -3779,6 +3779,24 @@ const DatePicker = ({ column, schema, prefix }) => {
     const [open, setOpen] = useState(false);
     const selectedDate = watch(colLabel);
     const formatedDate = dayjs(selectedDate).format("YYYY-MM-DD");
+    useEffect(() => {
+        if (selectedDate) {
+            // Parse the selectedDate with dayjs
+            const parsedDate = dayjs(selectedDate);
+            // If invalid date, do nothing
+            if (!parsedDate.isValid())
+                return;
+            // Format according to dateFormat from schema
+            const formatted = parsedDate.format(dateFormat);
+            // Update the form value only if different to avoid loops
+            if (formatted !== selectedDate) {
+                setValue(colLabel, formatted, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                });
+            }
+        }
+    }, [selectedDate, dateFormat, colLabel, setValue]);
     return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
