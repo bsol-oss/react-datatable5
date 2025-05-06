@@ -22,6 +22,7 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
     formContext: UseFormReturn;
   }) => ReactNode;
   dateFormat?: string;
+  displayDateFormat?: string;
 }
 export interface TagPickerProps {
   column: string;

@@ -16,12 +16,15 @@ import { useSchemaContext } from "../../useSchemaContext";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { removeIndex } from "../../utils/removeIndex";
 import { MdDateRange } from "react-icons/md";
+import utc from "dayjs/plugin/utc";
 
 export interface DatePickerProps {
   column: string;
   schema: CustomJSONSchema7;
   prefix: string;
 }
+
+dayjs.extend(utc);
 
 export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
   const {
@@ -34,12 +37,14 @@ export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
     required,
     gridColumn,
     gridRow,
+    displayDateFormat = "YYYY-MM-DD",
     dateFormat = "YYYY-MM-DD[T]HH:mm:ss[Z]",
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const [open, setOpen] = useState(false);
   const selectedDate = watch(colLabel);
+  const displayDate = dayjs.utc(selectedDate).format(displayDateFormat);
 
   useEffect(() => {
     try {
@@ -101,7 +106,7 @@ export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
             justifyContent={"start"}
           >
             <MdDateRange />
-            {selectedDate !== undefined ? `${selectedDate}` : ""}
+            {selectedDate !== undefined ? `${displayDate}` : ""}
           </Button>
         </PopoverTrigger>
         <PopoverContent>

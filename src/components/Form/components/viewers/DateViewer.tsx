@@ -4,6 +4,7 @@ import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
 import { removeIndex } from "../../utils/removeIndex";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import dayjs from "dayjs";
 
 export interface DateViewerProps {
   column: string;
@@ -17,10 +18,17 @@ export const DateViewer = ({ column, schema, prefix }: DateViewerProps) => {
     formState: { errors },
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn, gridRow } = schema;
+  const {
+    required,
+    gridColumn,
+    gridRow,
+    displayDateFormat = "YYYY-MM-DD",
+  } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const selectedDate = watch(colLabel);
+  const displayDate = dayjs.utc(selectedDate).format(displayDateFormat);
+
   return (
     <Field
       label={`${translate.t(removeIndex(`${column}.field_label`))}`}
@@ -31,7 +39,7 @@ export const DateViewer = ({ column, schema, prefix }: DateViewerProps) => {
         gridRow,
       }}
     >
-      <Text> {selectedDate !== undefined ? selectedDate : ""}</Text>
+      <Text> {selectedDate !== undefined ? displayDate : ""}</Text>
 
       {errors[`${column}`] && (
         <Text color={"red.400"}>{translate.t(`${column}.field_required`)}</Text>
