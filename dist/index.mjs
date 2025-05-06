@@ -3778,29 +3778,36 @@ const DatePicker = ({ column, schema, prefix }) => {
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
     const selectedDate = watch(colLabel);
-    const formatedDate = dayjs(selectedDate).format("YYYY-MM-DD");
     useEffect(() => {
-        if (selectedDate) {
-            // Parse the selectedDate with dayjs
-            const parsedDate = dayjs(selectedDate);
-            // If invalid date, do nothing
-            if (!parsedDate.isValid())
-                return;
-            // Format according to dateFormat from schema
-            const formatted = parsedDate.format(dateFormat);
-            // Update the form value only if different to avoid loops
-            if (formatted !== selectedDate) {
-                setValue(colLabel, formatted, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                });
+        try {
+            if (selectedDate) {
+                // Parse the selectedDate as UTC or in a specific timezone to avoid +8 hour shift
+                // For example, parse as UTC:
+                const parsedDate = dayjs.utc(selectedDate);
+                // Or if you want to parse in local timezone without shifting:
+                // const parsedDate = dayjs.tz(selectedDate, dayjs.tz.guess());
+                if (!parsedDate.isValid())
+                    return;
+                console.log(selectedDate, parsedDate, parsedDate.format(dateFormat), "dkosfp");
+                // Format according to dateFormat from schema
+                const formatted = parsedDate.format(dateFormat);
+                // Update the form value only if different to avoid loops
+                if (formatted !== selectedDate) {
+                    setValue(colLabel, formatted, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                    });
+                }
             }
+        }
+        catch (e) {
+            console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue]);
     return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
-                            }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${formatedDate}` : ""] }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1
+                            }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${selectedDate}` : ""] }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1
                                 // @ts-expect-error TODO: find appropriate types
                                 , { 
                                     // @ts-expect-error TODO: find appropriate types
