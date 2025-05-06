@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { FormProvider, useFormContext, useForm as useForm$1 } from 'react-hook-form';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { TiDeleteOutline } from 'react-icons/ti';
 
 const DataTableContext = createContext({
@@ -3770,14 +3771,16 @@ const PopoverRoot = Popover.Root;
 const PopoverBody = Popover.Body;
 const PopoverTrigger = Popover.Trigger;
 
+dayjs.extend(utc);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow, dateFormat = "YYYY-MM-DD[T]HH:mm:ss[Z]", } = schema;
+    const { required, gridColumn, gridRow, displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD[T]HH:mm:ss[Z]", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
     const selectedDate = watch(colLabel);
+    const displayDate = dayjs.utc(selectedDate).format(displayDateFormat);
     useEffect(() => {
         try {
             if (selectedDate) {
@@ -3807,7 +3810,7 @@ const DatePicker = ({ column, schema, prefix }) => {
     return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
-                            }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${selectedDate}` : ""] }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1
+                            }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1
                                 // @ts-expect-error TODO: find appropriate types
                                 , { 
                                     // @ts-expect-error TODO: find appropriate types
@@ -4848,12 +4851,13 @@ const CustomViewer = ({ column, schema, prefix }) => {
 const DateViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn, gridRow, displayDateFormat = "YYYY-MM-DD", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
+    const displayDate = dayjs.utc(selectedDate).format(displayDateFormat);
     return (jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsxs(Text, { children: [" ", selectedDate !== undefined ? selectedDate : ""] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
+        gridRow, children: [jsxs(Text, { children: [" ", selectedDate !== undefined ? displayDate : ""] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
 };
 
 const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {

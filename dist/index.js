@@ -30,6 +30,7 @@ var reactI18next = require('react-i18next');
 var axios = require('axios');
 var reactHookForm = require('react-hook-form');
 var dayjs = require('dayjs');
+var utc = require('dayjs/plugin/utc');
 var ti = require('react-icons/ti');
 
 function _interopNamespaceDefault(e) {
@@ -3790,14 +3791,16 @@ const PopoverRoot = react.Popover.Root;
 const PopoverBody = react.Popover.Body;
 const PopoverTrigger = react.Popover.Trigger;
 
+dayjs.extend(utc);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow, dateFormat = "YYYY-MM-DD[T]HH:mm:ss[Z]", } = schema;
+    const { required, gridColumn, gridRow, displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD[T]HH:mm:ss[Z]", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = React.useState(false);
     const selectedDate = watch(colLabel);
+    const displayDate = dayjs.utc(selectedDate).format(displayDateFormat);
     React.useEffect(() => {
         try {
             if (selectedDate) {
@@ -3827,7 +3830,7 @@ const DatePicker = ({ column, schema, prefix }) => {
     return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxRuntime.jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(PopoverTrigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
-                            }, justifyContent: "start", children: [jsxRuntime.jsx(md.MdDateRange, {}), selectedDate !== undefined ? `${selectedDate}` : ""] }) }), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DatePicker$1
+                            }, justifyContent: "start", children: [jsxRuntime.jsx(md.MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DatePicker$1
                                 // @ts-expect-error TODO: find appropriate types
                                 , { 
                                     // @ts-expect-error TODO: find appropriate types
@@ -4868,12 +4871,13 @@ const CustomViewer = ({ column, schema, prefix }) => {
 const DateViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn, gridRow, displayDateFormat = "YYYY-MM-DD", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
+    const displayDate = dayjs.utc(selectedDate).format(displayDateFormat);
     return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsxRuntime.jsxs(react.Text, { children: [" ", selectedDate !== undefined ? selectedDate : ""] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
+        gridRow, children: [jsxRuntime.jsxs(react.Text, { children: [" ", selectedDate !== undefined ? displayDate : ""] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
 };
 
 const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
