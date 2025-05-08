@@ -4870,7 +4870,7 @@ const CustomViewer = ({ column, schema, prefix }) => {
 const DateViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow, displayDateFormat = "YYYY-MM-DD", } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
