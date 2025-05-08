@@ -20,8 +20,8 @@ export const DateViewer = ({ column, schema, prefix }: DateViewerProps) => {
   const { translate } = useSchemaContext();
   const {
     required,
-    gridColumn,
-    gridRow,
+    gridColumn =  "span 4",
+    gridRow =  "span 1",
     displayDateFormat = "YYYY-MM-DD",
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
