@@ -301,6 +301,10 @@ export const activitiesSchema = {
       gridColumn: "1/span 3",
       gridRow: "4/span 1",
     },
+    start_date2: {
+      type: "string",
+      variant: "date-picker",
+    },
     start_time: {
       type: "string",
       variant: "time-picker",

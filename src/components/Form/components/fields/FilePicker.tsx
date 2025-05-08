@@ -7,8 +7,9 @@ import { FileDropzone } from "../FileDropzone";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { removeIndex } from "../../utils/removeIndex";
 import { Image } from "@chakra-ui/react";
+import { InputDefaultProps } from "./types";
 
-export const FilePicker = ({ column, schema, prefix }) => {
+export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   const {
     setValue,
     formState: { errors },

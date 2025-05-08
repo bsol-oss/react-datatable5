@@ -10,23 +10,17 @@ import {
 } from "@/components/ui/popover";
 import { Text } from "@chakra-ui/react";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { useSchemaContext } from "../../useSchemaContext";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { removeIndex } from "../../utils/removeIndex";
 import { MdDateRange } from "react-icons/md";
-import utc from "dayjs/plugin/utc";
-
-export interface DatePickerProps {
-  column: string;
-  schema: CustomJSONSchema7;
-  prefix: string;
-}
+import { useSchemaContext } from "../../useSchemaContext";
+import { removeIndex } from "../../utils/removeIndex";
+import { InputDefaultProps } from "./types";
 
 dayjs.extend(utc);
 
-export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
+export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   const {
     watch,
     formState: { errors },
@@ -35,8 +29,8 @@ export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
   const { translate } = useSchemaContext();
   const {
     required,
-    gridColumn,
-    gridRow,
+    gridColumn =  "span 4",
+    gridRow =  "span 1",
     displayDateFormat = "YYYY-MM-DD",
     dateFormat = "YYYY-MM-DD[T]HH:mm:ss[Z]",
   } = schema;
@@ -52,22 +46,15 @@ export const DatePicker = ({ column, schema, prefix }: DatePickerProps) => {
         // Parse the selectedDate as UTC or in a specific timezone to avoid +8 hour shift
         // For example, parse as UTC:
         const parsedDate = dayjs.utc(selectedDate);
-  
+
         // Or if you want to parse in local timezone without shifting:
         // const parsedDate = dayjs.tz(selectedDate, dayjs.tz.guess());
-  
+
         if (!parsedDate.isValid()) return;
-  
-        console.log(
-          selectedDate,
-          parsedDate,
-          parsedDate.format(dateFormat),
-          "dkosfp"
-        );
-  
+
         // Format according to dateFormat from schema
         const formatted = parsedDate.format(dateFormat);
-  
+
         // Update the form value only if different to avoid loops
         if (formatted !== selectedDate) {
           setValue(colLabel, formatted, {

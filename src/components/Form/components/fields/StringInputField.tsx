@@ -3,13 +3,9 @@ import { useFormContext } from "react-hook-form";
 import { Field } from "../../../ui/field";
 import { useSchemaContext } from "../../useSchemaContext";
 import { removeIndex } from "../../utils/removeIndex";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { InputDefaultProps } from "./types";
 
-export interface StringInputFieldProps {
-  column: string;
-  schema: CustomJSONSchema7;
-  prefix: string;
-}
+export interface StringInputFieldProps extends InputDefaultProps {}
 
 export interface ForeignKeyProps {
   column: string;
