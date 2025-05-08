@@ -3775,7 +3775,7 @@ dayjs.extend(utc);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow, displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD[T]HH:mm:ss[Z]", } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD[T]HH:mm:ss[Z]", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
@@ -3791,7 +3791,6 @@ const DatePicker = ({ column, schema, prefix }) => {
                 // const parsedDate = dayjs.tz(selectedDate, dayjs.tz.guess());
                 if (!parsedDate.isValid())
                     return;
-                console.log(selectedDate, parsedDate, parsedDate.format(dateFormat), "dkosfp");
                 // Format according to dateFormat from schema
                 const formatted = parsedDate.format(dateFormat);
                 // Update the form value only if different to avoid loops

@@ -1,8 +1,5 @@
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-export interface StringInputFieldProps {
-    column: string;
-    schema: CustomJSONSchema7;
-    prefix: string;
+import { InputDefaultProps } from "./types";
+export interface StringInputFieldProps extends InputDefaultProps {
 }
 export interface ForeignKeyProps {
     column: string;
