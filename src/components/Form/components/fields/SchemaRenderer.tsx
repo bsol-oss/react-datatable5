@@ -33,6 +33,7 @@ export const SchemaRenderer = ({
     variant,
     properties: innerProperties,
     foreign_key,
+    format,
     items,
   } = schema;
   if (variant === "custom-input") {
@@ -46,10 +47,10 @@ export const SchemaRenderer = ({
       idPickerSanityCheck(column, foreign_key);
       return <IdPicker schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "date-picker") {
+    if (format === "date") {
       return <DatePicker schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "time-picker") {
+    if (format === "time") {
       return <TimePicker schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === "text-area") {
