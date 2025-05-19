@@ -4744,7 +4744,7 @@ const TimePicker = ({ column, schema, prefix }) => {
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {
     const colSchema = schema;
-    const { type, variant, properties: innerProperties, foreign_key, items, } = schema;
+    const { type, variant, properties: innerProperties, foreign_key, format, items, } = schema;
     if (variant === "custom-input") {
         return jsx(CustomInput, { schema: colSchema, prefix, column });
     }
@@ -4756,10 +4756,10 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
             idPickerSanityCheck(column, foreign_key);
             return jsx(IdPicker, { schema: colSchema, prefix, column });
         }
-        if (variant === "date-picker") {
+        if (format === "date") {
             return jsx(DatePicker, { schema: colSchema, prefix, column });
         }
-        if (variant === "time-picker") {
+        if (format === "time") {
             return jsx(TimePicker, { schema: colSchema, prefix, column });
         }
         if (variant === "text-area") {
