@@ -137,7 +137,7 @@ export const IdPicker = ({
         serverUrl,
         searching: searchValue,
         in_table: table,
-        where: [{ id: column_ref, value: isMultiple ? watchIds : [watchId] }],
+        where: [{ id: column_ref, value: isMultiple ? watchIds : watchId }],
         limit: isMultiple ? watchIds.length : 1,
         offset: 0,
       });
