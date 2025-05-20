@@ -45,12 +45,12 @@ export const EnumPicker = ({
   const { translate } = useSchemaContext();
   const { required, variant } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const { gridColumn = "span 4", gridRow = "span 1", renderDisplay, label } = schema;
+  const { gridColumn = "span 4", gridRow = "span 1", renderDisplay } = schema;
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const ref = useRef<HTMLInputElement>(null);
-  const colLabel = `${prefix}${label}`;
+  const colLabel = `${prefix}${column}`;
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];
   const dataList = schema.enum ?? [];
