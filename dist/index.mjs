@@ -3631,7 +3631,7 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const { formState: { errors }, setValue, watch, } = useFormContext();
     const fields = (watch(colLabel) ?? []);
-    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), fields.map((field, index) => (jsxs(Flex, { flexFlow: "column", children: [jsx(Grid, { padding: "4", gridTemplateColumns: "repeat(12, 1fr)", gridAutoRows: `repeat("auto-fit", auto)`, children: jsx(SchemaRenderer, { column: `${index}`,
+    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), fields.map((field, index) => (jsxs(Flex, { flexFlow: "column", children: [jsx(Box, { children: index + 1 }), jsx(Grid, { gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsx(SchemaRenderer, { column: `${index}`,
                             prefix: `${colLabel}.`,
                             schema: items }) }), jsx(Flex, { justifyContent: "end", children: jsx(Button$1, { variant: "ghost", onClick: () => {
                                 setValue(colLabel, fields.filter((_, curIndex) => {
@@ -3841,7 +3841,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
     const ref = useRef(null);
-    const colLabel = `${prefix}${column}`;
+    const colLabel = `${prefix}${colLabel}`;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
     const dataList = schema.enum ?? [];
@@ -3852,7 +3852,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
         setLimit(10);
     };
     if (variant === "radio") {
-        return (jsx(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+        return (jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
             gridRow, children: jsx(RadioGroup$1.Root, { defaultValue: "1", children: jsx(HStack, { gap: "6", children: filterArray(dataList, searchText ?? "").map((item) => {
                         return (jsxs(RadioGroup$1.Item, { onClick: () => {
                                 if (!isMultiple) {
@@ -3867,7 +3867,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                                         : translate.t(removeIndex(`${colLabel}.${item}`)) })] }, `${colLabel}-${item}`));
                     }) }) }) }));
     }
-    return (jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [watchEnums.map((enumValue) => {
                         const item = enumValue;
                         if (item === undefined) {
@@ -3884,10 +3884,10 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                     setOpenSearchResult(true);
                 }, justifyContent: "start", children: watchEnum === undefined
                     ? ""
-                    : translate.t(removeIndex(`${colLabel}.${watchEnum}`)) })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(`${column}.type_to_search`), onChange: (event) => {
+                    : translate.t(removeIndex(`${colLabel}.${watchEnum}`)) })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(`${colLabel}.type_to_search`), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), jsx(Text, { children: `${translate.t(`${column}.total`)}: ${count}, ${translate.t(`${column}.showing`)} ${limit}` }), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: filterArray(dataList, searchText ?? "").map((item) => {
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), jsx(Text, { children: `${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}` }), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: filterArray(dataList, searchText ?? "").map((item) => {
                                                 const selected = isMultiple
                                                     ? watchEnums.some((enumValue) => item === enumValue)
                                                     : watchEnum == item;
@@ -3902,7 +3902,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                                                     }, ...(selected ? { color: "colorPalette.400/50" } : {}), children: !!renderDisplay === true
                                                         ? renderDisplay(item)
                                                         : translate.t(removeIndex(`${colLabel}.${item}`)) }, `${colLabel}-${item}`));
-                                            }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Fragment, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                                            }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Fragment, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] })] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
 function isEnteringWindow(_ref) {
@@ -4457,7 +4457,7 @@ const NumberInputField = ({ schema, column, prefix, }) => {
 };
 
 const ObjectInput = ({ schema, column, prefix }) => {
-    const { properties, gridColumn = "span 4", gridRow = "span 1", required, } = schema;
+    const { properties, gridColumn = "span 12", gridRow = "span 1", required, } = schema;
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -4465,7 +4465,7 @@ const ObjectInput = ({ schema, column, prefix }) => {
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
     }
-    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), jsx(Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat("auto-fit", auto)`, children: Object.keys(properties ?? {}).map((key) => {
+    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), jsx(Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: Object.keys(properties ?? {}).map((key) => {
                     return (
                     // @ts-expect-error find suitable types
                     jsx(ColumnRenderer, { column: `${key}`,
@@ -4817,7 +4817,7 @@ const ArrayViewer = ({ schema, column, prefix }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const { watch, formState: { errors }, } = useFormContext();
     const values = watch(colLabel) ?? [];
-    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), values.map((field, index) => (jsx(Flex, { flexFlow: "column", children: jsx(Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat("auto-fit", auto)`, children: jsx(SchemaViewer, { column: `${index}`,
+    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), values.map((field, index) => (jsx(Flex, { flexFlow: "column", children: jsx(Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsx(SchemaViewer, { column: `${index}`,
                         prefix: `${colLabel}.`,
                         schema: items }) }) }, `form-${prefix}${column}.${index}`))), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
@@ -5277,7 +5277,7 @@ const FormBody = () => {
                         }, formNoValidate: true, children: translate.t("submit_again") }) })] }));
     }
     if (isConfirming) {
-        return (jsxs(Flex, { flexFlow: "column", gap: "2", children: [jsx(Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
+        return (jsxs(Flex, { flexFlow: "column", gap: "2", children: [jsx(Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: "repeat(12, max-content)", autoFlow: "row", children: ordered.map((column) => {
                         return (jsx(ColumnViewer
                         // @ts-expect-error find suitable types
                         , { 
@@ -5289,7 +5289,7 @@ const FormBody = () => {
                                 onFormSubmit(validatedData);
                             }, children: translate.t("confirm") })] }), isSubmiting && (jsx(Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsx(Center, { h: "full", children: jsx(Spinner, { color: "teal.500" }) }) })), isError && (jsx(Fragment, { children: jsx(Alert.Root, { status: "error", children: jsx(Alert.Title, { children: jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxs(AccordionItem, { value: "b", children: [jsxs(AccordionItemTrigger, { children: [jsx(Alert.Indicator, {}), `${error}`] }), jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) }) }))] }));
     }
-    return (jsxs(Flex, { flexFlow: "column", gap: "2", children: [jsx(Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
+    return (jsxs(Flex, { flexFlow: "column", gap: "2", children: [jsx(Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: ordered.map((column) => {
                     return (jsx(ColumnRenderer
                     // @ts-expect-error find suitable types
                     , { 

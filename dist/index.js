@@ -3651,7 +3651,7 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const { formState: { errors }, setValue, watch, } = reactHookForm.useFormContext();
     const fields = (watch(colLabel) ?? []);
-    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), fields.map((field, index) => (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", children: [jsxRuntime.jsx(react.Grid, { padding: "4", gridTemplateColumns: "repeat(12, 1fr)", gridAutoRows: `repeat("auto-fit", auto)`, children: jsxRuntime.jsx(SchemaRenderer, { column: `${index}`,
+    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), fields.map((field, index) => (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", children: [jsxRuntime.jsx(react.Box, { children: index + 1 }), jsxRuntime.jsx(react.Grid, { gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsxRuntime.jsx(SchemaRenderer, { column: `${index}`,
                             prefix: `${colLabel}.`,
                             schema: items }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(react.Button, { variant: "ghost", onClick: () => {
                                 setValue(colLabel, fields.filter((_, curIndex) => {
@@ -3861,7 +3861,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
     const ref = React.useRef(null);
-    const colLabel = `${prefix}${column}`;
+    const colLabel = `${prefix}${colLabel}`;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
     const dataList = schema.enum ?? [];
@@ -3872,7 +3872,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
         setLimit(10);
     };
     if (variant === "radio") {
-        return (jsxRuntime.jsx(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+        return (jsxRuntime.jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
             gridRow, children: jsxRuntime.jsx(react.RadioGroup.Root, { defaultValue: "1", children: jsxRuntime.jsx(react.HStack, { gap: "6", children: filterArray(dataList, searchText ?? "").map((item) => {
                         return (jsxRuntime.jsxs(react.RadioGroup.Item, { onClick: () => {
                                 if (!isMultiple) {
@@ -3887,7 +3887,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                                         : translate.t(removeIndex(`${colLabel}.${item}`)) })] }, `${colLabel}-${item}`));
                     }) }) }) }));
     }
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: "wrap", gap: 1, children: [watchEnums.map((enumValue) => {
                         const item = enumValue;
                         if (item === undefined) {
@@ -3904,10 +3904,10 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                     setOpenSearchResult(true);
                 }, justifyContent: "start", children: watchEnum === undefined
                     ? ""
-                    : translate.t(removeIndex(`${colLabel}.${watchEnum}`)) })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(`${column}.type_to_search`), onChange: (event) => {
+                    : translate.t(removeIndex(`${colLabel}.${watchEnum}`)) })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(`${colLabel}.type_to_search`), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(react.Text, { children: `${translate.t(`${column}.total`)}: ${count}, ${translate.t(`${column}.showing`)} ${limit}` }), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: filterArray(dataList, searchText ?? "").map((item) => {
+                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(react.Text, { children: `${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}` }), jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: filterArray(dataList, searchText ?? "").map((item) => {
                                                 const selected = isMultiple
                                                     ? watchEnums.some((enumValue) => item === enumValue)
                                                     : watchEnum == item;
@@ -3922,7 +3922,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                                                     }, ...(selected ? { color: "colorPalette.400/50" } : {}), children: !!renderDisplay === true
                                                         ? renderDisplay(item)
                                                         : translate.t(removeIndex(`${colLabel}.${item}`)) }, `${colLabel}-${item}`));
-                                            }) }), isDirty && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: dataList.length <= 0 && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                                            }) }), isDirty && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: dataList.length <= 0 && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] })] }) })] }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
 function isEnteringWindow(_ref) {
@@ -4477,7 +4477,7 @@ const NumberInputField = ({ schema, column, prefix, }) => {
 };
 
 const ObjectInput = ({ schema, column, prefix }) => {
-    const { properties, gridColumn = "span 4", gridRow = "span 1", required, } = schema;
+    const { properties, gridColumn = "span 12", gridRow = "span 1", required, } = schema;
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -4485,7 +4485,7 @@ const ObjectInput = ({ schema, column, prefix }) => {
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
     }
-    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat("auto-fit", auto)`, children: Object.keys(properties ?? {}).map((key) => {
+    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: Object.keys(properties ?? {}).map((key) => {
                     return (
                     // @ts-expect-error find suitable types
                     jsxRuntime.jsx(ColumnRenderer, { column: `${key}`,
@@ -4837,7 +4837,7 @@ const ArrayViewer = ({ schema, column, prefix }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const values = watch(colLabel) ?? [];
-    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), values.map((field, index) => (jsxRuntime.jsx(react.Flex, { flexFlow: "column", children: jsxRuntime.jsx(react.Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat("auto-fit", auto)`, children: jsxRuntime.jsx(SchemaViewer, { column: `${index}`,
+    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), values.map((field, index) => (jsxRuntime.jsx(react.Flex, { flexFlow: "column", children: jsxRuntime.jsx(react.Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsxRuntime.jsx(SchemaViewer, { column: `${index}`,
                         prefix: `${colLabel}.`,
                         schema: items }) }) }, `form-${prefix}${column}.${index}`))), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
@@ -5297,7 +5297,7 @@ const FormBody = () => {
                         }, formNoValidate: true, children: translate.t("submit_again") }) })] }));
     }
     if (isConfirming) {
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: "repeat(12, max-content)", autoFlow: "row", children: ordered.map((column) => {
                         return (jsxRuntime.jsx(ColumnViewer
                         // @ts-expect-error find suitable types
                         , { 
@@ -5309,7 +5309,7 @@ const FormBody = () => {
                                 onFormSubmit(validatedData);
                             }, children: translate.t("confirm") })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Alert.Root, { status: "error", children: jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "b", children: [jsxRuntime.jsxs(AccordionItemTrigger, { children: [jsxRuntime.jsx(react.Alert.Indicator, {}), `${error}`] }), jsxRuntime.jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) }) }))] }));
     }
-    return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat(${rowNumber ?? "auto-fit"}, auto)`, children: ordered.map((column) => {
+    return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: ordered.map((column) => {
                     return (jsxRuntime.jsx(ColumnRenderer
                     // @ts-expect-error find suitable types
                     , { 
