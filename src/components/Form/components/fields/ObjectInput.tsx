@@ -37,7 +37,7 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
         gap="4"
         padding={"4"}
         gridTemplateColumns={"repeat(12, 1fr)"}
-        gridTemplateRows={`repeat("auto-fit", auto)`}
+        autoFlow={"row"}
       >
         {Object.keys(properties ?? {}).map((key) => {
           return (

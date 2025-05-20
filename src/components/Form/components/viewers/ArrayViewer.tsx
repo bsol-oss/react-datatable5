@@ -34,7 +34,7 @@ export const ArrayViewer = ({ schema, column, prefix }: ArrayViewerProps) => {
             gap="4"
             padding={"4"}
             gridTemplateColumns={"repeat(12, 1fr)"}
-            gridTemplateRows={`repeat("auto-fit", auto)`}
+            autoFlow={"row"}
           >
             {/* @ts-expect-error find suitable types*/}
             <SchemaViewer

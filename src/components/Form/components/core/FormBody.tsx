@@ -156,7 +156,8 @@ export const FormBody = <TData extends object>() => {
         <Grid
           gap={4}
           gridTemplateColumns={"repeat(12, 1fr)"}
-          gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, auto)`}
+          gridTemplateRows={"repeat(12, max-content)"}
+          autoFlow={"row"}
         >
           {ordered.map((column) => {
             return (
@@ -220,7 +221,7 @@ export const FormBody = <TData extends object>() => {
       <Grid
         gap="4"
         gridTemplateColumns={"repeat(12, 1fr)"}
-        gridTemplateRows={`repeat(${rowNumber ?? "auto-fit"}, auto)`}
+        autoFlow={"row"}
       >
         {ordered.map((column) => {
           return (

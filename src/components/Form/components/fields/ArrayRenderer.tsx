@@ -31,16 +31,15 @@ export const ArrayRenderer = ({
   const fields = (watch(colLabel) ?? []) as any[];
   return (
     <Box {...{ gridRow, gridColumn }}>
-      <Box as="label" gridColumn={"1/span12"}>
+      <Box as="label">
         {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         {isRequired && <span>*</span>}
       </Box>
       {fields.map((field, index) => (
         <Flex key={`${colLabel}.${index}`} flexFlow={"column"}>
           <Grid
-            padding={"4"}
             gridTemplateColumns={"repeat(12, 1fr)"}
-            gridAutoRows={`repeat("auto-fit", auto)`}
+            autoFlow={"row"}
           >
             {/* @ts-expect-error find suitable types*/}
             <SchemaRenderer
