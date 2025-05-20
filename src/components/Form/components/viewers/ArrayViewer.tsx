@@ -12,7 +12,7 @@ export interface ArrayViewerProps {
 }
 
 export const ArrayViewer = ({ schema, column, prefix }: ArrayViewerProps) => {
-  const { gridRow, gridColumn = "1/span 12", required, items } = schema;
+  const { gridColumn = "span 4", gridRow = "span 1", required, items } = schema;
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);

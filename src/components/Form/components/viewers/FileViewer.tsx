@@ -7,7 +7,11 @@ import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 export const FileViewer = ({ column, schema, prefix }) => {
   const { watch } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn, gridRow } = schema as CustomJSONSchema7;
+  const {
+    required,
+    gridColumn = "span 4",
+    gridRow = "span 1",
+  } = schema as CustomJSONSchema7;
   const isRequired = required?.some((columnId) => columnId === column);
 
   const currentFiles = (watch(column) ?? []) as File[];
@@ -16,8 +20,8 @@ export const FileViewer = ({ column, schema, prefix }) => {
     <Field
       label={`${translate.t(`${colLabel}.field_label`)}`}
       required={isRequired}
-      gridColumn={gridColumn ?? "span 4"}
-      gridRow={gridRow ?? "span 1"}
+      gridColumn={gridColumn}
+      gridRow={gridRow}
       display={"grid"}
       gridTemplateRows={"auto 1fr auto"}
       alignItems={"stretch"}

@@ -59,7 +59,13 @@ export const IdPicker = ({
     translate,
     schema: parentSchema,
   } = useSchemaContext();
-  const { required, gridColumn, gridRow, renderDisplay, foreign_key } = schema;
+  const {
+    required,
+    gridColumn = "span 4",
+    gridRow = "span 1",
+    renderDisplay,
+    foreign_key,
+  } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const {
     table,

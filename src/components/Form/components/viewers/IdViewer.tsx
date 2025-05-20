@@ -25,7 +25,13 @@ export const IdViewer = ({
     formState: { errors },
   } = useFormContext();
   const { idMap, translate } = useSchemaContext();
-  const { required, gridColumn, gridRow, renderDisplay, foreign_key } = schema;
+  const {
+    required,
+    gridColumn = "span 4",
+    gridRow = "span 1",
+    renderDisplay,
+    foreign_key,
+  } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const { display_column } = foreign_key as ForeignKeyProps;
 

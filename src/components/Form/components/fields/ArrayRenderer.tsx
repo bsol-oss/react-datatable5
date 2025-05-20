@@ -38,10 +38,9 @@ export const ArrayRenderer = ({
       {fields.map((field, index) => (
         <Flex key={`${colLabel}.${index}`} flexFlow={"column"}>
           <Grid
-            gap="4"
             padding={"4"}
             gridTemplateColumns={"repeat(12, 1fr)"}
-            gridTemplateRows={`repeat("auto-fit", auto)`}
+            gridAutoRows={`repeat("auto-fit", auto)`}
           >
             {/* @ts-expect-error find suitable types*/}
             <SchemaRenderer

@@ -16,7 +16,11 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
     watch,
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn, gridRow } = schema as CustomJSONSchema7;
+  const {
+    required,
+    gridColumn = "span 4",
+    gridRow = "span 1",
+  } = schema as CustomJSONSchema7;
   const isRequired = required?.some((columnId) => columnId === column);
 
   const currentFiles = (watch(column) ?? []) as File[];

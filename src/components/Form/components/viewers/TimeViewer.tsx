@@ -18,7 +18,7 @@ export const TimeViewer = ({ column, schema, prefix }: TimeViewerProps) => {
     formState: { errors },
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn, gridRow } = schema;
+  const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const selectedDate = watch(colLabel);

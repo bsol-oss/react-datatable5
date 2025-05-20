@@ -12,7 +12,12 @@ export interface ObjectViewerProps {
 }
 
 export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
-  const { properties, gridRow, gridColumn = "1/span 12", required } = schema;
+  const {
+    properties,
+    gridColumn = "span 4",
+    gridRow = "span 1",
+    required,
+  } = schema;
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);

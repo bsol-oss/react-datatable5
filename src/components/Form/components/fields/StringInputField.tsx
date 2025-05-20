@@ -22,7 +22,7 @@ export const StringInputField = ({
     formState: { errors },
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn, gridRow } = schema;
+  const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   return (
@@ -30,8 +30,8 @@ export const StringInputField = ({
       <Field
         label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         required={isRequired}
-        gridColumn={gridColumn ?? "span 4"}
-        gridRow={gridRow ?? "span 1"}
+        gridColumn={gridColumn}
+        gridRow={gridRow}
       >
         <Input
           {...register(`${colLabel}`, { required: isRequired })}
