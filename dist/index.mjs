@@ -3635,7 +3635,7 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
                             prefix: `${colLabel}.`,
                             schema: items }) }), jsx(Flex, { justifyContent: "end", children: jsx(Button$1, { variant: "ghost", onClick: () => {
                                 setValue(colLabel, fields.filter((_, curIndex) => {
-                                    return curIndex === index;
+                                    return curIndex !== index;
                                 }));
                             }, children: translate.t(removeIndex(`${colLabel}.remove`)) }) })] }, `${colLabel}.${index}`))), jsx(Flex, { children: jsx(Button$1, { onClick: () => {
                         if (type === "number") {
