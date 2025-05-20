@@ -195,7 +195,24 @@ export const EnumPicker = ({
               maxHeight={"50vh"}
             >
               <Flex flexFlow={"column wrap"}>
-                {filterArray(dataList as string[], searchText ?? "").map(
+                {(dataList as string[]).filter((item: string) => {
+                  const searchTerm = (searchText || "").toLowerCase();
+                  if (!searchTerm) return true;
+                  
+                  // Check if the original enum value contains the search text
+                  const enumValueMatch = item.toLowerCase().includes(searchTerm);
+                  
+                  // Check if the display value (translation) contains the search text
+                  const displayValue = !!renderDisplay === true
+                    ? renderDisplay(item)
+                    : translate.t(removeIndex(`${colLabel}.${item}`));
+                  
+                  // Convert to string and check if it includes the search term
+                  const displayValueString = String(displayValue).toLowerCase();
+                  const displayValueMatch = displayValueString.includes(searchTerm);
+                  
+                  return enumValueMatch || displayValueMatch;
+                }).map(
                   (item: string) => {
                     const selected = isMultiple
                       ? watchEnums.some((enumValue) => item === enumValue)
