@@ -4333,7 +4333,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const { required, gridColumn = "span 4", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { table, column: column_ref, display_column, } = foreign_key;
-    const [searchText, setSearchText] = useState();
+    const [searchText, setSearchText] = useState("");
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
     const [page, setPage] = useState(0);
@@ -4362,13 +4362,12 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             });
             return data;
         },
-        enabled: (searchText ?? "")?.length > 0,
+        enabled: openSearchResult === true,
         staleTime: 300000,
     });
     const { isLoading, isFetching, data, isPending, isError } = query;
     const dataList = data?.data ?? [];
     const count = data?.count ?? 0;
-    const isDirty = (searchText?.length ?? 0) > 0;
     const watchId = watch(colLabel);
     const watchIds = (watch(colLabel) ?? []);
     const queryDefault = useQuery({
@@ -4413,6 +4412,13 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+    // Effect to trigger initial data fetch when popover opens
+    useEffect(() => {
+        if (openSearchResult) {
+            query.refetch();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [openSearchResult]);
     const onSearchChange = async (event) => {
         setSearchText(event.target.value);
         setPage(0);
@@ -4424,9 +4430,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         // Reset to first page when changing limit
         setPage(0);
         // Trigger a new search with the updated limit
-        if (searchText?.length) {
-            query.refetch();
-        }
+        query.refetch();
     };
     const getPickedValue = () => {
         if (Object.keys(idMap).length <= 0) {
@@ -4459,7 +4463,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                 }, justifyContent: "start", children: queryDefault.isLoading ? jsx(Spinner, { size: "sm" }) : getPickedValue() })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(removeIndex(`${colLabel}.type_to_search`)), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxs(Fragment, { children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), (isFetching || isLoading || isPending) && jsx(Spinner, {}), isError && (jsx(Icon, { color: "red.400", children: jsx(BiError, {}) })), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Flex, { alignItems: "center", gap: "2", children: [jsx(InfoTip, { children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}` }), jsxs(Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxs(Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/ ", page * limit + 1, "-", Math.min((page + 1) * limit, count)] })] })] }), jsx(Box, { children: jsxs("select", { value: limit, onChange: handleLimitChange, style: {
+                                    }, autoComplete: "off", ref: ref, value: searchText }), jsx(PopoverTitle, {}), openSearchResult && (jsxs(Fragment, { children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), (isFetching || isLoading || isPending) && jsx(Spinner, {}), isError && (jsx(Icon, { color: "red.400", children: jsx(BiError, {}) })), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Flex, { alignItems: "center", gap: "2", children: [jsx(InfoTip, { children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}` }), jsxs(Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxs(Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/ ", count > 0 ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}` : '0'] })] })] }), jsx(Box, { children: jsxs("select", { value: limit, onChange: handleLimitChange, style: {
                                                             padding: "4px 8px",
                                                             borderRadius: "4px",
                                                             border: "1px solid #ccc",
@@ -4484,7 +4488,9 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                                 : {}), children: !!renderDisplay === true
                                                                 ? renderDisplay(item)
                                                                 : item[display_column] }, item[column_ref]));
-                                                    }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Text, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] }), jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: limit, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), count > 0 && jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                                                    }) }), dataList.length <= 0 && (jsx(Text, { children: searchText
+                                                        ? translate.t(removeIndex(`${colLabel}.empty_search_result`))
+                                                        : translate.t(removeIndex(`${colLabel}.initial_results`)) }))] }), jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: limit, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), count > 0 && jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
 const NumberInputRoot = React.forwardRef(function NumberInput$1(props, ref) {
