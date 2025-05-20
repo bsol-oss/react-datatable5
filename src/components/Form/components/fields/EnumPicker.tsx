@@ -29,6 +29,7 @@ export interface IdPickerProps {
   isMultiple?: boolean;
   schema: CustomJSONSchema7;
   prefix: string;
+  showTotalAndLimit?: boolean;
 }
 
 export const EnumPicker = ({
@@ -36,6 +37,7 @@ export const EnumPicker = ({
   isMultiple = false,
   schema,
   prefix,
+  showTotalAndLimit = false,
 }: IdPickerProps) => {
   const {
     watch,
@@ -183,7 +185,9 @@ export const EnumPicker = ({
               ref={ref}
             />
             <PopoverTitle />
-            <Text>{`${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}`}</Text>
+            {showTotalAndLimit && (
+              <Text>{`${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}`}</Text>
+            )}
 
             <Grid
               gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
