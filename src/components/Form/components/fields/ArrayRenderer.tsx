@@ -58,7 +58,7 @@ export const ArrayRenderer = ({
                 setValue(
                   colLabel,
                   fields.filter((_, curIndex) => {
-                    return curIndex === index;
+                    return curIndex !== index;
                   })
                 );
               }}
