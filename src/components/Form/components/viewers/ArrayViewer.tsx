@@ -1,5 +1,5 @@
 import { Box, Flex, Grid, Text } from "@chakra-ui/react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
 import { removeIndex } from "../../utils/removeIndex";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
