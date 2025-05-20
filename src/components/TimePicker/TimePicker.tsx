@@ -65,70 +65,73 @@ export function TimePicker({
   });
 
   return (
-    <Grid templateColumns={"auto  auto"} gap="4">
-      <Flex justifyContent={"center"} alignItems={"center"} gap={"2"}>
-        <Select.Root
-          value={[`${hour.toString().padStart(2, "0")}`]}
-          onValueChange={(e) => {
-            setHour(parseInt(e.value[0]));
-            onChange({ hour: parseInt(e.value[0]), minute, meridiem });
-          }}
-          collection={hoursCollection}
-          positioning={{ sameWidth: true, placement: "bottom" }}
-        >
-          <Select.HiddenSelect />
-          <Select.Control>
-            <Select.Trigger>
-              <Select.ValueText placeholder="Hour" />
-            </Select.Trigger>
-          </Select.Control>
-          <Select.Positioner>
-            <Select.Content width="full">
-              {hoursCollection.items.map(({ value: hour }) => (
-                <Select.Item key={hour} item={hour}>
-                  {hour}
-                  <Select.ItemIndicator />
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select.Positioner>
-        </Select.Root>
-        <Text>:</Text>
-        <Select.Root
-          value={[`${minute.toString().padStart(2, "0")}`]}
-          onValueChange={(e) => {
-            setMinute(parseInt(e.value[0]));
-            onChange({ hour, minute: parseInt(e.value[0]), meridiem });
-          }}
-          collection={minutesCollection}
-          positioning={{ sameWidth: true, placement: "bottom" }}
-        >
-          <Select.HiddenSelect />
-          <Select.Control>
-            <Select.Trigger>
-              <Select.ValueText placeholder="Minute" />
-            </Select.Trigger>
-          </Select.Control>
-          <Select.Positioner>
-            <Select.Content width="full">
-              {minutes.map((minute) => (
-                <Select.Item key={minute} item={minute}>
-                  {minute}
-                  <Select.ItemIndicator />
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select.Positioner>
-        </Select.Root>
-      </Flex>
+    <Grid
+      justifyContent={"center"}
+      alignItems={"center"}
+      templateColumns={"auto auto auto auto"}
+      gap="4"
+    >
       <Select.Root
+        width={"4rem"}
+        value={[`${hour.toString().padStart(2, "0")}`]}
+        onValueChange={(e) => {
+          setHour(parseInt(e.value[0]));
+          onChange({ hour: parseInt(e.value[0]), minute, meridiem });
+        }}
+        collection={hoursCollection}
+      >
+        <Select.HiddenSelect />
+        <Select.Control>
+          <Select.Trigger>
+            <Select.ValueText placeholder="Hour" />
+          </Select.Trigger>
+        </Select.Control>
+        <Select.Positioner>
+          <Select.Content>
+            {hoursCollection.items.map(({ value: hour }) => (
+              <Select.Item key={hour} item={hour}>
+                {hour}
+                <Select.ItemIndicator />
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Positioner>
+      </Select.Root>
+      <Text>:</Text>
+      <Select.Root
+        width={"4rem"}
+        value={[`${minute.toString().padStart(2, "0")}`]}
+        onValueChange={(e) => {
+          setMinute(parseInt(e.value[0]));
+          onChange({ hour, minute: parseInt(e.value[0]), meridiem });
+        }}
+        collection={minutesCollection}
+      >
+        <Select.HiddenSelect />
+        <Select.Control>
+          <Select.Trigger>
+            <Select.ValueText placeholder="Minute" />
+          </Select.Trigger>
+        </Select.Control>
+        <Select.Positioner>
+          <Select.Content>
+            {minutes.map((minute) => (
+              <Select.Item key={minute} item={minute}>
+                {minute}
+                <Select.ItemIndicator />
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Positioner>
+      </Select.Root>
+      <Select.Root
+        width={"8rem"}
         value={[meridiem]}
         onValueChange={(e) => {
           setMeridiem(e.value[0] as "am" | "pm");
           onChange({ hour, minute, meridiem: e.value[0] });
         }}
         collection={meridiemsCollection}
-        positioning={{ sameWidth: true, placement: "bottom" }}
       >
         <Select.HiddenSelect />
         <Select.Control>
@@ -137,7 +140,7 @@ export function TimePicker({
           </Select.Trigger>
         </Select.Control>
         <Select.Positioner>
-          <Select.Content width="full">
+          <Select.Content>
             {meridiemsCollection.items.map(({ value: hour, label }) => (
               <Select.Item key={hour} item={hour}>
                 {label}
