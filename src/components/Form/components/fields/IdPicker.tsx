@@ -12,6 +12,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { InfoTip } from "@/components/ui/toggle-tip";
 import { Tag } from "@/components/ui/tag";
 import {
   Box,
@@ -92,7 +93,7 @@ export const IdPicker = ({
         searching: searchText ?? "",
         in_table: table,
         limit: limit,
-        offset: page * 10,
+        offset: page * limit,
       });
       const newMap = Object.fromEntries(
         (data ?? { data: [] }).data.map((item: RecordType) => {
@@ -129,20 +130,18 @@ export const IdPicker = ({
       if (!watchId && (!watchIds || watchIds.length === 0)) {
         return { data: [] };
       }
-      
-      const searchValue = isMultiple 
-        ? watchIds.join(',') 
-        : watchId;
-        
+
+      const searchValue = isMultiple ? watchIds.join(",") : watchId;
+
       const data = await getTableData({
         serverUrl,
         searching: searchValue,
         in_table: table,
-        id_field: column_ref,
+        where: [{ id: column_ref, value: isMultiple ? watchIds : [watchId] }],
         limit: isMultiple ? watchIds.length : 1,
         offset: 0,
       });
-      
+
       const newMap = Object.fromEntries(
         (data ?? { data: [] }).data.map((item: RecordType) => {
           return [
@@ -153,15 +152,15 @@ export const IdPicker = ({
           ];
         })
       );
-      
+
       setIdMap((state) => {
         return { ...state, ...newMap };
       });
-      
+
       return data;
     },
-    enabled: isMultiple 
-      ? Array.isArray(watchIds) && watchIds.length > 0 
+    enabled: isMultiple
+      ? Array.isArray(watchIds) && watchIds.length > 0
       : !!watchId,
   });
 
@@ -170,13 +169,25 @@ export const IdPicker = ({
     if (isMultiple ? watchIds.length > 0 : !!watchId) {
       queryDefault.refetch();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
     setPage(0);
     setLimit(10);
+  };
+
+  const handleLimitChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const newLimit = Number(event.target.value);
+    setLimit(newLimit);
+    // Reset to first page when changing limit
+    setPage(0);
+
+    // Trigger a new search with the updated limit
+    if (searchText?.length) {
+      query.refetch();
+    }
   };
 
   const getPickedValue = (): ReactNode => {
@@ -222,7 +233,9 @@ export const IdPicker = ({
                 onClick={() => {
                   setValue(
                     colLabel,
-                    watchIds.filter((itemId: string) => itemId !== item[column_ref])
+                    watchIds.filter(
+                      (itemId: string) => itemId !== item[column_ref]
+                    )
                   );
                 }}
               >
@@ -251,11 +264,7 @@ export const IdPicker = ({
           }}
           justifyContent={"start"}
         >
-          {queryDefault.isLoading ? (
-            <Spinner size="sm" />
-          ) : (
-            getPickedValue()
-          )}
+          {queryDefault.isLoading ? <Spinner size="sm" /> : getPickedValue()}
         </Button>
       )}
 
@@ -292,9 +301,36 @@ export const IdPicker = ({
                     <BiError />
                   </Icon>
                 )}
-                <Text
-                  justifySelf={"center"}
-                >{`${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}`}</Text>
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Flex alignItems="center" gap="2">
+                    <InfoTip>
+                      {`${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}`}
+                    </InfoTip>
+                    <Text fontSize="sm" fontWeight="bold">
+                      {count}
+                      <Text as="span" fontSize="xs" ml="1" color="gray.500">
+                        / {page * limit + 1}-{Math.min((page + 1) * limit, count)}
+                      </Text>
+                    </Text>
+                  </Flex>
+                  <Box>
+                    <select
+                      value={limit}
+                      onChange={handleLimitChange}
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: "4px",
+                        border: "1px solid #ccc",
+                        fontSize: "14px",
+                      }}
+                    >
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                    </select>
+                  </Box>
+                </Flex>
                 <Grid
                   gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
                   overflow={"auto"}
@@ -302,38 +338,37 @@ export const IdPicker = ({
                 >
                   <Flex flexFlow={"column wrap"}>
                     {dataList.map((item: RecordType) => {
-                        const selected = isMultiple
-                          ? watchIds.some((id) => item[column_ref] === id)
-                          : watchId === item[column_ref];
-                        return (
-                          <Box
-                            key={item[column_ref]}
-                            cursor={"pointer"}
-                            onClick={() => {
-                              if (!isMultiple) {
-                                setOpenSearchResult(false);
-                                setValue(colLabel, item[column_ref]);
-                                return;
-                              }
-                              const newSet = new Set([
-                                ...(watchIds ?? []),
-                                item[column_ref],
-                              ]);
-                              setValue(colLabel, [...newSet]);
-                            }}
-                            opacity={0.7}
-                            _hover={{ opacity: 1 }}
-                            {...(selected
-                              ? { color: "colorPalette.400/50" }
-                              : {})}
-                          >
-                            {!!renderDisplay === true
-                              ? renderDisplay(item)
-                              : item[display_column]}
-                          </Box>
-                        );
-                      })
-                    }
+                      const selected = isMultiple
+                        ? watchIds.some((id) => item[column_ref] === id)
+                        : watchId === item[column_ref];
+                      return (
+                        <Box
+                          key={item[column_ref]}
+                          cursor={"pointer"}
+                          onClick={() => {
+                            if (!isMultiple) {
+                              setOpenSearchResult(false);
+                              setValue(colLabel, item[column_ref]);
+                              return;
+                            }
+                            const newSet = new Set([
+                              ...(watchIds ?? []),
+                              item[column_ref],
+                            ]);
+                            setValue(colLabel, [...newSet]);
+                          }}
+                          opacity={0.7}
+                          _hover={{ opacity: 1 }}
+                          {...(selected
+                            ? { color: "colorPalette.400/50" }
+                            : {})}
+                        >
+                          {!!renderDisplay === true
+                            ? renderDisplay(item)
+                            : item[display_column]}
+                        </Box>
+                      );
+                    })}
                   </Flex>
                   {isDirty && (
                     <>
@@ -350,7 +385,7 @@ export const IdPicker = ({
                 <PaginationRoot
                   justifySelf={"center"}
                   count={count}
-                  pageSize={10}
+                  pageSize={limit}
                   defaultPage={1}
                   page={page + 1}
                   onPageChange={(e) => setPage(e.page - 1)}
