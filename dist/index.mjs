@@ -3631,7 +3631,7 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const { formState: { errors }, setValue, watch, } = useFormContext();
     const fields = (watch(colLabel) ?? []);
-    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), fields.map((field, index) => (jsxs(Flex, { flexFlow: "column", children: [jsx(Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: `repeat("auto-fit", auto)`, children: jsx(SchemaRenderer, { column: `${index}`,
+    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), fields.map((field, index) => (jsxs(Flex, { flexFlow: "column", children: [jsx(Grid, { padding: "4", gridTemplateColumns: "repeat(12, 1fr)", gridAutoRows: `repeat("auto-fit", auto)`, children: jsx(SchemaRenderer, { column: `${index}`,
                             prefix: `${colLabel}.`,
                             schema: items }) }), jsx(Flex, { justifyContent: "end", children: jsx(Button$1, { variant: "ghost", onClick: () => {
                                 setValue(colLabel, fields.filter((_, curIndex) => {
@@ -3662,7 +3662,7 @@ const Field = React.forwardRef(function Field(props, ref) {
 const BooleanPicker = ({ schema, column, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -3836,7 +3836,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
     const { translate } = useSchemaContext();
     const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { gridColumn, gridRow, renderDisplay } = schema;
+    const { gridColumn = "span 4", gridRow = "span 1", renderDisplay } = schema;
     const [searchText, setSearchText] = useState();
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
@@ -4260,7 +4260,7 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
 const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const currentFiles = (watch(column) ?? []);
     const colLabel = `${prefix}${column}`;
@@ -4307,7 +4307,7 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
 const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { serverUrl, idMap, setIdMap, translate, schema: parentSchema, } = useSchemaContext();
-    const { required, gridColumn, gridRow, renderDisplay, foreign_key } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { table, column: column_ref, display_column, } = foreign_key;
     const [searchText, setSearchText] = useState();
@@ -4447,7 +4447,7 @@ NumberInput.Label;
 const NumberInputField = ({ schema, column, prefix, }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(`${colLabel}`);
@@ -4457,7 +4457,7 @@ const NumberInputField = ({ schema, column, prefix, }) => {
 };
 
 const ObjectInput = ({ schema, column, prefix }) => {
-    const { properties, gridRow, gridColumn = "1/span 12", required } = schema;
+    const { properties, gridColumn = "span 4", gridRow = "span 1", required, } = schema;
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -4477,7 +4477,7 @@ const ObjectInput = ({ schema, column, prefix }) => {
 const RecordInput$1 = ({ column, schema, prefix }) => {
     const { formState: { errors }, setValue, getValues, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const entries = Object.entries(getValues(column) ?? {});
     const [showNewEntries, setShowNewEntries] = useState(false);
@@ -4529,10 +4529,10 @@ const RecordInput$1 = ({ column, schema, prefix }) => {
 const StringInputField = ({ column, schema, prefix, }) => {
     const { register, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsx(Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }), errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+    return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, children: [jsx(Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }), errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
 };
 
 const RadioCardItem = React.forwardRef(function RadioCardItem(props, ref) {
@@ -4633,7 +4633,7 @@ const TagPicker = ({ column, schema, prefix }) => {
 const TextAreaInput = ({ column, schema, prefix, }) => {
     const { register, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsx(Textarea, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }), errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
@@ -4668,22 +4668,22 @@ function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
             label: meridiemLabel[hour] ?? hour,
         })),
     });
-    return (jsxs(Grid, { templateColumns: "auto  auto", gap: "4", children: [jsxs(Flex, { justifyContent: "center", alignItems: "center", gap: "2", children: [jsxs(Select.Root, { value: [`${hour.toString().padStart(2, "0")}`], onValueChange: (e) => {
-                            setHour(parseInt(e.value[0]));
-                            onChange({ hour: parseInt(e.value[0]), minute, meridiem });
-                        }, collection: hoursCollection, positioning: { sameWidth: true, placement: "bottom" }, children: [jsx(Select.HiddenSelect, {}), jsx(Select.Control, { children: jsx(Select.Trigger, { children: jsx(Select.ValueText, { placeholder: "Hour" }) }) }), jsx(Select.Positioner, { children: jsx(Select.Content, { width: "full", children: hoursCollection.items.map(({ value: hour }) => (jsxs(Select.Item, { item: hour, children: [hour, jsx(Select.ItemIndicator, {})] }, hour))) }) })] }), jsx(Text, { children: ":" }), jsxs(Select.Root, { value: [`${minute.toString().padStart(2, "0")}`], onValueChange: (e) => {
-                            setMinute(parseInt(e.value[0]));
-                            onChange({ hour, minute: parseInt(e.value[0]), meridiem });
-                        }, collection: minutesCollection, positioning: { sameWidth: true, placement: "bottom" }, children: [jsx(Select.HiddenSelect, {}), jsx(Select.Control, { children: jsx(Select.Trigger, { children: jsx(Select.ValueText, { placeholder: "Minute" }) }) }), jsx(Select.Positioner, { children: jsx(Select.Content, { width: "full", children: minutes.map((minute) => (jsxs(Select.Item, { item: minute, children: [minute, jsx(Select.ItemIndicator, {})] }, minute))) }) })] })] }), jsxs(Select.Root, { value: [meridiem], onValueChange: (e) => {
+    return (jsxs(Grid, { justifyContent: "center", alignItems: "center", templateColumns: "auto auto auto auto", gap: "4", children: [jsxs(Select.Root, { width: "4rem", value: [`${hour.toString().padStart(2, "0")}`], onValueChange: (e) => {
+                    setHour(parseInt(e.value[0]));
+                    onChange({ hour: parseInt(e.value[0]), minute, meridiem });
+                }, collection: hoursCollection, children: [jsx(Select.HiddenSelect, {}), jsx(Select.Control, { children: jsx(Select.Trigger, { children: jsx(Select.ValueText, { placeholder: "Hour" }) }) }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: hoursCollection.items.map(({ value: hour }) => (jsxs(Select.Item, { item: hour, children: [hour, jsx(Select.ItemIndicator, {})] }, hour))) }) })] }), jsx(Text, { children: ":" }), jsxs(Select.Root, { width: "4rem", value: [`${minute.toString().padStart(2, "0")}`], onValueChange: (e) => {
+                    setMinute(parseInt(e.value[0]));
+                    onChange({ hour, minute: parseInt(e.value[0]), meridiem });
+                }, collection: minutesCollection, children: [jsx(Select.HiddenSelect, {}), jsx(Select.Control, { children: jsx(Select.Trigger, { children: jsx(Select.ValueText, { placeholder: "Minute" }) }) }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: minutes.map((minute) => (jsxs(Select.Item, { item: minute, children: [minute, jsx(Select.ItemIndicator, {})] }, minute))) }) })] }), jsxs(Select.Root, { width: "8rem", value: [meridiem], onValueChange: (e) => {
                     setMeridiem(e.value[0]);
                     onChange({ hour, minute, meridiem: e.value[0] });
-                }, collection: meridiemsCollection, positioning: { sameWidth: true, placement: "bottom" }, children: [jsx(Select.HiddenSelect, {}), jsx(Select.Control, { children: jsx(Select.Trigger, { children: jsx(Select.ValueText, { placeholder: "am/pm" }) }) }), jsx(Select.Positioner, { children: jsx(Select.Content, { width: "full", children: meridiemsCollection.items.map(({ value: hour, label }) => (jsxs(Select.Item, { item: hour, children: [label, jsx(Select.ItemIndicator, {})] }, hour))) }) })] })] }));
+                }, collection: meridiemsCollection, children: [jsx(Select.HiddenSelect, {}), jsx(Select.Control, { children: jsx(Select.Trigger, { children: jsx(Select.ValueText, { placeholder: "am/pm" }) }) }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: meridiemsCollection.items.map(({ value: hour, label }) => (jsxs(Select.Item, { item: hour, children: [label, jsx(Select.ItemIndicator, {})] }, hour))) }) })] })] }));
 }
 
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
@@ -4811,7 +4811,7 @@ const ColumnRenderer = ({ column, properties, prefix, }) => {
 };
 
 const ArrayViewer = ({ schema, column, prefix }) => {
-    const { gridRow, gridColumn = "1/span 12", required, items } = schema;
+    const { gridColumn = "span 4", gridRow = "span 1", required, items } = schema;
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -4825,7 +4825,7 @@ const ArrayViewer = ({ schema, column, prefix }) => {
 const BooleanViewer = ({ schema, column, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -4864,7 +4864,7 @@ const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
     const { translate } = useSchemaContext();
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { gridColumn, gridRow, renderDisplay } = schema;
+    const { gridColumn = "span 4", gridRow = "span 1", renderDisplay } = schema;
     const colLabel = `${prefix}${column}`;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
@@ -4883,11 +4883,11 @@ const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
 const FileViewer = ({ column, schema, prefix }) => {
     const { watch } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const currentFiles = (watch(column) ?? []);
     const colLabel = `${prefix}${column}`;
-    return (jsx(Field, { label: `${translate.t(`${colLabel}.field_label`)}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", display: "grid", gridTemplateRows: "auto 1fr auto", alignItems: "stretch", children: jsx(Flex, { flexFlow: "column", gap: 1, children: currentFiles.map((file) => {
+    return (jsx(Field, { label: `${translate.t(`${colLabel}.field_label`)}`, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, display: "grid", gridTemplateRows: "auto 1fr auto", alignItems: "stretch", children: jsx(Flex, { flexFlow: "column", gap: 1, children: currentFiles.map((file) => {
                 return (jsx(Card.Root, { variant: "subtle", children: jsxs(Card.Body, { gap: "2", display: "flex", flexFlow: "row", alignItems: "center", padding: "2", children: [file.type.startsWith("image/") && (jsx(Image, { src: URL.createObjectURL(file), alt: file.name, boxSize: "50px", objectFit: "cover", borderRadius: "md", marginRight: "2" })), jsx(Box, { children: file.name })] }) }, file.name));
             }) }) }));
 };
@@ -4895,7 +4895,7 @@ const FileViewer = ({ column, schema, prefix }) => {
 const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { idMap, translate } = useSchemaContext();
-    const { required, gridColumn, gridRow, renderDisplay, foreign_key } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { display_column } = foreign_key;
     const colLabel = `${prefix}${column}`;
@@ -4926,7 +4926,7 @@ const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
 const NumberViewer = ({ schema, column, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -4934,7 +4934,7 @@ const NumberViewer = ({ schema, column, prefix, }) => {
 };
 
 const ObjectViewer = ({ schema, column, prefix }) => {
-    const { properties, gridRow, gridColumn = "1/span 12", required } = schema;
+    const { properties, gridColumn = "span 4", gridRow = "span 1", required, } = schema;
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -4954,7 +4954,7 @@ const ObjectViewer = ({ schema, column, prefix }) => {
 const RecordInput = ({ column, schema, prefix }) => {
     const { formState: { errors }, setValue, getValues, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const entries = Object.entries(getValues(column) ?? {});
     const [showNewEntries, setShowNewEntries] = useState(false);
@@ -5006,7 +5006,7 @@ const RecordInput = ({ column, schema, prefix }) => {
 const StringViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -5101,17 +5101,17 @@ const TagViewer = ({ column, schema, prefix }) => {
 const TextAreaViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsx(Text, { whiteSpace: "pre-wrap", children: value }), " ", errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+    return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, children: [jsx(Text, { whiteSpace: "pre-wrap", children: value }), " ", errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
 };
 
 const TimeViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn, gridRow } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
