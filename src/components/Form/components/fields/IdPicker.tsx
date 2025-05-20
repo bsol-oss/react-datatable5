@@ -78,7 +78,7 @@ export const IdPicker = ({
     column: column_ref,
     display_column,
   } = foreign_key as ForeignKeyProps;
-  const [searchText, setSearchText] = useState<string>();
+  const [searchText, setSearchText] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const [page, setPage] = useState(0);
@@ -110,14 +110,14 @@ export const IdPicker = ({
       });
       return data;
     },
-    enabled: (searchText ?? "")?.length > 0,
+    enabled: openSearchResult === true,
     staleTime: 300000,
   });
 
   const { isLoading, isFetching, data, isPending, isError } = query;
   const dataList = data?.data ?? [];
   const count = data?.count ?? 0;
-  const isDirty = (searchText?.length ?? 0) > 0;
+  const hasUserSearched = searchText !== undefined;
   const watchId = watch(colLabel);
   const watchIds = (watch(colLabel) ?? []) as string[];
 
@@ -172,6 +172,14 @@ export const IdPicker = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Effect to trigger initial data fetch when popover opens
+  useEffect(() => {
+    if (openSearchResult) {
+      query.refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openSearchResult]);
+
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
     setPage(0);
@@ -185,9 +193,7 @@ export const IdPicker = ({
     setPage(0);
 
     // Trigger a new search with the updated limit
-    if (searchText?.length) {
-      query.refetch();
-    }
+    query.refetch();
   };
 
   const getPickedValue = (): ReactNode => {
@@ -288,9 +294,10 @@ export const IdPicker = ({
               }}
               autoComplete="off"
               ref={ref}
+              value={searchText}
             />
             <PopoverTitle />
-            {(searchText?.length ?? 0) > 0 && (
+            {openSearchResult && (
               <>
                 {isFetching && <>isFetching</>}
                 {isLoading && <>isLoading</>}
@@ -309,7 +316,7 @@ export const IdPicker = ({
                     <Text fontSize="sm" fontWeight="bold">
                       {count}
                       <Text as="span" fontSize="xs" ml="1" color="gray.500">
-                        / {page * limit + 1}-{Math.min((page + 1) * limit, count)}
+                        / {count > 0 ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}` : '0'}
                       </Text>
                     </Text>
                   </Flex>
@@ -370,16 +377,12 @@ export const IdPicker = ({
                       );
                     })}
                   </Flex>
-                  {isDirty && (
-                    <>
-                      {dataList.length <= 0 && (
-                        <Text>
-                          {translate.t(
-                            removeIndex(`${colLabel}.empty_search_result`)
-                          )}
-                        </Text>
-                      )}
-                    </>
+                  {dataList.length <= 0 && (
+                    <Text>
+                      {searchText
+                        ? translate.t(removeIndex(`${colLabel}.empty_search_result`))
+                        : translate.t(removeIndex(`${colLabel}.initial_results`))}
+                    </Text>
                   )}
                 </Grid>
                 <PaginationRoot
