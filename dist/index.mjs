@@ -17,7 +17,7 @@ import _defineProperty from '@babel/runtime/helpers/defineProperty';
 import _toConsumableArray from '@babel/runtime/helpers/toConsumableArray';
 import rafSchd from 'raf-schd';
 import invariant from 'tiny-invariant';
-import { HiColorSwatch } from 'react-icons/hi';
+import { HiColorSwatch, HiOutlineInformationCircle } from 'react-icons/hi';
 import { flexRender, makeStateUpdater, functionalUpdate, useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, createColumnHelper } from '@tanstack/react-table';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import { BsExclamationCircleFill } from 'react-icons/bs';
@@ -3831,7 +3831,7 @@ function filterArray(array, searchTerm) {
     });
 }
 
-const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
+const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLimit = false, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { translate } = useSchemaContext();
     const { required, variant } = schema;
@@ -3841,7 +3841,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
     const ref = useRef(null);
-    const colLabel = `${prefix}${colLabel}`;
+    const colLabel = `${prefix}${column}`;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
     const dataList = schema.enum ?? [];
@@ -3887,7 +3887,21 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, }) => {
                     : translate.t(removeIndex(`${colLabel}.${watchEnum}`)) })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(`${colLabel}.type_to_search`), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), jsx(Text, { children: `${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}` }), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: filterArray(dataList, searchText ?? "").map((item) => {
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), showTotalAndLimit && (jsx(Text, { children: `${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}` })), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: dataList.filter((item) => {
+                                                const searchTerm = (searchText || "").toLowerCase();
+                                                if (!searchTerm)
+                                                    return true;
+                                                // Check if the original enum value contains the search text
+                                                const enumValueMatch = item.toLowerCase().includes(searchTerm);
+                                                // Check if the display value (translation) contains the search text
+                                                const displayValue = !!renderDisplay === true
+                                                    ? renderDisplay(item)
+                                                    : translate.t(removeIndex(`${colLabel}.${item}`));
+                                                // Convert to string and check if it includes the search term
+                                                const displayValueString = String(displayValue).toLowerCase();
+                                                const displayValueMatch = displayValueString.includes(searchTerm);
+                                                return enumValueMatch || displayValueMatch;
+                                            }).map((item) => {
                                                 const selected = isMultiple
                                                     ? watchEnums.some((enumValue) => item === enumValue)
                                                     : watchEnum == item;
@@ -4276,6 +4290,15 @@ const FilePicker = ({ column, schema, prefix }) => {
                 }) }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
+const ToggleTip = React.forwardRef(function ToggleTip(props, ref) {
+    const { showArrow, children, portalled = true, content, portalRef, ...rest } = props;
+    return (jsxs(Popover.Root, { ...rest, positioning: { ...rest.positioning, gutter: 4 }, children: [jsx(Popover.Trigger, { asChild: true, children: children }), jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Popover.Positioner, { children: jsxs(Popover.Content, { width: "auto", px: "2", py: "1", textStyle: "xs", rounded: "sm", ref: ref, children: [showArrow && (jsx(Popover.Arrow, { children: jsx(Popover.ArrowTip, {}) })), content] }) }) })] }));
+});
+const InfoTip = React.forwardRef(function InfoTip(props, ref) {
+    const { children, ...rest } = props;
+    return (jsx(ToggleTip, { content: children, ...rest, ref: ref, children: jsx(IconButton, { variant: "ghost", "aria-label": "info", size: "2xs", colorPalette: "colorPalette", children: jsx(HiOutlineInformationCircle, {}) }) }));
+});
+
 const getTableData = async ({ serverUrl, in_table, searching = "", where = [], limit = 10, offset = 0, }) => {
     if (serverUrl === undefined || serverUrl.length == 0) {
         throw new Error("The serverUrl is missing");
@@ -4324,7 +4347,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                 searching: searchText ?? "",
                 in_table: table,
                 limit: limit,
-                offset: page * 10,
+                offset: page * limit,
             });
             const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
                 return [
@@ -4348,18 +4371,23 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const isDirty = (searchText?.length ?? 0) > 0;
     const watchId = watch(colLabel);
     const watchIds = (watch(colLabel) ?? []);
-    useQuery({
+    const queryDefault = useQuery({
         queryKey: [
-            `idpicker`,
-            { form: parentSchema.title, column, searchText, limit, page },
+            `idpicker-default`,
+            { form: parentSchema.title, column, id: isMultiple ? watchIds : watchId },
         ],
         queryFn: async () => {
+            if (!watchId && (!watchIds || watchIds.length === 0)) {
+                return { data: [] };
+            }
+            const searchValue = isMultiple ? watchIds.join(",") : watchId;
             const data = await getTableData({
                 serverUrl,
-                searching: watchId,
+                searching: searchValue,
                 in_table: table,
-                limit: limit,
-                offset: page * 10,
+                where: [{ id: column_ref, value: isMultiple ? watchIds : [watchId] }],
+                limit: isMultiple ? watchIds.length : 1,
+                offset: 0,
             });
             const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
                 return [
@@ -4374,11 +4402,31 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             });
             return data;
         },
+        enabled: isMultiple
+            ? Array.isArray(watchIds) && watchIds.length > 0
+            : !!watchId,
     });
+    // Effect to trigger the default query when the component mounts
+    useEffect(() => {
+        if (isMultiple ? watchIds.length > 0 : !!watchId) {
+            queryDefault.refetch();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     const onSearchChange = async (event) => {
         setSearchText(event.target.value);
         setPage(0);
         setLimit(10);
+    };
+    const handleLimitChange = (event) => {
+        const newLimit = Number(event.target.value);
+        setLimit(newLimit);
+        // Reset to first page when changing limit
+        setPage(0);
+        // Trigger a new search with the updated limit
+        if (searchText?.length) {
+            query.refetch();
+        }
     };
     const getPickedValue = () => {
         if (Object.keys(idMap).length <= 0) {
@@ -4400,7 +4448,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                             return (jsx(Text, { children: translate.t(removeIndex(`${colLabel}.undefined`)) }, id));
                         }
                         return (jsx(Tag, { closable: true, onClick: () => {
-                                setValue(column, watchIds.filter((id) => id != item[column_ref]));
+                                setValue(colLabel, watchIds.filter((itemId) => itemId !== item[column_ref]));
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
                                 : item[display_column] }, id));
@@ -4408,12 +4456,15 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                             setOpenSearchResult(true);
                         }, children: translate.t(removeIndex(`${colLabel}.add_more`)) })] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, justifyContent: "start", children: getPickedValue() })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(removeIndex(`${colLabel}.type_to_search`)), onChange: (event) => {
+                }, justifyContent: "start", children: queryDefault.isLoading ? jsx(Spinner, { size: "sm" }) : getPickedValue() })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(removeIndex(`${colLabel}.type_to_search`)), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxs(Fragment, { children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), (isFetching || isLoading || isPending) && jsx(Spinner, {}), isError && (jsx(Icon, { color: "red.400", children: jsx(BiError, {}) })), jsx(Text, { justifySelf: "center", children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` }), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: 
-                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                                    dataList.map((item) => {
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), (searchText?.length ?? 0) > 0 && (jsxs(Fragment, { children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), (isFetching || isLoading || isPending) && jsx(Spinner, {}), isError && (jsx(Icon, { color: "red.400", children: jsx(BiError, {}) })), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Flex, { alignItems: "center", gap: "2", children: [jsx(InfoTip, { children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}` }), jsxs(Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxs(Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/ ", page * limit + 1, "-", Math.min((page + 1) * limit, count)] })] })] }), jsx(Box, { children: jsxs("select", { value: limit, onChange: handleLimitChange, style: {
+                                                            padding: "4px 8px",
+                                                            borderRadius: "4px",
+                                                            border: "1px solid #ccc",
+                                                            fontSize: "14px",
+                                                        }, children: [jsx("option", { value: "5", children: "5" }), jsx("option", { value: "10", children: "10" }), jsx("option", { value: "20", children: "20" }), jsx("option", { value: "50", children: "50" })] }) })] }), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: dataList.map((item) => {
                                                         const selected = isMultiple
                                                             ? watchIds.some((id) => item[column_ref] === id)
                                                             : watchId === item[column_ref];
@@ -4433,7 +4484,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                                 : {}), children: !!renderDisplay === true
                                                                 ? renderDisplay(item)
                                                                 : item[display_column] }, item[column_ref]));
-                                                    }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Text, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] }), jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: 10, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), count > 0 && jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                                                    }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Text, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] }), jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: limit, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), count > 0 && jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
 const NumberInputRoot = React.forwardRef(function NumberInput$1(props, ref) {

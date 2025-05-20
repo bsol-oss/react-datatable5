@@ -4,5 +4,6 @@ export interface IdPickerProps {
     isMultiple?: boolean;
     schema: CustomJSONSchema7;
     prefix: string;
+    showTotalAndLimit?: boolean;
 }
-export declare const EnumPicker: ({ column, isMultiple, schema, prefix, }: IdPickerProps) => import("react/jsx-runtime").JSX.Element;
+export declare const EnumPicker: ({ column, isMultiple, schema, prefix, showTotalAndLimit, }: IdPickerProps) => import("react/jsx-runtime").JSX.Element;
