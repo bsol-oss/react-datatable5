@@ -24,7 +24,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { ChangeEvent, ReactNode, useRef, useState } from "react";
+import { ChangeEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../../ui/field";
 import { useSchemaContext } from "../../useSchemaContext";
@@ -39,6 +39,11 @@ export interface IdPickerProps {
   schema: CustomJSONSchema7;
   prefix: string;
   isMultiple?: boolean;
+}
+
+// Define record type to fix TypeScript errors
+interface RecordType {
+  [key: string]: any;
 }
 
 export const IdPicker = ({
@@ -90,7 +95,7 @@ export const IdPicker = ({
         offset: page * 10,
       });
       const newMap = Object.fromEntries(
-        (data ?? { data: [] }).data.map((item: Record<string, string>) => {
+        (data ?? { data: [] }).data.map((item: RecordType) => {
           return [
             item[column_ref],
             {
@@ -117,19 +122,29 @@ export const IdPicker = ({
 
   const queryDefault = useQuery({
     queryKey: [
-      `idpicker`,
-      { form: parentSchema.title, column, searchText, limit, page },
+      `idpicker-default`,
+      { form: parentSchema.title, column, id: isMultiple ? watchIds : watchId },
     ],
     queryFn: async () => {
+      if (!watchId && (!watchIds || watchIds.length === 0)) {
+        return { data: [] };
+      }
+      
+      const searchValue = isMultiple 
+        ? watchIds.join(',') 
+        : watchId;
+        
       const data = await getTableData({
         serverUrl,
-        searching: watchId,
+        searching: searchValue,
         in_table: table,
-        limit: limit,
-        offset: page * 10,
+        id_field: column_ref,
+        limit: isMultiple ? watchIds.length : 1,
+        offset: 0,
       });
+      
       const newMap = Object.fromEntries(
-        (data ?? { data: [] }).data.map((item: Record<string, string>) => {
+        (data ?? { data: [] }).data.map((item: RecordType) => {
           return [
             item[column_ref],
             {
@@ -138,12 +153,25 @@ export const IdPicker = ({
           ];
         })
       );
+      
       setIdMap((state) => {
         return { ...state, ...newMap };
       });
+      
       return data;
     },
+    enabled: isMultiple 
+      ? Array.isArray(watchIds) && watchIds.length > 0 
+      : !!watchId,
   });
+
+  // Effect to trigger the default query when the component mounts
+  useEffect(() => {
+    if (isMultiple ? watchIds.length > 0 : !!watchId) {
+      queryDefault.refetch();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
@@ -155,7 +183,7 @@ export const IdPicker = ({
     if (Object.keys(idMap).length <= 0) {
       return "";
     }
-    const record = idMap[watchId];
+    const record = idMap[watchId] as RecordType | undefined;
     if (record === undefined) {
       return "";
     }
@@ -179,7 +207,7 @@ export const IdPicker = ({
       {isMultiple && (
         <Flex flexFlow={"wrap"} gap={1}>
           {watchIds.map((id: string) => {
-            const item = idMap[id];
+            const item = idMap[id] as RecordType | undefined;
             if (item === undefined) {
               return (
                 <Text key={id}>
@@ -193,8 +221,8 @@ export const IdPicker = ({
                 closable
                 onClick={() => {
                   setValue(
-                    column,
-                    watchIds.filter((id: string) => id != item[column_ref])
+                    colLabel,
+                    watchIds.filter((itemId: string) => itemId !== item[column_ref])
                   );
                 }}
               >
@@ -223,7 +251,11 @@ export const IdPicker = ({
           }}
           justifyContent={"start"}
         >
-          {getPickedValue()}
+          {queryDefault.isLoading ? (
+            <Spinner size="sm" />
+          ) : (
+            getPickedValue()
+          )}
         </Button>
       )}
 
@@ -269,9 +301,7 @@ export const IdPicker = ({
                   maxHeight={"50vh"}
                 >
                   <Flex flexFlow={"column wrap"}>
-                    {
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      dataList.map((item: Record<string, any>) => {
+                    {dataList.map((item: RecordType) => {
                         const selected = isMultiple
                           ? watchIds.some((id) => item[column_ref] === id)
                           : watchId === item[column_ref];
