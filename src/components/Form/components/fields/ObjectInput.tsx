@@ -14,7 +14,7 @@ export interface ObjectInputProps {
 export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
   const {
     properties,
-    gridColumn = "span 4",
+    gridColumn = "span 12",
     gridRow = "span 1",
     required,
   } = schema;
@@ -29,7 +29,7 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
   }
   return (
     <Box {...{ gridRow, gridColumn }}>
-      <Box as="label" gridColumn={"1/span12"}>
+      <Box as="label">
         {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         {isRequired && <span>*</span>}
       </Box>

@@ -37,10 +37,8 @@ export const ArrayRenderer = ({
       </Box>
       {fields.map((field, index) => (
         <Flex key={`${colLabel}.${index}`} flexFlow={"column"}>
-          <Grid
-            gridTemplateColumns={"repeat(12, 1fr)"}
-            autoFlow={"row"}
-          >
+          <Box>{index + 1}</Box>
+          <Grid gridTemplateColumns={"repeat(12, 1fr)"} autoFlow={"row"}>
             {/* @ts-expect-error find suitable types*/}
             <SchemaRenderer
               {...{

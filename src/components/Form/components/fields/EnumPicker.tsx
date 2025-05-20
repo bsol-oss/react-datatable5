@@ -50,7 +50,7 @@ export const EnumPicker = ({
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const ref = useRef<HTMLInputElement>(null);
-  const colLabel = `${prefix}${column}`;
+  const colLabel = `${prefix}${colLabel}`;
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];
   const dataList = schema.enum ?? [];
@@ -64,7 +64,7 @@ export const EnumPicker = ({
   if (variant === "radio") {
     return (
       <Field
-        label={`${translate.t(removeIndex(`${column}.field_label`))}`}
+        label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         required={isRequired}
         alignItems={"stretch"}
         {...{
@@ -109,7 +109,7 @@ export const EnumPicker = ({
 
   return (
     <Field
-      label={`${translate.t(removeIndex(`${column}.field_label`))}`}
+      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -174,7 +174,7 @@ export const EnumPicker = ({
         <PopoverContent>
           <PopoverBody display={"grid"} gap={1}>
             <Input
-              placeholder={translate.t(`${column}.type_to_search`)}
+              placeholder={translate.t(`${colLabel}.type_to_search`)}
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
@@ -183,7 +183,7 @@ export const EnumPicker = ({
               ref={ref}
             />
             <PopoverTitle />
-            <Text>{`${translate.t(`${column}.total`)}: ${count}, ${translate.t(`${column}.showing`)} ${limit}`}</Text>
+            <Text>{`${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}`}</Text>
 
             <Grid
               gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
@@ -235,7 +235,7 @@ export const EnumPicker = ({
         </PopoverContent>
       </PopoverRoot>
 
-      {errors[`${column}`] && (
+      {errors[`${colLabel}`] && (
         <Text color={"red.400"}>
           {translate.t(removeIndex(`${colLabel}.field_required`))}
         </Text>
