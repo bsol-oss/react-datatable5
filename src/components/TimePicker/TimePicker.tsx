@@ -1,5 +1,6 @@
 import { Grid, Text, Button, Input, Flex, Box } from "@chakra-ui/react";
 import { useRef, KeyboardEvent, Dispatch, SetStateAction } from "react";
+import { MdCancel } from "react-icons/md";
 
 interface TimePickerProps {
   hour: number | null;
@@ -269,7 +270,7 @@ export function TimePicker({
           </Button>
         </Flex>
         <Button onClick={handleClear} size="sm" variant="ghost">
-          Clear
+          <MdCancel />
         </Button>
       </Grid>
     </Flex>
