@@ -27,7 +27,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
   const colLabel = `${prefix}${column}`;
   const [open, setOpen] = useState(false);
   const value = watch(colLabel);
-  const formatedTime = dayjs(value).format("hh:mm A");
+  const formatedTime = value ? dayjs(value).format("hh:mm A") : "";
 
   // Parse the initial time parts from the ISO time string (HH:mm:ss)
   const parseTime = (isoTime: string | undefined) => {
@@ -136,8 +136,8 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
                   setMeridiem={setMeridiem}
                   onChange={handleTimeChange}
                   meridiemLabel={{
-                    am: translate.t(removeIndex(`${colLabel}.am`)),
-                    pm: translate.t(removeIndex(`${colLabel}.pm`)),
+                    am: translate.t(removeIndex(`common.am`)),
+                    pm: translate.t(removeIndex(`common.pm`)),
                   }}
                 />
               </Popover.Body>
