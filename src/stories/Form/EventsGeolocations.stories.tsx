@@ -572,6 +572,18 @@ const eventsGeolocationsSchema = {
         },
       },
     },
+    some_events: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+      variant: "id-picker",
+      foreign_key: {
+        display_column: "name",
+        table: "core_activities",
+        column: "id",
+      },
+    },
   },
 };
 

@@ -85,6 +85,10 @@ export const IdPicker = ({
   const ref = useRef<HTMLInputElement>(null);
   const colLabel = `${prefix}${column}`;
 
+  const watchId = watch(colLabel);
+  const watchIds = isMultiple ? (watch(colLabel) ?? []) as string[] : [];
+
+  // Query for search results
   const query = useQuery({
     queryKey: [`idpicker`, { column, searchText, limit, page }],
     queryFn: async () => {
@@ -114,13 +118,7 @@ export const IdPicker = ({
     staleTime: 300000,
   });
 
-  const { isLoading, isFetching, data, isPending, isError } = query;
-  const dataList = data?.data ?? [];
-  const count = data?.count ?? 0;
-  const hasUserSearched = searchText !== undefined;
-  const watchId = watch(colLabel);
-  const watchIds = (watch(colLabel) ?? []) as string[];
-
+  // Query for currently selected items (to display them properly)
   const queryDefault = useQuery({
     queryKey: [
       `idpicker-default`,
@@ -164,7 +162,7 @@ export const IdPicker = ({
       : !!watchId,
   });
 
-  // Effect to trigger the default query when the component mounts
+  // Effect to load selected values when component mounts
   useEffect(() => {
     if (isMultiple ? watchIds.length > 0 : !!watchId) {
       queryDefault.refetch();
@@ -175,6 +173,11 @@ export const IdPicker = ({
   // Effect to trigger initial data fetch when popover opens
   useEffect(() => {
     if (openSearchResult) {
+      // Reset search text when opening the popover
+      setSearchText("");
+      // Reset page to first page
+      setPage(0);
+      // Fetch initial data
       query.refetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -183,7 +186,7 @@ export const IdPicker = ({
   const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
     setPage(0);
-    setLimit(10);
+    query.refetch();
   };
 
   const handleLimitChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -191,10 +194,13 @@ export const IdPicker = ({
     setLimit(newLimit);
     // Reset to first page when changing limit
     setPage(0);
-
     // Trigger a new search with the updated limit
     query.refetch();
   };
+
+  const { isLoading, isFetching, data, isPending, isError } = query;
+  const dataList = data?.data ?? [];
+  const count = data?.count ?? 0;
 
   const getPickedValue = (): ReactNode => {
     if (Object.keys(idMap).length <= 0) {
@@ -288,10 +294,7 @@ export const IdPicker = ({
               placeholder={translate.t(
                 removeIndex(`${colLabel}.type_to_search`)
               )}
-              onChange={(event) => {
-                onSearchChange(event);
-                setOpenSearchResult(true);
-              }}
+              onChange={onSearchChange}
               autoComplete="off"
               ref={ref}
               value={searchText}
@@ -299,9 +302,6 @@ export const IdPicker = ({
             <PopoverTitle />
             {openSearchResult && (
               <>
-                {isFetching && <>isFetching</>}
-                {isLoading && <>isLoading</>}
-                {isPending && <>isPending</>}
                 {(isFetching || isLoading || isPending) && <Spinner />}
                 {isError && (
                   <Icon color={"red.400"}>
@@ -343,41 +343,45 @@ export const IdPicker = ({
                   overflow={"auto"}
                   maxHeight={"50vh"}
                 >
-                  <Flex flexFlow={"column wrap"}>
-                    {dataList.map((item: RecordType) => {
-                      const selected = isMultiple
-                        ? watchIds.some((id) => item[column_ref] === id)
-                        : watchId === item[column_ref];
-                      return (
-                        <Box
-                          key={item[column_ref]}
-                          cursor={"pointer"}
-                          onClick={() => {
-                            if (!isMultiple) {
-                              setOpenSearchResult(false);
-                              setValue(colLabel, item[column_ref]);
-                              return;
-                            }
-                            const newSet = new Set([
-                              ...(watchIds ?? []),
-                              item[column_ref],
-                            ]);
-                            setValue(colLabel, [...newSet]);
-                          }}
-                          opacity={0.7}
-                          _hover={{ opacity: 1 }}
-                          {...(selected
-                            ? { color: "colorPalette.400/50" }
-                            : {})}
-                        >
-                          {!!renderDisplay === true
-                            ? renderDisplay(item)
-                            : item[display_column]}
-                        </Box>
-                      );
-                    })}
-                  </Flex>
-                  {dataList.length <= 0 && (
+                  {dataList.length > 0 ? (
+                    <Flex flexFlow={"column wrap"}>
+                      {dataList.map((item: RecordType) => {
+                        const selected = isMultiple
+                          ? watchIds.some((id) => item[column_ref] === id)
+                          : watchId === item[column_ref];
+                        return (
+                          <Box
+                            key={item[column_ref]}
+                            cursor={"pointer"}
+                            onClick={() => {
+                              if (!isMultiple) {
+                                setOpenSearchResult(false);
+                                setValue(colLabel, item[column_ref]);
+                                return;
+                              }
+                              // For multiple selection, don't add if already selected
+                              if (selected) return;
+                              
+                              const newSet = new Set([
+                                ...(watchIds ?? []),
+                                item[column_ref],
+                              ]);
+                              setValue(colLabel, [...newSet]);
+                            }}
+                            opacity={0.7}
+                            _hover={{ opacity: 1 }}
+                            {...(selected
+                              ? { color: "colorPalette.400/50", fontWeight: "bold" }
+                              : {})}
+                          >
+                            {!!renderDisplay === true
+                              ? renderDisplay(item)
+                              : item[display_column]}
+                          </Box>
+                        );
+                      })}
+                    </Flex>
+                  ) : (
                     <Text>
                       {searchText
                         ? translate.t(removeIndex(`${colLabel}.empty_search_result`))
