@@ -1,14 +1,15 @@
+import { Dispatch, SetStateAction } from "react";
 interface TimePickerProps {
-    hour: number;
-    setHour: (hour: number) => void;
-    minute: number;
-    setMinute: (minute: number) => void;
-    meridiem: "am" | "pm";
-    setMeridiem: (meridiem: "am" | "pm") => void;
+    hour: number | null;
+    setHour: Dispatch<SetStateAction<number | null>>;
+    minute: number | null;
+    setMinute: Dispatch<SetStateAction<number | null>>;
+    meridiem: "am" | "pm" | null;
+    setMeridiem: Dispatch<SetStateAction<"am" | "pm" | null>>;
     onChange?: (newValue: {
-        hour: number;
-        minute: number;
-        meridiem: "am" | "pm";
+        hour: number | null;
+        minute: number | null;
+        meridiem: "am" | "pm" | null;
     }) => void;
     meridiemLabel?: {
         am: string;

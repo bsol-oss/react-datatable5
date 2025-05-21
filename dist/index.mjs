@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Tooltip as Tooltip$1, Group, InputElement, Icon, List, Table as Table$1, Checkbox as Checkbox$1, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Textarea, createListCollection, Select, Center, Heading } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Tooltip as Tooltip$1, Group, InputElement, Icon, List, Table as Table$1, Checkbox as Checkbox$1, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Textarea, Center, Heading } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef } from 'react';
@@ -3884,15 +3884,18 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                     setOpenSearchResult(true);
                 }, justifyContent: "start", children: watchEnum === undefined
                     ? ""
-                    : translate.t(removeIndex(`${colLabel}.${watchEnum}`)) })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(`${colLabel}.type_to_search`), onChange: (event) => {
+                    : translate.t(removeIndex(`${colLabel}.${watchEnum ?? "null"}`)) })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(`${colLabel}.type_to_search`), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), showTotalAndLimit && (jsx(Text, { children: `${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}` })), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: dataList.filter((item) => {
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), showTotalAndLimit && (jsx(Text, { children: `${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}` })), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: dataList
+                                                .filter((item) => {
                                                 const searchTerm = (searchText || "").toLowerCase();
                                                 if (!searchTerm)
                                                     return true;
                                                 // Check if the original enum value contains the search text
-                                                const enumValueMatch = item.toLowerCase().includes(searchTerm);
+                                                const enumValueMatch = item
+                                                    .toLowerCase()
+                                                    .includes(searchTerm);
                                                 // Check if the display value (translation) contains the search text
                                                 const displayValue = !!renderDisplay === true
                                                     ? renderDisplay(item)
@@ -3901,7 +3904,8 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                                 const displayValueString = String(displayValue).toLowerCase();
                                                 const displayValueMatch = displayValueString.includes(searchTerm);
                                                 return enumValueMatch || displayValueMatch;
-                                            }).map((item) => {
+                                            })
+                                                .map((item) => {
                                                 const selected = isMultiple
                                                     ? watchEnums.some((enumValue) => item === enumValue)
                                                     : watchEnum == item;
@@ -4706,42 +4710,180 @@ const TextAreaInput = ({ column, schema, prefix, }) => {
 function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem, meridiemLabel = {
     am: "am",
     pm: "pm",
-}, onChange = () => { }, }) {
-    const hours = Array.from({ length: 12 }, (_, i) => {
-        const hour = i + 1;
-        return hour.toString().padStart(2, "0");
-    });
-    const minutes = Array.from({ length: 60 }, (_, i) => {
-        return i.toString().padStart(2, "0");
-    });
-    const hoursCollection = createListCollection({
-        items: hours.map((hour) => ({
-            value: hour,
-            label: hour,
-        })),
-    });
-    const minutesCollection = createListCollection({
-        items: minutes.map((hour) => ({
-            value: hour,
-            label: hour,
-        })),
-    });
-    const meridiemsCollection = createListCollection({
-        items: ["am", "pm"].map((hour) => ({
-            value: hour,
-            label: meridiemLabel[hour] ?? hour,
-        })),
-    });
-    return (jsxs(Grid, { justifyContent: "center", alignItems: "center", templateColumns: "auto auto auto auto", gap: "4", children: [jsxs(Select.Root, { width: "4rem", value: [`${hour.toString().padStart(2, "0")}`], onValueChange: (e) => {
-                    setHour(parseInt(e.value[0]));
-                    onChange({ hour: parseInt(e.value[0]), minute, meridiem });
-                }, collection: hoursCollection, children: [jsx(Select.HiddenSelect, {}), jsx(Select.Control, { children: jsx(Select.Trigger, { children: jsx(Select.ValueText, { placeholder: "Hour" }) }) }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: hoursCollection.items.map(({ value: hour }) => (jsxs(Select.Item, { item: hour, children: [hour, jsx(Select.ItemIndicator, {})] }, hour))) }) })] }), jsx(Text, { children: ":" }), jsxs(Select.Root, { width: "4rem", value: [`${minute.toString().padStart(2, "0")}`], onValueChange: (e) => {
-                    setMinute(parseInt(e.value[0]));
-                    onChange({ hour, minute: parseInt(e.value[0]), meridiem });
-                }, collection: minutesCollection, children: [jsx(Select.HiddenSelect, {}), jsx(Select.Control, { children: jsx(Select.Trigger, { children: jsx(Select.ValueText, { placeholder: "Minute" }) }) }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: minutes.map((minute) => (jsxs(Select.Item, { item: minute, children: [minute, jsx(Select.ItemIndicator, {})] }, minute))) }) })] }), jsxs(Select.Root, { width: "8rem", value: [meridiem], onValueChange: (e) => {
-                    setMeridiem(e.value[0]);
-                    onChange({ hour, minute, meridiem: e.value[0] });
-                }, collection: meridiemsCollection, children: [jsx(Select.HiddenSelect, {}), jsx(Select.Control, { children: jsx(Select.Trigger, { children: jsx(Select.ValueText, { placeholder: "am/pm" }) }) }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: meridiemsCollection.items.map(({ value: hour, label }) => (jsxs(Select.Item, { item: hour, children: [label, jsx(Select.ItemIndicator, {})] }, hour))) }) })] })] }));
+}, onChange = (_newValue) => { }, }) {
+    // Refs for focus management
+    const hourInputRef = useRef(null);
+    const minuteInputRef = useRef(null);
+    const meridiemInputRef = useRef(null);
+    // Centralized handler for key events, value changes, and focus management
+    const handleKeyDown = (e, field) => {
+        const input = e.target;
+        const value = input.value;
+        // Handle navigation between fields
+        if (e.key === "Tab") {
+            // Tab is handled by the browser, no need to override
+            return;
+        }
+        if (e.key === ":" && field === "hour") {
+            e.preventDefault();
+            minuteInputRef.current?.focus();
+            return;
+        }
+        if (e.key === "Backspace" && value === "") {
+            e.preventDefault();
+            if (field === "minute") {
+                hourInputRef.current?.focus();
+            }
+            else if (field === "meridiem") {
+                minuteInputRef.current?.focus();
+            }
+            return;
+        }
+        // Handle number inputs
+        if (field === "hour") {
+            if (e.key.match(/^[0-9]$/)) {
+                const newValue = value + e.key;
+                const numValue = parseInt(newValue, 10);
+                console.log("newValue", newValue, numValue);
+                if (numValue > 12) {
+                    const digitValue = parseInt(e.key, 10);
+                    setHour(digitValue);
+                    onChange({ hour: digitValue, minute, meridiem });
+                    return;
+                }
+                // Auto-advance to minutes if we have a valid hour (1-12)
+                if (numValue >= 1 && numValue <= 12) {
+                    // Set the hour value
+                    setHour(numValue);
+                    onChange({ hour: numValue, minute, meridiem });
+                    // Move to minute input
+                    e.preventDefault();
+                    minuteInputRef.current?.focus();
+                }
+            }
+        }
+        else if (field === "minute") {
+            if (e.key.match(/^[0-9]$/)) {
+                const newValue = value + e.key;
+                const numValue = parseInt(newValue, 10);
+                if (numValue > 60) {
+                    const digitValue = parseInt(e.key, 10);
+                    setHour(digitValue);
+                    onChange({ hour, minute: digitValue, meridiem });
+                    return;
+                }
+                // Auto-advance to meridiem if we have a valid minute (0-59)
+                if (numValue >= 0 && numValue <= 59) {
+                    // Set the minute value
+                    setMinute(numValue);
+                    onChange({ hour, minute: numValue, meridiem });
+                    // Move to meridiem input
+                    e.preventDefault();
+                    meridiemInputRef.current?.focus();
+                }
+            }
+        }
+        else if (field === "meridiem") {
+            const key = e.key.toLowerCase();
+            if (key === "a") {
+                e.preventDefault();
+                setMeridiem("am");
+                onChange({ hour, minute, meridiem: "am" });
+                input.value = "am";
+            }
+            else if (key === "p") {
+                e.preventDefault();
+                setMeridiem("pm");
+                onChange({ hour, minute, meridiem: "pm" });
+                input.value = "pm";
+            }
+        }
+    };
+    // Handle input blur events to validate and format values
+    const handleBlur = (e, field) => {
+        const value = e.target.value;
+        if (field === "hour") {
+            if (value === "") {
+                if (hour !== null) {
+                    setHour(null);
+                    onChange({ hour: null, minute, meridiem });
+                }
+                return;
+            }
+            const numValue = parseInt(value, 10);
+            if (isNaN(numValue) || numValue < 1 || numValue > 12) {
+                setHour(null);
+                onChange({ hour: null, minute, meridiem });
+            }
+            else if (hour !== numValue) {
+                setHour(numValue);
+                onChange({ hour: numValue, minute, meridiem });
+            }
+        }
+        else if (field === "minute") {
+            if (value === "") {
+                if (minute !== null) {
+                    setMinute(null);
+                    onChange({ hour, minute: null, meridiem });
+                }
+                return;
+            }
+            const numValue = parseInt(value, 10);
+            if (isNaN(numValue) || numValue < 0 || numValue > 59) {
+                setMinute(null);
+                onChange({ hour, minute: null, meridiem });
+            }
+            else if (minute !== numValue) {
+                setMinute(numValue);
+                onChange({ hour, minute: numValue, meridiem });
+            }
+        }
+        else if (field === "meridiem") {
+            if (value === "") {
+                if (meridiem !== null) {
+                    setMeridiem(null);
+                    onChange({ hour, minute, meridiem: null });
+                }
+                return;
+            }
+            const lowerValue = value.toLowerCase();
+            if (lowerValue !== "am" && lowerValue !== "pm") {
+                if (lowerValue === "a") {
+                    setMeridiem("am");
+                    onChange({ hour, minute, meridiem: "am" });
+                }
+                else if (lowerValue === "p") {
+                    setMeridiem("pm");
+                    onChange({ hour, minute, meridiem: "pm" });
+                }
+                else {
+                    setMeridiem(null);
+                    onChange({ hour, minute, meridiem: null });
+                }
+            }
+            else if (meridiem !== lowerValue) {
+                setMeridiem(lowerValue);
+                onChange({ hour, minute, meridiem: lowerValue });
+            }
+        }
+    };
+    // Handle meridiem button click
+    const handleMeridiemClick = (newMeridiem) => {
+        setMeridiem(newMeridiem);
+        onChange({ hour, minute, meridiem: newMeridiem });
+    };
+    const handleClear = () => {
+        setHour(null);
+        setMinute(null);
+        setMeridiem(null);
+        onChange({ hour: null, minute: null, meridiem: null });
+        // Focus the hour field after clearing
+        hourInputRef.current?.focus();
+    };
+    function handleFocus(event) {
+        event.target.select();
+    }
+    return (jsx(Flex, { direction: "column", gap: 3, children: jsxs(Grid, { justifyContent: "center", alignItems: "center", templateColumns: "60px 10px 60px 90px auto", gap: "2", width: "auto", minWidth: "250px", children: [jsx(Input, { ref: hourInputRef, type: "text", value: hour === null ? "" : hour.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "hour"), onBlur: (e) => handleBlur(e, "hour"), onFocus: handleFocus, placeholder: "HH", maxLength: 2, textAlign: "center" }), jsx(Text, { children: ":" }), jsx(Input, { ref: minuteInputRef, type: "text", value: minute === null ? "" : minute.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "minute"), onBlur: (e) => handleBlur(e, "minute"), onFocus: handleFocus, placeholder: "MM", maxLength: 2, textAlign: "center" }), jsxs(Flex, { gap: "1", children: [jsx(Button$1, { size: "sm", colorScheme: meridiem === "am" ? "blue" : "gray", variant: meridiem === "am" ? "solid" : "outline", onClick: () => handleMeridiemClick("am"), width: "40px", children: meridiemLabel.am }), jsx(Button$1, { size: "sm", colorScheme: meridiem === "pm" ? "blue" : "gray", variant: meridiem === "pm" ? "solid" : "outline", onClick: () => handleMeridiemClick("pm"), width: "40px", children: meridiemLabel.pm })] }), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "ghost", children: jsx(MdCancel, {}) })] }) }));
 }
 
 const TimePicker = ({ column, schema, prefix }) => {
@@ -4752,7 +4894,7 @@ const TimePicker = ({ column, schema, prefix }) => {
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
     const value = watch(colLabel);
-    const formatedTime = dayjs(value).format("hh:mm A");
+    const formatedTime = value ? dayjs(value).format("hh:mm A") : "";
     // Parse the initial time parts from the ISO time string (HH:mm:ss)
     const parseTime = (isoTime) => {
         if (!isoTime)
@@ -4781,6 +4923,8 @@ const TimePicker = ({ column, schema, prefix }) => {
     }, [value]);
     // Convert hour, minute, meridiem to 24-hour ISO time string
     const toIsoTime = (hour, minute, meridiem) => {
+        if (hour === null || minute === null || meridiem === null)
+            return null;
         let h = hour;
         if (meridiem === "am" && hour === 12)
             h = 0;
@@ -4801,8 +4945,8 @@ const TimePicker = ({ column, schema, prefix }) => {
         gridRow, children: [jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
                             }, justifyContent: "start", children: [jsx(IoMdClock, {}), value !== undefined ? `${formatedTime}` : ""] }) }), jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { ref: containerRef, children: jsx(Popover.Body, { children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
-                                            am: translate.t(removeIndex(`${colLabel}.am`)),
-                                            pm: translate.t(removeIndex(`${colLabel}.pm`)),
+                                            am: translate.t(removeIndex(`common.am`)),
+                                            pm: translate.t(removeIndex(`common.pm`)),
                                         } }) }) }) }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
