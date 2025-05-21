@@ -1,13 +1,13 @@
 import { Grid, Text, Button, Input, Flex, Box } from "@chakra-ui/react";
-import { useRef, KeyboardEvent } from "react";
+import { useRef, KeyboardEvent, Dispatch, SetStateAction } from "react";
 
 interface TimePickerProps {
   hour: number | null;
-  setHour: (hour: number | null) => void;
+  setHour: Dispatch<SetStateAction<number | null>>;
   minute: number | null;
-  setMinute: (minute: number | null) => void;
+  setMinute: Dispatch<SetStateAction<number | null>>;
   meridiem: "am" | "pm" | null;
-  setMeridiem: (meridiem: "am" | "pm" | null) => void;
+  setMeridiem: Dispatch<SetStateAction<"am" | "pm" | null>>;
   onChange?: (newValue: {
     hour: number | null;
     minute: number | null;
@@ -276,6 +276,24 @@ export function TimePicker({
           maxLength={2}
           textAlign="center"
         />
+        <Box width="5rem">
+          <select
+            value={meridiem || ""}
+            onChange={handleMeridiemSelectChange}
+            style={{
+              width: "100%",
+              padding: "8px",
+              borderRadius: "6px",
+              textAlign: "center",
+            }}
+          >
+            <option value="" disabled>
+              am/pm
+            </option>
+            <option value="am">{meridiemLabel.am}</option>
+            <option value="pm">{meridiemLabel.pm}</option>
+          </select>
+        </Box>
         <Button onClick={handleClear} size="sm" variant="ghost">
           Clear
         </Button>

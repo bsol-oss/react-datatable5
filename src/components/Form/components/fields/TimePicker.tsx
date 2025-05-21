@@ -49,9 +49,9 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
 
   const initialTime = parseTime(value);
 
-  const [hour, setHour] = useState<number>(initialTime.hour);
-  const [minute, setMinute] = useState<number>(initialTime.minute);
-  const [meridiem, setMeridiem] = useState<"am" | "pm">(
+  const [hour, setHour] = useState<number | null>(initialTime.hour);
+  const [minute, setMinute] = useState<number | null>(initialTime.minute);
+  const [meridiem, setMeridiem] = useState<"am" | "pm" | null>(
     initialTime.meridiem as "am" | "pm"
   );
 
@@ -63,7 +63,12 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
   }, [value]);
 
   // Convert hour, minute, meridiem to 24-hour ISO time string
-  const toIsoTime = (hour: number, minute: number, meridiem: "am" | "pm") => {
+  const toIsoTime = (
+    hour: number | null,
+    minute: number | null,
+    meridiem: "am" | "pm" | null
+  ) => {
+    if (hour === null || minute === null || meridiem === null) return null;
     let h = hour;
     if (meridiem === "am" && hour === 12) h = 0;
     else if (meridiem === "pm" && hour < 12) h = hour + 12;
@@ -77,9 +82,9 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     minute: newMinute,
     meridiem: newMeridiem,
   }: {
-    hour: number;
-    minute: number;
-    meridiem: "am" | "pm";
+    hour: number | null;
+    minute: number | null;
+    meridiem: "am" | "pm" | null;
   }) => {
     setHour(newHour);
     setMinute(newMinute);
