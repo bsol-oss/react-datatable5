@@ -206,25 +206,8 @@ export function TimePicker({
     }
   };
 
-  // Handle select changes
-  const handleHourSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newHour = parseInt(e.target.value, 10);
-    setHour(newHour);
-    onChange({ hour: newHour, minute, meridiem });
-  };
-
-  const handleMinuteSelectChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const newMinute = parseInt(e.target.value, 10);
-    setMinute(newMinute);
-    onChange({ hour, minute: newMinute, meridiem });
-  };
-
-  const handleMeridiemSelectChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const newMeridiem = e.target.value as "am" | "pm";
+  // Handle meridiem button click
+  const handleMeridiemClick = (newMeridiem: "am" | "pm") => {
     setMeridiem(newMeridiem);
     onChange({ hour, minute, meridiem: newMeridiem });
   };
@@ -244,11 +227,10 @@ export function TimePicker({
 
   return (
     <Flex direction="column" gap={3}>
-      {/* Input version for sequential input */}
       <Grid
         justifyContent={"center"}
         alignItems={"center"}
-        templateColumns={"60px 10px 60px 70px auto"}
+        templateColumns={"60px 10px 60px 90px auto"}
         gap="2"
         width="auto"
         minWidth="250px"
@@ -276,97 +258,29 @@ export function TimePicker({
           maxLength={2}
           textAlign="center"
         />
-        <Box width="5rem">
-          <select
-            value={meridiem || ""}
-            onChange={handleMeridiemSelectChange}
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              textAlign: "center",
-            }}
+        <Flex gap="1">
+          <Button 
+            size="sm" 
+            colorScheme={meridiem === "am" ? "blue" : "gray"}
+            variant={meridiem === "am" ? "solid" : "outline"}
+            onClick={() => handleMeridiemClick("am")}
+            width="40px"
           >
-            <option value="" disabled>
-              am/pm
-            </option>
-            <option value="am">{meridiemLabel.am}</option>
-            <option value="pm">{meridiemLabel.pm}</option>
-          </select>
-        </Box>
+            {meridiemLabel.am}
+          </Button>
+          <Button 
+            size="sm" 
+            colorScheme={meridiem === "pm" ? "blue" : "gray"}
+            variant={meridiem === "pm" ? "solid" : "outline"}
+            onClick={() => handleMeridiemClick("pm")}
+            width="40px"
+          >
+            {meridiemLabel.pm}
+          </Button>
+        </Flex>
         <Button onClick={handleClear} size="sm" variant="ghost">
           Clear
         </Button>
-      </Grid>
-
-      {/* Select dropdown version using native selects styled with Chakra */}
-      <Grid
-        justifyContent={"center"}
-        alignItems={"center"}
-        templateColumns={"auto auto auto auto"}
-        gap="4"
-      >
-        <Box width="4rem">
-          <select
-            value={hour !== null ? hour.toString().padStart(2, "0") : ""}
-            onChange={handleHourSelectChange}
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              textAlign: "center",
-            }}
-          >
-            <option value="" disabled>
-              Hour
-            </option>
-            {hours.map((h) => (
-              <option key={h} value={h}>
-                {h}
-              </option>
-            ))}
-          </select>
-        </Box>
-        <Text>:</Text>
-        <Box width="4rem">
-          <select
-            value={minute !== null ? minute.toString().padStart(2, "0") : ""}
-            onChange={handleMinuteSelectChange}
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              textAlign: "center",
-            }}
-          >
-            <option value="" disabled>
-              Min
-            </option>
-            {minutes.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </Box>
-        <Box width="5rem">
-          <select
-            value={meridiem || ""}
-            onChange={handleMeridiemSelectChange}
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              textAlign: "center",
-            }}
-          >
-            <option value="" disabled>
-              am/pm
-            </option>
-            <option value="am">{meridiemLabel.am}</option>
-            <option value="pm">{meridiemLabel.pm}</option>
-          </select>
-        </Box>
       </Grid>
     </Flex>
   );
