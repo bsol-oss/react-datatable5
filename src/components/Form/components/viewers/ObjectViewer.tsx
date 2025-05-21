@@ -14,7 +14,7 @@ export interface ObjectViewerProps {
 export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
   const {
     properties,
-    gridColumn = "span 4",
+    gridColumn = "span 12",
     gridRow = "span 1",
     required,
   } = schema;
@@ -29,7 +29,7 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
   }
   return (
     <Box {...{ gridRow, gridColumn }}>
-      <Box as="label" gridColumn={"1/span12"}>
+      <Box as="label">
         {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         {isRequired && <span>*</span>}
       </Box>
@@ -37,7 +37,7 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
         gap="4"
         padding={"4"}
         gridTemplateColumns={"repeat(12, 1fr)"}
-        gridTemplateRows={`repeat("auto-fit", auto)`}
+        autoFlow={"row"}
       >
         {Object.keys(properties ?? {}).map((key) => {
           return (
