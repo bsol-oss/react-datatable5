@@ -36,16 +36,6 @@ export function TimePicker({
   const minuteInputRef = useRef<HTMLInputElement>(null);
   const meridiemInputRef = useRef<HTMLInputElement>(null);
 
-  // Create arrays for select options
-  const hours = Array.from({ length: 12 }, (_, i) => {
-    const currentHour = i + 1;
-    return currentHour.toString().padStart(2, "0");
-  });
-
-  const minutes = Array.from({ length: 60 }, (_, i) => {
-    return i.toString().padStart(2, "0");
-  });
-
   // Centralized handler for key events, value changes, and focus management
   const handleKeyDown = (
     e: KeyboardEvent<HTMLInputElement>,
@@ -259,8 +249,8 @@ export function TimePicker({
           textAlign="center"
         />
         <Flex gap="1">
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             colorScheme={meridiem === "am" ? "blue" : "gray"}
             variant={meridiem === "am" ? "solid" : "outline"}
             onClick={() => handleMeridiemClick("am")}
@@ -268,8 +258,8 @@ export function TimePicker({
           >
             {meridiemLabel.am}
           </Button>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             colorScheme={meridiem === "pm" ? "blue" : "gray"}
             variant={meridiem === "pm" ? "solid" : "outline"}
             onClick={() => handleMeridiemClick("pm")}
