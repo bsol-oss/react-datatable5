@@ -22,18 +22,26 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     setValue,
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn = "span 4", gridRow = "span 1", format = "HH:mm:ss" } = schema;
+  const {
+    required,
+    gridColumn = "span 4",
+    gridRow = "span 1",
+    timeFormat = "HH:mm:ss",
+    displayTimeFormat = "hh:mm A",
+  } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const [open, setOpen] = useState(false);
   const value = watch(colLabel);
-  const formatedTime = value ? dayjs(value).format("hh:mm A") : "";
+  const displayedTime = dayjs(`1970-01-01T${value}Z`).isValid()
+    ? dayjs(`1970-01-01T${value}Z`).utc().format(displayTimeFormat)
+    : "";
 
   // Parse the initial time parts from the ISO time string (HH:mm:ss)
   const parseTime = (isoTime: string | undefined) => {
     if (!isoTime) return { hour: 12, minute: 0, meridiem: "am" as "am" | "pm" };
 
-    const parsed = dayjs(isoTime);
+    const parsed = dayjs(`1970-01-01T${isoTime}Z`).utc();
     if (!parsed.isValid())
       return { hour: 12, minute: 0, meridiem: "am" as "am" | "pm" };
 
@@ -72,8 +80,11 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     let h = hour;
     if (meridiem === "am" && hour === 12) h = 0;
     else if (meridiem === "pm" && hour < 12) h = hour + 12;
-
-    return dayjs().hour(h).minute(minute).second(0).format(format);
+    return dayjs(
+      `1970-01-01T${h.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00Z`
+    )
+      .utc()
+      .format(timeFormat);
   };
 
   // Handle changes to time parts
@@ -120,7 +131,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
             justifyContent={"start"}
           >
             <IoMdClock />
-            {value !== undefined ? `${formatedTime}` : ""}
+            {!!value ? `${displayedTime}` : ""}
           </Button>
         </Popover.Trigger>
         <Portal>

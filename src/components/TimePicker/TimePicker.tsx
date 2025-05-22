@@ -94,9 +94,10 @@ export function TimePicker({
       if (e.key.match(/^[0-9]$/)) {
         const newValue = value + e.key;
         const numValue = parseInt(newValue, 10);
+        console.log("newValue minute", newValue, numValue, numValue > 60, numValue >= 0 && numValue <= 59, e.key);
         if (numValue > 60) {
           const digitValue = parseInt(e.key, 10);
-          setHour(digitValue);
+          setMinute(digitValue);
           onChange({ hour, minute: digitValue, meridiem });
           return;
         }
@@ -105,97 +106,12 @@ export function TimePicker({
           // Set the minute value
           setMinute(numValue);
           onChange({ hour, minute: numValue, meridiem });
-
-          // Move to meridiem input
-          e.preventDefault();
-          meridiemInputRef.current?.focus();
         }
       }
-    } else if (field === "meridiem") {
-      const key = e.key.toLowerCase();
-
-      if (key === "a") {
-        e.preventDefault();
-        setMeridiem("am");
-        onChange({ hour, minute, meridiem: "am" });
-        input.value = "am";
-      } else if (key === "p") {
-        e.preventDefault();
-        setMeridiem("pm");
-        onChange({ hour, minute, meridiem: "pm" });
-        input.value = "pm";
-      }
-    }
+    } 
   };
 
-  // Handle input blur events to validate and format values
-  const handleBlur = (
-    e: React.FocusEvent<HTMLInputElement>,
-    field: "hour" | "minute" | "meridiem"
-  ) => {
-    const value = e.target.value;
 
-    if (field === "hour") {
-      if (value === "") {
-        if (hour !== null) {
-          setHour(null);
-          onChange({ hour: null, minute, meridiem });
-        }
-        return;
-      }
-
-      const numValue = parseInt(value, 10);
-      if (isNaN(numValue) || numValue < 1 || numValue > 12) {
-        setHour(null);
-        onChange({ hour: null, minute, meridiem });
-      } else if (hour !== numValue) {
-        setHour(numValue);
-        onChange({ hour: numValue, minute, meridiem });
-      }
-    } else if (field === "minute") {
-      if (value === "") {
-        if (minute !== null) {
-          setMinute(null);
-          onChange({ hour, minute: null, meridiem });
-        }
-        return;
-      }
-
-      const numValue = parseInt(value, 10);
-      if (isNaN(numValue) || numValue < 0 || numValue > 59) {
-        setMinute(null);
-        onChange({ hour, minute: null, meridiem });
-      } else if (minute !== numValue) {
-        setMinute(numValue);
-        onChange({ hour, minute: numValue, meridiem });
-      }
-    } else if (field === "meridiem") {
-      if (value === "") {
-        if (meridiem !== null) {
-          setMeridiem(null);
-          onChange({ hour, minute, meridiem: null });
-        }
-        return;
-      }
-
-      const lowerValue = value.toLowerCase();
-      if (lowerValue !== "am" && lowerValue !== "pm") {
-        if (lowerValue === "a") {
-          setMeridiem("am");
-          onChange({ hour, minute, meridiem: "am" });
-        } else if (lowerValue === "p") {
-          setMeridiem("pm");
-          onChange({ hour, minute, meridiem: "pm" });
-        } else {
-          setMeridiem(null);
-          onChange({ hour, minute, meridiem: null });
-        }
-      } else if (meridiem !== lowerValue) {
-        setMeridiem(lowerValue as "am" | "pm");
-        onChange({ hour, minute, meridiem: lowerValue as "am" | "pm" });
-      }
-    }
-  };
 
   // Handle meridiem button click
   const handleMeridiemClick = (newMeridiem: "am" | "pm") => {
@@ -212,9 +128,7 @@ export function TimePicker({
     hourInputRef.current?.focus();
   };
 
-  function handleFocus(event: React.FocusEvent<HTMLInputElement>): void {
-    event.target.select();
-  }
+
 
   return (
     <Flex direction="column" gap={3}>
@@ -231,8 +145,6 @@ export function TimePicker({
           type="text"
           value={hour === null ? "" : hour.toString().padStart(2, "0")}
           onKeyDown={(e) => handleKeyDown(e, "hour")}
-          onBlur={(e) => handleBlur(e, "hour")}
-          onFocus={handleFocus}
           placeholder="HH"
           maxLength={2}
           textAlign="center"
@@ -243,8 +155,6 @@ export function TimePicker({
           type="text"
           value={minute === null ? "" : minute.toString().padStart(2, "0")}
           onKeyDown={(e) => handleKeyDown(e, "minute")}
-          onBlur={(e) => handleBlur(e, "minute")}
-          onFocus={handleFocus}
           placeholder="MM"
           maxLength={2}
           textAlign="center"
