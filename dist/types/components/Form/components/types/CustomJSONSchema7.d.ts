@@ -24,7 +24,7 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
     displayDateFormat?: string;
     timeFormat?: string;
     displayTimeFormat?: string;
-    showTitle?: boolean;
+    showLabel?: boolean;
 }
 export interface TagPickerProps {
     column: string;

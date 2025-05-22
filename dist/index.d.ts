@@ -473,7 +473,7 @@ interface CustomJSONSchema7 extends JSONSchema7 {
     displayDateFormat?: string;
     timeFormat?: string;
     displayTimeFormat?: string;
-    showTitle?: boolean;
+    showLabel?: boolean;
 }
 
 interface FormRootProps<TData extends FieldValues> {

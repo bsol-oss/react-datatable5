@@ -3619,7 +3619,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
 };
 
 function removeIndex(str) {
-    return str.replace(/\.\d+\./g, '.');
+    return str.replace(/\.\d+\./g, ".");
 }
 
 const ArrayRenderer = ({ schema, column, prefix, }) => {
@@ -3637,7 +3637,7 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
                     }, children: [jsx(Grid, { gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsx(SchemaRenderer, { column: `${index}`,
                                 prefix: `${colLabel}.`,
                                 // @ts-expect-error find suitable types
-                                schema: { showTitle: false, ...(items ?? {}) } }) }), jsx(Flex, { justifyContent: "end", children: jsx(Button$1, { variant: "ghost", onClick: () => {
+                                schema: { showLabel: false, ...(items ?? {}) } }) }), jsx(Flex, { justifyContent: "end", children: jsx(Button$1, { variant: "ghost", onClick: () => {
                                     setValue(colLabel, fields.filter((_, curIndex) => {
                                         return curIndex !== index;
                                     }));
@@ -4529,7 +4529,7 @@ const NumberInputField = ({ schema, column, prefix, }) => {
 };
 
 const ObjectInput = ({ schema, column, prefix }) => {
-    const { properties, gridColumn = "span 12", gridRow = "span 1", required, showTitle = true, } = schema;
+    const { properties, gridColumn = "span 12", gridRow = "span 1", required, showLabel = true, } = schema;
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -4537,7 +4537,7 @@ const ObjectInput = ({ schema, column, prefix }) => {
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
     }
-    return (jsxs(Box, { gridRow, gridColumn, children: [showTitle && (jsxs(Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] })), jsx(Grid, { bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
+    return (jsxs(Box, { gridRow, gridColumn, children: [showLabel && (jsxs(Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] })), jsx(Grid, { bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
                     base: "colorPalette.200",
                     _dark: "colorPalette.800",
                 }, gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: Object.keys(properties ?? {}).map((key) => {
@@ -4954,7 +4954,7 @@ const ArrayViewer = ({ schema, column, prefix }) => {
                     }, children: jsx(Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsx(SchemaViewer, { column: `${index}`,
                             prefix: `${colLabel}.`,
                             // @ts-expect-error find suitable types
-                            schema: { showTitle: false, ...(items ?? {}) } }) }) }, `form-${prefix}${column}.${index}`))) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                            schema: { showLabel: false, ...(items ?? {}) } }) }) }, `form-${prefix}${column}.${index}`))) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
 const BooleanViewer = ({ schema, column, prefix, }) => {
@@ -4994,6 +4994,10 @@ const DateViewer = ({ column, schema, prefix }) => {
         gridRow, children: [jsxs(Text, { children: [" ", selectedDate !== undefined ? displayDate : ""] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
 };
 
+function translateWrapper({ prefix, column, label, translate, }) {
+    return translate.t(removeIndex(`${prefix}${column}.${label}`));
+}
+
 const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
@@ -5003,16 +5007,19 @@ const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
     const colLabel = `${prefix}${column}`;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
-    return (jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+    const customTranslate = (label) => {
+        return translateWrapper({ prefix, column, label, translate });
+    };
+    return (jsxs(Field, { label: `${customTranslate(`field_label`)}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsx(Flex, { flexFlow: "wrap", gap: 1, children: watchEnums.map((enumValue) => {
                     const item = enumValue;
                     if (item === undefined) {
                         return jsx(Fragment, { children: "undefined" });
                     }
-                    return (jsx(Tag, { closable: true, children: !!renderDisplay === true
+                    return (jsx(Tag, { children: !!renderDisplay === true
                             ? renderDisplay(item)
-                            : translate.t(removeIndex(`${colLabel}.${item}`)) }));
-                }) })), !isMultiple && (jsx(Text, { children: translate.t(removeIndex(`${colLabel}.${watchEnum}`)) })), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                            : customTranslate(item) }));
+                }) })), !isMultiple && jsx(Text, { children: customTranslate(watchEnum) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: customTranslate(`field_required`) }))] }));
 };
 
 const FileViewer = ({ column, schema, prefix }) => {
@@ -5069,7 +5076,7 @@ const NumberViewer = ({ schema, column, prefix, }) => {
 };
 
 const ObjectViewer = ({ schema, column, prefix }) => {
-    const { properties, gridColumn = "span 12", gridRow = "span 1", required, showTitle = true, } = schema;
+    const { properties, gridColumn = "span 12", gridRow = "span 1", required, showLabel = true, } = schema;
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -5077,7 +5084,7 @@ const ObjectViewer = ({ schema, column, prefix }) => {
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
     }
-    return (jsxs(Box, { gridRow, gridColumn, children: [showTitle && (jsxs(Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] })), jsx(Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: "1", borderRadius: "md", borderWidth: "thin", borderColor: {
+    return (jsxs(Box, { gridRow, gridColumn, children: [showLabel && (jsxs(Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] })), jsx(Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: "1", borderRadius: "md", borderWidth: "thin", borderColor: {
                     base: "colorPalette.200",
                     _dark: "colorPalette.800",
                 }, children: Object.keys(properties ?? {}).map((key) => {
