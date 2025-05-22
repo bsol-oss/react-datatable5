@@ -1,3 +1,3 @@
 export function removeIndex(str: string) {
-    return str.replace(/\.\d+\./g, '.');
+  return str.replace(/\.\d+\./g, ".");
 }
