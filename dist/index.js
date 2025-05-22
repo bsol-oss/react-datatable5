@@ -4496,7 +4496,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                             borderRadius: "4px",
                                                             border: "1px solid #ccc",
                                                             fontSize: "14px",
-                                                        }, children: [jsxRuntime.jsx("option", { value: "5", children: "5" }), jsxRuntime.jsx("option", { value: "10", children: "10" }), jsxRuntime.jsx("option", { value: "20", children: "20" }), jsxRuntime.jsx("option", { value: "50", children: "50" })] }) })] }), jsxRuntime.jsx(react.Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: dataList.length > 0 ? (jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", children: dataList.map((item) => {
+                                                        }, children: [jsxRuntime.jsx("option", { value: "5", children: "5" }), jsxRuntime.jsx("option", { value: "10", children: "10" }), jsxRuntime.jsx("option", { value: "20", children: "20" }), jsxRuntime.jsx("option", { value: "30", children: "30" })] }) })] }), jsxRuntime.jsx(react.Grid, { overflowY: "auto", children: dataList.length > 0 ? (jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", gap: 1, children: dataList.map((item) => {
                                                     const selected = isMultiple
                                                         ? watchIds.some((id) => item[column_ref] === id)
                                                         : watchId === item[column_ref];
@@ -4734,7 +4734,7 @@ function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
     // Refs for focus management
     const hourInputRef = React.useRef(null);
     const minuteInputRef = React.useRef(null);
-    const meridiemInputRef = React.useRef(null);
+    React.useRef(null);
     // Centralized handler for key events, value changes, and focus management
     const handleKeyDown = (e, field) => {
         const input = e.target;
@@ -4786,9 +4786,10 @@ function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
             if (e.key.match(/^[0-9]$/)) {
                 const newValue = value + e.key;
                 const numValue = parseInt(newValue, 10);
+                console.log("newValue minute", newValue, numValue, numValue > 60, numValue >= 0 && numValue <= 59, e.key);
                 if (numValue > 60) {
                     const digitValue = parseInt(e.key, 10);
-                    setHour(digitValue);
+                    setMinute(digitValue);
                     onChange({ hour, minute: digitValue, meridiem });
                     return;
                 }
@@ -4797,93 +4798,7 @@ function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
                     // Set the minute value
                     setMinute(numValue);
                     onChange({ hour, minute: numValue, meridiem });
-                    // Move to meridiem input
-                    e.preventDefault();
-                    meridiemInputRef.current?.focus();
                 }
-            }
-        }
-        else if (field === "meridiem") {
-            const key = e.key.toLowerCase();
-            if (key === "a") {
-                e.preventDefault();
-                setMeridiem("am");
-                onChange({ hour, minute, meridiem: "am" });
-                input.value = "am";
-            }
-            else if (key === "p") {
-                e.preventDefault();
-                setMeridiem("pm");
-                onChange({ hour, minute, meridiem: "pm" });
-                input.value = "pm";
-            }
-        }
-    };
-    // Handle input blur events to validate and format values
-    const handleBlur = (e, field) => {
-        const value = e.target.value;
-        if (field === "hour") {
-            if (value === "") {
-                if (hour !== null) {
-                    setHour(null);
-                    onChange({ hour: null, minute, meridiem });
-                }
-                return;
-            }
-            const numValue = parseInt(value, 10);
-            if (isNaN(numValue) || numValue < 1 || numValue > 12) {
-                setHour(null);
-                onChange({ hour: null, minute, meridiem });
-            }
-            else if (hour !== numValue) {
-                setHour(numValue);
-                onChange({ hour: numValue, minute, meridiem });
-            }
-        }
-        else if (field === "minute") {
-            if (value === "") {
-                if (minute !== null) {
-                    setMinute(null);
-                    onChange({ hour, minute: null, meridiem });
-                }
-                return;
-            }
-            const numValue = parseInt(value, 10);
-            if (isNaN(numValue) || numValue < 0 || numValue > 59) {
-                setMinute(null);
-                onChange({ hour, minute: null, meridiem });
-            }
-            else if (minute !== numValue) {
-                setMinute(numValue);
-                onChange({ hour, minute: numValue, meridiem });
-            }
-        }
-        else if (field === "meridiem") {
-            if (value === "") {
-                if (meridiem !== null) {
-                    setMeridiem(null);
-                    onChange({ hour, minute, meridiem: null });
-                }
-                return;
-            }
-            const lowerValue = value.toLowerCase();
-            if (lowerValue !== "am" && lowerValue !== "pm") {
-                if (lowerValue === "a") {
-                    setMeridiem("am");
-                    onChange({ hour, minute, meridiem: "am" });
-                }
-                else if (lowerValue === "p") {
-                    setMeridiem("pm");
-                    onChange({ hour, minute, meridiem: "pm" });
-                }
-                else {
-                    setMeridiem(null);
-                    onChange({ hour, minute, meridiem: null });
-                }
-            }
-            else if (meridiem !== lowerValue) {
-                setMeridiem(lowerValue);
-                onChange({ hour, minute, meridiem: lowerValue });
             }
         }
     };
@@ -4900,26 +4815,25 @@ function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
         // Focus the hour field after clearing
         hourInputRef.current?.focus();
     };
-    function handleFocus(event) {
-        event.target.select();
-    }
-    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Grid, { justifyContent: "center", alignItems: "center", templateColumns: "60px 10px 60px 90px auto", gap: "2", width: "auto", minWidth: "250px", children: [jsxRuntime.jsx(react.Input, { ref: hourInputRef, type: "text", value: hour === null ? "" : hour.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "hour"), onBlur: (e) => handleBlur(e, "hour"), onFocus: handleFocus, placeholder: "HH", maxLength: 2, textAlign: "center" }), jsxRuntime.jsx(react.Text, { children: ":" }), jsxRuntime.jsx(react.Input, { ref: minuteInputRef, type: "text", value: minute === null ? "" : minute.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "minute"), onBlur: (e) => handleBlur(e, "minute"), onFocus: handleFocus, placeholder: "MM", maxLength: 2, textAlign: "center" }), jsxRuntime.jsxs(react.Flex, { gap: "1", children: [jsxRuntime.jsx(react.Button, { size: "sm", colorScheme: meridiem === "am" ? "blue" : "gray", variant: meridiem === "am" ? "solid" : "outline", onClick: () => handleMeridiemClick("am"), width: "40px", children: meridiemLabel.am }), jsxRuntime.jsx(react.Button, { size: "sm", colorScheme: meridiem === "pm" ? "blue" : "gray", variant: meridiem === "pm" ? "solid" : "outline", onClick: () => handleMeridiemClick("pm"), width: "40px", children: meridiemLabel.pm })] }), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(md.MdCancel, {}) })] }) }));
+    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Grid, { justifyContent: "center", alignItems: "center", templateColumns: "60px 10px 60px 90px auto", gap: "2", width: "auto", minWidth: "250px", children: [jsxRuntime.jsx(react.Input, { ref: hourInputRef, type: "text", value: hour === null ? "" : hour.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "hour"), placeholder: "HH", maxLength: 2, textAlign: "center" }), jsxRuntime.jsx(react.Text, { children: ":" }), jsxRuntime.jsx(react.Input, { ref: minuteInputRef, type: "text", value: minute === null ? "" : minute.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "minute"), placeholder: "MM", maxLength: 2, textAlign: "center" }), jsxRuntime.jsxs(react.Flex, { gap: "1", children: [jsxRuntime.jsx(react.Button, { size: "sm", colorScheme: meridiem === "am" ? "blue" : "gray", variant: meridiem === "am" ? "solid" : "outline", onClick: () => handleMeridiemClick("am"), width: "40px", children: meridiemLabel.am }), jsxRuntime.jsx(react.Button, { size: "sm", colorScheme: meridiem === "pm" ? "blue" : "gray", variant: meridiem === "pm" ? "solid" : "outline", onClick: () => handleMeridiemClick("pm"), width: "40px", children: meridiemLabel.pm })] }), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(md.MdCancel, {}) })] }) }));
 }
 
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", format = "HH:mm:ss" } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", timeFormat = "HH:mm:ss", displayTimeFormat = "hh:mm A", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = React.useState(false);
     const value = watch(colLabel);
-    const formatedTime = value ? dayjs(value).format("hh:mm A") : "";
+    const displayedTime = dayjs(`1970-01-01T${value}Z`).isValid()
+        ? dayjs(`1970-01-01T${value}Z`).utc().format(displayTimeFormat)
+        : "";
     // Parse the initial time parts from the ISO time string (HH:mm:ss)
     const parseTime = (isoTime) => {
         if (!isoTime)
             return { hour: 12, minute: 0, meridiem: "am" };
-        const parsed = dayjs(isoTime);
+        const parsed = dayjs(`1970-01-01T${isoTime}Z`).utc();
         if (!parsed.isValid())
             return { hour: 12, minute: 0, meridiem: "am" };
         let hour = parsed.hour();
@@ -4950,7 +4864,9 @@ const TimePicker = ({ column, schema, prefix }) => {
             h = 0;
         else if (meridiem === "pm" && hour < 12)
             h = hour + 12;
-        return dayjs().hour(h).minute(minute).second(0).format(format);
+        return dayjs(`1970-01-01T${h.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00Z`)
+            .utc()
+            .format(timeFormat);
     };
     // Handle changes to time parts
     const handleTimeChange = ({ hour: newHour, minute: newMinute, meridiem: newMeridiem, }) => {
@@ -4964,7 +4880,7 @@ const TimePicker = ({ column, schema, prefix }) => {
     return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
-                            }, justifyContent: "start", children: [jsxRuntime.jsx(io.IoMdClock, {}), value !== undefined ? `${formatedTime}` : ""] }) }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { ref: containerRef, children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
+                            }, justifyContent: "start", children: [jsxRuntime.jsx(io.IoMdClock, {}), !!value ? `${displayedTime}` : ""] }) }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { ref: containerRef, children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
                                             am: translate.t(removeIndex(`common.am`)),
                                             pm: translate.t(removeIndex(`common.pm`)),
                                         } }) }) }) }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
@@ -5337,22 +5253,23 @@ const TextAreaViewer = ({ column, schema, prefix, }) => {
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, children: [jsxRuntime.jsx(react.Text, { whiteSpace: "pre-wrap", children: value }), " ", errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
 };
 
-const TimeViewer = ({ column, schema, prefix }) => {
+const TimeViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", displayTimeFormat = "hh:mm A" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
+    const displayedTime = dayjs(`1970-01-01T${selectedDate}Z`).isValid()
+        ? dayjs(`1970-01-01T${selectedDate}Z`).utc().format(displayTimeFormat)
+        : "";
     return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsxRuntime.jsx(react.Text, { children: selectedDate !== undefined
-                    ? dayjs(selectedDate).format("hh:mm A")
-                    : "" }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
+        gridRow, children: [jsxRuntime.jsx(react.Text, { children: displayedTime }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
 };
 
 const SchemaViewer = ({ schema, prefix, column, }) => {
     const colSchema = schema;
-    const { type, variant, properties: innerProperties, foreign_key, items, } = schema;
+    const { type, variant, properties: innerProperties, foreign_key, items, format, } = schema;
     if (variant === "custom-input") {
         return jsxRuntime.jsx(CustomViewer, { schema: colSchema, prefix, column });
     }
@@ -5364,11 +5281,11 @@ const SchemaViewer = ({ schema, prefix, column, }) => {
             idPickerSanityCheck(column, foreign_key);
             return jsxRuntime.jsx(IdViewer, { schema: colSchema, prefix, column });
         }
-        if (variant === "date-picker") {
-            return jsxRuntime.jsx(DateViewer, { schema: colSchema, prefix, column });
-        }
-        if (variant === "time-picker") {
+        if (format === "time") {
             return jsxRuntime.jsx(TimeViewer, { schema: colSchema, prefix, column });
+        }
+        if (format === "date") {
+            return jsxRuntime.jsx(DateViewer, { schema: colSchema, prefix, column });
         }
         if (variant === "text-area") {
             return jsxRuntime.jsx(TextAreaViewer, { schema: colSchema, prefix, column });
