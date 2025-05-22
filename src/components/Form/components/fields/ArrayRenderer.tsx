@@ -1,9 +1,12 @@
-import { Box, Button, Flex, Grid, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Grid, Icon, Text } from "@chakra-ui/react";
 import { useSchemaContext } from "../../useSchemaContext";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { SchemaRenderer } from "./SchemaRenderer";
 import { removeIndex } from "../../utils/removeIndex";
+import { TiTrash } from "react-icons/ti";
+import { BsTrash } from "react-icons/bs";
+import { CgTrash } from "react-icons/cg";
 
 export interface ArrayRendererProps {
   column: string;
@@ -30,41 +33,56 @@ export const ArrayRenderer = ({
   } = useFormContext();
   const fields = (watch(colLabel) ?? []) as any[];
   return (
-    <Box {...{ gridRow, gridColumn }}>
+    <Flex {...{ gridRow, gridColumn }} flexFlow={"column"} gap={2}>
       <Box as="label">
         {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         {isRequired && <span>*</span>}
       </Box>
-      {fields.map((field, index) => (
-        <Flex key={`${colLabel}.${index}`} flexFlow={"column"}>
-          <Box>{index + 1}</Box>
-          <Grid gridTemplateColumns={"repeat(12, 1fr)"} autoFlow={"row"}>
-            {/* @ts-expect-error find suitable types*/}
-            <SchemaRenderer
-              {...{
-                column: `${index}`,
-                prefix: `${colLabel}.`,
-                schema: items,
-              }}
-            />
-          </Grid>
-          <Flex justifyContent={"end"}>
-            <Button
-              variant={"ghost"}
-              onClick={() => {
-                setValue(
-                  colLabel,
-                  fields.filter((_, curIndex) => {
-                    return curIndex !== index;
-                  })
-                );
-              }}
-            >
-              {translate.t(removeIndex(`${colLabel}.remove`))}
-            </Button>
+      <Flex flexFlow={"column"} gap={2} >
+        {fields.map((field, index) => (
+          <Flex
+            key={`${colLabel}.${index}`}
+            flexFlow={"row"}
+            gap={2}
+            bgColor={{ base: "colorPalette.100", _dark: "colorPalette.900" }}
+            p={2}
+            borderRadius={4}
+            borderWidth={1}
+            borderColor={{
+              base: "colorPalette.200",
+              _dark: "colorPalette.800",
+            }}
+          >
+            <Grid gridTemplateColumns={"repeat(12, 1fr)"} autoFlow={"row"}>
+              <SchemaRenderer
+                {...{
+                  column: `${index}`,
+                  prefix: `${colLabel}.`,
+                  // @ts-expect-error find suitable types
+                  schema: { showTitle: false, ...(items ?? {}) },
+                }}
+              />
+            </Grid>
+            <Flex justifyContent={"end"}>
+              <Button
+                variant={"ghost"}
+                onClick={() => {
+                  setValue(
+                    colLabel,
+                    fields.filter((_, curIndex) => {
+                      return curIndex !== index;
+                    })
+                  );
+                }}
+              >
+                <Icon>
+                  <CgTrash />
+                </Icon>
+              </Button>
+            </Flex>
           </Flex>
-        </Flex>
-      ))}
+        ))}
+      </Flex>
       <Flex>
         <Button
           onClick={() => {
@@ -92,6 +110,6 @@ export const ArrayRenderer = ({
           {translate.t(removeIndex(`${colLabel}.field_required`))}
         </Text>
       )}
-    </Box>
+    </Flex>
   );
 };

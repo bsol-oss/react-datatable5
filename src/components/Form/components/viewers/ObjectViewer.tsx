@@ -17,6 +17,7 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
     gridColumn = "span 12",
     gridRow = "span 1",
     required,
+    showTitle = true,
   } = schema;
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
@@ -29,18 +30,24 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
   }
   return (
     <Box {...{ gridRow, gridColumn }}>
-      <Box as="label">
-        {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
-        {isRequired && <span>*</span>}
-      </Box>
+      {showTitle && (
+        <Box as="label">
+          {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+          {isRequired && <span>*</span>}
+        </Box>
+      )}
       <Grid
         gap="4"
         padding={"4"}
         gridTemplateColumns={"repeat(12, 1fr)"}
         autoFlow={"row"}
-        {...{
-          gridColumn,
-          gridRow,
+        bgColor={{ base: "colorPalette.100", _dark: "colorPalette.900" }}
+        p={"1"}
+        borderRadius={"md"}
+        borderWidth={"thin"}
+        borderColor={{
+          base: "colorPalette.200",
+          _dark: "colorPalette.800",
         }}
       >
         {Object.keys(properties ?? {}).map((key) => {

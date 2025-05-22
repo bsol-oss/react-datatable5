@@ -17,6 +17,7 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
     gridColumn = "span 12",
     gridRow = "span 1",
     required,
+    showTitle = true,
   } = schema;
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
@@ -29,11 +30,21 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
   }
   return (
     <Box {...{ gridRow, gridColumn }}>
-      <Box as="label">
-        {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
-        {isRequired && <span>*</span>}
-      </Box>
+      {showTitle && (
+        <Box as="label">
+          {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+          {isRequired && <span>*</span>}
+        </Box>
+      )}
       <Grid
+        bgColor={{ base: "colorPalette.100", _dark: "colorPalette.900" }}
+        p={2}
+        borderRadius={4}
+        borderWidth={1}
+        borderColor={{
+          base: "colorPalette.200",
+          _dark: "colorPalette.800",
+        }}
         gap="4"
         padding={"4"}
         gridTemplateColumns={"repeat(12, 1fr)"}

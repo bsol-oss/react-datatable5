@@ -12,7 +12,12 @@ export interface ArrayViewerProps {
 }
 
 export const ArrayViewer = ({ schema, column, prefix }: ArrayViewerProps) => {
-  const { gridColumn = "span 4", gridRow = "span 1", required, items } = schema;
+  const {
+    gridColumn = "span 12",
+    gridRow = "span 1",
+    required,
+    items,
+  } = schema;
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
@@ -28,25 +33,37 @@ export const ArrayViewer = ({ schema, column, prefix }: ArrayViewerProps) => {
         {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         {isRequired && <span>*</span>}
       </Box>
-      {values.map((field, index) => (
-        <Flex key={`form-${prefix}${column}.${index}`} flexFlow={"column"}>
-          <Grid
-            gap="4"
-            padding={"4"}
-            gridTemplateColumns={"repeat(12, 1fr)"}
-            autoFlow={"row"}
+      <Flex flexFlow={"column"} gap={1}>
+        {values.map((field: any, index: number) => (
+          <Flex
+            key={`form-${prefix}${column}.${index}`}
+            flexFlow={"column"}
+            bgColor={{ base: "colorPalette.100", _dark: "colorPalette.900" }}
+            p={"2"}
+            borderRadius={"md"}
+            borderWidth={"thin"}
+            borderColor={{
+              base: "colorPalette.200",
+              _dark: "colorPalette.800",
+            }}
           >
-            {/* @ts-expect-error find suitable types*/}
-            <SchemaViewer
-              {...{
-                column: `${index}`,
-                prefix: `${colLabel}.`,
-                schema: items,
-              }}
-            />
-          </Grid>
-        </Flex>
-      ))}
+            <Grid
+              gap="4"
+              gridTemplateColumns={"repeat(12, 1fr)"}
+              autoFlow={"row"}
+            >
+              <SchemaViewer
+                {...{
+                  column: `${index}`,
+                  prefix: `${colLabel}.`,
+                  // @ts-expect-error find suitable types
+                  schema: { showTitle: false, ...(items ?? {}) },
+                }}
+              />
+            </Grid>
+          </Flex>
+        ))}
+      </Flex>
       {errors[`${column}`] && (
         <Text color={"red.400"}>
           {translate.t(removeIndex(`${colLabel}.field_required`))}
