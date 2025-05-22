@@ -22,7 +22,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     setValue,
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+  const { required, gridColumn = "span 4", gridRow = "span 1", format } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const [open, setOpen] = useState(false);
@@ -73,7 +73,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     if (meridiem === "am" && hour === 12) h = 0;
     else if (meridiem === "pm" && hour < 12) h = hour + 12;
 
-    return dayjs().hour(h).minute(minute).second(0).toISOString();
+    return dayjs().hour(h).minute(minute).second(0).format(format);
   };
 
   // Handle changes to time parts
