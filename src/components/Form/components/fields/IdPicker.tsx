@@ -334,17 +334,15 @@ export const IdPicker = ({
                       <option value="5">5</option>
                       <option value="10">10</option>
                       <option value="20">20</option>
-                      <option value="50">50</option>
+                      <option value="30">30</option>
                     </select>
                   </Box>
                 </Flex>
                 <Grid
-                  gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
-                  overflow={"auto"}
-                  maxHeight={"50vh"}
+                  overflowY={"auto"}
                 >
                   {dataList.length > 0 ? (
-                    <Flex flexFlow={"column wrap"}>
+                    <Flex flexFlow={"column wrap"} gap={1}>
                       {dataList.map((item: RecordType) => {
                         const selected = isMultiple
                           ? watchIds.some((id) => item[column_ref] === id)
