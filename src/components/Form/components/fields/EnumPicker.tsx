@@ -123,8 +123,8 @@ export const EnumPicker = ({
         <Flex flexFlow={"wrap"} gap={1}>
           {watchEnums.map((enumValue) => {
             const item = enumValue;
-            if (item === undefined) {
-              return <>undefined</>;
+            if (!!item === false) {
+              return <></>;
             }
             return (
               <Tag
@@ -160,7 +160,7 @@ export const EnumPicker = ({
           }}
           justifyContent={"start"}
         >
-          {watchEnum === undefined
+          {!!watchEnum === false
             ? ""
             : translate.t(removeIndex(`${colLabel}.${watchEnum ?? "null"}`))}
         </Button>
@@ -186,13 +186,12 @@ export const EnumPicker = ({
             />
             <PopoverTitle />
             {showTotalAndLimit && (
-              <Text>{`${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}`}</Text>
+              <Text>{`${translate.t(removeIndex(`${colLabel}.total`))}: ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}`}</Text>
             )}
 
             <Grid
-              gridTemplateColumns={"repeat(auto-fit, minmax(15rem, 1fr))"}
               overflow={"auto"}
-              maxHeight={"50vh"}
+              maxHeight={"20rem"}
             >
               <Flex flexFlow={"column wrap"}>
                 {(dataList as string[])
