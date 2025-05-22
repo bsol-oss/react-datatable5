@@ -3631,7 +3631,7 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const { formState: { errors }, setValue, watch, } = useFormContext();
     const fields = (watch(colLabel) ?? []);
-    return (jsxs(Flex, { gridRow, gridColumn, flexFlow: "column", gap: 2, children: [jsxs(Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), jsx(Flex, { flexFlow: "column", gap: 2, children: fields.map((field, index) => (jsxs(Flex, { flexFlow: "row", gap: 2, bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
+    return (jsxs(Flex, { gridRow, gridColumn, flexFlow: "column", gap: 2, children: [jsxs(Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), jsx(Flex, { flexFlow: "column", gap: 2, children: fields.map((field, index) => (jsxs(Grid, { gridTemplateColumns: '1fr auto', gap: 2, bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
                         base: "colorPalette.200",
                         _dark: "colorPalette.800",
                     }, children: [jsx(Grid, { gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsx(SchemaRenderer, { column: `${index}`,

@@ -3651,7 +3651,7 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const { formState: { errors }, setValue, watch, } = reactHookForm.useFormContext();
     const fields = (watch(colLabel) ?? []);
-    return (jsxRuntime.jsxs(react.Flex, { gridRow, gridColumn, flexFlow: "column", gap: 2, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: 2, children: fields.map((field, index) => (jsxRuntime.jsxs(react.Flex, { flexFlow: "row", gap: 2, bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
+    return (jsxRuntime.jsxs(react.Flex, { gridRow, gridColumn, flexFlow: "column", gap: 2, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: 2, children: fields.map((field, index) => (jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: '1fr auto', gap: 2, bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
                         base: "colorPalette.200",
                         _dark: "colorPalette.800",
                     }, children: [jsxRuntime.jsx(react.Grid, { gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsxRuntime.jsx(SchemaRenderer, { column: `${index}`,
