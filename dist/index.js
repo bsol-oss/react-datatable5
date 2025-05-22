@@ -3651,13 +3651,17 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const { formState: { errors }, setValue, watch, } = reactHookForm.useFormContext();
     const fields = (watch(colLabel) ?? []);
-    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), fields.map((field, index) => (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", children: [jsxRuntime.jsx(react.Box, { children: index + 1 }), jsxRuntime.jsx(react.Grid, { gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsxRuntime.jsx(SchemaRenderer, { column: `${index}`,
-                            prefix: `${colLabel}.`,
-                            schema: items }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(react.Button, { variant: "ghost", onClick: () => {
-                                setValue(colLabel, fields.filter((_, curIndex) => {
-                                    return curIndex !== index;
-                                }));
-                            }, children: translate.t(removeIndex(`${colLabel}.remove`)) }) })] }, `${colLabel}.${index}`))), jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(react.Button, { onClick: () => {
+    return (jsxRuntime.jsxs(react.Flex, { gridRow, gridColumn, flexFlow: "column", gap: 2, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: 2, children: fields.map((field, index) => (jsxRuntime.jsxs(react.Flex, { flexFlow: "row", gap: 2, bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
+                        base: "colorPalette.200",
+                        _dark: "colorPalette.800",
+                    }, children: [jsxRuntime.jsx(react.Grid, { gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsxRuntime.jsx(SchemaRenderer, { column: `${index}`,
+                                prefix: `${colLabel}.`,
+                                // @ts-expect-error find suitable types
+                                schema: { showTitle: false, ...(items ?? {}) } }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(react.Button, { variant: "ghost", onClick: () => {
+                                    setValue(colLabel, fields.filter((_, curIndex) => {
+                                        return curIndex !== index;
+                                    }));
+                                }, children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(cg.CgTrash, {}) }) }) })] }, `${colLabel}.${index}`))) }), jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(react.Button, { onClick: () => {
                         if (type === "number") {
                             setValue(colLabel, [...fields, 0]);
                             return;
@@ -4545,7 +4549,7 @@ const NumberInputField = ({ schema, column, prefix, }) => {
 };
 
 const ObjectInput = ({ schema, column, prefix }) => {
-    const { properties, gridColumn = "span 12", gridRow = "span 1", required, } = schema;
+    const { properties, gridColumn = "span 12", gridRow = "span 1", required, showTitle = true, } = schema;
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -4553,7 +4557,10 @@ const ObjectInput = ({ schema, column, prefix }) => {
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
     }
-    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: Object.keys(properties ?? {}).map((key) => {
+    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [showTitle && (jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] })), jsxRuntime.jsx(react.Grid, { bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
+                    base: "colorPalette.200",
+                    _dark: "colorPalette.800",
+                }, gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: Object.keys(properties ?? {}).map((key) => {
                     return (
                     // @ts-expect-error find suitable types
                     jsxRuntime.jsx(ColumnRenderer, { column: `${key}`,
@@ -4955,15 +4962,19 @@ const ColumnRenderer = ({ column, properties, prefix, }) => {
 };
 
 const ArrayViewer = ({ schema, column, prefix }) => {
-    const { gridColumn = "span 4", gridRow = "span 1", required, items } = schema;
+    const { gridColumn = "span 12", gridRow = "span 1", required, items, } = schema;
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const values = watch(colLabel) ?? [];
-    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), values.map((field, index) => (jsxRuntime.jsx(react.Flex, { flexFlow: "column", children: jsxRuntime.jsx(react.Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsxRuntime.jsx(SchemaViewer, { column: `${index}`,
-                        prefix: `${colLabel}.`,
-                        schema: items }) }) }, `form-${prefix}${column}.${index}`))), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: 1, children: values.map((field, index) => (jsxRuntime.jsx(react.Flex, { flexFlow: "column", bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: "2", borderRadius: "md", borderWidth: "thin", borderColor: {
+                        base: "colorPalette.200",
+                        _dark: "colorPalette.800",
+                    }, children: jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsxRuntime.jsx(SchemaViewer, { column: `${index}`,
+                            prefix: `${colLabel}.`,
+                            // @ts-expect-error find suitable types
+                            schema: { showTitle: false, ...(items ?? {}) } }) }) }, `form-${prefix}${column}.${index}`))) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
 const BooleanViewer = ({ schema, column, prefix, }) => {
@@ -5078,7 +5089,7 @@ const NumberViewer = ({ schema, column, prefix, }) => {
 };
 
 const ObjectViewer = ({ schema, column, prefix }) => {
-    const { properties, gridColumn = "span 12", gridRow = "span 1", required, } = schema;
+    const { properties, gridColumn = "span 12", gridRow = "span 1", required, showTitle = true, } = schema;
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -5086,8 +5097,10 @@ const ObjectViewer = ({ schema, column, prefix }) => {
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
     }
-    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", gridColumn,
-                gridRow, children: Object.keys(properties ?? {}).map((key) => {
+    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [showTitle && (jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] })), jsxRuntime.jsx(react.Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: "1", borderRadius: "md", borderWidth: "thin", borderColor: {
+                    base: "colorPalette.200",
+                    _dark: "colorPalette.800",
+                }, children: Object.keys(properties ?? {}).map((key) => {
                     return (
                     // @ts-expect-error find suitable types
                     jsxRuntime.jsx(ColumnViewer, { column: `${key}`,
