@@ -17,7 +17,7 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
     gridColumn = "span 12",
     gridRow = "span 1",
     required,
-    showTitle = true,
+    showLabel = true,
   } = schema;
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
@@ -30,7 +30,7 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
   }
   return (
     <Box {...{ gridRow, gridColumn }}>
-      {showTitle && (
+      {showLabel && (
         <Box as="label">
           {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
           {isRequired && <span>*</span>}

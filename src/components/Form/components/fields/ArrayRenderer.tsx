@@ -59,7 +59,7 @@ export const ArrayRenderer = ({
                   column: `${index}`,
                   prefix: `${colLabel}.`,
                   // @ts-expect-error find suitable types
-                  schema: { showTitle: false, ...(items ?? {}) },
+                  schema: { showLabel: false, ...(items ?? {}) },
                 }}
               />
             </Grid>
