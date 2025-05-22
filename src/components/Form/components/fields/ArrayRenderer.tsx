@@ -40,9 +40,9 @@ export const ArrayRenderer = ({
       </Box>
       <Flex flexFlow={"column"} gap={2} >
         {fields.map((field, index) => (
-          <Flex
+          <Grid
             key={`${colLabel}.${index}`}
-            flexFlow={"row"}
+            gridTemplateColumns={'1fr auto'}
             gap={2}
             bgColor={{ base: "colorPalette.100", _dark: "colorPalette.900" }}
             p={2}
@@ -80,7 +80,7 @@ export const ArrayRenderer = ({
                 </Icon>
               </Button>
             </Flex>
-          </Flex>
+          </Grid>
         ))}
       </Flex>
       <Flex>
