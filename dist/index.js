@@ -4909,7 +4909,7 @@ function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", format } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", format = "HH:mm:ss" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = React.useState(false);
