@@ -38,6 +38,10 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
         padding={"4"}
         gridTemplateColumns={"repeat(12, 1fr)"}
         autoFlow={"row"}
+        {...{
+          gridColumn,
+          gridRow,
+        }}
       >
         {Object.keys(properties ?? {}).map((key) => {
           return (
