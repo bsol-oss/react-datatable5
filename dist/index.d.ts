@@ -471,6 +471,7 @@ interface CustomJSONSchema7 extends JSONSchema7 {
     }) => ReactNode;
     dateFormat?: string;
     displayDateFormat?: string;
+    format?: string;
 }
 
 interface FormRootProps<TData extends FieldValues> {

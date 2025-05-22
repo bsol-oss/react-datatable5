@@ -3870,8 +3870,8 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
     return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [watchEnums.map((enumValue) => {
                         const item = enumValue;
-                        if (item === undefined) {
-                            return jsx(Fragment, { children: "undefined" });
+                        if (!!item === false) {
+                            return jsx(Fragment, {});
                         }
                         return (jsx(Tag, { closable: true, onClick: () => {
                                 setValue(column, watchEnums.filter((id) => id != item));
@@ -3882,12 +3882,12 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                             setOpenSearchResult(true);
                         }, children: translate.t(removeIndex(`${colLabel}.add_more`)) })] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, justifyContent: "start", children: watchEnum === undefined
+                }, justifyContent: "start", children: !!watchEnum === false
                     ? ""
                     : translate.t(removeIndex(`${colLabel}.${watchEnum ?? "null"}`)) })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(`${colLabel}.type_to_search`), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), showTotalAndLimit && (jsx(Text, { children: `${translate.t(`${colLabel}.total`)}: ${count}, ${translate.t(`${colLabel}.showing`)} ${limit}` })), jsxs(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))", overflow: "auto", maxHeight: "50vh", children: [jsx(Flex, { flexFlow: "column wrap", children: dataList
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), showTotalAndLimit && (jsx(Text, { children: `${translate.t(removeIndex(`${colLabel}.total`))}: ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` })), jsxs(Grid, { overflow: "auto", maxHeight: "20rem", children: [jsx(Flex, { flexFlow: "column wrap", children: dataList
                                                 .filter((item) => {
                                                 const searchTerm = (searchText || "").toLowerCase();
                                                 if (!searchTerm)
@@ -4889,7 +4889,7 @@ function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", format } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
@@ -4930,7 +4930,7 @@ const TimePicker = ({ column, schema, prefix }) => {
             h = 0;
         else if (meridiem === "pm" && hour < 12)
             h = hour + 12;
-        return dayjs().hour(h).minute(minute).second(0).toISOString();
+        return dayjs().hour(h).minute(minute).second(0).format(format);
     };
     // Handle changes to time parts
     const handleTimeChange = ({ hour: newHour, minute: newMinute, meridiem: newMeridiem, }) => {
@@ -5150,7 +5150,8 @@ const ObjectViewer = ({ schema, column, prefix }) => {
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
     }
-    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), jsx(Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: Object.keys(properties ?? {}).map((key) => {
+    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsx("span", { children: "*" })] }), jsx(Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", gridColumn,
+                gridRow, children: Object.keys(properties ?? {}).map((key) => {
                     return (
                     // @ts-expect-error find suitable types
                     jsx(ColumnViewer, { column: `${key}`,
