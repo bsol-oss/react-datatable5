@@ -34,6 +34,7 @@ export const SchemaViewer = ({
     properties: innerProperties,
     foreign_key,
     items,
+    format,
   } = schema;
   if (variant === "custom-input") {
     return <CustomViewer schema={colSchema} {...{ prefix, column }} />;
@@ -46,11 +47,11 @@ export const SchemaViewer = ({
       idPickerSanityCheck(column, foreign_key);
       return <IdViewer schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "date-picker") {
-      return <DateViewer schema={colSchema} {...{ prefix, column }} />;
-    }
-    if (variant === "time-picker") {
+    if (format === "time") {
       return <TimeViewer schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (format === "date") {
+      return <DateViewer schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === "text-area") {
       return <TextAreaViewer schema={colSchema} {...{ prefix, column }} />;

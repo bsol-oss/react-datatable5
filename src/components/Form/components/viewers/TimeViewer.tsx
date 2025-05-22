@@ -12,16 +12,19 @@ export interface TimeViewerProps {
   prefix: string;
 }
 
-export const TimeViewer = ({ column, schema, prefix }: TimeViewerProps) => {
+export const TimeViewer = ({ column, schema, prefix,  }: TimeViewerProps) => {
   const {
     watch,
     formState: { errors },
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+  const { required, gridColumn = "span 4", gridRow = "span 1", displayTimeFormat = "hh:mm A" } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const selectedDate = watch(colLabel);
+  const displayedTime = dayjs(`1970-01-01T${selectedDate}Z`).isValid()
+    ? dayjs(`1970-01-01T${selectedDate}Z`).utc().format(displayTimeFormat)
+    : "";
   return (
     <Field
       label={`${translate.t(removeIndex(`${column}.field_label`))}`}
@@ -33,9 +36,7 @@ export const TimeViewer = ({ column, schema, prefix }: TimeViewerProps) => {
       }}
     >
       <Text>
-        {selectedDate !== undefined
-          ? dayjs(selectedDate).format("hh:mm A")
-          : ""}
+        {displayedTime}
       </Text>
 
       {errors[`${column}`] && (
