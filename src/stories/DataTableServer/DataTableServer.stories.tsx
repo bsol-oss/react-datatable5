@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import TableViewShowcase from "./TableViewShowcase";
 import CardViewShowcase from "./CardViewShowcase";
-import TablePinningShowcase from "./TablePinningShowcase";
 import DefaultTableShowcase from "./DefaultTableShowcase";
 import DefaultTableShowcaseTwo from "./DefaultTableShowcase2";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import TableViewShowcase from "../DataTable/TableViewShowcase";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -50,16 +49,6 @@ export const CardView: Story = {
     return (
       <QueryClientProvider client={queryClient}>
         <CardViewShowcase />
-      </QueryClientProvider>
-    );
-  },
-};
-
-export const TablePinningView: Story = {
-  render: () => {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <TablePinningShowcase />
       </QueryClientProvider>
     );
   },
