@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { UseQueryResult } from "@tanstack/react-query";
 import { ColumnDef, ColumnFiltersState, ColumnOrderState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { DensityState } from "./controls/DensityFeature";
+import { DataTableLabel } from "./context/DataTableContext";
 import { DataResponse } from "./useDataTableServer";
 import { UseTranslationResponse } from "react-i18next";
 export interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown>> {
@@ -36,6 +37,7 @@ export interface DataTableServerProps<TData extends DataResponse = DataResponse<
     query: UseQueryResult<TData>;
     url: string;
     translate: UseTranslationResponse<any, any>;
+    tableLabel: DataTableLabel;
 }
 /**
  * DataTableServer will create a context to hold all values to
@@ -48,4 +50,4 @@ export interface DataTableServerProps<TData extends DataResponse = DataResponse<
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-export declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, }: DataTableServerProps<TData>): import("react/jsx-runtime").JSX.Element;
+export declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel, }: DataTableServerProps<TData>): import("react/jsx-runtime").JSX.Element;

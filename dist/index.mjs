@@ -2895,7 +2895,20 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, }) {
+function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel = {
+    view: "View",
+    edit: "Edit",
+    filterButtonText: "Filter",
+    filterTitle: "Filter",
+    filterReset: "Reset",
+    filterClose: "Close",
+    reloadTooltip: "Reload",
+    reloadButtonText: "Reload",
+    resetSelection: "Reset Selection",
+    resetSorting: "Reset Sorting",
+    rowCountText: "Row Count",
+    hasErrorText: "Has Error",
+}, }) {
     const table = useReactTable({
         _features: [DensityFeature],
         data: (query.data?.data ?? []),
@@ -2965,6 +2978,7 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
             columnVisibility,
             setColumnVisibility,
             data: query.data?.data ?? [],
+            tableLabel,
         }, children: jsx(DataTableServerContext.Provider, { value: { url, query }, children: children }) }));
 }
 

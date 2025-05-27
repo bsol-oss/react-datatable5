@@ -282,6 +282,7 @@ interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown
     query: UseQueryResult<TData>;
     url: string;
     translate: UseTranslationResponse<any, any>;
+    tableLabel: DataTableLabel;
 }
 /**
  * DataTableServer will create a context to hold all values to
@@ -294,7 +295,7 @@ interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
+declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
 
 interface TableControlsProps {
     totalText?: string;
