@@ -4,6 +4,7 @@ import { Tag } from "@/components/ui/tag";
 interface TagFilterProps {
   availableTags: string[];
   selectedTags: string[];
+  selectOne?: boolean;
   onTagChange: (tags: string[]) => void;
 }
 
@@ -11,8 +12,17 @@ export const TagFilter: React.FC<TagFilterProps> = ({
   availableTags,
   selectedTags,
   onTagChange,
+  selectOne = false,
 }) => {
   const toggleTag = (tag: string) => {
+    if (selectOne) {
+      if (selectedTags.includes(tag)) {
+        onTagChange([]);
+      } else {
+        onTagChange([tag]);
+      }
+      return;
+    }
     if (selectedTags.includes(tag)) {
       onTagChange(selectedTags.filter((t) => t !== tag));
     } else {

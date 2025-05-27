@@ -112,6 +112,7 @@ export const TableControls = ({
                     selectedTags={
                       (tableColumn?.getFilterValue() as string[]) ?? []
                     }
+                    selectOne={true}
                     onTagChange={(tags) => {
                       if (tags.length === 0) {
                         return tableColumn?.setFilterValue(undefined);
