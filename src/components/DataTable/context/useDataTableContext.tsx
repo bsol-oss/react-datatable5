@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import { DataTableContext } from "./DataTableContext";
+import { DataTableContext, DataTableContextProps } from "./DataTableContext";
 
-export const useDataTableContext = <TData,>(): DataTableContext<TData> => {
-  return useContext(DataTableContext) as DataTableContext<TData>;
+export const useDataTableContext = <TData,>(): DataTableContextProps<TData> => {
+  return useContext(DataTableContext) as DataTableContextProps<TData>;
 };

@@ -19,7 +19,7 @@ import { ReactNode } from "react";
 
 import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
 import { DensityFeature, DensityState } from "./controls/DensityFeature";
-import { DataTableContext } from "./context/DataTableContext";
+import { DataTableContext, DataTableLabel } from "./context/DataTableContext";
 import { UseTranslationResponse } from "react-i18next";
 
 declare module "@tanstack/react-table" {
@@ -85,6 +85,7 @@ export interface DataTableProps<TData = unknown> {
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
   translate: UseTranslationResponse<any, any>;
+  tableLabel: DataTableLabel;
 }
 
 /**
@@ -121,6 +122,20 @@ export function DataTable<TData = unknown>({
   setColumnVisibility,
   translate,
   children,
+  tableLabel = {
+    view: "View",
+    edit: "Edit",
+    filterButtonText: "Filter",
+    filterTitle: "Filter",
+    filterReset: "Reset",
+    filterClose: "Close",
+    reloadTooltip: "Reload",
+    reloadButtonText: "Reload",
+    resetSelection: "Reset Selection",
+    resetSorting: "Reset Sorting",
+    rowCountText: "Row Count",
+    hasErrorText: "Has Error",
+  },
 }: DataTableProps<TData>) {
   const table = useReactTable<TData>({
     _features: [DensityFeature],
@@ -193,20 +208,7 @@ export function DataTable<TData = unknown>({
         columnVisibility,
         setColumnVisibility,
         data,
-        tableLabel: {
-          view: "View",
-          edit: "Edit",
-          filterButtonText: "Filter",
-          filterTitle: "Filter",
-          filterReset: "Reset",
-          filterClose: "Close",
-          reloadTooltip: "Reload",
-          reloadButtonText: "Reload",
-          resetSelection: "Reset Selection",
-          resetSorting: "Reset Sorting",
-          rowCountText: "Row Count",
-          hasErrorText: "Has Error",
-        },
+        tableLabel,
       }}
     >
       {children}

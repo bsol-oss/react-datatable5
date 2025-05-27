@@ -1,34 +1,33 @@
-import {
-  OnChangeFn,
-  Table
-} from "@tanstack/react-table";
+import { OnChangeFn, Table } from "@tanstack/react-table";
 import { createContext } from "react";
 import { UseTranslationResponse } from "react-i18next";
 import { DataTableProps } from "../DataTable";
 
-export interface DataTableContext<TData = unknown> extends DataTableProps {
+export interface DataTableLabel {
+  view: string;
+  edit: string;
+  filterButtonText: string;
+  filterTitle: string;
+  filterReset: string;
+  filterClose: string;
+  reloadTooltip: string;
+  reloadButtonText: string;
+  resetSelection: string;
+  resetSorting: string;
+  rowCountText: string;
+  hasErrorText: string;
+}
+
+export interface DataTableContextProps<TData = unknown> extends DataTableProps {
   table: Table<TData>;
   globalFilter: string;
   setGlobalFilter: OnChangeFn<string>;
   type: "client" | "server";
   translate: UseTranslationResponse<any, unknown>;
-  tableLabel: {
-    view: string;
-    edit: string;
-    filterButtonText: string;
-    filterTitle: string;
-    filterReset: string;
-    filterClose: string;
-    reloadTooltip: string;
-    reloadButtonText: string;
-    resetSelection: string;
-    resetSorting: string;
-    rowCountText: string;
-    hasErrorText: string;
-  };
+  tableLabel: DataTableLabel;
 }
 
-export const DataTableContext = createContext<DataTableContext>({
+export const DataTableContext = createContext<DataTableContextProps>({
   table: {} as Table<unknown>,
   globalFilter: "",
   setGlobalFilter: () => {},
