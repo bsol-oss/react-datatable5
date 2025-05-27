@@ -11,5 +11,5 @@ export const TableComponent = <TData,>({
   },
 }: TableRendererProps<TData>) => {
   const { table } = useDataTableContext();
-  return render(table);
+  return render(table as Table<TData>);
 };

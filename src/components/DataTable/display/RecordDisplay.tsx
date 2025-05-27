@@ -15,7 +15,7 @@ export const RecordDisplay = ({
   translate,
   prefix = "",
 }: RecordDisplayProps) => {
-  const getColumn = ({ field }) => {
+  const getColumn = ({ field }: { field: string }) => {
     if (translate !== undefined) {
       return translate.t(`${prefix}${field}`);
     }

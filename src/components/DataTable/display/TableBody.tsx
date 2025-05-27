@@ -18,12 +18,10 @@ export interface TableRowSelectorProps<TData> {
     light: string;
     dark: string;
   };
-  alwaysShowSelector?: boolean;
 }
 
 export const TableBody = ({
   showSelector = false,
-  alwaysShowSelector = true,
   canResize = true,
 }: TableBodyProps) => {
   "use no memo";
@@ -115,7 +113,6 @@ export const TableBody = ({
 };
 
 const TableRowSelector = <TData,>({
-  index,
   row,
 }: TableRowSelectorProps<TData>) => {
   const { table } = useDataTableContext();

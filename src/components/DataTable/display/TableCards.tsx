@@ -50,7 +50,7 @@ export const TableCards = <TData,>({
                   }}
                 ></Checkbox>
               )}
-              {renderTitle(row)}
+              {renderTitle(row as Row<TData>)}
               <Grid templateColumns={"auto 1fr"} gap={"1rem"}>
                 {row.getVisibleCells().map((cell) => {
                   return (
