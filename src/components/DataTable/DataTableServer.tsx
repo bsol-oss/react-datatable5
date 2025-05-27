@@ -10,6 +10,7 @@ import {
   PaginationState,
   RowSelectionState,
   SortingState,
+  Table,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
@@ -95,9 +96,9 @@ export function DataTableServer<
   translate,
   children,
 }: DataTableServerProps<TData>) {
-  const table = useReactTable<TData>({
+  const table = useReactTable({
     _features: [DensityFeature],
-    data: query.data?.data ?? [],
+    data: (query.data?.data ?? []) as TData[],
     rowCount: query.data?.count ?? 0,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
@@ -146,12 +147,12 @@ export function DataTableServer<
   return (
     <DataTableContext.Provider
       value={{
-        table: { ...table },
+        table: table as Table<unknown>,
         globalFilter,
         setGlobalFilter,
         type: "server",
         translate,
-        columns,
+        columns: columns as ColumnDef<unknown, unknown>[],
         sorting,
         setSorting,
         columnFilters,
