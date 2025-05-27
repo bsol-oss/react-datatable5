@@ -109,10 +109,7 @@ export const TableFooter = ({
                       <Box>
                         {header.column.getCanSort() && (
                           <>
-                            {header.column.getIsSorted() === false && (
-                              // <UpDownIcon />
-                              <></>
-                            )}
+                            {header.column.getIsSorted() === false && <></>}
                             {header.column.getIsSorted() === "asc" && (
                               <BiUpArrow />
                             )}

@@ -13,10 +13,7 @@ export const TableDataDisplay = ({
   colorPalette,
   emptyComponent,
 }: TableDataDisplayProps) => {
-  const { table, columns, translate, data } = useDataTableContext();
-  const columnDef = table._getColumnDefs();
-  console.log(columnDef, "glp");
-  console.log(columnDef, columns, table.getState().columnOrder, data, "glp");
+  const { columns, translate, data } = useDataTableContext();
   const columnsMap = Object.fromEntries(
     columns.map((def) => {
       const { accessorKey, id } = def;
