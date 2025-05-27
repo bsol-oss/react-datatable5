@@ -44,7 +44,10 @@ declare module "@tanstack/react-table" {
     /**
      * Options for the select filter variant, if applicable.
      */
-    filterOptions?: string[];
+    filterOptions?: {
+      label: string;
+      value: string;
+    }[];
 
     /**
      * Configuration for the range filter variant, if applicable.

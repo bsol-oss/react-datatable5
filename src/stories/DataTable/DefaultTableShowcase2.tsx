@@ -168,7 +168,10 @@ const DefaultTableShowcase2 = () => {
               showFilter: true,
               showFilterName: true,
               showFilterTags: true,
-              filterOptions: ["category", "brand"],
+              filterOptions: [
+                { label: "category", value: "category" },
+                { label: "brand", value: "brand" },
+              ],
             }}
             variant="greedy"
           />

@@ -10,14 +10,14 @@ export const FilterOptions = ({ column }: FilterOptionsProps) => {
   const { table } = useDataTableContext();
   const tableColumn = table.getColumn(column);
   const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
-
   return (
     <>
       {options.map((option) => {
         const selected = table.getColumn(column)?.getFilterValue() === option;
+        const { label, value } = option;
         return (
           <Button
-            key={option}
+            key={option.value}
             size={"sm"}
             onClick={() => {
               if (selected) {
@@ -28,13 +28,13 @@ export const FilterOptions = ({ column }: FilterOptionsProps) => {
                 });
                 return;
               }
-              table.getColumn(column)?.setFilterValue(option);
+              table.getColumn(column)?.setFilterValue(value);
             }}
             variant={selected ? "solid" : "outline"}
             display={"flex"}
             gap={"0.25rem"}
           >
-            {option}
+            {label}
             {selected && <MdClose />}
           </Button>
         );

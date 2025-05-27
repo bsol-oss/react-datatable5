@@ -69,15 +69,8 @@ const AddressApp = () => {
 
   const columns = getColumns<string>({
     schema: peopleSchema as JSONSchema7,
-    // ignore: ["building_name"],
     width: [400, 80, 100],
-    meta: {
-      // created_at: {
-      //   displayName: "Created at",
-      //   filterVariant: "select",
-      //   filterOptions: ["Apple", "Huawei"],
-      // },
-    },
+    meta: {},
     translate,
   });
 
@@ -87,11 +80,14 @@ const AddressApp = () => {
     include: ["first_name"],
     width: [400, 80, 100],
     meta: {
-      // created_at: {
-      //   displayName: "Created at",
-      //   filterVariant: "select",
-      //   filterOptions: ["Apple", "Huawei"],
-      // },
+      first_name: {
+        displayName: "First Name",
+        filterVariant: "select",
+        filterOptions: [
+          { label: "Apple", value: "Apple" },
+          { label: "Huawei", value: "Huawei" },
+        ],
+      },  
     },
     translate,
   });

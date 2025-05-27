@@ -124,7 +124,10 @@ const App = () => {
           meta: {
             displayName: "Model",
             filterVariant: "select",
-            filterOptions: ["gpt4", "gpt35"],
+            filterOptions: [
+              { label: "gpt4", value: "gpt4" },
+              { label: "gpt35", value: "gpt35" },
+            ],
           },
         }),
       ],
@@ -134,9 +137,11 @@ const App = () => {
     <Provider>
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <DefaultTable
-          showSelector
           controlProps={{
-            filterOptions: ["model"],
+            filterOptions: [
+              { label: "gpt4", value: "gpt4" },
+              { label: "gpt35", value: "gpt35" },
+            ],
             showFilter: true,
             showReload: true,
             extraItems: <>some extra items</>,

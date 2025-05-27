@@ -36,7 +36,10 @@ export interface TableControlsProps {
   showPageSizeControl?: boolean;
   showPageCountText?: boolean;
   showView?: boolean;
-  filterOptions?: string[];
+  filterOptions?: {
+    label: string;
+    value: string;
+  }[];
   extraItems?: ReactNode;
   loading?: boolean;
   hasError?: boolean;
@@ -90,16 +93,17 @@ export const TableControls = ({
         </Flex>
         {filterOptions.length > 0 && (
           <Flex flexFlow={"column"} gap={"0.5rem"}>
-            {filterOptions.map((column) => {
-              return (
+            {filterOptions.map((option) => {
+              const { label, value } = option;
+              return (  
                 <Flex
-                  key={column}
+                  key={value}
                   alignItems={"center"}
                   flexFlow={"wrap"}
                   gap={"0.5rem"}
                 >
-                  {showFilterName && <Text>{column}:</Text>}
-                  <FilterOptions column={column}></FilterOptions>
+                  {showFilterName && <Text>{label}:</Text>}
+                  <FilterOptions column={value}></FilterOptions>
                 </Flex>
               );
             })}

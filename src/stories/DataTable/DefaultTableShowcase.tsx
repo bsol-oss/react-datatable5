@@ -110,7 +110,10 @@ const DefaultTableShowcase = () => {
           meta: {
             displayName: "Brand",
             filterVariant: "select",
-            filterOptions: ["Apple", "Huawei"],
+            filterOptions: [
+              { label: "Apple", value: "Apple" },
+              { label: "Huawei", value: "Huawei" },
+            ],
           },
         }),
         // Accessor Column
@@ -125,12 +128,12 @@ const DefaultTableShowcase = () => {
             displayName: "Brand",
             filterVariant: "select",
             filterOptions: [
-              "fragrances",
-              "groceries",
-              "home-decoration",
-              "laptops",
-              "skincare",
-              "smartphones",
+              { label: "fragrances", value: "fragrances" },
+              { label: "groceries", value: "groceries" },
+              { label: "home-decoration", value: "home-decoration" },
+              { label: "laptops", value: "laptops" },
+              { label: "skincare", value: "skincare" },
+              { label: "smartphones", value: "smartphones" },
             ],
           },
         }),
@@ -150,7 +153,10 @@ const DefaultTableShowcase = () => {
             fitTableWidth: true,
             showPageSizeControl: false,
             showPageCountText: false,
-            filterOptions: ["category", "brand"],
+            filterOptions: [
+              { label: "category", value: "category" },
+              { label: "brand", value: "brand" },
+            ],
             gridProps: {
               colorPalette: "red",
             },
