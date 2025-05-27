@@ -85,8 +85,6 @@ function CardContainer({ location, children }: CardContainerProps) {
     });
   }, [location]);
 
-  // const isDark = (location + location) % 2 === 1;
-
   function getColor(isDraggedOver: boolean): BoxProps {
     if (isDraggedOver) {
       return {
@@ -96,7 +94,6 @@ function CardContainer({ location, children }: CardContainerProps) {
         },
       };
     }
-    // return isDark ? "lightgrey" : "white";
     return {
       backgroundColor: undefined,
       _dark: {
