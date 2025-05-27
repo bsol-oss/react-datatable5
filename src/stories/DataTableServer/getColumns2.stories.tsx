@@ -1,10 +1,9 @@
-import { DataDisplay } from "@/components/DataTable/display/DataDisplay";
 import { DataTableServer } from "@/components/DataTable/DataTableServer";
 import { DefaultTable } from "@/components/DataTable/DefaultTable";
+import { DataDisplay } from "@/components/DataTable/display/DataDisplay";
 import { TableComponent } from "@/components/DataTable/display/TableComponent";
 import { useDataTableServer } from "@/components/DataTable/useDataTableServer";
 import { getColumns } from "@/components/DataTable/utils/getColumns";
-import { FilterOptions } from "@/components/Filter/FilterOptions";
 import { Provider } from "@/components/ui/provider";
 import { Box, Text } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
@@ -79,7 +78,6 @@ const AddressApp = () => {
         <Box width={"20rem"}>
           <DataDisplay variant="horizontal" />
         </Box>
-        <FilterOptions column={"region"} />
         <DataDisplay variant="horizontal" />
         <TableComponent
           render={(table) => {

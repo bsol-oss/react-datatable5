@@ -1,3 +1,4 @@
+import { TagFilter } from "@/components/Filter/TagFilter";
 import {
   Box,
   Flex,
@@ -10,17 +11,16 @@ import {
 import { ReactNode } from "react";
 import { BsExclamationCircleFill } from "react-icons/bs";
 import { MdOutlineViewColumn } from "react-icons/md";
-import { Tooltip } from "../../ui/tooltip";
-import { PageSizeControl } from "./PageSizeControl";
-import { RowCountText } from "./RowCountText";
-import { Pagination } from "./Pagination";
-import { ViewDialog } from "./ViewDialog";
 import { GlobalFilter } from "../../Filter/GlobalFilter";
-import { FilterDialog } from "./FilterDialog";
-import { ReloadButton } from "./ReloadButton";
-import { FilterOptions } from "../../Filter/FilterOptions";
-import { TableFilterTags } from "./TableFilterTags";
+import { Tooltip } from "../../ui/tooltip";
 import { useDataTableContext } from "../context/useDataTableContext";
+import { FilterDialog } from "./FilterDialog";
+import { PageSizeControl } from "./PageSizeControl";
+import { Pagination } from "./Pagination";
+import { ReloadButton } from "./ReloadButton";
+import { RowCountText } from "./RowCountText";
+import { TableFilterTags } from "./TableFilterTags";
+import { ViewDialog } from "./ViewDialog";
 
 export interface TableControlsProps {
   totalText?: string;
@@ -36,9 +36,12 @@ export interface TableControlsProps {
   showPageSizeControl?: boolean;
   showPageCountText?: boolean;
   showView?: boolean;
-  filterOptions?: {
-    label: string;
-    value: string;
+  filterTagsOptions?: {
+    column: string;
+    options: {
+      label: string;
+      value: string;
+    }[];
   }[];
   extraItems?: ReactNode;
   loading?: boolean;
@@ -59,13 +62,13 @@ export const TableControls = ({
   showPageSizeControl = true,
   showPageCountText = true,
   showView = true,
-  filterOptions = [],
+  filterTagsOptions = [],
   extraItems = <></>,
   loading = false,
   hasError = false,
   gridProps = {},
 }: TableControlsProps) => {
-  const { tableLabel } = useDataTableContext();
+  const { tableLabel, table } = useDataTableContext();
   const { rowCountText, hasErrorText } = tableLabel;
   return (
     <Grid
@@ -91,19 +94,31 @@ export const TableControls = ({
             {extraItems}
           </Flex>
         </Flex>
-        {filterOptions.length > 0 && (
+        {filterTagsOptions.length > 0 && (
           <Flex flexFlow={"column"} gap={"0.5rem"}>
-            {filterOptions.map((option) => {
-              const { label, value } = option;
-              return (  
+            {filterTagsOptions.map((option) => {
+              const { column, options } = option;
+              const tableColumn = table.getColumn(column);
+              return (
                 <Flex
-                  key={value}
+                  key={column}
                   alignItems={"center"}
                   flexFlow={"wrap"}
                   gap={"0.5rem"}
                 >
-                  {showFilterName && <Text>{label}:</Text>}
-                  <FilterOptions column={value}></FilterOptions>
+                  {showFilterName && <Text>{column}:</Text>}
+                  <TagFilter
+                    availableTags={options.map((item) => item.value)}
+                    selectedTags={
+                      (tableColumn?.getFilterValue() as string[]) ?? []
+                    }
+                    onTagChange={(tags) => {
+                      if (tags.length === 0) {
+                        return tableColumn?.setFilterValue(undefined);
+                      }
+                      tableColumn?.setFilterValue(tags);
+                    }}
+                  />
                 </Flex>
               );
             })}
@@ -128,9 +143,7 @@ export const TableControls = ({
             {showPageSizeControl && <PageSizeControl />}
             {showPageCountText && (
               <Flex>
-                <Text paddingRight={"0.5rem"}>
-                  {rowCountText}
-                </Text>
+                <Text paddingRight={"0.5rem"}>{rowCountText}</Text>
                 <RowCountText />
               </Flex>
             )}

@@ -159,18 +159,23 @@ const DefaultTableShowcase2 = () => {
     <Provider>
       <I18nextProvider i18n={i18n} defaultNS={"translation"}>
         <DataTable columns={columns} data={staffData} {...datatable}>
-        <TableControls>
-        <DataDisplay />
-        </TableControls>
+          <TableControls>
+            <DataDisplay />
+          </TableControls>
 
           <DefaultTable
             controlProps={{
               showFilter: true,
               showFilterName: true,
               showFilterTags: true,
-              filterOptions: [
-                { label: "category", value: "category" },
-                { label: "brand", value: "brand" },
+              filterTagsOptions: [
+                {
+                  column: "university",
+                  options: [
+                    { label: "university", value: "university" },
+                    { label: "university", value: "university" },
+                  ],
+                },
               ],
             }}
             variant="greedy"

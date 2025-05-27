@@ -127,7 +127,6 @@ export * from "./components/DataTable/useDataTableServer";
 export * from "./components/DataTable/utils/getColumns";
 export * from "./components/DataTable/display/TableDataDisplay";
 
-export * from "./components/Filter/FilterOptions";
 export * from "./components/Filter/GlobalFilter";
 
 export * from "./components/Form/components/core/DefaultForm";

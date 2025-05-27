@@ -1,23 +1,19 @@
-import { DataDisplay } from "@/components/DataTable/display/DataDisplay";
 import { DataTableServer } from "@/components/DataTable/DataTableServer";
-import { DefaultTable } from "@/components/DataTable/DefaultTable";
-import { TableComponent } from "@/components/DataTable/display/TableComponent";
+import { DataDisplay } from "@/components/DataTable/display/DataDisplay";
+import { TableDataDisplay } from "@/components/DataTable/display/TableDataDisplay";
 import { useDataTableServer } from "@/components/DataTable/useDataTableServer";
 import { getColumns } from "@/components/DataTable/utils/getColumns";
-import { FilterOptions } from "@/components/Filter/FilterOptions";
 import { Provider } from "@/components/ui/provider";
-import { Box, Text } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import i18n from "i18next";
 import { JSONSchema7 } from "json-schema";
-import { peopleSchema } from "../schema";
 import {
   I18nextProvider,
   initReactI18next,
   useTranslation,
 } from "react-i18next";
-import i18n from "i18next";
-import { TableDataDisplay } from "@/components/DataTable/display/TableDataDisplay";
+import { peopleSchema } from "../schema";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {

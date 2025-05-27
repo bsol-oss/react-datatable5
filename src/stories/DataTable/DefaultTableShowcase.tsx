@@ -151,16 +151,19 @@ const DefaultTableShowcase = () => {
       <DataTable columns={columns} data={data} {...datatable}>
         <DefaultTable
           controlProps={{
-            showFilter: false,
-            showView: false,
-            showPagination: false,
-            fitTableHeight: true,
-            fitTableWidth: true,
-            showPageSizeControl: false,
-            showPageCountText: false,
-            filterOptions: [
-              { label: "category", value: "category" },
-              { label: "brand", value: "brand" },
+
+            filterTagsOptions: [
+              {
+                column: "category",
+                options: [
+                  { label: "fragrances", value: "fragrances" },
+                  { label: "groceries", value: "groceries" },
+                  { label: "home-decoration", value: "home-decoration" },
+                  { label: "laptops", value: "laptops" },
+                  { label: "skincare", value: "skincare" },
+                  { label: "smartphones", value: "smartphones" },
+                ],
+              },
             ],
             gridProps: {
               colorPalette: "red",
