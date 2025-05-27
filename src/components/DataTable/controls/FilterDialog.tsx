@@ -23,26 +23,26 @@ export const FilterDialog = ({
   icon = <MdFilterAlt />,
 }: EditFilterButtonProps) => {
   const filterModal = useDisclosure();
-  const { translate } = useDataTableContext();
-
+  const { tableLabel } = useDataTableContext();
+  const { filterButtonText, filterTitle, filterClose } = tableLabel;
   return (
     <DialogRoot size={["full", "full", "md", "md"]} open={filterModal.open}>
       <DialogTrigger asChild>
         <Button as={Box} variant={"ghost"} onClick={filterModal.onOpen}>
-          {icon} {translate.t("filter_dialog.button_text")}
+          {icon} {filterButtonText}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{translate.t("filter_dialog.title")}</DialogTitle>
+          <DialogTitle>{filterTitle}</DialogTitle>
         </DialogHeader>
         <DialogBody display={"flex"} flexFlow={"column"}>
           <TableFilter />
         </DialogBody>
         <DialogFooter>
-          <ResetFilteringButton text={translate.t("filter_dialog.reset")} />
+          <ResetFilteringButton   />
           <Button onClick={filterModal.onClose} variant={"subtle"}>
-            {translate.t("filter_dialog.close")}
+            {filterClose}
           </Button>
         </DialogFooter>
         <DialogCloseTrigger onClick={filterModal.onClose}/>

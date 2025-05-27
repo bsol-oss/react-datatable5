@@ -172,12 +172,12 @@ export function DataTable<TData = unknown>({
   return (
     <DataTableContext.Provider
       value={{
-        table: table as Table<TData>,
+        table: table as Table<unknown>,
         globalFilter,
         setGlobalFilter,
         type: "client",
         translate,
-        columns,
+        columns : columns as ColumnDef<unknown, unknown>[],
         sorting,
         setSorting,
         columnFilters,
@@ -193,6 +193,10 @@ export function DataTable<TData = unknown>({
         columnVisibility,
         setColumnVisibility,
         data,
+        tableLabel: {
+          view: "View",
+          edit: "Edit",
+        },
       }}
     >
       {children}

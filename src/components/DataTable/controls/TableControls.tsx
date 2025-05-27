@@ -65,8 +65,8 @@ export const TableControls = ({
   hasError = false,
   gridProps = {},
 }: TableControlsProps) => {
-  const { translate } = useDataTableContext();
-
+  const { tableLabel } = useDataTableContext();
+  const { rowCountText, hasErrorText } = tableLabel;
   return (
     <Grid
       templateRows={"auto 1fr"}
@@ -81,7 +81,7 @@ export const TableControls = ({
           <Flex gap={"0.5rem"} alignItems={"center"} justifySelf={"end"}>
             {loading && <Spinner size={"sm"} />}
             {hasError && (
-              <Tooltip content={translate.t("has_error")}>
+              <Tooltip content={hasErrorText}>
                 <Icon as={BsExclamationCircleFill} color={"red.400"} />
               </Tooltip>
             )}
@@ -129,7 +129,7 @@ export const TableControls = ({
             {showPageCountText && (
               <Flex>
                 <Text paddingRight={"0.5rem"}>
-                  {translate.t("rowcount.total")}
+                  {rowCountText}
                 </Text>
                 <RowCountText />
               </Flex>

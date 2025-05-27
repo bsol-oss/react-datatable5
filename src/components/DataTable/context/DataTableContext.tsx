@@ -12,6 +12,20 @@ export interface DataTableContext<TData = unknown> extends DataTableProps {
   setGlobalFilter: OnChangeFn<string>;
   type: "client" | "server";
   translate: UseTranslationResponse<any, unknown>;
+  tableLabel: {
+    view: string;
+    edit: string;
+    filterButtonText: string;
+    filterTitle: string;
+    filterReset: string;
+    filterClose: string;
+    reloadTooltip: string;
+    reloadButtonText: string;
+    resetSelection: string;
+    resetSorting: string;
+    rowCountText: string;
+    hasErrorText: string;
+  };
 }
 
 export const DataTableContext = createContext<DataTableContext>({
@@ -53,4 +67,8 @@ export const DataTableContext = createContext<DataTableContext>({
   },
   rowSelection: {},
   columnVisibility: {},
+  tableLabel: {
+    view: "View",
+    edit: "Edit",
+  },
 });

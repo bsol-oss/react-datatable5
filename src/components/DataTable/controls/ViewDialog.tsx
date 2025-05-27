@@ -1,3 +1,6 @@
+import { Box, Button, DialogBackdrop, useDisclosure } from "@chakra-ui/react";
+import React from "react";
+import { IoMdEye } from "react-icons/io";
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -8,11 +11,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../ui/dialog";
-import { Box, Button, DialogBackdrop, useDisclosure } from "@chakra-ui/react";
-import React from "react";
-import { IoMdEye } from "react-icons/io";
-import { TableViewer } from "./TableViewer";
 import { useDataTableContext } from "../context/useDataTableContext";
+import { TableViewer } from "./TableViewer";
 
 export interface EditViewButtonProps {
   icon?: React.ReactElement;
@@ -20,20 +20,20 @@ export interface EditViewButtonProps {
 
 export const ViewDialog = ({ icon = <IoMdEye /> }: EditViewButtonProps) => {
   const viewModel = useDisclosure();
-  const { translate } = useDataTableContext();
-
+  const { tableLabel } = useDataTableContext();
+  const { view } = tableLabel;
   return (
     <DialogRoot>
       <DialogBackdrop />
       <DialogTrigger asChild>
         <Button as={Box} variant={"ghost"} onClick={viewModel.onOpen}>
-          {icon} {translate.t("view_dialog.button_text")}
+          {icon} {view}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogCloseTrigger />
         <DialogHeader>
-          <DialogTitle>{translate.t("view_dialog.title")}</DialogTitle>
+          <DialogTitle>{view}</DialogTitle>
         </DialogHeader>
         <DialogBody>
           <TableViewer />

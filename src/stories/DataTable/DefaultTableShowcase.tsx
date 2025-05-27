@@ -104,8 +104,8 @@ const DefaultTableShowcase = () => {
           cell: (props) => {
             return <TextCell>{props.row.original.brand}</TextCell>;
           },
-          header: () => <span>Brand</span>,
-          footer: () => <span>Brand</span>,
+          header: () => <span>品牌</span>,
+          footer: () => <span>品牌</span>,
           size: 160,
           meta: {
             // config to traditional chinese if possible

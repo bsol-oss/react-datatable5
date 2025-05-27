@@ -42,11 +42,13 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
           }}
         >
           <Flex flexFlow={"wrap"} gap={"0.5rem"}>
-            {filterOptions.map((item) => (
-              <Radio key={item} value={item}>
-                {item}
-              </Radio>
-            ))}
+            {filterOptions.length === 0 && <Text>No filter options</Text>}
+            {filterOptions.length > 0 &&
+              filterOptions.map((item) => (
+                <Radio key={item.value} value={item.value}>
+                  {item.label}
+                </Radio>
+              ))}
           </Flex>
         </RadioGroup>
       </Flex>
@@ -57,7 +59,7 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
       <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
         <Text>{displayName}</Text>
         <TagFilter
-          availableTags={filterOptions}
+          availableTags={filterOptions.map((item) => item.value)}
           selectedTags={(column.getFilterValue() ?? []) as string[]}
           onTagChange={(tags) => {
             if (tags.length === 0) {
