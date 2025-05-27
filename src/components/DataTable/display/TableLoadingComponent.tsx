@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useDataTableContext } from "../context/useDataTableContext";
+import { useDataTableServerContext } from "../context/useDataTableServerContext";
 export interface TableLoadingComponentProps {
   render: (loading: boolean) => ReactNode;
 }
@@ -7,6 +7,6 @@ export interface TableLoadingComponentProps {
 export const TableLoadingComponent = ({
   render,
 }: TableLoadingComponentProps) => {
-  const { loading } = useDataTableContext();
-  return <>{render(loading)}</>;
+  const { query } = useDataTableServerContext();
+  return <>{render(query.isLoading)}</>;
 };
