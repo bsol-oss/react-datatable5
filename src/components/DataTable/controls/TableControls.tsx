@@ -106,7 +106,9 @@ export const TableControls = ({
                   flexFlow={"wrap"}
                   gap={"0.5rem"}
                 >
-                  {showFilterName && <Text>{column}:</Text>}
+                  {tableColumn?.columnDef.meta?.displayName && (
+                    <Text>{tableColumn?.columnDef.meta?.displayName}</Text>
+                  )}
                   <TagFilter
                     availableTags={options.map((item) => item.value)}
                     selectedTags={
