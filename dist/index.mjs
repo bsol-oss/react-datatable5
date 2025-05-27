@@ -1,10 +1,10 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Tooltip as Tooltip$1, Group, InputElement, Icon, List, Table as Table$1, Checkbox as Checkbox$1, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Textarea, Center, Heading } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Group, InputElement, Tooltip as Tooltip$1, Icon, List, Table as Table$1, Checkbox as Checkbox$1, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Accordion, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Textarea, Center, Heading } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { LuX, LuCheck, LuChevronRight, LuChevronDown } from 'react-icons/lu';
-import { MdOutlineSort, MdFilterAlt, MdSearch, MdClose, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdOutlineChecklist, MdDateRange } from 'react-icons/md';
+import { MdOutlineSort, MdFilterAlt, MdSearch, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdOutlineChecklist, MdDateRange } from 'react-icons/md';
 import { FaUpDown, FaGripLinesVertical } from 'react-icons/fa6';
 import { BiDownArrow, BiUpArrow, BiError } from 'react-icons/bi';
 import { CgClose, CgTrash } from 'react-icons/cg';
@@ -330,8 +330,17 @@ const Tag = React.forwardRef(function Tag(props, ref) {
     return (jsxs(Tag$1.Root, { ref: ref, ...rest, children: [startElement && (jsx(Tag$1.StartElement, { children: startElement })), jsx(Tag$1.Label, { children: children }), endElement && (jsx(Tag$1.EndElement, { children: endElement })), closable && (jsx(Tag$1.EndElement, { children: jsx(Tag$1.CloseTrigger, { onClick: onClose }) }))] }));
 });
 
-const TagFilter = ({ availableTags, selectedTags, onTagChange, }) => {
+const TagFilter = ({ availableTags, selectedTags, onTagChange, selectOne = false, }) => {
     const toggleTag = (tag) => {
+        if (selectOne) {
+            if (selectedTags.includes(tag)) {
+                onTagChange([]);
+            }
+            else {
+                onTagChange([tag]);
+            }
+            return;
+        }
         if (selectedTags.includes(tag)) {
             onTagChange(selectedTags.filter((t) => t !== tag));
         }
@@ -2982,13 +2991,6 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: jsx(DataTableServerContext.Provider, { value: { url, query }, children: children }) }));
 }
 
-const Tooltip = React.forwardRef(function Tooltip(props, ref) {
-    const { showArrow, children, disabled, portalled, content, contentProps, portalRef, ...rest } = props;
-    if (disabled)
-        return children;
-    return (jsxs(Tooltip$1.Root, { ...rest, children: [jsx(Tooltip$1.Trigger, { asChild: true, children: children }), jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Tooltip$1.Positioner, { children: jsxs(Tooltip$1.Content, { ref: ref, ...contentProps, children: [showArrow && (jsx(Tooltip$1.Arrow, { children: jsx(Tooltip$1.ArrowTip, {}) })), content] }) }) })] }));
-});
-
 const InputGroup = React.forwardRef(function InputGroup(props, ref) {
     const { startElement, startElementProps, endElement, endElementProps, children, startOffset = "6px", endOffset = "6px", ...rest } = props;
     return (jsxs(Group, { ref: ref, ...rest, children: [startElement && (jsx(InputElement, { pointerEvents: "none", ...startElementProps, children: startElement })), React.cloneElement(children, {
@@ -3016,6 +3018,13 @@ const GlobalFilter = () => {
                 } }) }) }));
 };
 
+const Tooltip = React.forwardRef(function Tooltip(props, ref) {
+    const { showArrow, children, disabled, portalled, content, contentProps, portalRef, ...rest } = props;
+    if (disabled)
+        return children;
+    return (jsxs(Tooltip$1.Root, { ...rest, children: [jsx(Tooltip$1.Trigger, { asChild: true, children: children }), jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Tooltip$1.Positioner, { children: jsxs(Tooltip$1.Content, { ref: ref, ...contentProps, children: [showArrow && (jsx(Tooltip$1.Arrow, { children: jsx(Tooltip$1.ArrowTip, {}) })), content] }) }) })] }));
+});
+
 const ReloadButton = ({ variant = "icon", }) => {
     const { url } = useDataTableServerContext();
     const queryClient = useQueryClient();
@@ -3031,27 +3040,6 @@ const ReloadButton = ({ variant = "icon", }) => {
         }, children: [jsx(IoReload, {}), " ", reloadButtonText] }));
 };
 
-const FilterOptions = ({ column }) => {
-    const { table } = useDataTableContext();
-    const tableColumn = table.getColumn(column);
-    const options = tableColumn?.columnDef.meta?.filterOptions ?? [];
-    return (jsx(Fragment, { children: options.map((option) => {
-            const selected = table.getColumn(column)?.getFilterValue() === option;
-            const { label, value } = option;
-            return (jsxs(Button$1, { size: "sm", onClick: () => {
-                    if (selected) {
-                        table.setColumnFilters((state) => {
-                            return state.filter((filter) => {
-                                return filter.id !== column;
-                            });
-                        });
-                        return;
-                    }
-                    table.getColumn(column)?.setFilterValue(value);
-                }, variant: selected ? "solid" : "outline", display: "flex", gap: "0.25rem", children: [label, selected && jsx(MdClose, {})] }, option.value));
-        }) }));
-};
-
 const TableFilterTags = () => {
     const { table } = useDataTableContext();
     return (jsx(Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }) => {
@@ -3063,12 +3051,18 @@ const TableFilterTags = () => {
         }) }));
 };
 
-const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsx(Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
-    const { tableLabel } = useDataTableContext();
+const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsx(Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
+    const { tableLabel, table } = useDataTableContext();
     const { rowCountText, hasErrorText } = tableLabel;
-    return (jsxs(Grid, { templateRows: "auto 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", gap: "0.5rem", ...gridProps, children: [jsxs(Flex, { flexFlow: "column", gap: 2, children: [jsxs(Flex, { justifyContent: "space-between", children: [jsx(Box, { children: showView && jsx(ViewDialog, { icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { content: hasErrorText, children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) })), showGlobalFilter && jsx(GlobalFilter, {}), showFilter && jsx(FilterDialog, {}), showReload && jsx(ReloadButton, {}), extraItems] })] }), filterOptions.length > 0 && (jsx(Flex, { flexFlow: "column", gap: "0.5rem", children: filterOptions.map((option) => {
-                            const { label, value } = option;
-                            return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxs(Text, { children: [label, ":"] }), jsx(FilterOptions, { column: value })] }, value));
+    return (jsxs(Grid, { templateRows: "auto 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", gap: "0.5rem", ...gridProps, children: [jsxs(Flex, { flexFlow: "column", gap: 2, children: [jsxs(Flex, { justifyContent: "space-between", children: [jsx(Box, { children: showView && jsx(ViewDialog, { icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { content: hasErrorText, children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) })), showGlobalFilter && jsx(GlobalFilter, {}), showFilter && jsx(FilterDialog, {}), showReload && jsx(ReloadButton, {}), extraItems] })] }), filterTagsOptions.length > 0 && (jsx(Flex, { flexFlow: "column", gap: "0.5rem", children: filterTagsOptions.map((option) => {
+                            const { column, options } = option;
+                            const tableColumn = table.getColumn(column);
+                            return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [showFilterName && jsxs(Text, { children: [column, ":"] }), jsx(TagFilter, { availableTags: options.map((item) => item.value), selectedTags: tableColumn?.getFilterValue() ?? [], selectOne: true, onTagChange: (tags) => {
+                                            if (tags.length === 0) {
+                                                return tableColumn?.setFilterValue(undefined);
+                                            }
+                                            tableColumn?.setFilterValue(tags);
+                                        } })] }, column));
                         }) })), showFilterTags && (jsx(Flex, { children: jsx(TableFilterTags, {}) }))] }), jsx(Grid, { overflow: "auto", bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxs(Flex, { justifyContent: "space-between", children: [jsxs(Flex, { gap: "1rem", alignItems: "center", children: [showPageSizeControl && jsx(PageSizeControl, {}), showPageCountText && (jsxs(Flex, { children: [jsx(Text, { paddingRight: "0.5rem", children: rowCountText }), jsx(RowCountText, {})] }))] }), jsx(Box, { justifySelf: "end", children: showPagination && jsx(Pagination, {}) })] }))] }));
 };
 
@@ -5581,4 +5575,4 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
     }
 };
 
-export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FilterOptions, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };

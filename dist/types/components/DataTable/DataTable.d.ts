@@ -50,7 +50,7 @@ export interface DataTableProps<TData = unknown> {
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
     translate: UseTranslationResponse<any, any>;
-    tableLabel: DataTableLabel;
+    tableLabel?: DataTableLabel;
 }
 /**
  * DataTable will create a context to hold all values to

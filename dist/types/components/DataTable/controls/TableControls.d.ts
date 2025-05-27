@@ -14,13 +14,16 @@ export interface TableControlsProps {
     showPageSizeControl?: boolean;
     showPageCountText?: boolean;
     showView?: boolean;
-    filterOptions?: {
-        label: string;
-        value: string;
+    filterTagsOptions?: {
+        column: string;
+        options: {
+            label: string;
+            value: string;
+        }[];
     }[];
     extraItems?: ReactNode;
     loading?: boolean;
     hasError?: boolean;
     gridProps?: GridProps;
 }
-export declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterTagsOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;
