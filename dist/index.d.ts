@@ -144,6 +144,7 @@ interface DataTableProps<TData = unknown> {
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
     translate: UseTranslationResponse<any, any>;
+    tableLabel: DataTableLabel;
 }
 /**
  * DataTable will create a context to hold all values to
@@ -155,32 +156,32 @@ interface DataTableProps<TData = unknown> {
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, }: DataTableProps<TData>): react_jsx_runtime.JSX.Element;
+declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, tableLabel, }: DataTableProps<TData>): react_jsx_runtime.JSX.Element;
 
-interface DataTableContext<TData = unknown> extends DataTableProps {
+interface DataTableLabel {
+    view: string;
+    edit: string;
+    filterButtonText: string;
+    filterTitle: string;
+    filterReset: string;
+    filterClose: string;
+    reloadTooltip: string;
+    reloadButtonText: string;
+    resetSelection: string;
+    resetSorting: string;
+    rowCountText: string;
+    hasErrorText: string;
+}
+interface DataTableContextProps<TData = unknown> extends DataTableProps {
     table: Table$1<TData>;
     globalFilter: string;
     setGlobalFilter: OnChangeFn<string>;
     type: "client" | "server";
     translate: UseTranslationResponse<any, unknown>;
-    tableLabel: {
-        view: string;
-        edit: string;
-        filterButtonText: string;
-        filterTitle: string;
-        filterReset: string;
-        filterClose: string;
-        reloadTooltip: string;
-        reloadButtonText: string;
-        resetSelection: string;
-        resetSorting: string;
-        rowCountText: string;
-        hasErrorText: string;
-    };
+    tableLabel: DataTableLabel;
 }
-declare const DataTableContext: React$1.Context<DataTableContext<unknown>>;
 
-declare const useDataTableContext: <TData>() => DataTableContext<TData>;
+declare const useDataTableContext: <TData>() => DataTableContextProps<TData>;
 
 interface DataDisplayProps {
     variant?: "horizontal" | "stats" | "";

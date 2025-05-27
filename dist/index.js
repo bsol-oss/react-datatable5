@@ -2818,7 +2818,20 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, }) {
+function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, tableLabel = {
+    view: "View",
+    edit: "Edit",
+    filterButtonText: "Filter",
+    filterTitle: "Filter",
+    filterReset: "Reset",
+    filterClose: "Close",
+    reloadTooltip: "Reload",
+    reloadButtonText: "Reload",
+    resetSelection: "Reset Selection",
+    resetSorting: "Reset Sorting",
+    rowCountText: "Row Count",
+    hasErrorText: "Has Error",
+}, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
         data: data,
@@ -2887,20 +2900,7 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
             columnVisibility,
             setColumnVisibility,
             data,
-            tableLabel: {
-                view: "View",
-                edit: "Edit",
-                filterButtonText: "Filter",
-                filterTitle: "Filter",
-                filterReset: "Reset",
-                filterClose: "Close",
-                reloadTooltip: "Reload",
-                reloadButtonText: "Reload",
-                resetSelection: "Reset Selection",
-                resetSorting: "Reset Sorting",
-                rowCountText: "Row Count",
-                hasErrorText: "Has Error",
-            },
+            tableLabel,
         }, children: children }));
 }
 
