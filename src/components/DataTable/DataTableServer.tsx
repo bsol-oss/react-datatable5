@@ -15,7 +15,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { DensityFeature, DensityState } from "./controls/DensityFeature";
-import { DataTableContext } from "./context/DataTableContext";
+import { DataTableContext, DataTableLabel } from "./context/DataTableContext";
 import { DataTableServerContext } from "./context/DataTableServerContext";
 import { DataResponse } from "./useDataTableServer";
 import { UseTranslationResponse } from "react-i18next";
@@ -55,6 +55,7 @@ export interface DataTableServerProps<
   query: UseQueryResult<TData>;
   url: string;
   translate: UseTranslationResponse<any, any>;
+  tableLabel: DataTableLabel;
 }
 
 /**
@@ -95,6 +96,20 @@ export function DataTableServer<
   url,
   translate,
   children,
+  tableLabel = {
+    view: "View",
+    edit: "Edit",
+    filterButtonText: "Filter",
+    filterTitle: "Filter",
+    filterReset: "Reset",
+    filterClose: "Close",
+    reloadTooltip: "Reload",
+    reloadButtonText: "Reload",
+    resetSelection: "Reset Selection",
+    resetSorting: "Reset Sorting",
+    rowCountText: "Row Count",
+    hasErrorText: "Has Error",
+  },
 }: DataTableServerProps<TData>) {
   const table = useReactTable({
     _features: [DensityFeature],
@@ -168,6 +183,7 @@ export function DataTableServer<
         columnVisibility,
         setColumnVisibility,
         data: query.data?.data ?? [],
+        tableLabel,
       }}
     >
       <DataTableServerContext.Provider value={{ url, query }}>
