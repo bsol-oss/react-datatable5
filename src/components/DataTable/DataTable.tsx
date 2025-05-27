@@ -196,6 +196,16 @@ export function DataTable<TData = unknown>({
         tableLabel: {
           view: "View",
           edit: "Edit",
+          filterButtonText: "Filter",
+          filterTitle: "Filter",
+          filterReset: "Reset",
+          filterClose: "Close",
+          reloadTooltip: "Reload",
+          reloadButtonText: "Reload",
+          resetSelection: "Reset Selection",
+          resetSorting: "Reset Sorting",
+          rowCountText: "Row Count",
+          hasErrorText: "Has Error",
         },
       }}
     >
