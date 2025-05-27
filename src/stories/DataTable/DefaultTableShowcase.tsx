@@ -108,12 +108,17 @@ const DefaultTableShowcase = () => {
           footer: () => <span>Brand</span>,
           size: 160,
           meta: {
-            displayName: "Brand",
+            // config to traditional chinese if possible
+            displayName: "品牌",
             filterVariant: "select",
             filterOptions: [
-              { label: "Apple", value: "Apple" },
-              { label: "Huawei", value: "Huawei" },
+              { label: "苹果", value: "Apple" },
+              { label: "华为", value: "Huawei" },
             ],
+            headerTexts: {
+              pinColumn: "固定品牌列",
+              sortAscending: "品牌排序A-Z",
+            },
           },
         }),
         // Accessor Column

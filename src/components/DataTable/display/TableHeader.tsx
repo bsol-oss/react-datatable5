@@ -21,23 +21,85 @@ import { MdPushPin } from "react-icons/md";
 import { useDataTableContext } from "../context/useDataTableContext";
 import { Checkbox } from "@/components/ui/checkbox";
 
+export interface TableHeaderTexts {
+  pinColumn?: string;
+  cancelPin?: string;
+  sortAscending?: string;
+  sortDescending?: string;
+  clearSorting?: string;
+}
+
 export interface TableHeaderProps {
   canResize?: boolean;
   showSelector?: boolean;
   isSticky?: boolean;
   tableHeaderProps?: ChakraTableHeaderProps;
   tableRowProps?: TableRowProps;
+  /**
+   * Default text configuration for all columns.
+   * Can be overridden per column via meta.headerTexts.
+   */
+  defaultTexts?: TableHeaderTexts;
 }
 
+// Default text values
+const DEFAULT_HEADER_TEXTS: Required<TableHeaderTexts> = {
+  pinColumn: "Pin Column",
+  cancelPin: "Cancel Pin",
+  sortAscending: "Sort Ascending",
+  sortDescending: "Sort Descending",
+  clearSorting: "Clear Sorting",
+};
+
+/**
+ * TableHeader component with configurable text strings.
+ * 
+ * @example
+ * // Using default texts
+ * <TableHeader />
+ * 
+ * @example
+ * // Customizing default texts for all columns
+ * <TableHeader 
+ *   defaultTexts={{
+ *     pinColumn: "Pin This Column",
+ *     sortAscending: "Sort A-Z"
+ *   }}
+ * />
+ * 
+ * @example
+ * // Customizing texts per column via meta
+ * const columns = [
+ *   columnHelper.accessor("name", {
+ *     header: "Name",
+ *     meta: {
+ *       headerTexts: {
+ *         pinColumn: "Pin Name Column",
+ *         sortAscending: "Sort Names A-Z"
+ *       }
+ *     }
+ *   })
+ * ];
+ */
 export const TableHeader = ({
   canResize = true,
   showSelector = false,
   isSticky = true,
   tableHeaderProps = {},
   tableRowProps = {},
+  defaultTexts = {},
 }: TableHeaderProps) => {
   const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
+
+  // Merge default texts with provided defaults
+  const mergedDefaultTexts = { ...DEFAULT_HEADER_TEXTS, ...defaultTexts };
+
+  // Helper function to get text for a specific header
+  const getHeaderText = (header: Header<unknown, unknown>, key: keyof TableHeaderTexts): string => {
+    const columnMeta = header.column.columnDef.meta;
+    return columnMeta?.headerTexts?.[key] || mergedDefaultTexts[key];
+  };
 
   const getThProps = (header: Header<unknown, unknown>) => {
     const thProps = header.column.getIsPinned()
@@ -185,7 +247,7 @@ export const TableHeader = ({
                           }}
                         >
                           <MdPushPin />
-                          Pin Column
+                          {getHeaderText(header, "pinColumn")}
                         </Button>
                       </MenuItem>
                     )}
@@ -198,7 +260,7 @@ export const TableHeader = ({
                           }}
                         >
                           <MdCancel />
-                          Cancel Pin
+                          {getHeaderText(header, "cancelPin")}
                         </Button>
                       </MenuItem>
                     )}
@@ -219,7 +281,7 @@ export const TableHeader = ({
                             }}
                           >
                             <GrAscend />
-                            Sort Ascending
+                            {getHeaderText(header, "sortAscending")}
                           </Button>
                         </MenuItem>
                         <MenuItem asChild value="sort-descend">
@@ -237,12 +299,12 @@ export const TableHeader = ({
                             }}
                           >
                             <GrDescend />
-                            Sort Descending
+                            {getHeaderText(header, "sortDescending")}
                           </Button>
                         </MenuItem>
 
                         {header.column.getIsSorted() && (
-                          <MenuItem asChild value="sort-descend">
+                          <MenuItem asChild value="clear-sorting">
                             <Button
                               variant={"ghost"}
                               onClick={() => {
@@ -250,7 +312,7 @@ export const TableHeader = ({
                               }}
                             >
                               <MdClear />
-                              Clear Sorting
+                              {getHeaderText(header, "clearSorting")}
                             </Button>
                           </MenuItem>
                         )}
