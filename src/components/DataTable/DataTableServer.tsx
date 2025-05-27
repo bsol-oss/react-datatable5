@@ -109,6 +109,7 @@ export function DataTableServer<
     resetSorting: "Reset Sorting",
     rowCountText: "Row Count",
     hasErrorText: "Has Error",
+    globalFilterPlaceholder: "Search",
   },
 }: DataTableServerProps<TData>) {
   const table = useReactTable({

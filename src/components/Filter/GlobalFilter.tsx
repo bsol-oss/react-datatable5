@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 
 export const GlobalFilter = () => {
-  const { table } = useDataTableContext();
+  const { table, tableLabel } = useDataTableContext();
+  const { globalFilterPlaceholder } = tableLabel;
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
@@ -22,7 +23,7 @@ export const GlobalFilter = () => {
     <>
       <InputGroup flex="1" startElement={<MdSearch />}>
         <Input
-          placeholder="Outline"
+          placeholder={globalFilterPlaceholder}
           variant="outline"
           onChange={(e) => {
             setSearchTerm(e.target.value);
