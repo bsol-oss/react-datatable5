@@ -8,6 +8,7 @@ import { TagFilter } from "../../Filter/TagFilter";
 import { useDataTableContext } from "../context/useDataTableContext";
 
 const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
+  const { tableLabel } = useDataTableContext();
   const { filterVariant } = column.columnDef.meta ?? {};
   const displayName = column.columnDef.meta?.displayName ?? column.id;
   const filterOptions = column.columnDef.meta?.filterOptions ?? [];
@@ -59,7 +60,10 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
       <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
         <Text>{displayName}</Text>
         <TagFilter
-          availableTags={filterOptions.map((item) => item.value)}
+          availableTags={filterOptions.map((item) => ({
+            label: item.label,
+            value: item.value,
+          }))}
           selectedTags={(column.getFilterValue() ?? []) as string[]}
           onTagChange={(tags) => {
             if (tags.length === 0) {
@@ -72,11 +76,15 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
     );
   }
   if (filterVariant === "boolean") {
+    const { trueLabel, falseLabel } = tableLabel; 
     return (
       <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
         <Text>{displayName}</Text>
         <TagFilter
-          availableTags={["true", "false"]}
+          availableTags={[
+            { label: trueLabel, value: "true" },
+            { label: falseLabel, value: "false" },
+          ]}
           selectedTags={(column.getFilterValue() ?? []) as string[]}
           onTagChange={(tags) => {
             if (tags.length === 0) {

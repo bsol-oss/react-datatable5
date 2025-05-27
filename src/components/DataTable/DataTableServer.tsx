@@ -110,6 +110,8 @@ export function DataTableServer<
     rowCountText: "Row Count",
     hasErrorText: "Has Error",
     globalFilterPlaceholder: "Search",
+    trueLabel: "True",
+    falseLabel: "False",
   },
 }: DataTableServerProps<TData>) {
   const table = useReactTable({

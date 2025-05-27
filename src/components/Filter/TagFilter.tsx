@@ -2,7 +2,10 @@ import { Flex } from "@chakra-ui/react";
 import React from "react";
 import { Tag } from "@/components/ui/tag";
 interface TagFilterProps {
-  availableTags: string[];
+  availableTags: {
+    label?: string;
+    value: string;
+  }[];
   selectedTags: string[];
   selectOne?: boolean;
   onTagChange: (tags: string[]) => void;
@@ -32,16 +35,19 @@ export const TagFilter: React.FC<TagFilterProps> = ({
 
   return (
     <Flex flexFlow={"wrap"} p={"0.5rem"} gap={"0.5rem"}>
-      {availableTags.map((tag) => (
-        <Tag
-          variant={selectedTags.includes(tag) ? "solid" : "outline"}
-          cursor="pointer"
-          closable={selectedTags.includes(tag) ? true : undefined}
-          onClick={() => toggleTag(tag)}
-        >
-          {tag}
-        </Tag>
-      ))}
+      {availableTags.map((tag) => {
+        const { label, value } = tag;
+        return (
+          <Tag
+            variant={selectedTags.includes(value) ? "solid" : "outline"}
+            cursor="pointer"
+            closable={selectedTags.includes(value) ? true : undefined}
+            onClick={() => toggleTag(value)}
+          >
+            {label ?? value}
+          </Tag>
+        );
+      })}
     </Flex>
   );
 };

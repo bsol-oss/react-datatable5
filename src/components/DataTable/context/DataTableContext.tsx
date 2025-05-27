@@ -17,6 +17,8 @@ export interface DataTableLabel {
   rowCountText: string;
   hasErrorText: string;
   globalFilterPlaceholder: string;
+  trueLabel: string;
+  falseLabel: string;
 }
 
 export interface DataTableContextProps<TData = unknown> extends DataTableProps {
@@ -80,5 +82,8 @@ export const DataTableContext = createContext<DataTableContextProps>({
     resetSorting: "Reset Sorting",
     rowCountText: "Row Count",
     hasErrorText: "Has Error",
+    globalFilterPlaceholder: "Search",
+    trueLabel: "True",
+    falseLabel: "False",
   },
 });

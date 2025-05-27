@@ -136,6 +136,8 @@ export function DataTable<TData = unknown>({
     rowCountText: "Row Count",
     hasErrorText: "Has Error",
     globalFilterPlaceholder: "Search",
+    trueLabel: "True",
+    falseLabel: "False",
   },
 }: DataTableProps<TData>) {
   const table = useReactTable<TData>({

@@ -110,7 +110,7 @@ export const TableControls = ({
                     <Text>{tableColumn?.columnDef.meta?.displayName}</Text>
                   )}
                   <TagFilter
-                    availableTags={options.map((item) => item.value)}
+                    availableTags={options}
                     selectedTags={
                       (tableColumn?.getFilterValue() as string[]) ?? []
                     }
