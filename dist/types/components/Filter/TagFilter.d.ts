@@ -1,6 +1,9 @@
 import React from "react";
 interface TagFilterProps {
-    availableTags: string[];
+    availableTags: {
+        label?: string;
+        value: string;
+    }[];
     selectedTags: string[];
     selectOne?: boolean;
     onTagChange: (tags: string[]) => void;

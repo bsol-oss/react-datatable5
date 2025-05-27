@@ -104,6 +104,9 @@ const DataTableContext = React.createContext({
         resetSorting: "Reset Sorting",
         rowCountText: "Row Count",
         hasErrorText: "Has Error",
+        globalFilterPlaceholder: "Search",
+        trueLabel: "True",
+        falseLabel: "False",
     },
 });
 
@@ -368,10 +371,14 @@ const TagFilter = ({ availableTags, selectedTags, onTagChange, selectOne = false
             onTagChange([...selectedTags, tag]);
         }
     };
-    return (jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", p: "0.5rem", gap: "0.5rem", children: availableTags.map((tag) => (jsxRuntime.jsx(Tag, { variant: selectedTags.includes(tag) ? "solid" : "outline", cursor: "pointer", closable: selectedTags.includes(tag) ? true : undefined, onClick: () => toggleTag(tag), children: tag }))) }));
+    return (jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", p: "0.5rem", gap: "0.5rem", children: availableTags.map((tag) => {
+            const { label, value } = tag;
+            return (jsxRuntime.jsx(Tag, { variant: selectedTags.includes(value) ? "solid" : "outline", cursor: "pointer", closable: selectedTags.includes(value) ? true : undefined, onClick: () => toggleTag(value), children: label ?? value }));
+        }) }));
 };
 
 const Filter = ({ column }) => {
+    const { tableLabel } = useDataTableContext();
     const { filterVariant } = column.columnDef.meta ?? {};
     const displayName = column.columnDef.meta?.displayName ?? column.id;
     const filterOptions = column.columnDef.meta?.filterOptions ?? [];
@@ -390,7 +397,10 @@ const Filter = ({ column }) => {
                                 filterOptions.map((item) => (jsxRuntime.jsx(Radio, { value: item.value, children: item.label }, item.value)))] }) })] }, column.id));
     }
     if (filterVariant === "tag") {
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(TagFilter, { availableTags: filterOptions.map((item) => item.value), selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(TagFilter, { availableTags: filterOptions.map((item) => ({
+                        label: item.label,
+                        value: item.value,
+                    })), selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
                         if (tags.length === 0) {
                             return column.setFilterValue(undefined);
                         }
@@ -398,7 +408,11 @@ const Filter = ({ column }) => {
                     } })] }, column.id));
     }
     if (filterVariant === "boolean") {
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(TagFilter, { availableTags: ["true", "false"], selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
+        const { trueLabel, falseLabel } = tableLabel;
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "0.25rem", children: [jsxRuntime.jsx(react.Text, { children: displayName }), jsxRuntime.jsx(TagFilter, { availableTags: [
+                        { label: trueLabel, value: "true" },
+                        { label: falseLabel, value: "false" },
+                    ], selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
                         if (tags.length === 0) {
                             return column.setFilterValue(undefined);
                         }
@@ -2541,7 +2555,6 @@ function CardContainer({ location, children }) {
             onDrop: () => setIsDraggedOver(false),
         });
     }, [location]);
-    // const isDark = (location + location) % 2 === 1;
     function getColor(isDraggedOver) {
         if (isDraggedOver) {
             return {
@@ -2551,7 +2564,6 @@ function CardContainer({ location, children }) {
                 },
             };
         }
-        // return isDark ? "lightgrey" : "white";
         return {
             backgroundColor: undefined,
             _dark: {
@@ -2840,6 +2852,9 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
     resetSorting: "Reset Sorting",
     rowCountText: "Row Count",
     hasErrorText: "Has Error",
+    globalFilterPlaceholder: "Search",
+    trueLabel: "True",
+    falseLabel: "False",
 }, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
@@ -2937,6 +2952,9 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
     resetSorting: "Reset Sorting",
     rowCountText: "Row Count",
     hasErrorText: "Has Error",
+    globalFilterPlaceholder: "Search",
+    trueLabel: "True",
+    falseLabel: "False",
 }, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
@@ -3024,7 +3042,8 @@ const InputGroup = React__namespace.forwardRef(function InputGroup(props, ref) {
 });
 
 const GlobalFilter = () => {
-    const { table } = useDataTableContext();
+    const { table, tableLabel } = useDataTableContext();
+    const { globalFilterPlaceholder } = tableLabel;
     const [searchTerm, setSearchTerm] = React.useState("");
     const debouncedSearchTerm = usehooks.useDebounce(searchTerm, 500);
     React.useEffect(() => {
@@ -3033,7 +3052,7 @@ const GlobalFilter = () => {
         };
         searchHN();
     }, [debouncedSearchTerm]);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(InputGroup, { flex: "1", startElement: jsxRuntime.jsx(md.MdSearch, {}), children: jsxRuntime.jsx(react.Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(InputGroup, { flex: "1", startElement: jsxRuntime.jsx(md.MdSearch, {}), children: jsxRuntime.jsx(react.Input, { placeholder: globalFilterPlaceholder, variant: "outline", onChange: (e) => {
                     setSearchTerm(e.target.value);
                 } }) }) }));
 };
@@ -3077,7 +3096,7 @@ const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children
     return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", gap: "0.5rem", ...gridProps, children: [jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsx(react.Box, { children: showView && jsxRuntime.jsx(ViewDialog, { icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsxRuntime.jsx(react.Spinner, { size: "sm" }), hasError && (jsxRuntime.jsx(Tooltip, { content: hasErrorText, children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: "red.400" }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && jsxRuntime.jsx(FilterDialog, {}), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), filterTagsOptions.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.5rem", children: filterTagsOptions.map((option) => {
                             const { column, options } = option;
                             const tableColumn = table.getColumn(column);
-                            return (jsxRuntime.jsxs(react.Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [tableColumn?.columnDef.meta?.displayName && (jsxRuntime.jsx(react.Text, { children: tableColumn?.columnDef.meta?.displayName })), jsxRuntime.jsx(TagFilter, { availableTags: options.map((item) => item.value), selectedTags: tableColumn?.getFilterValue() ?? [], selectOne: true, onTagChange: (tags) => {
+                            return (jsxRuntime.jsxs(react.Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [tableColumn?.columnDef.meta?.displayName && (jsxRuntime.jsx(react.Text, { children: tableColumn?.columnDef.meta?.displayName })), jsxRuntime.jsx(TagFilter, { availableTags: options, selectedTags: tableColumn?.getFilterValue() ?? [], selectOne: true, onTagChange: (tags) => {
                                             if (tags.length === 0) {
                                                 return tableColumn?.setFilterValue(undefined);
                                             }

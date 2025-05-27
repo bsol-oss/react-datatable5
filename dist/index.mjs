@@ -84,6 +84,9 @@ const DataTableContext = createContext({
         resetSorting: "Reset Sorting",
         rowCountText: "Row Count",
         hasErrorText: "Has Error",
+        globalFilterPlaceholder: "Search",
+        trueLabel: "True",
+        falseLabel: "False",
     },
 });
 
@@ -348,10 +351,14 @@ const TagFilter = ({ availableTags, selectedTags, onTagChange, selectOne = false
             onTagChange([...selectedTags, tag]);
         }
     };
-    return (jsx(Flex, { flexFlow: "wrap", p: "0.5rem", gap: "0.5rem", children: availableTags.map((tag) => (jsx(Tag, { variant: selectedTags.includes(tag) ? "solid" : "outline", cursor: "pointer", closable: selectedTags.includes(tag) ? true : undefined, onClick: () => toggleTag(tag), children: tag }))) }));
+    return (jsx(Flex, { flexFlow: "wrap", p: "0.5rem", gap: "0.5rem", children: availableTags.map((tag) => {
+            const { label, value } = tag;
+            return (jsx(Tag, { variant: selectedTags.includes(value) ? "solid" : "outline", cursor: "pointer", closable: selectedTags.includes(value) ? true : undefined, onClick: () => toggleTag(value), children: label ?? value }));
+        }) }));
 };
 
 const Filter = ({ column }) => {
+    const { tableLabel } = useDataTableContext();
     const { filterVariant } = column.columnDef.meta ?? {};
     const displayName = column.columnDef.meta?.displayName ?? column.id;
     const filterOptions = column.columnDef.meta?.filterOptions ?? [];
@@ -370,7 +377,10 @@ const Filter = ({ column }) => {
                                 filterOptions.map((item) => (jsx(Radio, { value: item.value, children: item.label }, item.value)))] }) })] }, column.id));
     }
     if (filterVariant === "tag") {
-        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(TagFilter, { availableTags: filterOptions.map((item) => item.value), selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
+        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(TagFilter, { availableTags: filterOptions.map((item) => ({
+                        label: item.label,
+                        value: item.value,
+                    })), selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
                         if (tags.length === 0) {
                             return column.setFilterValue(undefined);
                         }
@@ -378,7 +388,11 @@ const Filter = ({ column }) => {
                     } })] }, column.id));
     }
     if (filterVariant === "boolean") {
-        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(TagFilter, { availableTags: ["true", "false"], selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
+        const { trueLabel, falseLabel } = tableLabel;
+        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(TagFilter, { availableTags: [
+                        { label: trueLabel, value: "true" },
+                        { label: falseLabel, value: "false" },
+                    ], selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
                         if (tags.length === 0) {
                             return column.setFilterValue(undefined);
                         }
@@ -2521,7 +2535,6 @@ function CardContainer({ location, children }) {
             onDrop: () => setIsDraggedOver(false),
         });
     }, [location]);
-    // const isDark = (location + location) % 2 === 1;
     function getColor(isDraggedOver) {
         if (isDraggedOver) {
             return {
@@ -2531,7 +2544,6 @@ function CardContainer({ location, children }) {
                 },
             };
         }
-        // return isDark ? "lightgrey" : "white";
         return {
             backgroundColor: undefined,
             _dark: {
@@ -2820,6 +2832,9 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
     resetSorting: "Reset Sorting",
     rowCountText: "Row Count",
     hasErrorText: "Has Error",
+    globalFilterPlaceholder: "Search",
+    trueLabel: "True",
+    falseLabel: "False",
 }, }) {
     const table = useReactTable({
         _features: [DensityFeature],
@@ -2917,6 +2932,9 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
     resetSorting: "Reset Sorting",
     rowCountText: "Row Count",
     hasErrorText: "Has Error",
+    globalFilterPlaceholder: "Search",
+    trueLabel: "True",
+    falseLabel: "False",
 }, }) {
     const table = useReactTable({
         _features: [DensityFeature],
@@ -3004,7 +3022,8 @@ const InputGroup = React.forwardRef(function InputGroup(props, ref) {
 });
 
 const GlobalFilter = () => {
-    const { table } = useDataTableContext();
+    const { table, tableLabel } = useDataTableContext();
+    const { globalFilterPlaceholder } = tableLabel;
     const [searchTerm, setSearchTerm] = useState("");
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
     useEffect(() => {
@@ -3013,7 +3032,7 @@ const GlobalFilter = () => {
         };
         searchHN();
     }, [debouncedSearchTerm]);
-    return (jsx(Fragment, { children: jsx(InputGroup, { flex: "1", startElement: jsx(MdSearch, {}), children: jsx(Input, { placeholder: "Outline", variant: "outline", onChange: (e) => {
+    return (jsx(Fragment, { children: jsx(InputGroup, { flex: "1", startElement: jsx(MdSearch, {}), children: jsx(Input, { placeholder: globalFilterPlaceholder, variant: "outline", onChange: (e) => {
                     setSearchTerm(e.target.value);
                 } }) }) }));
 };
@@ -3057,7 +3076,7 @@ const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children
     return (jsxs(Grid, { templateRows: "auto 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", gap: "0.5rem", ...gridProps, children: [jsxs(Flex, { flexFlow: "column", gap: 2, children: [jsxs(Flex, { justifyContent: "space-between", children: [jsx(Box, { children: showView && jsx(ViewDialog, { icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsx(Spinner, { size: "sm" }), hasError && (jsx(Tooltip, { content: hasErrorText, children: jsx(Icon, { as: BsExclamationCircleFill, color: "red.400" }) })), showGlobalFilter && jsx(GlobalFilter, {}), showFilter && jsx(FilterDialog, {}), showReload && jsx(ReloadButton, {}), extraItems] })] }), filterTagsOptions.length > 0 && (jsx(Flex, { flexFlow: "column", gap: "0.5rem", children: filterTagsOptions.map((option) => {
                             const { column, options } = option;
                             const tableColumn = table.getColumn(column);
-                            return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [tableColumn?.columnDef.meta?.displayName && (jsx(Text, { children: tableColumn?.columnDef.meta?.displayName })), jsx(TagFilter, { availableTags: options.map((item) => item.value), selectedTags: tableColumn?.getFilterValue() ?? [], selectOne: true, onTagChange: (tags) => {
+                            return (jsxs(Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [tableColumn?.columnDef.meta?.displayName && (jsx(Text, { children: tableColumn?.columnDef.meta?.displayName })), jsx(TagFilter, { availableTags: options, selectedTags: tableColumn?.getFilterValue() ?? [], selectOne: true, onTagChange: (tags) => {
                                             if (tags.length === 0) {
                                                 return tableColumn?.setFilterValue(undefined);
                                             }

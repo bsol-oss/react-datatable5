@@ -15,6 +15,9 @@ export interface DataTableLabel {
     resetSorting: string;
     rowCountText: string;
     hasErrorText: string;
+    globalFilterPlaceholder: string;
+    trueLabel: string;
+    falseLabel: string;
 }
 export interface DataTableContextProps<TData = unknown> extends DataTableProps {
     table: Table<TData>;

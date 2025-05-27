@@ -171,6 +171,9 @@ interface DataTableLabel {
     resetSorting: string;
     rowCountText: string;
     hasErrorText: string;
+    globalFilterPlaceholder: string;
+    trueLabel: string;
+    falseLabel: string;
 }
 interface DataTableContextProps<TData = unknown> extends DataTableProps {
     table: Table$1<TData>;
