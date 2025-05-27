@@ -13,6 +13,17 @@ declare module "@tanstack/react-table" {
          */
         displayName?: string;
         /**
+         * Text configuration for the column header menu items.
+         * These strings can be customized per column.
+         */
+        headerTexts?: {
+            pinColumn?: string;
+            cancelPin?: string;
+            sortAscending?: string;
+            sortDescending?: string;
+            clearSorting?: string;
+        };
+        /**
          * Specifies the type of filter to be used for the column.
          *
          * @remarks You should provide a proper `filterfn` to handle filtering when choosing `boolean`, `dateRange`, and `custom`.
@@ -32,7 +43,10 @@ declare module "@tanstack/react-table" {
         /**
          * Options for the select filter variant, if applicable.
          */
-        filterOptions?: string[];
+        filterOptions?: {
+            label: string;
+            value: string;
+        }[];
         /**
          * Configuration for the range filter variant, if applicable.
          *
@@ -86,6 +100,7 @@ export * from "./components/DataTable/controls/TableFilters";
 export * from "./components/DataTable/controls/TableFilterTags";
 export * from "./components/DataTable/display/TableFooter";
 export * from "./components/DataTable/display/TableHeader";
+export type { TableHeaderTexts } from "./components/DataTable/display/TableHeader";
 export * from "./components/DataTable/display/TableLoadingComponent";
 export * from "./components/DataTable/controls/TableSelector";
 export * from "./components/DataTable/controls/TableSorter";

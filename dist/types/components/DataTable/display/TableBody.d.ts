@@ -16,6 +16,5 @@ export interface TableRowSelectorProps<TData> {
         light: string;
         dark: string;
     };
-    alwaysShowSelector?: boolean;
 }
-export declare const TableBody: ({ showSelector, alwaysShowSelector, canResize, }: TableBodyProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableBody: ({ showSelector, canResize, }: TableBodyProps) => import("react/jsx-runtime").JSX.Element;

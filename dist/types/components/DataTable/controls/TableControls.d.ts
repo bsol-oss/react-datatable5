@@ -14,7 +14,10 @@ export interface TableControlsProps {
     showPageSizeControl?: boolean;
     showPageCountText?: boolean;
     showView?: boolean;
-    filterOptions?: string[];
+    filterOptions?: {
+        label: string;
+        value: string;
+    }[];
     extraItems?: ReactNode;
     loading?: boolean;
     hasError?: boolean;

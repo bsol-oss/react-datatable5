@@ -3,7 +3,7 @@ import { Row, RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionSta
 import * as React$1 from 'react';
 import React__default, { ReactNode, Dispatch, SetStateAction } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { ImageProps, GridProps, TableRootProps, TableHeaderProps as TableHeaderProps$1, TableRowProps, CardBodyProps, FlexProps, TextProps, BoxProps } from '@chakra-ui/react';
+import { ImageProps, GridProps, TableRootProps, TableHeaderProps as TableHeaderProps$1, TableRowProps, BoxProps, FlexProps, CardBodyProps, TextProps } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
 import * as react_i18next from 'react-i18next';
 import { UseTranslationResponse } from 'react-i18next';
@@ -41,20 +41,11 @@ declare const PageSizeControl: ({ pageSizes, }: PageSizeControlProps) => react_j
 
 declare const Pagination: () => react_jsx_runtime.JSX.Element;
 
-interface ResetFilteringButtonProps {
-    text?: string;
-}
-declare const ResetFilteringButton: ({ text, }: ResetFilteringButtonProps) => react_jsx_runtime.JSX.Element;
+declare const ResetFilteringButton: () => react_jsx_runtime.JSX.Element;
 
-interface ResetSelectionButtonProps {
-    text?: string;
-}
-declare const ResetSelectionButton: ({ text, }: ResetSelectionButtonProps) => react_jsx_runtime.JSX.Element;
+declare const ResetSelectionButton: () => react_jsx_runtime.JSX.Element;
 
-interface ResetSortingButtonProps {
-    text?: string;
-}
-declare const ResetSortingButton: ({ text, }: ResetSortingButtonProps) => react_jsx_runtime.JSX.Element;
+declare const ResetSortingButton: () => react_jsx_runtime.JSX.Element;
 
 declare const RowCountText: () => react_jsx_runtime.JSX.Element;
 
@@ -172,6 +163,20 @@ interface DataTableContext<TData = unknown> extends DataTableProps {
     setGlobalFilter: OnChangeFn<string>;
     type: "client" | "server";
     translate: UseTranslationResponse<any, unknown>;
+    tableLabel: {
+        view: string;
+        edit: string;
+        filterButtonText: string;
+        filterTitle: string;
+        filterReset: string;
+        filterClose: string;
+        reloadTooltip: string;
+        reloadButtonText: string;
+        resetSelection: string;
+        resetSorting: string;
+        rowCountText: string;
+        hasErrorText: string;
+    };
 }
 declare const DataTableContext: React$1.Context<DataTableContext<unknown>>;
 
@@ -304,7 +309,10 @@ interface TableControlsProps {
     showPageSizeControl?: boolean;
     showPageCountText?: boolean;
     showView?: boolean;
-    filterOptions?: string[];
+    filterOptions?: {
+        label: string;
+        value: string;
+    }[];
     extraItems?: ReactNode;
     loading?: boolean;
     hasError?: boolean;
@@ -338,9 +346,8 @@ interface TableRowSelectorProps<TData> {
         light: string;
         dark: string;
     };
-    alwaysShowSelector?: boolean;
 }
-declare const TableBody: ({ showSelector, alwaysShowSelector, canResize, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
+declare const TableBody: ({ showSelector, canResize, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
 
 interface TableFooterProps {
     showSelector?: boolean;
@@ -348,14 +355,56 @@ interface TableFooterProps {
 }
 declare const TableFooter: ({ showSelector, alwaysShowSelector, }: TableFooterProps) => react_jsx_runtime.JSX.Element;
 
+interface TableHeaderTexts {
+    pinColumn?: string;
+    cancelPin?: string;
+    sortAscending?: string;
+    sortDescending?: string;
+    clearSorting?: string;
+}
 interface TableHeaderProps {
     canResize?: boolean;
     showSelector?: boolean;
     isSticky?: boolean;
     tableHeaderProps?: TableHeaderProps$1;
     tableRowProps?: TableRowProps;
+    /**
+     * Default text configuration for all columns.
+     * Can be overridden per column via meta.headerTexts.
+     */
+    defaultTexts?: TableHeaderTexts;
 }
-declare const TableHeader: ({ canResize, showSelector, isSticky, tableHeaderProps, tableRowProps, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
+/**
+ * TableHeader component with configurable text strings.
+ *
+ * @example
+ * // Using default texts
+ * <TableHeader />
+ *
+ * @example
+ * // Customizing default texts for all columns
+ * <TableHeader
+ *   defaultTexts={{
+ *     pinColumn: "Pin This Column",
+ *     sortAscending: "Sort A-Z"
+ *   }}
+ * />
+ *
+ * @example
+ * // Customizing texts per column via meta
+ * const columns = [
+ *   columnHelper.accessor("name", {
+ *     header: "Name",
+ *     meta: {
+ *       headerTexts: {
+ *         pinColumn: "Pin Name Column",
+ *         sortAscending: "Sort Names A-Z"
+ *       }
+ *     }
+ *   })
+ * ];
+ */
+declare const TableHeader: ({ canResize, showSelector, isSticky, tableHeaderProps, tableRowProps, defaultTexts, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
 
 interface DefaultTableProps {
     showFooter?: boolean;
@@ -369,16 +418,18 @@ interface DefaultTableProps {
 declare const DefaultTable: ({ showFooter, tableProps, tableHeaderProps, tableBodyProps, tableFooterProps, controlProps, variant, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
 
 interface ReloadButtonProps {
-    text?: string;
     variant?: string;
 }
-declare const ReloadButton: ({ text, variant, }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
+declare const ReloadButton: ({ variant, }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
 
-interface TableCardContainerProps extends GridProps {
+interface TableCardContainerProps extends BoxProps {
     children: ReactNode;
     variant?: "carousel" | "";
+    gap?: string;
+    gridTemplateColumns?: string;
+    direction?: FlexProps["direction"];
 }
-declare const TableCardContainer: ({ children, variant, ...props }: TableCardContainerProps) => react_jsx_runtime.JSX.Element;
+declare const TableCardContainer: ({ children, variant, gap, gridTemplateColumns, direction, ...props }: TableCardContainerProps) => react_jsx_runtime.JSX.Element;
 
 interface TableCardsProps<TData> {
     isSelectable?: boolean;
@@ -596,6 +647,17 @@ declare module "@tanstack/react-table" {
          */
         displayName?: string;
         /**
+         * Text configuration for the column header menu items.
+         * These strings can be customized per column.
+         */
+        headerTexts?: {
+            pinColumn?: string;
+            cancelPin?: string;
+            sortAscending?: string;
+            sortDescending?: string;
+            clearSorting?: string;
+        };
+        /**
          * Specifies the type of filter to be used for the column.
          *
          * @remarks You should provide a proper `filterfn` to handle filtering when choosing `boolean`, `dateRange`, and `custom`.
@@ -615,7 +677,10 @@ declare module "@tanstack/react-table" {
         /**
          * Options for the select filter variant, if applicable.
          */
-        filterOptions?: string[];
+        filterOptions?: {
+            label: string;
+            value: string;
+        }[];
         /**
          * Configuration for the range filter variant, if applicable.
          *
@@ -641,4 +706,4 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerProps, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, FilterDialog, FilterOptions, type FilterOptionsProps, FormBody, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, Pagination, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, type ResetFilteringButtonProps, ResetSelectionButton, type ResetSelectionButtonProps, ResetSortingButton, type ResetSortingButtonProps, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerProps, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, FilterDialog, FilterOptions, type FilterOptionsProps, FormBody, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, Pagination, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
