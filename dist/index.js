@@ -3160,7 +3160,7 @@ const TableBody = ({ showSelector = false, canResize = true, }) => {
             return (jsxRuntime.jsxs(react.Table.Row, { display: "flex", zIndex: 1, onMouseEnter: () => handleRowHover(index), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index }), children: [showSelector && (jsxRuntime.jsx(TableRowSelector, { index: index, row: row, hoveredRow: hoveredRow })), row.getVisibleCells().map((cell, index) => {
                         return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, 
                             // styling resize and pinning start
-                            flex: `${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`, color: {
+                            flex: `${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`, minWidth: `0`, color: {
                                 base: "colorPalette.900",
                                 _dark: "colorPalette.100",
                             },
