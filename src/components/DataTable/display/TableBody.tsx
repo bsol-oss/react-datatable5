@@ -92,6 +92,7 @@ export const TableBody = ({
                   key={`chakra-table-rowcell-${cell.id}-${index}`}
                   // styling resize and pinning start
                   flex={`${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`}
+                  minWidth={`0`}
                   {...{
                     color: {
                       base: "colorPalette.900",
