@@ -48,6 +48,7 @@ export const EventsGeolocations: Story = {
 
 const eventsGeolocationsSchema = {
   title: "events_geolocations",
+  required: ["someNumbers", "parent_id", "geolocations"],
   properties: {
     someNumbers: {
       type: "number",

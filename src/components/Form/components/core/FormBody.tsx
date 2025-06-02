@@ -12,11 +12,13 @@ import {
   Flex,
   Grid,
   Spinner,
+  Text,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
 import { clearEmptyString } from "../../utils/clearEmptyString";
+import { validateData, ValidationError } from "../../utils/validation";
 import { ColumnRenderer } from "../fields/ColumnRenderer";
 import { ColumnViewer } from "../viewers/ColumnViewer";
 import { SubmitButton } from "./SubmitButton";
@@ -65,6 +67,23 @@ export const FormBody = <TData extends object>() => {
   const onSubmitSuccess = () => {
     setIsSuccess(true);
   };
+  
+  // Enhanced validation function using AJV
+  const validateFormData = (data: TData): { isValid: boolean; errors: ValidationError[] } => {
+    try {
+      const validationResult = validateData(data, schema);
+      return validationResult;
+    } catch (error) {
+      return {
+        isValid: false,
+        errors: [{
+          field: 'validation',
+          message: `Validation error: ${error instanceof Error ? error.message : 'Unknown validation error'}`
+        }]
+      };
+    }
+  };
+
   const defaultOnSubmit = async (promise: Promise<unknown>) => {
     try {
       onBeforeSubmit();
@@ -85,13 +104,63 @@ export const FormBody = <TData extends object>() => {
     };
     return axios.request(options);
   };
+  
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFormSubmit = async (data: any) => {
+    // Validate data using AJV before submission
+    const validationResult = validateFormData(data);
+    
+    if (!validationResult.isValid) {
+      // Set validation errors
+      const validationErrorMessage = {
+        type: 'validation',
+        errors: validationResult.errors,
+        message: 'Form validation failed'
+      };
+      onSubmitError(validationErrorMessage);
+      return;
+    }
+
     if (onSubmit === undefined) {
       await defaultOnSubmit(defaultSubmitPromise(data));
       return;
     }
     await defaultOnSubmit(onSubmit(data));
+  };
+
+  // Custom error renderer for validation errors
+  const renderValidationErrors = (validationErrors: ValidationError[]) => {
+    return (
+      <Alert.Root status="error">
+        <Alert.Indicator />
+        <Alert.Title>
+          <AccordionRoot collapsible defaultValue={[]}>
+            <AccordionItem value="validation-errors">
+              <AccordionItemTrigger>
+                Form Validation Failed ({validationErrors.length} error{validationErrors.length > 1 ? 's' : ''})
+              </AccordionItemTrigger>
+              <AccordionItemContent>
+                <Box mt={2}>
+                  {validationErrors.map((err, index) => (
+                    <Box key={index} mb={2} p={2} bg="red.50" borderLeft="4px solid" borderColor="red.500">
+                      <Text fontWeight="bold" color="red.700">
+                        {err.field === 'root' ? 'Form' : err.field}:
+                      </Text>
+                      <Text color="red.600">{err.message}</Text>
+                      {err.value !== undefined && (
+                        <Text fontSize="sm" color="red.500" mt={1}>
+                          Current value: {JSON.stringify(err.value)}
+                        </Text>
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+              </AccordionItemContent>
+            </AccordionItem>
+          </AccordionRoot>
+        </Alert.Title>
+      </Alert.Root>
+    );
   };
 
   interface renderColumnsConfig {
@@ -202,19 +271,26 @@ export const FormBody = <TData extends object>() => {
             {customErrorRenderer ? (
               customErrorRenderer(error)
             ) : (
-              <Alert.Root status="error">
-                <Alert.Title>
-                  <AccordionRoot collapsible defaultValue={[]}>
-                    <AccordionItem value={"b"}>
-                      <AccordionItemTrigger>
-                        <Alert.Indicator />
-                        {`${error}`}
-                      </AccordionItemTrigger>
-                      <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
-                    </AccordionItem>
-                  </AccordionRoot>
-                </Alert.Title>
-              </Alert.Root>
+              <>
+                {/* Check if error is a validation error */}
+                {(error as any)?.type === 'validation' && (error as any)?.errors ? (
+                  renderValidationErrors((error as any).errors)
+                ) : (
+                  <Alert.Root status="error">
+                    <Alert.Title>
+                      <AccordionRoot collapsible defaultValue={[]}>
+                        <AccordionItem value={"b"}>
+                          <AccordionItemTrigger>
+                            <Alert.Indicator />
+                            {`${error}`}
+                          </AccordionItemTrigger>
+                          <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
+                        </AccordionItem>
+                      </AccordionRoot>
+                    </Alert.Title>
+                  </Alert.Root>
+                )}
+              </>
             )}
           </>
         )}
@@ -251,6 +327,13 @@ export const FormBody = <TData extends object>() => {
         </Button>
         <SubmitButton />
       </Flex>
+      
+      {/* Display validation errors if form has been submitted with errors */}
+      {isError && (error as any)?.type === 'validation' && (
+        <Box mt={4}>
+          {(error as any)?.errors && renderValidationErrors((error as any).errors)}
+        </Box>
+      )}
     </Flex>
   );
 };

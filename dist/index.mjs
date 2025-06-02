@@ -28,6 +28,7 @@ import { GrAscend, GrDescend } from 'react-icons/gr';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { FormProvider, useFormContext, useForm as useForm$1 } from 'react-hook-form';
+import Ajv from 'ajv';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { TiDeleteOutline } from 'react-icons/ti';
@@ -3678,6 +3679,128 @@ const clearEmptyString = (object) => {
     return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
 };
 
+// Use require for ajv-formats to avoid type issues
+const addFormats = require("ajv-formats");
+// Create AJV instance with format support
+const createValidator = () => {
+    const ajv = new Ajv({
+        allErrors: true,
+        verbose: true,
+        removeAdditional: false,
+    });
+    // Add format validation support (date, time, email, etc.)
+    addFormats(ajv);
+    return ajv;
+};
+/**
+ * Validates data against a JSON Schema using AJV
+ * @param data - The data to validate
+ * @param schema - The JSON Schema to validate against
+ * @returns ValidationResult containing validation status and errors
+ */
+const validateData = (data, schema) => {
+    const ajv = createValidator();
+    try {
+        const validate = ajv.compile(schema);
+        const isValid = validate(data);
+        if (isValid) {
+            return {
+                isValid: true,
+                errors: [],
+            };
+        }
+        const errors = (validate.errors || []).map((error) => {
+            const field = error.instancePath?.replace(/^\//, '') || error.schemaPath?.split('/').pop() || 'root';
+            let message = error.message || 'Validation error';
+            // Enhance error messages for better UX
+            switch (error.keyword) {
+                case 'required':
+                    message = `${error.params?.missingProperty || 'Field'} is required`;
+                    break;
+                case 'format':
+                    message = `Invalid ${error.params?.format} format`;
+                    break;
+                case 'type':
+                    message = `Expected ${error.params?.type}, got ${typeof error.data}`;
+                    break;
+                case 'minLength':
+                    message = `Must be at least ${error.params?.limit} characters`;
+                    break;
+                case 'maxLength':
+                    message = `Must be no more than ${error.params?.limit} characters`;
+                    break;
+                case 'minimum':
+                    message = `Must be at least ${error.params?.limit}`;
+                    break;
+                case 'maximum':
+                    message = `Must be no more than ${error.params?.limit}`;
+                    break;
+                case 'pattern':
+                    message = `Does not match required pattern`;
+                    break;
+                case 'enum':
+                    message = `Must be one of: ${error.params?.allowedValues?.join(', ')}`;
+                    break;
+                default:
+                    message = error.message || 'Validation error';
+            }
+            return {
+                field: field || error.instancePath || 'unknown',
+                message,
+                value: error.data,
+                schemaPath: error.schemaPath,
+            };
+        });
+        return {
+            isValid: false,
+            errors,
+        };
+    }
+    catch (error) {
+        // Handle AJV compilation errors
+        return {
+            isValid: false,
+            errors: [
+                {
+                    field: 'schema',
+                    message: `Schema validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                },
+            ],
+        };
+    }
+};
+/**
+ * Creates a reusable validator function for a specific schema
+ * @param schema - The JSON Schema to create validator for
+ * @returns A function that validates data against the schema
+ */
+const createSchemaValidator = (schema) => {
+    const ajv = createValidator();
+    const validate = ajv.compile(schema);
+    return (data) => {
+        const isValid = validate(data);
+        if (isValid) {
+            return {
+                isValid: true,
+                errors: [],
+            };
+        }
+        const errors = (validate.errors || []).map((error) => {
+            const field = error.instancePath?.replace(/^\//, '') || 'root';
+            return {
+                field,
+                message: error.message || 'Validation error',
+                value: error.data,
+                schemaPath: error.schemaPath,
+            };
+        });
+        return {
+            isValid: false,
+            errors,
+        };
+    };
+};
+
 const idPickerSanityCheck = (column, foreign_key) => {
     if (!!foreign_key == false) {
         throw new Error(`The key foreign_key does not exist in properties of column ${column} when using id-picker.`);
@@ -5450,10 +5573,24 @@ const ColumnViewer = ({ column, properties, prefix, }) => {
 };
 
 const SubmitButton = () => {
-    const { translate, setValidatedData, setIsError, setIsConfirming } = useSchemaContext();
+    const { translate, setValidatedData, setIsError, setIsConfirming, setError, schema } = useSchemaContext();
     const methods = useFormContext();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onValid = (data) => {
+        // Validate data using AJV before proceeding to confirmation
+        const validationResult = validateData(data, schema);
+        if (!validationResult.isValid) {
+            // Set validation errors
+            const validationErrorMessage = {
+                type: 'validation',
+                errors: validationResult.errors,
+                message: 'Form validation failed'
+            };
+            setError(validationErrorMessage);
+            setIsError(true);
+            return;
+        }
+        // If validation passes, proceed to confirmation
         setValidatedData(data);
         setIsError(false);
         setIsConfirming(true);
@@ -5480,6 +5617,22 @@ const FormBody = () => {
     const onSubmitSuccess = () => {
         setIsSuccess(true);
     };
+    // Enhanced validation function using AJV
+    const validateFormData = (data) => {
+        try {
+            const validationResult = validateData(data, schema);
+            return validationResult;
+        }
+        catch (error) {
+            return {
+                isValid: false,
+                errors: [{
+                        field: 'validation',
+                        message: `Validation error: ${error instanceof Error ? error.message : 'Unknown validation error'}`
+                    }]
+            };
+        }
+    };
     const defaultOnSubmit = async (promise) => {
         try {
             onBeforeSubmit();
@@ -5504,11 +5657,27 @@ const FormBody = () => {
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFormSubmit = async (data) => {
+        // Validate data using AJV before submission
+        const validationResult = validateFormData(data);
+        if (!validationResult.isValid) {
+            // Set validation errors
+            const validationErrorMessage = {
+                type: 'validation',
+                errors: validationResult.errors,
+                message: 'Form validation failed'
+            };
+            onSubmitError(validationErrorMessage);
+            return;
+        }
         if (onSubmit === undefined) {
             await defaultOnSubmit(defaultSubmitPromise(data));
             return;
         }
         await defaultOnSubmit(onSubmit(data));
+    };
+    // Custom error renderer for validation errors
+    const renderValidationErrors = (validationErrors) => {
+        return (jsxs(Alert.Root, { status: "error", children: [jsx(Alert.Indicator, {}), jsx(Alert.Title, { children: jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxs(AccordionItem, { value: "validation-errors", children: [jsxs(AccordionItemTrigger, { children: ["Form Validation Failed (", validationErrors.length, " error", validationErrors.length > 1 ? 's' : '', ")"] }), jsx(AccordionItemContent, { children: jsx(Box, { mt: 2, children: validationErrors.map((err, index) => (jsxs(Box, { mb: 2, p: 2, bg: "red.50", borderLeft: "4px solid", borderColor: "red.500", children: [jsxs(Text, { fontWeight: "bold", color: "red.700", children: [err.field === 'root' ? 'Form' : err.field, ":"] }), jsx(Text, { color: "red.600", children: err.message }), err.value !== undefined && (jsxs(Text, { fontSize: "sm", color: "red.500", mt: 1, children: ["Current value: ", JSON.stringify(err.value)] }))] }, index))) }) })] }) }) })] }));
     };
     const renderColumns = ({ order, keys, ignore, include, }) => {
         const included = include.length > 0 ? include : keys;
@@ -5545,7 +5714,7 @@ const FormBody = () => {
                                 setIsConfirming(false);
                             }, variant: "subtle", children: translate.t("cancel") }), jsx(Button$1, { onClick: () => {
                                 onFormSubmit(validatedData);
-                            }, children: translate.t("confirm") })] }), isSubmiting && (jsx(Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsx(Center, { h: "full", children: jsx(Spinner, { color: "teal.500" }) }) })), isError && (jsx(Fragment, { children: customErrorRenderer ? (customErrorRenderer(error)) : (jsx(Alert.Root, { status: "error", children: jsx(Alert.Title, { children: jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxs(AccordionItem, { value: "b", children: [jsxs(AccordionItemTrigger, { children: [jsx(Alert.Indicator, {}), `${error}`] }), jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) })) }))] }));
+                            }, children: translate.t("confirm") })] }), isSubmiting && (jsx(Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsx(Center, { h: "full", children: jsx(Spinner, { color: "teal.500" }) }) })), isError && (jsx(Fragment, { children: customErrorRenderer ? (customErrorRenderer(error)) : (jsx(Fragment, { children: error?.type === 'validation' && error?.errors ? (renderValidationErrors(error.errors)) : (jsx(Alert.Root, { status: "error", children: jsx(Alert.Title, { children: jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxs(AccordionItem, { value: "b", children: [jsxs(AccordionItemTrigger, { children: [jsx(Alert.Indicator, {}), `${error}`] }), jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) })) })) }))] }));
     }
     return (jsxs(Flex, { flexFlow: "column", gap: "2", children: [jsx(Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: ordered.map((column) => {
                     return (jsx(ColumnRenderer
@@ -5555,7 +5724,7 @@ const FormBody = () => {
                         properties: properties, prefix: ``, column }, `form-input-${column}`));
                 }) }), jsxs(Flex, { justifyContent: "end", gap: "2", children: [jsx(Button$1, { onClick: () => {
                             methods.reset();
-                        }, variant: "subtle", children: translate.t("reset") }), jsx(SubmitButton, {})] })] }));
+                        }, variant: "subtle", children: translate.t("reset") }), jsx(SubmitButton, {})] }), isError && error?.type === 'validation' && (jsx(Box, { mt: 4, children: error?.errors && renderValidationErrors(error.errors) }))] }));
 };
 
 const FormTitle = () => {
@@ -5597,4 +5766,4 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
     }
 };
 
-export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, createSchemaValidator, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, validateData, widthSanityCheck };

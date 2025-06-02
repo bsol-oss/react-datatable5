@@ -8,6 +8,12 @@ The datetable package is built on top of `@tanstack/react-table` and `chakra-ui`
 npm install @tanstack/react-table @chakra-ui/react @emotion/react @bsol-oss/react-datatable5
 ```
 
+For form validation features, also install:
+
+```bash
+npm install ajv ajv-formats
+```
+
 ## Usage
 
 ### Hook
@@ -81,6 +87,88 @@ GET http://localhost:8081/api/g/core_people?offset=0&limit=10&sorting[0][id]=id&
   <DataDisplay />
 </DataTable>
 ```
+
+### Form Validation with AJV
+
+The package now includes built-in JSON Schema validation using AJV (Another JSON Schema Validator) with format support. This provides robust validation for form submissions.
+
+#### Features
+
+- **JSON Schema Validation**: Full JSON Schema Draft 7 support
+- **Format Validation**: Built-in support for date, time, email, UUID, and other formats via `ajv-formats`
+- **Enhanced Error Messages**: User-friendly error messages with field-specific details
+- **Automatic Validation**: Validation occurs before form submission and confirmation
+- **Custom Error Display**: Collapsible error panels with detailed validation feedback
+
+#### Basic Usage
+
+The validation is automatically integrated into the `FormBody` component when you provide a JSON Schema:
+
+```tsx
+import { FormRoot, FormBody, validateData } from "@bsol-oss/react-datatable5";
+
+const schema = {
+  type: "object",
+  required: ["email", "age"],
+  properties: {
+    email: {
+      type: "string",
+      format: "email"
+    },
+    age: {
+      type: "integer",
+      minimum: 18,
+      maximum: 120
+    },
+    name: {
+      type: "string",
+      minLength: 2,
+      maxLength: 50
+    }
+  }
+};
+
+// The FormBody component automatically validates using the schema
+<FormRoot schema={schema} /* other props */>
+  <FormBody />
+</FormRoot>
+```
+
+#### Manual Validation
+
+You can also use the validation utilities directly:
+
+```tsx
+import { validateData, ValidationResult } from "@bsol-oss/react-datatable5";
+
+const result: ValidationResult = validateData(formData, schema);
+
+if (!result.isValid) {
+  console.log("Validation errors:", result.errors);
+  // result.errors contains detailed error information
+}
+```
+
+#### Validation Error Structure
+
+```tsx
+interface ValidationError {
+  field: string;        // The field that failed validation
+  message: string;      // User-friendly error message
+  value?: unknown;      // The current value that failed
+  schemaPath?: string;  // JSON Schema path for debugging
+}
+```
+
+#### Supported Validation Types
+
+- **Type validation**: string, number, integer, boolean, object, array
+- **Format validation**: email, date, time, date-time, uuid, uri, etc.
+- **String constraints**: minLength, maxLength, pattern (regex)
+- **Numeric constraints**: minimum, maximum, multipleOf
+- **Array constraints**: minItems, maxItems, uniqueItems
+- **Object constraints**: required properties, additionalProperties
+- **Enum validation**: restricted value sets
 
 For more details of props and examples, please review the stories in storybook platform.
 

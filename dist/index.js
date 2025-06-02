@@ -29,6 +29,7 @@ var gr = require('react-icons/gr');
 var reactI18next = require('react-i18next');
 var axios = require('axios');
 var reactHookForm = require('react-hook-form');
+var Ajv = require('ajv');
 var dayjs = require('dayjs');
 var utc = require('dayjs/plugin/utc');
 var ti = require('react-icons/ti');
@@ -3698,6 +3699,128 @@ const clearEmptyString = (object) => {
     return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
 };
 
+// Use require for ajv-formats to avoid type issues
+const addFormats = require("ajv-formats");
+// Create AJV instance with format support
+const createValidator = () => {
+    const ajv = new Ajv({
+        allErrors: true,
+        verbose: true,
+        removeAdditional: false,
+    });
+    // Add format validation support (date, time, email, etc.)
+    addFormats(ajv);
+    return ajv;
+};
+/**
+ * Validates data against a JSON Schema using AJV
+ * @param data - The data to validate
+ * @param schema - The JSON Schema to validate against
+ * @returns ValidationResult containing validation status and errors
+ */
+const validateData = (data, schema) => {
+    const ajv = createValidator();
+    try {
+        const validate = ajv.compile(schema);
+        const isValid = validate(data);
+        if (isValid) {
+            return {
+                isValid: true,
+                errors: [],
+            };
+        }
+        const errors = (validate.errors || []).map((error) => {
+            const field = error.instancePath?.replace(/^\//, '') || error.schemaPath?.split('/').pop() || 'root';
+            let message = error.message || 'Validation error';
+            // Enhance error messages for better UX
+            switch (error.keyword) {
+                case 'required':
+                    message = `${error.params?.missingProperty || 'Field'} is required`;
+                    break;
+                case 'format':
+                    message = `Invalid ${error.params?.format} format`;
+                    break;
+                case 'type':
+                    message = `Expected ${error.params?.type}, got ${typeof error.data}`;
+                    break;
+                case 'minLength':
+                    message = `Must be at least ${error.params?.limit} characters`;
+                    break;
+                case 'maxLength':
+                    message = `Must be no more than ${error.params?.limit} characters`;
+                    break;
+                case 'minimum':
+                    message = `Must be at least ${error.params?.limit}`;
+                    break;
+                case 'maximum':
+                    message = `Must be no more than ${error.params?.limit}`;
+                    break;
+                case 'pattern':
+                    message = `Does not match required pattern`;
+                    break;
+                case 'enum':
+                    message = `Must be one of: ${error.params?.allowedValues?.join(', ')}`;
+                    break;
+                default:
+                    message = error.message || 'Validation error';
+            }
+            return {
+                field: field || error.instancePath || 'unknown',
+                message,
+                value: error.data,
+                schemaPath: error.schemaPath,
+            };
+        });
+        return {
+            isValid: false,
+            errors,
+        };
+    }
+    catch (error) {
+        // Handle AJV compilation errors
+        return {
+            isValid: false,
+            errors: [
+                {
+                    field: 'schema',
+                    message: `Schema validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                },
+            ],
+        };
+    }
+};
+/**
+ * Creates a reusable validator function for a specific schema
+ * @param schema - The JSON Schema to create validator for
+ * @returns A function that validates data against the schema
+ */
+const createSchemaValidator = (schema) => {
+    const ajv = createValidator();
+    const validate = ajv.compile(schema);
+    return (data) => {
+        const isValid = validate(data);
+        if (isValid) {
+            return {
+                isValid: true,
+                errors: [],
+            };
+        }
+        const errors = (validate.errors || []).map((error) => {
+            const field = error.instancePath?.replace(/^\//, '') || 'root';
+            return {
+                field,
+                message: error.message || 'Validation error',
+                value: error.data,
+                schemaPath: error.schemaPath,
+            };
+        });
+        return {
+            isValid: false,
+            errors,
+        };
+    };
+};
+
 const idPickerSanityCheck = (column, foreign_key) => {
     if (!!foreign_key == false) {
         throw new Error(`The key foreign_key does not exist in properties of column ${column} when using id-picker.`);
@@ -5470,10 +5593,24 @@ const ColumnViewer = ({ column, properties, prefix, }) => {
 };
 
 const SubmitButton = () => {
-    const { translate, setValidatedData, setIsError, setIsConfirming } = useSchemaContext();
+    const { translate, setValidatedData, setIsError, setIsConfirming, setError, schema } = useSchemaContext();
     const methods = reactHookForm.useFormContext();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onValid = (data) => {
+        // Validate data using AJV before proceeding to confirmation
+        const validationResult = validateData(data, schema);
+        if (!validationResult.isValid) {
+            // Set validation errors
+            const validationErrorMessage = {
+                type: 'validation',
+                errors: validationResult.errors,
+                message: 'Form validation failed'
+            };
+            setError(validationErrorMessage);
+            setIsError(true);
+            return;
+        }
+        // If validation passes, proceed to confirmation
         setValidatedData(data);
         setIsError(false);
         setIsConfirming(true);
@@ -5500,6 +5637,22 @@ const FormBody = () => {
     const onSubmitSuccess = () => {
         setIsSuccess(true);
     };
+    // Enhanced validation function using AJV
+    const validateFormData = (data) => {
+        try {
+            const validationResult = validateData(data, schema);
+            return validationResult;
+        }
+        catch (error) {
+            return {
+                isValid: false,
+                errors: [{
+                        field: 'validation',
+                        message: `Validation error: ${error instanceof Error ? error.message : 'Unknown validation error'}`
+                    }]
+            };
+        }
+    };
     const defaultOnSubmit = async (promise) => {
         try {
             onBeforeSubmit();
@@ -5524,11 +5677,27 @@ const FormBody = () => {
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFormSubmit = async (data) => {
+        // Validate data using AJV before submission
+        const validationResult = validateFormData(data);
+        if (!validationResult.isValid) {
+            // Set validation errors
+            const validationErrorMessage = {
+                type: 'validation',
+                errors: validationResult.errors,
+                message: 'Form validation failed'
+            };
+            onSubmitError(validationErrorMessage);
+            return;
+        }
         if (onSubmit === undefined) {
             await defaultOnSubmit(defaultSubmitPromise(data));
             return;
         }
         await defaultOnSubmit(onSubmit(data));
+    };
+    // Custom error renderer for validation errors
+    const renderValidationErrors = (validationErrors) => {
+        return (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "validation-errors", children: [jsxRuntime.jsxs(AccordionItemTrigger, { children: ["Form Validation Failed (", validationErrors.length, " error", validationErrors.length > 1 ? 's' : '', ")"] }), jsxRuntime.jsx(AccordionItemContent, { children: jsxRuntime.jsx(react.Box, { mt: 2, children: validationErrors.map((err, index) => (jsxRuntime.jsxs(react.Box, { mb: 2, p: 2, bg: "red.50", borderLeft: "4px solid", borderColor: "red.500", children: [jsxRuntime.jsxs(react.Text, { fontWeight: "bold", color: "red.700", children: [err.field === 'root' ? 'Form' : err.field, ":"] }), jsxRuntime.jsx(react.Text, { color: "red.600", children: err.message }), err.value !== undefined && (jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: "red.500", mt: 1, children: ["Current value: ", JSON.stringify(err.value)] }))] }, index))) }) })] }) }) })] }));
     };
     const renderColumns = ({ order, keys, ignore, include, }) => {
         const included = include.length > 0 ? include : keys;
@@ -5565,7 +5734,7 @@ const FormBody = () => {
                                 setIsConfirming(false);
                             }, variant: "subtle", children: translate.t("cancel") }), jsxRuntime.jsx(react.Button, { onClick: () => {
                                 onFormSubmit(validatedData);
-                            }, children: translate.t("confirm") })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: customErrorRenderer ? (customErrorRenderer(error)) : (jsxRuntime.jsx(react.Alert.Root, { status: "error", children: jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "b", children: [jsxRuntime.jsxs(AccordionItemTrigger, { children: [jsxRuntime.jsx(react.Alert.Indicator, {}), `${error}`] }), jsxRuntime.jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) })) }))] }));
+                            }, children: translate.t("confirm") })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: customErrorRenderer ? (customErrorRenderer(error)) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: error?.type === 'validation' && error?.errors ? (renderValidationErrors(error.errors)) : (jsxRuntime.jsx(react.Alert.Root, { status: "error", children: jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "b", children: [jsxRuntime.jsxs(AccordionItemTrigger, { children: [jsxRuntime.jsx(react.Alert.Indicator, {}), `${error}`] }), jsxRuntime.jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) })) })) }))] }));
     }
     return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: ordered.map((column) => {
                     return (jsxRuntime.jsx(ColumnRenderer
@@ -5575,7 +5744,7 @@ const FormBody = () => {
                         properties: properties, prefix: ``, column }, `form-input-${column}`));
                 }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "end", gap: "2", children: [jsxRuntime.jsx(react.Button, { onClick: () => {
                             methods.reset();
-                        }, variant: "subtle", children: translate.t("reset") }), jsxRuntime.jsx(SubmitButton, {})] })] }));
+                        }, variant: "subtle", children: translate.t("reset") }), jsxRuntime.jsx(SubmitButton, {})] }), isError && error?.type === 'validation' && (jsxRuntime.jsx(react.Box, { mt: 4, children: error?.errors && renderValidationErrors(error.errors) }))] }));
 };
 
 const FormTitle = () => {
@@ -5658,6 +5827,7 @@ exports.TableSorter = TableSorter;
 exports.TableViewer = TableViewer;
 exports.TextCell = TextCell;
 exports.ViewDialog = ViewDialog;
+exports.createSchemaValidator = createSchemaValidator;
 exports.getColumns = getColumns;
 exports.getMultiDates = getMultiDates;
 exports.getRangeDates = getRangeDates;
@@ -5666,4 +5836,5 @@ exports.useDataTable = useDataTable;
 exports.useDataTableContext = useDataTableContext;
 exports.useDataTableServer = useDataTableServer;
 exports.useForm = useForm;
+exports.validateData = validateData;
 exports.widthSanityCheck = widthSanityCheck;
