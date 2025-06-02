@@ -11,10 +11,12 @@ import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { UseQueryResult } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 import { ForeignKeyProps as ForeignKeyProps$1 } from '@/components/Form/components/fields/StringInputField';
+import { SupportedLocale as SupportedLocale$1 } from '@/components/Form/utils/validation';
 import { AxiosRequestConfig } from 'axios';
 import * as react_hook_form from 'react-hook-form';
 import { UseFormReturn, FieldValues, SubmitHandler } from 'react-hook-form';
 import { RenderProps, Props } from '@bsol-oss/dayzed-react19';
+import * as ajv_i18n_localize_types from 'ajv-i18n/localize/types';
 
 interface DensityToggleButtonProps {
     icon?: React__default.ReactElement;
@@ -547,6 +549,7 @@ interface FormRootProps<TData extends FieldValues> {
     requestOptions?: AxiosRequestConfig;
     getUpdatedData?: () => TData | Promise<TData> | void;
     customErrorRenderer?: (error: unknown) => ReactNode;
+    validationLocale?: SupportedLocale$1;
 }
 interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
@@ -563,7 +566,7 @@ declare const idPickerSanityCheck: (column: string, foreign_key?: {
     column?: string | undefined;
     display_column?: string | undefined;
 } | undefined) => void;
-declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, validationLocale, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DefaultFormProps<TData extends FieldValues> {
     formConfig: Omit<FormRootProps<TData>, "children">;
@@ -638,6 +641,14 @@ interface RecordDisplayProps {
 }
 declare const RecordDisplay: ({ object, boxProps, translate, prefix, }: RecordDisplayProps) => react_jsx_runtime.JSX.Element;
 
+declare const localize: {
+    en: () => void;
+    'zh-HK': ajv_i18n_localize_types.Localize;
+    'zh-TW': ajv_i18n_localize_types.Localize;
+    'zh-CN': ajv_i18n_localize_types.Localize;
+    zh: ajv_i18n_localize_types.Localize;
+};
+type SupportedLocale = keyof typeof localize;
 interface ValidationError {
     field: string;
     message: string;
@@ -648,19 +659,35 @@ interface ValidationResult {
     isValid: boolean;
     errors: ValidationError[];
 }
+interface ValidationOptions {
+    locale?: SupportedLocale;
+}
 /**
- * Validates data against a JSON Schema using AJV
+ * Validates data against a JSON Schema using AJV with i18n support
  * @param data - The data to validate
  * @param schema - The JSON Schema to validate against
+ * @param options - Validation options including locale
  * @returns ValidationResult containing validation status and errors
  */
-declare const validateData: (data: unknown, schema: JSONSchema7) => ValidationResult;
+declare const validateData: (data: unknown, schema: JSONSchema7, options?: ValidationOptions) => ValidationResult;
 /**
- * Creates a reusable validator function for a specific schema
+ * Creates a reusable validator function for a specific schema with i18n support
  * @param schema - The JSON Schema to create validator for
+ * @param locale - The locale to use for error messages
  * @returns A function that validates data against the schema
  */
-declare const createSchemaValidator: (schema: JSONSchema7) => (data: unknown) => ValidationResult;
+declare const createSchemaValidator: (schema: JSONSchema7, locale?: SupportedLocale) => (data: unknown) => ValidationResult;
+/**
+ * Get available locales for validation error messages
+ * @returns Array of supported locale codes
+ */
+declare const getSupportedLocales: () => SupportedLocale[];
+/**
+ * Check if a locale is supported
+ * @param locale - The locale to check
+ * @returns Boolean indicating if the locale is supported
+ */
+declare const isLocaleSupported: (locale: string) => locale is "en" | "zh-HK" | "zh-TW" | "zh-CN" | "zh";
 
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData extends RowData, TValue> {
@@ -734,4 +761,4 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerProps, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, FilterDialog, FormBody, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, Pagination, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationError, type ValidationResult, ViewDialog, createSchemaValidator, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, validateData, widthSanityCheck };
+export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerProps, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, FilterDialog, FormBody, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, Pagination, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, type SupportedLocale, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationError, type ValidationOptions, type ValidationResult, ViewDialog, createSchemaValidator, getColumns, getMultiDates, getRangeDates, getSupportedLocales, idPickerSanityCheck, isLocaleSupported, useDataTable, useDataTableContext, useDataTableServer, useForm, validateData, widthSanityCheck };

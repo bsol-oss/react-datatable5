@@ -30,6 +30,9 @@ var reactI18next = require('react-i18next');
 var axios = require('axios');
 var reactHookForm = require('react-hook-form');
 var Ajv = require('ajv');
+var addFormats = require('ajv-formats');
+var zh_TW = require('ajv-i18n/localize/zh-TW');
+var zh_CN = require('ajv-i18n/localize/zh');
 var dayjs = require('dayjs');
 var utc = require('dayjs/plugin/utc');
 var ti = require('react-icons/ti');
@@ -3689,6 +3692,7 @@ const SchemaFormContext = React.createContext({
     onSubmit: async () => { },
     rowNumber: 0,
     requestOptions: {},
+    validationLocale: 'en',
 });
 
 const useSchemaContext = () => {
@@ -3699,26 +3703,36 @@ const clearEmptyString = (object) => {
     return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
 };
 
-// Use require for ajv-formats to avoid type issues
-const addFormats = require("ajv-formats");
+// AJV i18n support
+const localize = {
+    en: () => { }, // English is default, no localization needed
+    'zh-HK': zh_TW, // Use zh-TW for Hong Kong Traditional Chinese
+    'zh-TW': zh_TW, // Traditional Chinese (Taiwan)
+    'zh-CN': zh_CN, // Simplified Chinese
+    'zh': zh_CN, // Simplified Chinese (short form)
+};
 // Create AJV instance with format support
 const createValidator = () => {
     const ajv = new Ajv({
         allErrors: true,
         verbose: true,
         removeAdditional: false,
+        strict: false,
+        messages: false, // Disable default messages for i18n
     });
     // Add format validation support (date, time, email, etc.)
     addFormats(ajv);
     return ajv;
 };
 /**
- * Validates data against a JSON Schema using AJV
+ * Validates data against a JSON Schema using AJV with i18n support
  * @param data - The data to validate
  * @param schema - The JSON Schema to validate against
+ * @param options - Validation options including locale
  * @returns ValidationResult containing validation status and errors
  */
-const validateData = (data, schema) => {
+const validateData = (data, schema, options = {}) => {
+    const { locale = 'en' } = options;
     const ajv = createValidator();
     try {
         const validate = ajv.compile(schema);
@@ -3729,40 +3743,51 @@ const validateData = (data, schema) => {
                 errors: [],
             };
         }
+        // Apply localization if not English
+        if (locale !== 'en' && validate.errors && localize[locale]) {
+            try {
+                localize[locale](validate.errors);
+            }
+            catch (error) {
+                console.warn(`Failed to localize validation errors to ${locale}:`, error);
+            }
+        }
         const errors = (validate.errors || []).map((error) => {
             const field = error.instancePath?.replace(/^\//, '') || error.schemaPath?.split('/').pop() || 'root';
             let message = error.message || 'Validation error';
-            // Enhance error messages for better UX
-            switch (error.keyword) {
-                case 'required':
-                    message = `${error.params?.missingProperty || 'Field'} is required`;
-                    break;
-                case 'format':
-                    message = `Invalid ${error.params?.format} format`;
-                    break;
-                case 'type':
-                    message = `Expected ${error.params?.type}, got ${typeof error.data}`;
-                    break;
-                case 'minLength':
-                    message = `Must be at least ${error.params?.limit} characters`;
-                    break;
-                case 'maxLength':
-                    message = `Must be no more than ${error.params?.limit} characters`;
-                    break;
-                case 'minimum':
-                    message = `Must be at least ${error.params?.limit}`;
-                    break;
-                case 'maximum':
-                    message = `Must be no more than ${error.params?.limit}`;
-                    break;
-                case 'pattern':
-                    message = `Does not match required pattern`;
-                    break;
-                case 'enum':
-                    message = `Must be one of: ${error.params?.allowedValues?.join(', ')}`;
-                    break;
-                default:
-                    message = error.message || 'Validation error';
+            // Enhanced error messages for better UX (only if using English or localization failed)
+            if (locale === 'en' || !error.message) {
+                switch (error.keyword) {
+                    case 'required':
+                        message = `${error.params?.missingProperty || 'Field'} is required`;
+                        break;
+                    case 'format':
+                        message = `Invalid ${error.params?.format} format`;
+                        break;
+                    case 'type':
+                        message = `Expected ${error.params?.type}, got ${typeof error.data}`;
+                        break;
+                    case 'minLength':
+                        message = `Must be at least ${error.params?.limit} characters`;
+                        break;
+                    case 'maxLength':
+                        message = `Must be no more than ${error.params?.limit} characters`;
+                        break;
+                    case 'minimum':
+                        message = `Must be at least ${error.params?.limit}`;
+                        break;
+                    case 'maximum':
+                        message = `Must be no more than ${error.params?.limit}`;
+                        break;
+                    case 'pattern':
+                        message = `Does not match required pattern`;
+                        break;
+                    case 'enum':
+                        message = `Must be one of: ${error.params?.allowedValues?.join(', ')}`;
+                        break;
+                    default:
+                        message = error.message || 'Validation error';
+                }
             }
             return {
                 field: field || error.instancePath || 'unknown',
@@ -3778,23 +3803,29 @@ const validateData = (data, schema) => {
     }
     catch (error) {
         // Handle AJV compilation errors
+        const errorMessage = locale === 'zh-HK' || locale === 'zh-TW'
+            ? `架構驗證錯誤: ${error instanceof Error ? error.message : '未知錯誤'}`
+            : locale === 'zh-CN' || locale === 'zh'
+                ? `模式验证错误: ${error instanceof Error ? error.message : '未知错误'}`
+                : `Schema validation error: ${error instanceof Error ? error.message : 'Unknown error'}`;
         return {
             isValid: false,
             errors: [
                 {
                     field: 'schema',
-                    message: `Schema validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                    message: errorMessage,
                 },
             ],
         };
     }
 };
 /**
- * Creates a reusable validator function for a specific schema
+ * Creates a reusable validator function for a specific schema with i18n support
  * @param schema - The JSON Schema to create validator for
+ * @param locale - The locale to use for error messages
  * @returns A function that validates data against the schema
  */
-const createSchemaValidator = (schema) => {
+const createSchemaValidator = (schema, locale = 'en') => {
     const ajv = createValidator();
     const validate = ajv.compile(schema);
     return (data) => {
@@ -3804,6 +3835,15 @@ const createSchemaValidator = (schema) => {
                 isValid: true,
                 errors: [],
             };
+        }
+        // Apply localization if not English
+        if (locale !== 'en' && validate.errors && localize[locale]) {
+            try {
+                localize[locale](validate.errors);
+            }
+            catch (error) {
+                console.warn(`Failed to localize validation errors to ${locale}:`, error);
+            }
         }
         const errors = (validate.errors || []).map((error) => {
             const field = error.instancePath?.replace(/^\//, '') || 'root';
@@ -3819,6 +3859,21 @@ const createSchemaValidator = (schema) => {
             errors,
         };
     };
+};
+/**
+ * Get available locales for validation error messages
+ * @returns Array of supported locale codes
+ */
+const getSupportedLocales = () => {
+    return Object.keys(localize);
+};
+/**
+ * Check if a locale is supported
+ * @param locale - The locale to check
+ * @returns Boolean indicating if the locale is supported
+ */
+const isLocaleSupported = (locale) => {
+    return locale in localize;
 };
 
 const idPickerSanityCheck = (column, foreign_key) => {
@@ -3836,7 +3891,7 @@ const idPickerSanityCheck = (column, foreign_key) => {
         throw new Error(`The key column does not exist in properties of column ${column} when using id-picker.`);
     }
 };
-const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, }) => {
+const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, validationLocale = 'en', }) => {
     const [isSuccess, setIsSuccess] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
     const [isSubmiting, setIsSubmiting] = React.useState(false);
@@ -3870,6 +3925,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
             setError,
             getUpdatedData,
             customErrorRenderer,
+            validationLocale,
         }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: children }) }));
 };
 
@@ -4765,7 +4821,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
 
 const NumberInputRoot = React__namespace.forwardRef(function NumberInput(props, ref) {
     const { children, ...rest } = props;
-    return (jsxRuntime.jsxs(react.NumberInput.Root, { ref: ref, variant: "outline", ...rest, children: [children, jsxRuntime.jsxs(react.NumberInput.Control, { children: [jsxRuntime.jsx(react.NumberInput.IncrementTrigger, {}), jsxRuntime.jsx(react.NumberInput.DecrementTrigger, {})] })] }));
+    return (jsxRuntime.jsx(react.NumberInput.Root, { ref: ref, variant: "outline", ...rest, children: children }));
 });
 const NumberInputField$1 = react.NumberInput.Input;
 react.NumberInput.Scrubber;
@@ -5593,18 +5649,22 @@ const ColumnViewer = ({ column, properties, prefix, }) => {
 };
 
 const SubmitButton = () => {
-    const { translate, setValidatedData, setIsError, setIsConfirming, setError, schema } = useSchemaContext();
+    const { translate, setValidatedData, setIsError, setIsConfirming, setError, schema, validationLocale } = useSchemaContext();
     const methods = reactHookForm.useFormContext();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onValid = (data) => {
         // Validate data using AJV before proceeding to confirmation
-        const validationResult = validateData(data, schema);
+        const validationResult = validateData(data, schema, { locale: validationLocale });
         if (!validationResult.isValid) {
-            // Set validation errors
+            // Set validation errors with i18n support
             const validationErrorMessage = {
                 type: 'validation',
                 errors: validationResult.errors,
-                message: 'Form validation failed'
+                message: validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
+                    ? '表單驗證失敗'
+                    : validationLocale === 'zh-CN' || validationLocale === 'zh'
+                        ? '表单验证失败'
+                        : 'Form validation failed'
             };
             setError(validationErrorMessage);
             setIsError(true);
@@ -5621,7 +5681,7 @@ const SubmitButton = () => {
 };
 
 const FormBody = () => {
-    const { schema, requestUrl, order, ignore, include, onSubmit, rowNumber, translate, requestOptions, isSuccess, setIsSuccess, isError, setIsError, isSubmiting, setIsSubmiting, isConfirming, setIsConfirming, validatedData, setValidatedData, error, setError, getUpdatedData, customErrorRenderer, } = useSchemaContext();
+    const { schema, requestUrl, order, ignore, include, onSubmit, rowNumber, translate, requestOptions, isSuccess, setIsSuccess, isError, setIsError, isSubmiting, setIsSubmiting, isConfirming, setIsConfirming, validatedData, setValidatedData, error, setError, getUpdatedData, customErrorRenderer, validationLocale, } = useSchemaContext();
     const methods = reactHookForm.useFormContext();
     const { properties } = schema;
     const onBeforeSubmit = () => {
@@ -5637,18 +5697,23 @@ const FormBody = () => {
     const onSubmitSuccess = () => {
         setIsSuccess(true);
     };
-    // Enhanced validation function using AJV
+    // Enhanced validation function using AJV with i18n support
     const validateFormData = (data) => {
         try {
-            const validationResult = validateData(data, schema);
+            const validationResult = validateData(data, schema, { locale: validationLocale });
             return validationResult;
         }
         catch (error) {
+            const errorMessage = validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
+                ? `驗證錯誤: ${error instanceof Error ? error.message : '未知驗證錯誤'}`
+                : validationLocale === 'zh-CN' || validationLocale === 'zh'
+                    ? `验证错误: ${error instanceof Error ? error.message : '未知验证错误'}`
+                    : `Validation error: ${error instanceof Error ? error.message : 'Unknown validation error'}`;
             return {
                 isValid: false,
                 errors: [{
                         field: 'validation',
-                        message: `Validation error: ${error instanceof Error ? error.message : 'Unknown validation error'}`
+                        message: errorMessage
                     }]
             };
         }
@@ -5684,7 +5749,11 @@ const FormBody = () => {
             const validationErrorMessage = {
                 type: 'validation',
                 errors: validationResult.errors,
-                message: 'Form validation failed'
+                message: validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
+                    ? '表單驗證失敗'
+                    : validationLocale === 'zh-CN' || validationLocale === 'zh'
+                        ? '表单验证失败'
+                        : 'Form validation failed'
             };
             onSubmitError(validationErrorMessage);
             return;
@@ -5695,9 +5764,24 @@ const FormBody = () => {
         }
         await defaultOnSubmit(onSubmit(data));
     };
-    // Custom error renderer for validation errors
+    // Custom error renderer for validation errors with i18n support
     const renderValidationErrors = (validationErrors) => {
-        return (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "validation-errors", children: [jsxRuntime.jsxs(AccordionItemTrigger, { children: ["Form Validation Failed (", validationErrors.length, " error", validationErrors.length > 1 ? 's' : '', ")"] }), jsxRuntime.jsx(AccordionItemContent, { children: jsxRuntime.jsx(react.Box, { mt: 2, children: validationErrors.map((err, index) => (jsxRuntime.jsxs(react.Box, { mb: 2, p: 2, bg: "red.50", borderLeft: "4px solid", borderColor: "red.500", children: [jsxRuntime.jsxs(react.Text, { fontWeight: "bold", color: "red.700", children: [err.field === 'root' ? 'Form' : err.field, ":"] }), jsxRuntime.jsx(react.Text, { color: "red.600", children: err.message }), err.value !== undefined && (jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: "red.500", mt: 1, children: ["Current value: ", JSON.stringify(err.value)] }))] }, index))) }) })] }) }) })] }));
+        const title = validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
+            ? `表單驗證失敗 (${validationErrors.length} 個錯誤${validationErrors.length > 1 ? '' : ''})`
+            : validationLocale === 'zh-CN' || validationLocale === 'zh'
+                ? `表单验证失败 (${validationErrors.length} 个错误${validationErrors.length > 1 ? '' : ''})`
+                : `Form Validation Failed (${validationErrors.length} error${validationErrors.length > 1 ? 's' : ''})`;
+        const formLabel = validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
+            ? '表單'
+            : validationLocale === 'zh-CN' || validationLocale === 'zh'
+                ? '表单'
+                : 'Form';
+        const currentValueLabel = validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
+            ? '目前值:'
+            : validationLocale === 'zh-CN' || validationLocale === 'zh'
+                ? '当前值:'
+                : 'Current value:';
+        return (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "validation-errors", children: [jsxRuntime.jsx(AccordionItemTrigger, { children: title }), jsxRuntime.jsx(AccordionItemContent, { children: jsxRuntime.jsx(react.Box, { mt: 2, children: validationErrors.map((err, index) => (jsxRuntime.jsxs(react.Box, { mb: 2, p: 2, bg: "red.50", borderLeft: "4px solid", borderColor: "red.500", children: [jsxRuntime.jsxs(react.Text, { fontWeight: "bold", color: "red.700", children: [err.field === 'root' ? formLabel : err.field, ":"] }), jsxRuntime.jsx(react.Text, { color: "red.600", children: err.message }), err.value !== undefined && (jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: "red.500", mt: 1, children: [currentValueLabel, " ", JSON.stringify(err.value)] }))] }, index))) }) })] }) }) })] }));
     };
     const renderColumns = ({ order, keys, ignore, include, }) => {
         const included = include.length > 0 ? include : keys;
@@ -5831,7 +5915,9 @@ exports.createSchemaValidator = createSchemaValidator;
 exports.getColumns = getColumns;
 exports.getMultiDates = getMultiDates;
 exports.getRangeDates = getRangeDates;
+exports.getSupportedLocales = getSupportedLocales;
 exports.idPickerSanityCheck = idPickerSanityCheck;
+exports.isLocaleSupported = isLocaleSupported;
 exports.useDataTable = useDataTable;
 exports.useDataTableContext = useDataTableContext;
 exports.useDataTableServer = useDataTableServer;
