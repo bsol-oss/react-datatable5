@@ -4,21 +4,25 @@ import { useSchemaContext } from "../../useSchemaContext";
 import { validateData } from "../../utils/validation";
 
 export const SubmitButton = () => {
-  const { translate, setValidatedData, setIsError, setIsConfirming, setError, schema } =
+  const { translate, setValidatedData, setIsError, setIsConfirming, setError, schema, validationLocale } =
     useSchemaContext();
   const methods = useFormContext();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onValid = (data: any) => {
     // Validate data using AJV before proceeding to confirmation
-    const validationResult = validateData(data, schema);
+    const validationResult = validateData(data, schema, { locale: validationLocale });
     
     if (!validationResult.isValid) {
-      // Set validation errors
+      // Set validation errors with i18n support
       const validationErrorMessage = {
         type: 'validation',
         errors: validationResult.errors,
-        message: 'Form validation failed'
+        message: validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
+          ? '表單驗證失敗'
+          : validationLocale === 'zh-CN' || validationLocale === 'zh'
+          ? '表单验证失败'
+          : 'Form validation failed'
       };
       setError(validationErrorMessage);
       setIsError(true);

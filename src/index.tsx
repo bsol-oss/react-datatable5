@@ -143,3 +143,4 @@ export * from "./components/DatePicker/RangeDatePicker";
 export * from "./components/DataTable/display/RecordDisplay";
 
 export * from "./components/Form/utils/validation";
+export type { SupportedLocale, ValidationOptions } from "./components/Form/utils/validation";

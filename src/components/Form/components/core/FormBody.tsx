@@ -48,6 +48,7 @@ export const FormBody = <TData extends object>() => {
     setError,
     getUpdatedData,
     customErrorRenderer,
+    validationLocale,
   } = useSchemaContext();
 
   const methods = useFormContext();
@@ -68,17 +69,23 @@ export const FormBody = <TData extends object>() => {
     setIsSuccess(true);
   };
   
-  // Enhanced validation function using AJV
+  // Enhanced validation function using AJV with i18n support
   const validateFormData = (data: TData): { isValid: boolean; errors: ValidationError[] } => {
     try {
-      const validationResult = validateData(data, schema);
+      const validationResult = validateData(data, schema, { locale: validationLocale });
       return validationResult;
     } catch (error) {
+      const errorMessage = validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
+        ? `驗證錯誤: ${error instanceof Error ? error.message : '未知驗證錯誤'}`
+        : validationLocale === 'zh-CN' || validationLocale === 'zh'
+        ? `验证错误: ${error instanceof Error ? error.message : '未知验证错误'}`
+        : `Validation error: ${error instanceof Error ? error.message : 'Unknown validation error'}`;
+        
       return {
         isValid: false,
         errors: [{
           field: 'validation',
-          message: `Validation error: ${error instanceof Error ? error.message : 'Unknown validation error'}`
+          message: errorMessage
         }]
       };
     }
@@ -115,7 +122,11 @@ export const FormBody = <TData extends object>() => {
       const validationErrorMessage = {
         type: 'validation',
         errors: validationResult.errors,
-        message: 'Form validation failed'
+        message: validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
+          ? '表單驗證失敗'
+          : validationLocale === 'zh-CN' || validationLocale === 'zh'
+          ? '表单验证失败'
+          : 'Form validation failed'
       };
       onSubmitError(validationErrorMessage);
       return;
@@ -128,8 +139,26 @@ export const FormBody = <TData extends object>() => {
     await defaultOnSubmit(onSubmit(data));
   };
 
-  // Custom error renderer for validation errors
+  // Custom error renderer for validation errors with i18n support
   const renderValidationErrors = (validationErrors: ValidationError[]) => {
+    const title = validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
+      ? `表單驗證失敗 (${validationErrors.length} 個錯誤${validationErrors.length > 1 ? '' : ''})`
+      : validationLocale === 'zh-CN' || validationLocale === 'zh'
+      ? `表单验证失败 (${validationErrors.length} 个错误${validationErrors.length > 1 ? '' : ''})`
+      : `Form Validation Failed (${validationErrors.length} error${validationErrors.length > 1 ? 's' : ''})`;
+      
+    const formLabel = validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
+      ? '表單'
+      : validationLocale === 'zh-CN' || validationLocale === 'zh'
+      ? '表单'
+      : 'Form';
+      
+    const currentValueLabel = validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
+      ? '目前值:'
+      : validationLocale === 'zh-CN' || validationLocale === 'zh'
+      ? '当前值:'
+      : 'Current value:';
+    
     return (
       <Alert.Root status="error">
         <Alert.Indicator />
@@ -137,19 +166,19 @@ export const FormBody = <TData extends object>() => {
           <AccordionRoot collapsible defaultValue={[]}>
             <AccordionItem value="validation-errors">
               <AccordionItemTrigger>
-                Form Validation Failed ({validationErrors.length} error{validationErrors.length > 1 ? 's' : ''})
+                {title}
               </AccordionItemTrigger>
               <AccordionItemContent>
                 <Box mt={2}>
                   {validationErrors.map((err, index) => (
                     <Box key={index} mb={2} p={2} bg="red.50" borderLeft="4px solid" borderColor="red.500">
                       <Text fontWeight="bold" color="red.700">
-                        {err.field === 'root' ? 'Form' : err.field}:
+                        {err.field === 'root' ? formLabel : err.field}:
                       </Text>
                       <Text color="red.600">{err.message}</Text>
                       {err.value !== undefined && (
                         <Text fontSize="sm" color="red.500" mt={1}>
-                          Current value: {JSON.stringify(err.value)}
+                          {currentValueLabel} {JSON.stringify(err.value)}
                         </Text>
                       )}
                     </Box>

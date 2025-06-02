@@ -1,5 +1,6 @@
 import { SchemaFormContext } from "@/components/Form/SchemaFormContext";
 import { ForeignKeyProps } from "@/components/Form/components/fields/StringInputField";
+import { SupportedLocale } from "@/components/Form/utils/validation";
 import { AxiosRequestConfig } from "axios";
 import { JSONSchema7 } from "json-schema";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
@@ -29,6 +30,7 @@ export interface FormRootProps<TData extends FieldValues> {
   requestOptions?: AxiosRequestConfig;
   getUpdatedData?: () => TData | Promise<TData> | void;
   customErrorRenderer?: (error: unknown) => ReactNode;
+  validationLocale?: SupportedLocale;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -90,6 +92,7 @@ export const FormRoot = <TData extends FieldValues>({
   requestOptions = {},
   getUpdatedData = () => {},
   customErrorRenderer,
+  validationLocale = 'en',
 }: FormRootProps<TData>) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -127,6 +130,7 @@ export const FormRoot = <TData extends FieldValues>({
         setError,
         getUpdatedData,
         customErrorRenderer,
+        validationLocale,
       }}
     >
       <FormProvider {...form}>{children}</FormProvider>
