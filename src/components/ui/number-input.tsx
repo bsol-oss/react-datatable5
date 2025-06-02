@@ -11,10 +11,10 @@ export const NumberInputRoot = React.forwardRef<
   return (
     <ChakraNumberInput.Root ref={ref} variant="outline" {...rest}>
       {children}
-      <ChakraNumberInput.Control>
+      {/* <ChakraNumberInput.Control>
         <ChakraNumberInput.IncrementTrigger />
         <ChakraNumberInput.DecrementTrigger />
-      </ChakraNumberInput.Control>
+      </ChakraNumberInput.Control> */}
     </ChakraNumberInput.Root>
   )
 })
