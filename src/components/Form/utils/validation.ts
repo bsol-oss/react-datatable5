@@ -1,14 +1,17 @@
 import Ajv, { ErrorObject } from "ajv";
 import { JSONSchema7 } from "json-schema";
 import addFormats from "ajv-formats";
+import zh_TW from "ajv-i18n/localize/zh-TW";
+import zh_CN from "ajv-i18n/localize/zh";
+import zh from "ajv-i18n/localize/zh";
 
 // AJV i18n support
 const localize = {
   en: () => {}, // English is default, no localization needed
-  'zh-HK': require('ajv-i18n/localize/zh-TW'), // Use zh-TW for Hong Kong Traditional Chinese
-  'zh-TW': require('ajv-i18n/localize/zh-TW'), // Traditional Chinese (Taiwan)
-  'zh-CN': require('ajv-i18n/localize/zh'), // Simplified Chinese
-  'zh': require('ajv-i18n/localize/zh'), // Simplified Chinese (short form)
+  'zh-HK': zh_TW, // Use zh-TW for Hong Kong Traditional Chinese
+  'zh-TW': zh_TW, // Traditional Chinese (Taiwan)
+  'zh-CN': zh_CN, // Simplified Chinese
+  'zh': zh, // Simplified Chinese (short form)
 };
 
 export type SupportedLocale = keyof typeof localize;

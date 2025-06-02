@@ -8,10 +8,10 @@ The datetable package is built on top of `@tanstack/react-table` and `chakra-ui`
 npm install @tanstack/react-table @chakra-ui/react @emotion/react @bsol-oss/react-datatable5
 ```
 
-For form validation features, also install:
+For form validation features with internationalization support, also install:
 
 ```bash
-npm install ajv ajv-formats
+npm install ajv ajv-formats ajv-i18n
 ```
 
 ## Usage
@@ -88,24 +88,30 @@ GET http://localhost:8081/api/g/core_people?offset=0&limit=10&sorting[0][id]=id&
 </DataTable>
 ```
 
-### Form Validation with AJV
+### Form Validation with AJV and Internationalization
 
-The package now includes built-in JSON Schema validation using AJV (Another JSON Schema Validator) with format support. This provides robust validation for form submissions.
+The package now includes built-in JSON Schema validation using AJV (Another JSON Schema Validator) with format support and comprehensive internationalization (i18n) capabilities, including full Traditional Chinese (Hong Kong/Taiwan) support.
 
 #### Features
 
 - **JSON Schema Validation**: Full JSON Schema Draft 7 support
 - **Format Validation**: Built-in support for date, time, email, UUID, and other formats via `ajv-formats`
-- **Enhanced Error Messages**: User-friendly error messages with field-specific details
+- **Multi-language Support**: Complete i18n support with Traditional Chinese (Hong Kong/Taiwan) and Simplified Chinese
+- **Enhanced Error Messages**: Culturally appropriate error messages in multiple languages
 - **Automatic Validation**: Validation occurs before form submission and confirmation
-- **Custom Error Display**: Collapsible error panels with detailed validation feedback
+- **Custom Error Display**: Collapsible error panels with localized validation feedback
 
-#### Basic Usage
+#### Supported Languages
 
-The validation is automatically integrated into the `FormBody` component when you provide a JSON Schema:
+- **🇺🇸 English (en)** - Default language
+- **🇭🇰 Traditional Chinese - Hong Kong (zh-HK)** - 繁體中文（香港）
+- **🇹🇼 Traditional Chinese - Taiwan (zh-TW)** - 繁體中文（台灣）
+- **🇨🇳 Simplified Chinese (zh-CN, zh)** - 简体中文
+
+#### Basic Usage with Internationalization
 
 ```tsx
-import { FormRoot, FormBody, validateData } from "@bsol-oss/react-datatable5";
+import { FormRoot, FormBody, validateData, SupportedLocale } from "@bsol-oss/react-datatable5";
 
 const schema = {
   type: "object",
@@ -128,25 +134,73 @@ const schema = {
   }
 };
 
-// The FormBody component automatically validates using the schema
-<FormRoot schema={schema} /* other props */>
+// Use Traditional Chinese (Hong Kong) for validation errors
+<FormRoot 
+  schema={schema} 
+  validationLocale="zh-HK"
+  /* other props */
+>
   <FormBody />
 </FormRoot>
 ```
 
-#### Manual Validation
+#### Language-specific Examples
 
-You can also use the validation utilities directly:
+**Traditional Chinese (Hong Kong):**
+```tsx
+<FormRoot 
+  schema={schema} 
+  validationLocale="zh-HK"
+  /* other props */
+>
+  <FormBody />
+</FormRoot>
+```
+
+**Traditional Chinese (Taiwan):**
+```tsx
+<FormRoot 
+  schema={schema} 
+  validationLocale="zh-TW"
+  /* other props */
+>
+  <FormBody />
+</FormRoot>
+```
+
+**Simplified Chinese:**
+```tsx
+<FormRoot 
+  schema={schema} 
+  validationLocale="zh-CN"
+  /* other props */
+>
+  <FormBody />
+</FormRoot>
+```
+
+#### Manual Validation with Internationalization
+
+You can also use the validation utilities directly with language support:
 
 ```tsx
-import { validateData, ValidationResult } from "@bsol-oss/react-datatable5";
+import { validateData, ValidationResult, SupportedLocale } from "@bsol-oss/react-datatable5";
 
-const result: ValidationResult = validateData(formData, schema);
+// Validate with Traditional Chinese (Hong Kong) error messages
+const result: ValidationResult = validateData(formData, schema, { 
+  locale: 'zh-HK' 
+});
 
 if (!result.isValid) {
-  console.log("Validation errors:", result.errors);
-  // result.errors contains detailed error information
+  console.log("驗證錯誤:", result.errors);
+  // Error messages will be in Traditional Chinese
 }
+
+// Check supported locales
+import { getSupportedLocales, isLocaleSupported } from "@bsol-oss/react-datatable5";
+
+const supportedLocales = getSupportedLocales(); // ['en', 'zh-HK', 'zh-TW', 'zh-CN', 'zh']
+const isSupported = isLocaleSupported('zh-HK'); // true
 ```
 
 #### Validation Error Structure
@@ -154,11 +208,59 @@ if (!result.isValid) {
 ```tsx
 interface ValidationError {
   field: string;        // The field that failed validation
-  message: string;      // User-friendly error message
+  message: string;      // User-friendly error message (localized)
   value?: unknown;      // The current value that failed
   schemaPath?: string;  // JSON Schema path for debugging
 }
 ```
+
+#### Dynamic Language Switching
+
+```tsx
+import { SupportedLocale } from "@bsol-oss/react-datatable5";
+
+const MyForm = () => {
+  const [locale, setLocale] = useState<SupportedLocale>('zh-HK');
+  
+  return (
+    <div>
+      {/* Language selector */}
+      <select value={locale} onChange={(e) => setLocale(e.target.value as SupportedLocale)}>
+        <option value="en">English</option>
+        <option value="zh-HK">繁體中文（香港）</option>
+        <option value="zh-TW">繁體中文（台灣）</option>
+        <option value="zh-CN">简体中文</option>
+      </select>
+      
+      {/* Form with dynamic locale */}
+      <FormRoot 
+        schema={schema} 
+        validationLocale={locale}
+        /* other props */
+      >
+        <FormBody />
+      </FormRoot>
+    </div>
+  );
+};
+```
+
+#### Example Validation Messages
+
+**English:**
+- "email is required"
+- "Invalid email format"
+- "Must be at least 18"
+
+**Traditional Chinese (Hong Kong/Taiwan):**
+- "email 為必填"
+- "無效的 email 格式"
+- "必須至少為 18"
+
+**Simplified Chinese:**
+- "email 为必填"
+- "无效的 email 格式"
+- "必须至少为 18"
 
 #### Supported Validation Types
 
@@ -169,6 +271,8 @@ interface ValidationError {
 - **Array constraints**: minItems, maxItems, uniqueItems
 - **Object constraints**: required properties, additionalProperties
 - **Enum validation**: restricted value sets
+
+All validation types are fully supported across all languages with culturally appropriate translations.
 
 For more details of props and examples, please review the stories in storybook platform.
 
