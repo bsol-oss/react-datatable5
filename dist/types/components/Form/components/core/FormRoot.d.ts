@@ -21,6 +21,7 @@ export interface FormRootProps<TData extends FieldValues> {
     rowNumber?: number | string;
     requestOptions?: AxiosRequestConfig;
     getUpdatedData?: () => TData | Promise<TData> | void;
+    customErrorRenderer?: (error: unknown) => ReactNode;
 }
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
@@ -37,4 +38,4 @@ export declare const idPickerSanityCheck: (column: string, foreign_key?: {
     column?: string | undefined;
     display_column?: string | undefined;
 } | undefined) => void;
-export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;

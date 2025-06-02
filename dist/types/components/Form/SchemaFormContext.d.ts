@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from "axios";
 import { JSONSchema7 } from "json-schema";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, ReactNode, SetStateAction } from "react";
 import { FieldValues } from "react-hook-form";
 import { UseTranslationResponse } from "react-i18next";
 export interface SchemaFormContext<TData extends FieldValues> {
@@ -29,5 +29,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
     error: unknown;
     setError: Dispatch<SetStateAction<unknown>>;
     getUpdatedData: () => TData | Promise<TData>;
+    customErrorRenderer?: (error: unknown) => ReactNode;
 }
 export declare const SchemaFormContext: import("react").Context<SchemaFormContext<unknown>>;
