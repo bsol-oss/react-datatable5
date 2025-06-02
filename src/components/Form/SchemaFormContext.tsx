@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from "axios";
 import { JSONSchema7 } from "json-schema";
-import { createContext, Dispatch, SetStateAction } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction } from "react";
 import { FieldValues } from "react-hook-form";
 import { UseTranslationResponse } from "react-i18next";
 
@@ -30,6 +30,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
   error: unknown;
   setError: Dispatch<SetStateAction<unknown>>;
   getUpdatedData: () => TData | Promise<TData>;
+  customErrorRenderer?: (error: unknown) => ReactNode;
 }
 
 //@ts-expect-error TODO: find appropriate type

@@ -45,6 +45,7 @@ export const FormBody = <TData extends object>() => {
     error,
     setError,
     getUpdatedData,
+    customErrorRenderer,
   } = useSchemaContext();
 
   const methods = useFormContext();
@@ -198,19 +199,23 @@ export const FormBody = <TData extends object>() => {
         )}
         {isError && (
           <>
-            <Alert.Root status="error">
-              <Alert.Title>
-                <AccordionRoot collapsible defaultValue={[]}>
-                  <AccordionItem value={"b"}>
-                    <AccordionItemTrigger>
-                      <Alert.Indicator />
-                      {`${error}`}
-                    </AccordionItemTrigger>
-                    <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
-                  </AccordionItem>
-                </AccordionRoot>
-              </Alert.Title>
-            </Alert.Root>
+            {customErrorRenderer ? (
+              customErrorRenderer(error)
+            ) : (
+              <Alert.Root status="error">
+                <Alert.Title>
+                  <AccordionRoot collapsible defaultValue={[]}>
+                    <AccordionItem value={"b"}>
+                      <AccordionItemTrigger>
+                        <Alert.Indicator />
+                        {`${error}`}
+                      </AccordionItemTrigger>
+                      <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
+                    </AccordionItem>
+                  </AccordionRoot>
+                </Alert.Title>
+              </Alert.Root>
+            )}
           </>
         )}
       </Flex>

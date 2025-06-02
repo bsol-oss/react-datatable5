@@ -28,6 +28,7 @@ export interface FormRootProps<TData extends FieldValues> {
   rowNumber?: number | string;
   requestOptions?: AxiosRequestConfig;
   getUpdatedData?: () => TData | Promise<TData> | void;
+  customErrorRenderer?: (error: unknown) => ReactNode;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -88,6 +89,7 @@ export const FormRoot = <TData extends FieldValues>({
   rowNumber = undefined,
   requestOptions = {},
   getUpdatedData = () => {},
+  customErrorRenderer,
 }: FormRootProps<TData>) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -124,6 +126,7 @@ export const FormRoot = <TData extends FieldValues>({
         error,
         setError,
         getUpdatedData,
+        customErrorRenderer,
       }}
     >
       <FormProvider {...form}>{children}</FormProvider>
