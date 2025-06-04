@@ -121,5 +121,3 @@ export * from "./components/DatePicker/getMultiDates";
 export * from "./components/DatePicker/getRangeDates";
 export * from "./components/DatePicker/RangeDatePicker";
 export * from "./components/DataTable/display/RecordDisplay";
-export * from "./components/Form/utils/validation";
-export type { SupportedLocale, ValidationOptions } from "./components/Form/utils/validation";

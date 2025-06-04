@@ -1,5 +1,4 @@
 import { ForeignKeyProps } from "@/components/Form/components/fields/StringInputField";
-import { SupportedLocale } from "@/components/Form/utils/validation";
 import { AxiosRequestConfig } from "axios";
 import { JSONSchema7 } from "json-schema";
 import { Dispatch, ReactNode, SetStateAction } from "react";
@@ -23,7 +22,6 @@ export interface FormRootProps<TData extends FieldValues> {
     requestOptions?: AxiosRequestConfig;
     getUpdatedData?: () => TData | Promise<TData> | void;
     customErrorRenderer?: (error: unknown) => ReactNode;
-    validationLocale?: SupportedLocale;
 }
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
@@ -40,4 +38,4 @@ export declare const idPickerSanityCheck: (column: string, foreign_key?: {
     column?: string | undefined;
     display_column?: string | undefined;
 } | undefined) => void;
-export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, validationLocale, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
