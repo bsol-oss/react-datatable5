@@ -17,7 +17,7 @@ export const DateViewer = ({ column, schema, prefix }: DateViewerProps) => {
     watch,
     formState: { errors },
   } = useFormContext();
-  const { translate } = useSchemaContext();
+  const { translate, timezone } = useSchemaContext();
   const {
     required,
     gridColumn =  "span 4",
@@ -27,7 +27,7 @@ export const DateViewer = ({ column, schema, prefix }: DateViewerProps) => {
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const selectedDate = watch(colLabel);
-  const displayDate = dayjs.utc(selectedDate).format(displayDateFormat);
+  const displayDate = dayjs(selectedDate).tz(timezone).format(displayDateFormat);
 
   return (
     <Field
@@ -40,7 +40,6 @@ export const DateViewer = ({ column, schema, prefix }: DateViewerProps) => {
       }}
     >
       <Text> {selectedDate !== undefined ? displayDate : ""}</Text>
-
       {errors[`${column}`] && (
         <Text color={"red.400"}>{translate.t(`${column}.field_required`)}</Text>
       )}

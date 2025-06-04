@@ -12,18 +12,25 @@ export interface TimeViewerProps {
   prefix: string;
 }
 
-export const TimeViewer = ({ column, schema, prefix,  }: TimeViewerProps) => {
+export const TimeViewer = ({ column, schema, prefix }: TimeViewerProps) => {
   const {
     watch,
     formState: { errors },
   } = useFormContext();
-  const { translate } = useSchemaContext();
-  const { required, gridColumn = "span 4", gridRow = "span 1", displayTimeFormat = "hh:mm A" } = schema;
+  const { translate, timezone } = useSchemaContext();
+  const {
+    required,
+    gridColumn = "span 4",
+    gridRow = "span 1",
+    displayTimeFormat = "hh:mm A",
+  } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const selectedDate = watch(colLabel);
-  const displayedTime = dayjs(`1970-01-01T${selectedDate}Z`).isValid()
-    ? dayjs(`1970-01-01T${selectedDate}Z`).utc().format(displayTimeFormat)
+  const displayedTime = dayjs(`1970-01-01T${selectedDate}`)
+    .tz(timezone)
+    .isValid()
+    ? dayjs(`1970-01-01T${selectedDate}`).tz(timezone).format(displayTimeFormat)
     : "";
   return (
     <Field
@@ -35,9 +42,7 @@ export const TimeViewer = ({ column, schema, prefix,  }: TimeViewerProps) => {
         gridRow,
       }}
     >
-      <Text>
-        {displayedTime}
-      </Text>
+      <Text>{displayedTime}</Text>
 
       {errors[`${column}`] && (
         <Text color={"red.400"}>{translate.t(`${column}.field_required`)}</Text>

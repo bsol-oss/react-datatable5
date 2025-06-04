@@ -9,6 +9,10 @@ import { IoMdClock } from "react-icons/io";
 import { useSchemaContext } from "../../useSchemaContext";
 import { removeIndex } from "../../utils/removeIndex";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(timezone);
+
 export interface DatePickerProps {
   column: string;
   schema: CustomJSONSchema7;
@@ -21,27 +25,29 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { translate } = useSchemaContext();
+  const { translate, timezone } = useSchemaContext();
+
+
   const {
     required,
     gridColumn = "span 4",
     gridRow = "span 1",
-    timeFormat = "HH:mm:ss",
+    timeFormat = "HH:mm:ssZ",
     displayTimeFormat = "hh:mm A",
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const [open, setOpen] = useState(false);
   const value = watch(colLabel);
-  const displayedTime = dayjs(`1970-01-01T${value}Z`).isValid()
-    ? dayjs(`1970-01-01T${value}Z`).utc().format(displayTimeFormat)
+  const displayedTime = dayjs(`1970-01-01T${value}`).tz(timezone).isValid()
+    ? dayjs(`1970-01-01T${value}`).tz(timezone).format(displayTimeFormat)
     : "";
 
   // Parse the initial time parts from the ISO time string (HH:mm:ss)
   const parseTime = (isoTime: string | undefined) => {
     if (!isoTime) return { hour: 12, minute: 0, meridiem: "am" as "am" | "pm" };
 
-    const parsed = dayjs(`1970-01-01T${isoTime}Z`).utc();
+    const parsed = dayjs(`1970-01-01T${isoTime}`).tz(timezone);
     if (!parsed.isValid())
       return { hour: 12, minute: 0, meridiem: "am" as "am" | "pm" };
 
@@ -81,9 +87,9 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     if (meridiem === "am" && hour === 12) h = 0;
     else if (meridiem === "pm" && hour < 12) h = hour + 12;
     return dayjs(
-      `1970-01-01T${h.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00Z`
+      `1970-01-01T${h.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00`
     )
-      .utc()
+      .tz(timezone)
       .format(timeFormat);
   };
 
@@ -147,8 +153,8 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
                   setMeridiem={setMeridiem}
                   onChange={handleTimeChange}
                   meridiemLabel={{
-                    am: translate.t(removeIndex(`common.am`)),
-                    pm: translate.t(removeIndex(`common.pm`)),
+                    am: translate.t(`common.am`, { defaultValue: "AM" }),
+                    pm: translate.t(`common.pm`, { defaultValue: "PM" }),
                   }}
                 />
               </Popover.Body>

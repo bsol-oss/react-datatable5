@@ -33,6 +33,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
   getUpdatedData: () => TData | Promise<TData>;
   customErrorRenderer?: (error: unknown) => ReactNode;
   validationLocale?: SupportedLocale;
+  timezone?: string;
 }
 
 //@ts-expect-error TODO: find appropriate type
@@ -47,4 +48,5 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   rowNumber: 0,
   requestOptions: {},
   validationLocale: 'en',
+  timezone: 'Asia/Hong_Kong',
 });
