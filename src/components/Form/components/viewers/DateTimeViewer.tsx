@@ -22,7 +22,7 @@ export const DateTimeViewer = ({ column, schema, prefix }: DateViewerProps) => {
     required,
     gridColumn =  "span 4",
     gridRow =  "span 1",
-    displayDateFormat = "YYYY-MM-DD",
+    displayDateFormat = "YYYY-MM-DD HH:mm:ss",
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;

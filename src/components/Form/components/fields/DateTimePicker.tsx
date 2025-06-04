@@ -59,7 +59,6 @@ export const DateTimePicker = ({
 
         // Format according to dateFormat from schema
         const formatted = parsedDate.format(dateFormat);
-        console.log(parsedDate, formatted, selectedDate, "kpfds");
 
         // Update the form value only if different to avoid loops
         if (formatted !== selectedDate) {
