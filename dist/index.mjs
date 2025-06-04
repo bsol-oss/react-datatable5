@@ -5,7 +5,7 @@ import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { LuX, LuCheck, LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { MdOutlineSort, MdFilterAlt, MdSearch, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdOutlineChecklist, MdDateRange } from 'react-icons/md';
-import { FaUpDown, FaGripLinesVertical } from 'react-icons/fa6';
+import { FaUpDown, FaGripLinesVertical, FaTrash } from 'react-icons/fa6';
 import { BiDownArrow, BiUpArrow, BiError } from 'react-icons/bi';
 import { CgClose, CgTrash } from 'react-icons/cg';
 import Dayzed from '@bsol-oss/dayzed-react19';
@@ -34,6 +34,7 @@ import zh_TW from 'ajv-i18n/localize/zh-TW';
 import zh_CN from 'ajv-i18n/localize/zh';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { TiDeleteOutline } from 'react-icons/ti';
 
 const DataTableContext = createContext({
@@ -181,7 +182,7 @@ const monthNamesFull = [
     "November",
     "December",
 ];
-const weekdayNamesShort$1 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const weekdayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, selected = [], firstDayOfWeek = 0, }) {
     const [hoveredDate, setHoveredDate] = useState();
     const onMouseLeave = () => {
@@ -216,7 +217,7 @@ function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, se
                                 offset: 12,
                             }), children: ">>" })] }), jsx(Grid, { templateColumns: "repeat(2, auto)", justifyContent: "center", gap: 4, children: calendars.map((calendar) => (jsxs(Grid, { gap: 4, children: [jsxs(Grid, { justifyContent: "center", children: [monthNamesFull[calendar.month], " ", calendar.year] }), jsx(Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: [0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
                                     const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                                    return (jsx(Box, { minWidth: "48px", textAlign: "center", children: weekdayNamesShort$1[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
+                                    return (jsx(Box, { minWidth: "48px", textAlign: "center", children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
                                 }) }), jsx(Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: calendar.weeks.map((week, windex) => week.map((dateObj, index) => {
                                     const key = `${calendar.month}${calendar.year}${windex}${index}`;
                                     if (!dateObj) {
@@ -3673,6 +3674,7 @@ const SchemaFormContext = createContext({
     rowNumber: 0,
     requestOptions: {},
     validationLocale: 'en',
+    timezone: 'Asia/Hong_Kong',
 });
 
 const useSchemaContext = () => {
@@ -3979,27 +3981,14 @@ const CustomInput = ({ column, schema, prefix }) => {
         }));
 };
 
-const monthNamesShort = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-];
-const weekdayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const Calendar = ({ calendars, getBackProps, getForwardProps, getDateProps, firstDayOfWeek = 0, }) => {
+    const { labels } = useContext(DatePickerContext);
+    const { monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel } = labels;
     if (calendars.length) {
         return (jsxs(Grid, { children: [jsxs(Grid, { templateColumns: "repeat(4, auto)", justifyContent: "center", children: [jsx(Button$1, { variant: "ghost", ...getBackProps({
                                 calendars,
                                 offset: 12,
-                            }), children: "<<" }), jsx(Button$1, { variant: "ghost", ...getBackProps({ calendars }), children: "Back" }), jsx(Button$1, { variant: "ghost", ...getForwardProps({ calendars }), children: "Next" }), jsx(Button$1, { variant: "ghost", ...getForwardProps({
+                            }), children: "<<" }), jsx(Button$1, { variant: "ghost", ...getBackProps({ calendars }), children: backButtonLabel }), jsx(Button$1, { variant: "ghost", ...getForwardProps({ calendars }), children: forwardButtonLabel }), jsx(Button$1, { variant: "ghost", ...getForwardProps({
                                 calendars,
                                 offset: 12,
                             }), children: ">>" })] }), jsx(Grid, { templateColumns: "repeat(2, auto)", justifyContent: "center", children: calendars.map((calendar) => (jsxs(Grid, { gap: 4, children: [jsxs(Grid, { justifyContent: "center", children: [monthNamesShort[calendar.month], " ", calendar.year] }), jsxs(Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: [[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
@@ -4042,9 +4031,52 @@ const Calendar = ({ calendars, getBackProps, getForwardProps, getDateProps, firs
     }
     return null;
 };
+const DatePickerContext = createContext({
+    labels: {
+        monthNamesShort: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ],
+        weekdayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        backButtonLabel: "Back",
+        forwardButtonLabel: "Next",
+    },
+});
 let DatePicker$1 = class DatePicker extends React__default.Component {
     render() {
-        return (jsx(Dayzed, { onDateSelected: this.props.onDateSelected, selected: this.props.selected, firstDayOfWeek: this.props.firstDayOfWeek, showOutsideDays: this.props.showOutsideDays, date: this.props.date, minDate: this.props.minDate, maxDate: this.props.maxDate, monthsToDisplay: this.props.monthsToDisplay, render: (dayzedData) => (jsx(Calendar, { ...dayzedData, firstDayOfWeek: this.props.firstDayOfWeek })) }));
+        const { labels = {
+            monthNamesShort: [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
+            ],
+            weekdayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            backButtonLabel: "Back",
+            forwardButtonLabel: "Next",
+        }, } = this.props;
+        return (jsx(DatePickerContext.Provider, { value: { labels }, children: jsx(Dayzed, { onDateSelected: this.props.onDateSelected, selected: this.props.selected, firstDayOfWeek: this.props.firstDayOfWeek, showOutsideDays: this.props.showOutsideDays, date: this.props.date, minDate: this.props.minDate, maxDate: this.props.maxDate, monthsToDisplay: this.props.monthsToDisplay, render: 
+                // @ts-expect-error - Dayzed types need to be fixed
+                (dayzedData) => (jsx(Calendar, { ...dayzedData,
+                    firstDayOfWeek: this.props.firstDayOfWeek })) }) }));
     }
 };
 
@@ -4066,24 +4098,27 @@ const PopoverRoot = Popover.Root;
 const PopoverBody = Popover.Body;
 const PopoverTrigger = Popover.Trigger;
 
+function translateWrapper({ prefix, column, label, translate, }) {
+    return translate.t(removeIndex(`${prefix}${column}.${label}`));
+}
+
 dayjs.extend(utc);
+dayjs.extend(timezone);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD[T]HH:mm:ss[Z]", } = schema;
+    const { translate, timezone } = useSchemaContext();
+    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
     const selectedDate = watch(colLabel);
-    const displayDate = dayjs.utc(selectedDate).format(displayDateFormat);
+    const displayDate = dayjs(selectedDate).tz(timezone).format(displayDateFormat);
     useEffect(() => {
         try {
             if (selectedDate) {
                 // Parse the selectedDate as UTC or in a specific timezone to avoid +8 hour shift
                 // For example, parse as UTC:
-                const parsedDate = dayjs.utc(selectedDate);
-                // Or if you want to parse in local timezone without shifting:
-                // const parsedDate = dayjs.tz(selectedDate, dayjs.tz.guess());
+                const parsedDate = dayjs(selectedDate).tz(timezone);
                 if (!parsedDate.isValid())
                     return;
                 // Format according to dateFormat from schema
@@ -4101,19 +4136,48 @@ const DatePicker = ({ column, schema, prefix }) => {
             console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue]);
-    return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+    const customTranslate = (label) => {
+        return translateWrapper({ prefix, column, label, translate });
+    };
+    return (jsxs(Field, { label: `${customTranslate(`field_label`)}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
-                            }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1
-                                // @ts-expect-error TODO: find appropriate types
-                                , { 
-                                    // @ts-expect-error TODO: find appropriate types
-                                    selected: new Date(selectedDate), 
-                                    // @ts-expect-error TODO: find appropriate types
-                                    onDateSelected: ({ date }) => {
+                            }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1, { selected: new Date(selectedDate), onDateSelected: ({ date }) => {
                                         setValue(colLabel, dayjs(date).format(dateFormat));
                                         setOpen(false);
-                                    } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                                    }, labels: {
+                                        monthNamesShort: [
+                                            translate.t(`common.month_1`, { defaultValue: "January" }),
+                                            translate.t(`common.month_2`, { defaultValue: "February" }),
+                                            translate.t(`common.month_3`, { defaultValue: "March" }),
+                                            translate.t(`common.month_4`, { defaultValue: "April" }),
+                                            translate.t(`common.month_5`, { defaultValue: "May" }),
+                                            translate.t(`common.month_6`, { defaultValue: "June" }),
+                                            translate.t(`common.month_7`, { defaultValue: "July" }),
+                                            translate.t(`common.month_8`, { defaultValue: "August" }),
+                                            translate.t(`common.month_9`, { defaultValue: "September" }),
+                                            translate.t(`common.month_10`, { defaultValue: "October" }),
+                                            translate.t(`common.month_11`, { defaultValue: "November" }),
+                                            translate.t(`common.month_12`, { defaultValue: "December" }),
+                                        ],
+                                        weekdayNamesShort: [
+                                            translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
+                                            translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
+                                            translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
+                                            translate.t(`common.weekday_4`, {
+                                                defaultValue: "Wed",
+                                            }),
+                                            translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
+                                            translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
+                                            translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
+                                        ],
+                                        backButtonLabel: translate.t(`common.back_button`, {
+                                            defaultValue: "Back",
+                                        }),
+                                        forwardButtonLabel: translate.t(`common.forward_button`, {
+                                            defaultValue: "Forward",
+                                        }),
+                                    } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: customTranslate(`field_required`) }))] }));
 };
 
 function filterArray(array, searchTerm) {
@@ -5096,22 +5160,23 @@ function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
     return (jsx(Flex, { direction: "column", gap: 3, children: jsxs(Grid, { justifyContent: "center", alignItems: "center", templateColumns: "60px 10px 60px 90px auto", gap: "2", width: "auto", minWidth: "250px", children: [jsx(Input, { ref: hourInputRef, type: "text", value: hour === null ? "" : hour.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "hour"), placeholder: "HH", maxLength: 2, textAlign: "center" }), jsx(Text, { children: ":" }), jsx(Input, { ref: minuteInputRef, type: "text", value: minute === null ? "" : minute.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "minute"), placeholder: "MM", maxLength: 2, textAlign: "center" }), jsxs(Flex, { gap: "1", children: [jsx(Button$1, { size: "sm", colorScheme: meridiem === "am" ? "blue" : "gray", variant: meridiem === "am" ? "solid" : "outline", onClick: () => handleMeridiemClick("am"), width: "40px", children: meridiemLabel.am }), jsx(Button$1, { size: "sm", colorScheme: meridiem === "pm" ? "blue" : "gray", variant: meridiem === "pm" ? "solid" : "outline", onClick: () => handleMeridiemClick("pm"), width: "40px", children: meridiemLabel.pm })] }), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "ghost", children: jsx(MdCancel, {}) })] }) }));
 }
 
+dayjs.extend(timezone);
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", timeFormat = "HH:mm:ss", displayTimeFormat = "hh:mm A", } = schema;
+    const { translate, timezone } = useSchemaContext();
+    const { required, gridColumn = "span 4", gridRow = "span 1", timeFormat = "HH:mm:ssZ", displayTimeFormat = "hh:mm A", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
     const value = watch(colLabel);
-    const displayedTime = dayjs(`1970-01-01T${value}Z`).isValid()
-        ? dayjs(`1970-01-01T${value}Z`).utc().format(displayTimeFormat)
+    const displayedTime = dayjs(`1970-01-01T${value}`).tz(timezone).isValid()
+        ? dayjs(`1970-01-01T${value}`).tz(timezone).format(displayTimeFormat)
         : "";
     // Parse the initial time parts from the ISO time string (HH:mm:ss)
     const parseTime = (isoTime) => {
         if (!isoTime)
             return { hour: 12, minute: 0, meridiem: "am" };
-        const parsed = dayjs(`1970-01-01T${isoTime}Z`).utc();
+        const parsed = dayjs(`1970-01-01T${isoTime}`).tz(timezone);
         if (!parsed.isValid())
             return { hour: 12, minute: 0, meridiem: "am" };
         let hour = parsed.hour();
@@ -5142,8 +5207,8 @@ const TimePicker = ({ column, schema, prefix }) => {
             h = 0;
         else if (meridiem === "pm" && hour < 12)
             h = hour + 12;
-        return dayjs(`1970-01-01T${h.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00Z`)
-            .utc()
+        return dayjs(`1970-01-01T${h.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00`)
+            .tz(timezone)
             .format(timeFormat);
     };
     // Handle changes to time parts
@@ -5159,9 +5224,287 @@ const TimePicker = ({ column, schema, prefix }) => {
         gridRow, children: [jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
                             }, justifyContent: "start", children: [jsx(IoMdClock, {}), !!value ? `${displayedTime}` : ""] }) }), jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { ref: containerRef, children: jsx(Popover.Body, { children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
-                                            am: translate.t(removeIndex(`common.am`)),
-                                            pm: translate.t(removeIndex(`common.pm`)),
+                                            am: translate.t(`common.am`, { defaultValue: "AM" }),
+                                            pm: translate.t(`common.pm`, { defaultValue: "PM" }),
                                         } }) }) }) }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+};
+
+function IsoTimePicker({ hour, setHour, minute, setMinute, second, setSecond, onChange = (_newValue) => { }, }) {
+    // Refs for focus management
+    const hourInputRef = useRef(null);
+    const minuteInputRef = useRef(null);
+    const secondInputRef = useRef(null);
+    // Centralized handler for key events, value changes, and focus management
+    const handleKeyDown = (e, field) => {
+        const input = e.target;
+        const value = input.value;
+        // Handle navigation between fields
+        if (e.key === "Tab") {
+            return;
+        }
+        if (e.key === ":" && field === "hour") {
+            e.preventDefault();
+            minuteInputRef.current?.focus();
+            return;
+        }
+        if (e.key === ":" && field === "minute") {
+            e.preventDefault();
+            secondInputRef.current?.focus();
+            return;
+        }
+        if (e.key === "Backspace" && value === "") {
+            e.preventDefault();
+            if (field === "minute") {
+                hourInputRef.current?.focus();
+            }
+            else if (field === "second") {
+                minuteInputRef.current?.focus();
+            }
+            return;
+        }
+        // Handle number inputs
+        if (field === "hour") {
+            if (e.key.match(/^[0-9]$/)) {
+                const newValue = value + e.key;
+                const numValue = parseInt(newValue, 10);
+                if (numValue > 23) {
+                    const digitValue = parseInt(e.key, 10);
+                    setHour(digitValue);
+                    onChange({ hour: digitValue, minute, second });
+                    return;
+                }
+                if (numValue >= 0 && numValue <= 23) {
+                    setHour(numValue);
+                    onChange({ hour: numValue, minute, second });
+                    e.preventDefault();
+                    minuteInputRef.current?.focus();
+                }
+            }
+        }
+        else if (field === "minute") {
+            if (e.key.match(/^[0-9]$/)) {
+                const newValue = value + e.key;
+                const numValue = parseInt(newValue, 10);
+                if (numValue > 59) {
+                    const digitValue = parseInt(e.key, 10);
+                    setMinute(digitValue);
+                    onChange({ hour, minute: digitValue, second });
+                    return;
+                }
+                if (numValue >= 0 && numValue <= 59) {
+                    setMinute(numValue);
+                    onChange({ hour, minute: numValue, second });
+                    e.preventDefault();
+                    secondInputRef.current?.focus();
+                }
+            }
+        }
+        else if (field === "second") {
+            if (e.key.match(/^[0-9]$/)) {
+                const newValue = value + e.key;
+                const numValue = parseInt(newValue, 10);
+                if (numValue > 59) {
+                    const digitValue = parseInt(e.key, 10);
+                    setSecond(digitValue);
+                    onChange({ hour, minute, second: digitValue });
+                    return;
+                }
+                if (numValue >= 0 && numValue <= 59) {
+                    setSecond(numValue);
+                    onChange({ hour, minute, second: numValue });
+                }
+            }
+        }
+    };
+    const handleClear = () => {
+        setHour(null);
+        setMinute(null);
+        setSecond(null);
+        onChange({ hour: null, minute: null, second: null });
+        hourInputRef.current?.focus();
+    };
+    return (jsx(Flex, { direction: "column", gap: 3, children: jsxs(Grid, { justifyContent: "center", alignItems: "center", templateColumns: "60px 10px 60px 10px 60px auto", gap: "2", width: "auto", minWidth: "300px", children: [jsx(Input, { ref: hourInputRef, type: "text", value: hour === null ? "" : hour.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "hour"), placeholder: "HH", maxLength: 2, textAlign: "center" }), jsx(Text, { children: ":" }), jsx(Input, { ref: minuteInputRef, type: "text", value: minute === null ? "" : minute.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "minute"), placeholder: "MM", maxLength: 2, textAlign: "center" }), jsx(Text, { children: ":" }), jsx(Input, { ref: secondInputRef, type: "text", value: second === null ? "" : second.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "second"), placeholder: "SS", maxLength: 2, textAlign: "center" }), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "ghost", children: jsx(MdCancel, {}) })] }) }));
+}
+
+function DateTimePicker$1({ value, onChange, format = "date-time", showSeconds = false, labels = {
+    monthNamesShort: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+    ],
+    weekdayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    backButtonLabel: "Back",
+    forwardButtonLabel: "Next",
+}, timezone = "Asia/Hong_Kong", }) {
+    const [selectedDate, setSelectedDate] = useState(value || "");
+    // Time state for 12-hour format
+    const [hour12, setHour12] = useState(value ? dayjs(value).hour() % 12 || 12 : null);
+    const [minute, setMinute] = useState(value ? dayjs(value).minute() : null);
+    const [meridiem, setMeridiem] = useState(value ? (dayjs(value).hour() >= 12 ? "pm" : "am") : null);
+    // Time state for 24-hour format
+    const [hour24, setHour24] = useState(value ? dayjs(value).hour() : null);
+    const [second, setSecond] = useState(value ? dayjs(value).second() : null);
+    const handleDateChange = (date) => {
+        setSelectedDate(date);
+        updateDateTime(dayjs(date).tz(timezone).toISOString());
+    };
+    const handleTimeChange = (timeData) => {
+        if (format === "iso-date-time") {
+            setHour24(timeData.hour);
+            setMinute(timeData.minute);
+            if (showSeconds)
+                setSecond(timeData.second);
+        }
+        else {
+            setHour12(timeData.hour);
+            setMinute(timeData.minute);
+            setMeridiem(timeData.meridiem);
+        }
+        updateDateTime(dayjs(selectedDate).tz(timezone).toISOString(), timeData);
+    };
+    const updateDateTime = (date, timeData) => {
+        if (!date) {
+            onChange?.(undefined);
+            return;
+        }
+        // use dayjs to convert the date to the timezone
+        const newDate = dayjs(date).tz(timezone).toDate();
+        if (format === "iso-date-time") {
+            const h = timeData?.hour ?? hour24;
+            const m = timeData?.minute ?? minute;
+            const s = showSeconds ? timeData?.second ?? second : 0;
+            if (h !== null)
+                newDate.setHours(h);
+            if (m !== null)
+                newDate.setMinutes(m);
+            if (s !== null)
+                newDate.setSeconds(s);
+        }
+        else {
+            const h = timeData?.hour ?? hour12;
+            const m = timeData?.minute ?? minute;
+            const mer = timeData?.meridiem ?? meridiem;
+            if (h !== null && mer !== null) {
+                let hour24 = h;
+                if (mer === "am" && h === 12)
+                    hour24 = 0;
+                else if (mer === "pm" && h < 12)
+                    hour24 = h + 12;
+                newDate.setHours(hour24);
+            }
+            if (m !== null)
+                newDate.setMinutes(m);
+            newDate.setSeconds(0);
+        }
+        onChange?.(dayjs(newDate).tz(timezone).toISOString());
+    };
+    const handleClear = () => {
+        setSelectedDate("");
+        setHour12(null);
+        setHour24(null);
+        setMinute(null);
+        setSecond(null);
+        setMeridiem(null);
+        onChange?.(undefined);
+    };
+    const isISO = format === "iso-date-time";
+    return (jsxs(Flex, { direction: "column", gap: 4, p: 4, border: "1px solid", borderColor: "gray.200", borderRadius: "md", children: [jsx(DatePicker$1, { selected: selectedDate
+                    ? dayjs(selectedDate).tz(timezone).toDate()
+                    : new Date(), onDateSelected: ({ date }) => handleDateChange(dayjs(date).tz(timezone).toISOString()), monthsToDisplay: 1, labels: labels }), jsxs(Grid, { templateColumns: "1fr auto", alignItems: "center", gap: 4, children: [isISO ? (jsx(IsoTimePicker, { hour: hour24, setHour: setHour24, minute: minute, setMinute: setMinute, second: second, setSecond: setSecond, onChange: handleTimeChange })) : (jsx(TimePicker$1, { hour: hour12, setHour: setHour12, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange })), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "outline", colorScheme: "red", children: jsx(Icon, { as: FaTrash }) })] }), selectedDate && (jsxs(Flex, { gap: 2, children: [jsx(Text, { fontSize: "sm", color: { base: "gray.600", _dark: "gray.600" }, children: dayjs(value).format(isISO
+                            ? showSeconds
+                                ? "YYYY-MM-DD HH:mm:ss"
+                                : "YYYY-MM-DD HH:mm"
+                            : "YYYY-MM-DD hh:mm A ") }), jsx(Text, { fontSize: "sm", color: { base: "gray.600", _dark: "gray.600" }, children: dayjs(value).tz(timezone).format("Z") }), jsx(Text, { fontSize: "sm", color: { base: "gray.600", _dark: "gray.600" }, children: timezone })] }))] }));
+}
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+const DateTimePicker = ({ column, schema, prefix, }) => {
+    const { watch, formState: { errors }, setValue, } = useFormContext();
+    const { translate, timezone } = useSchemaContext();
+    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD HH:mm:ss", 
+    // with timezone
+    dateFormat = "YYYY-MM-DD[T]HH:mm:ssZ", } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    const [open, setOpen] = useState(false);
+    const selectedDate = watch(colLabel);
+    const displayDate = dayjs(selectedDate)
+        .tz(timezone)
+        .format(displayDateFormat);
+    useEffect(() => {
+        try {
+            if (selectedDate) {
+                // Parse the selectedDate as UTC or in a specific timezone to avoid +8 hour shift
+                // For example, parse as UTC:
+                const parsedDate = dayjs(selectedDate).tz(timezone);
+                if (!parsedDate.isValid())
+                    return;
+                // Format according to dateFormat from schema
+                const formatted = parsedDate.format(dateFormat);
+                // Update the form value only if different to avoid loops
+                if (formatted !== selectedDate) {
+                    setValue(colLabel, formatted, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                    });
+                }
+            }
+        }
+        catch (e) {
+            console.error(e);
+        }
+    }, [selectedDate, dateFormat, colLabel, setValue]);
+    const customTranslate = (label) => {
+        return translateWrapper({ prefix, column, label, translate });
+    };
+    return (jsxs(Field, { label: `${customTranslate(`field_label`)}`, required: isRequired, alignItems: "stretch", gridColumn,
+        gridRow, children: [jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
+                                setOpen(true);
+                            }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsx(PopoverContent, { minW: "450px", children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DateTimePicker$1, { value: selectedDate, onChange: (date) => {
+                                        setValue(colLabel, dayjs(date).tz(timezone).format(dateFormat));
+                                    }, timezone: timezone, labels: {
+                                        monthNamesShort: [
+                                            translate.t(`common.month_1`, { defaultValue: "January" }),
+                                            translate.t(`common.month_2`, { defaultValue: "February" }),
+                                            translate.t(`common.month_3`, { defaultValue: "March" }),
+                                            translate.t(`common.month_4`, { defaultValue: "April" }),
+                                            translate.t(`common.month_5`, { defaultValue: "May" }),
+                                            translate.t(`common.month_6`, { defaultValue: "June" }),
+                                            translate.t(`common.month_7`, { defaultValue: "July" }),
+                                            translate.t(`common.month_8`, { defaultValue: "August" }),
+                                            translate.t(`common.month_9`, { defaultValue: "September" }),
+                                            translate.t(`common.month_10`, { defaultValue: "October" }),
+                                            translate.t(`common.month_11`, { defaultValue: "November" }),
+                                            translate.t(`common.month_12`, { defaultValue: "December" }),
+                                        ],
+                                        weekdayNamesShort: [
+                                            translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
+                                            translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
+                                            translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
+                                            translate.t(`common.weekday_4`, {
+                                                defaultValue: "Wed",
+                                            }),
+                                            translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
+                                            translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
+                                            translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
+                                        ],
+                                        backButtonLabel: translate.t(`common.back_button`, {
+                                            defaultValue: "Back",
+                                        }),
+                                        forwardButtonLabel: translate.t(`common.forward_button`, {
+                                            defaultValue: "Forward",
+                                        }),
+                                    } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: customTranslate(`field_required`) }))] }));
 };
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {
@@ -5183,6 +5526,9 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         }
         if (format === "time") {
             return jsx(TimePicker, { schema: colSchema, prefix, column });
+        }
+        if (format === "date-time") {
+            return jsx(DateTimePicker, { schema: colSchema, prefix, column });
         }
         if (variant === "text-area") {
             return jsx(TextAreaInput, { schema: colSchema, prefix, column });
@@ -5275,19 +5621,15 @@ const CustomViewer = ({ column, schema, prefix }) => {
 
 const DateViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = useFormContext();
-    const { translate } = useSchemaContext();
+    const { translate, timezone } = useSchemaContext();
     const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
-    const displayDate = dayjs.utc(selectedDate).format(displayDateFormat);
+    const displayDate = dayjs(selectedDate).tz(timezone).format(displayDateFormat);
     return (jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxs(Text, { children: [" ", selectedDate !== undefined ? displayDate : ""] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
 };
-
-function translateWrapper({ prefix, column, label, translate, }) {
-    return translate.t(removeIndex(`${prefix}${column}.${label}`));
-}
 
 const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
@@ -5544,18 +5886,32 @@ const TextAreaViewer = ({ column, schema, prefix, }) => {
     return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, children: [jsx(Text, { whiteSpace: "pre-wrap", children: value }), " ", errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
 };
 
-const TimeViewer = ({ column, schema, prefix, }) => {
+const TimeViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = useFormContext();
-    const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", displayTimeFormat = "hh:mm A" } = schema;
+    const { translate, timezone } = useSchemaContext();
+    const { required, gridColumn = "span 4", gridRow = "span 1", displayTimeFormat = "hh:mm A", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
-    const displayedTime = dayjs(`1970-01-01T${selectedDate}Z`).isValid()
-        ? dayjs(`1970-01-01T${selectedDate}Z`).utc().format(displayTimeFormat)
+    const displayedTime = dayjs(`1970-01-01T${selectedDate}`)
+        .tz(timezone)
+        .isValid()
+        ? dayjs(`1970-01-01T${selectedDate}`).tz(timezone).format(displayTimeFormat)
         : "";
     return (jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsx(Text, { children: displayedTime }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
+};
+
+const DateTimeViewer = ({ column, schema, prefix }) => {
+    const { watch, formState: { errors }, } = useFormContext();
+    const { translate, timezone } = useSchemaContext();
+    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD HH:mm:ss", } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = `${prefix}${column}`;
+    const selectedDate = watch(colLabel);
+    const displayDate = dayjs(selectedDate).tz(timezone).format(displayDateFormat);
+    return (jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
+        gridRow, children: [jsxs(Text, { children: [" ", selectedDate !== undefined ? displayDate : ""] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
 };
 
 const SchemaViewer = ({ schema, prefix, column, }) => {
@@ -5577,6 +5933,9 @@ const SchemaViewer = ({ schema, prefix, column, }) => {
         }
         if (format === "date") {
             return jsx(DateViewer, { schema: colSchema, prefix, column });
+        }
+        if (format === "date-time") {
+            return jsx(DateTimeViewer, { schema: colSchema, prefix, column });
         }
         if (variant === "text-area") {
             return jsx(TextAreaViewer, { schema: colSchema, prefix, column });

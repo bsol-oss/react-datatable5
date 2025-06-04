@@ -4,4 +4,4 @@ export interface TimeViewerProps {
     schema: CustomJSONSchema7;
     prefix: string;
 }
-export declare const TimeViewer: ({ column, schema, prefix, }: TimeViewerProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TimeViewer: ({ column, schema, prefix }: TimeViewerProps) => import("react/jsx-runtime").JSX.Element;
