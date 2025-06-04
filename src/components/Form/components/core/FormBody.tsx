@@ -162,12 +162,10 @@ export const FormBody = <TData extends object>() => {
   const renderValidationErrors = (validationErrors: ValidationError[]) => {
     return (
       <AccordionRoot
-        backgroundColor={
-          {
-            base: "red.50",
-            _dark: "red.950",
-          }
-        }
+        backgroundColor={{
+          base: "red.50",
+          _dark: "red.950",
+        }}
         p="4"
         colorPalette="red"
         collapsible
@@ -177,25 +175,12 @@ export const FormBody = <TData extends object>() => {
           <AccordionItemTrigger>
             {translate.t("validation_error")}
           </AccordionItemTrigger>
-          <AccordionItemContent
-            display="flex"
-            flexFlow="column"
-            gap="2"
-          >
+          <AccordionItemContent display="flex" flexFlow="column" gap="2">
             {validationErrors.map((err, index) => (
               <AlertRoot status="error" display="flex" alignItems="center">
                 <AlertIndicator />
                 <AlertContent>
-                  <AlertTitle fontWeight="bold">{err.instancePath}</AlertTitle>
                   <AlertDescription>{err.message}</AlertDescription>
-                  {err.params !== undefined && (
-                    <AlertDescription
-                      whiteSpace="pre-wrap"
-                      wordBreak="break-all"
-                    >
-                      {JSON.stringify(err.data, null, 2)}
-                    </AlertDescription>
-                  )}
                 </AlertContent>
               </AlertRoot>
             ))}
