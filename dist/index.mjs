@@ -6039,21 +6039,25 @@ const FormBody = () => {
     // Enhanced validation function using AJV with i18n support
     const validateFormData = (data) => {
         try {
-            const validationResult = validateData(data, schema, { locale: validationLocale });
+            const validationResult = validateData(data, schema, {
+                locale: validationLocale,
+            });
             return validationResult;
         }
         catch (error) {
-            const errorMessage = validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
-                ? `驗證錯誤: ${error instanceof Error ? error.message : '未知驗證錯誤'}`
-                : validationLocale === 'zh-CN' || validationLocale === 'zh'
-                    ? `验证错误: ${error instanceof Error ? error.message : '未知验证错误'}`
-                    : `Validation error: ${error instanceof Error ? error.message : 'Unknown validation error'}`;
+            const errorMessage = validationLocale === "zh-HK" || validationLocale === "zh-TW"
+                ? `驗證錯誤: ${error instanceof Error ? error.message : "未知驗證錯誤"}`
+                : validationLocale === "zh-CN" || validationLocale === "zh"
+                    ? `验证错误: ${error instanceof Error ? error.message : "未知验证错误"}`
+                    : `Validation error: ${error instanceof Error ? error.message : "Unknown validation error"}`;
             return {
                 isValid: false,
-                errors: [{
-                        field: 'validation',
-                        message: errorMessage
-                    }]
+                errors: [
+                    {
+                        field: "validation",
+                        message: errorMessage,
+                    },
+                ],
             };
         }
     };
@@ -6086,13 +6090,13 @@ const FormBody = () => {
         if (!validationResult.isValid) {
             // Set validation errors
             const validationErrorMessage = {
-                type: 'validation',
+                type: "validation",
                 errors: validationResult.errors,
-                message: validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
-                    ? '表單驗證失敗'
-                    : validationLocale === 'zh-CN' || validationLocale === 'zh'
-                        ? '表单验证失败'
-                        : 'Form validation failed'
+                message: validationLocale === "zh-HK" || validationLocale === "zh-TW"
+                    ? "表單驗證失敗"
+                    : validationLocale === "zh-CN" || validationLocale === "zh"
+                        ? "表单验证失败"
+                        : "Form validation failed",
             };
             onSubmitError(validationErrorMessage);
             return;
@@ -6105,22 +6109,22 @@ const FormBody = () => {
     };
     // Custom error renderer for validation errors with i18n support
     const renderValidationErrors = (validationErrors) => {
-        const title = validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
-            ? `表單驗證失敗 (${validationErrors.length} 個錯誤${validationErrors.length > 1 ? '' : ''})`
-            : validationLocale === 'zh-CN' || validationLocale === 'zh'
-                ? `表单验证失败 (${validationErrors.length} 个错误${validationErrors.length > 1 ? '' : ''})`
-                : `Form Validation Failed (${validationErrors.length} error${validationErrors.length > 1 ? 's' : ''})`;
-        const formLabel = validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
-            ? '表單'
-            : validationLocale === 'zh-CN' || validationLocale === 'zh'
-                ? '表单'
-                : 'Form';
-        const currentValueLabel = validationLocale === 'zh-HK' || validationLocale === 'zh-TW'
-            ? '目前值:'
-            : validationLocale === 'zh-CN' || validationLocale === 'zh'
-                ? '当前值:'
-                : 'Current value:';
-        return (jsxs(Alert.Root, { status: "error", children: [jsx(Alert.Indicator, {}), jsx(Alert.Title, { children: jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxs(AccordionItem, { value: "validation-errors", children: [jsx(AccordionItemTrigger, { children: title }), jsx(AccordionItemContent, { children: jsx(Box, { mt: 2, children: validationErrors.map((err, index) => (jsxs(Box, { mb: 2, p: 2, bg: "red.50", borderLeft: "4px solid", borderColor: "red.500", children: [jsxs(Text, { fontWeight: "bold", color: "red.700", children: [err.field === 'root' ? formLabel : err.field, ":"] }), jsx(Text, { color: "red.600", children: err.message }), err.value !== undefined && (jsxs(Text, { fontSize: "sm", color: "red.500", mt: 1, children: [currentValueLabel, " ", JSON.stringify(err.value)] }))] }, index))) }) })] }) }) })] }));
+        const title = validationLocale === "zh-HK" || validationLocale === "zh-TW"
+            ? `表單驗證失敗 (${validationErrors.length} 個錯誤${validationErrors.length > 1 ? "" : ""})`
+            : validationLocale === "zh-CN" || validationLocale === "zh"
+                ? `表单验证失败 (${validationErrors.length} 个错误${validationErrors.length > 1 ? "" : ""})`
+                : `Form Validation Failed (${validationErrors.length} error${validationErrors.length > 1 ? "s" : ""})`;
+        const formLabel = validationLocale === "zh-HK" || validationLocale === "zh-TW"
+            ? "表單"
+            : validationLocale === "zh-CN" || validationLocale === "zh"
+                ? "表单"
+                : "Form";
+        const currentValueLabel = validationLocale === "zh-HK" || validationLocale === "zh-TW"
+            ? "目前值:"
+            : validationLocale === "zh-CN" || validationLocale === "zh"
+                ? "当前值:"
+                : "Current value:";
+        return (jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxs(AccordionItem, { value: "validation-errors", children: [jsx(AccordionItemTrigger, { children: title }), jsx(AccordionItemContent, { children: validationErrors.map((err, index) => (jsxs(Box, { mb: 2, p: 2, bg: "red.50", borderLeft: "4px solid", borderColor: "red.500", children: [jsxs(Text, { fontWeight: "bold", color: "red.700", children: [err.field === "root" ? formLabel : err.field, ":"] }), jsx(Text, { color: "red.600", children: err.message }), err.value !== undefined && (jsxs(Text, { fontSize: "sm", color: "red.500", mt: 1, whiteSpace: "pre-wrap", wordBreak: "break-all", children: [currentValueLabel, " ", JSON.stringify(err.value, null, 2)] }))] }, index))) })] }) }));
     };
     const renderColumns = ({ order, keys, ignore, include, }) => {
         const included = include.length > 0 ? include : keys;
@@ -6157,7 +6161,8 @@ const FormBody = () => {
                                 setIsConfirming(false);
                             }, variant: "subtle", children: translate.t("cancel") }), jsx(Button$1, { onClick: () => {
                                 onFormSubmit(validatedData);
-                            }, children: translate.t("confirm") })] }), isSubmiting && (jsx(Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsx(Center, { h: "full", children: jsx(Spinner, { color: "teal.500" }) }) })), isError && (jsx(Fragment, { children: customErrorRenderer ? (customErrorRenderer(error)) : (jsx(Fragment, { children: error?.type === 'validation' && error?.errors ? (renderValidationErrors(error.errors)) : (jsx(Alert.Root, { status: "error", children: jsx(Alert.Title, { children: jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxs(AccordionItem, { value: "b", children: [jsxs(AccordionItemTrigger, { children: [jsx(Alert.Indicator, {}), `${error}`] }), jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) })) })) }))] }));
+                            }, children: translate.t("confirm") })] }), isSubmiting && (jsx(Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsx(Center, { h: "full", children: jsx(Spinner, { color: "teal.500" }) }) })), isError && (jsx(Fragment, { children: customErrorRenderer ? (customErrorRenderer(error)) : (jsx(Fragment, { children: error?.type === "validation" &&
+                            error?.errors ? (renderValidationErrors(error.errors)) : (jsx(Alert.Root, { status: "error", children: jsx(Alert.Title, { children: jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxs(AccordionItem, { value: "b", children: [jsxs(AccordionItemTrigger, { children: [jsx(Alert.Indicator, {}), `${error}`] }), jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) })) })) }))] }));
     }
     return (jsxs(Flex, { flexFlow: "column", gap: "2", children: [jsx(Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: ordered.map((column) => {
                     return (jsx(ColumnRenderer
@@ -6167,7 +6172,8 @@ const FormBody = () => {
                         properties: properties, prefix: ``, column }, `form-input-${column}`));
                 }) }), jsxs(Flex, { justifyContent: "end", gap: "2", children: [jsx(Button$1, { onClick: () => {
                             methods.reset();
-                        }, variant: "subtle", children: translate.t("reset") }), jsx(SubmitButton, {})] }), isError && error?.type === 'validation' && (jsx(Box, { mt: 4, children: error?.errors && renderValidationErrors(error.errors) }))] }));
+                        }, variant: "subtle", children: translate.t("reset") }), jsx(SubmitButton, {})] }), isError && error?.type === "validation" && (jsx(Box, { mt: 4, children: error?.errors &&
+                    renderValidationErrors(error.errors) }))] }));
 };
 
 const FormTitle = () => {
