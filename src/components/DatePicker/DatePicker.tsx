@@ -156,7 +156,17 @@ const Calendar = ({
   return null;
 };
 
-export interface DatePickerProps extends Props {}
+export interface DatePickerProps extends Props {
+  onDateSelected?: (obj: { date: Date }) => void;
+  selected: Date | Date[];
+  firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  showOutsideDays?: boolean;
+  date?: Date;
+  minDate?: Date;
+  maxDate?: Date;
+  monthsToDisplay?: number;
+  render?: (dayzedData: any) => React.ReactNode;
+}
 
 class DatePicker extends React.Component<DatePickerProps> {
   render() {
@@ -170,7 +180,9 @@ class DatePicker extends React.Component<DatePickerProps> {
         minDate={this.props.minDate}
         maxDate={this.props.maxDate}
         monthsToDisplay={this.props.monthsToDisplay}
-        render={(dayzedData) => (
+        render={
+          // @ts-expect-error - Dayzed types need to be fixed
+          (dayzedData) => (
           <Calendar
             {...{ ...dayzedData, firstDayOfWeek: this.props.firstDayOfWeek }}
           />
