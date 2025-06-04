@@ -5933,7 +5933,10 @@ const FormBody = () => {
     };
     // Custom error renderer for validation errors with i18n support
     const renderValidationErrors = (validationErrors) => {
-        return (jsx(AccordionRoot, { colorPalette: "red", collapsible: true, defaultValue: [], children: jsxs(AccordionItem, { value: "validation-errors", children: [jsx(AccordionItemTrigger, { children: translate.t("validation_error") }), jsx(AccordionItemContent, { display: "flex", flexFlow: "column", gap: "2", children: validationErrors.map((err, index) => (jsxs(AlertRoot, { status: "error", children: [jsx(AlertIndicator, {}), jsxs(AlertContent, { children: [jsx(AlertTitle, { fontWeight: "bold", children: err.instancePath }), jsx(AlertDescription, { children: err.message }), err.params !== undefined && (jsx(AlertDescription, { whiteSpace: "pre-wrap", wordBreak: "break-all", children: JSON.stringify(err.data, null, 2) }))] })] }))) })] }) }));
+        return (jsx(AccordionRoot, { backgroundColor: {
+                base: "red.50",
+                _dark: "red.950",
+            }, p: "4", colorPalette: "red", collapsible: true, defaultValue: [], children: jsxs(AccordionItem, { value: "validation-errors", children: [jsx(AccordionItemTrigger, { children: translate.t("validation_error") }), jsx(AccordionItemContent, { display: "flex", flexFlow: "column", gap: "2", children: validationErrors.map((err, index) => (jsxs(AlertRoot, { status: "error", display: "flex", alignItems: "center", children: [jsx(AlertIndicator, {}), jsxs(AlertContent, { children: [jsx(AlertTitle, { fontWeight: "bold", children: err.instancePath }), jsx(AlertDescription, { children: err.message }), err.params !== undefined && (jsx(AlertDescription, { whiteSpace: "pre-wrap", wordBreak: "break-all", children: JSON.stringify(err.data, null, 2) }))] })] }))) })] }) }));
     };
     const renderColumns = ({ order, keys, ignore, include, }) => {
         const included = include.length > 0 ? include : keys;

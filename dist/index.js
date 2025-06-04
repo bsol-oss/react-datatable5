@@ -5953,7 +5953,10 @@ const FormBody = () => {
     };
     // Custom error renderer for validation errors with i18n support
     const renderValidationErrors = (validationErrors) => {
-        return (jsxRuntime.jsx(AccordionRoot, { colorPalette: "red", collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "validation-errors", children: [jsxRuntime.jsx(AccordionItemTrigger, { children: translate.t("validation_error") }), jsxRuntime.jsx(AccordionItemContent, { display: "flex", flexFlow: "column", gap: "2", children: validationErrors.map((err, index) => (jsxRuntime.jsxs(react.AlertRoot, { status: "error", children: [jsxRuntime.jsx(react.AlertIndicator, {}), jsxRuntime.jsxs(react.AlertContent, { children: [jsxRuntime.jsx(react.AlertTitle, { fontWeight: "bold", children: err.instancePath }), jsxRuntime.jsx(react.AlertDescription, { children: err.message }), err.params !== undefined && (jsxRuntime.jsx(react.AlertDescription, { whiteSpace: "pre-wrap", wordBreak: "break-all", children: JSON.stringify(err.data, null, 2) }))] })] }))) })] }) }));
+        return (jsxRuntime.jsx(AccordionRoot, { backgroundColor: {
+                base: "red.50",
+                _dark: "red.950",
+            }, p: "4", colorPalette: "red", collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "validation-errors", children: [jsxRuntime.jsx(AccordionItemTrigger, { children: translate.t("validation_error") }), jsxRuntime.jsx(AccordionItemContent, { display: "flex", flexFlow: "column", gap: "2", children: validationErrors.map((err, index) => (jsxRuntime.jsxs(react.AlertRoot, { status: "error", display: "flex", alignItems: "center", children: [jsxRuntime.jsx(react.AlertIndicator, {}), jsxRuntime.jsxs(react.AlertContent, { children: [jsxRuntime.jsx(react.AlertTitle, { fontWeight: "bold", children: err.instancePath }), jsxRuntime.jsx(react.AlertDescription, { children: err.message }), err.params !== undefined && (jsxRuntime.jsx(react.AlertDescription, { whiteSpace: "pre-wrap", wordBreak: "break-all", children: JSON.stringify(err.data, null, 2) }))] })] }))) })] }) }));
     };
     const renderColumns = ({ order, keys, ignore, include, }) => {
         const included = include.length > 0 ? include : keys;
