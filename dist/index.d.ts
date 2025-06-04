@@ -16,7 +16,6 @@ import { AxiosRequestConfig } from 'axios';
 import * as react_hook_form from 'react-hook-form';
 import { UseFormReturn, FieldValues, SubmitHandler } from 'react-hook-form';
 import { RenderProps, Props } from '@bsol-oss/dayzed-react19';
-import * as ajv_i18n_localize_types from 'ajv-i18n/localize/types';
 
 interface DensityToggleButtonProps {
     icon?: React__default.ReactElement;
@@ -664,14 +663,69 @@ interface RecordDisplayProps {
 }
 declare const RecordDisplay: ({ object, boxProps, translate, prefix, }: RecordDisplayProps) => react_jsx_runtime.JSX.Element;
 
-declare const localize: {
-    en: () => void;
-    'zh-HK': ajv_i18n_localize_types.Localize;
-    'zh-TW': ajv_i18n_localize_types.Localize;
-    'zh-CN': ajv_i18n_localize_types.Localize;
-    zh: ajv_i18n_localize_types.Localize;
+declare const errorMessages: {
+    en: {
+        required: (field: string) => string;
+        format: (format: string) => string;
+        type: (expectedType: string, actualType: string) => string;
+        minLength: (limit: number) => string;
+        maxLength: (limit: number) => string;
+        minimum: (limit: number) => string;
+        maximum: (limit: number) => string;
+        pattern: () => string;
+        enum: (allowedValues: string[]) => string;
+        default: () => string;
+    };
+    'zh-HK': {
+        required: (field: string) => string;
+        format: (format: string) => string;
+        type: (expectedType: string, actualType: string) => string;
+        minLength: (limit: number) => string;
+        maxLength: (limit: number) => string;
+        minimum: (limit: number) => string;
+        maximum: (limit: number) => string;
+        pattern: () => string;
+        enum: (allowedValues: string[]) => string;
+        default: () => string;
+    };
+    'zh-TW': {
+        required: (field: string) => string;
+        format: (format: string) => string;
+        type: (expectedType: string, actualType: string) => string;
+        minLength: (limit: number) => string;
+        maxLength: (limit: number) => string;
+        minimum: (limit: number) => string;
+        maximum: (limit: number) => string;
+        pattern: () => string;
+        enum: (allowedValues: string[]) => string;
+        default: () => string;
+    };
+    'zh-CN': {
+        required: (field: string) => string;
+        format: (format: string) => string;
+        type: (expectedType: string, actualType: string) => string;
+        minLength: (limit: number) => string;
+        maxLength: (limit: number) => string;
+        minimum: (limit: number) => string;
+        maximum: (limit: number) => string;
+        pattern: () => string;
+        enum: (allowedValues: string[]) => string;
+        default: () => string;
+    };
+    zh: {
+        required: (field: string) => string;
+        format: (format: string) => string;
+        type: (expectedType: string, actualType: string) => string;
+        minLength: (limit: number) => string;
+        maxLength: (limit: number) => string;
+        minimum: (limit: number) => string;
+        maximum: (limit: number) => string;
+        pattern: () => string;
+        enum: (allowedValues: string[]) => string;
+        default: () => string;
+    };
 };
-type SupportedLocale = keyof typeof localize;
+type SupportedLocale = keyof typeof errorMessages;
 interface ValidationError {
     field: string;
     message: string;

@@ -1,30 +1,32 @@
 import { Button } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
-import { validateData } from "../../utils/validation";
+import Ajv, { ValidationError } from "ajv";
 
 export const SubmitButton = () => {
-  const { translate, setValidatedData, setIsError, setIsConfirming, setError, schema, validationLocale } =
-    useSchemaContext();
+  const {
+    translate,
+    setValidatedData,
+    setIsError,
+    setIsConfirming,
+    setError,
+    schema,
+  } = useSchemaContext();
   const methods = useFormContext();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onValid = (data: any) => {
     // Validate data using AJV before proceeding to confirmation
-    const validationResult = validateData(data, schema, { locale: validationLocale });
-    
-    if (!validationResult.isValid) {
-      // Set validation errors with i18n support
-      const validationErrorMessage = {
-        type: 'validation',
-        errors: validationResult.errors,
-        message: validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
-          ? '表單驗證失敗'
-          : validationLocale === 'zh-CN' || validationLocale === 'zh'
-          ? '表单验证失败'
-          : 'Form validation failed'
-      };
-      setError(validationErrorMessage);
+    const validate = new Ajv({
+      strict: false,
+      allErrors: true,
+    }).compile(schema);
+    const validationResult = validate(data);
+    // @ts-expect-error TODO: find appropriate type
+    const errors = validationResult.errors as ValidationError[];
+
+    if (errors && errors.length > 0) {
+      setError(errors);
       setIsError(true);
       return;
     }
@@ -34,7 +36,7 @@ export const SubmitButton = () => {
     setIsError(false);
     setIsConfirming(true);
   };
-  
+
   return (
     <Button
       onClick={() => {

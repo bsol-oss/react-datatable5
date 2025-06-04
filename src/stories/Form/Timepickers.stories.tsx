@@ -70,7 +70,6 @@ const SomeForm = () => {
         onSubmit: (data) => {
           console.log("nice", data, "onSubmit-gkrp");
         },
-        validationLocale: "zh-HK",
         ...form,
       }}
     />

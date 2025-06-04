@@ -3,7 +3,6 @@ import { JSONSchema7 } from "json-schema";
 import { createContext, Dispatch, ReactNode, SetStateAction } from "react";
 import { FieldValues } from "react-hook-form";
 import { UseTranslationResponse } from "react-i18next";
-import { SupportedLocale } from "./utils/validation";
 
 export interface SchemaFormContext<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -32,7 +31,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
   setError: Dispatch<SetStateAction<unknown>>;
   getUpdatedData: () => TData | Promise<TData>;
   customErrorRenderer?: (error: unknown) => ReactNode;
-  validationLocale?: SupportedLocale;
   timezone?: string;
 }
 
@@ -47,6 +45,5 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   onSubmit: async () => {},
   rowNumber: 0,
   requestOptions: {},
-  validationLocale: 'en',
   timezone: 'Asia/Hong_Kong',
 });

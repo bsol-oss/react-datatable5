@@ -1,12 +1,67 @@
 import { JSONSchema7 } from "json-schema";
-declare const localize: {
-    en: () => void;
-    'zh-HK': import("ajv-i18n/localize/types").Localize;
-    'zh-TW': import("ajv-i18n/localize/types").Localize;
-    'zh-CN': import("ajv-i18n/localize/types").Localize;
-    zh: import("ajv-i18n/localize/types").Localize;
+declare const errorMessages: {
+    en: {
+        required: (field: string) => string;
+        format: (format: string) => string;
+        type: (expectedType: string, actualType: string) => string;
+        minLength: (limit: number) => string;
+        maxLength: (limit: number) => string;
+        minimum: (limit: number) => string;
+        maximum: (limit: number) => string;
+        pattern: () => string;
+        enum: (allowedValues: string[]) => string;
+        default: () => string;
+    };
+    'zh-HK': {
+        required: (field: string) => string;
+        format: (format: string) => string;
+        type: (expectedType: string, actualType: string) => string;
+        minLength: (limit: number) => string;
+        maxLength: (limit: number) => string;
+        minimum: (limit: number) => string;
+        maximum: (limit: number) => string;
+        pattern: () => string;
+        enum: (allowedValues: string[]) => string;
+        default: () => string;
+    };
+    'zh-TW': {
+        required: (field: string) => string;
+        format: (format: string) => string;
+        type: (expectedType: string, actualType: string) => string;
+        minLength: (limit: number) => string;
+        maxLength: (limit: number) => string;
+        minimum: (limit: number) => string;
+        maximum: (limit: number) => string;
+        pattern: () => string;
+        enum: (allowedValues: string[]) => string;
+        default: () => string;
+    };
+    'zh-CN': {
+        required: (field: string) => string;
+        format: (format: string) => string;
+        type: (expectedType: string, actualType: string) => string;
+        minLength: (limit: number) => string;
+        maxLength: (limit: number) => string;
+        minimum: (limit: number) => string;
+        maximum: (limit: number) => string;
+        pattern: () => string;
+        enum: (allowedValues: string[]) => string;
+        default: () => string;
+    };
+    zh: {
+        required: (field: string) => string;
+        format: (format: string) => string;
+        type: (expectedType: string, actualType: string) => string;
+        minLength: (limit: number) => string;
+        maxLength: (limit: number) => string;
+        minimum: (limit: number) => string;
+        maximum: (limit: number) => string;
+        pattern: () => string;
+        enum: (allowedValues: string[]) => string;
+        default: () => string;
+    };
 };
-export type SupportedLocale = keyof typeof localize;
+export type SupportedLocale = keyof typeof errorMessages;
 export interface ValidationError {
     field: string;
     message: string;

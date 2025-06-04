@@ -31,8 +31,7 @@ var axios = require('axios');
 var reactHookForm = require('react-hook-form');
 var Ajv = require('ajv');
 var addFormats = require('ajv-formats');
-var zh_TW = require('ajv-i18n/localize/zh-TW');
-var zh_CN = require('ajv-i18n/localize/zh');
+var addErrors = require('ajv-errors');
 var dayjs = require('dayjs');
 var utc = require('dayjs/plugin/utc');
 var timezone = require('dayjs/plugin/timezone');
@@ -3705,25 +3704,81 @@ const clearEmptyString = (object) => {
     return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
 };
 
-// AJV i18n support
-const localize = {
-    en: () => { }, // English is default, no localization needed
-    'zh-HK': zh_TW, // Use zh-TW for Hong Kong Traditional Chinese
-    'zh-TW': zh_TW, // Traditional Chinese (Taiwan)
-    'zh-CN': zh_CN, // Simplified Chinese
-    'zh': zh_CN, // Simplified Chinese (short form)
+// Custom error messages for different locales
+const errorMessages = {
+    en: {
+        required: (field) => `${field} is required`,
+        format: (format) => `Invalid ${format} format`,
+        type: (expectedType, actualType) => `Expected ${expectedType}, got ${actualType}`,
+        minLength: (limit) => `Must be at least ${limit} characters`,
+        maxLength: (limit) => `Must be no more than ${limit} characters`,
+        minimum: (limit) => `Must be at least ${limit}`,
+        maximum: (limit) => `Must be no more than ${limit}`,
+        pattern: () => `Does not match required pattern`,
+        enum: (allowedValues) => `Must be one of: ${allowedValues.join(', ')}`,
+        default: () => 'Validation error'
+    },
+    'zh-HK': {
+        required: (field) => `${field} 為必填項目`,
+        format: (format) => `無效的 ${format} 格式`,
+        type: (expectedType, actualType) => `預期為 ${expectedType}，但收到 ${actualType}`,
+        minLength: (limit) => `至少需要 ${limit} 個字符`,
+        maxLength: (limit) => `不得超過 ${limit} 個字符`,
+        minimum: (limit) => `至少需要 ${limit}`,
+        maximum: (limit) => `不得超過 ${limit}`,
+        pattern: () => `不符合所需格式`,
+        enum: (allowedValues) => `必須是以下之一: ${allowedValues.join(', ')}`,
+        default: () => '驗證錯誤'
+    },
+    'zh-TW': {
+        required: (field) => `${field} 為必填項目`,
+        format: (format) => `無效的 ${format} 格式`,
+        type: (expectedType, actualType) => `預期為 ${expectedType}，但收到 ${actualType}`,
+        minLength: (limit) => `至少需要 ${limit} 個字符`,
+        maxLength: (limit) => `不得超過 ${limit} 個字符`,
+        minimum: (limit) => `至少需要 ${limit}`,
+        maximum: (limit) => `不得超過 ${limit}`,
+        pattern: () => `不符合所需格式`,
+        enum: (allowedValues) => `必須是以下之一: ${allowedValues.join(', ')}`,
+        default: () => '驗證錯誤'
+    },
+    'zh-CN': {
+        required: (field) => `${field} 为必填项`,
+        format: (format) => `无效的 ${format} 格式`,
+        type: (expectedType, actualType) => `预期为 ${expectedType}，但收到 ${actualType}`,
+        minLength: (limit) => `至少需要 ${limit} 个字符`,
+        maxLength: (limit) => `不得超过 ${limit} 个字符`,
+        minimum: (limit) => `至少需要 ${limit}`,
+        maximum: (limit) => `不得超过 ${limit}`,
+        pattern: () => `不符合所需格式`,
+        enum: (allowedValues) => `必须是以下之一: ${allowedValues.join(', ')}`,
+        default: () => '验证错误'
+    },
+    'zh': {
+        required: (field) => `${field} 为必填项`,
+        format: (format) => `无效的 ${format} 格式`,
+        type: (expectedType, actualType) => `预期为 ${expectedType}，但收到 ${actualType}`,
+        minLength: (limit) => `至少需要 ${limit} 个字符`,
+        maxLength: (limit) => `不得超过 ${limit} 个字符`,
+        minimum: (limit) => `至少需要 ${limit}`,
+        maximum: (limit) => `不得超过 ${limit}`,
+        pattern: () => `不符合所需格式`,
+        enum: (allowedValues) => `必须是以下之一: ${allowedValues.join(', ')}`,
+        default: () => '验证错误'
+    }
 };
-// Create AJV instance with format support
+// Create AJV instance with format support and custom errors
 const createValidator = () => {
     const ajv = new Ajv({
         allErrors: true,
         verbose: true,
         removeAdditional: false,
         strict: false,
-        messages: false, // Disable default messages for i18n
     });
     // Add format validation support (date, time, email, etc.)
     addFormats(ajv);
+    // Add custom error messages support
+    addErrors(ajv);
     return ajv;
 };
 /**
@@ -3745,15 +3800,6 @@ const validateData = (data, schema, options = {}) => {
                 errors: [],
             };
         }
-        // Apply localization if not English
-        if (locale !== 'en' && validate.errors && localize[locale]) {
-            try {
-                localize[locale](validate.errors);
-            }
-            catch (error) {
-                console.warn(`Failed to localize validation errors to ${locale}:`, error);
-            }
-        }
         const errors = (validate.errors || []).map((error) => {
             const field = error.instancePath?.replace(/^\//, '') || error.schemaPath?.split('/').pop() || 'root';
             let message = error.message || 'Validation error';
@@ -3761,34 +3807,34 @@ const validateData = (data, schema, options = {}) => {
             if (locale === 'en' || !error.message) {
                 switch (error.keyword) {
                     case 'required':
-                        message = `${error.params?.missingProperty || 'Field'} is required`;
+                        message = errorMessages[locale].required(field);
                         break;
                     case 'format':
-                        message = `Invalid ${error.params?.format} format`;
+                        message = errorMessages[locale].format(error.params?.format);
                         break;
                     case 'type':
-                        message = `Expected ${error.params?.type}, got ${typeof error.data}`;
+                        message = errorMessages[locale].type(error.params?.type, typeof error.data);
                         break;
                     case 'minLength':
-                        message = `Must be at least ${error.params?.limit} characters`;
+                        message = errorMessages[locale].minLength(error.params?.limit);
                         break;
                     case 'maxLength':
-                        message = `Must be no more than ${error.params?.limit} characters`;
+                        message = errorMessages[locale].maxLength(error.params?.limit);
                         break;
                     case 'minimum':
-                        message = `Must be at least ${error.params?.limit}`;
+                        message = errorMessages[locale].minimum(error.params?.limit);
                         break;
                     case 'maximum':
-                        message = `Must be no more than ${error.params?.limit}`;
+                        message = errorMessages[locale].maximum(error.params?.limit);
                         break;
                     case 'pattern':
-                        message = `Does not match required pattern`;
+                        message = errorMessages[locale].pattern();
                         break;
                     case 'enum':
-                        message = `Must be one of: ${error.params?.allowedValues?.join(', ')}`;
+                        message = errorMessages[locale].enum(error.params?.allowedValues);
                         break;
                     default:
-                        message = error.message || 'Validation error';
+                        message = errorMessages[locale].default();
                 }
             }
             return {
@@ -3838,15 +3884,6 @@ const createSchemaValidator = (schema, locale = 'en') => {
                 errors: [],
             };
         }
-        // Apply localization if not English
-        if (locale !== 'en' && validate.errors && localize[locale]) {
-            try {
-                localize[locale](validate.errors);
-            }
-            catch (error) {
-                console.warn(`Failed to localize validation errors to ${locale}:`, error);
-            }
-        }
         const errors = (validate.errors || []).map((error) => {
             const field = error.instancePath?.replace(/^\//, '') || 'root';
             return {
@@ -3867,7 +3904,7 @@ const createSchemaValidator = (schema, locale = 'en') => {
  * @returns Array of supported locale codes
  */
 const getSupportedLocales = () => {
-    return Object.keys(localize);
+    return Object.keys(errorMessages);
 };
 /**
  * Check if a locale is supported
@@ -3875,7 +3912,7 @@ const getSupportedLocales = () => {
  * @returns Boolean indicating if the locale is supported
  */
 const isLocaleSupported = (locale) => {
-    return locale in localize;
+    return locale in errorMessages;
 };
 
 const idPickerSanityCheck = (column, foreign_key) => {
@@ -6144,7 +6181,9 @@ const FormBody = () => {
             : validationLocale === "zh-CN" || validationLocale === "zh"
                 ? "当前值:"
                 : "Current value:";
-        return (jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "validation-errors", children: [jsxRuntime.jsx(AccordionItemTrigger, { children: title }), jsxRuntime.jsx(AccordionItemContent, { children: validationErrors.map((err, index) => (jsxRuntime.jsxs(react.Box, { mb: 2, p: 2, bg: "red.50", borderLeft: "4px solid", borderColor: "red.500", children: [jsxRuntime.jsxs(react.Text, { fontWeight: "bold", color: "red.700", children: [err.field === "root" ? formLabel : err.field, ":"] }), jsxRuntime.jsx(react.Text, { color: "red.600", children: err.message }), err.value !== undefined && (jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: "red.500", mt: 1, whiteSpace: "pre-wrap", wordBreak: "break-all", children: [currentValueLabel, " ", JSON.stringify(err.value, null, 2)] }))] }, index))) })] }) }));
+        return (jsxRuntime.jsx(AccordionRoot, { colorPalette: "red", collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "validation-errors", children: [jsxRuntime.jsx(AccordionItemTrigger, { children: title }), jsxRuntime.jsx(AccordionItemContent, { display: "flex", flexFlow: "column", gap: "2", children: validationErrors.map((err, index) => (jsxRuntime.jsxs(react.AlertRoot, { status: "error", children: [jsxRuntime.jsx(react.AlertIndicator, {}), jsxRuntime.jsxs(react.AlertContent, { children: [jsxRuntime.jsx(react.AlertTitle, { fontWeight: "bold", children: err.field === "root"
+                                                ? translate.t(`${formLabel}.field_label`)
+                                                : translate.t(`${err.field.replace(/\//g, ".")}.field_label`) }), jsxRuntime.jsx(react.AlertDescription, { children: err.message }), jsxRuntime.jsx(react.AlertDescription, { children: err.schemaPath }), err.value !== undefined && (jsxRuntime.jsxs(react.AlertDescription, { whiteSpace: "pre-wrap", wordBreak: "break-all", children: [currentValueLabel, " ", JSON.stringify(err.value, null, 2)] }))] })] }))) })] }) }));
     };
     const renderColumns = ({ order, keys, ignore, include, }) => {
         const included = include.length > 0 ? include : keys;

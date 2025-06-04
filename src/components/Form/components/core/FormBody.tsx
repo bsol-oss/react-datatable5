@@ -6,6 +6,11 @@ import {
 } from "@/components/ui/accordion";
 import {
   Alert,
+  AlertContent,
+  AlertDescription,
+  AlertIndicator,
+  AlertRoot,
+  AlertTitle,
   Box,
   Button,
   Center,
@@ -18,10 +23,13 @@ import axios from "axios";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
 import { clearEmptyString } from "../../utils/clearEmptyString";
-import { validateData, ValidationError } from "../../utils/validation";
 import { ColumnRenderer } from "../fields/ColumnRenderer";
 import { ColumnViewer } from "../viewers/ColumnViewer";
 import { SubmitButton } from "./SubmitButton";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
+import addErrors from "ajv-errors";
+import { ValidationError } from "ajv";
 
 export const FormBody = <TData extends object>() => {
   const {
@@ -48,7 +56,6 @@ export const FormBody = <TData extends object>() => {
     setError,
     getUpdatedData,
     customErrorRenderer,
-    validationLocale,
   } = useSchemaContext();
 
   const methods = useFormContext();
@@ -70,28 +77,34 @@ export const FormBody = <TData extends object>() => {
   };
 
   // Enhanced validation function using AJV with i18n support
-  const validateFormData = (
-    data: TData
-  ): { isValid: boolean; errors: ValidationError[] } => {
+  const validateFormData = (data: TData) => {
     try {
-      const validationResult = validateData(data, schema, {
-        locale: validationLocale,
+      const ajv = new Ajv({
+        strict: false,
+        allErrors: true,
       });
-      return validationResult;
-    } catch (error) {
-      const errorMessage =
-        validationLocale === "zh-HK" || validationLocale === "zh-TW"
-          ? `驗證錯誤: ${error instanceof Error ? error.message : "未知驗證錯誤"}`
-          : validationLocale === "zh-CN" || validationLocale === "zh"
-            ? `验证错误: ${error instanceof Error ? error.message : "未知验证错误"}`
-            : `Validation error: ${error instanceof Error ? error.message : "Unknown validation error"}`;
+      addFormats(ajv);
+      addErrors(ajv); 
+      const validate = ajv.compile(schema);
+      const validationResult = validate(data);
 
+      const errors = validate.errors;
+
+      console.log({
+        isValid: validationResult,
+        errors,
+      },"plkdfs");
+      return {
+        isValid: validationResult,
+        errors,
+      };
+    } catch (error) {
       return {
         isValid: false,
         errors: [
           {
             field: "validation",
-            message: errorMessage,
+            message: error instanceof Error ? error.message : "Unknown error",
           },
         ],
       };
@@ -129,12 +142,7 @@ export const FormBody = <TData extends object>() => {
       const validationErrorMessage = {
         type: "validation",
         errors: validationResult.errors,
-        message:
-          validationLocale === "zh-HK" || validationLocale === "zh-TW"
-            ? "表單驗證失敗"
-            : validationLocale === "zh-CN" || validationLocale === "zh"
-              ? "表单验证失败"
-              : "Form validation failed",
+        message: translate.t("validation_error"),
       };
       onSubmitError(validationErrorMessage);
       return;
@@ -149,57 +157,31 @@ export const FormBody = <TData extends object>() => {
 
   // Custom error renderer for validation errors with i18n support
   const renderValidationErrors = (validationErrors: ValidationError[]) => {
-    const title =
-      validationLocale === "zh-HK" || validationLocale === "zh-TW"
-        ? `表單驗證失敗 (${validationErrors.length} 個錯誤${validationErrors.length > 1 ? "" : ""})`
-        : validationLocale === "zh-CN" || validationLocale === "zh"
-          ? `表单验证失败 (${validationErrors.length} 个错误${validationErrors.length > 1 ? "" : ""})`
-          : `Form Validation Failed (${validationErrors.length} error${validationErrors.length > 1 ? "s" : ""})`;
-
-    const formLabel =
-      validationLocale === "zh-HK" || validationLocale === "zh-TW"
-        ? "表單"
-        : validationLocale === "zh-CN" || validationLocale === "zh"
-          ? "表单"
-          : "Form";
-
-    const currentValueLabel =
-      validationLocale === "zh-HK" || validationLocale === "zh-TW"
-        ? "目前值:"
-        : validationLocale === "zh-CN" || validationLocale === "zh"
-          ? "当前值:"
-          : "Current value:";
-
     return (
-      <AccordionRoot collapsible defaultValue={[]}>
+      <AccordionRoot colorPalette="red" collapsible defaultValue={[]}>
         <AccordionItem value="validation-errors">
-          <AccordionItemTrigger>{title}</AccordionItemTrigger>
-          <AccordionItemContent>
+          <AccordionItemTrigger>
+            {translate.t("validation_error")}
+          </AccordionItemTrigger>
+          <AccordionItemContent display="flex" flexFlow="column" gap="2">
             {validationErrors.map((err, index) => (
-              <Box
-                key={index}
-                mb={2}
-                p={2}
-                bg="red.50"
-                borderLeft="4px solid"
-                borderColor="red.500"
-              >
-                <Text fontWeight="bold" color="red.700">
-                  {err.field === "root" ? formLabel : err.field}:
-                </Text>
-                <Text color="red.600">{err.message}</Text>
-                {err.value !== undefined && (
-                  <Text
-                    fontSize="sm"
-                    color="red.500"
-                    mt={1}
-                    whiteSpace="pre-wrap"
-                    wordBreak="break-all"
-                  >
-                    {currentValueLabel} {JSON.stringify(err.value, null, 2)}
-                  </Text>
-                )}
-              </Box>
+              <AlertRoot status="error">
+                <AlertIndicator />
+                <AlertContent>
+                  <AlertTitle fontWeight="bold">
+                    {err.instancePath}
+                  </AlertTitle>
+                  <AlertDescription>{err.message}</AlertDescription>
+                  {err.params !== undefined && (
+                    <AlertDescription
+                      whiteSpace="pre-wrap"
+                      wordBreak="break-all"
+                    >
+                      {JSON.stringify(err.data, null, 2)}
+                    </AlertDescription>
+                  )}
+                </AlertContent>
+              </AlertRoot>
             ))}
           </AccordionItemContent>
         </AccordionItem>

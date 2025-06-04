@@ -50,6 +50,11 @@ export const EventsGeolocations: Story = {
 const eventsGeolocationsSchema = {
   title: "events_geolocations",
   required: ["someNumbers", "parent_id", "geolocations"],
+  errorMessage: {
+    required: {
+      someNumbers: "Some Numbers is required goood",
+    },
+  },
   properties: {
     someNumbers: {
       type: "number",
@@ -608,7 +613,6 @@ const SomeForm = () => {
         onSubmit: (data) => {
           console.log("nice", data, "onSubmit-gkrp");
         },
-        validationLocale: "zh-HK",
         ...form,
         }}
       />
