@@ -68,25 +68,32 @@ export const FormBody = <TData extends object>() => {
   const onSubmitSuccess = () => {
     setIsSuccess(true);
   };
-  
+
   // Enhanced validation function using AJV with i18n support
-  const validateFormData = (data: TData): { isValid: boolean; errors: ValidationError[] } => {
+  const validateFormData = (
+    data: TData
+  ): { isValid: boolean; errors: ValidationError[] } => {
     try {
-      const validationResult = validateData(data, schema, { locale: validationLocale });
+      const validationResult = validateData(data, schema, {
+        locale: validationLocale,
+      });
       return validationResult;
     } catch (error) {
-      const errorMessage = validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
-        ? `驗證錯誤: ${error instanceof Error ? error.message : '未知驗證錯誤'}`
-        : validationLocale === 'zh-CN' || validationLocale === 'zh'
-        ? `验证错误: ${error instanceof Error ? error.message : '未知验证错误'}`
-        : `Validation error: ${error instanceof Error ? error.message : 'Unknown validation error'}`;
-        
+      const errorMessage =
+        validationLocale === "zh-HK" || validationLocale === "zh-TW"
+          ? `驗證錯誤: ${error instanceof Error ? error.message : "未知驗證錯誤"}`
+          : validationLocale === "zh-CN" || validationLocale === "zh"
+            ? `验证错误: ${error instanceof Error ? error.message : "未知验证错误"}`
+            : `Validation error: ${error instanceof Error ? error.message : "Unknown validation error"}`;
+
       return {
         isValid: false,
-        errors: [{
-          field: 'validation',
-          message: errorMessage
-        }]
+        errors: [
+          {
+            field: "validation",
+            message: errorMessage,
+          },
+        ],
       };
     }
   };
@@ -111,22 +118,23 @@ export const FormBody = <TData extends object>() => {
     };
     return axios.request(options);
   };
-  
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFormSubmit = async (data: any) => {
     // Validate data using AJV before submission
     const validationResult = validateFormData(data);
-    
+
     if (!validationResult.isValid) {
       // Set validation errors
       const validationErrorMessage = {
-        type: 'validation',
+        type: "validation",
         errors: validationResult.errors,
-        message: validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
-          ? '表單驗證失敗'
-          : validationLocale === 'zh-CN' || validationLocale === 'zh'
-          ? '表单验证失败'
-          : 'Form validation failed'
+        message:
+          validationLocale === "zh-HK" || validationLocale === "zh-TW"
+            ? "表單驗證失敗"
+            : validationLocale === "zh-CN" || validationLocale === "zh"
+              ? "表单验证失败"
+              : "Form validation failed",
       };
       onSubmitError(validationErrorMessage);
       return;
@@ -141,54 +149,61 @@ export const FormBody = <TData extends object>() => {
 
   // Custom error renderer for validation errors with i18n support
   const renderValidationErrors = (validationErrors: ValidationError[]) => {
-    const title = validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
-      ? `表單驗證失敗 (${validationErrors.length} 個錯誤${validationErrors.length > 1 ? '' : ''})`
-      : validationLocale === 'zh-CN' || validationLocale === 'zh'
-      ? `表单验证失败 (${validationErrors.length} 个错误${validationErrors.length > 1 ? '' : ''})`
-      : `Form Validation Failed (${validationErrors.length} error${validationErrors.length > 1 ? 's' : ''})`;
-      
-    const formLabel = validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
-      ? '表單'
-      : validationLocale === 'zh-CN' || validationLocale === 'zh'
-      ? '表单'
-      : 'Form';
-      
-    const currentValueLabel = validationLocale === 'zh-HK' || validationLocale === 'zh-TW' 
-      ? '目前值:'
-      : validationLocale === 'zh-CN' || validationLocale === 'zh'
-      ? '当前值:'
-      : 'Current value:';
-    
+    const title =
+      validationLocale === "zh-HK" || validationLocale === "zh-TW"
+        ? `表單驗證失敗 (${validationErrors.length} 個錯誤${validationErrors.length > 1 ? "" : ""})`
+        : validationLocale === "zh-CN" || validationLocale === "zh"
+          ? `表单验证失败 (${validationErrors.length} 个错误${validationErrors.length > 1 ? "" : ""})`
+          : `Form Validation Failed (${validationErrors.length} error${validationErrors.length > 1 ? "s" : ""})`;
+
+    const formLabel =
+      validationLocale === "zh-HK" || validationLocale === "zh-TW"
+        ? "表單"
+        : validationLocale === "zh-CN" || validationLocale === "zh"
+          ? "表单"
+          : "Form";
+
+    const currentValueLabel =
+      validationLocale === "zh-HK" || validationLocale === "zh-TW"
+        ? "目前值:"
+        : validationLocale === "zh-CN" || validationLocale === "zh"
+          ? "当前值:"
+          : "Current value:";
+
     return (
-      <Alert.Root status="error">
-        <Alert.Indicator />
-        <Alert.Title>
-          <AccordionRoot collapsible defaultValue={[]}>
-            <AccordionItem value="validation-errors">
-              <AccordionItemTrigger>
-                {title}
-              </AccordionItemTrigger>
-              <AccordionItemContent>
-                <Box mt={2}>
-                  {validationErrors.map((err, index) => (
-                    <Box key={index} mb={2} p={2} bg="red.50" borderLeft="4px solid" borderColor="red.500">
-                      <Text fontWeight="bold" color="red.700">
-                        {err.field === 'root' ? formLabel : err.field}:
-                      </Text>
-                      <Text color="red.600">{err.message}</Text>
-                      {err.value !== undefined && (
-                        <Text fontSize="sm" color="red.500" mt={1}>
-                          {currentValueLabel} {JSON.stringify(err.value)}
-                        </Text>
-                      )}
-                    </Box>
-                  ))}
-                </Box>
-              </AccordionItemContent>
-            </AccordionItem>
-          </AccordionRoot>
-        </Alert.Title>
-      </Alert.Root>
+      <AccordionRoot collapsible defaultValue={[]}>
+        <AccordionItem value="validation-errors">
+          <AccordionItemTrigger>{title}</AccordionItemTrigger>
+          <AccordionItemContent>
+            {validationErrors.map((err, index) => (
+              <Box
+                key={index}
+                mb={2}
+                p={2}
+                bg="red.50"
+                borderLeft="4px solid"
+                borderColor="red.500"
+              >
+                <Text fontWeight="bold" color="red.700">
+                  {err.field === "root" ? formLabel : err.field}:
+                </Text>
+                <Text color="red.600">{err.message}</Text>
+                {err.value !== undefined && (
+                  <Text
+                    fontSize="sm"
+                    color="red.500"
+                    mt={1}
+                    whiteSpace="pre-wrap"
+                    wordBreak="break-all"
+                  >
+                    {currentValueLabel} {JSON.stringify(err.value, null, 2)}
+                  </Text>
+                )}
+              </Box>
+            ))}
+          </AccordionItemContent>
+        </AccordionItem>
+      </AccordionRoot>
     );
   };
 
@@ -302,7 +317,8 @@ export const FormBody = <TData extends object>() => {
             ) : (
               <>
                 {/* Check if error is a validation error */}
-                {(error as any)?.type === 'validation' && (error as any)?.errors ? (
+                {(error as any)?.type === "validation" &&
+                (error as any)?.errors ? (
                   renderValidationErrors((error as any).errors)
                 ) : (
                   <Alert.Root status="error">
@@ -328,11 +344,7 @@ export const FormBody = <TData extends object>() => {
   }
   return (
     <Flex flexFlow={"column"} gap="2">
-      <Grid
-        gap="4"
-        gridTemplateColumns={"repeat(12, 1fr)"}
-        autoFlow={"row"}
-      >
+      <Grid gap="4" gridTemplateColumns={"repeat(12, 1fr)"} autoFlow={"row"}>
         {ordered.map((column) => {
           return (
             <ColumnRenderer
@@ -356,11 +368,12 @@ export const FormBody = <TData extends object>() => {
         </Button>
         <SubmitButton />
       </Flex>
-      
+
       {/* Display validation errors if form has been submitted with errors */}
-      {isError && (error as any)?.type === 'validation' && (
+      {isError && (error as any)?.type === "validation" && (
         <Box mt={4}>
-          {(error as any)?.errors && renderValidationErrors((error as any).errors)}
+          {(error as any)?.errors &&
+            renderValidationErrors((error as any).errors)}
         </Box>
       )}
     </Flex>

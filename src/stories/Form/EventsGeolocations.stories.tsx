@@ -1,6 +1,7 @@
 import { DefaultForm } from "@/components/Form/components/core/DefaultForm";
 import { useForm } from "@/components/Form/useForm";
 import { Provider } from "@/components/ui/provider";
+import { Box, Flex } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import i18n from "i18next";
@@ -599,8 +600,9 @@ const SomeForm = () => {
   });
 
   return (
-    <DefaultForm
-      formConfig={{
+    <Flex>
+      <DefaultForm
+        formConfig={{
         schema: eventsGeolocationsSchema as JSONSchema7,
         serverUrl: "http://localhost:8123",
         onSubmit: (data) => {
@@ -608,7 +610,8 @@ const SomeForm = () => {
         },
         validationLocale: "zh-HK",
         ...form,
-      }}
-    />
+        }}
+      />
+    </Flex>
   );
 };
