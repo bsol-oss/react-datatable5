@@ -53,6 +53,10 @@ const eventsGeolocationsSchema = {
     someNumbers: {
       type: "number",
     },
+    someDateTimes: {
+      type: "string",
+      format: "date-time",
+    },
     parent_id: {
       type: "string",
       format: "uuid",

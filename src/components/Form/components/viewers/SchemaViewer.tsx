@@ -15,6 +15,7 @@ import { StringViewer } from "./StringViewer";
 import { TagViewer } from "./TagViewer";
 import { TextAreaViewer } from "./TextAreaViewer";
 import { TimeViewer } from "./TimeViewer";
+import { DateTimeViewer } from "./DateTimeViewer";
 
 export interface SchemaRendererProps {
   column: string;
@@ -52,6 +53,9 @@ export const SchemaViewer = ({
     }
     if (format === "date") {
       return <DateViewer schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (format === "date-time") {
+      return <DateTimeViewer schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === "text-area") {
       return <TextAreaViewer schema={colSchema} {...{ prefix, column }} />;

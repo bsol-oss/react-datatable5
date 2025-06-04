@@ -15,6 +15,7 @@ import { StringInputField } from "./StringInputField";
 import { TagPicker } from "./TagPicker";
 import { TextAreaInput } from "./TextAreaInput";
 import { TimePicker } from "./TimePicker";
+import { DateTimePicker } from "./DateTimePicker";
 
 export interface SchemaRendererProps {
   column: string;
@@ -52,6 +53,9 @@ export const SchemaRenderer = ({
     }
     if (format === "time") {
       return <TimePicker schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (format === "date-time") {
+      return <DateTimePicker schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === "text-area") {
       return <TextAreaInput schema={colSchema} {...{ prefix, column }} />;

@@ -222,8 +222,12 @@ export function PickerDemo() {
           </Text>
 
           <DateTimePicker
-            value={dateTime}
-            onChange={setDateTime}
+            value={dateTime?.toISOString()}
+            onChange={(date) => {
+              if (date) {
+                setDateTime(new Date(date));
+              }
+            }}
             format="date-time"
           />
 
