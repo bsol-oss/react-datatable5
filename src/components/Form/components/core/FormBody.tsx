@@ -84,16 +84,19 @@ export const FormBody = <TData extends object>() => {
         allErrors: true,
       });
       addFormats(ajv);
-      addErrors(ajv); 
+      addErrors(ajv);
       const validate = ajv.compile(schema);
       const validationResult = validate(data);
 
       const errors = validate.errors;
 
-      console.log({
-        isValid: validationResult,
-        errors,
-      },"plkdfs");
+      console.log(
+        {
+          isValid: validationResult,
+          errors,
+        },
+        "plkdfs"
+      );
       return {
         isValid: validationResult,
         errors,
@@ -158,19 +161,32 @@ export const FormBody = <TData extends object>() => {
   // Custom error renderer for validation errors with i18n support
   const renderValidationErrors = (validationErrors: ValidationError[]) => {
     return (
-      <AccordionRoot colorPalette="red" collapsible defaultValue={[]}>
+      <AccordionRoot
+        backgroundColor={
+          {
+            base: "red.50",
+            _dark: "red.950",
+          }
+        }
+        p="4"
+        colorPalette="red"
+        collapsible
+        defaultValue={[]}
+      >
         <AccordionItem value="validation-errors">
           <AccordionItemTrigger>
             {translate.t("validation_error")}
           </AccordionItemTrigger>
-          <AccordionItemContent display="flex" flexFlow="column" gap="2">
+          <AccordionItemContent
+            display="flex"
+            flexFlow="column"
+            gap="2"
+          >
             {validationErrors.map((err, index) => (
-              <AlertRoot status="error">
+              <AlertRoot status="error" display="flex" alignItems="center">
                 <AlertIndicator />
                 <AlertContent>
-                  <AlertTitle fontWeight="bold">
-                    {err.instancePath}
-                  </AlertTitle>
+                  <AlertTitle fontWeight="bold">{err.instancePath}</AlertTitle>
                   <AlertDescription>{err.message}</AlertDescription>
                   {err.params !== undefined && (
                     <AlertDescription
