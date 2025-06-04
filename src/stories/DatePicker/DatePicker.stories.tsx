@@ -40,6 +40,27 @@ const DataDisplayView = () => {
           }}
           firstDayOfWeek={firstDayOfWeek}
           showOutsideDays={showOutsideDays}
+          // in traditional chinese
+          labels={{
+            monthNamesShort: [
+              "一月",
+              "二月",
+              "三月",
+              "四月",
+              "五月",
+              "六月",
+              "七月",
+              "八月",
+              "九月",
+              "十月",
+              "十一月",
+              "十二月",
+            ],
+            // in traditional chinese
+            backButtonLabel: "上月",
+            forwardButtonLabel: "下月",
+            weekdayNamesShort: ["日", "一", "二", "三", "四", "五", "六"],
+          }}
         />
         <div style={{ paddingTop: 20, textAlign: "center" }}>
           <div>Set First Day of The Week</div>

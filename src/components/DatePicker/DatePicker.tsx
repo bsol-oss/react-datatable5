@@ -1,22 +1,6 @@
 import { Button, Grid, Text } from "@chakra-ui/react";
 import Dayzed, { Props, RenderProps } from "@bsol-oss/dayzed-react19";
-import React from "react";
-
-const monthNamesShort = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-const weekdayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+import React, { createContext, useContext } from "react";
 
 export interface CalendarProps extends RenderProps {
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -41,6 +25,8 @@ const Calendar = ({
   getDateProps,
   firstDayOfWeek = 0,
 }: CalendarProps) => {
+  const { labels } = useContext(DatePickerContext);
+  const { monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel } = labels;
   if (calendars.length) {
     return (
       <Grid>
@@ -55,10 +41,10 @@ const Calendar = ({
             {"<<"}
           </Button>
           <Button variant={"ghost"} {...getBackProps({ calendars })}>
-            Back
+            {backButtonLabel}
           </Button>
           <Button variant={"ghost"} {...getForwardProps({ calendars })}>
-            Next
+            {forwardButtonLabel}
           </Button>
           <Button
             variant={"ghost"}
@@ -165,29 +151,95 @@ export interface DatePickerProps extends Props {
   minDate?: Date;
   maxDate?: Date;
   monthsToDisplay?: number;
+  labels?: {
+    monthNamesShort: string[];
+    weekdayNamesShort: string[];
+    backButtonLabel?: string;
+    forwardButtonLabel?: string;
+  };
   render?: (dayzedData: any) => React.ReactNode;
 }
 
+export interface DatePickerLabels {
+  monthNamesShort: string[];
+  weekdayNamesShort: string[];
+  backButtonLabel?: string;
+  forwardButtonLabel?: string;
+}
+
+const DatePickerContext = createContext<{
+  labels: DatePickerLabels;
+}>({
+  labels: {
+    monthNamesShort: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+    weekdayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    backButtonLabel: "Back",
+    forwardButtonLabel: "Next",
+  },
+});
+
 class DatePicker extends React.Component<DatePickerProps> {
   render() {
+    const {
+      labels = {
+        monthNamesShort: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+        ],
+        weekdayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        backButtonLabel: "Back",
+        forwardButtonLabel: "Next",
+      },
+    } = this.props;
     return (
-      <Dayzed
-        onDateSelected={this.props.onDateSelected}
-        selected={this.props.selected}
-        firstDayOfWeek={this.props.firstDayOfWeek}
-        showOutsideDays={this.props.showOutsideDays}
-        date={this.props.date}
-        minDate={this.props.minDate}
-        maxDate={this.props.maxDate}
-        monthsToDisplay={this.props.monthsToDisplay}
-        render={
-          // @ts-expect-error - Dayzed types need to be fixed
-          (dayzedData) => (
-          <Calendar
-            {...{ ...dayzedData, firstDayOfWeek: this.props.firstDayOfWeek }}
-          />
-        )}
-      />
+      <DatePickerContext.Provider
+        value={{ labels }}
+      >
+        <Dayzed
+          onDateSelected={this.props.onDateSelected}
+          selected={this.props.selected}
+          firstDayOfWeek={this.props.firstDayOfWeek}
+          showOutsideDays={this.props.showOutsideDays}
+          date={this.props.date}
+          minDate={this.props.minDate}
+          maxDate={this.props.maxDate}
+          monthsToDisplay={this.props.monthsToDisplay}
+          render={
+            // @ts-expect-error - Dayzed types need to be fixed
+            (dayzedData) => (
+              <Calendar
+                {...{
+                  ...dayzedData,
+                  firstDayOfWeek: this.props.firstDayOfWeek,
+                }}
+              />
+            )
+          }
+        />
+      </DatePickerContext.Provider>
     );
   }
 }
