@@ -4076,14 +4076,14 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                         if (!!item === false) {
                             return jsxRuntime.jsx(jsxRuntime.Fragment, {});
                         }
-                        return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
+                        return (jsxRuntime.jsx(Tag, { size: "lg", closable: true, onClick: () => {
                                 setValue(column, watchEnums.filter((id) => id != item));
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
-                                : translate.t(removeIndex(`${colLabel}.${item}`)) }));
-                    }), jsxRuntime.jsx(Tag, { cursor: "pointer", onClick: () => {
+                                : translate.t(removeIndex(`${colLabel}.${item}`)) }, item));
+                    }), jsxRuntime.jsx(Tag, { size: "lg", cursor: "pointer", onClick: () => {
                             setOpenSearchResult(true);
-                        }, children: translate.t(removeIndex(`${colLabel}.add_more`)) })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
+                        }, children: translate.t(removeIndex(`${colLabel}.add_more`)) }, `${colLabel}-add-more-tag`)] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
                 }, justifyContent: "start", children: !!watchEnum === false
                     ? ""
@@ -4904,13 +4904,101 @@ const TagPicker = ({ column, schema, prefix }) => {
             }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
 };
 
+const Textarea = React.forwardRef(({ value, defaultValue, placeholder, onChange, onFocus, onBlur, disabled = false, readOnly = false, className, rows = 4, maxLength, autoFocus = false, invalid = false, required = false, label, helperText, errorText, ...props }, ref) => {
+    const contentEditableRef = React.useRef(null);
+    const isControlled = value !== undefined;
+    // Handle input changes
+    const handleInput = (e) => {
+        const text = e.currentTarget.textContent || "";
+        // Check maxLength if specified
+        if (maxLength && text.length > maxLength) {
+            e.currentTarget.textContent = text.slice(0, maxLength);
+            // Move cursor to end
+            const selection = window.getSelection();
+            if (selection) {
+                selection.selectAllChildren(e.currentTarget);
+                selection.collapseToEnd();
+            }
+            return;
+        }
+        onChange?.(text);
+    };
+    // Handle paste events to strip formatting and respect maxLength
+    const handlePaste = (e) => {
+        e.preventDefault();
+        const text = e.clipboardData.getData('text/plain');
+        const currentText = e.currentTarget.textContent || "";
+        let pasteText = text;
+        if (maxLength) {
+            const remainingLength = maxLength - currentText.length;
+            pasteText = text.slice(0, remainingLength);
+        }
+        document.execCommand('insertText', false, pasteText);
+    };
+    // Set initial content
+    React.useEffect(() => {
+        if (contentEditableRef.current && !isControlled) {
+            const initialValue = defaultValue || "";
+            if (contentEditableRef.current.textContent !== initialValue) {
+                contentEditableRef.current.textContent = initialValue;
+            }
+        }
+    }, [defaultValue, isControlled]);
+    // Update content when value changes (controlled mode)
+    React.useEffect(() => {
+        if (contentEditableRef.current && isControlled && value !== undefined) {
+            if (contentEditableRef.current.textContent !== value) {
+                contentEditableRef.current.textContent = value;
+            }
+        }
+    }, [value, isControlled]);
+    // Auto focus
+    React.useEffect(() => {
+        if (autoFocus && contentEditableRef.current) {
+            contentEditableRef.current.focus();
+        }
+    }, [autoFocus]);
+    // Forward ref
+    React.useEffect(() => {
+        if (typeof ref === 'function') {
+            ref(contentEditableRef.current);
+        }
+        else if (ref) {
+            ref.current = contentEditableRef.current;
+        }
+    }, [ref]);
+    const textareaElement = (jsxRuntime.jsx(react.Box, { ref: contentEditableRef, contentEditable: !disabled && !readOnly, onInput: handleInput, onPaste: handlePaste, onFocus: onFocus, onBlur: onBlur, className: className, minHeight: `${rows * 1.5}em`, padding: "2", border: "1px solid", borderColor: invalid ? "red.500" : "gray.200", borderRadius: "md", outline: "none", _focus: {
+            borderColor: invalid ? "red.500" : "blue.500",
+            boxShadow: `0 0 0 1px ${invalid ? "red.500" : "blue.500"}`,
+        }, _disabled: {
+            opacity: 0.6,
+            cursor: "not-allowed",
+            bg: "gray.50",
+        }, _empty: {
+            _before: {
+                content: placeholder ? `"${placeholder}"` : undefined,
+                color: "gray.400",
+                pointerEvents: "none",
+            }
+        }, whiteSpace: "pre-wrap", overflowWrap: "break-word", overflow: "auto", maxHeight: `${rows * 4}em`, suppressContentEditableWarning: true, ...props }));
+    // If we have additional field props, wrap in Field component
+    if (label || helperText || errorText || required) {
+        return (jsxRuntime.jsxs(react.Field.Root, { invalid: invalid, required: required, children: [label && (jsxRuntime.jsxs(react.Field.Label, { children: [label, required && jsxRuntime.jsx(react.Field.RequiredIndicator, {})] })), textareaElement, helperText && jsxRuntime.jsx(react.Field.HelperText, { children: helperText }), errorText && jsxRuntime.jsx(react.Field.ErrorText, { children: errorText })] }));
+    }
+    return textareaElement;
+});
+Textarea.displayName = "Textarea";
+
 const TextAreaInput = ({ column, schema, prefix, }) => {
     const { register, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
     const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsxRuntime.jsx(react.Textarea, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }), errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+    const form = reactHookForm.useFormContext();
+    const { setValue, watch } = form;
+    const watchValue = watch(colLabel);
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", display: "grid", children: [jsxRuntime.jsx(Textarea, { value: watchValue, onChange: (value) => setValue(colLabel, value) }), errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
 };
 
 function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem, meridiemLabel = {
@@ -5402,6 +5490,15 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         if (variant === "file-picker") {
             return jsxRuntime.jsx(FilePicker, { schema: colSchema, prefix, column });
         }
+        if (variant === "enum-picker") {
+            const { items } = colSchema;
+            const { enum: enumItems } = items;
+            const enumSchema = {
+                type: "string",
+                enum: enumItems,
+            };
+            return (jsxRuntime.jsx(EnumPicker, { isMultiple: true, schema: enumSchema, prefix, column }));
+        }
         if (items) {
             return jsxRuntime.jsx(ArrayRenderer, { schema: colSchema, prefix, column });
         }
@@ -5493,9 +5590,9 @@ const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
                     if (item === undefined) {
                         return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "undefined" });
                     }
-                    return (jsxRuntime.jsx(Tag, { children: !!renderDisplay === true
+                    return (jsxRuntime.jsx(Tag, { size: "lg", children: !!renderDisplay === true
                             ? renderDisplay(item)
-                            : customTranslate(item) }));
+                            : customTranslate(item) }, item));
                 }) })), !isMultiple && jsxRuntime.jsx(react.Text, { children: customTranslate(watchEnum) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: customTranslate(`field_required`) }))] }));
 };
 
@@ -5808,6 +5905,15 @@ const SchemaViewer = ({ schema, prefix, column, }) => {
         }
         if (variant === "file-picker") {
             return jsxRuntime.jsx(FileViewer, { schema: colSchema, prefix, column });
+        }
+        if (variant === "enum-picker") {
+            const { items } = schema;
+            const { enum: enumItems } = items;
+            const enumSchema = {
+                type: "string",
+                enum: enumItems,
+            };
+            return (jsxRuntime.jsx(EnumViewer, { isMultiple: true, schema: enumSchema, prefix, column }));
         }
         if (items) {
             return jsxRuntime.jsx(ArrayViewer, { schema: colSchema, prefix, column });
