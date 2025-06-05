@@ -153,9 +153,8 @@ const Textarea = forwardRef<HTMLDivElement, CustomTextareaProps>(
         }}
         whiteSpace="pre-wrap"
         overflowWrap="break-word"
-        resize="vertical"
         overflow="auto"
-        contentEditable
+        maxHeight={`${rows * 4}em`}
         suppressContentEditableWarning={true}
         {...props}
       />
