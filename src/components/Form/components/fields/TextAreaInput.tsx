@@ -1,9 +1,10 @@
-import { Text, Textarea } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../../ui/field";
 import { useSchemaContext } from "../../useSchemaContext";
 import { removeIndex } from "../../utils/removeIndex";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { Textarea } from "@/components/TextArea/TextArea";
 
 export interface TextAreaInputProps {
   column: string;
@@ -29,6 +30,11 @@ export const TextAreaInput = ({
   const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
+  const form = useFormContext();
+  const { setValue, watch } = form;
+
+  const watchValue = watch(colLabel);
+
   return (
     <>
       <Field
@@ -36,10 +42,11 @@ export const TextAreaInput = ({
         required={isRequired}
         gridColumn={gridColumn ?? "span 4"}
         gridRow={gridRow ?? "span 1"}
+        display="grid"
       >
         <Textarea
-          {...register(`${colLabel}`, { required: isRequired })}
-          autoComplete="off"
+          value={watchValue}
+          onChange={(value) => setValue(colLabel, value)}
         />
         {errors[colLabel] && (
           <Text color={"red.400"}>
