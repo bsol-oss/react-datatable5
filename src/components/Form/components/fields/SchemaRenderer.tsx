@@ -16,6 +16,7 @@ import { TagPicker } from "./TagPicker";
 import { TextAreaInput } from "./TextAreaInput";
 import { TimePicker } from "./TimePicker";
 import { DateTimePicker } from "./DateTimePicker";
+import { JSONSchema7 } from "json-schema";
 
 export interface SchemaRendererProps {
   column: string;
@@ -89,6 +90,21 @@ export const SchemaRenderer = ({
     }
     if (variant === "file-picker") {
       return <FilePicker schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (variant === "enum-picker") {
+      const { items } = colSchema;
+      const { enum: enumItems } = items as JSONSchema7;
+      const enumSchema = {
+        type: "string" as const,
+        enum: enumItems,
+      };
+      return (
+        <EnumPicker
+          isMultiple={true}
+          schema={enumSchema}
+          {...{ prefix, column }}
+        />
+      );
     }
     if (items) {
       return <ArrayRenderer schema={colSchema} {...{ prefix, column }} />;

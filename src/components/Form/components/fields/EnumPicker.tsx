@@ -23,6 +23,7 @@ import { useSchemaContext } from "../../useSchemaContext";
 import { filterArray } from "../../utils/filterArray";
 import { removeIndex } from "../../utils/removeIndex";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { JSONSchema7 } from "json-schema";
 
 export interface IdPickerProps {
   column: string;
@@ -128,6 +129,8 @@ export const EnumPicker = ({
             }
             return (
               <Tag
+                key={item}
+                size="lg"
                 closable
                 onClick={() => {
                   setValue(
@@ -143,6 +146,8 @@ export const EnumPicker = ({
             );
           })}
           <Tag
+            key={`${colLabel}-add-more-tag`}
+            size="lg"
             cursor={"pointer"}
             onClick={() => {
               setOpenSearchResult(true);
@@ -189,10 +194,7 @@ export const EnumPicker = ({
               <Text>{`${translate.t(removeIndex(`${colLabel}.total`))}: ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}`}</Text>
             )}
 
-            <Grid
-              overflow={"auto"}
-              maxHeight={"20rem"}
-            >
+            <Grid overflow={"auto"} maxHeight={"20rem"}>
               <Flex flexFlow={"column wrap"}>
                 {(dataList as string[])
                   .filter((item: string) => {

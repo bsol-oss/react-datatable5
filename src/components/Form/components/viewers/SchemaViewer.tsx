@@ -16,6 +16,7 @@ import { TagViewer } from "./TagViewer";
 import { TextAreaViewer } from "./TextAreaViewer";
 import { TimeViewer } from "./TimeViewer";
 import { DateTimeViewer } from "./DateTimeViewer";
+import { JSONSchema7 } from "json-schema";
 
 export interface SchemaRendererProps {
   column: string;
@@ -90,6 +91,21 @@ export const SchemaViewer = ({
     }
     if (variant === "file-picker") {
       return <FileViewer schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (variant === "enum-picker") {
+      const { items } = schema;
+      const { enum: enumItems } = items as JSONSchema7;
+      const enumSchema = {
+        type: "string" as const,
+        enum: enumItems,
+      };
+      return (
+        <EnumViewer
+          isMultiple={true}
+          schema={enumSchema}
+          {...{ prefix, column }}
+        />
+      );
     }
     if (items) {
       return <ArrayViewer schema={colSchema} {...{ prefix, column }} />;

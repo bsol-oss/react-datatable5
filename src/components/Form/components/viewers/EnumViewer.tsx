@@ -54,7 +54,7 @@ export const EnumViewer = ({
               return <>undefined</>;
             }
             return (
-              <Tag>
+              <Tag key={item} size="lg">
                 {!!renderDisplay === true
                   ? renderDisplay(item)
                   : customTranslate(item)}
