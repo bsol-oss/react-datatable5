@@ -30,6 +30,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import addErrors from "ajv-errors";
 import { ValidationError } from "ajv";
+import { validateData } from "../../utils/validateData";
 
 export const FormBody = <TData extends object>() => {
   const {
@@ -39,7 +40,6 @@ export const FormBody = <TData extends object>() => {
     ignore,
     include,
     onSubmit,
-    rowNumber,
     translate,
     requestOptions,
     isSuccess,
@@ -76,29 +76,12 @@ export const FormBody = <TData extends object>() => {
     setIsSuccess(true);
   };
 
-  // Enhanced validation function using AJV with i18n support
-  const validateFormData = (data: TData) => {
+  const validateFormData = (data: unknown) => {
     try {
-      const ajv = new Ajv({
-        strict: false,
-        allErrors: true,
-      });
-      addFormats(ajv);
-      addErrors(ajv);
-      const validate = ajv.compile(schema);
-      const validationResult = validate(data);
+      const { isValid, errors } = validateData(data, schema);
 
-      const errors = validate.errors;
-
-      console.log(
-        {
-          isValid: validationResult,
-          errors,
-        },
-        "plkdfs"
-      );
       return {
-        isValid: validationResult,
+        isValid,
         errors,
       };
     } catch (error) {
@@ -352,12 +335,34 @@ export const FormBody = <TData extends object>() => {
         <SubmitButton />
       </Flex>
 
-      {/* Display validation errors if form has been submitted with errors */}
-      {isError && (error as any)?.type === "validation" && (
-        <Box mt={4}>
-          {(error as any)?.errors &&
-            renderValidationErrors((error as any).errors)}
-        </Box>
+      {isError && (
+        <>
+          {customErrorRenderer ? (
+            customErrorRenderer(error)
+          ) : (
+            <>
+              {/* Check if error is a validation error */}
+              {(error as any)?.type === "validation" &&
+              (error as any)?.errors ? (
+                renderValidationErrors((error as any).errors)
+              ) : (
+                <Alert.Root status="error">
+                  <Alert.Title>
+                    <AccordionRoot collapsible defaultValue={[]}>
+                      <AccordionItem value={"b"}>
+                        <AccordionItemTrigger>
+                          <Alert.Indicator />
+                          {`${error}`}
+                        </AccordionItemTrigger>
+                        <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
+                      </AccordionItem>
+                    </AccordionRoot>
+                  </Alert.Title>
+                </Alert.Root>
+              )}
+            </>
+          )}
+        </>
       )}
     </Flex>
   );

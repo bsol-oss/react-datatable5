@@ -1,8 +1,8 @@
 import { Button } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
-import Ajv, { ValidationError } from "ajv";
 
+import { validateData } from "../../utils/validateData";
 export const SubmitButton = () => {
   const {
     translate,
@@ -16,16 +16,9 @@ export const SubmitButton = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onValid = (data: any) => {
-    // Validate data using AJV before proceeding to confirmation
-    const validate = new Ajv({
-      strict: false,
-      allErrors: true,
-    }).compile(schema);
-    const validationResult = validate(data);
-    // @ts-expect-error TODO: find appropriate type
-    const errors = validationResult.errors as ValidationError[];
+    const { isValid, errors } = validateData(data, schema);
 
-    if (errors && errors.length > 0) {
+    if (!isValid) {
       setError(errors);
       setIsError(true);
       return;
