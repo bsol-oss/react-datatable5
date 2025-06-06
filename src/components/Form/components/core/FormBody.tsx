@@ -6,31 +6,22 @@ import {
 } from "@/components/ui/accordion";
 import {
   Alert,
-  AlertContent,
-  AlertDescription,
-  AlertIndicator,
-  AlertRoot,
-  AlertTitle,
   Box,
   Button,
   Center,
   Flex,
   Grid,
-  Spinner,
-  Text,
+  Spinner
 } from "@chakra-ui/react";
+import { ValidationError } from "ajv";
 import axios from "axios";
 import { useFormContext } from "react-hook-form";
 import { useSchemaContext } from "../../useSchemaContext";
 import { clearEmptyString } from "../../utils/clearEmptyString";
+import { validateData } from "../../utils/validateData";
 import { ColumnRenderer } from "../fields/ColumnRenderer";
 import { ColumnViewer } from "../viewers/ColumnViewer";
 import { SubmitButton } from "./SubmitButton";
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
-import addErrors from "ajv-errors";
-import { ValidationError } from "ajv";
-import { validateData } from "../../utils/validateData";
 
 export const FormBody = <TData extends object>() => {
   const {

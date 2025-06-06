@@ -66,6 +66,18 @@ const SomeForm = () => {
       },
     },
     required: ["someTextarea", "someNumber"],
+    errorMessage: {
+      required: {
+        someTextarea: "it is required someTextarea <type-some-textarea>",
+        someNumber: "it is required someNumber <type-some-number>",
+      },
+      minLength: "Please longer text",
+      minimum: "Please greater number",
+      properties: {
+        someTextarea: "Please longer text someTextarea",
+        someNumber: "Please greater number someNumber",
+      }
+    },
   } as JSONSchema7;
 
   return (
