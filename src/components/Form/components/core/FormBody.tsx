@@ -144,32 +144,21 @@ export const FormBody = <TData extends object>() => {
   // Custom error renderer for validation errors with i18n support
   const renderValidationErrors = (validationErrors: ValidationError[]) => {
     return (
-      <AccordionRoot
-        backgroundColor={{
-          base: "red.50",
-          _dark: "red.950",
-        }}
-        p="4"
-        colorPalette="red"
-        collapsible
-        defaultValue={[]}
-      >
-        <AccordionItem value="validation-errors">
-          <AccordionItemTrigger>
-            {translate.t("validation_error")}
-          </AccordionItemTrigger>
-          <AccordionItemContent display="flex" flexFlow="column" gap="2">
-            {validationErrors.map((err, index) => (
-              <AlertRoot status="error" display="flex" alignItems="center">
-                <AlertIndicator />
-                <AlertContent>
-                  <AlertDescription>{err.message}</AlertDescription>
-                </AlertContent>
-              </AlertRoot>
-            ))}
-          </AccordionItemContent>
-        </AccordionItem>
-      </AccordionRoot>
+      <Flex flexFlow={"column"} gap="2">
+        {validationErrors.map((err, index) => (
+          <Alert.Root
+            key={index}
+            status="error"
+            display="flex"
+            alignItems="center"
+          >
+            <Alert.Indicator />
+            <Alert.Content>
+              <Alert.Description>{err.message}</Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
+        ))}
+      </Flex>
     );
   };
 
@@ -209,7 +198,9 @@ export const FormBody = <TData extends object>() => {
       <Flex flexFlow={"column"} gap="2">
         <Alert.Root status="success">
           <Alert.Indicator />
-          <Alert.Title>{translate.t("submit_success")}</Alert.Title>
+          <Alert.Content>
+            <Alert.Title>{translate.t("submit_success")}</Alert.Title>
+          </Alert.Content>
         </Alert.Root>
         <Flex justifyContent={"end"}>
           <Button
@@ -288,17 +279,20 @@ export const FormBody = <TData extends object>() => {
                   renderValidationErrors((error as any).errors)
                 ) : (
                   <Alert.Root status="error">
-                    <Alert.Title>
-                      <AccordionRoot collapsible defaultValue={[]}>
-                        <AccordionItem value={"b"}>
-                          <AccordionItemTrigger>
-                            <Alert.Indicator />
-                            {`${error}`}
-                          </AccordionItemTrigger>
-                          <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
-                        </AccordionItem>
-                      </AccordionRoot>
-                    </Alert.Title>
+                    <Alert.Indicator />
+                    <Alert.Content>
+                      <Alert.Title>Error</Alert.Title>
+                      <Alert.Description>
+                        <AccordionRoot collapsible defaultValue={[]}>
+                          <AccordionItem value={"b"}>
+                            <AccordionItemTrigger>
+                              {`${error}`}
+                            </AccordionItemTrigger>
+                            <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
+                          </AccordionItem>
+                        </AccordionRoot>
+                      </Alert.Description>
+                    </Alert.Content>
                   </Alert.Root>
                 )}
               </>
@@ -347,17 +341,20 @@ export const FormBody = <TData extends object>() => {
                 renderValidationErrors((error as any).errors)
               ) : (
                 <Alert.Root status="error">
-                  <Alert.Title>
-                    <AccordionRoot collapsible defaultValue={[]}>
-                      <AccordionItem value={"b"}>
-                        <AccordionItemTrigger>
-                          <Alert.Indicator />
-                          {`${error}`}
-                        </AccordionItemTrigger>
-                        <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
-                      </AccordionItem>
-                    </AccordionRoot>
-                  </Alert.Title>
+                  <Alert.Indicator />
+                  <Alert.Content>
+                    <Alert.Title>Error</Alert.Title>
+                    <Alert.Description>
+                      <AccordionRoot collapsible defaultValue={[]}>
+                        <AccordionItem value={"b"}>
+                          <AccordionItemTrigger>
+                            {`${error}`}
+                          </AccordionItemTrigger>
+                          <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
+                        </AccordionItem>
+                      </AccordionRoot>
+                    </Alert.Description>
+                  </Alert.Content>
                 </Alert.Root>
               )}
             </>

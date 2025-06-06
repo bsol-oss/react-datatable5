@@ -60,7 +60,12 @@ const SomeForm = () => {
         variant: "text-area",
         minLength: 10,
       },
+      someNumber: {
+        type: "number",
+        minimum: 10,
+      },
     },
+    required: ["someTextarea", "someNumber"],
   } as JSONSchema7;
 
   return (

@@ -19,7 +19,10 @@ export const SubmitButton = () => {
     const { isValid, errors } = validateData(data, schema);
 
     if (!isValid) {
-      setError(errors);
+      setError({
+        type: "validation",
+        errors,
+      });
       setIsError(true);
       return;
     }
