@@ -11,8 +11,8 @@ export interface DefaultFormProps<TData extends FieldValues> {
 
 export const DefaultForm = <TData extends FieldValues>({
   formConfig,
-  showTitle = true,
 }: DefaultFormProps<TData>) => {
+  const { showTitle } = formConfig.displayConfig ?? {};
   return (
     <FormRoot {...formConfig}>
       <Grid gap="2">

@@ -11,7 +11,7 @@ import {
   Center,
   Flex,
   Grid,
-  Spinner
+  Spinner,
 } from "@chakra-ui/react";
 import { ValidationError } from "ajv";
 import axios from "axios";
@@ -47,8 +47,9 @@ export const FormBody = <TData extends object>() => {
     setError,
     getUpdatedData,
     customErrorRenderer,
+    displayConfig,
   } = useSchemaContext();
-
+  const { showSubmitButton, showResetButton } = displayConfig;
   const methods = useFormContext();
 
   const { properties } = schema;
@@ -309,15 +310,17 @@ export const FormBody = <TData extends object>() => {
         })}
       </Grid>
       <Flex justifyContent={"end"} gap="2">
-        <Button
-          onClick={() => {
-            methods.reset();
-          }}
-          variant={"subtle"}
-        >
-          {translate.t("reset")}
-        </Button>
-        <SubmitButton />
+        {showResetButton && (
+          <Button
+            onClick={() => {
+              methods.reset();
+            }}
+            variant={"subtle"}
+          >
+            {translate.t("reset")}
+          </Button>
+        )}
+        {showSubmitButton && <SubmitButton />}
       </Flex>
 
       {isError && (

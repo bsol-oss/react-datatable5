@@ -32,6 +32,11 @@ export interface SchemaFormContext<TData extends FieldValues> {
   getUpdatedData: () => TData | Promise<TData>;
   customErrorRenderer?: (error: unknown) => ReactNode;
   timezone?: string;
+  displayConfig: {
+    showSubmitButton?: boolean;
+    showResetButton?: boolean;
+    showTitle?: boolean;
+  };
 }
 
 //@ts-expect-error TODO: find appropriate type
@@ -46,4 +51,9 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   rowNumber: 0,
   requestOptions: {},
   timezone: 'Asia/Hong_Kong',
+  displayConfig: {
+    showSubmitButton: true,
+    showResetButton: true,
+    showTitle: true,
+  },
 });

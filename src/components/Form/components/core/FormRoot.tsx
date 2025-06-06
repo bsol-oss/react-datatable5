@@ -29,6 +29,11 @@ export interface FormRootProps<TData extends FieldValues> {
   requestOptions?: AxiosRequestConfig;
   getUpdatedData?: () => TData | Promise<TData> | void;
   customErrorRenderer?: (error: unknown) => ReactNode;
+  displayConfig?: {
+    showSubmitButton?: boolean;
+    showResetButton?: boolean;
+    showTitle?: boolean;
+  };
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -90,6 +95,11 @@ export const FormRoot = <TData extends FieldValues>({
   requestOptions = {},
   getUpdatedData = () => {},
   customErrorRenderer,
+  displayConfig = {
+    showSubmitButton: true,
+    showResetButton: true,
+    showTitle: true,
+  },
 }: FormRootProps<TData>) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -127,6 +137,7 @@ export const FormRoot = <TData extends FieldValues>({
         setError,
         getUpdatedData,
         customErrorRenderer,
+        displayConfig,
       }}
     >
       <FormProvider {...form}>{children}</FormProvider>
