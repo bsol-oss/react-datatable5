@@ -31,5 +31,10 @@ export interface SchemaFormContext<TData extends FieldValues> {
     getUpdatedData: () => TData | Promise<TData>;
     customErrorRenderer?: (error: unknown) => ReactNode;
     timezone?: string;
+    displayConfig: {
+        showSubmitButton?: boolean;
+        showResetButton?: boolean;
+        showTitle?: boolean;
+    };
 }
 export declare const SchemaFormContext: import("react").Context<SchemaFormContext<unknown>>;

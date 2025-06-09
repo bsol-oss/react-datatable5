@@ -5,7 +5,7 @@ import { DensityState } from "./controls/DensityFeature";
 import { DataTableLabel } from "./context/DataTableContext";
 import { DataResponse } from "./useDataTableServer";
 import { UseTranslationResponse } from "react-i18next";
-export interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown>> {
+export interface DataTableServerProps<TData = unknown> {
     children: ReactNode | ReactNode[];
     /**
      * Column definitions for the table.
@@ -34,10 +34,10 @@ export interface DataTableServerProps<TData extends DataResponse = DataResponse<
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
-    query: UseQueryResult<TData>;
+    query: UseQueryResult<DataResponse<TData>>;
     url: string;
     translate: UseTranslationResponse<any, any>;
-    tableLabel: DataTableLabel;
+    tableLabel?: DataTableLabel;
 }
 /**
  * DataTableServer will create a context to hold all values to
@@ -50,4 +50,4 @@ export interface DataTableServerProps<TData extends DataResponse = DataResponse<
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-export declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel, }: DataTableServerProps<TData>): import("react/jsx-runtime").JSX.Element;
+export declare function DataTableServer<TData = unknown>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel, }: DataTableServerProps<TData>): import("react/jsx-runtime").JSX.Element;

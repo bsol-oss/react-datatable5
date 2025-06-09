@@ -29,13 +29,13 @@ var gr = require('react-icons/gr');
 var reactI18next = require('react-i18next');
 var axios = require('axios');
 var reactHookForm = require('react-hook-form');
+var Ajv = require('ajv');
+var addFormats = require('ajv-formats');
+var addErrors = require('ajv-errors');
 var dayjs = require('dayjs');
 var utc = require('dayjs/plugin/utc');
 var timezone = require('dayjs/plugin/timezone');
 var ti = require('react-icons/ti');
-var Ajv = require('ajv');
-var addFormats = require('ajv-formats');
-var addErrors = require('ajv-errors');
 
 function _interopNamespaceDefault(e) {
     var n = Object.create(null);
@@ -3693,6 +3693,11 @@ const SchemaFormContext = React.createContext({
     rowNumber: 0,
     requestOptions: {},
     timezone: 'Asia/Hong_Kong',
+    displayConfig: {
+        showSubmitButton: true,
+        showResetButton: true,
+        showTitle: true,
+    },
 });
 
 const useSchemaContext = () => {
@@ -3701,6 +3706,23 @@ const useSchemaContext = () => {
 
 const clearEmptyString = (object) => {
     return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
+};
+
+const validateData = (data, schema) => {
+    const ajv = new Ajv({
+        strict: false,
+        allErrors: true,
+    });
+    addFormats(ajv);
+    addErrors(ajv);
+    const validate = ajv.compile(schema);
+    const validationResult = validate(data);
+    const errors = validate.errors;
+    return {
+        isValid: validationResult,
+        validate,
+        errors,
+    };
 };
 
 const idPickerSanityCheck = (column, foreign_key) => {
@@ -3718,7 +3740,11 @@ const idPickerSanityCheck = (column, foreign_key) => {
         throw new Error(`The key column does not exist in properties of column ${column} when using id-picker.`);
     }
 };
-const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, }) => {
+const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, displayConfig = {
+    showSubmitButton: true,
+    showResetButton: true,
+    showTitle: true,
+}, }) => {
     const [isSuccess, setIsSuccess] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
     const [isSubmiting, setIsSubmiting] = React.useState(false);
@@ -3752,6 +3778,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
             setError,
             getUpdatedData,
             customErrorRenderer,
+            displayConfig,
         }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: children }) }));
 };
 
@@ -5942,16 +5969,12 @@ const SubmitButton = () => {
     const methods = reactHookForm.useFormContext();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onValid = (data) => {
-        // Validate data using AJV before proceeding to confirmation
-        const validate = new Ajv({
-            strict: false,
-            allErrors: true,
-        }).compile(schema);
-        const validationResult = validate(data);
-        // @ts-expect-error TODO: find appropriate type
-        const errors = validationResult.errors;
-        if (errors && errors.length > 0) {
-            setError(errors);
+        const { isValid, errors } = validateData(data, schema);
+        if (!isValid) {
+            setError({
+                type: "validation",
+                errors,
+            });
             setIsError(true);
             return;
         }
@@ -5966,7 +5989,8 @@ const SubmitButton = () => {
 };
 
 const FormBody = () => {
-    const { schema, requestUrl, order, ignore, include, onSubmit, rowNumber, translate, requestOptions, isSuccess, setIsSuccess, isError, setIsError, isSubmiting, setIsSubmiting, isConfirming, setIsConfirming, validatedData, setValidatedData, error, setError, getUpdatedData, customErrorRenderer, } = useSchemaContext();
+    const { schema, requestUrl, order, ignore, include, onSubmit, translate, requestOptions, isSuccess, setIsSuccess, isError, setIsError, isSubmiting, setIsSubmiting, isConfirming, setIsConfirming, validatedData, setValidatedData, error, setError, getUpdatedData, customErrorRenderer, displayConfig, } = useSchemaContext();
+    const { showSubmitButton, showResetButton } = displayConfig;
     const methods = reactHookForm.useFormContext();
     const { properties } = schema;
     const onBeforeSubmit = () => {
@@ -5982,24 +6006,11 @@ const FormBody = () => {
     const onSubmitSuccess = () => {
         setIsSuccess(true);
     };
-    // Enhanced validation function using AJV with i18n support
     const validateFormData = (data) => {
         try {
-            const ajv = new Ajv({
-                strict: false,
-                allErrors: true,
-            });
-            addFormats(ajv);
-            addErrors(ajv);
-            const validate = ajv.compile(schema);
-            const validationResult = validate(data);
-            const errors = validate.errors;
-            console.log({
-                isValid: validationResult,
-                errors,
-            }, "plkdfs");
+            const { isValid, errors } = validateData(data, schema);
             return {
-                isValid: validationResult,
+                isValid,
                 errors,
             };
         }
@@ -6059,10 +6070,7 @@ const FormBody = () => {
     };
     // Custom error renderer for validation errors with i18n support
     const renderValidationErrors = (validationErrors) => {
-        return (jsxRuntime.jsx(AccordionRoot, { backgroundColor: {
-                base: "red.50",
-                _dark: "red.950",
-            }, p: "4", colorPalette: "red", collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "validation-errors", children: [jsxRuntime.jsx(AccordionItemTrigger, { children: translate.t("validation_error") }), jsxRuntime.jsx(AccordionItemContent, { display: "flex", flexFlow: "column", gap: "2", children: validationErrors.map((err, index) => (jsxRuntime.jsxs(react.AlertRoot, { status: "error", display: "flex", alignItems: "center", children: [jsxRuntime.jsx(react.AlertIndicator, {}), jsxRuntime.jsx(react.AlertContent, { children: jsxRuntime.jsx(react.AlertDescription, { children: err.message }) })] }))) })] }) }));
+        return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "2", children: validationErrors.map((err, index) => (jsxRuntime.jsxs(react.Alert.Root, { status: "error", display: "flex", alignItems: "center", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Content, { children: jsxRuntime.jsx(react.Alert.Description, { children: err.message }) })] }, index))) }));
     };
     const renderColumns = ({ order, keys, ignore, include, }) => {
         const included = include.length > 0 ? include : keys;
@@ -6078,7 +6086,7 @@ const FormBody = () => {
         include,
     });
     if (isSuccess) {
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Title, { children: translate.t("submit_success") })] }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(react.Button, { onClick: async () => {
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Content, { children: jsxRuntime.jsx(react.Alert.Title, { children: translate.t("submit_success") }) })] }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(react.Button, { onClick: async () => {
                             setIsError(false);
                             setIsSubmiting(false);
                             setIsSuccess(false);
@@ -6100,7 +6108,7 @@ const FormBody = () => {
                             }, variant: "subtle", children: translate.t("cancel") }), jsxRuntime.jsx(react.Button, { onClick: () => {
                                 onFormSubmit(validatedData);
                             }, children: translate.t("confirm") })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: customErrorRenderer ? (customErrorRenderer(error)) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: error?.type === "validation" &&
-                            error?.errors ? (renderValidationErrors(error.errors)) : (jsxRuntime.jsx(react.Alert.Root, { status: "error", children: jsxRuntime.jsx(react.Alert.Title, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "b", children: [jsxRuntime.jsxs(AccordionItemTrigger, { children: [jsxRuntime.jsx(react.Alert.Indicator, {}), `${error}`] }), jsxRuntime.jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) }) })) })) }))] }));
+                            error?.errors ? (renderValidationErrors(error.errors)) : (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsxs(react.Alert.Content, { children: [jsxRuntime.jsx(react.Alert.Title, { children: "Error" }), jsxRuntime.jsx(react.Alert.Description, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "b", children: [jsxRuntime.jsx(AccordionItemTrigger, { children: `${error}` }), jsxRuntime.jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) })] })] })) })) }))] }));
     }
     return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: ordered.map((column) => {
                     return (jsxRuntime.jsx(ColumnRenderer
@@ -6108,10 +6116,10 @@ const FormBody = () => {
                     , { 
                         // @ts-expect-error find suitable types
                         properties: properties, prefix: ``, column }, `form-input-${column}`));
-                }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "end", gap: "2", children: [jsxRuntime.jsx(react.Button, { onClick: () => {
+                }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: "end", gap: "2", children: [showResetButton && (jsxRuntime.jsx(react.Button, { onClick: () => {
                             methods.reset();
-                        }, variant: "subtle", children: translate.t("reset") }), jsxRuntime.jsx(SubmitButton, {})] }), isError && error?.type === "validation" && (jsxRuntime.jsx(react.Box, { mt: 4, children: error?.errors &&
-                    renderValidationErrors(error.errors) }))] }));
+                        }, variant: "subtle", children: translate.t("reset") })), showSubmitButton && jsxRuntime.jsx(SubmitButton, {})] }), isError && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: customErrorRenderer ? (customErrorRenderer(error)) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: error?.type === "validation" &&
+                        error?.errors ? (renderValidationErrors(error.errors)) : (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsxs(react.Alert.Content, { children: [jsxRuntime.jsx(react.Alert.Title, { children: "Error" }), jsxRuntime.jsx(react.Alert.Description, { children: jsxRuntime.jsx(AccordionRoot, { collapsible: true, defaultValue: [], children: jsxRuntime.jsxs(AccordionItem, { value: "b", children: [jsxRuntime.jsx(AccordionItemTrigger, { children: `${error}` }), jsxRuntime.jsx(AccordionItemContent, { children: `${JSON.stringify(error)}` })] }) }) })] })] })) })) }))] }));
 };
 
 const FormTitle = () => {
@@ -6119,7 +6127,8 @@ const FormTitle = () => {
     return jsxRuntime.jsx(react.Heading, { children: translate.t("title") });
 };
 
-const DefaultForm = ({ formConfig, showTitle = true, }) => {
+const DefaultForm = ({ formConfig, }) => {
+    const { showTitle } = formConfig.displayConfig ?? {};
     return (jsxRuntime.jsx(FormRoot, { ...formConfig, children: jsxRuntime.jsxs(react.Grid, { gap: "2", children: [showTitle && jsxRuntime.jsx(FormTitle, {}), jsxRuntime.jsx(FormBody, {})] }) }));
 };
 

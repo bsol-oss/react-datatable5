@@ -253,7 +253,7 @@ interface DataResponse<T = unknown> extends Result<T> {
 }
 declare const useDataTableServer: <TData>({ url, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, keyPrefix, }: UseDataTableServerProps) => UseDataTableServerReturn<TData>;
 
-interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown>> {
+interface DataTableServerProps<TData = unknown> {
     children: ReactNode | ReactNode[];
     /**
      * Column definitions for the table.
@@ -282,10 +282,10 @@ interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
-    query: UseQueryResult<TData>;
+    query: UseQueryResult<DataResponse<TData>>;
     url: string;
     translate: UseTranslationResponse<any, any>;
-    tableLabel: DataTableLabel;
+    tableLabel?: DataTableLabel;
 }
 /**
  * DataTableServer will create a context to hold all values to
@@ -298,7 +298,7 @@ interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-declare function DataTableServer<TData extends DataResponse = DataResponse<unknown>>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
+declare function DataTableServer<TData = unknown>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
 
 interface TableControlsProps {
     totalText?: string;
@@ -547,6 +547,11 @@ interface FormRootProps<TData extends FieldValues> {
     requestOptions?: AxiosRequestConfig;
     getUpdatedData?: () => TData | Promise<TData> | void;
     customErrorRenderer?: (error: unknown) => ReactNode;
+    displayConfig?: {
+        showSubmitButton?: boolean;
+        showResetButton?: boolean;
+        showTitle?: boolean;
+    };
 }
 interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
@@ -563,13 +568,13 @@ declare const idPickerSanityCheck: (column: string, foreign_key?: {
     column?: string | undefined;
     display_column?: string | undefined;
 } | undefined) => void;
-declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, displayConfig, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DefaultFormProps<TData extends FieldValues> {
     formConfig: Omit<FormRootProps<TData>, "children">;
     showTitle?: boolean;
 }
-declare const DefaultForm: <TData extends FieldValues>({ formConfig, showTitle, }: DefaultFormProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const DefaultForm: <TData extends FieldValues>({ formConfig, }: DefaultFormProps<TData>) => react_jsx_runtime.JSX.Element;
 
 declare const FormTitle: () => react_jsx_runtime.JSX.Element;
 
