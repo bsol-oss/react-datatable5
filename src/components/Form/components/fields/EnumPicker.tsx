@@ -178,7 +178,7 @@ export const EnumPicker = ({
         positioning={{ placement: "bottom-start" }}
       >
         <PopoverTrigger />
-        <PopoverContent>
+        <PopoverContent portalled={false}>
           <PopoverBody display={"grid"} gap={1}>
             <Input
               placeholder={translate.t(`${colLabel}.type_to_search`)}

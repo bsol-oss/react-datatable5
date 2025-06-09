@@ -288,7 +288,7 @@ export const IdPicker = ({
         positioning={{ placement: "bottom-start", strategy: "fixed" }}
       >
         <PopoverTrigger />
-        <PopoverContent>
+        <PopoverContent portalled={false}>
           <PopoverBody display={"grid"} gap={1}>
             <Input
               placeholder={translate.t(
