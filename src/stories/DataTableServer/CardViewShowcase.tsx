@@ -115,7 +115,11 @@ const CardViewShowcase = () => {
 
   return (
     <Provider>
-      <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
+      <DataTableServer<ChatRecord> 
+        columns={columns} 
+        url="http://localhost:8333/api/v1/gpt/chat/history/all"
+        {...dataTable}
+      >
         <Flex gap="0.25rem">
           <Pagination />
           <ViewDialog />

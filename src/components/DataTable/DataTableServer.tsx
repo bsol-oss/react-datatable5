@@ -20,9 +20,7 @@ import { DataTableServerContext } from "./context/DataTableServerContext";
 import { DataResponse } from "./useDataTableServer";
 import { UseTranslationResponse } from "react-i18next";
 
-export interface DataTableServerProps<
-  TData extends DataResponse = DataResponse<unknown>,
-> {
+export interface DataTableServerProps<TData = unknown> {
   children: ReactNode | ReactNode[];
 
   /**
@@ -32,7 +30,7 @@ export interface DataTableServerProps<
    *
    * @link https://tanstack.com/table/latest/docs/guide/column-defs
    */
-  columns: ColumnDef<TData>[]; // TODO: find the appropriate types
+  columns: ColumnDef<TData>[];
   enableRowSelection?: boolean;
   enableMultiRowSelection?: boolean;
   enableSubRowSelection?: boolean;
@@ -52,10 +50,10 @@ export interface DataTableServerProps<
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
-  query: UseQueryResult<TData>;
+  query: UseQueryResult<DataResponse<TData>>;
   url: string;
   translate: UseTranslationResponse<any, any>;
-  tableLabel: DataTableLabel;
+  tableLabel?: DataTableLabel;
 }
 
 /**
@@ -69,9 +67,7 @@ export interface DataTableServerProps<
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-export function DataTableServer<
-  TData extends DataResponse = DataResponse<unknown>,
->({
+export function DataTableServer<TData = unknown>({
   columns,
   enableRowSelection = true,
   enableMultiRowSelection = true,

@@ -4,6 +4,9 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { useDataTable } from "../../components/DataTable/useDataTable";
 import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
 import { data, Product } from "../product_data";
+// Uncomment the following imports when using DataTableServer
+// import { DataTableServer } from "../../components/DataTable/DataTableServer";
+// import { useDataTableServer } from "../../components/DataTable/useDataTableServer";
 
 interface RowActionsProps {
   row: Product;
@@ -17,6 +20,13 @@ const DefaultTableShowcase = () => {
   const datatable = useDataTable({
     default: { sorting: [{ id: "title", desc: false }] },
   });
+  
+  // Example of how to use DataTableServer with proper typing:
+  // const datatableServer = useDataTableServer<Product>({
+  //   url: "/api/products",
+  //   default: { sorting: [{ id: "title", desc: false }] },
+  // });
+  
   const columnHelper = createColumnHelper<Product>();
   const columns: ColumnDef<Product>[] = [
     // Display Column
@@ -148,6 +158,7 @@ const DefaultTableShowcase = () => {
 
   return (
     <Provider>
+      {/* Example using regular DataTable for client-side data */}
       <DataTable columns={columns} data={data} {...datatable}>
         <DefaultTable
           controlProps={{
@@ -264,6 +275,23 @@ const DefaultTableShowcase = () => {
           }}
         />
       </DataTable>
+      
+      {/* Example of how to use DataTableServer with proper typing:
+      
+      <DataTableServer<Product>
+        columns={columns}
+        url="/api/products"
+        {...datatableServer}
+      >
+        <DefaultTable />
+      </DataTableServer>
+      
+      This will now properly type the TData generic as Product,
+      ensuring that:
+      - columns: ColumnDef<Product>[]
+      - query: UseQueryResult<DataResponse<Product>>
+      - The server response should be: { data: Product[], count: number }
+      */}
     </Provider>
   );
 };
