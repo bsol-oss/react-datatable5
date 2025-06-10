@@ -126,6 +126,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
         open={open}
         onOpenChange={(e) => setOpen(e.open)}
         closeOnInteractOutside
+        portalled={false}
       >
         <Popover.Trigger asChild>
           <Button

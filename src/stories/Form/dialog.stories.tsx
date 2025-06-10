@@ -84,6 +84,10 @@ const SomeForm = () => {
           column: "id",
         },
       },
+      someTime: {
+        type: "string",
+        format: "time",
+      },
     },
     required: ["someTextarea", "someNumber"],
     errorMessage: {
