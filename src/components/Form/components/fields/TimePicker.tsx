@@ -31,7 +31,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     required,
     gridColumn = "span 4",
     gridRow = "span 1",
-    timeFormat = "HH:mm:ssZ",
+    timeFormat = "HH:mmZ",
     displayTimeFormat = "hh:mm A",
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
@@ -42,13 +42,14 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     ? dayjs(`1970-01-01T${value}`).tz(timezone).format(displayTimeFormat)
     : "";
 
-  // Parse the initial time parts from the ISO time string (HH:mm:ss)
-  const parseTime = (isoTime: string | undefined) => {
-    if (!isoTime) return { hour: 12, minute: 0, meridiem: "am" as "am" | "pm" };
+  // Parse the initial time parts from the  time string (HH:mm:ssZ)
+  const parseTime = (time: string | undefined) => {
+    if (!time) return { hour: 12, minute: 0, meridiem: "am" as "am" | "pm" };
 
-    const parsed = dayjs(`1970-01-01T${isoTime}`).tz(timezone);
-    if (!parsed.isValid())
+    const parsed = dayjs(`1970-01-01T${time}`).tz(timezone);
+    if (!parsed.isValid()) {
       return { hour: 12, minute: 0, meridiem: "am" as "am" | "pm" };
+    }
 
     let hour = parsed.hour();
     const minute = parsed.minute();
@@ -75,21 +76,17 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     setMeridiem(meridiem as "am" | "pm");
   }, [value]);
 
-  // Convert hour, minute, meridiem to 24-hour ISO time string
-  const toIsoTime = (
+  const getTimeString = (
     hour: number | null,
     minute: number | null,
     meridiem: "am" | "pm" | null
   ) => {
     if (hour === null || minute === null || meridiem === null) return null;
-    let h = hour;
-    if (meridiem === "am" && hour === 12) h = 0;
-    else if (meridiem === "pm" && hour < 12) h = hour + 12;
-    return dayjs(
-      `1970-01-01T${h.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00`
-    )
-      .tz(timezone)
-      .format(timeFormat);
+    let newHour = hour;
+    if (meridiem === "pm" && hour !== 12) {
+      newHour = hour + 12;
+    }
+    return dayjs().tz(timezone).hour(newHour).minute(minute).format(timeFormat);
   };
 
   // Handle changes to time parts
@@ -105,9 +102,8 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     setHour(newHour);
     setMinute(newMinute);
     setMeridiem(newMeridiem);
-
-    const isoTime = toIsoTime(newHour, newMinute, newMeridiem);
-    setValue(colLabel, isoTime, { shouldValidate: true, shouldDirty: true });
+    const timeString = getTimeString(newHour, newMinute, newMeridiem);
+    setValue(colLabel, timeString, { shouldValidate: true, shouldDirty: true });
   };
 
   return (
