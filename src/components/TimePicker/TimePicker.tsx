@@ -1,10 +1,6 @@
-import { Button, Flex, Grid, Icon, Input } from "@chakra-ui/react";
+import { Button, Flex, Grid, Icon, Input, Text } from "@chakra-ui/react";
 import dayjs from "dayjs";
-import {
-  Dispatch,
-  SetStateAction,
-  useState
-} from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { BsClock } from "react-icons/bs";
 import { MdCancel } from "react-icons/md";
 
@@ -44,21 +40,19 @@ export function TimePicker({
     setHour(null);
     setMinute(null);
     setMeridiem(null);
-    setStringTime("");
     setInputValue("");
     setShowInput(false);
     onChange({ hour: null, minute: null, meridiem: null });
   };
 
-  const [stringTime, setStringTime] = useState("");
-  const [inputValue, setInputValue] = useState("");
-  const [showInput, setShowInput] = useState(false);
-
   const getTimeString = (
-    hour: number,
-    minute: number,
-    meridiem: "am" | "pm"
+    hour: number | null,
+    minute: number | null,
+    meridiem: "am" | "pm" | null
   ) => {
+    if (hour === null || minute === null || meridiem === null) {
+      return "";
+    }
     // use dayjs to format the time at current timezone
     // if meridiem is pm, add 12 hours
     let newHour = hour;
@@ -70,6 +64,11 @@ export function TimePicker({
 
     return dayjs().tz(timezone).hour(newHour).minute(minute).format("HH:mmZ");
   };
+
+  const stringTime = getTimeString(hour, minute, meridiem);
+
+  const [inputValue, setInputValue] = useState("");
+  const [showInput, setShowInput] = useState(false);
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     // ignore all non-numeric characters
@@ -89,7 +88,13 @@ export function TimePicker({
     // final two characters are the meridiem
     const hour = parseInt(value.slice(0, 2));
     const minute = parseInt(value.slice(2, 4));
-    const meridiem = value.slice(4, 6) as "am" | "pm";
+    const meridiem = value.slice(4, 6) as "am" | "pm" | null;
+
+    // validate the hour and minute
+    if (isNaN(hour) || isNaN(minute)) {
+      setInputValue('');
+      return;
+    }
 
     let newHour = hour;
     let newMinute = minute;
@@ -118,7 +123,6 @@ export function TimePicker({
       meridiem: newMeridiem,
     });
 
-    setStringTime(getTimeString(newHour, newMinute, newMeridiem));
     setShowInput(false);
   };
 
@@ -154,14 +158,25 @@ export function TimePicker({
             onClick={() => {
               setShowInput(true);
               setInputValue(
-                dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")
+                dayjs(
+                  `1970-01-01T${getTimeString(hour, minute, meridiem)}`,
+                  "hh:mmZ"
+                ).format("hh:mm a")
               );
             }}
+            display={"flex"}
+            alignItems={"center"}
+            justifyContent={"start"}
+            gap={2}
           >
             <Icon size="sm">
               <BsClock />
             </Icon>
-            {dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")}
+            <Text fontSize="sm">
+              {stringTime
+                ? dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")
+                : ""}
+            </Text>
           </Button>
         )}
 
