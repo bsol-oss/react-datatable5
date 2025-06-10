@@ -1,6 +1,6 @@
 import { Button, Flex, Grid, Icon, Input, Text } from "@chakra-ui/react";
 import dayjs from "dayjs";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { BsClock } from "react-icons/bs";
 import { MdCancel } from "react-icons/md";
 
@@ -70,9 +70,8 @@ export function TimePicker({
   const [inputValue, setInputValue] = useState("");
   const [showInput, setShowInput] = useState(false);
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur = (text: string) => {
     // ignore all non-numeric characters
-    const text = e.currentTarget.value;
     if (!text) {
       return;
     }
@@ -92,7 +91,7 @@ export function TimePicker({
 
     // validate the hour and minute
     if (isNaN(hour) || isNaN(minute)) {
-      setInputValue('');
+      setInputValue("");
       return;
     }
 
@@ -104,10 +103,10 @@ export function TimePicker({
       newMeridiem = "pm";
       newHour = hour - 12;
     } else if (hour === 0) {
-      newMeridiem = "pm";
+      newMeridiem = "am";
       newHour = 12;
     } else {
-      newMeridiem = "am";
+      newMeridiem = meridiem ?? "am";
       newHour = hour;
     }
 
@@ -128,9 +127,11 @@ export function TimePicker({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      handleBlur(e);
+      handleBlur(e.currentTarget.value);
     }
   };
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Flex direction="column" gap={3}>
@@ -142,43 +143,44 @@ export function TimePicker({
         width="auto"
         minWidth="250px"
       >
-        {showInput && (
-          <Input
-            onKeyDown={handleKeyDown}
-            onChange={(e) => {
-              setInputValue(e.currentTarget.value);
-            }}
-            onBlur={handleBlur}
-            value={inputValue}
-          />
-        )}
+        <Input
+          onKeyDown={handleKeyDown}
+          onChange={(e) => {
+            setInputValue(e.currentTarget.value);
+          }}
+          onBlur={(e) => {
+            handleBlur(e.currentTarget.value);
+          }}
+          value={inputValue}
+          display={showInput ? undefined : "none"}
+          ref={inputRef}
+        />
 
-        {!showInput && (
-          <Button
-            onClick={() => {
-              setShowInput(true);
-              setInputValue(
-                dayjs(
-                  `1970-01-01T${getTimeString(hour, minute, meridiem)}`,
-                  "hh:mmZ"
-                ).format("hh:mm a")
-              );
-            }}
-            display={"flex"}
-            alignItems={"center"}
-            justifyContent={"start"}
-            gap={2}
-          >
-            <Icon size="sm">
-              <BsClock />
-            </Icon>
-            <Text fontSize="sm">
-              {stringTime
-                ? dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")
-                : ""}
-            </Text>
-          </Button>
-        )}
+        <Button
+          onClick={() => {
+            setShowInput(true);
+            setInputValue(
+              dayjs(
+                `1970-01-01T${getTimeString(hour, minute, meridiem)}`,
+                "hh:mmZ"
+              ).format("hh:mm a")
+            );
+            inputRef.current?.focus();
+          }}
+          display={showInput ? "none" : "flex"}
+          alignItems={"center"}
+          justifyContent={"start"}
+          gap={2}
+        >
+          <Icon size="sm">
+            <BsClock />
+          </Icon>
+          <Text fontSize="sm">
+            {stringTime
+              ? dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")
+              : ""}
+          </Text>
+        </Button>
 
         <Button onClick={handleClear} size="sm" variant="ghost">
           <MdCancel />
