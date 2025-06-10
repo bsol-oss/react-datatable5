@@ -1,12 +1,11 @@
-import { Grid, Text, Button, Input, Flex, Box } from "@chakra-ui/react";
+import { Button, Flex, Grid, Icon, Input } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import {
-  useRef,
-  KeyboardEvent,
   Dispatch,
   SetStateAction,
-  useState,
+  useState
 } from "react";
+import { BsClock } from "react-icons/bs";
 import { MdCancel } from "react-icons/md";
 
 interface TimePickerProps {
@@ -45,11 +44,15 @@ export function TimePicker({
     setHour(null);
     setMinute(null);
     setMeridiem(null);
+    setStringTime("");
+    setInputValue("");
+    setShowInput(false);
     onChange({ hour: null, minute: null, meridiem: null });
   };
 
   const [stringTime, setStringTime] = useState("");
   const [inputValue, setInputValue] = useState("");
+  const [showInput, setShowInput] = useState(false);
 
   const getTimeString = (
     hour: number,
@@ -61,6 +64,8 @@ export function TimePicker({
     let newHour = hour;
     if (meridiem === "pm") {
       newHour = hour + 12;
+    } else if (meridiem === "am" && hour === 12) {
+      newHour = 0;
     }
 
     return dayjs().tz(timezone).hour(newHour).minute(minute).format("HH:mmZ");
@@ -97,6 +102,7 @@ export function TimePicker({
       newMeridiem = "pm";
       newHour = 12;
     } else {
+      newMeridiem = "am";
       newHour = hour;
     }
 
@@ -113,6 +119,7 @@ export function TimePicker({
     });
 
     setStringTime(getTimeString(newHour, newMinute, newMeridiem));
+    setShowInput(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -131,17 +138,33 @@ export function TimePicker({
         width="auto"
         minWidth="250px"
       >
-        <Input
-          onKeyDown={handleKeyDown}
-          onChange={(e) => {
-            setInputValue(e.currentTarget.value);
-          }}
-          onBlur={handleBlur}
-          value={inputValue}
-        />
-        <Box>
-          <Text>{dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")}</Text>
-        </Box>
+        {showInput && (
+          <Input
+            onKeyDown={handleKeyDown}
+            onChange={(e) => {
+              setInputValue(e.currentTarget.value);
+            }}
+            onBlur={handleBlur}
+            value={inputValue}
+          />
+        )}
+
+        {!showInput && (
+          <Button
+            onClick={() => {
+              setShowInput(true);
+              setInputValue(
+                dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")
+              );
+            }}
+          >
+            <Icon size="sm">
+              <BsClock />
+            </Icon>
+            {dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")}
+          </Button>
+        )}
+
         <Button onClick={handleClear} size="sm" variant="ghost">
           <MdCancel />
         </Button>
