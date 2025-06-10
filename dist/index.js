@@ -5031,99 +5031,130 @@ const TextAreaInput = ({ column, schema, prefix, }) => {
 function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem, meridiemLabel = {
     am: "am",
     pm: "pm",
-}, onChange = (_newValue) => { }, }) {
-    // Refs for focus management
-    const hourInputRef = React.useRef(null);
-    const minuteInputRef = React.useRef(null);
-    React.useRef(null);
-    // Centralized handler for key events, value changes, and focus management
-    const handleKeyDown = (e, field) => {
-        const input = e.target;
-        const value = input.value;
-        // Handle navigation between fields
-        if (e.key === "Tab") {
-            // Tab is handled by the browser, no need to override
-            return;
-        }
-        if (e.key === ":" && field === "hour") {
-            e.preventDefault();
-            minuteInputRef.current?.focus();
-            return;
-        }
-        if (e.key === "Backspace" && value === "") {
-            e.preventDefault();
-            if (field === "minute") {
-                hourInputRef.current?.focus();
-            }
-            else if (field === "meridiem") {
-                minuteInputRef.current?.focus();
-            }
-            return;
-        }
-        // Handle number inputs
-        if (field === "hour") {
-            if (e.key.match(/^[0-9]$/)) {
-                const newValue = value + e.key;
-                const numValue = parseInt(newValue, 10);
-                console.log("newValue", newValue, numValue);
-                if (numValue > 12) {
-                    const digitValue = parseInt(e.key, 10);
-                    setHour(digitValue);
-                    onChange({ hour: digitValue, minute, meridiem });
-                    return;
-                }
-                // Auto-advance to minutes if we have a valid hour (1-12)
-                if (numValue >= 1 && numValue <= 12) {
-                    // Set the hour value
-                    setHour(numValue);
-                    onChange({ hour: numValue, minute, meridiem });
-                    // Move to minute input
-                    e.preventDefault();
-                    minuteInputRef.current?.focus();
-                }
-            }
-        }
-        else if (field === "minute") {
-            if (e.key.match(/^[0-9]$/)) {
-                const newValue = value + e.key;
-                const numValue = parseInt(newValue, 10);
-                console.log("newValue minute", newValue, numValue, numValue > 60, numValue >= 0 && numValue <= 59, e.key);
-                if (numValue > 60) {
-                    const digitValue = parseInt(e.key, 10);
-                    setMinute(digitValue);
-                    onChange({ hour, minute: digitValue, meridiem });
-                    return;
-                }
-                // Auto-advance to meridiem if we have a valid minute (0-59)
-                if (numValue >= 0 && numValue <= 59) {
-                    // Set the minute value
-                    setMinute(numValue);
-                    onChange({ hour, minute: numValue, meridiem });
-                }
-            }
-        }
-    };
-    // Handle meridiem button click
-    const handleMeridiemClick = (newMeridiem) => {
-        setMeridiem(newMeridiem);
-        onChange({ hour, minute, meridiem: newMeridiem });
-    };
+}, onChange = (_newValue) => { }, timezone = "Asia/Hong_Kong", }) {
     const handleClear = () => {
         setHour(null);
         setMinute(null);
         setMeridiem(null);
+        setInputValue("");
+        setShowInput(false);
         onChange({ hour: null, minute: null, meridiem: null });
-        // Focus the hour field after clearing
-        hourInputRef.current?.focus();
     };
-    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Grid, { justifyContent: "center", alignItems: "center", templateColumns: "60px 10px 60px 90px auto", gap: "2", width: "auto", minWidth: "250px", children: [jsxRuntime.jsx(react.Input, { ref: hourInputRef, type: "text", value: hour === null ? "" : hour.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "hour"), placeholder: "HH", maxLength: 2, textAlign: "center" }), jsxRuntime.jsx(react.Text, { children: ":" }), jsxRuntime.jsx(react.Input, { ref: minuteInputRef, type: "text", value: minute === null ? "" : minute.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "minute"), placeholder: "MM", maxLength: 2, textAlign: "center" }), jsxRuntime.jsxs(react.Flex, { gap: "1", children: [jsxRuntime.jsx(react.Button, { size: "sm", colorScheme: meridiem === "am" ? "blue" : "gray", variant: meridiem === "am" ? "solid" : "outline", onClick: () => handleMeridiemClick("am"), width: "40px", children: meridiemLabel.am }), jsxRuntime.jsx(react.Button, { size: "sm", colorScheme: meridiem === "pm" ? "blue" : "gray", variant: meridiem === "pm" ? "solid" : "outline", onClick: () => handleMeridiemClick("pm"), width: "40px", children: meridiemLabel.pm })] }), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(md.MdCancel, {}) })] }) }));
+    const getTimeString = (hour, minute, meridiem) => {
+        if (hour === null || minute === null || meridiem === null) {
+            return "";
+        }
+        // if the hour is 24, set the hour to 0
+        if (hour === 24) {
+            return dayjs().tz(timezone).hour(0).minute(minute).format("HH:mmZ");
+        }
+        // use dayjs to format the time at current timezone
+        // if meridiem is pm, add 12 hours
+        let newHour = hour;
+        if (meridiem === "pm" && hour !== 12) {
+            newHour = hour + 12;
+        }
+        // if the hour is 12, set the meridiem to am, and set the hour to 0
+        else if (meridiem === "am" && hour === 12) {
+            newHour = 0;
+        }
+        return dayjs().tz(timezone).hour(newHour).minute(minute).format("HH:mmZ");
+    };
+    const stringTime = getTimeString(hour, minute, meridiem);
+    const [inputValue, setInputValue] = React.useState("");
+    const [showInput, setShowInput] = React.useState(false);
+    const handleBlur = (text) => {
+        // ignore all non-numeric characters
+        if (!text) {
+            return;
+        }
+        const value = text.replace(/[^0-9apm]/g, "");
+        if (value === "") {
+            handleClear();
+            return;
+        }
+        // if the value is a valid time, parse it and set the hour, minute, and meridiem
+        // if the value is not a valid time, set the stringTime to the value
+        // first two characters are the hour
+        // next two characters are the minute
+        // final two characters are the meridiem
+        const hour = parseInt(value.slice(0, 2));
+        const minute = parseInt(value.slice(2, 4));
+        const meridiem = value.slice(4, 6);
+        // validate the hour and minute
+        if (isNaN(hour) || isNaN(minute)) {
+            setInputValue("");
+            return;
+        }
+        // if the hour is larger than 24, set the hour to 24
+        if (hour > 24) {
+            setInputValue("");
+            return;
+        }
+        let newHour = hour;
+        let newMinute = minute;
+        let newMeridiem = meridiem;
+        // if the hour is 24, set the meridiem to am, and set the hour to 0
+        if (hour === 24) {
+            newMeridiem = "am";
+            newHour = 0;
+        }
+        // if the hour is greater than 12, set the meridiem to pm, and subtract 12 from the hour
+        else if (hour > 12) {
+            newMeridiem = "pm";
+            newHour = hour - 12;
+        }
+        // if the hour is 12, set the meridiem to pm, and set the hour to 12
+        else if (hour === 12) {
+            newMeridiem = "pm";
+            newHour = 12;
+        }
+        // if the hour is 0, set the meridiem to am, and set the hour to 12
+        else if (hour === 0) {
+            newMeridiem = "am";
+            newHour = 12;
+        }
+        else {
+            newMeridiem = meridiem ?? "am";
+            newHour = hour;
+        }
+        if (minute > 59) {
+            newMinute = 0;
+        }
+        else {
+            newMinute = minute;
+        }
+        onChange({
+            hour: newHour,
+            minute: newMinute,
+            meridiem: newMeridiem,
+        });
+        setShowInput(false);
+    };
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            handleBlur(e.currentTarget.value);
+        }
+    };
+    const inputRef = React.useRef(null);
+    return (jsxRuntime.jsxs(react.Grid, { justifyContent: "center", alignItems: "center", templateColumns: "200px auto", gap: "2", width: "auto", minWidth: "250px", children: [jsxRuntime.jsx(react.Input, { onKeyDown: handleKeyDown, onChange: (e) => {
+                    setInputValue(e.currentTarget.value);
+                }, onBlur: (e) => {
+                    handleBlur(e.currentTarget.value);
+                }, value: inputValue, display: showInput ? undefined : "none", ref: inputRef }), jsxRuntime.jsxs(react.Button, { onClick: () => {
+                    setShowInput(true);
+                    setInputValue(dayjs(`1970-01-01T${getTimeString(hour, minute, meridiem)}`, "hh:mmZ").format("hh:mm a"));
+                    inputRef.current?.focus();
+                }, display: showInput ? "none" : "flex", alignItems: "center", justifyContent: "start", variant: "outline", gap: 2, children: [jsxRuntime.jsx(react.Icon, { size: "sm", children: jsxRuntime.jsx(bs.BsClock, {}) }), jsxRuntime.jsx(react.Text, { fontSize: "sm", children: stringTime
+                            ? dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")
+                            : "" })] }), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(md.MdCancel, {}) })] }));
 }
 
 dayjs.extend(timezone);
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", timeFormat = "HH:mm:ssZ", displayTimeFormat = "hh:mm A", } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", timeFormat = "HH:mmZ", displayTimeFormat = "hh:mm A", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = React.useState(false);
@@ -5131,13 +5162,14 @@ const TimePicker = ({ column, schema, prefix }) => {
     const displayedTime = dayjs(`1970-01-01T${value}`).tz(timezone).isValid()
         ? dayjs(`1970-01-01T${value}`).tz(timezone).format(displayTimeFormat)
         : "";
-    // Parse the initial time parts from the ISO time string (HH:mm:ss)
-    const parseTime = (isoTime) => {
-        if (!isoTime)
+    // Parse the initial time parts from the  time string (HH:mm:ssZ)
+    const parseTime = (time) => {
+        if (!time)
             return { hour: 12, minute: 0, meridiem: "am" };
-        const parsed = dayjs(`1970-01-01T${isoTime}`).tz(timezone);
-        if (!parsed.isValid())
+        const parsed = dayjs(`1970-01-01T${time}`).tz(timezone);
+        if (!parsed.isValid()) {
             return { hour: 12, minute: 0, meridiem: "am" };
+        }
         let hour = parsed.hour();
         const minute = parsed.minute();
         const meridiem = hour >= 12 ? "pm" : "am";
@@ -5157,35 +5189,30 @@ const TimePicker = ({ column, schema, prefix }) => {
         setMinute(minute);
         setMeridiem(meridiem);
     }, [value]);
-    // Convert hour, minute, meridiem to 24-hour ISO time string
-    const toIsoTime = (hour, minute, meridiem) => {
+    const getTimeString = (hour, minute, meridiem) => {
         if (hour === null || minute === null || meridiem === null)
             return null;
-        let h = hour;
-        if (meridiem === "am" && hour === 12)
-            h = 0;
-        else if (meridiem === "pm" && hour < 12)
-            h = hour + 12;
-        return dayjs(`1970-01-01T${h.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00`)
-            .tz(timezone)
-            .format(timeFormat);
+        let newHour = hour;
+        if (meridiem === "pm" && hour !== 12) {
+            newHour = hour + 12;
+        }
+        return dayjs().tz(timezone).hour(newHour).minute(minute).format(timeFormat);
     };
     // Handle changes to time parts
     const handleTimeChange = ({ hour: newHour, minute: newMinute, meridiem: newMeridiem, }) => {
         setHour(newHour);
         setMinute(newMinute);
         setMeridiem(newMeridiem);
-        const isoTime = toIsoTime(newHour, newMinute, newMeridiem);
-        setValue(colLabel, isoTime, { shouldValidate: true, shouldDirty: true });
+        const timeString = getTimeString(newHour, newMinute, newMeridiem);
+        setValue(colLabel, timeString, { shouldValidate: true, shouldDirty: true });
     };
-    const containerRef = React.useRef(null);
     return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
-                            }, justifyContent: "start", children: [jsxRuntime.jsx(io.IoMdClock, {}), !!value ? `${displayedTime}` : ""] }) }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { ref: containerRef, children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
-                                            am: translate.t(`common.am`, { defaultValue: "AM" }),
-                                            pm: translate.t(`common.pm`, { defaultValue: "PM" }),
-                                        } }) }) }) }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                            }, justifyContent: "start", children: [jsxRuntime.jsx(io.IoMdClock, {}), !!value ? `${displayedTime}` : ""] }) }), jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
+                                        am: translate.t(`common.am`, { defaultValue: "AM" }),
+                                        pm: translate.t(`common.pm`, { defaultValue: "PM" }),
+                                    } }) }) }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
 function IsoTimePicker({ hour, setHour, minute, setMinute, second, setSecond, onChange = (_newValue) => { }, }) {

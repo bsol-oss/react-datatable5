@@ -15,6 +15,7 @@ interface TimePickerProps {
         am: string;
         pm: string;
     };
+    timezone?: string;
 }
-export declare function TimePicker({ hour, setHour, minute, setMinute, meridiem, setMeridiem, meridiemLabel, onChange, }: TimePickerProps): import("react/jsx-runtime").JSX.Element;
+export declare function TimePicker({ hour, setHour, minute, setMinute, meridiem, setMeridiem, meridiemLabel, onChange, timezone, }: TimePickerProps): import("react/jsx-runtime").JSX.Element;
 export {};
