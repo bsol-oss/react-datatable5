@@ -53,12 +53,19 @@ export function TimePicker({
     if (hour === null || minute === null || meridiem === null) {
       return "";
     }
+    // if the hour is 24, set the hour to 0
+    if (hour === 24) {
+      return dayjs().tz(timezone).hour(0).minute(minute).format("HH:mmZ");
+    }
     // use dayjs to format the time at current timezone
     // if meridiem is pm, add 12 hours
     let newHour = hour;
-    if (meridiem === "pm") {
+
+    if (meridiem === "pm" && hour !== 12) {
       newHour = hour + 12;
-    } else if (meridiem === "am" && hour === 12) {
+    }
+    // if the hour is 12, set the meridiem to am, and set the hour to 0
+    else if (meridiem === "am" && hour === 12) {
       newHour = 0;
     }
 
@@ -94,15 +101,33 @@ export function TimePicker({
       setInputValue("");
       return;
     }
+    // if the hour is larger than 24, set the hour to 24
+    if (hour > 24) {
+      setInputValue("");
+      return;
+    }
 
     let newHour = hour;
     let newMinute = minute;
     let newMeridiem = meridiem;
+
+    // if the hour is 24, set the meridiem to am, and set the hour to 0
+    if (hour === 24) {
+      newMeridiem = "am";
+      newHour = 0;
+    }
     // if the hour is greater than 12, set the meridiem to pm, and subtract 12 from the hour
-    if (hour > 12) {
+    else if (hour > 12) {
       newMeridiem = "pm";
       newHour = hour - 12;
-    } else if (hour === 0) {
+    }
+    // if the hour is 12, set the meridiem to pm, and set the hour to 12
+    else if (hour === 12) {
+      newMeridiem = "pm";
+      newHour = 12;
+    }
+    // if the hour is 0, set the meridiem to am, and set the hour to 12
+    else if (hour === 0) {
       newMeridiem = "am";
       newHour = 12;
     } else {
@@ -134,58 +159,57 @@ export function TimePicker({
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <Flex direction="column" gap={3}>
-      <Grid
-        justifyContent={"center"}
+    <Grid
+      justifyContent={"center"}
+      alignItems={"center"}
+      templateColumns={"200px auto"}
+      gap="2"
+      width="auto"
+      minWidth="250px"
+    >
+      <Input
+        onKeyDown={handleKeyDown}
+        onChange={(e) => {
+          setInputValue(e.currentTarget.value);
+        }}
+        onBlur={(e) => {
+          handleBlur(e.currentTarget.value);
+        }}
+        value={inputValue}
+        display={showInput ? undefined : "none"}
+        ref={inputRef}
+      />
+
+      <Button
+        onClick={() => {
+          setShowInput(true);
+          setInputValue(
+            dayjs(
+              `1970-01-01T${getTimeString(hour, minute, meridiem)}`,
+              "hh:mmZ"
+            ).format("hh:mm a")
+          );
+          inputRef.current?.focus();
+        }}
+        display={showInput ? "none" : "flex"}
         alignItems={"center"}
-        templateColumns={"200px auto"}
-        gap="2"
-        width="auto"
-        minWidth="250px"
+        justifyContent={"start"}
+        variant="outline"
+        gap={2}
       >
-        <Input
-          onKeyDown={handleKeyDown}
-          onChange={(e) => {
-            setInputValue(e.currentTarget.value);
-          }}
-          onBlur={(e) => {
-            handleBlur(e.currentTarget.value);
-          }}
-          value={inputValue}
-          display={showInput ? undefined : "none"}
-          ref={inputRef}
-        />
+        <Icon size="sm">
+          <BsClock />
+        </Icon>
+        <Text fontSize="sm">
+          {stringTime
+            ? dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")
+            : ""}
+        </Text>
+      </Button>
 
-        <Button
-          onClick={() => {
-            setShowInput(true);
-            setInputValue(
-              dayjs(
-                `1970-01-01T${getTimeString(hour, minute, meridiem)}`,
-                "hh:mmZ"
-              ).format("hh:mm a")
-            );
-            inputRef.current?.focus();
-          }}
-          display={showInput ? "none" : "flex"}
-          alignItems={"center"}
-          justifyContent={"start"}
-          gap={2}
-        >
-          <Icon size="sm">
-            <BsClock />
-          </Icon>
-          <Text fontSize="sm">
-            {stringTime
-              ? dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")
-              : ""}
-          </Text>
-        </Button>
-
-        <Button onClick={handleClear} size="sm" variant="ghost">
-          <MdCancel />
-        </Button>
-      </Grid>
-    </Flex>
+      <Button onClick={handleClear} size="sm" variant="ghost">
+        <MdCancel />
+      </Button>
+    </Grid>
   );
 }
