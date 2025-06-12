@@ -86,7 +86,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     if (meridiem === "pm" && hour !== 12) {
       newHour = hour + 12;
     }
-    return dayjs().tz(timezone).hour(newHour).minute(minute).format(timeFormat);
+    return dayjs().tz(timezone).hour(newHour).minute(minute).second(0).format(timeFormat);
   };
 
   // Handle changes to time parts

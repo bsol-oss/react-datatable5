@@ -64,6 +64,10 @@ const SomeForm = () => {
         type: "number",
         minimum: 10,
       },
+      someTime: {
+        type: "string",
+        format: "time",
+      },
     },
     required: ["someTextarea", "someNumber"],
     errorMessage: {
@@ -76,8 +80,9 @@ const SomeForm = () => {
       properties: {
         someTextarea: "Please longer text someTextarea",
         someNumber: "Please greater number someNumber",
-      }
+      },
     },
+   
   } as JSONSchema7;
 
   return (
