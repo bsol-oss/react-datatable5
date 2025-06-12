@@ -3698,6 +3698,7 @@ const validateData = (data, schema) => {
     const validate = ajv.compile(schema);
     const validationResult = validate(data);
     const errors = validate.errors;
+    console.log(errors, data);
     return {
         isValid: validationResult,
         validate,
@@ -5121,9 +5122,11 @@ function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
                     setInputValue(e.currentTarget.value);
                 }, onBlur: (e) => {
                     handleBlur(e.currentTarget.value);
+                }, onFocus: (e) => {
+                    e.currentTarget.select();
                 }, value: inputValue, display: showInput ? undefined : "none", ref: inputRef }), jsxs(Button$1, { onClick: () => {
                     setShowInput(true);
-                    setInputValue(dayjs(`1970-01-01T${getTimeString(hour, minute, meridiem)}`, "hh:mmZ").format("hh:mm a"));
+                    setInputValue(dayjs(`1970-01-01T${getTimeString(hour, minute, meridiem)}`, "hh:mmZ").format("HH:mm"));
                     inputRef.current?.focus();
                 }, display: showInput ? "none" : "flex", alignItems: "center", justifyContent: "start", variant: "outline", gap: 2, children: [jsx(Icon, { size: "sm", children: jsx(BsClock, {}) }), jsx(Text, { fontSize: "sm", children: stringTime
                             ? dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")
@@ -5134,7 +5137,7 @@ dayjs.extend(timezone);
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", timeFormat = "HH:mmZ", displayTimeFormat = "hh:mm A", } = schema;
+    const { required, gridColumn = "span 4", gridRow = "span 1", timeFormat = "HH:mm:ssZ", displayTimeFormat = "hh:mm A", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
