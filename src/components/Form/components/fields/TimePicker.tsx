@@ -31,7 +31,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     required,
     gridColumn = "span 4",
     gridRow = "span 1",
-    timeFormat = "HH:mmZ",
+    timeFormat = "HH:mm:ssZ",
     displayTimeFormat = "hh:mm A",
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);

@@ -1,4 +1,4 @@
-import { Button, Flex, Grid, Icon, Input, Text } from "@chakra-ui/react";
+import { Button, Grid, Icon, Input, Text } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { BsClock } from "react-icons/bs";
@@ -175,6 +175,9 @@ export function TimePicker({
         onBlur={(e) => {
           handleBlur(e.currentTarget.value);
         }}
+        onFocus={(e) => {
+          e.currentTarget.select();
+        }}
         value={inputValue}
         display={showInput ? undefined : "none"}
         ref={inputRef}
@@ -187,7 +190,7 @@ export function TimePicker({
             dayjs(
               `1970-01-01T${getTimeString(hour, minute, meridiem)}`,
               "hh:mmZ"
-            ).format("hh:mm a")
+            ).format("HH:mm")
           );
           inputRef.current?.focus();
         }}

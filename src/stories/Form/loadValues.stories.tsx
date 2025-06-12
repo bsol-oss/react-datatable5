@@ -52,10 +52,10 @@ const SomeForm = () => {
     preLoadedValues: {
       someDateTimes: "2025-06-10T12:12:00+08:00",
       someUtcDateTimes: "2025-06-10T12:00:00Z",
-      someAfterNoonTimes: "16:12+08:00",
-      someMorningTimes: "08:12+08:00",
-      someMidnightTimes: "00:56+08:00",
-      someNoonTimes: "12:24+08:00",
+      someAfterNoonTimes: "16:12:00+08:00",
+      someMorningTimes: "08:12:00+08:00",
+      someMidnightTimes: "00:56:00+08:00",
+      someNoonTimes: "12:24:00+08:00",
     },
   });
 
