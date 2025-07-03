@@ -48,50 +48,41 @@ export interface DataResponse<T> extends Result<T> {
   count: number;
 }
 
-export const useDataTableServer = <TData,>({
-  url,
-  onFetchSuccess = () => {},
-  default: {
-    sorting: defaultSorting = [],
-    pagination: defaultPagination = {
-      pageIndex: 0, //initial page index
-      pageSize: 10, //default page size
-    },
-    rowSelection: defaultRowSelection = {},
-    columnFilters: defaultColumnFilters = [],
-    columnOrder: defaultColumnOrder = [],
-    columnVisibility: defaultColumnVisibility = {},
-    globalFilter: defaultGlobalFilter = "",
-    density: defaultDensity = "sm",
-  } = {
-    sorting: [],
-    pagination: {
-      pageIndex: 0, //initial page index
-      pageSize: 10, //age size
-    },
-    rowSelection: {},
-    columnFilters: [],
-    columnOrder: [],
-    columnVisibility: {},
-    globalFilter: "",
-    density: "sm",
-  },
-  debounce = true,
-  debounceDelay = 1000,
-}: UseDataTableServerProps<TData>): UseDataTableServerReturn<TData> => {
-  const [sorting, setSorting] = useState<SortingState>(defaultSorting);
+export const useDataTableServer = <TData,>(props: UseDataTableServerProps<TData>): UseDataTableServerReturn<TData> => {
+  const {
+    url,
+    onFetchSuccess = () => {},
+    default: defaultState,
+    debounce = true,
+    debounceDelay = 1000,
+  } = props;
+
+  const {
+    sorting: defaultSorting,
+    pagination: defaultPagination,
+    rowSelection: defaultRowSelection,
+    columnFilters: defaultColumnFilters,
+    columnOrder: defaultColumnOrder,
+    columnVisibility: defaultColumnVisibility,
+    globalFilter: defaultGlobalFilter,
+    density: defaultDensity,
+  } = defaultState || {};
+
+  const { pageIndex, pageSize } = defaultPagination || { pageIndex: 0, pageSize: 10 };
+  
+  const [sorting, setSorting] = useState<SortingState>(defaultSorting || []);
   const [columnFilters, setColumnFilters] =
-    useState<ColumnFiltersState>(defaultColumnFilters); // can set initial column filter state here
+    useState<ColumnFiltersState>(defaultColumnFilters || []);
   const [pagination, setPagination] =
-    useState<PaginationState>(defaultPagination);
+    useState<PaginationState>(defaultPagination || { pageIndex: 0, pageSize: 10 });
   const [rowSelection, setRowSelection] =
-    useState<RowSelectionState>(defaultRowSelection);
+    useState<RowSelectionState>(defaultRowSelection || {});
   const [columnOrder, setColumnOrder] =
-    useState<ColumnOrderState>(defaultColumnOrder);
-  const [globalFilter, setGlobalFilter] = useState<string>(defaultGlobalFilter);
-  const [density, setDensity] = useState<DensityState>(defaultDensity);
+    useState<ColumnOrderState>(defaultColumnOrder || []);
+  const [globalFilter, setGlobalFilter] = useState<string>(defaultGlobalFilter || "");
+  const [density, setDensity] = useState<DensityState>(defaultDensity || "sm");
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    defaultColumnVisibility
+    defaultColumnVisibility || {}
   );
   const { data, loading, hasError, refreshData } = useDataFromUrl<
     DataResponse<TData>
@@ -126,8 +117,9 @@ export const useDataTableServer = <TData,>({
   });
 
   useEffect(() => {
-    refreshData({ debounce, debounceDelay });
-  }, [pagination, sorting, columnFilters, globalFilter, url]);
+    refreshData({ debounce, delay: debounceDelay });
+    console.log("refreshData", pageIndex, pageSize, sorting, columnFilters, globalFilter, url);
+  }, [pageIndex, pageSize, sorting, columnFilters, globalFilter, url]);
   return {
     sorting,
     setSorting,

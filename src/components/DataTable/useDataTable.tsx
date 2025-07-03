@@ -44,62 +44,37 @@ export interface UseDataTableReturn {
   setColumnVisibility: OnChangeFn<VisibilityState>;
 }
 
-export const useDataTable = (
-  {
-    default: {
-      sorting: defaultSorting = [],
-      pagination: defaultPagination = {
-        pageIndex: 0, //initial page index
-        pageSize: 10, //default page size
-      },
-      rowSelection: defaultRowSelection = {},
-      columnFilters: defaultColumnFilters = [],
-      columnOrder: defaultColumnOrder = [],
-      columnVisibility: defaultColumnVisibility = {},
-      globalFilter: defaultGlobalFilter = "",
-      density: defaultDensity = "sm",
-    } = {
-      sorting: [],
-      pagination: {
-        pageIndex: 0, //initial page index
-        pageSize: 10, //age size
-      },
-      rowSelection: {},
-      columnFilters: [],
-      columnOrder: [],
-      columnVisibility: {},
-      globalFilter: "",
-      density: "sm",
-    },
-  }: UseDataTableProps = {
-    default: {
-      sorting: [],
-      pagination: {
-        pageIndex: 0, //initial page index
-        pageSize: 10, //age size
-      },
-      rowSelection: {},
-      columnFilters: [],
-      columnOrder: [],
-      columnVisibility: {},
-      globalFilter: "",
-      density: "sm",
-    },
-  }
-): UseDataTableReturn => {
-  const [sorting, setSorting] = useState<SortingState>(defaultSorting);
-  const [columnFilters, setColumnFilters] =
-    useState<ColumnFiltersState>(defaultColumnFilters); // can set initial column filter state here
-  const [pagination, setPagination] =
-    useState<PaginationState>(defaultPagination);
-  const [rowSelection, setRowSelection] =
-    useState<RowSelectionState>(defaultRowSelection);
-  const [columnOrder, setColumnOrder] =
-    useState<ColumnOrderState>(defaultColumnOrder);
-  const [globalFilter, setGlobalFilter] = useState<string>(defaultGlobalFilter);
-  const [density, setDensity] = useState<DensityState>(defaultDensity);
+export const useDataTable = (props: UseDataTableProps): UseDataTableReturn => {
+  const { default: defaultState } = props;
+  const {
+    sorting: defaultSorting,
+    pagination: defaultPagination,
+    rowSelection: defaultRowSelection,
+    columnFilters: defaultColumnFilters,
+    columnOrder: defaultColumnOrder,
+    columnVisibility: defaultColumnVisibility,
+    globalFilter: defaultGlobalFilter,
+    density: defaultDensity,
+  } = defaultState || {};
+  const [sorting, setSorting] = useState<SortingState>(defaultSorting || []);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    defaultColumnFilters || []
+  );
+  const [pagination, setPagination] = useState<PaginationState>(
+    defaultPagination || { pageIndex: 0, pageSize: 10 }
+  );
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>(
+    defaultRowSelection || {}
+  );
+  const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(
+    defaultColumnOrder || []
+  );
+  const [globalFilter, setGlobalFilter] = useState<string>(
+    defaultGlobalFilter || ""
+  );
+  const [density, setDensity] = useState<DensityState>(defaultDensity || "sm");
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    defaultColumnVisibility
+    defaultColumnVisibility || {}
   );
   return {
     sorting,
