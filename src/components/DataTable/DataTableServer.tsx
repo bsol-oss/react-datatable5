@@ -130,7 +130,10 @@ export const DataTableServer = <TData,>({
   }, [table.getState().rowSelection]);
 
   useEffect(() => {
-    table.resetPagination();
+    table.setPagination({
+      pageIndex: pagination.pageIndex,
+      pageSize: pagination.pageSize,
+    });
   }, [sorting, columnFilters, globalFilter]);
 
   return (
