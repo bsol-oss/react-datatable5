@@ -39,6 +39,8 @@ const DefaultTableShowcase = () => {
       sorting: [{ id: "last_update", desc: true }],
       pagination: { pageSize: 25, pageIndex: 0 },
     },
+    debounce: true,
+    debounceDelay: 1500,
   });
   const columnHelper = createColumnHelper<ChatRecord>();
 
