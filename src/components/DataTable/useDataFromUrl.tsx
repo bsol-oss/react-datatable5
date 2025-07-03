@@ -46,7 +46,7 @@ export const useDataFromUrl = <T,>({
     try {
       setHasError(false);
       setLoading(true);
-      const { data } = await axios.get<T>(url, { params: params });
+      const { data } = await axios.get<T>(url, { params });
       console.debug("get DataFromUrl success", data);
       onFetchSuccess(data);
       setLoading(false);
@@ -73,10 +73,11 @@ export const useDataFromUrl = <T,>({
     if (disableFirstFetch) {
       return;
     }
+    // first fetch
     getData().catch((e) => {
       console.error(e);
     });
-  }, [url]);
+  }, [url, disableFirstFetch]);
 
   return { data, loading, hasError, refreshData };
 };
