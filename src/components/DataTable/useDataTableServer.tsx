@@ -68,7 +68,6 @@ export const useDataTableServer = <TData,>(props: UseDataTableServerProps<TData>
     density: defaultDensity,
   } = defaultState || {};
 
-  const { pageIndex, pageSize } = defaultPagination || { pageIndex: 0, pageSize: 10 };
   
   const [sorting, setSorting] = useState<SortingState>(defaultSorting || []);
   const [columnFilters, setColumnFilters] =
@@ -115,6 +114,8 @@ export const useDataTableServer = <TData,>(props: UseDataTableServerProps<TData>
     disableFirstFetch: true,
     onFetchSuccess: onFetchSuccess,
   });
+
+  const { pageIndex, pageSize } = pagination;
 
   useEffect(() => {
     refreshData({ debounce, delay: debounceDelay });

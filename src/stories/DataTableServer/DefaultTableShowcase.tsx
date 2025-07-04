@@ -33,7 +33,7 @@ const RowActions = ({ row }: RowActionsProps) => {
 
 const DefaultTableShowcase = () => {
   const dataTable = useDataTableServer<ChatRecord>({
-    url: "http://localhost:8333/api/v1/gpt/chat/history/all",
+    url: "https://echo.free.beeceptor.com/sample-path",
     default: {
       sorting: [{ id: "last_update", desc: true }],
       pagination: { pageSize: 25, pageIndex: 0 },

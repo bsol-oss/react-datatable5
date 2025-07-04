@@ -130,7 +130,6 @@ export const DataTableServer = <TData,>({
   }, [table.getState().rowSelection]);
 
 
-
   return (
     <TableContext.Provider
       value={{
