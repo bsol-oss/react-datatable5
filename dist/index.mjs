@@ -985,7 +985,6 @@ const useDataTable = (props) => {
 const useDataTableServer = (props) => {
     const { url, onFetchSuccess = () => { }, default: defaultState, debounce = true, debounceDelay = 1000, } = props;
     const { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, } = defaultState || {};
-    const { pageIndex, pageSize } = defaultPagination || { pageIndex: 0, pageSize: 10 };
     const [sorting, setSorting] = useState(defaultSorting || []);
     const [columnFilters, setColumnFilters] = useState(defaultColumnFilters || []);
     const [pagination, setPagination] = useState(defaultPagination || { pageIndex: 0, pageSize: 10 });
@@ -1019,6 +1018,7 @@ const useDataTableServer = (props) => {
         disableFirstFetch: true,
         onFetchSuccess: onFetchSuccess,
     });
+    const { pageIndex, pageSize } = pagination;
     useEffect(() => {
         refreshData({ debounce, delay: debounceDelay });
         console.debug("refreshData", pageIndex, pageSize, sorting, columnFilters, globalFilter, url);
