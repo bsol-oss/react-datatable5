@@ -1,8 +1,7 @@
+import { ColumnFiltersState, SortingState, PaginationState } from "@tanstack/react-table";
 export declare const useDataTableContext: () => {
-    table: import("@tanstack/table-core").Table<any>;
-    refreshData: () => void;
-    globalFilter: string;
-    setGlobalFilter: import("@tanstack/table-core").OnChangeFn<string>;
-    loading: boolean;
-    hasError: boolean;
+    table: import("@tanstack/react-table").Table<any>;
+    setPagination: (pagination: PaginationState) => void;
+    setSorting: (sorting: SortingState) => void;
+    setColumnFilters: (columnFilters: ColumnFiltersState) => void;
 };

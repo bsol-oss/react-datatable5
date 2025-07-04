@@ -43,17 +43,49 @@ const TableContext = react$1.createContext({
     setGlobalFilter: () => { },
     loading: false,
     hasError: false,
+    setPagination: () => { },
+    setSorting: () => { },
+    setColumnFilters: () => { },
+    setRowSelection: () => { },
+    setColumnOrder: () => { },
+    setColumnVisibility: () => { },
+    setDensity: () => { },
+    pagination: {
+        pageIndex: 0,
+        pageSize: 10,
+    },
+    sorting: [],
+    columnFilters: [],
+    rowSelection: {},
+    columnOrder: [],
+    columnVisibility: {},
+    density: "md",
 });
 
 const useDataTableContext = () => {
-    const { table, refreshData, globalFilter, setGlobalFilter, loading, hasError, } = react$1.useContext(TableContext);
+    const { table, setPagination: setPaginationFromContext, setSorting: setSortingFromContext, setColumnFilters: setColumnFiltersFromContext, } = react$1.useContext(TableContext);
+    const setPagination = (pagination) => {
+        setPaginationFromContext(pagination);
+    };
+    const setSorting = (sorting) => {
+        setSortingFromContext(sorting);
+        setPaginationFromContext((prev) => ({
+            ...prev,
+            pageIndex: 0,
+        }));
+    };
+    const setColumnFilters = (columnFilters) => {
+        setColumnFiltersFromContext(columnFilters);
+        setPaginationFromContext((prev) => ({
+            ...prev,
+            pageIndex: 0,
+        }));
+    };
     return {
         table,
-        refreshData,
-        globalFilter,
-        setGlobalFilter,
-        loading,
-        hasError,
+        setPagination,
+        setSorting,
+        setColumnFilters,
     };
 };
 
@@ -82,9 +114,12 @@ const EditViewButton = ({ text, icon = jsxRuntime.jsx(io.IoMdEye, {}), title = "
 };
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
-    const { table } = useDataTableContext();
+    const { table, setPagination } = useDataTableContext();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(react.Menu, { children: [jsxRuntime.jsx(react.MenuButton, { as: react.Button, variant: "ghost", rightIcon: jsxRuntime.jsx(icons.ChevronDownIcon, {}), gap: "0.5rem", children: table.getState().pagination.pageSize }), jsxRuntime.jsx(react.MenuList, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(react.MenuItem, { onClick: () => {
-                            table.setPageSize(Number(pageSize));
+                            setPagination({
+                                pageSize: Number(pageSize),
+                                pageIndex: 0,
+                            });
                         }, children: pageSize }, `chakra-table-pageSize-${pageSize}`))) })] }) }));
 };
 
@@ -260,6 +295,20 @@ const DataTable = ({ columns, data, enableRowSelection = true, enableMultiRowSel
             setGlobalFilter: setGlobalFilter,
             loading: false,
             hasError: false,
+            pagination,
+            sorting,
+            columnFilters,
+            rowSelection,
+            columnOrder,
+            columnVisibility,
+            density,
+            setPagination,
+            setSorting,
+            setColumnFilters,
+            setRowSelection,
+            setColumnOrder,
+            setColumnVisibility,
+            setDensity,
         }, children: children }));
 };
 
@@ -317,12 +366,6 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
     react$1.useEffect(() => {
         onRowSelect(table.getState().rowSelection, data.results);
     }, [table.getState().rowSelection]);
-    react$1.useEffect(() => {
-        table.setPagination({
-            pageIndex: pagination.pageIndex,
-            pageSize: pagination.pageSize,
-        });
-    }, [sorting, columnFilters, globalFilter]);
     return (jsxRuntime.jsx(TableContext.Provider, { value: {
             table: { ...table },
             refreshData: refreshData,
@@ -330,6 +373,20 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
             setGlobalFilter,
             loading: loading,
             hasError: hasError,
+            pagination,
+            sorting,
+            columnFilters,
+            rowSelection,
+            columnOrder,
+            columnVisibility,
+            density,
+            setPagination,
+            setSorting,
+            setColumnFilters,
+            setRowSelection,
+            setColumnOrder,
+            setDensity,
+            setColumnVisibility,
         }, children: children }));
 };
 
@@ -966,7 +1023,7 @@ const useDataTableServer = (props) => {
     });
     react$1.useEffect(() => {
         refreshData({ debounce, delay: debounceDelay });
-        console.log("refreshData", pageIndex, pageSize, sorting, columnFilters, globalFilter, url);
+        console.debug("refreshData", pageIndex, pageSize, sorting, columnFilters, globalFilter, url);
     }, [pageIndex, pageSize, sorting, columnFilters, globalFilter, url]);
     return {
         sorting,

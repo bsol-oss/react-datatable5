@@ -1,4 +1,5 @@
 /// <reference types="react" />
+import * as _tanstack_react_table from '@tanstack/react-table';
 import { RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnOrderState, ColumnFiltersState, PaginationState, SortingState, VisibilityState, Row, Table as Table$1, Column } from '@tanstack/react-table';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React$1, { ReactNode } from 'react';
@@ -6,7 +7,6 @@ import { RankingInfo } from '@tanstack/match-sorter-utils';
 import * as react_icons from 'react-icons';
 import { IconType } from 'react-icons';
 import { TableHeadProps, TableProps as TableProps$1, GridProps, CardBodyProps, TextProps, TooltipProps } from '@chakra-ui/react';
-import * as _tanstack_table_core from '@tanstack/table-core';
 
 interface DensityToggleButtonProps {
     icon?: React$1.ReactElement;
@@ -369,12 +369,10 @@ interface TextCellProps extends TextProps {
 declare const TextCell: ({ label, noOfLines, padding, children, tooltipProps, ...props }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
 declare const useDataTableContext: () => {
-    table: _tanstack_table_core.Table<any>;
-    refreshData: () => void;
-    globalFilter: string;
-    setGlobalFilter: _tanstack_table_core.OnChangeFn<string>;
-    loading: boolean;
-    hasError: boolean;
+    table: _tanstack_react_table.Table<any>;
+    setPagination: (pagination: PaginationState) => void;
+    setSorting: (sorting: SortingState) => void;
+    setColumnFilters: (columnFilters: ColumnFiltersState) => void;
 };
 
 interface FilterOptionsProps {
