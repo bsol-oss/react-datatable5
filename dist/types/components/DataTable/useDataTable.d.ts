@@ -31,4 +31,4 @@ export interface UseDataTableReturn {
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
 }
-export declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }?: UseDataTableProps) => UseDataTableReturn;
+export declare const useDataTable: (props: UseDataTableProps) => UseDataTableReturn;

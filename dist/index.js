@@ -318,7 +318,10 @@ const DataTableServer = ({ columns, enableRowSelection = true, enableMultiRowSel
         onRowSelect(table.getState().rowSelection, data.results);
     }, [table.getState().rowSelection]);
     react$1.useEffect(() => {
-        table.resetPagination();
+        table.setPagination({
+            pageIndex: pagination.pageIndex,
+            pageSize: pagination.pageSize,
+        });
     }, [sorting, columnFilters, globalFilter]);
     return (jsxRuntime.jsx(TableContext.Provider, { value: {
             table: { ...table },
@@ -861,7 +864,7 @@ const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSu
         try {
             setHasError(false);
             setLoading(true);
-            const { data } = await axios.get(url, { params: params });
+            const { data } = await axios.get(url, { params });
             console.debug("get DataFromUrl success", data);
             onFetchSuccess(data);
             setLoading(false);
@@ -885,51 +888,25 @@ const useDataFromUrl = ({ url, params = {}, disableFirstFetch = false, onFetchSu
         if (disableFirstFetch) {
             return;
         }
+        // first fetch
         getData().catch((e) => {
             console.error(e);
         });
-    }, [url]);
+    }, [url, disableFirstFetch]);
     return { data, loading, hasError, refreshData };
 };
 
-const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: defaultPagination = {
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = "", density: defaultDensity = "sm", } = {
-    sorting: [],
-    pagination: {
-        pageIndex: 0, //initial page index
-        pageSize: 10, //age size
-    },
-    rowSelection: {},
-    columnFilters: [],
-    columnOrder: [],
-    columnVisibility: {},
-    globalFilter: "",
-    density: "sm",
-}, } = {
-    default: {
-        sorting: [],
-        pagination: {
-            pageIndex: 0, //initial page index
-            pageSize: 10, //age size
-        },
-        rowSelection: {},
-        columnFilters: [],
-        columnOrder: [],
-        columnVisibility: {},
-        globalFilter: "",
-        density: "sm",
-    },
-}) => {
-    const [sorting, setSorting] = react$1.useState(defaultSorting);
-    const [columnFilters, setColumnFilters] = react$1.useState(defaultColumnFilters); // can set initial column filter state here
-    const [pagination, setPagination] = react$1.useState(defaultPagination);
-    const [rowSelection, setRowSelection] = react$1.useState(defaultRowSelection);
-    const [columnOrder, setColumnOrder] = react$1.useState(defaultColumnOrder);
-    const [globalFilter, setGlobalFilter] = react$1.useState(defaultGlobalFilter);
-    const [density, setDensity] = react$1.useState(defaultDensity);
-    const [columnVisibility, setColumnVisibility] = react$1.useState(defaultColumnVisibility);
+const useDataTable = (props) => {
+    const { default: defaultState } = props;
+    const { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, } = defaultState || {};
+    const [sorting, setSorting] = react$1.useState(defaultSorting || []);
+    const [columnFilters, setColumnFilters] = react$1.useState(defaultColumnFilters || []);
+    const [pagination, setPagination] = react$1.useState(defaultPagination || { pageIndex: 0, pageSize: 10 });
+    const [rowSelection, setRowSelection] = react$1.useState(defaultRowSelection || {});
+    const [columnOrder, setColumnOrder] = react$1.useState(defaultColumnOrder || []);
+    const [globalFilter, setGlobalFilter] = react$1.useState(defaultGlobalFilter || "");
+    const [density, setDensity] = react$1.useState(defaultDensity || "sm");
+    const [columnVisibility, setColumnVisibility] = react$1.useState(defaultColumnVisibility || {});
     return {
         sorting,
         setSorting,
@@ -950,30 +927,18 @@ const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: def
     };
 };
 
-const useDataTableServer = ({ url, onFetchSuccess = () => { }, default: { sorting: defaultSorting = [], pagination: defaultPagination = {
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = "", density: defaultDensity = "sm", } = {
-    sorting: [],
-    pagination: {
-        pageIndex: 0, //initial page index
-        pageSize: 10, //age size
-    },
-    rowSelection: {},
-    columnFilters: [],
-    columnOrder: [],
-    columnVisibility: {},
-    globalFilter: "",
-    density: "sm",
-}, debounce = true, debounceDelay = 1000, }) => {
-    const [sorting, setSorting] = react$1.useState(defaultSorting);
-    const [columnFilters, setColumnFilters] = react$1.useState(defaultColumnFilters); // can set initial column filter state here
-    const [pagination, setPagination] = react$1.useState(defaultPagination);
-    const [rowSelection, setRowSelection] = react$1.useState(defaultRowSelection);
-    const [columnOrder, setColumnOrder] = react$1.useState(defaultColumnOrder);
-    const [globalFilter, setGlobalFilter] = react$1.useState(defaultGlobalFilter);
-    const [density, setDensity] = react$1.useState(defaultDensity);
-    const [columnVisibility, setColumnVisibility] = react$1.useState(defaultColumnVisibility);
+const useDataTableServer = (props) => {
+    const { url, onFetchSuccess = () => { }, default: defaultState, debounce = true, debounceDelay = 1000, } = props;
+    const { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, } = defaultState || {};
+    const { pageIndex, pageSize } = defaultPagination || { pageIndex: 0, pageSize: 10 };
+    const [sorting, setSorting] = react$1.useState(defaultSorting || []);
+    const [columnFilters, setColumnFilters] = react$1.useState(defaultColumnFilters || []);
+    const [pagination, setPagination] = react$1.useState(defaultPagination || { pageIndex: 0, pageSize: 10 });
+    const [rowSelection, setRowSelection] = react$1.useState(defaultRowSelection || {});
+    const [columnOrder, setColumnOrder] = react$1.useState(defaultColumnOrder || []);
+    const [globalFilter, setGlobalFilter] = react$1.useState(defaultGlobalFilter || "");
+    const [density, setDensity] = react$1.useState(defaultDensity || "sm");
+    const [columnVisibility, setColumnVisibility] = react$1.useState(defaultColumnVisibility || {});
     const { data, loading, hasError, refreshData } = useDataFromUrl({
         url: url,
         defaultData: {
@@ -1000,8 +965,9 @@ const useDataTableServer = ({ url, onFetchSuccess = () => { }, default: { sortin
         onFetchSuccess: onFetchSuccess,
     });
     react$1.useEffect(() => {
-        refreshData({ debounce, debounceDelay });
-    }, [pagination, sorting, columnFilters, globalFilter, url]);
+        refreshData({ debounce, delay: debounceDelay });
+        console.log("refreshData", pageIndex, pageSize, sorting, columnFilters, globalFilter, url);
+    }, [pageIndex, pageSize, sorting, columnFilters, globalFilter, url]);
     return {
         sorting,
         setSorting,

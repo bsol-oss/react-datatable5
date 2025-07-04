@@ -175,7 +175,7 @@ interface UseDataTableReturn {
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
 }
-declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }?: UseDataTableProps) => UseDataTableReturn;
+declare const useDataTable: (props: UseDataTableProps) => UseDataTableReturn;
 
 interface UseDataTableServerProps<TData> extends Omit<UseDataFromUrlProps<DataResponse<TData>>, keyof {
     defaultData: any;
@@ -202,7 +202,7 @@ interface DataResponse<T> extends Result<T> {
     success: boolean;
     count: number;
 }
-declare const useDataTableServer: <TData>({ url, onFetchSuccess, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, debounce, debounceDelay, }: UseDataTableServerProps<TData>) => UseDataTableServerReturn<TData>;
+declare const useDataTableServer: <TData>(props: UseDataTableServerProps<TData>) => UseDataTableServerReturn<TData>;
 
 interface DataTableServerProps<TData> extends UseDataFromUrlReturn<DataResponse<TData>> {
     children: JSX.Element | JSX.Element[];

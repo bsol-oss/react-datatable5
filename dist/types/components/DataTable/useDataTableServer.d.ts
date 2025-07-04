@@ -25,4 +25,4 @@ export interface DataResponse<T> extends Result<T> {
     success: boolean;
     count: number;
 }
-export declare const useDataTableServer: <TData>({ url, onFetchSuccess, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, debounce, debounceDelay, }: UseDataTableServerProps<TData>) => UseDataTableServerReturn<TData>;
+export declare const useDataTableServer: <TData>(props: UseDataTableServerProps<TData>) => UseDataTableServerReturn<TData>;
