@@ -161,6 +161,20 @@ export const DataTable = <TData,>({
         setGlobalFilter: setGlobalFilter,
         loading: false,
         hasError: false,
+        pagination,
+        sorting,
+        columnFilters,
+        rowSelection,
+        columnOrder,
+        columnVisibility,
+        density,
+        setPagination,
+        setSorting,
+        setColumnFilters,
+        setRowSelection,
+        setColumnOrder,
+        setColumnVisibility,
+        setDensity,
       }}
     >
       {children}

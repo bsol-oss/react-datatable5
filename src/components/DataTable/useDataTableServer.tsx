@@ -118,7 +118,7 @@ export const useDataTableServer = <TData,>(props: UseDataTableServerProps<TData>
 
   useEffect(() => {
     refreshData({ debounce, delay: debounceDelay });
-    console.log("refreshData", pageIndex, pageSize, sorting, columnFilters, globalFilter, url);
+    console.debug("refreshData", pageIndex, pageSize, sorting, columnFilters, globalFilter, url);
   }, [pageIndex, pageSize, sorting, columnFilters, globalFilter, url]);
   return {
     sorting,

@@ -9,7 +9,7 @@ export interface PageSizeControlProps {
 export const PageSizeControl = ({
   pageSizes = [10, 20, 30, 40, 50],
 }: PageSizeControlProps) => {
-  const { table } = useDataTableContext();
+  const { table, setPagination } = useDataTableContext();
 
   return (
     <>
@@ -27,7 +27,10 @@ export const PageSizeControl = ({
             <MenuItem
               key={`chakra-table-pageSize-${pageSize}`}
               onClick={() => {
-                table.setPageSize(Number(pageSize));
+                setPagination({
+                  pageSize: Number(pageSize),
+                  pageIndex: 0,
+                });
               }}
             >
               {pageSize}

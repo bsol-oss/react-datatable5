@@ -1,21 +1,43 @@
 import { useContext } from "react";
 import { TableContext } from "./DataTableContext";
+import { ColumnFiltersState, SortingState, PaginationState } from "@tanstack/react-table";
 
 export const useDataTableContext = () => {
+
   const {
     table,
-    refreshData,
-    globalFilter,
-    setGlobalFilter,
-    loading,
-    hasError,
+    setPagination: setPaginationFromContext,
+    setSorting: setSortingFromContext,
+    setColumnFilters: setColumnFiltersFromContext,
   } = useContext(TableContext);
+
+  const setPagination = (pagination: PaginationState) => {
+    setPaginationFromContext(pagination);
+  };
+
+  const setSorting = (sorting: SortingState) => {
+    setSortingFromContext(sorting);
+
+    setPaginationFromContext((prev) => ({
+      ...prev,
+      pageIndex: 0,
+    }));
+  };
+
+  const setColumnFilters = (columnFilters: ColumnFiltersState) => {
+    setColumnFiltersFromContext(columnFilters);
+
+    setPaginationFromContext((prev) => ({
+      ...prev,
+      pageIndex: 0,
+    }));
+  };
+
+
   return {
     table,
-    refreshData,
-    globalFilter,
-    setGlobalFilter,
-    loading,
-    hasError,
+    setPagination,
+    setSorting,
+    setColumnFilters,
   };
 };

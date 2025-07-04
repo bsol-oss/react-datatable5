@@ -129,12 +129,7 @@ export const DataTableServer = <TData,>({
     onRowSelect(table.getState().rowSelection, data.results);
   }, [table.getState().rowSelection]);
 
-  useEffect(() => {
-    table.setPagination({
-      pageIndex: pagination.pageIndex,
-      pageSize: pagination.pageSize,
-    });
-  }, [sorting, columnFilters, globalFilter]);
+
 
   return (
     <TableContext.Provider
@@ -145,6 +140,20 @@ export const DataTableServer = <TData,>({
         setGlobalFilter,
         loading: loading,
         hasError: hasError,
+        pagination,
+        sorting,
+        columnFilters,
+        rowSelection,
+        columnOrder,
+        columnVisibility,
+        density,
+        setPagination,
+        setSorting,
+        setColumnFilters,
+        setRowSelection,
+        setColumnOrder,
+        setDensity,
+        setColumnVisibility,
       }}
     >
       {children}

@@ -6,8 +6,7 @@ import {
   DefaultTable,
   TableComponent,
   TextCell,
-  useDataTable,
-  useDataTableServer,
+  useDataTableServer
 } from "../../index";
 
 interface ChatRecord {
