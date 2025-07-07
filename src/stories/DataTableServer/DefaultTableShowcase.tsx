@@ -1,4 +1,4 @@
-import { Box, ChakraProvider, Text, theme } from "@chakra-ui/react";
+import { Box, Button, ChakraProvider, Text, theme } from "@chakra-ui/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 import {
@@ -167,6 +167,13 @@ const DefaultTableShowcase = () => {
             return <Text>Table state: {JSON.stringify(table.getState())}</Text>;
           }}
         />
+        <Button
+          onClick={() => {
+            dataTable.refreshData({ debounce: false, delay: 1500 });
+          }}
+        >
+          Refresh Data
+        </Button>
       </DataTableServer>
     </ChakraProvider>
   );
