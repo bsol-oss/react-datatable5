@@ -34,10 +34,28 @@ const RowActions = ({ row }: RowActionsProps) => {
 
 const App = () => {
   const dataTable = useDataTableServer<ChatRecord>({
-    url: "http://localhost:8333/api/v1/gpt/chat/history/all",
+    url: "https://echo.free.beeceptor.com",
     default: {
       sorting: [{ id: "last_update", desc: true }],
       pagination: { pageSize: 25, pageIndex: 0 },
+    },
+    placeholderData: {
+      data: [
+        {
+          session_id: "1",
+          last_user_message: "Hello",
+          last_system_response: "Hello",
+          total_token: 100,
+          total_prompt_tokens: 100,
+          total_completion_tokens: 100,
+          total_normalise_tokens: 100,
+          chat_type: "chat",
+          model: "gpt-4",
+          created_by: "John Doe",
+          last_update: "2021-01-01",
+        },
+      ],
+      count: 0,
     },
   });
   const columnHelper = createColumnHelper<ChatRecord>();

@@ -13,7 +13,7 @@ import { DensityState } from "./controls/DensityFeature";
 import { UseDataTableProps, UseDataTableReturn } from "./useDataTable";
 import { useTranslation } from "react-i18next";
 
-export interface UseDataTableServerProps extends UseDataTableProps {
+export interface UseDataTableServerProps<TData> extends UseDataTableProps {
   /**
    * Delay to send the request if the `refreshData` called multiple times
    *
@@ -28,6 +28,8 @@ export interface UseDataTableServerProps extends UseDataTableProps {
   debounceDelay?: number;
 
   url: string;
+
+  placeholderData?: DataResponse<TData>;
 }
 
 export interface UseDataTableServerReturn<TData> extends UseDataTableReturn {
@@ -42,53 +44,48 @@ export interface DataResponse<T = unknown> extends Result<T> {
   count: number;
 }
 
-export const useDataTableServer = <TData,>({
-  url,
-  default: {
-    sorting: defaultSorting = [],
-    pagination: defaultPagination = {
+export const useDataTableServer = <TData,>(
+  props: UseDataTableServerProps<TData>
+): UseDataTableServerReturn<TData> => {
+  const { url, default: defaultProps, keyPrefix, placeholderData } = props;
+  const {
+    sorting: defaultSorting,
+    pagination: defaultPagination,
+    rowSelection: defaultRowSelection,
+    columnFilters: defaultColumnFilters,
+    columnOrder: defaultColumnOrder,
+    columnVisibility: defaultColumnVisibility,
+    globalFilter: defaultGlobalFilter,
+    density: defaultDensity,
+  } = defaultProps || {};
+
+  const [sorting, setSorting] = useState<SortingState>(defaultSorting || []);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    defaultColumnFilters || []
+  ); // can set initial column filter state here
+  const [pagination, setPagination] = useState<PaginationState>(
+    defaultPagination || {
       pageIndex: 0, //initial page index
       pageSize: 10, //default page size
-    },
-    rowSelection: defaultRowSelection = {},
-    columnFilters: defaultColumnFilters = [],
-    columnOrder: defaultColumnOrder = [],
-    columnVisibility: defaultColumnVisibility = {},
-    globalFilter: defaultGlobalFilter = "",
-    density: defaultDensity = "sm",
-  } = {
-    sorting: [],
-    pagination: {
-      pageIndex: 0, //initial page index
-      pageSize: 10, //age size
-    },
-    rowSelection: {},
-    columnFilters: [],
-    columnOrder: [],
-    columnVisibility: {},
-    globalFilter: "",
-    density: "sm",
-  },
-  keyPrefix,
-}: UseDataTableServerProps): UseDataTableServerReturn<TData> => {
-  const [sorting, setSorting] = useState<SortingState>(defaultSorting);
-  const [columnFilters, setColumnFilters] =
-    useState<ColumnFiltersState>(defaultColumnFilters); // can set initial column filter state here
-  const [pagination, setPagination] =
-    useState<PaginationState>(defaultPagination);
-  const [rowSelection, setRowSelection] =
-    useState<RowSelectionState>(defaultRowSelection);
-  const [columnOrder, setColumnOrder] =
-    useState<ColumnOrderState>(defaultColumnOrder);
-  const [globalFilter, setGlobalFilter] = useState<string>(defaultGlobalFilter);
-  const [density, setDensity] = useState<DensityState>(defaultDensity);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    defaultColumnVisibility
+    }
   );
-
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>(
+    defaultRowSelection || {}
+  );
+  const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(
+    defaultColumnOrder || []
+  );
+  const [globalFilter, setGlobalFilter] = useState<string>(
+    defaultGlobalFilter || ""
+  );
+  const [density, setDensity] = useState<DensityState>(defaultDensity || "sm");
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    defaultColumnVisibility || {}
+  );
+  const { pageSize, pageIndex } = pagination;
   const params = {
-    offset: pagination.pageIndex * pagination.pageSize,
-    limit: pagination.pageSize,
+    offset: pageIndex * pageSize,
+    limit: pageSize,
     sorting,
     where: columnFilters,
     searching: globalFilter,
@@ -103,10 +100,7 @@ export const useDataTableServer = <TData,>({
         })
         .then((res) => res.data);
     },
-    placeholderData: {
-      count: 0,
-      data: [],
-    },
+    placeholderData,
   });
   const translate = useTranslation("", { keyPrefix });
 
