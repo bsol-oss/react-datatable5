@@ -30,6 +30,8 @@ export interface UseDataTableServerProps<TData> extends UseDataTableProps {
   url: string;
 
   placeholderData?: DataResponse<TData>;
+
+  queryFn: ()=> Promise<DataResponse<TData>>;
 }
 
 export interface UseDataTableServerReturn<TData> extends UseDataTableReturn {
@@ -47,7 +49,13 @@ export interface DataResponse<T = unknown> extends Result<T> {
 export const useDataTableServer = <TData,>(
   props: UseDataTableServerProps<TData>
 ): UseDataTableServerReturn<TData> => {
-  const { url, default: defaultProps, keyPrefix, placeholderData } = props;
+  const {
+    url,
+    default: defaultProps,
+    keyPrefix,
+    placeholderData,
+    queryFn: customQueryFn,
+  } = props;
   const {
     sorting: defaultSorting,
     pagination: defaultPagination,
@@ -91,15 +99,16 @@ export const useDataTableServer = <TData,>(
     searching: globalFilter,
   };
 
+  const defaultQueryFn = async () => {
+    const response = await axios.get<DataResponse<TData>>(url, {
+      params,
+    });
+    return response.data;
+  };
+
   const query = useQuery<DataResponse<TData>>({
     queryKey: [url, JSON.stringify(params)],
-    queryFn: () => {
-      return axios
-        .get<DataResponse<TData>>(url, {
-          params,
-        })
-        .then((res) => res.data);
-    },
+    queryFn: customQueryFn || defaultQueryFn,
     placeholderData,
   });
   const translate = useTranslation("", { keyPrefix });
