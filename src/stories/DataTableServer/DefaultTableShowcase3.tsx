@@ -65,6 +65,9 @@ const DefaultTableShowcase3 = () => {
   const dataTable = useDataTableServer<Post>({
     queryFn: async (params) => {
       console.log(params, "params");
+
+      // Remarks: https://jsonplaceholder.typicode.com/posts do not support pagination and sorting.
+      // so it ignore the limit and offset.
       const response = await axios.get<Post[]>(
         `https://jsonplaceholder.typicode.com/posts`
       );
