@@ -30,6 +30,23 @@ export interface UseDataTableServerProps<TData> extends UseDataTableProps {
   /**
    * The url to fetch the data from.
    *
+   * Remark:
+   * it is the server responsibility to handle the params and return the data.
+   * especially the pagination and sorting.
+   *
+   * The response must be like this:
+   * ```ts
+   * {
+   *   data: TData[],
+   *   count: number,
+   * }
+   * ```
+   *
+   * Example:
+   * ```ts
+   * const url = "https://jsonplaceholder.typicode.com/posts";
+   * ```
+   *
    * If not provided, the `queryFn` will be used.
    *
    * @default undefined
@@ -40,6 +57,17 @@ export interface UseDataTableServerProps<TData> extends UseDataTableProps {
 
   /**
    * The query function to fetch the data from.
+   *
+   * Remark:
+   * it is the server responsibility to handle the params and return the data.
+   * especially the pagination and sorting.
+   *
+   * Example:
+   * ```ts
+   * const queryFn = (params: QueryParams) => {
+   *   return axios.get<DataResponse<TData>>(url, { params });
+   * };
+   * ```
    *
    * If not provided, the `url` will be used.
    *
