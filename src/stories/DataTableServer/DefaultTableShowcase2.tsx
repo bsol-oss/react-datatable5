@@ -12,7 +12,8 @@ import {
   TextCell,
   useDataTableServer,
 } from "../../index";
-
+import axios from "axios";
+import { DataResponse } from "@/components/DataTable/useDataTableServer";
 
 export interface Root {
   count: number;
@@ -155,9 +156,23 @@ const DefaultTableShowcase2 = () => {
     }),
   ];
 
+  interface Post {
+    userId: number;
+    id: number;
+    title: string;
+    body: string;
+  }
+
   const [selectedId, setSelectedId] = useState<string>();
-  const dataTable = useDataTableServer<ProfileData>({
-    url: `http://localhost:8081/api/profile-data/${selectedId}/search`,
+  const dataTable = useDataTableServer<Post>({
+    queryFn: async (params) => {
+      console.log(params, "params");
+      const response = await axios.get<Post[]>(`https://jsonplaceholder.typicode.com/posts`);
+      return {
+        data: response.data,
+        count: response.data.length,
+      };
+    },
     default: {
       pagination: { pageSize: 25, pageIndex: 0 },
     },
@@ -183,8 +198,8 @@ const DefaultTableShowcase2 = () => {
         aad profile
       </Button>
       <DataTableServer
-        url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
-        columns={selectedId == "aad_profile" ? columns : columnv2}
+        // url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
+        columns={columns}
         // onFetchSuccess={(response)=>{console.log(response,"some-response-123")}}
         {...dataTable}
       >

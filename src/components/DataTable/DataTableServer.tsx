@@ -51,7 +51,7 @@ export interface DataTableServerProps<TData = unknown> {
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
   query: UseQueryResult<DataResponse<TData>>;
-  url: string;
+  url?: string;
   translate: UseTranslationResponse<any, any>;
   tableLabel?: DataTableLabel;
 }

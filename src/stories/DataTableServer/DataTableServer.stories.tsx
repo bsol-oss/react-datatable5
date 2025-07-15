@@ -4,6 +4,7 @@ import DefaultTableShowcase from "./DefaultTableShowcase";
 import DefaultTableShowcaseTwo from "./DefaultTableShowcase2";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import TableViewShowcase from "../DataTable/TableViewShowcase";
+import DefaultTableShowcase3 from "./DefaultTableShowcase3";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -29,6 +30,15 @@ export const DefaultTableView2: Story = {
     return (
       <QueryClientProvider client={queryClient}>
         <DefaultTableShowcaseTwo />
+      </QueryClientProvider>
+    );
+  },
+};
+export const DefaultTableView3: Story = {
+  render: () => {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <DefaultTableShowcase3 />
       </QueryClientProvider>
     );
   },

@@ -27,11 +27,25 @@ export interface UseDataTableServerProps<TData> extends UseDataTableProps {
    */
   debounceDelay?: number;
 
-  url: string;
+  /**
+   * The url to fetch the data from.
+   *
+   * If not provided, the `queryFn` will be used.
+   *
+   * @default undefined
+   */
+  url?: string;
 
   placeholderData?: DataResponse<TData>;
 
-  queryFn: ()=> Promise<DataResponse<TData>>;
+  /**
+   * The query function to fetch the data from.
+   *
+   * If not provided, the `url` will be used.
+   *
+   * @default undefined
+   */
+  queryFn?: (params: QueryParams) => Promise<DataResponse<TData>>;
 }
 
 export interface UseDataTableServerReturn<TData> extends UseDataTableReturn {
@@ -44,6 +58,14 @@ export interface Result<T = unknown> {
 
 export interface DataResponse<T = unknown> extends Result<T> {
   count: number;
+}
+
+export interface QueryParams {
+  offset: number;
+  limit: number;
+  sorting: SortingState;
+  where: ColumnFiltersState;
+  searching: string;
 }
 
 export const useDataTableServer = <TData,>(
@@ -91,7 +113,7 @@ export const useDataTableServer = <TData,>(
     defaultColumnVisibility || {}
   );
   const { pageSize, pageIndex } = pagination;
-  const params = {
+  const params: QueryParams = {
     offset: pageIndex * pageSize,
     limit: pageSize,
     sorting,
@@ -100,6 +122,9 @@ export const useDataTableServer = <TData,>(
   };
 
   const defaultQueryFn = async () => {
+    if (!url) {
+      throw new Error("url is required");
+    }
     const response = await axios.get<DataResponse<TData>>(url, {
       params,
     });
@@ -108,7 +133,10 @@ export const useDataTableServer = <TData,>(
 
   const query = useQuery<DataResponse<TData>>({
     queryKey: [url, JSON.stringify(params)],
-    queryFn: customQueryFn || defaultQueryFn,
+    queryFn:
+      customQueryFn !== undefined
+        ? () => customQueryFn(params)
+        : defaultQueryFn,
     placeholderData,
   });
   const translate = useTranslation("", { keyPrefix });
