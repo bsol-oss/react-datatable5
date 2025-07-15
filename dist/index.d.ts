@@ -227,7 +227,7 @@ interface UseDataTableReturn {
 }
 declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, keyPrefix, }?: UseDataTableProps) => UseDataTableReturn;
 
-interface UseDataTableServerProps extends UseDataTableProps {
+interface UseDataTableServerProps<TData> extends UseDataTableProps {
     /**
      * Delay to send the request if the `refreshData` called multiple times
      *
@@ -240,7 +240,51 @@ interface UseDataTableServerProps extends UseDataTableProps {
      * default: `1000`
      */
     debounceDelay?: number;
-    url: string;
+    /**
+     * The url to fetch the data from.
+     *
+     * Remark:
+     * it is the server responsibility to handle the params and return the data.
+     * especially the pagination and sorting.
+     *
+     * The response must be like this:
+     * ```ts
+     * {
+     *   data: TData[],
+     *   count: number,
+     * }
+     * ```
+     *
+     * Example:
+     * ```ts
+     * const url = "https://jsonplaceholder.typicode.com/posts";
+     * ```
+     *
+     * If not provided, the `queryFn` will be used.
+     *
+     * @default undefined
+     */
+    url?: string;
+    placeholderData?: DataResponse<TData>;
+    /**
+     * The query function to fetch the data from.
+     *
+     * Remark:
+     * it is the server responsibility to handle the params and return the data.
+     * especially the pagination and sorting.
+     *
+     * Example:
+     * ```ts
+     * const queryFn = (params: QueryParams) => {
+     *   return axios.get<DataResponse<TData>>(url, { params });
+     * };
+     * ```
+     *
+     * If not provided, the `url` will be used.
+     *
+     * @default undefined
+     */
+    queryFn?: (params: QueryParams) => Promise<DataResponse<TData>>;
 }
 interface UseDataTableServerReturn<TData> extends UseDataTableReturn {
     query: UseQueryResult<DataResponse<TData>, Error>;
@@ -251,7 +295,14 @@ interface Result<T = unknown> {
 interface DataResponse<T = unknown> extends Result<T> {
     count: number;
 }
-declare const useDataTableServer: <TData>({ url, default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, keyPrefix, }: UseDataTableServerProps) => UseDataTableServerReturn<TData>;
+interface QueryParams {
+    offset: number;
+    limit: number;
+    sorting: SortingState;
+    where: ColumnFiltersState;
+    searching: string;
+}
+declare const useDataTableServer: <TData>(props: UseDataTableServerProps<TData>) => UseDataTableServerReturn<TData>;
 
 interface DataTableServerProps<TData = unknown> {
     children: ReactNode | ReactNode[];
@@ -283,7 +334,7 @@ interface DataTableServerProps<TData = unknown> {
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
     query: UseQueryResult<DataResponse<TData>>;
-    url: string;
+    url?: string;
     translate: UseTranslationResponse<any, any>;
     tableLabel?: DataTableLabel;
 }
@@ -738,4 +789,4 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerLabels, type DatePickerProps, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, FilterDialog, FormBody, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, Pagination, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerLabels, type DatePickerProps, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, FilterDialog, FormBody, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };

@@ -3454,50 +3454,43 @@ const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: def
     };
 };
 
-const useDataTableServer = ({ url, default: { sorting: defaultSorting = [], pagination: defaultPagination = {
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = "", density: defaultDensity = "sm", } = {
-    sorting: [],
-    pagination: {
+const useDataTableServer = (props) => {
+    const { url, default: defaultProps, keyPrefix, placeholderData, queryFn: customQueryFn, } = props;
+    const { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, } = defaultProps || {};
+    const [sorting, setSorting] = useState(defaultSorting || []);
+    const [columnFilters, setColumnFilters] = useState(defaultColumnFilters || []); // can set initial column filter state here
+    const [pagination, setPagination] = useState(defaultPagination || {
         pageIndex: 0, //initial page index
-        pageSize: 10, //age size
-    },
-    rowSelection: {},
-    columnFilters: [],
-    columnOrder: [],
-    columnVisibility: {},
-    globalFilter: "",
-    density: "sm",
-}, keyPrefix, }) => {
-    const [sorting, setSorting] = useState(defaultSorting);
-    const [columnFilters, setColumnFilters] = useState(defaultColumnFilters); // can set initial column filter state here
-    const [pagination, setPagination] = useState(defaultPagination);
-    const [rowSelection, setRowSelection] = useState(defaultRowSelection);
-    const [columnOrder, setColumnOrder] = useState(defaultColumnOrder);
-    const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter);
-    const [density, setDensity] = useState(defaultDensity);
-    const [columnVisibility, setColumnVisibility] = useState(defaultColumnVisibility);
+        pageSize: 10, //default page size
+    });
+    const [rowSelection, setRowSelection] = useState(defaultRowSelection || {});
+    const [columnOrder, setColumnOrder] = useState(defaultColumnOrder || []);
+    const [globalFilter, setGlobalFilter] = useState(defaultGlobalFilter || "");
+    const [density, setDensity] = useState(defaultDensity || "sm");
+    const [columnVisibility, setColumnVisibility] = useState(defaultColumnVisibility || {});
+    const { pageSize, pageIndex } = pagination;
     const params = {
-        offset: pagination.pageIndex * pagination.pageSize,
-        limit: pagination.pageSize,
+        offset: pageIndex * pageSize,
+        limit: pageSize,
         sorting,
         where: columnFilters,
         searching: globalFilter,
     };
+    const defaultQueryFn = async () => {
+        if (!url) {
+            throw new Error("url is required");
+        }
+        const response = await axios.get(url, {
+            params,
+        });
+        return response.data;
+    };
     const query = useQuery({
         queryKey: [url, JSON.stringify(params)],
-        queryFn: () => {
-            return axios
-                .get(url, {
-                params,
-            })
-                .then((res) => res.data);
-        },
-        placeholderData: {
-            count: 0,
-            data: [],
-        },
+        queryFn: customQueryFn !== undefined
+            ? () => customQueryFn(params)
+            : defaultQueryFn,
+        placeholderData,
     });
     const translate = useTranslation("", { keyPrefix });
     return {
