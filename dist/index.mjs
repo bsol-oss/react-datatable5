@@ -4540,7 +4540,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const { serverUrl, idMap, setIdMap, translate, schema: parentSchema, } = useSchemaContext();
     const { required, gridColumn = "span 4", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { table, column: column_ref, display_column, } = foreign_key;
+    const { table, column: column_ref, display_column, customQueryFn, } = foreign_key;
     const [searchText, setSearchText] = useState("");
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
@@ -4553,6 +4553,17 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const query = useQuery({
         queryKey: [`idpicker`, { column, searchText, limit, page }],
         queryFn: async () => {
+            if (customQueryFn) {
+                const { data, idMap } = await customQueryFn({
+                    searching: searchText ?? "",
+                    limit: limit,
+                    offset: page * limit,
+                });
+                setIdMap((state) => {
+                    return { ...state, ...idMap };
+                });
+                return data;
+            }
             const data = await getTableData({
                 serverUrl,
                 searching: searchText ?? "",
@@ -4583,6 +4594,17 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             { form: parentSchema.title, column, id: isMultiple ? watchIds : watchId },
         ],
         queryFn: async () => {
+            if (customQueryFn) {
+                const { data, idMap } = await customQueryFn({
+                    searching: watchIds.join(","),
+                    limit: isMultiple ? watchIds.length : 1,
+                    offset: 0,
+                });
+                setIdMap((state) => {
+                    return { ...state, ...idMap };
+                });
+                return data;
+            }
             if (!watchId && (!watchIds || watchIds.length === 0)) {
                 return { data: [] };
             }
@@ -4675,7 +4697,9 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                             setOpenSearchResult(true);
                         }, children: translate.t(removeIndex(`${colLabel}.add_more`)) })] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, justifyContent: "start", children: queryDefault.isLoading ? jsx(Spinner, { size: "sm" }) : getPickedValue() })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { portalled: false, children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(removeIndex(`${colLabel}.type_to_search`)), onChange: onSearchChange, autoComplete: "off", ref: ref, value: searchText }), jsx(PopoverTitle, {}), openSearchResult && (jsxs(Fragment, { children: [(isFetching || isLoading || isPending) && jsx(Spinner, {}), isError && (jsx(Icon, { color: "red.400", children: jsx(BiError, {}) })), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Flex, { alignItems: "center", gap: "2", children: [jsx(InfoTip, { children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}` }), jsxs(Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxs(Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/ ", count > 0 ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}` : '0'] })] })] }), jsx(Box, { children: jsxs("select", { value: limit, onChange: handleLimitChange, style: {
+                }, justifyContent: "start", children: queryDefault.isLoading ? jsx(Spinner, { size: "sm" }) : getPickedValue() })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { portalled: false, children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(removeIndex(`${colLabel}.type_to_search`)), onChange: onSearchChange, autoComplete: "off", ref: ref, value: searchText }), jsx(PopoverTitle, {}), openSearchResult && (jsxs(Fragment, { children: [(isFetching || isLoading || isPending) && jsx(Spinner, {}), isError && (jsx(Icon, { color: "red.400", children: jsx(BiError, {}) })), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Flex, { alignItems: "center", gap: "2", children: [jsx(InfoTip, { children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}` }), jsxs(Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxs(Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/", " ", count > 0
+                                                                            ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}`
+                                                                            : "0"] })] })] }), jsx(Box, { children: jsxs("select", { value: limit, onChange: handleLimitChange, style: {
                                                             padding: "4px 8px",
                                                             borderRadius: "4px",
                                                             border: "1px solid #ccc",
@@ -4699,7 +4723,10 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                             ]);
                                                             setValue(colLabel, [...newSet]);
                                                         }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected
-                                                            ? { color: "colorPalette.400/50", fontWeight: "bold" }
+                                                            ? {
+                                                                color: "colorPalette.400/50",
+                                                                fontWeight: "bold",
+                                                            }
                                                             : {}), children: !!renderDisplay === true
                                                             ? renderDisplay(item)
                                                             : item[display_column] }, item[column_ref]));

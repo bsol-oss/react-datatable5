@@ -4560,7 +4560,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const { serverUrl, idMap, setIdMap, translate, schema: parentSchema, } = useSchemaContext();
     const { required, gridColumn = "span 4", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { table, column: column_ref, display_column, } = foreign_key;
+    const { table, column: column_ref, display_column, customQueryFn, } = foreign_key;
     const [searchText, setSearchText] = React.useState("");
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
@@ -4573,6 +4573,17 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const query = reactQuery.useQuery({
         queryKey: [`idpicker`, { column, searchText, limit, page }],
         queryFn: async () => {
+            if (customQueryFn) {
+                const { data, idMap } = await customQueryFn({
+                    searching: searchText ?? "",
+                    limit: limit,
+                    offset: page * limit,
+                });
+                setIdMap((state) => {
+                    return { ...state, ...idMap };
+                });
+                return data;
+            }
             const data = await getTableData({
                 serverUrl,
                 searching: searchText ?? "",
@@ -4603,6 +4614,17 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             { form: parentSchema.title, column, id: isMultiple ? watchIds : watchId },
         ],
         queryFn: async () => {
+            if (customQueryFn) {
+                const { data, idMap } = await customQueryFn({
+                    searching: watchIds.join(","),
+                    limit: isMultiple ? watchIds.length : 1,
+                    offset: 0,
+                });
+                setIdMap((state) => {
+                    return { ...state, ...idMap };
+                });
+                return data;
+            }
             if (!watchId && (!watchIds || watchIds.length === 0)) {
                 return { data: [] };
             }
@@ -4695,7 +4717,9 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                             setOpenSearchResult(true);
                         }, children: translate.t(removeIndex(`${colLabel}.add_more`)) })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, justifyContent: "start", children: queryDefault.isLoading ? jsxRuntime.jsx(react.Spinner, { size: "sm" }) : getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { portalled: false, children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(removeIndex(`${colLabel}.type_to_search`)), onChange: onSearchChange, autoComplete: "off", ref: ref, value: searchText }), jsxRuntime.jsx(PopoverTitle, {}), openSearchResult && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, {}), isError && (jsxRuntime.jsx(react.Icon, { color: "red.400", children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", children: [jsxRuntime.jsx(InfoTip, { children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}` }), jsxRuntime.jsxs(react.Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxRuntime.jsxs(react.Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/ ", count > 0 ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}` : '0'] })] })] }), jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsxs("select", { value: limit, onChange: handleLimitChange, style: {
+                }, justifyContent: "start", children: queryDefault.isLoading ? jsxRuntime.jsx(react.Spinner, { size: "sm" }) : getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { portalled: false, children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(removeIndex(`${colLabel}.type_to_search`)), onChange: onSearchChange, autoComplete: "off", ref: ref, value: searchText }), jsxRuntime.jsx(PopoverTitle, {}), openSearchResult && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, {}), isError && (jsxRuntime.jsx(react.Icon, { color: "red.400", children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", children: [jsxRuntime.jsx(InfoTip, { children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}` }), jsxRuntime.jsxs(react.Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxRuntime.jsxs(react.Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/", " ", count > 0
+                                                                            ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}`
+                                                                            : "0"] })] })] }), jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsxs("select", { value: limit, onChange: handleLimitChange, style: {
                                                             padding: "4px 8px",
                                                             borderRadius: "4px",
                                                             border: "1px solid #ccc",
@@ -4719,7 +4743,10 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                             ]);
                                                             setValue(colLabel, [...newSet]);
                                                         }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected
-                                                            ? { color: "colorPalette.400/50", fontWeight: "bold" }
+                                                            ? {
+                                                                color: "colorPalette.400/50",
+                                                                fontWeight: "bold",
+                                                            }
                                                             : {}), children: !!renderDisplay === true
                                                             ? renderDisplay(item)
                                                             : item[display_column] }, item[column_ref]));

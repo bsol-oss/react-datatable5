@@ -550,10 +550,27 @@ declare const TableDataDisplay: ({ colorPalette, emptyComponent, }: TableDataDis
 
 declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
 
+interface CustomQueryFnResponse {
+    /**
+     * The data of the query
+     */
+    data: any;
+    /**
+     * The id map of the data
+     */
+    idMap: Record<string, any>;
+}
+interface CustomQueryFnParams {
+    searching: string;
+    limit: number;
+    offset: number;
+}
+type CustomQueryFn = (params: CustomQueryFnParams) => Promise<CustomQueryFnResponse>;
 interface ForeignKeyProps {
     column: string;
     table: string;
     display_column: string;
+    customQueryFn?: CustomQueryFn;
 }
 
 interface CustomJSONSchema7 extends JSONSchema7 {
