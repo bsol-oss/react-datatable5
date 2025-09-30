@@ -1,12 +1,10 @@
 import { Box, Button, Flex, Grid, Icon, Text } from "@chakra-ui/react";
-import { useSchemaContext } from "../../useSchemaContext";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { useFieldArray, useFormContext } from "react-hook-form";
-import { SchemaRenderer } from "./SchemaRenderer";
-import { removeIndex } from "../../utils/removeIndex";
-import { TiTrash } from "react-icons/ti";
-import { BsTrash } from "react-icons/bs";
+import { useFormContext } from "react-hook-form";
 import { CgTrash } from "react-icons/cg";
+import { useSchemaContext } from "../../useSchemaContext";
+import { removeIndex } from "../../utils/removeIndex";
+import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { SchemaRenderer } from "./SchemaRenderer";
 
 export interface ArrayRendererProps {
   column: string;

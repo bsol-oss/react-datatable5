@@ -77,6 +77,7 @@ export const IdPicker = ({
     table,
     column: column_ref,
     display_column,
+    customQueryFn,
   } = foreign_key as ForeignKeyProps;
   const [searchText, setSearchText] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
@@ -86,12 +87,25 @@ export const IdPicker = ({
   const colLabel = `${prefix}${column}`;
 
   const watchId = watch(colLabel);
-  const watchIds = isMultiple ? (watch(colLabel) ?? []) as string[] : [];
+  const watchIds = isMultiple ? ((watch(colLabel) ?? []) as string[]) : [];
 
   // Query for search results
   const query = useQuery({
     queryKey: [`idpicker`, { column, searchText, limit, page }],
     queryFn: async () => {
+      if (customQueryFn) {
+        const { data, idMap } = await customQueryFn({
+          searching: searchText ?? "",
+          limit: limit,
+          offset: page * limit,
+        });
+
+        setIdMap((state) => {
+          return { ...state, ...idMap };
+        });
+
+        return data;
+      }
       const data = await getTableData({
         serverUrl,
         searching: searchText ?? "",
@@ -125,6 +139,21 @@ export const IdPicker = ({
       { form: parentSchema.title, column, id: isMultiple ? watchIds : watchId },
     ],
     queryFn: async () => {
+
+      if (customQueryFn) {
+        const { data, idMap } = await customQueryFn({
+          searching: watchIds.join(","),
+          limit: isMultiple ? watchIds.length : 1,
+          offset: 0,
+        });
+
+        setIdMap((state) => {
+          return { ...state, ...idMap };
+        });
+
+        return data;
+      }
+
       if (!watchId && (!watchIds || watchIds.length === 0)) {
         return { data: [] };
       }
@@ -316,7 +345,10 @@ export const IdPicker = ({
                     <Text fontSize="sm" fontWeight="bold">
                       {count}
                       <Text as="span" fontSize="xs" ml="1" color="gray.500">
-                        / {count > 0 ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}` : '0'}
+                        /{" "}
+                        {count > 0
+                          ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}`
+                          : "0"}
                       </Text>
                     </Text>
                   </Flex>
@@ -338,9 +370,7 @@ export const IdPicker = ({
                     </select>
                   </Box>
                 </Flex>
-                <Grid
-                  overflowY={"auto"}
-                >
+                <Grid overflowY={"auto"}>
                   {dataList.length > 0 ? (
                     <Flex flexFlow={"column wrap"} gap={1}>
                       {dataList.map((item: RecordType) => {
@@ -359,7 +389,7 @@ export const IdPicker = ({
                               }
                               // For multiple selection, don't add if already selected
                               if (selected) return;
-                              
+
                               const newSet = new Set([
                                 ...(watchIds ?? []),
                                 item[column_ref],
@@ -369,7 +399,10 @@ export const IdPicker = ({
                             opacity={0.7}
                             _hover={{ opacity: 1 }}
                             {...(selected
-                              ? { color: "colorPalette.400/50", fontWeight: "bold" }
+                              ? {
+                                  color: "colorPalette.400/50",
+                                  fontWeight: "bold",
+                                }
                               : {})}
                           >
                             {!!renderDisplay === true
@@ -382,8 +415,12 @@ export const IdPicker = ({
                   ) : (
                     <Text>
                       {searchText
-                        ? translate.t(removeIndex(`${colLabel}.empty_search_result`))
-                        : translate.t(removeIndex(`${colLabel}.initial_results`))}
+                        ? translate.t(
+                            removeIndex(`${colLabel}.empty_search_result`)
+                          )
+                        : translate.t(
+                            removeIndex(`${colLabel}.initial_results`)
+                          )}
                     </Text>
                   )}
                 </Grid>

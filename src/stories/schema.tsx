@@ -1,3 +1,5 @@
+import { getTableData } from "@/components/Form/utils/getTableData";
+import axios from "axios";
 import { JSONSchema7 } from "json-schema";
 
 export const addressSchema = {
@@ -294,6 +296,16 @@ export const activitiesSchema = {
         "Missing description. Database type: character varying. Default value: null",
       gridColumn: "1/span 12",
       gridRow: "1/span 1",
+      customQueryFn: async (params) => {
+        const data = await axios.get(`http://localhost:8081/api/g/core_people`, {
+          params: {
+            searching: params.searching,
+            limit: params.limit,
+            offset: params.offset,
+          },
+        });
+        return data;
+      },
     },
     start_date: {
       type: "string",
