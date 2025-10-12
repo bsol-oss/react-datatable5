@@ -256,6 +256,7 @@ export const IdPicker = ({
         gridRow,
       }}
     >
+      {/* Multiple Picker */}
       {isMultiple && (
         <Flex flexFlow={"wrap"} gap={1}>
           {watchIds.map((id: string) => {
@@ -297,6 +298,8 @@ export const IdPicker = ({
           </Tag>
         </Flex>
       )}
+
+      {/* Single Picker */}
       {!isMultiple && (
         <Button
           variant={"outline"}
@@ -319,6 +322,7 @@ export const IdPicker = ({
         <PopoverTrigger />
         <PopoverContent portalled={false}>
           <PopoverBody display={"grid"} gap={1}>
+            {/* Search Input */}
             <Input
               placeholder={translate.t(
                 removeIndex(`${colLabel}.type_to_search`)
@@ -337,6 +341,8 @@ export const IdPicker = ({
                     <BiError />
                   </Icon>
                 )}
+
+                {/* Total and Limit */}
                 <Flex justifyContent="space-between" alignItems="center">
                   <Flex alignItems="center" gap="2">
                     <InfoTip>
@@ -370,6 +376,8 @@ export const IdPicker = ({
                     </select>
                   </Box>
                 </Flex>
+
+                {/* Data List */}
                 <Grid overflowY={"auto"}>
                   {dataList.length > 0 ? (
                     <Flex flexFlow={"column wrap"} gap={1}>
@@ -424,6 +432,8 @@ export const IdPicker = ({
                     </Text>
                   )}
                 </Grid>
+
+                {/* Pagination */}
                 <PaginationRoot
                   justifySelf={"center"}
                   count={count}
@@ -444,6 +454,7 @@ export const IdPicker = ({
         </PopoverContent>
       </PopoverRoot>
 
+      {/* Error */}
       {errors[`${colLabel}`] && (
         <Text color={"red.400"}>
           {translate.t(removeIndex(`${colLabel}.field_required`))}
