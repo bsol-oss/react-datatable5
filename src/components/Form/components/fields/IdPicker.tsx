@@ -32,7 +32,7 @@ import { useSchemaContext } from "../../useSchemaContext";
 import { getTableData } from "../../utils/getTableData";
 import { ForeignKeyProps } from "./StringInputField";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { removeIndex } from "../../utils/removeIndex";
+import { useFormI18n } from "../../utils/useFormI18n";
 import { BiError } from "react-icons/bi";
 
 export interface IdPickerProps {
@@ -62,9 +62,9 @@ export const IdPicker = ({
     serverUrl,
     idMap,
     setIdMap,
-    translate,
     schema: parentSchema,
   } = useSchemaContext();
+  const formI18n = useFormI18n(column, prefix);
   const {
     required,
     gridColumn = "span 12",
@@ -84,7 +84,7 @@ export const IdPicker = ({
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const [page, setPage] = useState(0);
   const ref = useRef<HTMLInputElement>(null);
-  const colLabel = `${prefix}${column}`;
+  const colLabel = formI18n.colLabel;
 
   const watchId = watch(colLabel);
   const watchIds = isMultiple ? ((watch(colLabel) ?? []) as string[]) : [];
@@ -248,7 +248,7 @@ export const IdPicker = ({
 
   return (
     <Field
-      label={`${translate.t(removeIndex(removeIndex(`${column}.field_label`)))}`}
+      label={formI18n.label()}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -264,7 +264,7 @@ export const IdPicker = ({
             if (item === undefined) {
               return (
                 <Text key={id}>
-                  {translate.t(removeIndex(`${colLabel}.undefined`))}
+                  {formI18n.t('undefined')}
                 </Text>
               );
             }
@@ -294,7 +294,7 @@ export const IdPicker = ({
               setOpenSearchResult(true);
             }}
           >
-            {translate.t(removeIndex(`${colLabel}.add_more`))}
+            {formI18n.t('add_more')}
           </Tag>
         </Flex>
       )}
@@ -324,9 +324,7 @@ export const IdPicker = ({
           <PopoverBody display={"grid"} gap={1}>
             {/* Search Input */}
             <Input
-              placeholder={translate.t(
-                removeIndex(`${colLabel}.type_to_search`)
-              )}
+              placeholder={formI18n.t('type_to_search')}
               onChange={onSearchChange}
               autoComplete="off"
               ref={ref}
@@ -346,7 +344,7 @@ export const IdPicker = ({
                 <Flex justifyContent="space-between" alignItems="center">
                   <Flex alignItems="center" gap="2">
                     <InfoTip>
-                      {`${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}`}
+                      {`${formI18n.t('total')} ${count}, ${formI18n.t('showing')} ${limit} ${formI18n.t('per_page', { defaultValue: 'per page' })}`}
                     </InfoTip>
                     <Text fontSize="sm" fontWeight="bold">
                       {count}
@@ -423,12 +421,8 @@ export const IdPicker = ({
                   ) : (
                     <Text>
                       {searchText
-                        ? translate.t(
-                            removeIndex(`${colLabel}.empty_search_result`)
-                          )
-                        : translate.t(
-                            removeIndex(`${colLabel}.initial_results`)
-                          )}
+                        ? formI18n.t('empty_search_result')
+                        : formI18n.t('initial_results')}
                     </Text>
                   )}
                 </Grid>
@@ -457,7 +451,7 @@ export const IdPicker = ({
       {/* Error */}
       {errors[`${colLabel}`] && (
         <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.field_required`))}
+          {formI18n.required()}
         </Text>
       )}
     </Field>

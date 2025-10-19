@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { MdDateRange } from "react-icons/md";
 import { useSchemaContext } from "../../useSchemaContext";
-import { removeIndex } from "../../utils/removeIndex";
+import { useFormI18n } from "../../utils/useFormI18n";
 import { InputDefaultProps } from "./types";
 import { DateTimePicker as ChakraDateTimePicker } from "@/components/DatePicker/DateTimePicker";
 
@@ -32,7 +32,8 @@ export const DateTimePicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { translate, timezone } = useSchemaContext();
+  const { timezone } = useSchemaContext();
+  const formI18n = useFormI18n(column, prefix);
   const {
     required,
     gridColumn = "span 12",
@@ -42,7 +43,7 @@ export const DateTimePicker = ({
     dateFormat = "YYYY-MM-DD[T]HH:mm:ssZ",
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const colLabel = `${prefix}${column}`;
+  const colLabel = formI18n.colLabel;
   const [open, setOpen] = useState(false);
   const selectedDate = watch(colLabel);
   const displayDate = dayjs(selectedDate)
@@ -75,7 +76,7 @@ export const DateTimePicker = ({
 
   return (
     <Field
-      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+      label={formI18n.label()}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -112,34 +113,34 @@ export const DateTimePicker = ({
               timezone={timezone}
               labels={{
                 monthNamesShort: [
-                  translate.t(`common.month_1`, { defaultValue: "January" }),
-                  translate.t(`common.month_2`, { defaultValue: "February" }),
-                  translate.t(`common.month_3`, { defaultValue: "March" }),
-                  translate.t(`common.month_4`, { defaultValue: "April" }),
-                  translate.t(`common.month_5`, { defaultValue: "May" }),
-                  translate.t(`common.month_6`, { defaultValue: "June" }),
-                  translate.t(`common.month_7`, { defaultValue: "July" }),
-                  translate.t(`common.month_8`, { defaultValue: "August" }),
-                  translate.t(`common.month_9`, { defaultValue: "September" }),
-                  translate.t(`common.month_10`, { defaultValue: "October" }),
-                  translate.t(`common.month_11`, { defaultValue: "November" }),
-                  translate.t(`common.month_12`, { defaultValue: "December" }),
+                  formI18n.translate.t(`common.month_1`, { defaultValue: "January" }),
+                  formI18n.translate.t(`common.month_2`, { defaultValue: "February" }),
+                  formI18n.translate.t(`common.month_3`, { defaultValue: "March" }),
+                  formI18n.translate.t(`common.month_4`, { defaultValue: "April" }),
+                  formI18n.translate.t(`common.month_5`, { defaultValue: "May" }),
+                  formI18n.translate.t(`common.month_6`, { defaultValue: "June" }),
+                  formI18n.translate.t(`common.month_7`, { defaultValue: "July" }),
+                  formI18n.translate.t(`common.month_8`, { defaultValue: "August" }),
+                  formI18n.translate.t(`common.month_9`, { defaultValue: "September" }),
+                  formI18n.translate.t(`common.month_10`, { defaultValue: "October" }),
+                  formI18n.translate.t(`common.month_11`, { defaultValue: "November" }),
+                  formI18n.translate.t(`common.month_12`, { defaultValue: "December" }),
                 ],
                 weekdayNamesShort: [
-                  translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
-                  translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
-                  translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
-                  translate.t(`common.weekday_4`, {
+                  formI18n.translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
+                  formI18n.translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
+                  formI18n.translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
+                  formI18n.translate.t(`common.weekday_4`, {
                     defaultValue: "Wed",
                   }),
-                  translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
-                  translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
-                  translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
+                  formI18n.translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
+                  formI18n.translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
+                  formI18n.translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
                 ],
-                backButtonLabel: translate.t(`common.back_button`, {
+                backButtonLabel: formI18n.translate.t(`common.back_button`, {
                   defaultValue: "Back",
                 }),
-                forwardButtonLabel: translate.t(`common.forward_button`, {
+                forwardButtonLabel: formI18n.translate.t(`common.forward_button`, {
                   defaultValue: "Forward",
                 }),
               }}
@@ -149,7 +150,7 @@ export const DateTimePicker = ({
       </PopoverRoot>
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(removeIndex(`${colLabel}.field_required`))}</Text>
+        <Text color={"red.400"}>{formI18n.required()}</Text>
       )}
     </Field>
   );

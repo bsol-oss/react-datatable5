@@ -2,9 +2,8 @@ import { Tag } from "@/components/ui/tag";
 import { Flex, Text } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import { Field } from "../../../ui/field";
-import { useSchemaContext } from "../../useSchemaContext";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { removeIndex } from "../../utils/removeIndex";
+import { useFormI18n } from "../../utils/useFormI18n";
 
 export interface EnumViewerProps {
   column: string;
@@ -23,17 +22,17 @@ export const EnumViewer = ({
     watch,
     formState: { errors },
   } = useFormContext();
-  const { translate } = useSchemaContext();
+  const formI18n = useFormI18n(column, prefix);
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
-  const colLabel = `${prefix}${column}`;
+  const colLabel = formI18n.colLabel;
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];
 
   return (
     <Field
-      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+      label={formI18n.label()}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -52,16 +51,16 @@ export const EnumViewer = ({
               <Tag key={item} size="lg">
                 {!!renderDisplay === true
                   ? renderDisplay(item)
-                  : translate.t(removeIndex(`${colLabel}.${item}`))}
+                  : formI18n.t(item)}
               </Tag>
             );
           })}
         </Flex>
       )}
-      {!isMultiple && <Text>{translate.t(removeIndex(`${colLabel}.${watchEnum}`))}</Text>}
+      {!isMultiple && <Text>{formI18n.t(watchEnum)}</Text>}
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(removeIndex(`${colLabel}.field_required`))}</Text>
+        <Text color={"red.400"}>{formI18n.required()}</Text>
       )}
     </Field>
   );
