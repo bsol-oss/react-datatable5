@@ -19,7 +19,7 @@ export const BooleanPicker = ({ schema, column, prefix }: DatePickerProps) => {
     setValue,
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+  const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);

@@ -20,7 +20,7 @@ export const TimeViewer = ({ column, schema, prefix }: TimeViewerProps) => {
   const { translate, timezone } = useSchemaContext();
   const {
     required,
-    gridColumn = "span 4",
+    gridColumn = "span 12",
     gridRow = "span 1",
     displayTimeFormat = "hh:mm A",
   } = schema;

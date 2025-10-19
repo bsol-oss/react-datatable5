@@ -31,7 +31,7 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   const { translate, timezone } = useSchemaContext();
   const {
     required,
-    gridColumn = "span 4",
+    gridColumn = "span 12",
     gridRow = "span 1",
     displayDateFormat = "YYYY-MM-DD",
     dateFormat = "YYYY-MM-DD",

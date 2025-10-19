@@ -133,6 +133,7 @@ export * from "./components/Form/components/core/DefaultForm";
 export * from "./components/Form/components/core/FormRoot";
 export * from "./components/Form/components/core/FormTitle";
 export * from "./components/Form/components/core/FormBody";
+export * from "./components/Form/components/types/CustomJSONSchema7";
 export * from "./components/Form/useForm";
 
 export * from "./components/DatePicker/DatePicker";

@@ -48,7 +48,7 @@ export const EnumPicker = ({
   const { translate } = useSchemaContext();
   const { required, variant } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const { gridColumn = "span 4", gridRow = "span 1", renderDisplay } = schema;
+  const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();

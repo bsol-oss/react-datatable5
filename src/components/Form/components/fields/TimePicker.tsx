@@ -29,7 +29,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
 
   const {
     required,
-    gridColumn = "span 4",
+    gridColumn = "span 12",
     gridRow = "span 1",
     timeFormat = "HH:mm:ssZ",
     displayTimeFormat = "hh:mm A",

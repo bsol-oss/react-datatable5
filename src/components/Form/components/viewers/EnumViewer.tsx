@@ -27,7 +27,7 @@ export const EnumViewer = ({
   const { translate } = useSchemaContext();
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const { gridColumn = "span 4", gridRow = "span 1", renderDisplay } = schema;
+  const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
   const colLabel = `${prefix}${column}`;
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];

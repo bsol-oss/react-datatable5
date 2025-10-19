@@ -20,7 +20,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
     getValues,
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+  const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const entries = Object.entries(getValues(column) ?? {});
   const [showNewEntries, setShowNewEntries] = useState<boolean>(false);

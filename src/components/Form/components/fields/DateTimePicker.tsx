@@ -35,7 +35,7 @@ export const DateTimePicker = ({
   const { translate, timezone } = useSchemaContext();
   const {
     required,
-    gridColumn = "span 4",
+    gridColumn = "span 12",
     gridRow = "span 1",
     displayDateFormat = "YYYY-MM-DD HH:mm:ss",
     // with timezone

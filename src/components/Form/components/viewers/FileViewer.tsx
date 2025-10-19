@@ -9,7 +9,7 @@ export const FileViewer = ({ column, schema, prefix }) => {
   const { translate } = useSchemaContext();
   const {
     required,
-    gridColumn = "span 4",
+    gridColumn = "span 12",
     gridRow = "span 1",
   } = schema as CustomJSONSchema7;
   const isRequired = required?.some((columnId) => columnId === column);

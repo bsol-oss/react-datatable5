@@ -65,6 +65,49 @@ const SomeForm = () => {
 }
 ```
 
+### Important: Avoid `as const` with Schemas
+
+❌ **DO NOT** use `as const` when defining schemas:
+
+```tsx
+// WRONG - This will cause TypeScript errors
+const schema = {
+  type: "object",
+  required: ["name"],
+  properties: { 
+    name: { type: "string" }
+  }
+} as const;  // ❌ Causes readonly tuple error
+```
+
+✅ **DO** use `as JSONSchema7` or no type assertion:
+
+```tsx
+// CORRECT - Option 1: Use JSONSchema7 type assertion
+const schema = {
+  type: "object",
+  required: ["name"],
+  properties: { 
+    name: { type: "string" }
+  }
+} as JSONSchema7;  // ✅ Works correctly
+
+// CORRECT - Option 2: No type assertion
+const schema = {
+  type: "object",
+  required: ["name"],
+  properties: { 
+    name: { type: "string" }
+  }
+};  // ✅ Works correctly
+```
+
+**Why?** Using `as const` makes the `required` array a readonly tuple (e.g., `readonly ["name"]`), but the `CustomJSONSchema7` type (which extends `JSONSchema7`) expects a mutable `string[]` array. This incompatibility causes TypeScript errors like:
+
+```
+Type 'readonly ["name"]' is 'readonly' and cannot be assigned to the mutable type 'string[]'
+```
+
 ## Supported Keywords
 
 ### `title`
