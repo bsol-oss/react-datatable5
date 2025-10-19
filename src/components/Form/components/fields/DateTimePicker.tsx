@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { MdDateRange } from "react-icons/md";
 import { useSchemaContext } from "../../useSchemaContext";
-import { translateWrapper } from "../../utils/translateWrapper";
+import { removeIndex } from "../../utils/removeIndex";
 import { InputDefaultProps } from "./types";
 import { DateTimePicker as ChakraDateTimePicker } from "@/components/DatePicker/DateTimePicker";
 
@@ -73,13 +73,9 @@ export const DateTimePicker = ({
     }
   }, [selectedDate, dateFormat, colLabel, setValue]);
 
-  const customTranslate = (label: string) => {
-    return translateWrapper({ prefix, column, label, translate });
-  };
-
   return (
     <Field
-      label={`${customTranslate(`field_label`)}`}
+      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -153,7 +149,7 @@ export const DateTimePicker = ({
       </PopoverRoot>
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{customTranslate(`field_required`)}</Text>
+        <Text color={"red.400"}>{translate.t(removeIndex(`${colLabel}.field_required`))}</Text>
       )}
     </Field>
   );

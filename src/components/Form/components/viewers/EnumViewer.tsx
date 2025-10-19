@@ -5,7 +5,6 @@ import { Field } from "../../../ui/field";
 import { useSchemaContext } from "../../useSchemaContext";
 import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
 import { removeIndex } from "../../utils/removeIndex";
-import { translateWrapper } from "../../utils/translateWrapper";
 
 export interface EnumViewerProps {
   column: string;
@@ -32,13 +31,9 @@ export const EnumViewer = ({
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];
 
-  const customTranslate = (label: string) => {
-    return translateWrapper({ prefix, column, label, translate });
-  };
-
   return (
     <Field
-      label={`${customTranslate(`field_label`)}`}
+      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
       required={isRequired}
       alignItems={"stretch"}
       {...{
@@ -57,16 +52,16 @@ export const EnumViewer = ({
               <Tag key={item} size="lg">
                 {!!renderDisplay === true
                   ? renderDisplay(item)
-                  : customTranslate(item)}
+                  : translate.t(removeIndex(`${colLabel}.${item}`))}
               </Tag>
             );
           })}
         </Flex>
       )}
-      {!isMultiple && <Text>{customTranslate(watchEnum)}</Text>}
+      {!isMultiple && <Text>{translate.t(removeIndex(`${colLabel}.${watchEnum}`))}</Text>}
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{customTranslate(`field_required`)}</Text>
+        <Text color={"red.400"}>{translate.t(removeIndex(`${colLabel}.field_required`))}</Text>
       )}
     </Field>
   );
