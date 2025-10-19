@@ -3804,7 +3804,7 @@ const Field = React.forwardRef(function Field(props, ref) {
 const BooleanPicker = ({ schema, column, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -3943,18 +3943,79 @@ const PopoverRoot = Popover.Root;
 const PopoverBody = Popover.Body;
 const PopoverTrigger = Popover.Trigger;
 
-function translateWrapper({ prefix, column, label, translate, }) {
-    return translate.t(removeIndex(`${prefix}${column}.${label}`));
-}
+/**
+ * Custom hook to simplify i18n translation for form fields.
+ * Automatically handles colLabel construction and removeIndex logic.
+ *
+ * @param column - The column name
+ * @param prefix - The prefix for the field (usually empty string or parent path)
+ * @returns Object with translation helper functions
+ *
+ * @example
+ * ```tsx
+ * const formI18n = useFormI18n(column, prefix);
+ *
+ * // Get field label
+ * <Field label={formI18n.label()} />
+ *
+ * // Get error message
+ * <Text>{formI18n.required()}</Text>
+ *
+ * // Get custom translation key
+ * <Text>{formI18n.t('add_more')}</Text>
+ *
+ * // Access the raw colLabel
+ * const colLabel = formI18n.colLabel;
+ * ```
+ */
+const useFormI18n = (column, prefix = "") => {
+    const { translate } = useSchemaContext();
+    const colLabel = `${prefix}${column}`;
+    return {
+        /**
+         * The constructed column label (prefix + column)
+         */
+        colLabel,
+        /**
+         * Get the field label translation
+         * Equivalent to: translate.t(removeIndex(`${colLabel}.field_label`))
+         */
+        label: (options) => {
+            return translate.t(removeIndex(`${colLabel}.field_label`), options);
+        },
+        /**
+         * Get the required error message translation
+         * Equivalent to: translate.t(removeIndex(`${colLabel}.field_required`))
+         */
+        required: (options) => {
+            return translate.t(removeIndex(`${colLabel}.field_required`), options);
+        },
+        /**
+         * Get a translation for any custom key relative to the field
+         * Equivalent to: translate.t(removeIndex(`${colLabel}.${key}`))
+         *
+         * @param key - The translation key suffix (e.g., 'add_more', 'total', etc.)
+         * @param options - Optional translation options (e.g., defaultValue, interpolation variables)
+         */
+        t: (key, options) => {
+            return translate.t(removeIndex(`${colLabel}.${key}`), options);
+        },
+        /**
+         * Access to the original translate object for edge cases
+         */
+        translate,
+    };
+};
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD", } = schema;
+    const { timezone } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
+    const { required, gridColumn = "span 12", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
+    const colLabel = formI18n.colLabel;
     const [open, setOpen] = useState(false);
     const selectedDate = watch(colLabel);
     const displayDate = dayjs(selectedDate).tz(timezone).format(displayDateFormat);
@@ -3981,10 +4042,7 @@ const DatePicker = ({ column, schema, prefix }) => {
             console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue]);
-    const customTranslate = (label) => {
-        return translateWrapper({ prefix, column, label, translate });
-    };
-    return (jsxs(Field, { label: `${customTranslate(`field_label`)}`, required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
                             }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1, { selected: new Date(selectedDate), onDateSelected: ({ date }) => {
@@ -3992,37 +4050,37 @@ const DatePicker = ({ column, schema, prefix }) => {
                                         setOpen(false);
                                     }, labels: {
                                         monthNamesShort: [
-                                            translate.t(`common.month_1`, { defaultValue: "January" }),
-                                            translate.t(`common.month_2`, { defaultValue: "February" }),
-                                            translate.t(`common.month_3`, { defaultValue: "March" }),
-                                            translate.t(`common.month_4`, { defaultValue: "April" }),
-                                            translate.t(`common.month_5`, { defaultValue: "May" }),
-                                            translate.t(`common.month_6`, { defaultValue: "June" }),
-                                            translate.t(`common.month_7`, { defaultValue: "July" }),
-                                            translate.t(`common.month_8`, { defaultValue: "August" }),
-                                            translate.t(`common.month_9`, { defaultValue: "September" }),
-                                            translate.t(`common.month_10`, { defaultValue: "October" }),
-                                            translate.t(`common.month_11`, { defaultValue: "November" }),
-                                            translate.t(`common.month_12`, { defaultValue: "December" }),
+                                            formI18n.translate.t(`common.month_1`, { defaultValue: "January" }),
+                                            formI18n.translate.t(`common.month_2`, { defaultValue: "February" }),
+                                            formI18n.translate.t(`common.month_3`, { defaultValue: "March" }),
+                                            formI18n.translate.t(`common.month_4`, { defaultValue: "April" }),
+                                            formI18n.translate.t(`common.month_5`, { defaultValue: "May" }),
+                                            formI18n.translate.t(`common.month_6`, { defaultValue: "June" }),
+                                            formI18n.translate.t(`common.month_7`, { defaultValue: "July" }),
+                                            formI18n.translate.t(`common.month_8`, { defaultValue: "August" }),
+                                            formI18n.translate.t(`common.month_9`, { defaultValue: "September" }),
+                                            formI18n.translate.t(`common.month_10`, { defaultValue: "October" }),
+                                            formI18n.translate.t(`common.month_11`, { defaultValue: "November" }),
+                                            formI18n.translate.t(`common.month_12`, { defaultValue: "December" }),
                                         ],
                                         weekdayNamesShort: [
-                                            translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
-                                            translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
-                                            translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
-                                            translate.t(`common.weekday_4`, {
+                                            formI18n.translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
+                                            formI18n.translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
+                                            formI18n.translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
+                                            formI18n.translate.t(`common.weekday_4`, {
                                                 defaultValue: "Wed",
                                             }),
-                                            translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
-                                            translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
-                                            translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
+                                            formI18n.translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
+                                            formI18n.translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
+                                            formI18n.translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
                                         ],
-                                        backButtonLabel: translate.t(`common.back_button`, {
+                                        backButtonLabel: formI18n.translate.t(`common.back_button`, {
                                             defaultValue: "Back",
                                         }),
-                                        forwardButtonLabel: translate.t(`common.forward_button`, {
+                                        forwardButtonLabel: formI18n.translate.t(`common.forward_button`, {
                                             defaultValue: "Forward",
                                         }),
-                                    } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: customTranslate(`field_required`) }))] }));
+                                    } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: formI18n.required() }))] }));
 };
 
 function filterArray(array, searchTerm) {
@@ -4040,7 +4098,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
     const { translate } = useSchemaContext();
     const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { gridColumn = "span 4", gridRow = "span 1", renderDisplay } = schema;
+    const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
     const [searchText, setSearchText] = useState();
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
@@ -4482,7 +4540,7 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
 const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const currentFiles = (watch(column) ?? []);
     const colLabel = `${prefix}${column}`;
@@ -4537,8 +4595,9 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
 
 const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { serverUrl, idMap, setIdMap, translate, schema: parentSchema, } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
+    const { serverUrl, idMap, setIdMap, schema: parentSchema, } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
+    const { required, gridColumn = "span 12", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { table, column: column_ref, display_column, customQueryFn, } = foreign_key;
     const [searchText, setSearchText] = useState("");
@@ -4546,7 +4605,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const [openSearchResult, setOpenSearchResult] = useState();
     const [page, setPage] = useState(0);
     const ref = useRef(null);
-    const colLabel = `${prefix}${column}`;
+    const colLabel = formI18n.colLabel;
     const watchId = watch(colLabel);
     const watchIds = isMultiple ? (watch(colLabel) ?? []) : [];
     // Query for search results
@@ -4682,11 +4741,11 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         }
         return record[display_column];
     };
-    return (jsxs(Field, { label: `${translate.t(removeIndex(removeIndex(`${column}.field_label`)))}`, required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [watchIds.map((id) => {
                         const item = idMap[id];
                         if (item === undefined) {
-                            return (jsx(Text, { children: translate.t(removeIndex(`${colLabel}.undefined`)) }, id));
+                            return (jsx(Text, { children: formI18n.t('undefined') }, id));
                         }
                         return (jsx(Tag, { closable: true, onClick: () => {
                                 setValue(colLabel, watchIds.filter((itemId) => itemId !== item[column_ref]));
@@ -4695,9 +4754,9 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                 : item[display_column] }, id));
                     }), jsx(Tag, { cursor: "pointer", onClick: () => {
                             setOpenSearchResult(true);
-                        }, children: translate.t(removeIndex(`${colLabel}.add_more`)) })] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: () => {
+                        }, children: formI18n.t('add_more') })] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, justifyContent: "start", children: queryDefault.isLoading ? jsx(Spinner, { size: "sm" }) : getPickedValue() })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { portalled: false, children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(removeIndex(`${colLabel}.type_to_search`)), onChange: onSearchChange, autoComplete: "off", ref: ref, value: searchText }), jsx(PopoverTitle, {}), openSearchResult && (jsxs(Fragment, { children: [(isFetching || isLoading || isPending) && jsx(Spinner, {}), isError && (jsx(Icon, { color: "red.400", children: jsx(BiError, {}) })), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Flex, { alignItems: "center", gap: "2", children: [jsx(InfoTip, { children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}` }), jsxs(Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxs(Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/", " ", count > 0
+                }, justifyContent: "start", children: queryDefault.isLoading ? jsx(Spinner, { size: "sm" }) : getPickedValue() })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { portalled: false, children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: formI18n.t('type_to_search'), onChange: onSearchChange, autoComplete: "off", ref: ref, value: searchText }), jsx(PopoverTitle, {}), openSearchResult && (jsxs(Fragment, { children: [(isFetching || isLoading || isPending) && jsx(Spinner, {}), isError && (jsx(Icon, { color: "red.400", children: jsx(BiError, {}) })), jsxs(Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxs(Flex, { alignItems: "center", gap: "2", children: [jsx(InfoTip, { children: `${formI18n.t('total')} ${count}, ${formI18n.t('showing')} ${limit} ${formI18n.t('per_page', { defaultValue: 'per page' })}` }), jsxs(Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxs(Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/", " ", count > 0
                                                                             ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}`
                                                                             : "0"] })] })] }), jsx(Box, { children: jsxs("select", { value: limit, onChange: handleLimitChange, style: {
                                                             padding: "4px 8px",
@@ -4731,8 +4790,8 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                             ? renderDisplay(item)
                                                             : item[display_column] }, item[column_ref]));
                                                 }) })) : (jsx(Text, { children: searchText
-                                                    ? translate.t(removeIndex(`${colLabel}.empty_search_result`))
-                                                    : translate.t(removeIndex(`${colLabel}.initial_results`)) })) }), jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: limit, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), count > 0 && jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                                                    ? formI18n.t('empty_search_result')
+                                                    : formI18n.t('initial_results') })) }), jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: limit, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxs(HStack, { gap: "4", children: [jsx(PaginationPrevTrigger, {}), count > 0 && jsx(PaginationPageText, {}), jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: formI18n.required() }))] }));
 };
 
 const NumberInputRoot = React.forwardRef(function NumberInput$1(props, ref) {
@@ -4746,7 +4805,7 @@ NumberInput.Label;
 const NumberInputField = ({ schema, column, prefix, }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(`${colLabel}`);
@@ -4831,7 +4890,7 @@ const RecordInput$1 = ({ column, schema, prefix }) => {
 const StringInputField = ({ column, schema, prefix, }) => {
     const { register, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     return (jsx(Fragment, { children: jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, children: [jsx(Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }), errors[colLabel] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
@@ -5020,7 +5079,7 @@ Textarea.displayName = "Textarea";
 const TextAreaInput = ({ column, schema, prefix, }) => {
     const { register, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const form = useFormContext();
@@ -5157,7 +5216,7 @@ dayjs.extend(timezone);
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", timeFormat = "HH:mm:ssZ", displayTimeFormat = "hh:mm A", } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1", timeFormat = "HH:mm:ssZ", displayTimeFormat = "hh:mm A", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = useState(false);
@@ -5419,12 +5478,13 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const DateTimePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD HH:mm:ss", 
+    const { timezone } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
+    const { required, gridColumn = "span 12", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD HH:mm:ss", 
     // with timezone
     dateFormat = "YYYY-MM-DD[T]HH:mm:ssZ", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
+    const colLabel = formI18n.colLabel;
     const [open, setOpen] = useState(false);
     const selectedDate = watch(colLabel);
     const displayDate = dayjs(selectedDate)
@@ -5453,47 +5513,44 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue]);
-    const customTranslate = (label) => {
-        return translateWrapper({ prefix, column, label, translate });
-    };
-    return (jsxs(Field, { label: `${customTranslate(`field_label`)}`, required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
                             }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsx(PopoverContent, { minW: "450px", children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DateTimePicker$1, { value: selectedDate, onChange: (date) => {
                                         setValue(colLabel, dayjs(date).tz(timezone).format(dateFormat));
                                     }, timezone: timezone, labels: {
                                         monthNamesShort: [
-                                            translate.t(`common.month_1`, { defaultValue: "January" }),
-                                            translate.t(`common.month_2`, { defaultValue: "February" }),
-                                            translate.t(`common.month_3`, { defaultValue: "March" }),
-                                            translate.t(`common.month_4`, { defaultValue: "April" }),
-                                            translate.t(`common.month_5`, { defaultValue: "May" }),
-                                            translate.t(`common.month_6`, { defaultValue: "June" }),
-                                            translate.t(`common.month_7`, { defaultValue: "July" }),
-                                            translate.t(`common.month_8`, { defaultValue: "August" }),
-                                            translate.t(`common.month_9`, { defaultValue: "September" }),
-                                            translate.t(`common.month_10`, { defaultValue: "October" }),
-                                            translate.t(`common.month_11`, { defaultValue: "November" }),
-                                            translate.t(`common.month_12`, { defaultValue: "December" }),
+                                            formI18n.translate.t(`common.month_1`, { defaultValue: "January" }),
+                                            formI18n.translate.t(`common.month_2`, { defaultValue: "February" }),
+                                            formI18n.translate.t(`common.month_3`, { defaultValue: "March" }),
+                                            formI18n.translate.t(`common.month_4`, { defaultValue: "April" }),
+                                            formI18n.translate.t(`common.month_5`, { defaultValue: "May" }),
+                                            formI18n.translate.t(`common.month_6`, { defaultValue: "June" }),
+                                            formI18n.translate.t(`common.month_7`, { defaultValue: "July" }),
+                                            formI18n.translate.t(`common.month_8`, { defaultValue: "August" }),
+                                            formI18n.translate.t(`common.month_9`, { defaultValue: "September" }),
+                                            formI18n.translate.t(`common.month_10`, { defaultValue: "October" }),
+                                            formI18n.translate.t(`common.month_11`, { defaultValue: "November" }),
+                                            formI18n.translate.t(`common.month_12`, { defaultValue: "December" }),
                                         ],
                                         weekdayNamesShort: [
-                                            translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
-                                            translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
-                                            translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
-                                            translate.t(`common.weekday_4`, {
+                                            formI18n.translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
+                                            formI18n.translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
+                                            formI18n.translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
+                                            formI18n.translate.t(`common.weekday_4`, {
                                                 defaultValue: "Wed",
                                             }),
-                                            translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
-                                            translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
-                                            translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
+                                            formI18n.translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
+                                            formI18n.translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
+                                            formI18n.translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
                                         ],
-                                        backButtonLabel: translate.t(`common.back_button`, {
+                                        backButtonLabel: formI18n.translate.t(`common.back_button`, {
                                             defaultValue: "Back",
                                         }),
-                                        forwardButtonLabel: translate.t(`common.forward_button`, {
+                                        forwardButtonLabel: formI18n.translate.t(`common.forward_button`, {
                                             defaultValue: "Forward",
                                         }),
-                                    } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: customTranslate(`field_required`) }))] }));
+                                    } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: formI18n.required() }))] }));
 };
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {
@@ -5595,7 +5652,7 @@ const ArrayViewer = ({ schema, column, prefix }) => {
 const BooleanViewer = ({ schema, column, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -5631,17 +5688,14 @@ const DateViewer = ({ column, schema, prefix }) => {
 
 const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
-    const { translate } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { gridColumn = "span 4", gridRow = "span 1", renderDisplay } = schema;
-    const colLabel = `${prefix}${column}`;
+    const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
+    const colLabel = formI18n.colLabel;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
-    const customTranslate = (label) => {
-        return translateWrapper({ prefix, column, label, translate });
-    };
-    return (jsxs(Field, { label: `${customTranslate(`field_label`)}`, required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsx(Flex, { flexFlow: "wrap", gap: 1, children: watchEnums.map((enumValue) => {
                     const item = enumValue;
                     if (item === undefined) {
@@ -5649,14 +5703,14 @@ const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
                     }
                     return (jsx(Tag, { size: "lg", children: !!renderDisplay === true
                             ? renderDisplay(item)
-                            : customTranslate(item) }, item));
-                }) })), !isMultiple && jsx(Text, { children: customTranslate(watchEnum) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: customTranslate(`field_required`) }))] }));
+                            : formI18n.t(item) }, item));
+                }) })), !isMultiple && jsx(Text, { children: formI18n.t(watchEnum) }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: formI18n.required() }))] }));
 };
 
 const FileViewer = ({ column, schema, prefix }) => {
     const { watch } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const currentFiles = (watch(column) ?? []);
     const colLabel = `${prefix}${column}`;
@@ -5668,7 +5722,7 @@ const FileViewer = ({ column, schema, prefix }) => {
 const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { idMap, translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { display_column } = foreign_key;
     const colLabel = `${prefix}${column}`;
@@ -5699,7 +5753,7 @@ const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
 const NumberViewer = ({ schema, column, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -5730,7 +5784,7 @@ const ObjectViewer = ({ schema, column, prefix }) => {
 const RecordInput = ({ column, schema, prefix }) => {
     const { formState: { errors }, setValue, getValues, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const entries = Object.entries(getValues(column) ?? {});
     const [showNewEntries, setShowNewEntries] = useState(false);
@@ -5782,7 +5836,7 @@ const RecordInput = ({ column, schema, prefix }) => {
 const StringViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -5877,7 +5931,7 @@ const TagViewer = ({ column, schema, prefix }) => {
 const TextAreaViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -5887,7 +5941,7 @@ const TextAreaViewer = ({ column, schema, prefix, }) => {
 const TimeViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = useFormContext();
     const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", displayTimeFormat = "hh:mm A", } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1", displayTimeFormat = "hh:mm A", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);

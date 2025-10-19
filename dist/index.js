@@ -3824,7 +3824,7 @@ const Field = React__namespace.forwardRef(function Field(props, ref) {
 const BooleanPicker = ({ schema, column, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -3963,18 +3963,79 @@ const PopoverRoot = react.Popover.Root;
 const PopoverBody = react.Popover.Body;
 const PopoverTrigger = react.Popover.Trigger;
 
-function translateWrapper({ prefix, column, label, translate, }) {
-    return translate.t(removeIndex(`${prefix}${column}.${label}`));
-}
+/**
+ * Custom hook to simplify i18n translation for form fields.
+ * Automatically handles colLabel construction and removeIndex logic.
+ *
+ * @param column - The column name
+ * @param prefix - The prefix for the field (usually empty string or parent path)
+ * @returns Object with translation helper functions
+ *
+ * @example
+ * ```tsx
+ * const formI18n = useFormI18n(column, prefix);
+ *
+ * // Get field label
+ * <Field label={formI18n.label()} />
+ *
+ * // Get error message
+ * <Text>{formI18n.required()}</Text>
+ *
+ * // Get custom translation key
+ * <Text>{formI18n.t('add_more')}</Text>
+ *
+ * // Access the raw colLabel
+ * const colLabel = formI18n.colLabel;
+ * ```
+ */
+const useFormI18n = (column, prefix = "") => {
+    const { translate } = useSchemaContext();
+    const colLabel = `${prefix}${column}`;
+    return {
+        /**
+         * The constructed column label (prefix + column)
+         */
+        colLabel,
+        /**
+         * Get the field label translation
+         * Equivalent to: translate.t(removeIndex(`${colLabel}.field_label`))
+         */
+        label: (options) => {
+            return translate.t(removeIndex(`${colLabel}.field_label`), options);
+        },
+        /**
+         * Get the required error message translation
+         * Equivalent to: translate.t(removeIndex(`${colLabel}.field_required`))
+         */
+        required: (options) => {
+            return translate.t(removeIndex(`${colLabel}.field_required`), options);
+        },
+        /**
+         * Get a translation for any custom key relative to the field
+         * Equivalent to: translate.t(removeIndex(`${colLabel}.${key}`))
+         *
+         * @param key - The translation key suffix (e.g., 'add_more', 'total', etc.)
+         * @param options - Optional translation options (e.g., defaultValue, interpolation variables)
+         */
+        t: (key, options) => {
+            return translate.t(removeIndex(`${colLabel}.${key}`), options);
+        },
+        /**
+         * Access to the original translate object for edge cases
+         */
+        translate,
+    };
+};
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD", } = schema;
+    const { timezone } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
+    const { required, gridColumn = "span 12", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
+    const colLabel = formI18n.colLabel;
     const [open, setOpen] = React.useState(false);
     const selectedDate = watch(colLabel);
     const displayDate = dayjs(selectedDate).tz(timezone).format(displayDateFormat);
@@ -4001,10 +4062,7 @@ const DatePicker = ({ column, schema, prefix }) => {
             console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue]);
-    const customTranslate = (label) => {
-        return translateWrapper({ prefix, column, label, translate });
-    };
-    return (jsxRuntime.jsxs(Field, { label: `${customTranslate(`field_label`)}`, required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxRuntime.jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(PopoverTrigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
                             }, justifyContent: "start", children: [jsxRuntime.jsx(md.MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsxRuntime.jsx(PopoverContent, { children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DatePicker$1, { selected: new Date(selectedDate), onDateSelected: ({ date }) => {
@@ -4012,37 +4070,37 @@ const DatePicker = ({ column, schema, prefix }) => {
                                         setOpen(false);
                                     }, labels: {
                                         monthNamesShort: [
-                                            translate.t(`common.month_1`, { defaultValue: "January" }),
-                                            translate.t(`common.month_2`, { defaultValue: "February" }),
-                                            translate.t(`common.month_3`, { defaultValue: "March" }),
-                                            translate.t(`common.month_4`, { defaultValue: "April" }),
-                                            translate.t(`common.month_5`, { defaultValue: "May" }),
-                                            translate.t(`common.month_6`, { defaultValue: "June" }),
-                                            translate.t(`common.month_7`, { defaultValue: "July" }),
-                                            translate.t(`common.month_8`, { defaultValue: "August" }),
-                                            translate.t(`common.month_9`, { defaultValue: "September" }),
-                                            translate.t(`common.month_10`, { defaultValue: "October" }),
-                                            translate.t(`common.month_11`, { defaultValue: "November" }),
-                                            translate.t(`common.month_12`, { defaultValue: "December" }),
+                                            formI18n.translate.t(`common.month_1`, { defaultValue: "January" }),
+                                            formI18n.translate.t(`common.month_2`, { defaultValue: "February" }),
+                                            formI18n.translate.t(`common.month_3`, { defaultValue: "March" }),
+                                            formI18n.translate.t(`common.month_4`, { defaultValue: "April" }),
+                                            formI18n.translate.t(`common.month_5`, { defaultValue: "May" }),
+                                            formI18n.translate.t(`common.month_6`, { defaultValue: "June" }),
+                                            formI18n.translate.t(`common.month_7`, { defaultValue: "July" }),
+                                            formI18n.translate.t(`common.month_8`, { defaultValue: "August" }),
+                                            formI18n.translate.t(`common.month_9`, { defaultValue: "September" }),
+                                            formI18n.translate.t(`common.month_10`, { defaultValue: "October" }),
+                                            formI18n.translate.t(`common.month_11`, { defaultValue: "November" }),
+                                            formI18n.translate.t(`common.month_12`, { defaultValue: "December" }),
                                         ],
                                         weekdayNamesShort: [
-                                            translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
-                                            translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
-                                            translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
-                                            translate.t(`common.weekday_4`, {
+                                            formI18n.translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
+                                            formI18n.translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
+                                            formI18n.translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
+                                            formI18n.translate.t(`common.weekday_4`, {
                                                 defaultValue: "Wed",
                                             }),
-                                            translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
-                                            translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
-                                            translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
+                                            formI18n.translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
+                                            formI18n.translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
+                                            formI18n.translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
                                         ],
-                                        backButtonLabel: translate.t(`common.back_button`, {
+                                        backButtonLabel: formI18n.translate.t(`common.back_button`, {
                                             defaultValue: "Back",
                                         }),
-                                        forwardButtonLabel: translate.t(`common.forward_button`, {
+                                        forwardButtonLabel: formI18n.translate.t(`common.forward_button`, {
                                             defaultValue: "Forward",
                                         }),
-                                    } })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: customTranslate(`field_required`) }))] }));
+                                    } })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: formI18n.required() }))] }));
 };
 
 function filterArray(array, searchTerm) {
@@ -4060,7 +4118,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
     const { translate } = useSchemaContext();
     const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { gridColumn = "span 4", gridRow = "span 1", renderDisplay } = schema;
+    const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
     const [searchText, setSearchText] = React.useState();
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
@@ -4502,7 +4560,7 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
 const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const currentFiles = (watch(column) ?? []);
     const colLabel = `${prefix}${column}`;
@@ -4557,8 +4615,9 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
 
 const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { serverUrl, idMap, setIdMap, translate, schema: parentSchema, } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
+    const { serverUrl, idMap, setIdMap, schema: parentSchema, } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
+    const { required, gridColumn = "span 12", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { table, column: column_ref, display_column, customQueryFn, } = foreign_key;
     const [searchText, setSearchText] = React.useState("");
@@ -4566,7 +4625,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const [openSearchResult, setOpenSearchResult] = React.useState();
     const [page, setPage] = React.useState(0);
     const ref = React.useRef(null);
-    const colLabel = `${prefix}${column}`;
+    const colLabel = formI18n.colLabel;
     const watchId = watch(colLabel);
     const watchIds = isMultiple ? (watch(colLabel) ?? []) : [];
     // Query for search results
@@ -4702,11 +4761,11 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         }
         return record[display_column];
     };
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(removeIndex(`${column}.field_label`)))}`, required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: "wrap", gap: 1, children: [watchIds.map((id) => {
                         const item = idMap[id];
                         if (item === undefined) {
-                            return (jsxRuntime.jsx(react.Text, { children: translate.t(removeIndex(`${colLabel}.undefined`)) }, id));
+                            return (jsxRuntime.jsx(react.Text, { children: formI18n.t('undefined') }, id));
                         }
                         return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
                                 setValue(colLabel, watchIds.filter((itemId) => itemId !== item[column_ref]));
@@ -4715,9 +4774,9 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                 : item[display_column] }, id));
                     }), jsxRuntime.jsx(Tag, { cursor: "pointer", onClick: () => {
                             setOpenSearchResult(true);
-                        }, children: translate.t(removeIndex(`${colLabel}.add_more`)) })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
+                        }, children: formI18n.t('add_more') })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
                     setOpenSearchResult(true);
-                }, justifyContent: "start", children: queryDefault.isLoading ? jsxRuntime.jsx(react.Spinner, { size: "sm" }) : getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { portalled: false, children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: translate.t(removeIndex(`${colLabel}.type_to_search`)), onChange: onSearchChange, autoComplete: "off", ref: ref, value: searchText }), jsxRuntime.jsx(PopoverTitle, {}), openSearchResult && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, {}), isError && (jsxRuntime.jsx(react.Icon, { color: "red.400", children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", children: [jsxRuntime.jsx(InfoTip, { children: `${translate.t(removeIndex(`${colLabel}.total`))} ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit} ${translate.t(removeIndex(`${colLabel}.per_page`), "per page")}` }), jsxRuntime.jsxs(react.Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxRuntime.jsxs(react.Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/", " ", count > 0
+                }, justifyContent: "start", children: queryDefault.isLoading ? jsxRuntime.jsx(react.Spinner, { size: "sm" }) : getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { portalled: false, children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: formI18n.t('type_to_search'), onChange: onSearchChange, autoComplete: "off", ref: ref, value: searchText }), jsxRuntime.jsx(PopoverTitle, {}), openSearchResult && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, {}), isError && (jsxRuntime.jsx(react.Icon, { color: "red.400", children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", children: [jsxRuntime.jsx(InfoTip, { children: `${formI18n.t('total')} ${count}, ${formI18n.t('showing')} ${limit} ${formI18n.t('per_page', { defaultValue: 'per page' })}` }), jsxRuntime.jsxs(react.Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxRuntime.jsxs(react.Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/", " ", count > 0
                                                                             ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}`
                                                                             : "0"] })] })] }), jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsxs("select", { value: limit, onChange: handleLimitChange, style: {
                                                             padding: "4px 8px",
@@ -4751,8 +4810,8 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                             ? renderDisplay(item)
                                                             : item[display_column] }, item[column_ref]));
                                                 }) })) : (jsxRuntime.jsx(react.Text, { children: searchText
-                                                    ? translate.t(removeIndex(`${colLabel}.empty_search_result`))
-                                                    : translate.t(removeIndex(`${colLabel}.initial_results`)) })) }), jsxRuntime.jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: limit, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxRuntime.jsxs(react.HStack, { gap: "4", children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), count > 0 && jsxRuntime.jsx(PaginationPageText, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                                                    ? formI18n.t('empty_search_result')
+                                                    : formI18n.t('initial_results') })) }), jsxRuntime.jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: limit, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxRuntime.jsxs(react.HStack, { gap: "4", children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), count > 0 && jsxRuntime.jsx(PaginationPageText, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: formI18n.required() }))] }));
 };
 
 const NumberInputRoot = React__namespace.forwardRef(function NumberInput(props, ref) {
@@ -4766,7 +4825,7 @@ react.NumberInput.Label;
 const NumberInputField = ({ schema, column, prefix, }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(`${colLabel}`);
@@ -4851,7 +4910,7 @@ const RecordInput$1 = ({ column, schema, prefix }) => {
 const StringInputField = ({ column, schema, prefix, }) => {
     const { register, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, children: [jsxRuntime.jsx(react.Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }), errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
@@ -5040,7 +5099,7 @@ Textarea.displayName = "Textarea";
 const TextAreaInput = ({ column, schema, prefix, }) => {
     const { register, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const form = reactHookForm.useFormContext();
@@ -5177,7 +5236,7 @@ dayjs.extend(timezone);
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", timeFormat = "HH:mm:ssZ", displayTimeFormat = "hh:mm A", } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1", timeFormat = "HH:mm:ssZ", displayTimeFormat = "hh:mm A", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const [open, setOpen] = React.useState(false);
@@ -5439,12 +5498,13 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const DateTimePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD HH:mm:ss", 
+    const { timezone } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
+    const { required, gridColumn = "span 12", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD HH:mm:ss", 
     // with timezone
     dateFormat = "YYYY-MM-DD[T]HH:mm:ssZ", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
+    const colLabel = formI18n.colLabel;
     const [open, setOpen] = React.useState(false);
     const selectedDate = watch(colLabel);
     const displayDate = dayjs(selectedDate)
@@ -5473,47 +5533,44 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue]);
-    const customTranslate = (label) => {
-        return translateWrapper({ prefix, column, label, translate });
-    };
-    return (jsxRuntime.jsxs(Field, { label: `${customTranslate(`field_label`)}`, required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [jsxRuntime.jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(PopoverTrigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
                             }, justifyContent: "start", children: [jsxRuntime.jsx(md.MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsxRuntime.jsx(PopoverContent, { minW: "450px", children: jsxRuntime.jsxs(PopoverBody, { children: [jsxRuntime.jsx(PopoverTitle, {}), jsxRuntime.jsx(DateTimePicker$1, { value: selectedDate, onChange: (date) => {
                                         setValue(colLabel, dayjs(date).tz(timezone).format(dateFormat));
                                     }, timezone: timezone, labels: {
                                         monthNamesShort: [
-                                            translate.t(`common.month_1`, { defaultValue: "January" }),
-                                            translate.t(`common.month_2`, { defaultValue: "February" }),
-                                            translate.t(`common.month_3`, { defaultValue: "March" }),
-                                            translate.t(`common.month_4`, { defaultValue: "April" }),
-                                            translate.t(`common.month_5`, { defaultValue: "May" }),
-                                            translate.t(`common.month_6`, { defaultValue: "June" }),
-                                            translate.t(`common.month_7`, { defaultValue: "July" }),
-                                            translate.t(`common.month_8`, { defaultValue: "August" }),
-                                            translate.t(`common.month_9`, { defaultValue: "September" }),
-                                            translate.t(`common.month_10`, { defaultValue: "October" }),
-                                            translate.t(`common.month_11`, { defaultValue: "November" }),
-                                            translate.t(`common.month_12`, { defaultValue: "December" }),
+                                            formI18n.translate.t(`common.month_1`, { defaultValue: "January" }),
+                                            formI18n.translate.t(`common.month_2`, { defaultValue: "February" }),
+                                            formI18n.translate.t(`common.month_3`, { defaultValue: "March" }),
+                                            formI18n.translate.t(`common.month_4`, { defaultValue: "April" }),
+                                            formI18n.translate.t(`common.month_5`, { defaultValue: "May" }),
+                                            formI18n.translate.t(`common.month_6`, { defaultValue: "June" }),
+                                            formI18n.translate.t(`common.month_7`, { defaultValue: "July" }),
+                                            formI18n.translate.t(`common.month_8`, { defaultValue: "August" }),
+                                            formI18n.translate.t(`common.month_9`, { defaultValue: "September" }),
+                                            formI18n.translate.t(`common.month_10`, { defaultValue: "October" }),
+                                            formI18n.translate.t(`common.month_11`, { defaultValue: "November" }),
+                                            formI18n.translate.t(`common.month_12`, { defaultValue: "December" }),
                                         ],
                                         weekdayNamesShort: [
-                                            translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
-                                            translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
-                                            translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
-                                            translate.t(`common.weekday_4`, {
+                                            formI18n.translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
+                                            formI18n.translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
+                                            formI18n.translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
+                                            formI18n.translate.t(`common.weekday_4`, {
                                                 defaultValue: "Wed",
                                             }),
-                                            translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
-                                            translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
-                                            translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
+                                            formI18n.translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
+                                            formI18n.translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
+                                            formI18n.translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
                                         ],
-                                        backButtonLabel: translate.t(`common.back_button`, {
+                                        backButtonLabel: formI18n.translate.t(`common.back_button`, {
                                             defaultValue: "Back",
                                         }),
-                                        forwardButtonLabel: translate.t(`common.forward_button`, {
+                                        forwardButtonLabel: formI18n.translate.t(`common.forward_button`, {
                                             defaultValue: "Forward",
                                         }),
-                                    } })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: customTranslate(`field_required`) }))] }));
+                                    } })] }) })] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: formI18n.required() }))] }));
 };
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {
@@ -5615,7 +5672,7 @@ const ArrayViewer = ({ schema, column, prefix }) => {
 const BooleanViewer = ({ schema, column, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -5651,17 +5708,14 @@ const DateViewer = ({ column, schema, prefix }) => {
 
 const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { gridColumn = "span 4", gridRow = "span 1", renderDisplay } = schema;
-    const colLabel = `${prefix}${column}`;
+    const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
+    const colLabel = formI18n.colLabel;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
-    const customTranslate = (label) => {
-        return translateWrapper({ prefix, column, label, translate });
-    };
-    return (jsxRuntime.jsxs(Field, { label: `${customTranslate(`field_label`)}`, required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
         gridRow, children: [isMultiple && (jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", gap: 1, children: watchEnums.map((enumValue) => {
                     const item = enumValue;
                     if (item === undefined) {
@@ -5669,14 +5723,14 @@ const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
                     }
                     return (jsxRuntime.jsx(Tag, { size: "lg", children: !!renderDisplay === true
                             ? renderDisplay(item)
-                            : customTranslate(item) }, item));
-                }) })), !isMultiple && jsxRuntime.jsx(react.Text, { children: customTranslate(watchEnum) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: customTranslate(`field_required`) }))] }));
+                            : formI18n.t(item) }, item));
+                }) })), !isMultiple && jsxRuntime.jsx(react.Text, { children: formI18n.t(watchEnum) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: formI18n.required() }))] }));
 };
 
 const FileViewer = ({ column, schema, prefix }) => {
     const { watch } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const currentFiles = (watch(column) ?? []);
     const colLabel = `${prefix}${column}`;
@@ -5688,7 +5742,7 @@ const FileViewer = ({ column, schema, prefix }) => {
 const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { idMap, translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { display_column } = foreign_key;
     const colLabel = `${prefix}${column}`;
@@ -5719,7 +5773,7 @@ const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
 const NumberViewer = ({ schema, column, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -5750,7 +5804,7 @@ const ObjectViewer = ({ schema, column, prefix }) => {
 const RecordInput = ({ column, schema, prefix }) => {
     const { formState: { errors }, setValue, getValues, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const entries = Object.entries(getValues(column) ?? {});
     const [showNewEntries, setShowNewEntries] = React.useState(false);
@@ -5802,7 +5856,7 @@ const RecordInput = ({ column, schema, prefix }) => {
 const StringViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -5897,7 +5951,7 @@ const TagViewer = ({ column, schema, prefix }) => {
 const TextAreaViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1" } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
@@ -5907,7 +5961,7 @@ const TextAreaViewer = ({ column, schema, prefix, }) => {
 const TimeViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", displayTimeFormat = "hh:mm A", } = schema;
+    const { required, gridColumn = "span 12", gridRow = "span 1", displayTimeFormat = "hh:mm A", } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
