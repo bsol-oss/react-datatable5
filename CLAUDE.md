@@ -9,21 +9,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Development Commands
 
 ### Building the Library
+
 ```bash
 npm run build  # Build the library using Rollup (outputs to dist/)
-```
-
-### Development with Storybook
-```bash
-npm install
-npm run storybook  # Start Storybook on port 6006
-npm run build-storybook  # Build static Storybook
-```
-
-### Code Quality
-```bash
-npm run lint  # Run ESLint on all .ts/.tsx files
-npm run format  # Run Prettier formatting
 ```
 
 ## Architecture
@@ -33,16 +21,19 @@ npm run format  # Run Prettier formatting
 The library is organized into major component categories:
 
 1. **DataTable** (`src/components/DataTable/`)
+
    - Client-side data tables with local state management
    - Server-side data tables with API integration
    - Uses `@tanstack/react-table` for table logic
 
 2. **Form** (`src/components/Form/`)
+
    - JSON Schema-based form generation with validation
    - Uses `react-hook-form` for form state
    - AJV validation with multi-language support (en, zh-HK, zh-TW, zh-CN)
 
 3. **DatePicker/TimePicker** (`src/components/DatePicker/`, `src/components/TimePicker/`)
+
    - Custom date/time picker components
    - Uses `@bsol-oss/dayzed-react19` and `dayjs`
 
@@ -54,6 +45,7 @@ The library is organized into major component categories:
 **Two main table variants:**
 
 - **DataTable**: Client-side table with local data
+
   - Hook: `useDataTable()` - manages local state (sorting, filtering, pagination, etc.)
   - Component: `<DataTable>` wrapper
   - Display components: `<DefaultTable>`, `<TableCards>`, `<DataDisplay>`
@@ -66,11 +58,13 @@ The library is organized into major component categories:
   - Query params sent: `offset`, `limit`, `sorting`, `where`, `searching`
 
 **Key state management:**
+
 - All table state lives in hooks: `useDataTable()` or `useDataTableServer()`
 - State includes: sorting, columnFilters, pagination, rowSelection, columnOrder, globalFilter, columnVisibility, density
 - i18n integration via `react-i18next` with `keyPrefix` support
 
 **Column customization via ColumnMeta:**
+
 - Extended `@tanstack/react-table` with custom `ColumnMeta` interface (defined in `src/index.tsx:1-88`)
 - Supports custom filters: `filterVariant` (text, range, select, tag, boolean, dateRange, custom)
 - Display options: `showCustomDisplay`, `displayName`, `headerTexts`
@@ -86,15 +80,18 @@ The library is organized into major component categories:
   - Validates before form submission with error display
 
 **Form field components** (`src/components/Form/components/fields/`):
+
 - Auto-generated from JSON Schema based on property types
 - Field types: StringInputField, NumberInputField, BooleanPicker, DatePicker, DateTimePicker, EnumPicker, IdPicker, TagPicker, FilePicker
 - Special renderers: ArrayRenderer, ObjectInput, RecordInput, ColumnRenderer
 - SchemaRenderer intelligently selects the right field component based on schema
 
 **Form viewers** (`src/components/Form/components/viewers/`):
+
 - Read-only display versions of form fields
 
 **Key form utilities** (`src/components/Form/utils/`):
+
 - `validateData.tsx`: AJV validation with full schema support
 - `removeIndex.tsx`: Translation key formatting
 - `snakeToLabel.tsx`: Convert snake_case to labels
@@ -104,6 +101,7 @@ The library is organized into major component categories:
 ### Build Configuration
 
 **Rollup build** (`rollup.config.js`):
+
 - Input: `src/index.tsx`
 - Outputs:
   - CommonJS: `dist/index.js`
@@ -113,6 +111,7 @@ The library is organized into major component categories:
 - Path alias: `@/*` maps to `./src/*`
 
 **TypeScript** (`tsconfig.json`):
+
 - Target: ES2020
 - Strict mode enabled
 - Path mapping: `@/*` → `./src/*`
@@ -121,12 +120,14 @@ The library is organized into major component categories:
 ## Key Conventions
 
 ### Translation Integration
+
 - All user-facing components support i18n via `react-i18next`
 - DataTable hooks accept `keyPrefix` parameter for scoped translations
 - Form validation messages support: en, zh-HK, zh-TW, zh-CN locales
 - Use `translate` from hook return values for consistent i18n
 
 ### Form Schema Patterns
+
 - Forms are driven by JSON Schema (Draft 7)
 - Required fields defined in schema's `required` array
 - Format validation via `ajv-formats` (email, date, time, uuid, etc.)
@@ -134,12 +135,15 @@ The library is organized into major component categories:
 - Always validate data before submission using `validateData()`
 
 ### Component Composition
+
 - DataTable/Form components use render props and children composition
 - Controls are modular and can be used independently
 - Display components (`<DefaultTable>`, `<DataDisplay>`, `<TableCards>`) are swappable
 
 ### Peer Dependencies
+
 This library has extensive peer dependencies that must be installed in consuming projects:
+
 - React 19+
 - @chakra-ui/react 3.19+
 - @tanstack/react-table 8.21+
@@ -151,6 +155,7 @@ This library has extensive peer dependencies that must be installed in consuming
 - See package.json `peerDependencies` for complete list
 
 ### Storybook for Development
+
 - All components have corresponding stories in `src/stories/`
 - Organized by feature: DataTable/, DataTableServer/, Form/, DatePicker/
 - Stories demonstrate usage patterns and serve as live documentation
@@ -159,9 +164,10 @@ This library has extensive peer dependencies that must be installed in consuming
 ## Common Development Patterns
 
 ### Creating a new DataTable
+
 ```tsx
 const datatable = useDataTable({
-  default: { pageSize: 20, sorting: [{ id: 'name', desc: false }] }
+  default: { pageSize: 20, sorting: [{ id: 'name', desc: false }] },
 });
 return (
   <DataTable columns={columns} data={data} {...datatable}>
@@ -171,10 +177,11 @@ return (
 ```
 
 ### Creating a server-side DataTable
+
 ```tsx
 const datatable = useDataTableServer({
-  url: "https://api.example.com/data",
-  default: { pageSize: 10 }
+  url: 'https://api.example.com/data',
+  default: { pageSize: 10 },
 });
 return (
   <DataTableServer columns={columns} {...datatable}>
@@ -185,18 +192,23 @@ return (
 ```
 
 ### Form with validation
+
 ```tsx
 <FormRoot
   schema={jsonSchema}
   validationLocale="zh-HK"
-  onSubmit={async (data) => { /* handle submission */ }}
+  onSubmit={async (data) => {
+    /* handle submission */
+  }}
 >
   <FormBody />
 </FormRoot>
 ```
 
 ### Custom column with filter
+
 Define in column definition:
+
 ```tsx
 {
   id: 'status',
@@ -218,6 +230,5 @@ Define in column definition:
 - TypeScript strict mode is enabled - maintain type safety
 - Storybook stories excluded from production build via Rollup config
 - Default timezone for forms: 'Asia/Hong_Kong' (configurable via context)
-
 
 - do not check typescript error useless user specify
