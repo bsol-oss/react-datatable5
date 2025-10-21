@@ -5,13 +5,14 @@ import { useTranslation } from "react-i18next";
 export interface UseFormProps {
   preLoadedValues?: FieldValues | undefined;
   keyPrefix?: string;
+  namespace?: string;
 }
-export const useForm = ({ preLoadedValues, keyPrefix }: UseFormProps) => {
+export const useForm = ({ preLoadedValues, keyPrefix, namespace }: UseFormProps) => {
   const form = useReactHookForm({
     values: preLoadedValues,
   });
   const [idMap, setIdMap] = useState<Record<string, object>>({});
-  const translate = useTranslation("", { keyPrefix });
+  const translate = useTranslation(namespace || "", { keyPrefix });
   return {
     form,
     idMap,
