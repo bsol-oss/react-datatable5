@@ -32,7 +32,7 @@ export const DateTimePicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { timezone } = useSchemaContext();
+  const { timezone, dateTimePickerLabels } = useSchemaContext();
   const formI18n = useFormI18n(column, prefix);
   const {
     required,
@@ -112,7 +112,7 @@ export const DateTimePicker = ({
               }}
               timezone={timezone}
               labels={{
-                monthNamesShort: [
+                monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
                   formI18n.translate.t(`common.month_1`, { defaultValue: "January" }),
                   formI18n.translate.t(`common.month_2`, { defaultValue: "February" }),
                   formI18n.translate.t(`common.month_3`, { defaultValue: "March" }),
@@ -126,7 +126,7 @@ export const DateTimePicker = ({
                   formI18n.translate.t(`common.month_11`, { defaultValue: "November" }),
                   formI18n.translate.t(`common.month_12`, { defaultValue: "December" }),
                 ],
-                weekdayNamesShort: [
+                weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
                   formI18n.translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
                   formI18n.translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
                   formI18n.translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
@@ -137,10 +137,10 @@ export const DateTimePicker = ({
                   formI18n.translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
                   formI18n.translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
                 ],
-                backButtonLabel: formI18n.translate.t(`common.back_button`, {
+                backButtonLabel: dateTimePickerLabels?.backButtonLabel ?? formI18n.translate.t(`common.back_button`, {
                   defaultValue: "Back",
                 }),
-                forwardButtonLabel: formI18n.translate.t(`common.forward_button`, {
+                forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ?? formI18n.translate.t(`common.forward_button`, {
                   defaultValue: "Forward",
                 }),
               }}

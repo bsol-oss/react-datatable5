@@ -3,6 +3,13 @@ import { ReactNode } from "react";
 import { ForeignKeyProps } from "../fields/StringInputField";
 import { UseFormReturn } from "react-hook-form";
 
+export interface DateTimePickerLabels {
+  monthNamesShort?: string[];  // Array of 12 month names
+  weekdayNamesShort?: string[];  // Array of 7 weekday names (starting with Sunday)
+  backButtonLabel?: string;
+  forwardButtonLabel?: string;
+}
+
 export interface CustomJSONSchema7 extends JSONSchema7 {
   gridColumn?: string;
   gridRow?: string;

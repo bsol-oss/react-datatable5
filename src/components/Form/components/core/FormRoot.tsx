@@ -10,7 +10,7 @@ import {
   UseFormReturn,
 } from "react-hook-form";
 import { UseTranslationResponse } from "react-i18next";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { CustomJSONSchema7, DateTimePickerLabels } from "../types/CustomJSONSchema7";
 
 export interface FormRootProps<TData extends FieldValues> {
   schema: CustomJSONSchema7;
@@ -34,6 +34,7 @@ export interface FormRootProps<TData extends FieldValues> {
     showResetButton?: boolean;
     showTitle?: boolean;
   };
+  dateTimePickerLabels?: DateTimePickerLabels;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -100,6 +101,7 @@ export const FormRoot = <TData extends FieldValues>({
     showResetButton: true,
     showTitle: true,
   },
+  dateTimePickerLabels,
 }: FormRootProps<TData>) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -138,6 +140,7 @@ export const FormRoot = <TData extends FieldValues>({
         getUpdatedData,
         customErrorRenderer,
         displayConfig,
+        dateTimePickerLabels,
       }}
     >
       <FormProvider {...form}>{children}</FormProvider>
