@@ -2,7 +2,7 @@
 
 ## Updated Interface
 
-The `DataTableServer` component has been updated to properly handle generic types for data structures. 
+The `DataTableServer` component has been updated to properly handle generic types for data structures.
 
 ### Key Changes
 
@@ -11,6 +11,7 @@ The `DataTableServer` component has been updated to properly handle generic type
 3. **Column Type**: The `columns` prop expects `ColumnDef<TData>[]`
 
 ### Before (Incorrect)
+
 ```typescript
 // This was incorrect - TData extended DataResponse
 export interface DataTableServerProps<TData extends DataResponse = DataResponse<unknown>>
@@ -20,6 +21,7 @@ export interface DataTableServerProps<TData extends DataResponse = DataResponse<
 ```
 
 ### After (Correct)
+
 ```typescript
 // Now TData represents the individual row data type
 export interface DataTableServerProps<TData = unknown>
@@ -38,7 +40,7 @@ import { Product } from "./types";
 // 1. Create the server-side data table hook with proper typing
 const datatableServer = useDataTableServer<Product>({
   url: "/api/products",
-  default: { 
+  default: {
     sorting: [{ id: "title", desc: false }],
     pagination: { pageIndex: 0, pageSize: 10 }
   },
@@ -51,7 +53,7 @@ const columns: ColumnDef<Product>[] = [
     cell: (props) => props.row.original.id,
   }),
   columnHelper.accessor("title", {
-    header: "Title", 
+    header: "Title",
     cell: (props) => props.row.original.title,
   }),
   // ... more columns
@@ -92,4 +94,4 @@ interface DataResponse<T> {
 - **Type Safety**: Full TypeScript support for your data structures
 - **IntelliSense**: Proper autocomplete for column accessors and cell renderers
 - **Error Prevention**: Compile-time checking for data structure mismatches
-- **Clear Intent**: Generic parameter clearly indicates the row data type 
+- **Clear Intent**: Generic parameter clearly indicates the row data type

@@ -1,4 +1,3 @@
-
 # Form
 
 Form component can help create a object to submit an network request.
@@ -7,14 +6,10 @@ Form component can help create a object to submit an network request.
 - Use `i18next` by default to display `column_id` and text in form in multiple language.
 - Use `axios` by default to submit a request.
 
-
 ## Usage
 
 ```tsx
-<Form
-  schema={someSchema as JSONSchema7}
-  serverUrl={"http://localhost:8081"}
-/>
+<Form schema={someSchema as JSONSchema7} serverUrl={'http://localhost:8081'} />
 ```
 
 ## Set up
@@ -43,26 +38,23 @@ The example of a valid `schema` object
 
 ```tsx
 const schema = {
-  type: "object",
-  title: "core_memberships",
-  required: ["id"],
+  type: 'object',
+  title: 'core_memberships',
+  required: ['id'],
   properties: {
     id: {
-      type: "string",
+      type: 'string',
     },
     remarks: {
-      type: "string",
+      type: 'string',
     },
-  }
-}
+  },
+};
 const SomeForm = () => {
   return (
-    <Form
-      schema={schema as JSONSchema7}
-      serverUrl={"http://localhost:8081"}
-    />
-  )
-}
+    <Form schema={schema as JSONSchema7} serverUrl={'http://localhost:8081'} />
+  );
+};
 ```
 
 ### Important: Avoid `as const` with Schemas
@@ -72,12 +64,12 @@ const SomeForm = () => {
 ```tsx
 // WRONG - This will cause TypeScript errors
 const schema = {
-  type: "object",
-  required: ["name"],
-  properties: { 
-    name: { type: "string" }
-  }
-} as const;  // ❌ Causes readonly tuple error
+  type: 'object',
+  required: ['name'],
+  properties: {
+    name: { type: 'string' },
+  },
+} as const; // ❌ Causes readonly tuple error
 ```
 
 ✅ **DO** use `as JSONSchema7` or no type assertion:
@@ -85,21 +77,21 @@ const schema = {
 ```tsx
 // CORRECT - Option 1: Use JSONSchema7 type assertion
 const schema = {
-  type: "object",
-  required: ["name"],
-  properties: { 
-    name: { type: "string" }
-  }
-} as JSONSchema7;  // ✅ Works correctly
+  type: 'object',
+  required: ['name'],
+  properties: {
+    name: { type: 'string' },
+  },
+} as JSONSchema7; // ✅ Works correctly
 
 // CORRECT - Option 2: No type assertion
 const schema = {
-  type: "object",
-  required: ["name"],
-  properties: { 
-    name: { type: "string" }
-  }
-};  // ✅ Works correctly
+  type: 'object',
+  required: ['name'],
+  properties: {
+    name: { type: 'string' },
+  },
+}; // ✅ Works correctly
 ```
 
 **Why?** Using `as const` makes the `required` array a readonly tuple (e.g., `readonly ["name"]`), but the `CustomJSONSchema7` type (which extends `JSONSchema7`) expects a mutable `string[]` array. This incompatibility causes TypeScript errors like:
@@ -128,7 +120,6 @@ You MUST provide the `properties` keywords to specifies the fields that the form
 
 The value must be in type `object`. The keys in this object specifies the column id and the values its related properties. Check the sections **Column Keywords** show the supported column keywords.
 
-
 ## Column Keywords
 
 ### `type`
@@ -139,7 +130,7 @@ Check the sections **Value types** show the supported keywords and input variant
 
 Supported value types: `array`, `string`, `number`, `boolean`, `integer`, `object`;
 
-## Value types 
+## Value types
 
 This sections show the supported keywords and input variants for each value type.
 
@@ -157,44 +148,44 @@ For string input variant `id-picker`, it will generate a selector that can pop u
 
 You MUST include the keyword `foreign_key` and a object with keys `display_column`, `table`, `column`. The `display_column` key is the column that show the label for that value to user, and `column` key is the column that its value should set in this input.
 
-You MUST include a `/api/g` api that could accept the following request in order to search for a record. 
+You MUST include a `/api/g` api that could accept the following request in order to search for a record.
 
 ```ts
 const requestConfig = {
-  method: "GET",
+  method: 'GET',
   url: `${serverUrl}/api/g/${table}`,
   params: {
     searching,
     where,
     limit,
-    offset
+    offset,
   },
-}
+};
 ```
 
 The example valid schema that use `id=picker` variant.
 
 ```tsx
 const eventsFilesSchema = {
-  type: "object",
-  title: "events_files",
-  required: ["event_id", "file_id"],
+  type: 'object',
+  title: 'events_files',
+  required: ['event_id', 'file_id'],
   properties: {
     file_id: {
-      type: "array",
-      variant: "file-picker",
+      type: 'array',
+      variant: 'file-picker',
     },
     event_id: {
-      type: "string",
-      variant: "id-picker",
+      type: 'string',
+      variant: 'id-picker',
       foreign_key: {
-        display_column: "event_name",
-        table: "core_events",
-        column: "id",
+        display_column: 'event_name',
+        table: 'core_events',
+        column: 'id',
       },
     },
   },
-}
+};
 ```
 
 ### `number`
@@ -209,10 +200,9 @@ For value type `boolean`, it will generate a checkbox by default.
 
 Currently no supported variants.
 
-
 ### `array`
 
-For value type `array`, by default it will generate NO input. 
+For value type `array`, by default it will generate NO input.
 
 You MUST specify the `variant` keyword to display a relevant input.
 
@@ -220,10 +210,10 @@ Supported variant in `array`: `id-picker`, `file-picker`
 
 ### `object`
 
-For value type `object`, by default it will generate a input that can input key value pairs. 
+For value type `object`, by default it will generate a input that can input key value pairs.
 
 It is NOT RECOMMENDED to use the default input, Later release may include a json editor by default.
 
-### Intented Support Keywords in Future Release 
+### Intented Support Keywords in Future Release
 
 (TBC)
