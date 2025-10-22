@@ -21,6 +21,17 @@ export interface IdPickerLabels {
   initialResults?: string;
 }
 
+export interface EnumPickerLabels {
+  undefined?: string;
+  addMore?: string;
+  typeToSearch?: string;
+  total?: string;
+  showing?: string;
+  perPage?: string;
+  emptySearchResult?: string;
+  initialResults?: string;
+}
+
 export interface CustomJSONSchema7 extends JSONSchema7 {
   gridColumn?: string;
   gridRow?: string;

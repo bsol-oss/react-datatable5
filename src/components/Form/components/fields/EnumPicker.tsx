@@ -1,12 +1,12 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   PopoverBody,
   PopoverContent,
   PopoverRoot,
   PopoverTitle,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Tag } from "@/components/ui/tag";
+} from '@/components/ui/popover';
+import { Tag } from '@/components/ui/tag';
 import {
   Box,
   Flex,
@@ -15,15 +15,14 @@ import {
   Input,
   RadioGroup,
   Text,
-} from "@chakra-ui/react";
-import { ChangeEvent, useRef, useState } from "react";
-import { useFormContext } from "react-hook-form";
-import { Field } from "../../../ui/field";
-import { useSchemaContext } from "../../useSchemaContext";
-import { filterArray } from "../../utils/filterArray";
-import { removeIndex } from "../../utils/removeIndex";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { JSONSchema7 } from "json-schema";
+} from '@chakra-ui/react';
+import { ChangeEvent, useRef, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { Field } from '../../../ui/field';
+import { useSchemaContext } from '../../useSchemaContext';
+import { filterArray } from '../../utils/filterArray';
+import { removeIndex } from '../../utils/removeIndex';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface IdPickerProps {
   column: string;
@@ -45,10 +44,10 @@ export const EnumPicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { translate } = useSchemaContext();
+  const { translate, enumPickerLabels } = useSchemaContext();
   const { required, variant } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
+  const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
   const [searchText, setSearchText] = useState<string>();
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
@@ -64,12 +63,12 @@ export const EnumPicker = ({
     setLimit(10);
   };
 
-  if (variant === "radio") {
+  if (variant === 'radio') {
     return (
       <Field
         label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
         required={isRequired}
-        alignItems={"stretch"}
+        alignItems={'stretch'}
         {...{
           gridColumn,
           gridRow,
@@ -77,7 +76,7 @@ export const EnumPicker = ({
       >
         <RadioGroup.Root defaultValue="1">
           <HStack gap="6">
-            {filterArray(dataList as string[], searchText ?? "").map(
+            {filterArray(dataList as string[], searchText ?? '').map(
               (item: string) => {
                 return (
                   <RadioGroup.Item
@@ -114,14 +113,14 @@ export const EnumPicker = ({
     <Field
       label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
       required={isRequired}
-      alignItems={"stretch"}
+      alignItems={'stretch'}
       {...{
         gridColumn,
         gridRow,
       }}
     >
       {isMultiple && (
-        <Flex flexFlow={"wrap"} gap={1}>
+        <Flex flexFlow={'wrap'} gap={1}>
           {watchEnums.map((enumValue) => {
             const item = enumValue;
             if (!!item === false) {
@@ -148,26 +147,27 @@ export const EnumPicker = ({
           <Tag
             key={`${colLabel}-add-more-tag`}
             size="lg"
-            cursor={"pointer"}
+            cursor={'pointer'}
             onClick={() => {
               setOpenSearchResult(true);
             }}
           >
-            {translate.t(removeIndex(`${colLabel}.add_more`))}
+            {enumPickerLabels?.addMore ??
+              translate.t(removeIndex(`${colLabel}.add_more`))}
           </Tag>
         </Flex>
       )}
       {!isMultiple && (
         <Button
-          variant={"outline"}
+          variant={'outline'}
           onClick={() => {
             setOpenSearchResult(true);
           }}
-          justifyContent={"start"}
+          justifyContent={'start'}
         >
           {!!watchEnum === false
-            ? ""
-            : translate.t(removeIndex(`${colLabel}.${watchEnum ?? "null"}`))}
+            ? ''
+            : translate.t(removeIndex(`${colLabel}.${watchEnum ?? 'null'}`))}
         </Button>
       )}
       <PopoverRoot
@@ -175,13 +175,16 @@ export const EnumPicker = ({
         onOpenChange={(e) => setOpenSearchResult(e.open)}
         closeOnInteractOutside
         initialFocusEl={() => ref.current}
-        positioning={{ placement: "bottom-start" }}
+        positioning={{ placement: 'bottom-start' }}
       >
         <PopoverTrigger />
         <PopoverContent portalled={false}>
-          <PopoverBody display={"grid"} gap={1}>
+          <PopoverBody display={'grid'} gap={1}>
             <Input
-              placeholder={translate.t(`${colLabel}.type_to_search`)}
+              placeholder={
+                enumPickerLabels?.typeToSearch ??
+                translate.t(`${colLabel}.type_to_search`)
+              }
               onChange={(event) => {
                 onSearchChange(event);
                 setOpenSearchResult(true);
@@ -191,14 +194,14 @@ export const EnumPicker = ({
             />
             <PopoverTitle />
             {showTotalAndLimit && (
-              <Text>{`${translate.t(removeIndex(`${colLabel}.total`))}: ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}`}</Text>
+              <Text>{`${enumPickerLabels?.total ?? translate.t(removeIndex(`${colLabel}.total`))}: ${count}, ${enumPickerLabels?.showing ?? translate.t(removeIndex(`${colLabel}.showing`))} ${limit}`}</Text>
             )}
 
-            <Grid overflow={"auto"} maxHeight={"20rem"}>
-              <Flex flexFlow={"column wrap"}>
+            <Grid overflow={'auto'} maxHeight={'20rem'}>
+              <Flex flexFlow={'column wrap'}>
                 {(dataList as string[])
                   .filter((item: string) => {
-                    const searchTerm = (searchText || "").toLowerCase();
+                    const searchTerm = (searchText || '').toLowerCase();
                     if (!searchTerm) return true;
 
                     // Check if the original enum value contains the search text
@@ -227,7 +230,7 @@ export const EnumPicker = ({
                     return (
                       <Box
                         key={`${colLabel}-${item}`}
-                        cursor={"pointer"}
+                        cursor={'pointer'}
                         onClick={() => {
                           if (!isMultiple) {
                             setOpenSearchResult(false);
@@ -237,7 +240,7 @@ export const EnumPicker = ({
                           const newSet = new Set([...(watchEnums ?? []), item]);
                           setValue(colLabel, [...newSet]);
                         }}
-                        {...(selected ? { color: "colorPalette.400/50" } : {})}
+                        {...(selected ? { color: 'colorPalette.400/50' } : {})}
                       >
                         {!!renderDisplay === true
                           ? renderDisplay(item)
@@ -250,9 +253,10 @@ export const EnumPicker = ({
                 <>
                   {dataList.length <= 0 && (
                     <>
-                      {translate.t(
-                        removeIndex(`${colLabel}.empty_search_result`)
-                      )}
+                      {enumPickerLabels?.emptySearchResult ??
+                        translate.t(
+                          removeIndex(`${colLabel}.empty_search_result`)
+                        )}
                     </>
                   )}
                 </>
@@ -263,7 +267,7 @@ export const EnumPicker = ({
       </PopoverRoot>
 
       {errors[`${colLabel}`] && (
-        <Text color={"red.400"}>
+        <Text color={'red.400'}>
           {translate.t(removeIndex(`${colLabel}.field_required`))}
         </Text>
       )}

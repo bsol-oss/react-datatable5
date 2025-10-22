@@ -6,6 +6,7 @@ import { UseTranslationResponse } from 'react-i18next';
 import {
   DateTimePickerLabels,
   IdPickerLabels,
+  EnumPickerLabels,
 } from './components/types/CustomJSONSchema7';
 
 export interface SchemaFormContext<TData extends FieldValues> {
@@ -46,6 +47,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
   };
   dateTimePickerLabels?: DateTimePickerLabels;
   idPickerLabels?: IdPickerLabels;
+  enumPickerLabels?: EnumPickerLabels;
 }
 
 //@ts-expect-error TODO: find appropriate type

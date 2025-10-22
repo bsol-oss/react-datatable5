@@ -87,6 +87,30 @@ export const CustomIdPickerLabels: Story = {
   },
 };
 
+export const CustomEnumPickerLabels: Story = {
+  args: {
+    formConfig: {
+      schema: {} as JSONSchema7,
+      serverUrl: 'http://localhost:8123',
+      idMap: {},
+      setIdMap: () => {},
+      form: {} as any,
+      translate: {} as any,
+    },
+  },
+  render: () => {
+    return (
+      <Provider>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
+            <EnumPickerForm />
+          </I18nextProvider>
+        </QueryClientProvider>
+      </Provider>
+    );
+  },
+};
+
 export const CombinedCustomLabels: Story = {
   args: {
     formConfig: {
@@ -298,6 +322,57 @@ const CombinedForm = () => {
           perPage: '每頁',
           emptySearchResult: '找不到結果',
           initialResults: '輸入以搜尋項目',
+        },
+        ...form,
+      }}
+    />
+  );
+};
+
+const EnumPickerForm = () => {
+  const form = useForm({
+    keyPrefix: 'enumpicker',
+    preLoadedValues: { status: 'active', tags: ['tag1', 'tag2'] },
+  });
+
+  const schema = {
+    type: 'object',
+    properties: {
+      status: {
+        type: 'string',
+        title: 'Status',
+        enum: ['active', 'inactive', 'pending'],
+        variant: 'enum-picker',
+      },
+      tags: {
+        type: 'array',
+        title: 'Tags',
+        items: {
+          type: 'string',
+          enum: ['tag1', 'tag2', 'tag3', 'tag4'],
+        },
+        variant: 'enum-picker',
+      },
+    },
+  } as JSONSchema7;
+
+  return (
+    <DefaultForm
+      formConfig={{
+        schema: schema as JSONSchema7,
+        serverUrl: 'http://localhost:8123',
+        onSubmit: (data) => {
+          console.log('EnumPicker form submitted:', data);
+        },
+        enumPickerLabels: {
+          undefined: '找不到項目',
+          addMore: '新增標籤',
+          typeToSearch: '搜尋項目...',
+          total: '總計項目',
+          showing: '顯示',
+          perPage: '每頁項目',
+          emptySearchResult: '找不到符合的項目',
+          initialResults: '開始輸入以搜尋項目',
         },
         ...form,
       }}
