@@ -1,0 +1,306 @@
+import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
+import { useForm } from '@/components/Form/useForm';
+import { Provider } from '@/components/ui/provider';
+import type { Meta, StoryObj } from '@storybook/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import i18n from 'i18next';
+import { JSONSchema7 } from 'json-schema';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
+
+// More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
+const meta = {
+  title: 'react-datatable5/Form/Custom Labels (Override zhhk)',
+  component: DefaultForm,
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Demonstrates custom labels overriding Chinese (zhhk) i18n translations for DateTimePicker and IdPicker components.',
+      },
+    },
+  },
+
+  argTypes: {},
+} satisfies Meta<typeof DefaultForm>;
+
+type Story = StoryObj<typeof meta>;
+
+export default meta;
+const queryClient = new QueryClient();
+
+i18n
+  .use(initReactI18next) // bind react-i18next to the instance
+  .init({
+    fallbackLng: 'zhhk',
+    debug: true,
+
+    interpolation: {
+      escapeValue: false, // not needed for react!!
+    },
+  });
+
+export const CustomDateTimePickerLabels: Story = {
+  args: {
+    formConfig: {
+      schema: {} as JSONSchema7,
+      serverUrl: 'http://localhost:8123',
+      idMap: {},
+      setIdMap: () => {},
+      form: {} as any,
+      translate: {} as any,
+    },
+  },
+  render: () => {
+    return (
+      <Provider>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
+            <DateTimePickerForm />
+          </I18nextProvider>
+        </QueryClientProvider>
+      </Provider>
+    );
+  },
+};
+
+export const CustomIdPickerLabels: Story = {
+  args: {
+    formConfig: {
+      schema: {} as JSONSchema7,
+      serverUrl: 'http://localhost:8123',
+      idMap: {},
+      setIdMap: () => {},
+      form: {} as any,
+      translate: {} as any,
+    },
+  },
+  render: () => {
+    return (
+      <Provider>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
+            <IdPickerForm />
+          </I18nextProvider>
+        </QueryClientProvider>
+      </Provider>
+    );
+  },
+};
+
+export const CombinedCustomLabels: Story = {
+  args: {
+    formConfig: {
+      schema: {} as JSONSchema7,
+      serverUrl: 'http://localhost:8123',
+      idMap: {},
+      setIdMap: () => {},
+      form: {} as any,
+      translate: {} as any,
+    },
+  },
+  render: () => {
+    return (
+      <Provider>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
+            <CombinedForm />
+          </I18nextProvider>
+        </QueryClientProvider>
+      </Provider>
+    );
+  },
+};
+
+const DateTimePickerForm = () => {
+  const form = useForm({
+    keyPrefix: 'datetime',
+    preLoadedValues: { event_date: '2024-01-15T10:30:00Z' },
+  });
+
+  const schema = {
+    type: 'object',
+    properties: {
+      event_date: {
+        type: 'string',
+        format: 'date-time',
+        title: 'Event Date & Time',
+      },
+      start_time: {
+        type: 'string',
+        format: 'date-time',
+        title: 'Start Time',
+      },
+    },
+  } as JSONSchema7;
+
+  return (
+    <DefaultForm
+      formConfig={{
+        schema: schema as JSONSchema7,
+        serverUrl: 'http://localhost:8123',
+        onSubmit: (data) => {
+          console.log('DateTimePicker form submitted:', data);
+        },
+        dateTimePickerLabels: {
+          monthNamesShort: [
+            '一月',
+            '二月',
+            '三月',
+            '四月',
+            '五月',
+            '六月',
+            '七月',
+            '八月',
+            '九月',
+            '十月',
+            '十一月',
+            '十二月',
+          ],
+          weekdayNamesShort: ['日', '一', '二', '三', '四', '五', '六'],
+          backButtonLabel: '上一頁',
+          forwardButtonLabel: '下一頁',
+        },
+        ...form,
+      }}
+    />
+  );
+};
+
+const IdPickerForm = () => {
+  const form = useForm({
+    keyPrefix: 'idpicker',
+    preLoadedValues: { category_id: '1', tags: ['1', '2'] },
+  });
+
+  const schema = {
+    type: 'object',
+    properties: {
+      category_id: {
+        type: 'string',
+        title: 'Category',
+        variant: 'id-picker',
+        foreign_key: {
+          table: 'categories',
+          column: 'id',
+          display_column: 'name',
+        },
+      },
+      tags: {
+        type: 'array',
+        title: 'Tags',
+        variant: 'id-picker',
+        foreign_key: {
+          table: 'tags',
+          column: 'id',
+          display_column: 'name',
+        },
+      },
+    },
+  } as JSONSchema7;
+
+  return (
+    <DefaultForm
+      formConfig={{
+        schema: schema as JSONSchema7,
+        serverUrl: 'http://localhost:8123',
+        onSubmit: (data) => {
+          console.log('IdPicker form submitted:', data);
+        },
+        idPickerLabels: {
+          undefined: '找不到項目',
+          addMore: '新增標籤',
+          typeToSearch: '搜尋項目...',
+          total: '總計項目',
+          showing: '顯示',
+          perPage: '每頁項目',
+          emptySearchResult: '找不到符合的項目',
+          initialResults: '開始輸入以搜尋項目',
+        },
+        ...form,
+      }}
+    />
+  );
+};
+
+const CombinedForm = () => {
+  const form = useForm({
+    keyPrefix: 'combined',
+    preLoadedValues: {
+      event_date: '2024-02-20T14:00:00Z',
+      organizer_id: '2',
+    },
+  });
+
+  const schema = {
+    type: 'object',
+    properties: {
+      event_date: {
+        type: 'string',
+        format: 'date-time',
+        title: 'Event Date & Time',
+      },
+      organizer_id: {
+        type: 'string',
+        title: 'Organizer',
+        variant: 'id-picker',
+        foreign_key: {
+          table: 'users',
+          column: 'id',
+          display_column: 'name',
+        },
+      },
+      categories: {
+        type: 'array',
+        title: 'Categories',
+        variant: 'id-picker',
+        foreign_key: {
+          table: 'categories',
+          column: 'id',
+          display_column: 'name',
+        },
+      },
+    },
+  } as JSONSchema7;
+
+  return (
+    <DefaultForm
+      formConfig={{
+        schema: schema as JSONSchema7,
+        serverUrl: 'http://localhost:8123',
+        onSubmit: (data) => {
+          console.log('Combined form submitted:', data);
+        },
+        dateTimePickerLabels: {
+          monthNamesShort: [
+            '一月',
+            '二月',
+            '三月',
+            '四月',
+            '五月',
+            '六月',
+            '七月',
+            '八月',
+            '九月',
+            '十月',
+            '十一月',
+            '十二月',
+          ],
+          weekdayNamesShort: ['日', '一', '二', '三', '四', '五', '六'],
+          backButtonLabel: '← 上一頁',
+          forwardButtonLabel: '下一頁 →',
+        },
+        idPickerLabels: {
+          undefined: '找不到項目',
+          addMore: '新增更多',
+          typeToSearch: '輸入搜尋...',
+          total: '總計',
+          showing: '顯示',
+          perPage: '每頁',
+          emptySearchResult: '找不到結果',
+          initialResults: '輸入以搜尋項目',
+        },
+        ...form,
+      }}
+    />
+  );
+};

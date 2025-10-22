@@ -3677,8 +3677,8 @@ const AccordionItem = react.Accordion.Item;
 //@ts-expect-error TODO: find appropriate type
 const SchemaFormContext = React.createContext({
     schema: {},
-    serverUrl: "",
-    requestUrl: "",
+    serverUrl: '',
+    requestUrl: '',
     order: [],
     ignore: [],
     include: [],
@@ -3734,11 +3734,11 @@ const idPickerSanityCheck = (column, foreign_key) => {
         throw new Error(`The key column does not exist in properties of column ${column} when using id-picker.`);
     }
 };
-const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, displayConfig = {
+const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, customSuccessRenderer, displayConfig = {
     showSubmitButton: true,
     showResetButton: true,
     showTitle: true,
-}, dateTimePickerLabels, }) => {
+}, dateTimePickerLabels, idPickerLabels, }) => {
     const [isSuccess, setIsSuccess] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
     const [isSubmiting, setIsSubmiting] = React.useState(false);
@@ -3772,8 +3772,10 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
             setError,
             getUpdatedData,
             customErrorRenderer,
+            customSuccessRenderer,
             displayConfig,
             dateTimePickerLabels,
+            idPickerLabels,
         }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: children }) }));
 };
 
@@ -4616,12 +4618,12 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
 
 const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { serverUrl, idMap, setIdMap, schema: parentSchema, } = useSchemaContext();
+    const { serverUrl, idMap, setIdMap, schema: parentSchema, idPickerLabels, } = useSchemaContext();
     const formI18n = useFormI18n(column, prefix);
-    const { required, gridColumn = "span 12", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { table, column: column_ref, display_column, customQueryFn, } = foreign_key;
-    const [searchText, setSearchText] = React.useState("");
+    const [searchText, setSearchText] = React.useState('');
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
     const [page, setPage] = React.useState(0);
@@ -4635,7 +4637,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         queryFn: async () => {
             if (customQueryFn) {
                 const { data, idMap } = await customQueryFn({
-                    searching: searchText ?? "",
+                    searching: searchText ?? '',
                     limit: limit,
                     offset: page * limit,
                 });
@@ -4646,7 +4648,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             }
             const data = await getTableData({
                 serverUrl,
-                searching: searchText ?? "",
+                searching: searchText ?? '',
                 in_table: table,
                 limit: limit,
                 offset: page * limit,
@@ -4676,7 +4678,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         queryFn: async () => {
             if (customQueryFn) {
                 const { data, idMap } = await customQueryFn({
-                    searching: watchIds.join(","),
+                    searching: watchIds.join(','),
                     limit: isMultiple ? watchIds.length : 1,
                     offset: 0,
                 });
@@ -4688,7 +4690,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             if (!watchId && (!watchIds || watchIds.length === 0)) {
                 return { data: [] };
             }
-            const searchValue = isMultiple ? watchIds.join(",") : watchId;
+            const searchValue = isMultiple ? watchIds.join(',') : watchId;
             const data = await getTableData({
                 serverUrl,
                 searching: searchValue,
@@ -4725,7 +4727,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     React.useEffect(() => {
         if (openSearchResult) {
             // Reset search text when opening the popover
-            setSearchText("");
+            setSearchText('');
             // Reset page to first page
             setPage(0);
             // Fetch initial data
@@ -4751,44 +4753,44 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const count = data?.count ?? 0;
     const getPickedValue = () => {
         if (Object.keys(idMap).length <= 0) {
-            return "";
+            return '';
         }
         const record = idMap[watchId];
         if (record === undefined) {
-            return "";
+            return '';
         }
         if (!!renderDisplay === true) {
             return renderDisplay(record);
         }
         return record[display_column];
     };
-    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: "wrap", gap: 1, children: [watchIds.map((id) => {
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: 'wrap', gap: 1, children: [watchIds.map((id) => {
                         const item = idMap[id];
                         if (item === undefined) {
-                            return (jsxRuntime.jsx(react.Text, { children: formI18n.t('undefined') }, id));
+                            return (jsxRuntime.jsx(react.Text, { children: idPickerLabels?.undefined ?? formI18n.t('undefined') }, id));
                         }
                         return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
                                 setValue(colLabel, watchIds.filter((itemId) => itemId !== item[column_ref]));
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
                                 : item[display_column] }, id));
-                    }), jsxRuntime.jsx(Tag, { cursor: "pointer", onClick: () => {
+                    }), jsxRuntime.jsx(Tag, { cursor: 'pointer', onClick: () => {
                             setOpenSearchResult(true);
-                        }, children: formI18n.t('add_more') })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: "outline", onClick: () => {
+                        }, children: idPickerLabels?.addMore ?? formI18n.t('add_more') })] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: 'outline', onClick: () => {
                     setOpenSearchResult(true);
-                }, justifyContent: "start", children: queryDefault.isLoading ? jsxRuntime.jsx(react.Spinner, { size: "sm" }) : getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start", strategy: "fixed" }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { portalled: false, children: jsxRuntime.jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: formI18n.t('type_to_search'), onChange: onSearchChange, autoComplete: "off", ref: ref, value: searchText }), jsxRuntime.jsx(PopoverTitle, {}), openSearchResult && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, {}), isError && (jsxRuntime.jsx(react.Icon, { color: "red.400", children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", children: [jsxRuntime.jsx(InfoTip, { children: `${formI18n.t('total')} ${count}, ${formI18n.t('showing')} ${limit} ${formI18n.t('per_page', { defaultValue: 'per page' })}` }), jsxRuntime.jsxs(react.Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxRuntime.jsxs(react.Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/", " ", count > 0
+                }, justifyContent: 'start', children: queryDefault.isLoading ? jsxRuntime.jsx(react.Spinner, { size: "sm" }) : getPickedValue() })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: 'bottom-start', strategy: 'fixed' }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { portalled: false, children: jsxRuntime.jsxs(PopoverBody, { display: 'grid', gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search'), onChange: onSearchChange, autoComplete: "off", ref: ref, value: searchText }), jsxRuntime.jsx(PopoverTitle, {}), openSearchResult && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, {}), isError && (jsxRuntime.jsx(react.Icon, { color: 'red.400', children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", alignItems: "center", children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", children: [jsxRuntime.jsx(InfoTip, { children: `${idPickerLabels?.total ?? formI18n.t('total')} ${count}, ${idPickerLabels?.showing ?? formI18n.t('showing')} ${limit} ${idPickerLabels?.perPage ?? formI18n.t('per_page', { defaultValue: 'per page' })}` }), jsxRuntime.jsxs(react.Text, { fontSize: "sm", fontWeight: "bold", children: [count, jsxRuntime.jsxs(react.Text, { as: "span", fontSize: "xs", ml: "1", color: "gray.500", children: ["/", ' ', count > 0
                                                                             ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}`
-                                                                            : "0"] })] })] }), jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsxs("select", { value: limit, onChange: handleLimitChange, style: {
-                                                            padding: "4px 8px",
-                                                            borderRadius: "4px",
-                                                            border: "1px solid #ccc",
-                                                            fontSize: "14px",
-                                                        }, children: [jsxRuntime.jsx("option", { value: "5", children: "5" }), jsxRuntime.jsx("option", { value: "10", children: "10" }), jsxRuntime.jsx("option", { value: "20", children: "20" }), jsxRuntime.jsx("option", { value: "30", children: "30" })] }) })] }), jsxRuntime.jsx(react.Grid, { overflowY: "auto", children: dataList.length > 0 ? (jsxRuntime.jsx(react.Flex, { flexFlow: "column wrap", gap: 1, children: dataList.map((item) => {
+                                                                            : '0'] })] })] }), jsxRuntime.jsx(react.Box, { children: jsxRuntime.jsxs("select", { value: limit, onChange: handleLimitChange, style: {
+                                                            padding: '4px 8px',
+                                                            borderRadius: '4px',
+                                                            border: '1px solid #ccc',
+                                                            fontSize: '14px',
+                                                        }, children: [jsxRuntime.jsx("option", { value: "5", children: "5" }), jsxRuntime.jsx("option", { value: "10", children: "10" }), jsxRuntime.jsx("option", { value: "20", children: "20" }), jsxRuntime.jsx("option", { value: "30", children: "30" })] }) })] }), jsxRuntime.jsx(react.Grid, { overflowY: 'auto', children: dataList.length > 0 ? (jsxRuntime.jsx(react.Flex, { flexFlow: 'column wrap', gap: 1, children: dataList.map((item) => {
                                                     const selected = isMultiple
                                                         ? watchIds.some((id) => item[column_ref] === id)
                                                         : watchId === item[column_ref];
-                                                    return (jsxRuntime.jsx(react.Box, { cursor: "pointer", onClick: () => {
+                                                    return (jsxRuntime.jsx(react.Box, { cursor: 'pointer', onClick: () => {
                                                             if (!isMultiple) {
                                                                 setOpenSearchResult(false);
                                                                 setValue(colLabel, item[column_ref]);
@@ -4804,15 +4806,17 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                                             setValue(colLabel, [...newSet]);
                                                         }, opacity: 0.7, _hover: { opacity: 1 }, ...(selected
                                                             ? {
-                                                                color: "colorPalette.400/50",
-                                                                fontWeight: "bold",
+                                                                color: 'colorPalette.400/50',
+                                                                fontWeight: 'bold',
                                                             }
                                                             : {}), children: !!renderDisplay === true
                                                             ? renderDisplay(item)
                                                             : item[display_column] }, item[column_ref]));
                                                 }) })) : (jsxRuntime.jsx(react.Text, { children: searchText
-                                                    ? formI18n.t('empty_search_result')
-                                                    : formI18n.t('initial_results') })) }), jsxRuntime.jsx(PaginationRoot, { justifySelf: "center", count: count, pageSize: limit, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxRuntime.jsxs(react.HStack, { gap: "4", children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), count > 0 && jsxRuntime.jsx(PaginationPageText, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: formI18n.required() }))] }));
+                                                    ? idPickerLabels?.emptySearchResult ??
+                                                        formI18n.t('empty_search_result')
+                                                    : idPickerLabels?.initialResults ??
+                                                        formI18n.t('initial_results') })) }), jsxRuntime.jsx(PaginationRoot, { justifySelf: 'center', count: count, pageSize: limit, defaultPage: 1, page: page + 1, onPageChange: (e) => setPage(e.page - 1), children: jsxRuntime.jsxs(react.HStack, { gap: "4", children: [jsxRuntime.jsx(PaginationPrevTrigger, {}), count > 0 && jsxRuntime.jsx(PaginationPageText, {}), jsxRuntime.jsx(PaginationNextTrigger, {})] }) })] }))] }) })] }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const NumberInputRoot = React__namespace.forwardRef(function NumberInput(props, ref) {
@@ -6094,7 +6098,7 @@ const SubmitButton = () => {
 };
 
 const FormBody = () => {
-    const { schema, requestUrl, order, ignore, include, onSubmit, translate, requestOptions, isSuccess, setIsSuccess, isError, setIsError, isSubmiting, setIsSubmiting, isConfirming, setIsConfirming, validatedData, setValidatedData, error, setError, getUpdatedData, customErrorRenderer, displayConfig, } = useSchemaContext();
+    const { schema, requestUrl, order, ignore, include, onSubmit, translate, requestOptions, isSuccess, setIsSuccess, isError, setIsError, isSubmiting, setIsSubmiting, isConfirming, setIsConfirming, validatedData, setValidatedData, error, setError, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, } = useSchemaContext();
     const { showSubmitButton, showResetButton } = displayConfig;
     const methods = reactHookForm.useFormContext();
     const { properties } = schema;
@@ -6191,15 +6195,19 @@ const FormBody = () => {
         include,
     });
     if (isSuccess) {
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Content, { children: jsxRuntime.jsx(react.Alert.Title, { children: translate.t("submit_success") }) })] }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(react.Button, { onClick: async () => {
-                            setIsError(false);
-                            setIsSubmiting(false);
-                            setIsSuccess(false);
-                            setIsConfirming(false);
-                            setValidatedData(undefined);
-                            const data = await getUpdatedData();
-                            methods.reset(data);
-                        }, formNoValidate: true, children: translate.t("submit_again") }) })] }));
+        const resetHandler = async () => {
+            setIsError(false);
+            setIsSubmiting(false);
+            setIsSuccess(false);
+            setIsConfirming(false);
+            setValidatedData(undefined);
+            const data = await getUpdatedData();
+            methods.reset(data);
+        };
+        if (customSuccessRenderer) {
+            return customSuccessRenderer(resetHandler);
+        }
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Content, { children: jsxRuntime.jsx(react.Alert.Title, { children: translate.t("submit_success") }) })] }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(react.Button, { onClick: resetHandler, formNoValidate: true, children: translate.t("submit_again") }) })] }));
     }
     if (isConfirming) {
         return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: 4, gridTemplateColumns: "repeat(12, 1fr)", gridTemplateRows: "repeat(12, max-content)", autoFlow: "row", children: ordered.map((column) => {

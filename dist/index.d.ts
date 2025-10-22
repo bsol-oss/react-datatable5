@@ -1,7 +1,7 @@
 /// <reference types="react" />
 import { Row, RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnOrderState, ColumnFiltersState, PaginationState, SortingState, VisibilityState, Table as Table$1, Column } from '@tanstack/react-table';
-import * as React$1 from 'react';
-import React__default, { ReactNode, Dispatch, SetStateAction } from 'react';
+import * as react from 'react';
+import react__default, { ReactNode, Dispatch, SetStateAction } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import { ImageProps, GridProps, TableRootProps, TableHeaderProps as TableHeaderProps$1, TableRowProps, BoxProps, FlexProps, CardBodyProps, TextProps } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
@@ -17,7 +17,7 @@ import { UseFormReturn, FieldValues, SubmitHandler } from 'react-hook-form';
 import { RenderProps, Props } from '@bsol-oss/dayzed-react19';
 
 interface DensityToggleButtonProps {
-    icon?: React__default.ReactElement;
+    icon?: react__default.ReactElement;
     text?: string;
 }
 declare const DensityToggleButton: ({ text, icon, }: DensityToggleButtonProps) => react_jsx_runtime.JSX.Element;
@@ -50,7 +50,7 @@ declare const ResetSortingButton: () => react_jsx_runtime.JSX.Element;
 declare const RowCountText: () => react_jsx_runtime.JSX.Element;
 
 interface EditViewButtonProps {
-    icon?: React__default.ReactElement;
+    icon?: react__default.ReactElement;
 }
 declare const ViewDialog: ({ icon }: EditViewButtonProps) => react_jsx_runtime.JSX.Element;
 
@@ -386,7 +386,7 @@ interface TableProps extends TableRootProps {
     canResize?: boolean;
     children: ReactNode;
 }
-declare const Table: ({ children, emptyComponent, canResize, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | React$1.ReactPortal | React$1.ReactElement<unknown, string | React$1.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null;
+declare const Table: ({ children, emptyComponent, canResize, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | react.ReactPortal | react.ReactElement<unknown, string | react.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null;
 
 interface TableBodyProps {
     pinnedBgColor?: {
@@ -500,9 +500,9 @@ declare const DefaultCardTitle: () => react_jsx_runtime.JSX.Element;
 declare const TableCards: <TData>({ isSelectable, showDisplayNameOnly, renderTitle, cardBodyProps, }: TableCardsProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface TableRendererProps<TData> {
-    render: (render: Table$1<TData>) => React__default.ReactElement;
+    render: (render: Table$1<TData>) => react__default.ReactElement;
 }
-declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) => React__default.ReactElement<unknown, string | React__default.JSXElementConstructor<any>>;
+declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) => react__default.ReactElement<unknown, string | react__default.JSXElementConstructor<any>>;
 
 declare const TableFilter: () => react_jsx_runtime.JSX.Element;
 
@@ -579,6 +579,16 @@ interface DateTimePickerLabels {
     backButtonLabel?: string;
     forwardButtonLabel?: string;
 }
+interface IdPickerLabels {
+    undefined?: string;
+    addMore?: string;
+    typeToSearch?: string;
+    total?: string;
+    showing?: string;
+    perPage?: string;
+    emptySearchResult?: string;
+    initialResults?: string;
+}
 interface CustomJSONSchema7 extends JSONSchema7 {
     gridColumn?: string;
     gridRow?: string;
@@ -626,12 +636,14 @@ interface FormRootProps<TData extends FieldValues> {
     requestOptions?: AxiosRequestConfig;
     getUpdatedData?: () => TData | Promise<TData> | void;
     customErrorRenderer?: (error: unknown) => ReactNode;
+    customSuccessRenderer?: (resetHandler: () => void | Promise<void>) => ReactNode;
     displayConfig?: {
         showSubmitButton?: boolean;
         showResetButton?: boolean;
         showTitle?: boolean;
     };
     dateTimePickerLabels?: DateTimePickerLabels;
+    idPickerLabels?: IdPickerLabels;
 }
 interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
@@ -648,7 +660,7 @@ declare const idPickerSanityCheck: (column: string, foreign_key?: {
     column?: string | undefined;
     display_column?: string | undefined;
 } | undefined) => void;
-declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, displayConfig, dateTimePickerLabels, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, dateTimePickerLabels, idPickerLabels, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DefaultFormProps<TData extends FieldValues> {
     formConfig: Omit<FormRootProps<TData>, "children">;
@@ -658,7 +670,7 @@ declare const DefaultForm: <TData extends FieldValues>({ formConfig, }: DefaultF
 
 declare const FormTitle: () => react_jsx_runtime.JSX.Element;
 
-declare const FormBody: <TData extends object>() => react_jsx_runtime.JSX.Element;
+declare const FormBody: <TData extends object>() => string | number | bigint | boolean | Iterable<react.ReactNode> | Promise<string | number | bigint | boolean | react.ReactPortal | react.ReactElement<unknown, string | react.JSXElementConstructor<any>> | Iterable<react.ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null | undefined;
 
 interface UseFormProps {
     preLoadedValues?: FieldValues | undefined;
@@ -668,7 +680,7 @@ interface UseFormProps {
 declare const useForm: ({ preLoadedValues, keyPrefix, namespace }: UseFormProps) => {
     form: react_hook_form.UseFormReturn<FieldValues, any, undefined>;
     idMap: Record<string, object>;
-    setIdMap: React$1.Dispatch<React$1.SetStateAction<Record<string, object>>>;
+    setIdMap: react.Dispatch<react.SetStateAction<Record<string, object>>>;
     translate: react_i18next.UseTranslationResponse<string, string>;
 };
 
@@ -922,7 +934,7 @@ interface DatePickerProps extends Props {
         backButtonLabel?: string;
         forwardButtonLabel?: string;
     };
-    render?: (dayzedData: any) => React__default.ReactNode;
+    render?: (dayzedData: any) => react__default.ReactNode;
 }
 interface DatePickerLabels {
     monthNamesShort: string[];
@@ -1039,4 +1051,4 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, type ErrorMessageConfig, type ErrorMessageResult, type FieldErrorConfig, FilterDialog, FormBody, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, createErrorMessage, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, ErrorAlert, type ErrorAlertProps, type ErrorMessageConfig, type ErrorMessageResult, type FieldErrorConfig, FilterDialog, FormBody, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, createErrorMessage, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
