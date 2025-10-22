@@ -1,19 +1,19 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   PaginationNextTrigger,
   PaginationPageText,
   PaginationPrevTrigger,
   PaginationRoot,
-} from "@/components/ui/pagination";
+} from '@/components/ui/pagination';
 import {
   PopoverBody,
   PopoverContent,
   PopoverRoot,
   PopoverTitle,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { InfoTip } from "@/components/ui/toggle-tip";
-import { Tag } from "@/components/ui/tag";
+} from '@/components/ui/popover';
+import { InfoTip } from '@/components/ui/toggle-tip';
+import { Tag } from '@/components/ui/tag';
 import {
   Box,
   Flex,
@@ -23,17 +23,17 @@ import {
   Input,
   Spinner,
   Text,
-} from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
-import { ChangeEvent, ReactNode, useEffect, useRef, useState } from "react";
-import { useFormContext } from "react-hook-form";
-import { Field } from "../../../ui/field";
-import { useSchemaContext } from "../../useSchemaContext";
-import { getTableData } from "../../utils/getTableData";
-import { ForeignKeyProps } from "./StringInputField";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { useFormI18n } from "../../utils/useFormI18n";
-import { BiError } from "react-icons/bi";
+} from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
+import { ChangeEvent, ReactNode, useEffect, useRef, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { Field } from '../../../ui/field';
+import { useSchemaContext } from '../../useSchemaContext';
+import { getTableData } from '../../utils/getTableData';
+import { ForeignKeyProps } from './StringInputField';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import { useFormI18n } from '../../utils/useFormI18n';
+import { BiError } from 'react-icons/bi';
 
 export interface IdPickerProps {
   column: string;
@@ -63,12 +63,13 @@ export const IdPicker = ({
     idMap,
     setIdMap,
     schema: parentSchema,
+    idPickerLabels,
   } = useSchemaContext();
   const formI18n = useFormI18n(column, prefix);
   const {
     required,
-    gridColumn = "span 12",
-    gridRow = "span 1",
+    gridColumn = 'span 12',
+    gridRow = 'span 1',
     renderDisplay,
     foreign_key,
   } = schema;
@@ -79,7 +80,7 @@ export const IdPicker = ({
     display_column,
     customQueryFn,
   } = foreign_key as ForeignKeyProps;
-  const [searchText, setSearchText] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>('');
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const [page, setPage] = useState(0);
@@ -95,7 +96,7 @@ export const IdPicker = ({
     queryFn: async () => {
       if (customQueryFn) {
         const { data, idMap } = await customQueryFn({
-          searching: searchText ?? "",
+          searching: searchText ?? '',
           limit: limit,
           offset: page * limit,
         });
@@ -108,7 +109,7 @@ export const IdPicker = ({
       }
       const data = await getTableData({
         serverUrl,
-        searching: searchText ?? "",
+        searching: searchText ?? '',
         in_table: table,
         limit: limit,
         offset: page * limit,
@@ -139,10 +140,9 @@ export const IdPicker = ({
       { form: parentSchema.title, column, id: isMultiple ? watchIds : watchId },
     ],
     queryFn: async () => {
-
       if (customQueryFn) {
         const { data, idMap } = await customQueryFn({
-          searching: watchIds.join(","),
+          searching: watchIds.join(','),
           limit: isMultiple ? watchIds.length : 1,
           offset: 0,
         });
@@ -158,7 +158,7 @@ export const IdPicker = ({
         return { data: [] };
       }
 
-      const searchValue = isMultiple ? watchIds.join(",") : watchId;
+      const searchValue = isMultiple ? watchIds.join(',') : watchId;
 
       const data = await getTableData({
         serverUrl,
@@ -203,7 +203,7 @@ export const IdPicker = ({
   useEffect(() => {
     if (openSearchResult) {
       // Reset search text when opening the popover
-      setSearchText("");
+      setSearchText('');
       // Reset page to first page
       setPage(0);
       // Fetch initial data
@@ -233,11 +233,11 @@ export const IdPicker = ({
 
   const getPickedValue = (): ReactNode => {
     if (Object.keys(idMap).length <= 0) {
-      return "";
+      return '';
     }
     const record = idMap[watchId] as RecordType | undefined;
     if (record === undefined) {
-      return "";
+      return '';
     }
     if (!!renderDisplay === true) {
       return renderDisplay(record);
@@ -250,7 +250,7 @@ export const IdPicker = ({
     <Field
       label={formI18n.label()}
       required={isRequired}
-      alignItems={"stretch"}
+      alignItems={'stretch'}
       {...{
         gridColumn,
         gridRow,
@@ -258,13 +258,13 @@ export const IdPicker = ({
     >
       {/* Multiple Picker */}
       {isMultiple && (
-        <Flex flexFlow={"wrap"} gap={1}>
+        <Flex flexFlow={'wrap'} gap={1}>
           {watchIds.map((id: string) => {
             const item = idMap[id] as RecordType | undefined;
             if (item === undefined) {
               return (
                 <Text key={id}>
-                  {formI18n.t('undefined')}
+                  {idPickerLabels?.undefined ?? formI18n.t('undefined')}
                 </Text>
               );
             }
@@ -289,12 +289,12 @@ export const IdPicker = ({
           })}
 
           <Tag
-            cursor={"pointer"}
+            cursor={'pointer'}
             onClick={() => {
               setOpenSearchResult(true);
             }}
           >
-            {formI18n.t('add_more')}
+            {idPickerLabels?.addMore ?? formI18n.t('add_more')}
           </Tag>
         </Flex>
       )}
@@ -302,11 +302,11 @@ export const IdPicker = ({
       {/* Single Picker */}
       {!isMultiple && (
         <Button
-          variant={"outline"}
+          variant={'outline'}
           onClick={() => {
             setOpenSearchResult(true);
           }}
-          justifyContent={"start"}
+          justifyContent={'start'}
         >
           {queryDefault.isLoading ? <Spinner size="sm" /> : getPickedValue()}
         </Button>
@@ -317,14 +317,16 @@ export const IdPicker = ({
         onOpenChange={(e) => setOpenSearchResult(e.open)}
         closeOnInteractOutside
         initialFocusEl={() => ref.current}
-        positioning={{ placement: "bottom-start", strategy: "fixed" }}
+        positioning={{ placement: 'bottom-start', strategy: 'fixed' }}
       >
         <PopoverTrigger />
         <PopoverContent portalled={false}>
-          <PopoverBody display={"grid"} gap={1}>
+          <PopoverBody display={'grid'} gap={1}>
             {/* Search Input */}
             <Input
-              placeholder={formI18n.t('type_to_search')}
+              placeholder={
+                idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search')
+              }
               onChange={onSearchChange}
               autoComplete="off"
               ref={ref}
@@ -335,7 +337,7 @@ export const IdPicker = ({
               <>
                 {(isFetching || isLoading || isPending) && <Spinner />}
                 {isError && (
-                  <Icon color={"red.400"}>
+                  <Icon color={'red.400'}>
                     <BiError />
                   </Icon>
                 )}
@@ -344,15 +346,15 @@ export const IdPicker = ({
                 <Flex justifyContent="space-between" alignItems="center">
                   <Flex alignItems="center" gap="2">
                     <InfoTip>
-                      {`${formI18n.t('total')} ${count}, ${formI18n.t('showing')} ${limit} ${formI18n.t('per_page', { defaultValue: 'per page' })}`}
+                      {`${idPickerLabels?.total ?? formI18n.t('total')} ${count}, ${idPickerLabels?.showing ?? formI18n.t('showing')} ${limit} ${idPickerLabels?.perPage ?? formI18n.t('per_page', { defaultValue: 'per page' })}`}
                     </InfoTip>
                     <Text fontSize="sm" fontWeight="bold">
                       {count}
                       <Text as="span" fontSize="xs" ml="1" color="gray.500">
-                        /{" "}
+                        /{' '}
                         {count > 0
                           ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}`
-                          : "0"}
+                          : '0'}
                       </Text>
                     </Text>
                   </Flex>
@@ -361,10 +363,10 @@ export const IdPicker = ({
                       value={limit}
                       onChange={handleLimitChange}
                       style={{
-                        padding: "4px 8px",
-                        borderRadius: "4px",
-                        border: "1px solid #ccc",
-                        fontSize: "14px",
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        border: '1px solid #ccc',
+                        fontSize: '14px',
                       }}
                     >
                       <option value="5">5</option>
@@ -376,9 +378,9 @@ export const IdPicker = ({
                 </Flex>
 
                 {/* Data List */}
-                <Grid overflowY={"auto"}>
+                <Grid overflowY={'auto'}>
                   {dataList.length > 0 ? (
-                    <Flex flexFlow={"column wrap"} gap={1}>
+                    <Flex flexFlow={'column wrap'} gap={1}>
                       {dataList.map((item: RecordType) => {
                         const selected = isMultiple
                           ? watchIds.some((id) => item[column_ref] === id)
@@ -386,7 +388,7 @@ export const IdPicker = ({
                         return (
                           <Box
                             key={item[column_ref]}
-                            cursor={"pointer"}
+                            cursor={'pointer'}
                             onClick={() => {
                               if (!isMultiple) {
                                 setOpenSearchResult(false);
@@ -406,8 +408,8 @@ export const IdPicker = ({
                             _hover={{ opacity: 1 }}
                             {...(selected
                               ? {
-                                  color: "colorPalette.400/50",
-                                  fontWeight: "bold",
+                                  color: 'colorPalette.400/50',
+                                  fontWeight: 'bold',
                                 }
                               : {})}
                           >
@@ -421,15 +423,17 @@ export const IdPicker = ({
                   ) : (
                     <Text>
                       {searchText
-                        ? formI18n.t('empty_search_result')
-                        : formI18n.t('initial_results')}
+                        ? idPickerLabels?.emptySearchResult ??
+                          formI18n.t('empty_search_result')
+                        : idPickerLabels?.initialResults ??
+                          formI18n.t('initial_results')}
                     </Text>
                   )}
                 </Grid>
 
                 {/* Pagination */}
                 <PaginationRoot
-                  justifySelf={"center"}
+                  justifySelf={'center'}
                   count={count}
                   pageSize={limit}
                   defaultPage={1}
@@ -450,9 +454,7 @@ export const IdPicker = ({
 
       {/* Error */}
       {errors[`${colLabel}`] && (
-        <Text color={"red.400"}>
-          {formI18n.required()}
-        </Text>
+        <Text color={'red.400'}>{formI18n.required()}</Text>
       )}
     </Field>
   );

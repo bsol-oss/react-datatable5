@@ -1,16 +1,20 @@
-import { SchemaFormContext } from "@/components/Form/SchemaFormContext";
-import { ForeignKeyProps } from "@/components/Form/components/fields/StringInputField";
-import { AxiosRequestConfig } from "axios";
-import { JSONSchema7 } from "json-schema";
-import { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import { SchemaFormContext } from '@/components/Form/SchemaFormContext';
+import { ForeignKeyProps } from '@/components/Form/components/fields/StringInputField';
+import { AxiosRequestConfig } from 'axios';
+import { JSONSchema7 } from 'json-schema';
+import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 import {
   FieldValues,
   FormProvider,
   SubmitHandler,
   UseFormReturn,
-} from "react-hook-form";
-import { UseTranslationResponse } from "react-i18next";
-import { CustomJSONSchema7, DateTimePickerLabels } from "../types/CustomJSONSchema7";
+} from 'react-hook-form';
+import { UseTranslationResponse } from 'react-i18next';
+import {
+  CustomJSONSchema7,
+  DateTimePickerLabels,
+  IdPickerLabels,
+} from '../types/CustomJSONSchema7';
 
 export interface FormRootProps<TData extends FieldValues> {
   schema: CustomJSONSchema7;
@@ -29,13 +33,16 @@ export interface FormRootProps<TData extends FieldValues> {
   requestOptions?: AxiosRequestConfig;
   getUpdatedData?: () => TData | Promise<TData> | void;
   customErrorRenderer?: (error: unknown) => ReactNode;
-  customSuccessRenderer?: (resetHandler: () => void | Promise<void>) => ReactNode;
+  customSuccessRenderer?: (
+    resetHandler: () => void | Promise<void>
+  ) => ReactNode;
   displayConfig?: {
     showSubmitButton?: boolean;
     showResetButton?: boolean;
     showTitle?: boolean;
   };
   dateTimePickerLabels?: DateTimePickerLabels;
+  idPickerLabels?: IdPickerLabels;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -104,6 +111,7 @@ export const FormRoot = <TData extends FieldValues>({
     showTitle: true,
   },
   dateTimePickerLabels,
+  idPickerLabels,
 }: FormRootProps<TData>) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -144,6 +152,7 @@ export const FormRoot = <TData extends FieldValues>({
         customSuccessRenderer,
         displayConfig,
         dateTimePickerLabels,
+        idPickerLabels,
       }}
     >
       <FormProvider {...form}>{children}</FormProvider>

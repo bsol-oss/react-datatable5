@@ -1,9 +1,12 @@
-import { AxiosRequestConfig } from "axios";
-import { JSONSchema7 } from "json-schema";
-import { createContext, Dispatch, ReactNode, SetStateAction } from "react";
-import { FieldValues } from "react-hook-form";
-import { UseTranslationResponse } from "react-i18next";
-import { DateTimePickerLabels } from "./components/types/CustomJSONSchema7";
+import { AxiosRequestConfig } from 'axios';
+import { JSONSchema7 } from 'json-schema';
+import { createContext, Dispatch, ReactNode, SetStateAction } from 'react';
+import { FieldValues } from 'react-hook-form';
+import { UseTranslationResponse } from 'react-i18next';
+import {
+  DateTimePickerLabels,
+  IdPickerLabels,
+} from './components/types/CustomJSONSchema7';
 
 export interface SchemaFormContext<TData extends FieldValues> {
   schema: JSONSchema7;
@@ -32,7 +35,9 @@ export interface SchemaFormContext<TData extends FieldValues> {
   setError: Dispatch<SetStateAction<unknown>>;
   getUpdatedData: () => TData | Promise<TData>;
   customErrorRenderer?: (error: unknown) => ReactNode;
-  customSuccessRenderer?: (resetHandler: () => void | Promise<void>) => ReactNode;
+  customSuccessRenderer?: (
+    resetHandler: () => void | Promise<void>
+  ) => ReactNode;
   timezone?: string;
   displayConfig: {
     showSubmitButton?: boolean;
@@ -40,13 +45,14 @@ export interface SchemaFormContext<TData extends FieldValues> {
     showTitle?: boolean;
   };
   dateTimePickerLabels?: DateTimePickerLabels;
+  idPickerLabels?: IdPickerLabels;
 }
 
 //@ts-expect-error TODO: find appropriate type
 export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   schema: {} as JSONSchema7,
-  serverUrl: "",
-  requestUrl: "",
+  serverUrl: '',
+  requestUrl: '',
   order: [],
   ignore: [],
   include: [],
