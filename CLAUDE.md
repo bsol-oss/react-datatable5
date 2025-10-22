@@ -1,18 +1,8 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 **@bsol-oss/react-datatable5** is a React component library built on top of `@tanstack/react-table` and `@chakra-ui/react` that provides advanced data table and form components with built-in filtering, sorting, pagination, and JSON Schema validation.
-
-## Build & Development Commands
-
-### Building the Library
-
-```bash
-npm run build  # Build the library using Rollup (outputs to dist/)
-```
 
 ## Architecture
 

@@ -47,6 +47,7 @@ export const FormBody = <TData extends object>() => {
     setError,
     getUpdatedData,
     customErrorRenderer,
+    customSuccessRenderer,
     displayConfig,
   } = useSchemaContext();
   const { showSubmitButton, showResetButton } = displayConfig;
@@ -186,6 +187,20 @@ export const FormBody = <TData extends object>() => {
   });
 
   if (isSuccess) {
+    const resetHandler = async () => {
+      setIsError(false);
+      setIsSubmiting(false);
+      setIsSuccess(false);
+      setIsConfirming(false);
+      setValidatedData(undefined);
+      const data = await getUpdatedData();
+      methods.reset(data as TData);
+    };
+
+    if (customSuccessRenderer) {
+      return customSuccessRenderer(resetHandler);
+    }
+
     return (
       <Flex flexFlow={"column"} gap="2">
         <Alert.Root status="success">
@@ -196,15 +211,7 @@ export const FormBody = <TData extends object>() => {
         </Alert.Root>
         <Flex justifyContent={"end"}>
           <Button
-            onClick={async () => {
-              setIsError(false);
-              setIsSubmiting(false);
-              setIsSuccess(false);
-              setIsConfirming(false);
-              setValidatedData(undefined);
-              const data = await getUpdatedData();
-              methods.reset(data as TData);
-            }}
+            onClick={resetHandler}
             formNoValidate
           >
             {translate.t("submit_again")}

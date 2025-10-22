@@ -3,6 +3,7 @@ import { JSONSchema7 } from "json-schema";
 import { Dispatch, ReactNode, SetStateAction } from "react";
 import { FieldValues } from "react-hook-form";
 import { UseTranslationResponse } from "react-i18next";
+import { DateTimePickerLabels } from "./components/types/CustomJSONSchema7";
 export interface SchemaFormContext<TData extends FieldValues> {
     schema: JSONSchema7;
     serverUrl: string;
@@ -36,5 +37,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
         showResetButton?: boolean;
         showTitle?: boolean;
     };
+    dateTimePickerLabels?: DateTimePickerLabels;
 }
 export declare const SchemaFormContext: import("react").Context<SchemaFormContext<unknown>>;

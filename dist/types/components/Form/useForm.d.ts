@@ -3,10 +3,11 @@ import { FieldValues } from "react-hook-form";
 export interface UseFormProps {
     preLoadedValues?: FieldValues | undefined;
     keyPrefix?: string;
+    namespace?: string;
 }
-export declare const useForm: ({ preLoadedValues, keyPrefix }: UseFormProps) => {
+export declare const useForm: ({ preLoadedValues, keyPrefix, namespace }: UseFormProps) => {
     form: import("react-hook-form").UseFormReturn<FieldValues, any, undefined>;
     idMap: Record<string, object>;
     setIdMap: import("react").Dispatch<import("react").SetStateAction<Record<string, object>>>;
-    translate: import("react-i18next").UseTranslationResponse<"", string>;
+    translate: import("react-i18next").UseTranslationResponse<string, string>;
 };

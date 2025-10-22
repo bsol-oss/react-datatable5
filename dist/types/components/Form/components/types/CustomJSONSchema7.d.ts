@@ -2,6 +2,12 @@ import { JSONSchema7 } from "json-schema";
 import { ReactNode } from "react";
 import { ForeignKeyProps } from "../fields/StringInputField";
 import { UseFormReturn } from "react-hook-form";
+export interface DateTimePickerLabels {
+    monthNamesShort?: string[];
+    weekdayNamesShort?: string[];
+    backButtonLabel?: string;
+    forwardButtonLabel?: string;
+}
 export interface CustomJSONSchema7 extends JSONSchema7 {
     gridColumn?: string;
     gridRow?: string;

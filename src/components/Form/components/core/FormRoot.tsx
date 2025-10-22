@@ -29,6 +29,7 @@ export interface FormRootProps<TData extends FieldValues> {
   requestOptions?: AxiosRequestConfig;
   getUpdatedData?: () => TData | Promise<TData> | void;
   customErrorRenderer?: (error: unknown) => ReactNode;
+  customSuccessRenderer?: (resetHandler: () => void | Promise<void>) => ReactNode;
   displayConfig?: {
     showSubmitButton?: boolean;
     showResetButton?: boolean;
@@ -96,6 +97,7 @@ export const FormRoot = <TData extends FieldValues>({
   requestOptions = {},
   getUpdatedData = () => {},
   customErrorRenderer,
+  customSuccessRenderer,
   displayConfig = {
     showSubmitButton: true,
     showResetButton: true,
@@ -139,6 +141,7 @@ export const FormRoot = <TData extends FieldValues>({
         setError,
         getUpdatedData,
         customErrorRenderer,
+        customSuccessRenderer,
         displayConfig,
         dateTimePickerLabels,
       }}

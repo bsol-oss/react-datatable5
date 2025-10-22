@@ -3718,7 +3718,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
     showSubmitButton: true,
     showResetButton: true,
     showTitle: true,
-}, }) => {
+}, dateTimePickerLabels, }) => {
     const [isSuccess, setIsSuccess] = useState(false);
     const [isError, setIsError] = useState(false);
     const [isSubmiting, setIsSubmiting] = useState(false);
@@ -3753,6 +3753,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
             getUpdatedData,
             customErrorRenderer,
             displayConfig,
+            dateTimePickerLabels,
         }, children: jsx(FormProvider, { ...form, children: children }) }));
 };
 
@@ -5478,7 +5479,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const DateTimePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { timezone } = useSchemaContext();
+    const { timezone, dateTimePickerLabels } = useSchemaContext();
     const formI18n = useFormI18n(column, prefix);
     const { required, gridColumn = "span 12", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD HH:mm:ss", 
     // with timezone
@@ -5519,7 +5520,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
                             }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsx(PopoverContent, { minW: "450px", children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DateTimePicker$1, { value: selectedDate, onChange: (date) => {
                                         setValue(colLabel, dayjs(date).tz(timezone).format(dateFormat));
                                     }, timezone: timezone, labels: {
-                                        monthNamesShort: [
+                                        monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
                                             formI18n.translate.t(`common.month_1`, { defaultValue: "January" }),
                                             formI18n.translate.t(`common.month_2`, { defaultValue: "February" }),
                                             formI18n.translate.t(`common.month_3`, { defaultValue: "March" }),
@@ -5533,7 +5534,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
                                             formI18n.translate.t(`common.month_11`, { defaultValue: "November" }),
                                             formI18n.translate.t(`common.month_12`, { defaultValue: "December" }),
                                         ],
-                                        weekdayNamesShort: [
+                                        weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
                                             formI18n.translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
                                             formI18n.translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
                                             formI18n.translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
@@ -5544,10 +5545,10 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
                                             formI18n.translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
                                             formI18n.translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
                                         ],
-                                        backButtonLabel: formI18n.translate.t(`common.back_button`, {
+                                        backButtonLabel: dateTimePickerLabels?.backButtonLabel ?? formI18n.translate.t(`common.back_button`, {
                                             defaultValue: "Back",
                                         }),
-                                        forwardButtonLabel: formI18n.translate.t(`common.forward_button`, {
+                                        forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ?? formI18n.translate.t(`common.forward_button`, {
                                             defaultValue: "Forward",
                                         }),
                                     } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: formI18n.required() }))] }));
@@ -6216,18 +6217,219 @@ const DefaultForm = ({ formConfig, }) => {
     return (jsx(FormRoot, { ...formConfig, children: jsxs(Grid, { gap: "2", children: [showTitle && jsx(FormTitle, {}), jsx(FormBody, {})] }) }));
 };
 
-const useForm = ({ preLoadedValues, keyPrefix }) => {
+const useForm = ({ preLoadedValues, keyPrefix, namespace }) => {
     const form = useForm$1({
         values: preLoadedValues,
     });
     const [idMap, setIdMap] = useState({});
-    const translate = useTranslation("", { keyPrefix });
+    const translate = useTranslation(namespace || "", { keyPrefix });
     return {
         form,
         idMap,
         setIdMap,
         translate,
     };
+};
+
+/**
+ * Type definitions for error message configuration
+ */
+/**
+ * Schema-level error message builder
+ *
+ * Builds a complete errorMessage object compatible with ajv-errors plugin.
+ * Supports both i18n translation keys and plain string messages.
+ *
+ * @param config - Error message configuration
+ * @returns Complete errorMessage object for JSON Schema
+ *
+ * @example
+ * ```typescript
+ * // Simple required field errors
+ * const errorMessage = buildErrorMessages({
+ *   required: {
+ *     username: "Username is required",
+ *     email: "user.email.field_required" // i18n key
+ *   }
+ * });
+ *
+ * // With validation rules
+ * const errorMessage = buildErrorMessages({
+ *   required: {
+ *     password: "Password is required"
+ *   },
+ *   properties: {
+ *     password: {
+ *       minLength: "Password must be at least 8 characters",
+ *       pattern: "Password must contain letters and numbers"
+ *     },
+ *     age: {
+ *       minimum: "Must be 18 or older",
+ *       maximum: "Must be under 120"
+ *     }
+ *   }
+ * });
+ *
+ * // With global fallbacks
+ * const errorMessage = buildErrorMessages({
+ *   required: {
+ *     email: "Email is required"
+ *   },
+ *   minLength: "This field is too short", // applies to all fields
+ *   minimum: "Value is too small"
+ * });
+ * ```
+ */
+const buildErrorMessages = (config) => {
+    const result = {};
+    // Add required field errors
+    if (config.required && Object.keys(config.required).length > 0) {
+        result.required = config.required;
+    }
+    // Add field-specific validation errors
+    if (config.properties && Object.keys(config.properties).length > 0) {
+        result.properties = config.properties;
+    }
+    // Add global fallback error messages
+    const globalKeys = [
+        "minLength",
+        "maxLength",
+        "pattern",
+        "minimum",
+        "maximum",
+        "multipleOf",
+        "format",
+        "type",
+        "enum",
+    ];
+    globalKeys.forEach((key) => {
+        if (config[key]) {
+            result[key] = config[key];
+        }
+    });
+    return result;
+};
+/**
+ * Helper function to build required field errors
+ *
+ * Simplifies creating required field error messages, especially useful
+ * for generating i18n translation keys following a pattern.
+ *
+ * @param fields - Array of required field names
+ * @param messageOrGenerator - Either a string template or function to generate messages
+ * @returns Required field error configuration
+ *
+ * @example
+ * ```typescript
+ * // Plain string messages
+ * const required = buildRequiredErrors(
+ *   ["username", "email", "password"],
+ *   (field) => `${field} is required`
+ * );
+ * // Result: { username: "username is required", email: "email is required", ... }
+ *
+ * // i18n translation keys
+ * const required = buildRequiredErrors(
+ *   ["username", "email"],
+ *   (field) => `user.${field}.field_required`
+ * );
+ * // Result: { username: "user.username.field_required", email: "user.email.field_required" }
+ *
+ * // Same message for all fields
+ * const required = buildRequiredErrors(
+ *   ["username", "email"],
+ *   "This field is required"
+ * );
+ * // Result: { username: "This field is required", email: "This field is required" }
+ *
+ * // With keyPrefix for i18n
+ * const required = buildRequiredErrors(
+ *   ["username", "email"],
+ *   (field) => `${field}.field_required`,
+ *   "user"
+ * );
+ * // Result: { username: "user.username.field_required", email: "user.email.field_required" }
+ * ```
+ */
+const buildRequiredErrors = (fields, messageOrGenerator, keyPrefix = "") => {
+    const result = {};
+    fields.forEach((field) => {
+        if (typeof messageOrGenerator === "function") {
+            const message = messageOrGenerator(field);
+            result[field] = keyPrefix ? `${keyPrefix}.${message}` : message;
+        }
+        else {
+            result[field] = messageOrGenerator;
+        }
+    });
+    return result;
+};
+/**
+ * Helper function to build field-specific validation errors
+ *
+ * Creates property-specific error messages for multiple fields at once.
+ *
+ * @param config - Maps field names to their validation error configurations
+ * @returns Properties error configuration
+ *
+ * @example
+ * ```typescript
+ * const properties = buildFieldErrors({
+ *   username: {
+ *     minLength: "Username must be at least 3 characters",
+ *     pattern: "Username can only contain letters and numbers"
+ *   },
+ *   age: {
+ *     minimum: "Must be 18 or older",
+ *     maximum: "Must be under 120"
+ *   },
+ *   email: {
+ *     format: "Please enter a valid email address"
+ *   }
+ * });
+ * ```
+ */
+const buildFieldErrors = (config) => {
+    return config;
+};
+/**
+ * Helper function to create a complete error message configuration in one call
+ *
+ * Convenient wrapper that combines required and validation errors.
+ *
+ * @param required - Required field error messages
+ * @param properties - Field-specific validation error messages
+ * @param globalFallbacks - Global fallback error messages
+ * @returns Complete error message configuration
+ *
+ * @example
+ * ```typescript
+ * const errorMessage = createErrorMessage(
+ *   {
+ *     username: "Username is required",
+ *     email: "Email is required"
+ *   },
+ *   {
+ *     username: {
+ *       minLength: "Username must be at least 3 characters"
+ *     },
+ *     email: {
+ *       format: "Please enter a valid email"
+ *     }
+ *   },
+ *   {
+ *     minLength: "This field is too short",
+ *     format: "Invalid format"
+ *   }
+ * );
+ * ```
+ */
+const createErrorMessage = (required, properties, globalFallbacks) => {
+    return buildErrorMessages({
+        required,
+        properties,
+        ...globalFallbacks,
+    });
 };
 
 const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) => {
@@ -6246,4 +6448,4 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
     }
 };
 
-export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, createErrorMessage, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };

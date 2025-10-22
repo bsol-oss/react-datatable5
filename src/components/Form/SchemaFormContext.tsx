@@ -32,6 +32,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
   setError: Dispatch<SetStateAction<unknown>>;
   getUpdatedData: () => TData | Promise<TData>;
   customErrorRenderer?: (error: unknown) => ReactNode;
+  customSuccessRenderer?: (resetHandler: () => void | Promise<void>) => ReactNode;
   timezone?: string;
   displayConfig: {
     showSubmitButton?: boolean;
