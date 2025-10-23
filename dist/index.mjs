@@ -3718,7 +3718,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
     showSubmitButton: true,
     showResetButton: true,
     showTitle: true,
-}, dateTimePickerLabels, idPickerLabels, }) => {
+}, dateTimePickerLabels, idPickerLabels, enumPickerLabels, }) => {
     const [isSuccess, setIsSuccess] = useState(false);
     const [isError, setIsError] = useState(false);
     const [isSubmiting, setIsSubmiting] = useState(false);
@@ -3756,6 +3756,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
             displayConfig,
             dateTimePickerLabels,
             idPickerLabels,
+            enumPickerLabels,
         }, children: jsx(FormProvider, { ...form, children: children }) }));
 };
 
@@ -4014,14 +4015,16 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { timezone } = useSchemaContext();
+    const { timezone, dateTimePickerLabels } = useSchemaContext();
     const formI18n = useFormI18n(column, prefix);
-    const { required, gridColumn = "span 12", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", dateFormat = "YYYY-MM-DD", } = schema;
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
     const [open, setOpen] = useState(false);
     const selectedDate = watch(colLabel);
-    const displayDate = dayjs(selectedDate).tz(timezone).format(displayDateFormat);
+    const displayDate = dayjs(selectedDate)
+        .tz(timezone)
+        .format(displayDateFormat);
     useEffect(() => {
         try {
             if (selectedDate) {
@@ -4045,45 +4048,83 @@ const DatePicker = ({ column, schema, prefix }) => {
             console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue]);
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, children: [jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                                 setOpen(true);
-                            }, justifyContent: "start", children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ""] }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1, { selected: new Date(selectedDate), onDateSelected: ({ date }) => {
+                            }, justifyContent: 'start', children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ''] }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1, { selected: new Date(selectedDate), onDateSelected: ({ date }) => {
                                         setValue(colLabel, dayjs(date).format(dateFormat));
                                         setOpen(false);
                                     }, labels: {
-                                        monthNamesShort: [
-                                            formI18n.translate.t(`common.month_1`, { defaultValue: "January" }),
-                                            formI18n.translate.t(`common.month_2`, { defaultValue: "February" }),
-                                            formI18n.translate.t(`common.month_3`, { defaultValue: "March" }),
-                                            formI18n.translate.t(`common.month_4`, { defaultValue: "April" }),
-                                            formI18n.translate.t(`common.month_5`, { defaultValue: "May" }),
-                                            formI18n.translate.t(`common.month_6`, { defaultValue: "June" }),
-                                            formI18n.translate.t(`common.month_7`, { defaultValue: "July" }),
-                                            formI18n.translate.t(`common.month_8`, { defaultValue: "August" }),
-                                            formI18n.translate.t(`common.month_9`, { defaultValue: "September" }),
-                                            formI18n.translate.t(`common.month_10`, { defaultValue: "October" }),
-                                            formI18n.translate.t(`common.month_11`, { defaultValue: "November" }),
-                                            formI18n.translate.t(`common.month_12`, { defaultValue: "December" }),
-                                        ],
-                                        weekdayNamesShort: [
-                                            formI18n.translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
-                                            formI18n.translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
-                                            formI18n.translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
-                                            formI18n.translate.t(`common.weekday_4`, {
-                                                defaultValue: "Wed",
+                                        monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
+                                            formI18n.translate.t(`common.month_1`, {
+                                                defaultValue: 'January',
                                             }),
-                                            formI18n.translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
-                                            formI18n.translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
-                                            formI18n.translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
+                                            formI18n.translate.t(`common.month_2`, {
+                                                defaultValue: 'February',
+                                            }),
+                                            formI18n.translate.t(`common.month_3`, {
+                                                defaultValue: 'March',
+                                            }),
+                                            formI18n.translate.t(`common.month_4`, {
+                                                defaultValue: 'April',
+                                            }),
+                                            formI18n.translate.t(`common.month_5`, {
+                                                defaultValue: 'May',
+                                            }),
+                                            formI18n.translate.t(`common.month_6`, {
+                                                defaultValue: 'June',
+                                            }),
+                                            formI18n.translate.t(`common.month_7`, {
+                                                defaultValue: 'July',
+                                            }),
+                                            formI18n.translate.t(`common.month_8`, {
+                                                defaultValue: 'August',
+                                            }),
+                                            formI18n.translate.t(`common.month_9`, {
+                                                defaultValue: 'September',
+                                            }),
+                                            formI18n.translate.t(`common.month_10`, {
+                                                defaultValue: 'October',
+                                            }),
+                                            formI18n.translate.t(`common.month_11`, {
+                                                defaultValue: 'November',
+                                            }),
+                                            formI18n.translate.t(`common.month_12`, {
+                                                defaultValue: 'December',
+                                            }),
                                         ],
-                                        backButtonLabel: formI18n.translate.t(`common.back_button`, {
-                                            defaultValue: "Back",
-                                        }),
-                                        forwardButtonLabel: formI18n.translate.t(`common.forward_button`, {
-                                            defaultValue: "Forward",
-                                        }),
-                                    } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: "red.400", children: formI18n.required() }))] }));
+                                        weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
+                                            formI18n.translate.t(`common.weekday_1`, {
+                                                defaultValue: 'Sun',
+                                            }),
+                                            formI18n.translate.t(`common.weekday_2`, {
+                                                defaultValue: 'Mon',
+                                            }),
+                                            formI18n.translate.t(`common.weekday_3`, {
+                                                defaultValue: 'Tue',
+                                            }),
+                                            formI18n.translate.t(`common.weekday_4`, {
+                                                defaultValue: 'Wed',
+                                            }),
+                                            formI18n.translate.t(`common.weekday_5`, {
+                                                defaultValue: 'Thu',
+                                            }),
+                                            formI18n.translate.t(`common.weekday_6`, {
+                                                defaultValue: 'Fri',
+                                            }),
+                                            formI18n.translate.t(`common.weekday_7`, {
+                                                defaultValue: 'Sat',
+                                            }),
+                                        ],
+                                        backButtonLabel: dateTimePickerLabels?.backButtonLabel ??
+                                            formI18n.translate.t(`common.back_button`, {
+                                                defaultValue: 'Back',
+                                            }),
+                                        forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ??
+                                            formI18n.translate.t(`common.forward_button`, {
+                                                defaultValue: 'Forward',
+                                            }),
+                                    } })] }) })] }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 function filterArray(array, searchTerm) {
@@ -4098,10 +4139,10 @@ function filterArray(array, searchTerm) {
 
 const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLimit = false, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { translate } = useSchemaContext();
+    const { translate, enumPickerLabels } = useSchemaContext();
     const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
+    const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
     const [searchText, setSearchText] = useState();
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
@@ -4116,9 +4157,9 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
         setSearchText(event.target.value);
         setLimit(10);
     };
-    if (variant === "radio") {
-        return (jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-            gridRow, children: jsx(RadioGroup$1.Root, { defaultValue: "1", children: jsx(HStack, { gap: "6", children: filterArray(dataList, searchText ?? "").map((item) => {
+    if (variant === 'radio') {
+        return (jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: 'stretch', gridColumn,
+            gridRow, children: jsx(RadioGroup$1.Root, { defaultValue: "1", children: jsx(HStack, { gap: "6", children: filterArray(dataList, searchText ?? '').map((item) => {
                         return (jsxs(RadioGroup$1.Item, { onClick: () => {
                                 if (!isMultiple) {
                                     setOpenSearchResult(false);
@@ -4132,8 +4173,8 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                         : translate.t(removeIndex(`${colLabel}.${item}`)) })] }, `${colLabel}-${item}`));
                     }) }) }) }));
     }
-    return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: "wrap", gap: 1, children: [watchEnums.map((enumValue) => {
+    return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, children: [isMultiple && (jsxs(Flex, { flexFlow: 'wrap', gap: 1, children: [watchEnums.map((enumValue) => {
                         const item = enumValue;
                         if (!!item === false) {
                             return jsx(Fragment, {});
@@ -4143,18 +4184,20 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
                                 : translate.t(removeIndex(`${colLabel}.${item}`)) }, item));
-                    }), jsx(Tag, { size: "lg", cursor: "pointer", onClick: () => {
+                    }), jsx(Tag, { size: "lg", cursor: 'pointer', onClick: () => {
                             setOpenSearchResult(true);
-                        }, children: translate.t(removeIndex(`${colLabel}.add_more`)) }, `${colLabel}-add-more-tag`)] })), !isMultiple && (jsx(Button, { variant: "outline", onClick: () => {
+                        }, children: enumPickerLabels?.addMore ??
+                            translate.t(removeIndex(`${colLabel}.add_more`)) }, `${colLabel}-add-more-tag`)] })), !isMultiple && (jsx(Button, { variant: 'outline', onClick: () => {
                     setOpenSearchResult(true);
-                }, justifyContent: "start", children: !!watchEnum === false
-                    ? ""
-                    : translate.t(removeIndex(`${colLabel}.${watchEnum ?? "null"}`)) })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: "bottom-start" }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { portalled: false, children: jsxs(PopoverBody, { display: "grid", gap: 1, children: [jsx(Input, { placeholder: translate.t(`${colLabel}.type_to_search`), onChange: (event) => {
+                }, justifyContent: 'start', children: !!watchEnum === false
+                    ? ''
+                    : translate.t(removeIndex(`${colLabel}.${watchEnum ?? 'null'}`)) })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: 'bottom-start' }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { portalled: false, children: jsxs(PopoverBody, { display: 'grid', gap: 1, children: [jsx(Input, { placeholder: enumPickerLabels?.typeToSearch ??
+                                        translate.t(`${colLabel}.type_to_search`), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), showTotalAndLimit && (jsx(Text, { children: `${translate.t(removeIndex(`${colLabel}.total`))}: ${count}, ${translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` })), jsxs(Grid, { overflow: "auto", maxHeight: "20rem", children: [jsx(Flex, { flexFlow: "column wrap", children: dataList
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), showTotalAndLimit && (jsx(Text, { children: `${enumPickerLabels?.total ?? translate.t(removeIndex(`${colLabel}.total`))}: ${count}, ${enumPickerLabels?.showing ?? translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` })), jsxs(Grid, { overflow: 'auto', maxHeight: '20rem', children: [jsx(Flex, { flexFlow: 'column wrap', children: dataList
                                                 .filter((item) => {
-                                                const searchTerm = (searchText || "").toLowerCase();
+                                                const searchTerm = (searchText || '').toLowerCase();
                                                 if (!searchTerm)
                                                     return true;
                                                 // Check if the original enum value contains the search text
@@ -4174,7 +4217,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                                 const selected = isMultiple
                                                     ? watchEnums.some((enumValue) => item === enumValue)
                                                     : watchEnum == item;
-                                                return (jsx(Box, { cursor: "pointer", onClick: () => {
+                                                return (jsx(Box, { cursor: 'pointer', onClick: () => {
                                                         if (!isMultiple) {
                                                             setOpenSearchResult(false);
                                                             setValue(colLabel, item);
@@ -4182,10 +4225,11 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                                         }
                                                         const newSet = new Set([...(watchEnums ?? []), item]);
                                                         setValue(colLabel, [...newSet]);
-                                                    }, ...(selected ? { color: "colorPalette.400/50" } : {}), children: !!renderDisplay === true
+                                                    }, ...(selected ? { color: 'colorPalette.400/50' } : {}), children: !!renderDisplay === true
                                                         ? renderDisplay(item)
                                                         : translate.t(removeIndex(`${colLabel}.${item}`)) }, `${colLabel}-${item}`));
-                                            }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Fragment, { children: translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] })] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                                            }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Fragment, { children: enumPickerLabels?.emptySearchResult ??
+                                                    translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] })] }) })] }), errors[`${colLabel}`] && (jsx(Text, { color: 'red.400', children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
 function isEnteringWindow(_ref) {
