@@ -22,7 +22,7 @@ The `DataTable` and `DataTableServer` utilize hook to add props.
 
 ```tsx
 const datatable = useDataTable();
-const datatableServer = useDataTableServer({ url: "<some-url>" });
+const datatableServer = useDataTableServer({ url: '<some-url>' });
 ```
 
 ### DataTable
@@ -66,9 +66,9 @@ GET http://localhost:8081/api/g/core_people?offset=0&limit=10&sorting[0][id]=id&
           <DefaultCard
             {...{
               row: row,
-              imageColumnId: "thumbnail",
-              titleColumnId: "title",
-              tagColumnId: "rating",
+              imageColumnId: 'thumbnail',
+              titleColumnId: 'title',
+              tagColumnId: 'rating',
               tagIcon: MdStarRate,
             }}
           />
@@ -111,45 +111,51 @@ The package now includes built-in JSON Schema validation using AJV (Another JSON
 #### Basic Usage with Internationalization
 
 ```tsx
-import { FormRoot, FormBody, validateData, SupportedLocale } from "@bsol-oss/react-datatable5";
+import {
+  FormRoot,
+  FormBody,
+  validateData,
+  SupportedLocale,
+} from '@bsol-oss/react-datatable5';
 
 const schema = {
-  type: "object",
-  required: ["email", "age"],
+  type: 'object',
+  required: ['email', 'age'],
   properties: {
     email: {
-      type: "string",
-      format: "email"
+      type: 'string',
+      format: 'email',
     },
     age: {
-      type: "integer",
+      type: 'integer',
       minimum: 18,
-      maximum: 120
+      maximum: 120,
     },
     name: {
-      type: "string",
+      type: 'string',
       minLength: 2,
-      maxLength: 50
-    }
-  }
+      maxLength: 50,
+    },
+  },
 };
 
 // Use Traditional Chinese (Hong Kong) for validation errors
-<FormRoot 
-  schema={schema} 
+<FormRoot
+  schema={schema}
   validationLocale="zh-HK"
   /* other props */
 >
   <FormBody />
-</FormRoot>
+</FormRoot>;
 ```
 
 #### Language-specific Examples
 
 **Traditional Chinese (Hong Kong):**
+
 ```tsx
-<FormRoot 
-  schema={schema} 
+<FormRoot
+  schema={schema}
   validationLocale="zh-HK"
   /* other props */
 >
@@ -158,9 +164,10 @@ const schema = {
 ```
 
 **Traditional Chinese (Taiwan):**
+
 ```tsx
-<FormRoot 
-  schema={schema} 
+<FormRoot
+  schema={schema}
   validationLocale="zh-TW"
   /* other props */
 >
@@ -169,9 +176,10 @@ const schema = {
 ```
 
 **Simplified Chinese:**
+
 ```tsx
-<FormRoot 
-  schema={schema} 
+<FormRoot
+  schema={schema}
   validationLocale="zh-CN"
   /* other props */
 >
@@ -184,20 +192,27 @@ const schema = {
 You can also use the validation utilities directly with language support:
 
 ```tsx
-import { validateData, ValidationResult, SupportedLocale } from "@bsol-oss/react-datatable5";
+import {
+  validateData,
+  ValidationResult,
+  SupportedLocale,
+} from '@bsol-oss/react-datatable5';
 
 // Validate with Traditional Chinese (Hong Kong) error messages
-const result: ValidationResult = validateData(formData, schema, { 
-  locale: 'zh-HK' 
+const result: ValidationResult = validateData(formData, schema, {
+  locale: 'zh-HK',
 });
 
 if (!result.isValid) {
-  console.log("驗證錯誤:", result.errors);
+  console.log('驗證錯誤:', result.errors);
   // Error messages will be in Traditional Chinese
 }
 
 // Check supported locales
-import { getSupportedLocales, isLocaleSupported } from "@bsol-oss/react-datatable5";
+import {
+  getSupportedLocales,
+  isLocaleSupported,
+} from '@bsol-oss/react-datatable5';
 
 const supportedLocales = getSupportedLocales(); // ['en', 'zh-HK', 'zh-TW', 'zh-CN', 'zh']
 const isSupported = isLocaleSupported('zh-HK'); // true
@@ -207,34 +222,37 @@ const isSupported = isLocaleSupported('zh-HK'); // true
 
 ```tsx
 interface ValidationError {
-  field: string;        // The field that failed validation
-  message: string;      // User-friendly error message (localized)
-  value?: unknown;      // The current value that failed
-  schemaPath?: string;  // JSON Schema path for debugging
+  field: string; // The field that failed validation
+  message: string; // User-friendly error message (localized)
+  value?: unknown; // The current value that failed
+  schemaPath?: string; // JSON Schema path for debugging
 }
 ```
 
 #### Dynamic Language Switching
 
 ```tsx
-import { SupportedLocale } from "@bsol-oss/react-datatable5";
+import { SupportedLocale } from '@bsol-oss/react-datatable5';
 
 const MyForm = () => {
   const [locale, setLocale] = useState<SupportedLocale>('zh-HK');
-  
+
   return (
     <div>
       {/* Language selector */}
-      <select value={locale} onChange={(e) => setLocale(e.target.value as SupportedLocale)}>
+      <select
+        value={locale}
+        onChange={(e) => setLocale(e.target.value as SupportedLocale)}
+      >
         <option value="en">English</option>
         <option value="zh-HK">繁體中文（香港）</option>
         <option value="zh-TW">繁體中文（台灣）</option>
         <option value="zh-CN">简体中文</option>
       </select>
-      
+
       {/* Form with dynamic locale */}
-      <FormRoot 
-        schema={schema} 
+      <FormRoot
+        schema={schema}
         validationLocale={locale}
         /* other props */
       >
@@ -248,16 +266,19 @@ const MyForm = () => {
 #### Example Validation Messages
 
 **English:**
+
 - "email is required"
 - "Invalid email format"
 - "Must be at least 18"
 
 **Traditional Chinese (Hong Kong/Taiwan):**
+
 - "email 為必填"
 - "無效的 email 格式"
 - "必須至少為 18"
 
 **Simplified Chinese:**
+
 - "email 为必填"
 - "无效的 email 格式"
 - "必须至少为 18"
@@ -281,4 +302,10 @@ For more details of props and examples, please review the stories in storybook p
 ```
 npm install
 npm run storybook
+```
+
+## deployment
+
+```
+npm version prerelease --preid=beta
 ```
