@@ -51,6 +51,7 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
     timeFormat?: string;
     displayTimeFormat?: string;
     showLabel?: boolean;
+    formatOptions?: Intl.NumberFormatOptions;
 }
 export interface TagPickerProps {
     column: string;
