@@ -1,8 +1,8 @@
-import { Button } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import { useSchemaContext } from "../../useSchemaContext";
+import { Button } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import { useSchemaContext } from '../../useSchemaContext';
 
-import { validateData } from "../../utils/validateData";
+import { validateData } from '../../utils/validateData';
 export const SubmitButton = () => {
   const {
     translate,
@@ -11,6 +11,8 @@ export const SubmitButton = () => {
     setIsConfirming,
     setError,
     schema,
+    requireConfirmation,
+    onFormSubmit,
   } = useSchemaContext();
   const methods = useFormContext();
 
@@ -20,17 +22,25 @@ export const SubmitButton = () => {
 
     if (!isValid) {
       setError({
-        type: "validation",
+        type: 'validation',
         errors,
       });
       setIsError(true);
       return;
     }
 
-    // If validation passes, proceed to confirmation
-    setValidatedData(data);
-    setIsError(false);
-    setIsConfirming(true);
+    // If validation passes, check if confirmation is required
+    if (requireConfirmation) {
+      // Show confirmation (existing behavior)
+      setValidatedData(data);
+      setIsError(false);
+      setIsConfirming(true);
+    } else {
+      // Skip confirmation and submit directly
+      setValidatedData(data);
+      setIsError(false);
+      onFormSubmit(data);
+    }
   };
 
   return (
@@ -40,7 +50,7 @@ export const SubmitButton = () => {
       }}
       formNoValidate
     >
-      {translate.t("submit")}
+      {translate.t('submit')}
     </Button>
   );
 };

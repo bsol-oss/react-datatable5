@@ -10,6 +10,9 @@ import {
   UseFormReturn,
 } from 'react-hook-form';
 import { UseTranslationResponse } from 'react-i18next';
+import axios from 'axios';
+import { validateData } from '../../utils/validateData';
+import { clearEmptyString } from '../../utils/clearEmptyString';
 import {
   CustomJSONSchema7,
   DateTimePickerLabels,
@@ -42,6 +45,7 @@ export interface FormRootProps<TData extends FieldValues> {
     showResetButton?: boolean;
     showTitle?: boolean;
   };
+  requireConfirmation?: boolean;
   dateTimePickerLabels?: DateTimePickerLabels;
   idPickerLabels?: IdPickerLabels;
   enumPickerLabels?: EnumPickerLabels;
@@ -112,6 +116,7 @@ export const FormRoot = <TData extends FieldValues>({
     showResetButton: true,
     showTitle: true,
   },
+  requireConfirmation = false,
   dateTimePickerLabels,
   idPickerLabels,
   enumPickerLabels,
@@ -122,6 +127,85 @@ export const FormRoot = <TData extends FieldValues>({
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
   const [validatedData, setValidatedData] = useState<unknown>();
   const [error, setError] = useState<unknown>();
+
+  const onBeforeSubmit = () => {
+    setIsSubmiting(true);
+  };
+  const onAfterSubmit = () => {
+    setIsSubmiting(false);
+  };
+  const onSubmitError = (error: unknown) => {
+    setIsError(true);
+    setError(error);
+  };
+  const onSubmitSuccess = () => {
+    setIsSuccess(true);
+  };
+
+  const validateFormData = (data: unknown) => {
+    try {
+      const { isValid, errors } = validateData(data, schema);
+
+      return {
+        isValid,
+        errors,
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+        errors: [
+          {
+            field: 'validation',
+            message: error instanceof Error ? error.message : 'Unknown error',
+          },
+        ],
+      };
+    }
+  };
+
+  const defaultOnSubmit = async (promise: Promise<unknown>) => {
+    try {
+      onBeforeSubmit();
+      await promise;
+      onSubmitSuccess();
+    } catch (error) {
+      onSubmitError(error);
+    } finally {
+      onAfterSubmit();
+    }
+  };
+  const defaultSubmitPromise = (data: TData) => {
+    const options = {
+      method: 'POST',
+      url: `${requestUrl}`,
+      data: clearEmptyString(data),
+      ...requestOptions,
+    };
+    return axios.request(options);
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onFormSubmit = async (data: any) => {
+    // Validate data using AJV before submission
+    const validationResult = validateFormData(data);
+
+    if (!validationResult.isValid) {
+      // Set validation errors
+      const validationErrorMessage = {
+        type: 'validation',
+        errors: validationResult.errors,
+        message: translate.t('validation_error'),
+      };
+      onSubmitError(validationErrorMessage);
+      return;
+    }
+
+    if (onSubmit === undefined) {
+      await defaultOnSubmit(defaultSubmitPromise(data));
+      return;
+    }
+    await defaultOnSubmit(onSubmit(data));
+  };
 
   return (
     <SchemaFormContext.Provider
@@ -154,6 +238,8 @@ export const FormRoot = <TData extends FieldValues>({
         customErrorRenderer,
         customSuccessRenderer,
         displayConfig,
+        requireConfirmation,
+        onFormSubmit,
         dateTimePickerLabels,
         idPickerLabels,
         enumPickerLabels,

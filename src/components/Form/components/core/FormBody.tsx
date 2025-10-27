@@ -3,7 +3,7 @@ import {
   AccordionItemContent,
   AccordionItemTrigger,
   AccordionRoot,
-} from "@/components/ui/accordion";
+} from '@/components/ui/accordion';
 import {
   Alert,
   Box,
@@ -12,27 +12,21 @@ import {
   Flex,
   Grid,
   Spinner,
-} from "@chakra-ui/react";
-import { ValidationError } from "ajv";
-import axios from "axios";
-import { useFormContext } from "react-hook-form";
-import { useSchemaContext } from "../../useSchemaContext";
-import { clearEmptyString } from "../../utils/clearEmptyString";
-import { validateData } from "../../utils/validateData";
-import { ColumnRenderer } from "../fields/ColumnRenderer";
-import { ColumnViewer } from "../viewers/ColumnViewer";
-import { SubmitButton } from "./SubmitButton";
+} from '@chakra-ui/react';
+import { ValidationError } from 'ajv';
+import { useFormContext } from 'react-hook-form';
+import { useSchemaContext } from '../../useSchemaContext';
+import { ColumnRenderer } from '../fields/ColumnRenderer';
+import { ColumnViewer } from '../viewers/ColumnViewer';
+import { SubmitButton } from './SubmitButton';
 
 export const FormBody = <TData extends object>() => {
   const {
     schema,
-    requestUrl,
     order,
     ignore,
     include,
-    onSubmit,
     translate,
-    requestOptions,
     isSuccess,
     setIsSuccess,
     isError,
@@ -44,100 +38,21 @@ export const FormBody = <TData extends object>() => {
     validatedData,
     setValidatedData,
     error,
-    setError,
     getUpdatedData,
     customErrorRenderer,
     customSuccessRenderer,
     displayConfig,
+    onFormSubmit,
   } = useSchemaContext();
   const { showSubmitButton, showResetButton } = displayConfig;
   const methods = useFormContext();
 
   const { properties } = schema;
 
-  const onBeforeSubmit = () => {
-    setIsSubmiting(true);
-  };
-  const onAfterSubmit = () => {
-    setIsSubmiting(false);
-  };
-  const onSubmitError = (error: unknown) => {
-    setIsError(true);
-    setError(error);
-  };
-  const onSubmitSuccess = () => {
-    setIsSuccess(true);
-  };
-
-  const validateFormData = (data: unknown) => {
-    try {
-      const { isValid, errors } = validateData(data, schema);
-
-      return {
-        isValid,
-        errors,
-      };
-    } catch (error) {
-      return {
-        isValid: false,
-        errors: [
-          {
-            field: "validation",
-            message: error instanceof Error ? error.message : "Unknown error",
-          },
-        ],
-      };
-    }
-  };
-
-  const defaultOnSubmit = async (promise: Promise<unknown>) => {
-    try {
-      onBeforeSubmit();
-      await promise;
-      onSubmitSuccess();
-    } catch (error) {
-      onSubmitError(error);
-    } finally {
-      onAfterSubmit();
-    }
-  };
-  const defaultSubmitPromise = (data: TData) => {
-    const options = {
-      method: "POST",
-      url: `${requestUrl}`,
-      data: clearEmptyString(data),
-      ...requestOptions,
-    };
-    return axios.request(options);
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onFormSubmit = async (data: any) => {
-    // Validate data using AJV before submission
-    const validationResult = validateFormData(data);
-
-    if (!validationResult.isValid) {
-      // Set validation errors
-      const validationErrorMessage = {
-        type: "validation",
-        errors: validationResult.errors,
-        message: translate.t("validation_error"),
-      };
-      onSubmitError(validationErrorMessage);
-      return;
-    }
-
-    if (onSubmit === undefined) {
-      await defaultOnSubmit(defaultSubmitPromise(data));
-      return;
-    }
-    await defaultOnSubmit(onSubmit(data));
-  };
-
   // Custom error renderer for validation errors with i18n support
   const renderValidationErrors = (validationErrors: ValidationError[]) => {
     return (
-      <Flex flexFlow={"column"} gap="2">
+      <Flex flexFlow={'column'} gap="2">
         {validationErrors.map((err, index) => (
           <Alert.Root
             key={index}
@@ -202,19 +117,16 @@ export const FormBody = <TData extends object>() => {
     }
 
     return (
-      <Flex flexFlow={"column"} gap="2">
+      <Flex flexFlow={'column'} gap="2">
         <Alert.Root status="success">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>{translate.t("submit_success")}</Alert.Title>
+            <Alert.Title>{translate.t('submit_success')}</Alert.Title>
           </Alert.Content>
         </Alert.Root>
-        <Flex justifyContent={"end"}>
-          <Button
-            onClick={resetHandler}
-            formNoValidate
-          >
-            {translate.t("submit_again")}
+        <Flex justifyContent={'end'}>
+          <Button onClick={resetHandler} formNoValidate>
+            {translate.t('submit_again')}
           </Button>
         </Flex>
       </Flex>
@@ -222,12 +134,12 @@ export const FormBody = <TData extends object>() => {
   }
   if (isConfirming) {
     return (
-      <Flex flexFlow={"column"} gap="2">
+      <Flex flexFlow={'column'} gap="2">
         <Grid
           gap={4}
-          gridTemplateColumns={"repeat(12, 1fr)"}
-          gridTemplateRows={"repeat(12, max-content)"}
-          autoFlow={"row"}
+          gridTemplateColumns={'repeat(12, 1fr)'}
+          gridTemplateRows={'repeat(12, max-content)'}
+          autoFlow={'row'}
         >
           {ordered.map((column) => {
             return (
@@ -241,21 +153,21 @@ export const FormBody = <TData extends object>() => {
             );
           })}
         </Grid>
-        <Flex justifyContent={"end"} gap={"2"}>
+        <Flex justifyContent={'end'} gap={'2'}>
           <Button
             onClick={() => {
               setIsConfirming(false);
             }}
-            variant={"subtle"}
+            variant={'subtle'}
           >
-            {translate.t("cancel")}
+            {translate.t('cancel')}
           </Button>
           <Button
             onClick={() => {
               onFormSubmit(validatedData);
             }}
           >
-            {translate.t("confirm")}
+            {translate.t('confirm')}
           </Button>
         </Flex>
 
@@ -273,7 +185,7 @@ export const FormBody = <TData extends object>() => {
             ) : (
               <>
                 {/* Check if error is a validation error */}
-                {(error as any)?.type === "validation" &&
+                {(error as any)?.type === 'validation' &&
                 (error as any)?.errors ? (
                   renderValidationErrors((error as any).errors)
                 ) : (
@@ -283,7 +195,7 @@ export const FormBody = <TData extends object>() => {
                       <Alert.Title>Error</Alert.Title>
                       <Alert.Description>
                         <AccordionRoot collapsible defaultValue={[]}>
-                          <AccordionItem value={"b"}>
+                          <AccordionItem value={'b'}>
                             <AccordionItemTrigger>
                               {`${error}`}
                             </AccordionItemTrigger>
@@ -302,8 +214,8 @@ export const FormBody = <TData extends object>() => {
     );
   }
   return (
-    <Flex flexFlow={"column"} gap="2">
-      <Grid gap="4" gridTemplateColumns={"repeat(12, 1fr)"} autoFlow={"row"}>
+    <Flex flexFlow={'column'} gap="2">
+      <Grid gap="4" gridTemplateColumns={'repeat(12, 1fr)'} autoFlow={'row'}>
         {ordered.map((column) => {
           return (
             <ColumnRenderer
@@ -316,15 +228,15 @@ export const FormBody = <TData extends object>() => {
           );
         })}
       </Grid>
-      <Flex justifyContent={"end"} gap="2">
+      <Flex justifyContent={'end'} gap="2">
         {showResetButton && (
           <Button
             onClick={() => {
               methods.reset();
             }}
-            variant={"subtle"}
+            variant={'subtle'}
           >
-            {translate.t("reset")}
+            {translate.t('reset')}
           </Button>
         )}
         {showSubmitButton && <SubmitButton />}
@@ -337,7 +249,7 @@ export const FormBody = <TData extends object>() => {
           ) : (
             <>
               {/* Check if error is a validation error */}
-              {(error as any)?.type === "validation" &&
+              {(error as any)?.type === 'validation' &&
               (error as any)?.errors ? (
                 renderValidationErrors((error as any).errors)
               ) : (
@@ -347,7 +259,7 @@ export const FormBody = <TData extends object>() => {
                     <Alert.Title>Error</Alert.Title>
                     <Alert.Description>
                       <AccordionRoot collapsible defaultValue={[]}>
-                        <AccordionItem value={"b"}>
+                        <AccordionItem value={'b'}>
                           <AccordionItemTrigger>
                             {`${error}`}
                           </AccordionItemTrigger>

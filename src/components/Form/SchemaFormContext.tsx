@@ -45,6 +45,8 @@ export interface SchemaFormContext<TData extends FieldValues> {
     showResetButton?: boolean;
     showTitle?: boolean;
   };
+  requireConfirmation: boolean;
+  onFormSubmit: (data: TData) => Promise<void>;
   dateTimePickerLabels?: DateTimePickerLabels;
   idPickerLabels?: IdPickerLabels;
   enumPickerLabels?: EnumPickerLabels;
@@ -67,4 +69,6 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
     showResetButton: true,
     showTitle: true,
   },
+  requireConfirmation: false,
+  onFormSubmit: async () => {},
 });
