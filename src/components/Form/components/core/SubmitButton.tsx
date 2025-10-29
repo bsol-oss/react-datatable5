@@ -1,8 +1,6 @@
 import { Button } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
-
-import { validateData } from '../../utils/validateData';
 export const SubmitButton = () => {
   const {
     translate,
@@ -18,16 +16,16 @@ export const SubmitButton = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onValid = (data: any) => {
-    const { isValid, errors } = validateData(data, schema);
+    // const { isValid, errors } = validateData(data, schema);
 
-    if (!isValid) {
-      setError({
-        type: 'validation',
-        errors,
-      });
-      setIsError(true);
-      return;
-    }
+    // if (!isValid) {
+    //   setError({
+    //     type: 'validation',
+    //     errors,
+    //   });
+    //   setIsError(true);
+    //   return;
+    // }
 
     // If validation passes, check if confirmation is required
     if (requireConfirmation) {

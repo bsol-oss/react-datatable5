@@ -255,6 +255,8 @@ export const IdPicker = ({
         gridColumn,
         gridRow,
       }}
+      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
+      invalid={!!errors[colLabel]}
     >
       {/* Multiple Picker */}
       {isMultiple && (
@@ -451,11 +453,6 @@ export const IdPicker = ({
           </PopoverBody>
         </PopoverContent>
       </PopoverRoot>
-
-      {/* Error */}
-      {errors[`${colLabel}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Field>
   );
 };

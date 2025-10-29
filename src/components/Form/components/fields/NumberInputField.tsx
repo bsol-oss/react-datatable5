@@ -2,12 +2,12 @@ import {
   NumberInputField as ChakraNumberInputField,
   NumberInputRoot,
 } from '@/components/ui/number-input';
-import { Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { removeIndex } from '../../utils/removeIndex';
+import { getFieldError } from '../../utils/getFieldError';
 export interface NumberInputFieldProps {
   column: string;
   schema: CustomJSONSchema7;
@@ -25,20 +25,39 @@ export const NumberInputField = ({
     watch,
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
+  const {
+    required,
+    gridColumn = 'span 12',
+    gridRow = 'span 1',
+    numberStorageType = 'number',
+  } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(`${colLabel}`);
+  const fieldError = getFieldError(errors, colLabel);
   return (
     <Field
       label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
       required={isRequired}
       {...{ gridColumn, gridRow }}
+      errorText={
+        fieldError
+          ? fieldError.includes('required')
+            ? translate.t(removeIndex(`${colLabel}.field_required`))
+            : fieldError
+          : undefined
+      }
+      invalid={!!fieldError}
     >
       <NumberInputRoot
         value={value}
         onValueChange={(details) => {
-          setValue(`${colLabel}`, details.value); // Store as string to avoid floating-point precision issues
+          // Store as string or number based on configuration, default to number
+          const value =
+            numberStorageType === 'string'
+              ? details.value
+              : details.valueAsNumber;
+          setValue(`${colLabel}`, value);
         }}
         min={schema.minimum}
         max={schema.maximum}
@@ -50,11 +69,6 @@ export const NumberInputField = ({
       >
         <ChakraNumberInputField required={isRequired} />
       </NumberInputRoot>
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>
-          {translate.t(removeIndex(`${colLabel}.field_required`))}
-        </Text>
-      )}
     </Field>
   );
 };

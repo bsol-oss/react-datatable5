@@ -79,6 +79,8 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
         gridColumn,
         gridRow,
       }}
+      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
+      invalid={!!errors[colLabel]}
     >
       <PopoverRoot
         open={open}
@@ -184,10 +186,6 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
           </PopoverBody>
         </PopoverContent>
       </PopoverRoot>
-
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Field>
   );
 };

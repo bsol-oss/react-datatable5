@@ -241,7 +241,6 @@ export const FormBody = <TData extends object>() => {
         )}
         {showSubmitButton && <SubmitButton />}
       </Flex>
-
       {isError && (
         <>
           {customErrorRenderer ? (

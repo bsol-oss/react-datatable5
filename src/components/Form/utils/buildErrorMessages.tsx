@@ -6,15 +6,15 @@
  * Common validation error types that can be customized
  */
 export type ValidationErrorType =
-  | "minLength"
-  | "maxLength"
-  | "pattern"
-  | "minimum"
-  | "maximum"
-  | "multipleOf"
-  | "format"
-  | "type"
-  | "enum";
+  | 'minLength'
+  | 'maxLength'
+  | 'pattern'
+  | 'minimum'
+  | 'maximum'
+  | 'multipleOf'
+  | 'format'
+  | 'type'
+  | 'enum';
 
 /**
  * Configuration for field-specific validation errors
@@ -147,20 +147,69 @@ export const buildErrorMessages = (
 
   // Add global fallback error messages
   const globalKeys: ValidationErrorType[] = [
-    "minLength",
-    "maxLength",
-    "pattern",
-    "minimum",
-    "maximum",
-    "multipleOf",
-    "format",
-    "type",
-    "enum",
+    'minLength',
+    'maxLength',
+    'pattern',
+    'minimum',
+    'maximum',
+    'multipleOf',
+    'format',
+    'type',
+    'enum',
   ];
 
   globalKeys.forEach((key) => {
     if (config[key]) {
       result[key] = config[key];
+    }
+  });
+
+  return result;
+};
+
+/**
+ * Converts buildErrorMessages result to ajv-errors compatible format
+ */
+export const convertToAjvErrorsFormat = (
+  errorMessages: ErrorMessageResult
+): Record<string, any> => {
+  const result: Record<string, any> = {};
+
+  // Convert required field errors
+  if (errorMessages.required) {
+    result.required = errorMessages.required;
+  }
+
+  // Convert properties errors to ajv-errors format
+  if (errorMessages.properties) {
+    result.properties = {};
+    Object.keys(errorMessages.properties).forEach((fieldName) => {
+      const fieldErrors = errorMessages.properties![fieldName];
+      result.properties[fieldName] = {};
+
+      Object.keys(fieldErrors).forEach((keyword) => {
+        result.properties[fieldName][keyword] =
+          fieldErrors[keyword as keyof typeof fieldErrors];
+      });
+    });
+  }
+
+  // Add global fallback errors
+  const globalKeys: ValidationErrorType[] = [
+    'minLength',
+    'maxLength',
+    'pattern',
+    'minimum',
+    'maximum',
+    'multipleOf',
+    'format',
+    'type',
+    'enum',
+  ];
+
+  globalKeys.forEach((key) => {
+    if (errorMessages[key]) {
+      result[key] = errorMessages[key];
     }
   });
 
@@ -212,12 +261,12 @@ export const buildErrorMessages = (
 export const buildRequiredErrors = (
   fields: string[],
   messageOrGenerator: string | ((field: string) => string),
-  keyPrefix: string = ""
+  keyPrefix: string = ''
 ): Record<string, string> => {
   const result: Record<string, string> = {};
 
   fields.forEach((field) => {
-    if (typeof messageOrGenerator === "function") {
+    if (typeof messageOrGenerator === 'function') {
       const message = messageOrGenerator(field);
       result[field] = keyPrefix ? `${keyPrefix}.${message}` : message;
     } else {

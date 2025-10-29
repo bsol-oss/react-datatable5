@@ -1,23 +1,23 @@
-import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/field";
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
 import {
   PopoverBody,
   PopoverContent,
   PopoverRoot,
   PopoverTitle,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Text } from "@chakra-ui/react";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-import { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
-import { MdDateRange } from "react-icons/md";
-import { useSchemaContext } from "../../useSchemaContext";
-import { useFormI18n } from "../../utils/useFormI18n";
-import { InputDefaultProps } from "./types";
-import { DateTimePicker as ChakraDateTimePicker } from "@/components/DatePicker/DateTimePicker";
+} from '@/components/ui/popover';
+import { Text } from '@chakra-ui/react';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import { useEffect, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { MdDateRange } from 'react-icons/md';
+import { useSchemaContext } from '../../useSchemaContext';
+import { useFormI18n } from '../../utils/useFormI18n';
+import { InputDefaultProps } from './types';
+import { DateTimePicker as ChakraDateTimePicker } from '@/components/DatePicker/DateTimePicker';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -36,11 +36,11 @@ export const DateTimePicker = ({
   const formI18n = useFormI18n(column, prefix);
   const {
     required,
-    gridColumn = "span 12",
-    gridRow = "span 1",
-    displayDateFormat = "YYYY-MM-DD HH:mm:ss",
+    gridColumn = 'span 12',
+    gridRow = 'span 1',
+    displayDateFormat = 'YYYY-MM-DD HH:mm:ss',
     // with timezone
-    dateFormat = "YYYY-MM-DD[T]HH:mm:ssZ",
+    dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ',
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = formI18n.colLabel;
@@ -78,11 +78,13 @@ export const DateTimePicker = ({
     <Field
       label={formI18n.label()}
       required={isRequired}
-      alignItems={"stretch"}
+      alignItems={'stretch'}
       {...{
         gridColumn,
         gridRow,
       }}
+      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
+      invalid={!!errors[colLabel]}
     >
       <PopoverRoot
         open={open}
@@ -96,14 +98,14 @@ export const DateTimePicker = ({
             onClick={() => {
               setOpen(true);
             }}
-            justifyContent={"start"}
+            justifyContent={'start'}
           >
             <MdDateRange />
-            {selectedDate !== undefined ? `${displayDate}` : ""}
+            {selectedDate !== undefined ? `${displayDate}` : ''}
           </Button>
         </PopoverTrigger>
-        <PopoverContent minW={"450px"}>
-          <PopoverBody >
+        <PopoverContent minW={'450px'}>
+          <PopoverBody>
             <PopoverTitle />
             <ChakraDateTimePicker
               value={selectedDate}
@@ -113,45 +115,81 @@ export const DateTimePicker = ({
               timezone={timezone}
               labels={{
                 monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
-                  formI18n.translate.t(`common.month_1`, { defaultValue: "January" }),
-                  formI18n.translate.t(`common.month_2`, { defaultValue: "February" }),
-                  formI18n.translate.t(`common.month_3`, { defaultValue: "March" }),
-                  formI18n.translate.t(`common.month_4`, { defaultValue: "April" }),
-                  formI18n.translate.t(`common.month_5`, { defaultValue: "May" }),
-                  formI18n.translate.t(`common.month_6`, { defaultValue: "June" }),
-                  formI18n.translate.t(`common.month_7`, { defaultValue: "July" }),
-                  formI18n.translate.t(`common.month_8`, { defaultValue: "August" }),
-                  formI18n.translate.t(`common.month_9`, { defaultValue: "September" }),
-                  formI18n.translate.t(`common.month_10`, { defaultValue: "October" }),
-                  formI18n.translate.t(`common.month_11`, { defaultValue: "November" }),
-                  formI18n.translate.t(`common.month_12`, { defaultValue: "December" }),
+                  formI18n.translate.t(`common.month_1`, {
+                    defaultValue: 'January',
+                  }),
+                  formI18n.translate.t(`common.month_2`, {
+                    defaultValue: 'February',
+                  }),
+                  formI18n.translate.t(`common.month_3`, {
+                    defaultValue: 'March',
+                  }),
+                  formI18n.translate.t(`common.month_4`, {
+                    defaultValue: 'April',
+                  }),
+                  formI18n.translate.t(`common.month_5`, {
+                    defaultValue: 'May',
+                  }),
+                  formI18n.translate.t(`common.month_6`, {
+                    defaultValue: 'June',
+                  }),
+                  formI18n.translate.t(`common.month_7`, {
+                    defaultValue: 'July',
+                  }),
+                  formI18n.translate.t(`common.month_8`, {
+                    defaultValue: 'August',
+                  }),
+                  formI18n.translate.t(`common.month_9`, {
+                    defaultValue: 'September',
+                  }),
+                  formI18n.translate.t(`common.month_10`, {
+                    defaultValue: 'October',
+                  }),
+                  formI18n.translate.t(`common.month_11`, {
+                    defaultValue: 'November',
+                  }),
+                  formI18n.translate.t(`common.month_12`, {
+                    defaultValue: 'December',
+                  }),
                 ],
                 weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
-                  formI18n.translate.t(`common.weekday_1`, { defaultValue: "Sun" }),
-                  formI18n.translate.t(`common.weekday_2`, { defaultValue: "Mon" }),
-                  formI18n.translate.t(`common.weekday_3`, { defaultValue: "Tue" }),
-                  formI18n.translate.t(`common.weekday_4`, {
-                    defaultValue: "Wed",
+                  formI18n.translate.t(`common.weekday_1`, {
+                    defaultValue: 'Sun',
                   }),
-                  formI18n.translate.t(`common.weekday_5`, { defaultValue: "Thu" }),
-                  formI18n.translate.t(`common.weekday_6`, { defaultValue: "Fri" }),
-                  formI18n.translate.t(`common.weekday_7`, { defaultValue: "Sat" }),
+                  formI18n.translate.t(`common.weekday_2`, {
+                    defaultValue: 'Mon',
+                  }),
+                  formI18n.translate.t(`common.weekday_3`, {
+                    defaultValue: 'Tue',
+                  }),
+                  formI18n.translate.t(`common.weekday_4`, {
+                    defaultValue: 'Wed',
+                  }),
+                  formI18n.translate.t(`common.weekday_5`, {
+                    defaultValue: 'Thu',
+                  }),
+                  formI18n.translate.t(`common.weekday_6`, {
+                    defaultValue: 'Fri',
+                  }),
+                  formI18n.translate.t(`common.weekday_7`, {
+                    defaultValue: 'Sat',
+                  }),
                 ],
-                backButtonLabel: dateTimePickerLabels?.backButtonLabel ?? formI18n.translate.t(`common.back_button`, {
-                  defaultValue: "Back",
-                }),
-                forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ?? formI18n.translate.t(`common.forward_button`, {
-                  defaultValue: "Forward",
-                }),
+                backButtonLabel:
+                  dateTimePickerLabels?.backButtonLabel ??
+                  formI18n.translate.t(`common.back_button`, {
+                    defaultValue: 'Back',
+                  }),
+                forwardButtonLabel:
+                  dateTimePickerLabels?.forwardButtonLabel ??
+                  formI18n.translate.t(`common.forward_button`, {
+                    defaultValue: 'Forward',
+                  }),
               }}
             />
           </PopoverBody>
         </PopoverContent>
       </PopoverRoot>
-
-      {errors[`${column}`] && (
-        <Text color={"red.400"}>{formI18n.required()}</Text>
-      )}
     </Field>
   );
 };

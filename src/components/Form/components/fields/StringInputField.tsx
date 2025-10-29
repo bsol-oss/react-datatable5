@@ -1,9 +1,10 @@
-import { Input, Text } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import { Field } from "../../../ui/field";
-import { useSchemaContext } from "../../useSchemaContext";
-import { removeIndex } from "../../utils/removeIndex";
-import { InputDefaultProps } from "./types";
+import { Input, Text } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import { Field } from '../../../ui/field';
+import { useSchemaContext } from '../../useSchemaContext';
+import { removeIndex } from '../../utils/removeIndex';
+import { getFieldError } from '../../utils/getFieldError';
+import { InputDefaultProps } from './types';
 
 export interface StringInputFieldProps extends InputDefaultProps {}
 
@@ -25,7 +26,9 @@ export interface CustomQueryFnParams {
   offset: number;
 }
 
-export type CustomQueryFn = (params: CustomQueryFnParams) => Promise<CustomQueryFnResponse>;
+export type CustomQueryFn = (
+  params: CustomQueryFnParams
+) => Promise<CustomQueryFnResponse>;
 
 export interface ForeignKeyProps {
   column: string;
@@ -43,9 +46,11 @@ export const StringInputField = ({
     formState: { errors },
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
+  const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
+  const fieldError = getFieldError(errors, colLabel);
+  console.log('StringInputField fieldError:', errors);
   return (
     <>
       <Field
@@ -53,16 +58,13 @@ export const StringInputField = ({
         required={isRequired}
         gridColumn={gridColumn}
         gridRow={gridRow}
+        errorText={fieldError}
+        invalid={!!fieldError}
       >
         <Input
           {...register(`${colLabel}`, { required: isRequired })}
           autoComplete="off"
         />
-        {errors[colLabel] && (
-          <Text color={"red.400"}>
-            {translate.t(removeIndex(`${colLabel}.field_required`))}
-          </Text>
-        )}
       </Field>
     </>
   );

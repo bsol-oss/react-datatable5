@@ -1,13 +1,13 @@
-import { Field } from "@/components/ui/field";
-import { Box, Card, Flex, Text } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import { TiDeleteOutline } from "react-icons/ti";
-import { useSchemaContext } from "../../useSchemaContext";
-import { FileDropzone } from "../FileDropzone";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { removeIndex } from "../../utils/removeIndex";
-import { Image } from "@chakra-ui/react";
-import { InputDefaultProps } from "./types";
+import { Field } from '@/components/ui/field';
+import { Box, Card, Flex, Text } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import { TiDeleteOutline } from 'react-icons/ti';
+import { useSchemaContext } from '../../useSchemaContext';
+import { FileDropzone } from '../FileDropzone';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import { removeIndex } from '../../utils/removeIndex';
+import { Image } from '@chakra-ui/react';
+import { InputDefaultProps } from './types';
 
 export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   const {
@@ -18,8 +18,8 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   const { translate } = useSchemaContext();
   const {
     required,
-    gridColumn = "span 12",
-    gridRow = "span 1",
+    gridColumn = 'span 12',
+    gridRow = 'span 1',
   } = schema as CustomJSONSchema7;
   const isRequired = required?.some((columnId) => columnId === column);
 
@@ -29,11 +29,17 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
     <Field
       label={`${translate.t(`${colLabel}.field_label`)}`}
       required={isRequired}
-      gridColumn={gridColumn ?? "span 4"}
-      gridRow={gridRow ?? "span 1"}
-      display={"grid"}
-      gridTemplateRows={"auto 1fr auto"}
-      alignItems={"stretch"}
+      gridColumn={gridColumn ?? 'span 4'}
+      gridRow={gridRow ?? 'span 1'}
+      display={'grid'}
+      gridTemplateRows={'auto 1fr auto'}
+      alignItems={'stretch'}
+      errorText={
+        errors[`${colLabel}`]
+          ? translate.t(removeIndex(`${colLabel}.field_required`))
+          : undefined
+      }
+      invalid={!!errors[colLabel]}
     >
       <FileDropzone
         onDrop={({ files }) => {
@@ -44,13 +50,13 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
         }}
         placeholder={translate.t(removeIndex(`${colLabel}.fileDropzone`))}
       />
-      <Flex flexFlow={"column"} gap={1}>
+      <Flex flexFlow={'column'} gap={1}>
         {currentFiles.map((file) => {
           return (
-            <Card.Root variant={"subtle"} key={file.name}>
+            <Card.Root variant={'subtle'} key={file.name}>
               <Card.Body
                 gap="2"
-                cursor={"pointer"}
+                cursor={'pointer'}
                 onClick={() => {
                   setValue(
                     column,
@@ -59,12 +65,12 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
                     })
                   );
                 }}
-                display={"flex"}
-                flexFlow={"row"}
-                alignItems={"center"}
-                padding={"2"}
+                display={'flex'}
+                flexFlow={'row'}
+                alignItems={'center'}
+                padding={'2'}
               >
-                {file.type.startsWith("image/") && (
+                {file.type.startsWith('image/') && (
                   <Image
                     src={URL.createObjectURL(file)}
                     alt={file.name}
@@ -81,11 +87,6 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
           );
         })}
       </Flex>
-      {errors[`${colLabel}`] && (
-        <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.field_required`))}
-        </Text>
-      )}
     </Field>
   );
 };

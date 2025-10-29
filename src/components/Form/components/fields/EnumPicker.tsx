@@ -73,6 +73,12 @@ export const EnumPicker = ({
           gridColumn,
           gridRow,
         }}
+        errorText={
+          errors[`${colLabel}`]
+            ? translate.t(removeIndex(`${colLabel}.field_required`))
+            : undefined
+        }
+        invalid={!!errors[colLabel]}
       >
         <RadioGroup.Root defaultValue="1">
           <HStack gap="6">
@@ -118,6 +124,12 @@ export const EnumPicker = ({
         gridColumn,
         gridRow,
       }}
+      errorText={
+        errors[`${colLabel}`]
+          ? translate.t(removeIndex(`${colLabel}.field_required`))
+          : undefined
+      }
+      invalid={!!errors[colLabel]}
     >
       {isMultiple && (
         <Flex flexFlow={'wrap'} gap={1}>
@@ -265,12 +277,6 @@ export const EnumPicker = ({
           </PopoverBody>
         </PopoverContent>
       </PopoverRoot>
-
-      {errors[`${colLabel}`] && (
-        <Text color={'red.400'}>
-          {translate.t(removeIndex(`${colLabel}.field_required`))}
-        </Text>
-      )}
     </Field>
   );
 };

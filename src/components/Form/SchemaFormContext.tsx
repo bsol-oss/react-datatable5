@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import { createContext, Dispatch, ReactNode, SetStateAction } from 'react';
-import { FieldValues } from 'react-hook-form';
+import { FieldValues, Resolver } from 'react-hook-form';
 import { UseTranslationResponse } from 'react-i18next';
 import {
   DateTimePickerLabels,
@@ -20,7 +20,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
   rowNumber?: number | string;
   idMap: Record<string, object>;
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
-  translate: UseTranslationResponse<any, any>;
+  translate: UseTranslationResponse<string, string>;
   requestOptions: AxiosRequestConfig;
   isSuccess: boolean;
   setIsSuccess: Dispatch<SetStateAction<boolean>>;
@@ -50,6 +50,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
   dateTimePickerLabels?: DateTimePickerLabels;
   idPickerLabels?: IdPickerLabels;
   enumPickerLabels?: EnumPickerLabels;
+  ajvResolver: Resolver<FieldValues>;
 }
 
 //@ts-expect-error TODO: find appropriate type
@@ -71,4 +72,5 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   },
   requireConfirmation: false,
   onFormSubmit: async () => {},
+  ajvResolver: async () => ({ values: {}, errors: {} }),
 });

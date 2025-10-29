@@ -11,8 +11,8 @@ import {
 } from 'react-hook-form';
 import { UseTranslationResponse } from 'react-i18next';
 import axios from 'axios';
-import { validateData } from '../../utils/validateData';
 import { clearEmptyString } from '../../utils/clearEmptyString';
+import { ajvResolver } from '../../utils/ajvResolver';
 import {
   CustomJSONSchema7,
   DateTimePickerLabels,
@@ -142,33 +142,15 @@ export const FormRoot = <TData extends FieldValues>({
     setIsSuccess(true);
   };
 
-  const validateFormData = (data: unknown) => {
-    try {
-      const { isValid, errors } = validateData(data, schema);
-
-      return {
-        isValid,
-        errors,
-      };
-    } catch (error) {
-      return {
-        isValid: false,
-        errors: [
-          {
-            field: 'validation',
-            message: error instanceof Error ? error.message : 'Unknown error',
-          },
-        ],
-      };
-    }
-  };
-
   const defaultOnSubmit = async (promise: Promise<unknown>) => {
     try {
+      console.log('onBeforeSubmit');
       onBeforeSubmit();
       await promise;
+      console.log('onSubmitSuccess');
       onSubmitSuccess();
     } catch (error) {
+      console.log('onSubmitError', error);
       onSubmitError(error);
     } finally {
       onAfterSubmit();
@@ -177,7 +159,7 @@ export const FormRoot = <TData extends FieldValues>({
   const defaultSubmitPromise = (data: TData) => {
     const options = {
       method: 'POST',
-      url: `${requestUrl}`,
+      url: `${serverUrl}`,
       data: clearEmptyString(data),
       ...requestOptions,
     };
@@ -186,25 +168,13 @@ export const FormRoot = <TData extends FieldValues>({
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFormSubmit = async (data: any) => {
-    // Validate data using AJV before submission
-    const validationResult = validateFormData(data);
-
-    if (!validationResult.isValid) {
-      // Set validation errors
-      const validationErrorMessage = {
-        type: 'validation',
-        errors: validationResult.errors,
-        message: translate.t('validation_error'),
-      };
-      onSubmitError(validationErrorMessage);
-      return;
-    }
-
+    // AJV validation is now handled by react-hook-form resolver
+    // This function will only be called if validation passes
     if (onSubmit === undefined) {
-      await defaultOnSubmit(defaultSubmitPromise(data));
+      await defaultOnSubmit(Promise.resolve(defaultSubmitPromise(data)));
       return;
     }
-    await defaultOnSubmit(onSubmit(data));
+    await defaultOnSubmit(Promise.resolve(onSubmit(data)));
   };
 
   return (
@@ -243,6 +213,7 @@ export const FormRoot = <TData extends FieldValues>({
         dateTimePickerLabels,
         idPickerLabels,
         enumPickerLabels,
+        ajvResolver: ajvResolver(schema),
       }}
     >
       <FormProvider {...form}>{children}</FormProvider>
