@@ -223,6 +223,7 @@ export const FormBody = <TData extends object>() => {
               properties={properties}
               prefix={``}
               key={`form-input-${column}`}
+              parentRequired={schema.required as string[] | undefined}
               {...{ column }}
             />
           );

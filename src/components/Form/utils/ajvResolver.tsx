@@ -87,7 +87,7 @@ export const ajvResolver = <T extends FieldValues>(
     try {
       const { isValid, errors } = validateData(values, schema);
 
-      console.log('AJV Validation Result:', { isValid, errors });
+      console.debug('AJV Validation Result:', { isValid, errors });
 
       if (isValid) {
         return {
@@ -97,7 +97,7 @@ export const ajvResolver = <T extends FieldValues>(
       }
 
       const fieldErrors = convertAjvErrorsToFieldErrors(errors);
-      console.log('AJV Validation Failed:', { errors, fieldErrors });
+      console.debug('AJV Validation Failed:', { errors, fieldErrors });
 
       return {
         values: {} as T,

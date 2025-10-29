@@ -50,7 +50,6 @@ export const StringInputField = ({
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const fieldError = getFieldError(errors, colLabel);
-  console.log('StringInputField fieldError:', errors);
   return (
     <>
       <Field

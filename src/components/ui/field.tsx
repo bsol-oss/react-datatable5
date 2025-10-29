@@ -17,7 +17,10 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
         {label && (
           <ChakraField.Label>
             {label}
-            <ChakraField.RequiredIndicator fallback={optionalText} />
+            <ChakraField.RequiredIndicator
+              color={rest.invalid && rest.required ? 'red.500' : undefined}
+              fallback={optionalText}
+            />
           </ChakraField.Label>
         )}
         {children}
@@ -25,7 +28,12 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
           <ChakraField.HelperText>{helperText}</ChakraField.HelperText>
         )}
         {!!errorText && (
-          <ChakraField.ErrorText>{errorText}</ChakraField.ErrorText>
+          <ChakraField.ErrorText>
+            {rest.required && rest.invalid && (
+              <span style={{ color: 'var(--chakra-colors-red-500)' }}>* </span>
+            )}
+            {errorText}
+          </ChakraField.ErrorText>
         )}
       </ChakraField.Root>
     );
