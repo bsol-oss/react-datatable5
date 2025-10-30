@@ -1,5 +1,5 @@
-import { ErrorObject, ValidateFunction } from "ajv";
-import { JSONSchema7 } from "json-schema";
+import { ErrorObject, ValidateFunction } from 'ajv';
+import { JSONSchema7 } from 'json-schema';
 type ValidateDataResult = {
     isValid: boolean;
     validate: ValidateFunction;

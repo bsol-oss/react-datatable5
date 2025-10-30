@@ -1,4 +1,4 @@
-import { InputDefaultProps } from "./types";
+import { InputDefaultProps } from './types';
 export interface StringInputFieldProps extends InputDefaultProps {
 }
 export interface CustomQueryFnResponse {

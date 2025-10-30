@@ -4,7 +4,7 @@
 /**
  * Common validation error types that can be customized
  */
-export type ValidationErrorType = "minLength" | "maxLength" | "pattern" | "minimum" | "maximum" | "multipleOf" | "format" | "type" | "enum";
+export type ValidationErrorType = 'minLength' | 'maxLength' | 'pattern' | 'minimum' | 'maximum' | 'multipleOf' | 'format' | 'type' | 'enum' | 'required' | 'minItems' | 'maxItems' | 'uniqueItems' | 'minProperties' | 'maxProperties' | 'anyOf' | 'oneOf' | 'allOf' | 'const' | 'additionalProperties' | 'dependencies';
 /**
  * Configuration for field-specific validation errors
  */
@@ -115,6 +115,10 @@ export interface ErrorMessageResult {
  * ```
  */
 export declare const buildErrorMessages: (config: ErrorMessageConfig) => ErrorMessageResult;
+/**
+ * Converts buildErrorMessages result to ajv-errors compatible format
+ */
+export declare const convertToAjvErrorsFormat: (errorMessages: ErrorMessageResult) => Record<string, any>;
 /**
  * Helper function to build required field errors
  *

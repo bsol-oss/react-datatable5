@@ -573,137 +573,13 @@ interface ForeignKeyProps {
     customQueryFn?: CustomQueryFn;
 }
 
-interface DateTimePickerLabels {
-    monthNamesShort?: string[];
-    weekdayNamesShort?: string[];
-    backButtonLabel?: string;
-    forwardButtonLabel?: string;
-}
-interface IdPickerLabels {
-    undefined?: string;
-    addMore?: string;
-    typeToSearch?: string;
-    total?: string;
-    showing?: string;
-    perPage?: string;
-    emptySearchResult?: string;
-    initialResults?: string;
-}
-interface EnumPickerLabels {
-    undefined?: string;
-    addMore?: string;
-    typeToSearch?: string;
-    total?: string;
-    showing?: string;
-    perPage?: string;
-    emptySearchResult?: string;
-    initialResults?: string;
-}
-interface CustomJSONSchema7 extends JSONSchema7 {
-    gridColumn?: string;
-    gridRow?: string;
-    foreign_key?: ForeignKeyProps;
-    variant?: string;
-    renderDisplay?: (item: unknown) => ReactNode;
-    inputRender?: (props: {
-        column: string;
-        schema: CustomJSONSchema7;
-        prefix: string;
-        formContext: UseFormReturn;
-    }) => ReactNode;
-    inputViewerRender?: (props: {
-        column: string;
-        schema: CustomJSONSchema7;
-        prefix: string;
-        formContext: UseFormReturn;
-    }) => ReactNode;
-    dateFormat?: string;
-    displayDateFormat?: string;
-    timeFormat?: string;
-    displayTimeFormat?: string;
-    showLabel?: boolean;
-    formatOptions?: Intl.NumberFormatOptions;
-}
-interface TagPickerProps {
-    column: string;
-    schema: CustomJSONSchema7;
-    prefix: string;
-}
-
-interface FormRootProps<TData extends FieldValues> {
-    schema: CustomJSONSchema7;
-    serverUrl: string;
-    requestUrl?: string;
-    idMap: Record<string, object>;
-    setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
-    form: UseFormReturn;
-    translate: UseTranslationResponse<any, any>;
-    children: ReactNode;
-    order?: string[];
-    ignore?: string[];
-    include?: string[];
-    onSubmit?: SubmitHandler<TData>;
-    rowNumber?: number | string;
-    requestOptions?: AxiosRequestConfig;
-    getUpdatedData?: () => TData | Promise<TData> | void;
-    customErrorRenderer?: (error: unknown) => ReactNode;
-    customSuccessRenderer?: (resetHandler: () => void | Promise<void>) => ReactNode;
-    displayConfig?: {
-        showSubmitButton?: boolean;
-        showResetButton?: boolean;
-        showTitle?: boolean;
-    };
-    requireConfirmation?: boolean;
-    dateTimePickerLabels?: DateTimePickerLabels;
-    idPickerLabels?: IdPickerLabels;
-    enumPickerLabels?: EnumPickerLabels;
-}
-interface CustomJSONSchema7Definition extends JSONSchema7 {
-    variant: string;
-    in_table: string;
-    column_ref: string;
-    display_column: string;
-    gridColumn: string;
-    gridRow: string;
-    foreign_key: ForeignKeyProps$1;
-    children: ReactNode;
-}
-declare const idPickerSanityCheck: (column: string, foreign_key?: {
-    table?: string | undefined;
-    column?: string | undefined;
-    display_column?: string | undefined;
-} | undefined) => void;
-declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
-
-interface DefaultFormProps<TData extends FieldValues> {
-    formConfig: Omit<FormRootProps<TData>, "children">;
-    showTitle?: boolean;
-}
-declare const DefaultForm: <TData extends FieldValues>({ formConfig, }: DefaultFormProps<TData>) => react_jsx_runtime.JSX.Element;
-
-declare const FormTitle: () => react_jsx_runtime.JSX.Element;
-
-declare const FormBody: <TData extends object>() => string | number | bigint | boolean | Iterable<react.ReactNode> | Promise<string | number | bigint | boolean | react.ReactPortal | react.ReactElement<unknown, string | react.JSXElementConstructor<any>> | Iterable<react.ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null | undefined;
-
-interface UseFormProps {
-    preLoadedValues?: FieldValues | undefined;
-    keyPrefix?: string;
-    namespace?: string;
-}
-declare const useForm: ({ preLoadedValues, keyPrefix, namespace }: UseFormProps) => {
-    form: react_hook_form.UseFormReturn<FieldValues, any, undefined>;
-    idMap: Record<string, object>;
-    setIdMap: react.Dispatch<react.SetStateAction<Record<string, object>>>;
-    translate: react_i18next.UseTranslationResponse<string, string>;
-};
-
 /**
  * Type definitions for error message configuration
  */
 /**
  * Common validation error types that can be customized
  */
-type ValidationErrorType = "minLength" | "maxLength" | "pattern" | "minimum" | "maximum" | "multipleOf" | "format" | "type" | "enum";
+type ValidationErrorType = 'minLength' | 'maxLength' | 'pattern' | 'minimum' | 'maximum' | 'multipleOf' | 'format' | 'type' | 'enum' | 'required' | 'minItems' | 'maxItems' | 'uniqueItems' | 'minProperties' | 'maxProperties' | 'anyOf' | 'oneOf' | 'allOf' | 'const' | 'additionalProperties' | 'dependencies';
 /**
  * Configuration for field-specific validation errors
  */
@@ -815,6 +691,10 @@ interface ErrorMessageResult {
  */
 declare const buildErrorMessages: (config: ErrorMessageConfig) => ErrorMessageResult;
 /**
+ * Converts buildErrorMessages result to ajv-errors compatible format
+ */
+declare const convertToAjvErrorsFormat: (errorMessages: ErrorMessageResult) => Record<string, any>;
+/**
  * Helper function to build required field errors
  *
  * Simplifies creating required field error messages, especially useful
@@ -916,6 +796,133 @@ declare const buildFieldErrors: (config: Record<string, FieldErrorConfig>) => Re
  * ```
  */
 declare const createErrorMessage: (required?: Record<string, string>, properties?: Record<string, FieldErrorConfig>, globalFallbacks?: Partial<Record<ValidationErrorType, string>>) => ErrorMessageResult;
+
+interface DateTimePickerLabels {
+    monthNamesShort?: string[];
+    weekdayNamesShort?: string[];
+    backButtonLabel?: string;
+    forwardButtonLabel?: string;
+}
+interface IdPickerLabels {
+    undefined?: string;
+    addMore?: string;
+    typeToSearch?: string;
+    total?: string;
+    showing?: string;
+    perPage?: string;
+    emptySearchResult?: string;
+    initialResults?: string;
+}
+interface EnumPickerLabels {
+    undefined?: string;
+    addMore?: string;
+    typeToSearch?: string;
+    total?: string;
+    showing?: string;
+    perPage?: string;
+    emptySearchResult?: string;
+    initialResults?: string;
+}
+interface CustomJSONSchema7 extends JSONSchema7 {
+    gridColumn?: string;
+    gridRow?: string;
+    foreign_key?: ForeignKeyProps;
+    variant?: string;
+    renderDisplay?: (item: unknown) => ReactNode;
+    inputRender?: (props: {
+        column: string;
+        schema: CustomJSONSchema7;
+        prefix: string;
+        formContext: UseFormReturn;
+    }) => ReactNode;
+    inputViewerRender?: (props: {
+        column: string;
+        schema: CustomJSONSchema7;
+        prefix: string;
+        formContext: UseFormReturn;
+    }) => ReactNode;
+    dateFormat?: string;
+    displayDateFormat?: string;
+    timeFormat?: string;
+    displayTimeFormat?: string;
+    showLabel?: boolean;
+    formatOptions?: Intl.NumberFormatOptions;
+    numberStorageType?: 'string' | 'number';
+    errorMessages?: Partial<Record<ValidationErrorType | string, string>>;
+}
+interface TagPickerProps {
+    column: string;
+    schema: CustomJSONSchema7;
+    prefix: string;
+}
+
+interface FormRootProps<TData extends FieldValues> {
+    schema: CustomJSONSchema7;
+    serverUrl: string;
+    requestUrl?: string;
+    idMap: Record<string, object>;
+    setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
+    form: UseFormReturn;
+    translate: UseTranslationResponse<any, any>;
+    children: ReactNode;
+    order?: string[];
+    ignore?: string[];
+    include?: string[];
+    onSubmit?: SubmitHandler<TData>;
+    rowNumber?: number | string;
+    requestOptions?: AxiosRequestConfig;
+    getUpdatedData?: () => TData | Promise<TData> | void;
+    customErrorRenderer?: (error: unknown) => ReactNode;
+    customSuccessRenderer?: (resetHandler: () => void | Promise<void>) => ReactNode;
+    displayConfig?: {
+        showSubmitButton?: boolean;
+        showResetButton?: boolean;
+        showTitle?: boolean;
+    };
+    requireConfirmation?: boolean;
+    dateTimePickerLabels?: DateTimePickerLabels;
+    idPickerLabels?: IdPickerLabels;
+    enumPickerLabels?: EnumPickerLabels;
+}
+interface CustomJSONSchema7Definition extends JSONSchema7 {
+    variant: string;
+    in_table: string;
+    column_ref: string;
+    display_column: string;
+    gridColumn: string;
+    gridRow: string;
+    foreign_key: ForeignKeyProps$1;
+    children: ReactNode;
+}
+declare const idPickerSanityCheck: (column: string, foreign_key?: {
+    table?: string | undefined;
+    column?: string | undefined;
+    display_column?: string | undefined;
+} | undefined) => void;
+declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
+
+interface DefaultFormProps<TData extends FieldValues> {
+    formConfig: Omit<FormRootProps<TData>, "children">;
+    showTitle?: boolean;
+}
+declare const DefaultForm: <TData extends FieldValues>({ formConfig, }: DefaultFormProps<TData>) => react_jsx_runtime.JSX.Element;
+
+declare const FormTitle: () => react_jsx_runtime.JSX.Element;
+
+declare const FormBody: <TData extends object>() => string | number | bigint | boolean | Iterable<react.ReactNode> | Promise<string | number | bigint | boolean | react.ReactPortal | react.ReactElement<unknown, string | react.JSXElementConstructor<any>> | Iterable<react.ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null | undefined;
+
+interface UseFormProps {
+    preLoadedValues?: FieldValues | undefined;
+    keyPrefix?: string;
+    namespace?: string;
+    schema?: JSONSchema7;
+}
+declare const useForm: ({ preLoadedValues, keyPrefix, namespace, schema, }: UseFormProps) => {
+    form: react_hook_form.UseFormReturn<FieldValues, any, undefined>;
+    idMap: Record<string, object>;
+    setIdMap: react.Dispatch<react.SetStateAction<Record<string, object>>>;
+    translate: react_i18next.UseTranslationResponse<string, string>;
+};
 
 interface CalendarProps extends RenderProps {
     firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -1064,4 +1071,4 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type ErrorMessageConfig, type ErrorMessageResult, type FieldErrorConfig, FilterDialog, FormBody, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, createErrorMessage, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type ErrorMessageConfig, type ErrorMessageResult, type FieldErrorConfig, FilterDialog, FormBody, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, convertToAjvErrorsFormat, createErrorMessage, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };

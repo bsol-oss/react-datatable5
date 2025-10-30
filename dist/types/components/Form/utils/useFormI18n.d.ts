@@ -49,5 +49,5 @@ export declare const useFormI18n: (column: string, prefix?: string) => {
     /**
      * Access to the original translate object for edge cases
      */
-    translate: import("react-i18next").UseTranslationResponse<any, any>;
+    translate: import("react-i18next").UseTranslationResponse<string, string>;
 };
