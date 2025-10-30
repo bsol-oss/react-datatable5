@@ -1,7 +1,6 @@
-import Ajv, { ErrorObject, ValidateFunction } from "ajv";
-import addFormats from "ajv-formats";
-import addErrors from "ajv-errors";
-import { JSONSchema7 } from "json-schema";
+import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
+import addFormats from 'ajv-formats';
+import { JSONSchema7 } from 'json-schema';
 
 type ValidateDataResult = {
   isValid: boolean;
@@ -21,7 +20,6 @@ export const validateData = (
     allErrors: true,
   });
   addFormats(ajv);
-  addErrors(ajv);
   const validate = ajv.compile(schema);
   const validationResult = validate(data);
   const errors = validate.errors;

@@ -2,6 +2,7 @@ import { JSONSchema7 } from 'json-schema';
 import { ReactNode } from 'react';
 import { ForeignKeyProps } from '../fields/StringInputField';
 import { UseFormReturn } from 'react-hook-form';
+import { ValidationErrorType } from '../../utils/buildErrorMessages';
 
 export interface DateTimePickerLabels {
   monthNamesShort?: string[]; // Array of 12 month names
@@ -57,6 +58,7 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
   showLabel?: boolean;
   formatOptions?: Intl.NumberFormatOptions;
   numberStorageType?: 'string' | 'number';
+  errorMessages?: Partial<Record<ValidationErrorType | string, string>>;
 }
 export interface TagPickerProps {
   column: string;

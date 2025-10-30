@@ -64,9 +64,11 @@ The library is organized into major component categories:
 **JSON Schema-based form system:**
 
 - **Context**: `SchemaFormContext` provides schema, validation, submission logic to all form components
-- **Validation**: Uses AJV (Another JSON Schema Validator) with formats and i18n
+- **Validation**: Uses AJV (Another JSON Schema Validator) with formats
   - `validateData()` in `src/components/Form/utils/validateData.tsx`
-  - Supports multiple locales via `validationLocale` prop
+  - Custom error messages via `errorMessages` field in schema properties
+  - No default error messages - consuming apps handle translation
+  - Strips empty values (null, undefined, empty strings) before validation
   - Validates before form submission with error display
 
 **Form field components** (`src/components/Form/components/fields/`):
@@ -75,6 +77,7 @@ The library is organized into major component categories:
 - Field types: StringInputField, NumberInputField, BooleanPicker, DatePicker, DateTimePicker, EnumPicker, IdPicker, TagPicker, FilePicker
 - Special renderers: ArrayRenderer, ObjectInput, RecordInput, ColumnRenderer
 - SchemaRenderer intelligently selects the right field component based on schema
+- Custom validation error messages via `errorMessages` field in schema properties
 
 **Form viewers** (`src/components/Form/components/viewers/`):
 
@@ -121,8 +124,26 @@ The library is organized into major component categories:
 - Forms are driven by JSON Schema (Draft 7)
 - Required fields defined in schema's `required` array
 - Format validation via `ajv-formats` (email, date, time, uuid, etc.)
-- Custom error messages via `ajv-errors`
+- Custom error messages via `errorMessages` field in schema properties
 - Always validate data before submission using `validateData()`
+
+### Validation Error Messages
+
+- **Helpful fallback messages**: When no custom error message is provided, shows a helpful reminder to add errorMessages to the schema (e.g., "Missing error message for required. Add errorMessages.required to schema for field 'username'")
+- **Custom messages**: Define per-field error messages in schema:
+  ```typescript
+  {
+    type: 'string',
+    minLength: 3,
+    errorMessages: {
+      required: 'user.username.field_required',
+      minLength: 'user.username.minLength_error'
+    }
+  }
+  ```
+- **Translation responsibility**: Consuming applications handle i18n translation
+- **Error structure**: Returns `{ type, keyword, params, message? }` for custom handling
+- **Empty value handling**: Automatically strips null, undefined, and empty strings before validation. If all values are stripped, uses empty object for validation to ensure proper schema validation.
 
 ### Component Composition
 
@@ -222,3 +243,4 @@ Define in column definition:
 - Default timezone for forms: 'Asia/Hong_Kong' (configurable via context)
 
 - do not check typescript error useless user specify
+- do not use `color` directly, just always prefer to use the chakra ui v3 `colorPalette` and `variant`

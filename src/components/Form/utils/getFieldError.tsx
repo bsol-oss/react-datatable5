@@ -31,8 +31,9 @@ export const getFieldError = (
 
 /**
  * Helper function to extract error message from various error formats
+ * Only returns message if explicitly provided, no fallback text
  */
-const extractErrorMessage = (error: any): string | undefined => {
+const extractErrorMessage = (error: unknown): string | undefined => {
   if (!error) {
     return undefined;
   }
@@ -62,6 +63,6 @@ const extractErrorMessage = (error: any): string | undefined => {
     }
   }
 
-  // Fallback to a generic error message
-  return 'Invalid value';
+  // No fallback - return undefined if no message provided
+  return undefined;
 };

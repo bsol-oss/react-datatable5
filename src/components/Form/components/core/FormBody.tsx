@@ -1,19 +1,12 @@
 import {
-  AccordionItem,
-  AccordionItemContent,
-  AccordionItemTrigger,
-  AccordionRoot,
-} from '@/components/ui/accordion';
-import {
-  Alert,
   Box,
   Button,
   Center,
   Flex,
   Grid,
   Spinner,
+  Alert,
 } from '@chakra-ui/react';
-import { ValidationError } from 'ajv';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 import { ColumnRenderer } from '../fields/ColumnRenderer';
@@ -48,27 +41,6 @@ export const FormBody = <TData extends object>() => {
   const methods = useFormContext();
 
   const { properties } = schema;
-
-  // Custom error renderer for validation errors with i18n support
-  const renderValidationErrors = (validationErrors: ValidationError[]) => {
-    return (
-      <Flex flexFlow={'column'} gap="2">
-        {validationErrors.map((err, index) => (
-          <Alert.Root
-            key={index}
-            status="error"
-            display="flex"
-            alignItems="center"
-          >
-            <Alert.Indicator />
-            <Alert.Content>
-              <Alert.Description>{err.message}</Alert.Description>
-            </Alert.Content>
-          </Alert.Root>
-        ))}
-      </Flex>
-    );
-  };
 
   interface renderColumnsConfig {
     order: string[];
@@ -178,38 +150,7 @@ export const FormBody = <TData extends object>() => {
             </Center>
           </Box>
         )}
-        {isError && (
-          <>
-            {customErrorRenderer ? (
-              customErrorRenderer(error)
-            ) : (
-              <>
-                {/* Check if error is a validation error */}
-                {(error as any)?.type === 'validation' &&
-                (error as any)?.errors ? (
-                  renderValidationErrors((error as any).errors)
-                ) : (
-                  <Alert.Root status="error">
-                    <Alert.Indicator />
-                    <Alert.Content>
-                      <Alert.Title>Error</Alert.Title>
-                      <Alert.Description>
-                        <AccordionRoot collapsible defaultValue={[]}>
-                          <AccordionItem value={'b'}>
-                            <AccordionItemTrigger>
-                              {`${error}`}
-                            </AccordionItemTrigger>
-                            <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
-                          </AccordionItem>
-                        </AccordionRoot>
-                      </Alert.Description>
-                    </Alert.Content>
-                  </Alert.Root>
-                )}
-              </>
-            )}
-          </>
-        )}
+        {isError && customErrorRenderer && customErrorRenderer(error)}
       </Flex>
     );
   }
@@ -242,38 +183,7 @@ export const FormBody = <TData extends object>() => {
         )}
         {showSubmitButton && <SubmitButton />}
       </Flex>
-      {isError && (
-        <>
-          {customErrorRenderer ? (
-            customErrorRenderer(error)
-          ) : (
-            <>
-              {/* Check if error is a validation error */}
-              {(error as any)?.type === 'validation' &&
-              (error as any)?.errors ? (
-                renderValidationErrors((error as any).errors)
-              ) : (
-                <Alert.Root status="error">
-                  <Alert.Indicator />
-                  <Alert.Content>
-                    <Alert.Title>Error</Alert.Title>
-                    <Alert.Description>
-                      <AccordionRoot collapsible defaultValue={[]}>
-                        <AccordionItem value={'b'}>
-                          <AccordionItemTrigger>
-                            {`${error}`}
-                          </AccordionItemTrigger>
-                          <AccordionItemContent>{`${JSON.stringify(error)}`}</AccordionItemContent>
-                        </AccordionItem>
-                      </AccordionRoot>
-                    </Alert.Description>
-                  </Alert.Content>
-                </Alert.Root>
-              )}
-            </>
-          )}
-        </>
-      )}
+      {isError && customErrorRenderer && customErrorRenderer(error)}
     </Flex>
   );
 };

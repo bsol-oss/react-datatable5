@@ -14,7 +14,19 @@ export type ValidationErrorType =
   | 'multipleOf'
   | 'format'
   | 'type'
-  | 'enum';
+  | 'enum'
+  | 'required'
+  | 'minItems'
+  | 'maxItems'
+  | 'uniqueItems'
+  | 'minProperties'
+  | 'maxProperties'
+  | 'anyOf'
+  | 'oneOf'
+  | 'allOf'
+  | 'const'
+  | 'additionalProperties'
+  | 'dependencies';
 
 /**
  * Configuration for field-specific validation errors
@@ -345,9 +357,14 @@ export const createErrorMessage = (
   properties?: Record<string, FieldErrorConfig>,
   globalFallbacks?: Partial<Record<ValidationErrorType, string>>
 ): ErrorMessageResult => {
-  return buildErrorMessages({
+  const config: ErrorMessageConfig = {
     required,
     properties,
-    ...globalFallbacks,
-  });
+  };
+
+  if (globalFallbacks) {
+    Object.assign(config, globalFallbacks);
+  }
+
+  return buildErrorMessages(config);
 };

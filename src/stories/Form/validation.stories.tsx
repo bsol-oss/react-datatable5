@@ -6,12 +6,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
-import {
-  buildErrorMessages,
-  buildRequiredErrors,
-  createErrorMessage,
-  convertToAjvErrorsFormat,
-} from '@/components/Form/utils/buildErrorMessages';
+// Note: The buildErrorMessages utilities are no longer used in the new approach
+// as we now use per-field errorMessages in the schema directly
+
+// Note: This library no longer provides default validation error messages.
+// Developers must provide custom error messages via the errorMessages field in each schema property.
+// The consuming application is responsible for translating these messages using their i18n system.
+// If no errorMessages are provided, no error text will be displayed (consuming apps can handle this).
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -80,7 +81,7 @@ export const ValidationWithI18n: Story = {
   },
 };
 
-// Example 1: Using buildErrorMessages with full control
+// Example 1: Using per-field errorMessages (new approach)
 const SomeForm = () => {
   const schema = {
     type: 'object',
@@ -89,14 +90,25 @@ const SomeForm = () => {
         type: 'string',
         variant: 'text-area',
         minLength: 10,
+        errorMessages: {
+          required: 'nice.someTextarea.field_required',
+          minLength: 'nice.someTextarea.minLength_error',
+        },
       },
       someNumber: {
         type: 'number',
         minimum: 10,
+        errorMessages: {
+          required: 'nice.someNumber.field_required',
+          minimum: 'nice.someNumber.minimum_error',
+        },
       },
       someTime: {
         type: 'string',
         format: 'time',
+        errorMessages: {
+          format: 'nice.someTime.format_error',
+        },
       },
     },
     required: ['someTextarea', 'someNumber'],
@@ -122,11 +134,8 @@ const SomeForm = () => {
   );
 };
 
-// Example 2: Using buildRequiredErrors helper
+// Example 2: Using per-field errorMessages for user registration
 const FormWithHelpers = () => {
-  // Use buildRequiredErrors to simplify required field errors
-  const requiredFields = ['username', 'email', 'password'];
-
   const schema = {
     type: 'object',
     properties: {
@@ -135,23 +144,42 @@ const FormWithHelpers = () => {
         minLength: 3,
         maxLength: 20,
         pattern: '^[a-zA-Z0-9]+$',
+        errorMessages: {
+          required: 'user.username.field_required',
+          minLength: 'user.username.minLength_error',
+          maxLength: 'user.username.maxLength_error',
+          pattern: 'user.username.pattern_error',
+        },
       },
       email: {
         type: 'string',
         format: 'email',
+        errorMessages: {
+          required: 'user.email.field_required',
+          format: 'user.email.format_error',
+        },
       },
       password: {
         type: 'string',
         minLength: 8,
         pattern: '^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]',
+        errorMessages: {
+          required: 'user.password.field_required',
+          minLength: 'user.password.minLength_error',
+          pattern: 'user.password.pattern_error',
+        },
       },
       age: {
         type: 'number',
         minimum: 18,
         maximum: 120,
+        errorMessages: {
+          minimum: 'user.age.minimum_error',
+          maximum: 'user.age.maximum_error',
+        },
       },
     },
-    required: requiredFields,
+    required: ['username', 'email', 'password'],
   } as JSONSchema7;
 
   const form = useForm({
@@ -174,7 +202,7 @@ const FormWithHelpers = () => {
   );
 };
 
-// Example 3: Using createErrorMessage wrapper with i18n keys
+// Example 3: Using per-field errorMessages for product form
 const FormWithI18n = () => {
   const schema = {
     type: 'object',
@@ -183,23 +211,43 @@ const FormWithI18n = () => {
         type: 'string',
         minLength: 3,
         maxLength: 100,
+        errorMessages: {
+          required: 'product.name.field_required',
+          minLength: 'product.name.minLength_error',
+          maxLength: 'product.name.maxLength_error',
+        },
       },
       price: {
         type: 'number',
         minimum: 0.01,
         maximum: 999999.99,
+        errorMessages: {
+          required: 'product.price.field_required',
+          minimum: 'product.price.minimum_error',
+          maximum: 'product.price.maximum_error',
+        },
       },
       category: {
         type: 'string',
         enum: ['electronics', 'clothing', 'food', 'books'],
+        errorMessages: {
+          required: 'product.category.field_required',
+          enum: 'product.category.enum_error',
+        },
       },
       description: {
         type: 'string',
         maxLength: 500,
+        errorMessages: {
+          maxLength: 'product.description.maxLength_error',
+        },
       },
       releaseDate: {
         type: 'string',
         format: 'date',
+        errorMessages: {
+          format: 'product.releaseDate.format_error',
+        },
       },
     },
     required: ['name', 'price', 'category'],

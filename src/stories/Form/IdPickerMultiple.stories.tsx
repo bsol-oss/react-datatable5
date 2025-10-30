@@ -401,18 +401,10 @@ const IdPickerMultipleForm = () => {
   return (
     <VStack gap={6} align="stretch" p={4}>
       {/* Header Documentation */}
-      <Box
-        p={6}
-        bg="blue.50"
-        borderRadius="lg"
-        borderWidth="1px"
-        borderColor="blue.200"
-      >
+      <Box p={6} borderRadius="lg" borderWidth="1px">
         <VStack gap={4} align="stretch">
-          <Heading size="lg" color="blue.800">
-            IdPicker Multiple Selection
-          </Heading>
-          <Text color="blue.700">
+          <Heading size="lg">IdPicker Multiple Selection</Heading>
+          <Text>
             This story demonstrates the IdPicker component's multiple selection
             functionality. Learn how to configure and use IdPicker for selecting
             multiple values with tags, search, and pagination.
@@ -448,17 +440,9 @@ const IdPickerMultipleForm = () => {
       </Box>
 
       {/* Usage Guide */}
-      <Box
-        p={6}
-        bg="gray.50"
-        borderRadius="lg"
-        borderWidth="1px"
-        borderColor="gray.200"
-      >
+      <Box p={6} borderRadius="lg" borderWidth="1px">
         <VStack gap={4} align="stretch">
-          <Heading size="md" color="gray.800">
-            How to Use Multiple Selection
-          </Heading>
+          <Heading size="md">How to Use Multiple Selection</Heading>
 
           <VStack gap={3} align="stretch">
             <HStack gap={4}>
@@ -500,19 +484,10 @@ const IdPickerMultipleForm = () => {
       </Box>
 
       {/* Interactive Demo Form */}
-      <Box
-        p={6}
-        bg="white"
-        borderRadius="lg"
-        borderWidth="1px"
-        borderColor="gray.200"
-        boxShadow="sm"
-      >
+      <Box p={6} borderRadius="lg" borderWidth="1px" boxShadow="sm">
         <VStack gap={4} align="stretch">
-          <Heading size="md" color="gray.800">
-            Interactive Demo
-          </Heading>
-          <Text color="gray.600">
+          <Heading size="md">Interactive Demo</Heading>
+          <Text>
             Try selecting multiple team members, CC recipients, and
             stakeholders. Notice how the component handles different selection
             states and validation.
@@ -536,12 +511,10 @@ const IdPickerMultipleForm = () => {
       </Box>
 
       {/* Code Examples */}
-      <Box p={6} bg="gray.900" borderRadius="lg" color="white">
+      <Box p={6} borderRadius="lg" color="white">
         <VStack gap={4} align="stretch">
-          <Heading size="md" color="white">
-            JSON Schema Configuration
-          </Heading>
-          <Text color="gray.300">
+          <Heading size="md">JSON Schema Configuration</Heading>
+          <Text>
             Configure IdPicker for multiple selection using this schema
             structure:
           </Text>
@@ -607,33 +580,14 @@ const IdPickerMultipleForm = () => {
 
       {/* Submitted Data Display */}
       {submittedData && (
-        <Box
-          p={6}
-          bg="green.50"
-          borderRadius="lg"
-          borderWidth="1px"
-          borderColor="green.200"
-        >
+        <Box p={6} borderRadius="lg" borderWidth="1px">
           <VStack gap={4} align="stretch">
-            <Heading size="md" color="green.800">
-              Form Submission Result
-            </Heading>
-            <Text color="green.700">
+            <Heading size="md">Form Submission Result</Heading>
+            <Text>
               Here's the data that would be submitted with your selections:
             </Text>
-            <Box
-              p={4}
-              bg="white"
-              borderRadius="md"
-              borderWidth="1px"
-              borderColor="green.200"
-            >
-              <Code
-                colorScheme="green"
-                p={4}
-                display="block"
-                whiteSpace="pre-wrap"
-              >
+            <Box p={4} borderRadius="md" borderWidth="1px">
+              <Code p={4} display="block" whiteSpace="pre-wrap">
                 {JSON.stringify(submittedData, null, 2)}
               </Code>
             </Box>
@@ -642,60 +596,44 @@ const IdPickerMultipleForm = () => {
       )}
 
       {/* Feature Highlights */}
-      <Box
-        p={6}
-        bg="purple.50"
-        borderRadius="lg"
-        borderWidth="1px"
-        borderColor="purple.200"
-      >
+      <Box p={6} borderRadius="lg" borderWidth="1px">
         <VStack gap={4} align="stretch">
-          <Heading size="md" color="purple.800">
-            Advanced Features
-          </Heading>
+          <Heading size="md">Advanced Features</Heading>
 
           <VStack gap={3} align="stretch">
             <Box>
-              <Text fontWeight="bold" color="purple.700">
-                Tag Management
-              </Text>
-              <Text color="purple.600" fontSize="sm">
+              <Text fontWeight="bold">Tag Management</Text>
+              <Text fontSize="sm">
                 Selected items are displayed as interactive tags with close
                 buttons for easy removal.
               </Text>
             </Box>
 
-            <Separator borderColor="purple.200" />
+            <Separator />
 
             <Box>
-              <Text fontWeight="bold" color="purple.700">
-                Search & Filter
-              </Text>
-              <Text color="purple.600" fontSize="sm">
+              <Text fontWeight="bold">Search & Filter</Text>
+              <Text fontSize="sm">
                 Real-time search across multiple fields (name, email,
                 department, role) with debounced input.
               </Text>
             </Box>
 
-            <Separator borderColor="purple.200" />
+            <Separator />
 
             <Box>
-              <Text fontWeight="bold" color="purple.700">
-                Pagination
-              </Text>
-              <Text color="purple.600" fontSize="sm">
+              <Text fontWeight="bold">Pagination</Text>
+              <Text fontSize="sm">
                 Navigate through large datasets with configurable page sizes and
                 pagination controls.
               </Text>
             </Box>
 
-            <Separator borderColor="purple.200" />
+            <Separator />
 
             <Box>
-              <Text fontWeight="bold" color="purple.700">
-                Visual Feedback
-              </Text>
-              <Text color="purple.600" fontSize="sm">
+              <Text fontWeight="bold">Visual Feedback</Text>
+              <Text fontSize="sm">
                 Already selected items are highlighted in the picker to prevent
                 duplicates and provide clear visual feedback.
               </Text>
