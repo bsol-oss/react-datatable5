@@ -119,6 +119,38 @@ The library is organized into major component categories:
 - Form validation messages support: en, zh-HK, zh-TW, zh-CN locales
 - Use `translate` from hook return values for consistent i18n
 
+### Component Labels and i18n
+
+**Prefer labels in schema context over direct translate calls:**
+
+- Components should use label objects from `SchemaFormContext` rather than calling `translate()` directly
+- Label objects available in context: `idPickerLabels`, `dateTimePickerLabels`, `enumPickerLabels`, `filePickerLabels`
+- Pattern: `labels?.labelName ?? translate(key) ?? fallbackText`
+- This allows consuming applications to override labels via context without modifying translation files
+- Label objects are passed via `FormRoot` props and made available through `useSchemaContext()`
+
+**Label object types:**
+
+- `IdPickerLabels`: Labels for ID picker component (undefined, addMore, typeToSearch, total, showing, perPage, emptySearchResult, initialResults)
+- `DateTimePickerLabels`: Labels for date/time pickers (monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel)
+- `EnumPickerLabels`: Labels for enum picker component (same structure as IdPickerLabels)
+- `FilePickerLabels`: Labels for file picker component (fileDropzone, browseLibrary, dialogTitle, searchPlaceholder, loading, loadingFailed, noFilesFound, cancel, select)
+
+**Example usage:**
+
+```tsx
+const { filePickerLabels } = useSchemaContext();
+const formI18n = useFormI18n(column, prefix);
+
+// Preferred: Use labels from context with fallbacks
+<FileDropzone
+  placeholder={filePickerLabels?.fileDropzone ?? formI18n.t('fileDropzone')}
+/>
+
+// Avoid: Direct translate calls without label context
+<FileDropzone placeholder={formI18n.t('fileDropzone')} />
+```
+
 ### Form Schema Patterns
 
 - Forms are driven by JSON Schema (Draft 7)

@@ -18,6 +18,7 @@ import {
   DateTimePickerLabels,
   IdPickerLabels,
   EnumPickerLabels,
+  FilePickerLabels,
 } from '../types/CustomJSONSchema7';
 
 export interface FormRootProps<TData extends FieldValues> {
@@ -49,6 +50,7 @@ export interface FormRootProps<TData extends FieldValues> {
   dateTimePickerLabels?: DateTimePickerLabels;
   idPickerLabels?: IdPickerLabels;
   enumPickerLabels?: EnumPickerLabels;
+  filePickerLabels?: FilePickerLabels;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -120,6 +122,7 @@ export const FormRoot = <TData extends FieldValues>({
   dateTimePickerLabels,
   idPickerLabels,
   enumPickerLabels,
+  filePickerLabels,
 }: FormRootProps<TData>) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -213,6 +216,7 @@ export const FormRoot = <TData extends FieldValues>({
         dateTimePickerLabels,
         idPickerLabels,
         enumPickerLabels,
+        filePickerLabels,
         ajvResolver: ajvResolver(schema),
       }}
     >

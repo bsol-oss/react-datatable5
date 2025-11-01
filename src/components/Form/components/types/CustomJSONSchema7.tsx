@@ -33,6 +33,18 @@ export interface EnumPickerLabels {
   initialResults?: string;
 }
 
+export interface FilePickerLabels {
+  fileDropzone?: string;
+  browseLibrary?: string;
+  dialogTitle?: string;
+  searchPlaceholder?: string;
+  loading?: string;
+  loadingFailed?: string;
+  noFilesFound?: string;
+  cancel?: string;
+  select?: string;
+}
+
 export interface CustomJSONSchema7 extends JSONSchema7 {
   gridColumn?: string;
   gridRow?: string;
@@ -59,9 +71,25 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
   formatOptions?: Intl.NumberFormatOptions;
   numberStorageType?: 'string' | 'number';
   errorMessages?: Partial<Record<ValidationErrorType | string, string>>;
+  filePicker?: FilePickerProps;
 }
 export interface TagPickerProps {
   column: string;
   schema: CustomJSONSchema7;
   prefix: string;
+}
+
+export interface FilePickerMediaFile {
+  id: string;
+  name: string;
+  url?: string;
+  size?: string | number;
+  comment?: string;
+  type?: string;
+}
+
+export interface FilePickerProps {
+  onFetchFiles?: (search: string) => Promise<FilePickerMediaFile[]>;
+  enableMediaLibrary?: boolean;
+  filterImageOnly?: boolean;
 }

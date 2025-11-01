@@ -7,6 +7,7 @@ import {
   DateTimePickerLabels,
   IdPickerLabels,
   EnumPickerLabels,
+  FilePickerLabels,
 } from './components/types/CustomJSONSchema7';
 
 export interface SchemaFormContext<TData extends FieldValues> {
@@ -50,6 +51,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
   dateTimePickerLabels?: DateTimePickerLabels;
   idPickerLabels?: IdPickerLabels;
   enumPickerLabels?: EnumPickerLabels;
+  filePickerLabels?: FilePickerLabels;
   ajvResolver: Resolver<FieldValues>;
 }
 

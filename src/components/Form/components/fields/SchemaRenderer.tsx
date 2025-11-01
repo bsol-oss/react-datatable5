@@ -1,22 +1,23 @@
-import { Text } from "@chakra-ui/react";
-import { idPickerSanityCheck } from "../core/FormRoot";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { ArrayRenderer } from "./ArrayRenderer";
-import { BooleanPicker } from "./BooleanPicker";
-import { CustomInput } from "./CustomInput";
-import { DatePicker } from "./DatePicker";
-import { EnumPicker } from "./EnumPicker";
-import { FilePicker } from "./FilePicker";
-import { IdPicker } from "./IdPicker";
-import { NumberInputField } from "./NumberInputField";
-import { ObjectInput } from "./ObjectInput";
-import { RecordInput } from "./RecordInput";
-import { StringInputField } from "./StringInputField";
-import { TagPicker } from "./TagPicker";
-import { TextAreaInput } from "./TextAreaInput";
-import { TimePicker } from "./TimePicker";
-import { DateTimePicker } from "./DateTimePicker";
-import { JSONSchema7 } from "json-schema";
+import { Text } from '@chakra-ui/react';
+import { idPickerSanityCheck } from '../core/FormRoot';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import { ArrayRenderer } from './ArrayRenderer';
+import { BooleanPicker } from './BooleanPicker';
+import { CustomInput } from './CustomInput';
+import { DatePicker } from './DatePicker';
+import { DateRangePicker } from './DateRangePicker';
+import { EnumPicker } from './EnumPicker';
+import { FilePicker } from './FilePicker';
+import { IdPicker } from './IdPicker';
+import { NumberInputField } from './NumberInputField';
+import { ObjectInput } from './ObjectInput';
+import { RecordInput } from './RecordInput';
+import { StringInputField } from './StringInputField';
+import { TagPicker } from './TagPicker';
+import { TextAreaInput } from './TextAreaInput';
+import { TimePicker } from './TimePicker';
+import { DateTimePicker } from './DateTimePicker';
+import { JSONSchema7 } from 'json-schema';
 
 export interface SchemaRendererProps {
   column: string;
@@ -38,45 +39,45 @@ export const SchemaRenderer = ({
     format,
     items,
   } = schema;
-  if (variant === "custom-input") {
+  if (variant === 'custom-input') {
     return <CustomInput schema={colSchema} {...{ prefix, column }} />;
   }
-  if (type === "string") {
+  if (type === 'string') {
     if ((schema.enum ?? []).length > 0) {
       return <EnumPicker schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "id-picker") {
+    if (variant === 'id-picker') {
       idPickerSanityCheck(column, foreign_key);
       return <IdPicker schema={colSchema} {...{ prefix, column }} />;
     }
-    if (format === "date") {
+    if (format === 'date') {
       return <DatePicker schema={colSchema} {...{ prefix, column }} />;
     }
-    if (format === "time") {
+    if (format === 'time') {
       return <TimePicker schema={colSchema} {...{ prefix, column }} />;
     }
-    if (format === "date-time") {
+    if (format === 'date-time') {
       return <DateTimePicker schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "text-area") {
+    if (variant === 'text-area') {
       return <TextAreaInput schema={colSchema} {...{ prefix, column }} />;
     }
     return <StringInputField schema={colSchema} {...{ prefix, column }} />;
   }
-  if (type === "number" || type === "integer") {
+  if (type === 'number' || type === 'integer') {
     return <NumberInputField schema={colSchema} {...{ prefix, column }} />;
   }
-  if (type === "boolean") {
+  if (type === 'boolean') {
     return <BooleanPicker schema={colSchema} {...{ prefix, column }} />;
   }
-  if (type === "object") {
+  if (type === 'object') {
     if (innerProperties) {
       return <ObjectInput schema={colSchema} {...{ prefix, column }} />;
     }
     return <RecordInput schema={colSchema} {...{ prefix, column }} />;
   }
-  if (type === "array") {
-    if (variant === "id-picker") {
+  if (type === 'array') {
+    if (variant === 'id-picker') {
       idPickerSanityCheck(column, foreign_key);
       return (
         <IdPicker
@@ -85,17 +86,20 @@ export const SchemaRenderer = ({
         />
       );
     }
-    if (variant === "tag-picker") {
+    if (variant === 'tag-picker') {
       return <TagPicker schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "file-picker") {
+    if (variant === 'file-picker') {
       return <FilePicker schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "enum-picker") {
+    if (variant === 'date-range') {
+      return <DateRangePicker schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (variant === 'enum-picker') {
       const { items } = colSchema;
       const { enum: enumItems } = items as JSONSchema7;
       const enumSchema = {
-        type: "string" as const,
+        type: 'string' as const,
         enum: enumItems,
       };
       return (
@@ -111,7 +115,7 @@ export const SchemaRenderer = ({
     }
     return <Text>{`array ${column}`}</Text>;
   }
-  if (type === "null") {
+  if (type === 'null') {
     return <Text>{`null ${column}`}</Text>;
   }
 
