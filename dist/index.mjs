@@ -3,7 +3,7 @@ import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, 
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef, forwardRef } from 'react';
-import { LuX, LuCheck, LuChevronRight } from 'react-icons/lu';
+import { LuX, LuCheck, LuChevronRight, LuFile, LuSearch } from 'react-icons/lu';
 import { MdOutlineSort, MdFilterAlt, MdSearch, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdClear, MdOutlineChecklist, MdDateRange } from 'react-icons/md';
 import { FaUpDown, FaGripLinesVertical, FaTrash } from 'react-icons/fa6';
 import { BiDownArrow, BiUpArrow, BiError } from 'react-icons/bi';
@@ -3888,7 +3888,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
     showSubmitButton: true,
     showResetButton: true,
     showTitle: true,
-}, requireConfirmation = false, dateTimePickerLabels, idPickerLabels, enumPickerLabels, }) => {
+}, requireConfirmation = false, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, }) => {
     const [isSuccess, setIsSuccess] = useState(false);
     const [isError, setIsError] = useState(false);
     const [isSubmiting, setIsSubmiting] = useState(false);
@@ -3977,6 +3977,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
             dateTimePickerLabels,
             idPickerLabels,
             enumPickerLabels,
+            filePickerLabels,
             ajvResolver: ajvResolver(schema),
         }, children: jsx(FormProvider, { ...form, children: children }) }));
 };
@@ -4348,6 +4349,92 @@ const DatePicker = ({ column, schema, prefix }) => {
                                             defaultValue: 'Forward',
                                         }),
                                 } })] }) })] }) }));
+};
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+const DateRangePicker = ({ column, schema, prefix, }) => {
+    const { watch, formState: { errors }, setValue, } = useFormContext();
+    const { timezone, dateTimePickerLabels } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const colLabel = formI18n.colLabel;
+    const [open, setOpen] = useState(false);
+    const selectedDateRange = watch(colLabel);
+    // Convert string[] to Date[] for the picker
+    const selectedDates = (selectedDateRange ?? [])
+        .map((dateStr) => {
+        if (!dateStr)
+            return null;
+        const parsed = dayjs(dateStr).tz(timezone);
+        return parsed.isValid() ? parsed.toDate() : null;
+    })
+        .filter((date) => date !== null);
+    // Format display string
+    const getDisplayText = () => {
+        if (!selectedDateRange || selectedDateRange.length === 0) {
+            return '';
+        }
+        if (selectedDateRange.length === 1) {
+            const date = dayjs(selectedDateRange[0]).tz(timezone);
+            return date.isValid() ? date.format(displayDateFormat) : '';
+        }
+        if (selectedDateRange.length === 2) {
+            const startDate = dayjs(selectedDateRange[0]).tz(timezone);
+            const endDate = dayjs(selectedDateRange[1]).tz(timezone);
+            if (startDate.isValid() && endDate.isValid()) {
+                return `${startDate.format(displayDateFormat)} - ${endDate.format(displayDateFormat)}`;
+            }
+        }
+        return '';
+    };
+    useEffect(() => {
+        try {
+            if (selectedDateRange && selectedDateRange.length > 0) {
+                // Format dates according to dateFormat from schema
+                const formatted = selectedDateRange
+                    .map((dateStr) => {
+                    if (!dateStr)
+                        return null;
+                    const parsed = dayjs(dateStr).tz(timezone);
+                    return parsed.isValid() ? parsed.format(dateFormat) : null;
+                })
+                    .filter((date) => date !== null);
+                // Update the form value only if different to avoid loops
+                // Compare arrays element by element
+                const needsUpdate = formatted.length !== selectedDateRange.length ||
+                    formatted.some((val, idx) => val !== selectedDateRange[idx]);
+                if (needsUpdate && formatted.length > 0) {
+                    setValue(colLabel, formatted, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                    });
+                }
+            }
+        }
+        catch (e) {
+            console.error(e);
+        }
+    }, [selectedDateRange, dateFormat, colLabel, setValue, timezone]);
+    return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
+                            setOpen(true);
+                        }, justifyContent: 'start', children: [jsx(MdDateRange, {}), getDisplayText()] }) }), jsx(PopoverContent, { minW: '600px', children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(RangeDatePicker, { selected: selectedDates, onDateSelected: ({ selected, selectable, date }) => {
+                                    const newDates = getRangeDates({
+                                        selectable,
+                                        date,
+                                        selectedDates,
+                                    }) ?? [];
+                                    // Convert Date[] to string[]
+                                    const formattedDates = newDates
+                                        .map((dateObj) => dayjs(dateObj).tz(timezone).format(dateFormat))
+                                        .filter((dateStr) => dateStr);
+                                    setValue(colLabel, formattedDates, {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                    });
+                                }, monthsToDisplay: 2 })] }) })] }) }));
 };
 
 function filterArray(array, searchTerm) {
@@ -4811,24 +4898,161 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
     return (jsxs(Grid, { ...getColor(isDraggedOver), ref: ref, cursor: "pointer", onClick: handleClick, borderStyle: "dashed", borderColor: "colorPalette.400", alignContent: "center", justifyContent: "center", borderWidth: 1, borderRadius: 4, ...gridProps, children: [children, !!children === false && (jsxs(Fragment, { children: [jsx(Flex, { children: placeholder }), jsx(Input, { type: "file", multiple: true, style: { display: "none" }, ref: fileInput, onChange: handleChange })] }))] }));
 };
 
+/**
+ * Format bytes to human-readable string
+ * @param bytes - The number of bytes to format
+ * @returns Formatted string (e.g., "1.5 KB", "2.3 MB")
+ */
+function formatBytes(bytes) {
+    if (bytes === 0)
+        return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+}
+
+function FilePickerDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, labels, translate, colLabel, }) {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedFileId, setSelectedFileId] = useState('');
+    const { data: filesData, isLoading, isError, } = useQuery({
+        queryKey: ['file-picker-library', searchTerm],
+        queryFn: async () => {
+            if (!onFetchFiles)
+                return { data: [] };
+            const files = await onFetchFiles(searchTerm.trim() || '');
+            return { data: files };
+        },
+        enabled: open && !!onFetchFiles,
+    });
+    const files = (filesData?.data || []);
+    const filteredFiles = filterImageOnly
+        ? files.filter((file) => /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name))
+        : files;
+    const handleSelect = () => {
+        if (selectedFileId) {
+            onSelect(selectedFileId);
+            onClose();
+            setSelectedFileId('');
+            setSearchTerm('');
+        }
+    };
+    const handleClose = () => {
+        onClose();
+        setSelectedFileId('');
+        setSearchTerm('');
+    };
+    if (!onFetchFiles)
+        return null;
+    return (jsx(DialogRoot, { open: open, onOpenChange: (e) => !e.open && handleClose(), children: jsxs(DialogContent, { maxWidth: "800px", maxHeight: "90vh", children: [jsxs(DialogHeader, { children: [jsx(DialogTitle, { fontSize: "lg", fontWeight: "bold", children: title }), jsx(DialogCloseTrigger, {})] }), jsx(DialogBody, { children: jsxs(VStack, { align: "stretch", gap: 4, children: [jsxs(Box, { position: "relative", children: [jsx(Input, { placeholder: labels?.searchPlaceholder ??
+                                            translate(removeIndex(`${colLabel}.search_placeholder`)) ??
+                                            'Search files...', value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), bg: "bg.panel", border: "1px solid", borderColor: "border.default", _focus: {
+                                            borderColor: 'blue.500',
+                                            boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+                                        }, pl: 10 }), jsx(Icon, { as: LuSearch, position: "absolute", left: 3, top: "50%", transform: "translateY(-50%)", color: "fg.muted", boxSize: 4 })] }), isLoading && (jsxs(Box, { textAlign: "center", py: 8, children: [jsx(Spinner, { size: "lg", colorPalette: "blue" }), jsx(Text, { mt: 4, color: "fg.muted", children: labels?.loading ??
+                                            translate(removeIndex(`${colLabel}.loading`)) ??
+                                            'Loading files...' })] })), isError && (jsx(Box, { bg: "red.50", _dark: { bg: 'red.900/20' }, border: "1px solid", borderColor: "red.200", borderRadius: "md", p: 4, children: jsx(Text, { color: "red.600", _dark: { color: 'red.300' }, children: labels?.loadingFailed ??
+                                        translate(removeIndex(`${colLabel}.error.loading_failed`)) ??
+                                        'Failed to load files' }) })), !isLoading && !isError && (jsx(Box, { maxHeight: "400px", overflowY: "auto", children: filteredFiles.length === 0 ? (jsx(Box, { textAlign: "center", py: 8, children: jsx(Text, { color: "fg.muted", children: labels?.noFilesFound ??
+                                            translate(removeIndex(`${colLabel}.no_files_found`)) ??
+                                            'No files found' }) })) : (jsx(VStack, { align: "stretch", gap: 2, children: filteredFiles.map((file) => {
+                                        const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name);
+                                        const isSelected = selectedFileId === file.id;
+                                        return (jsx(Box, { p: 3, border: "2px solid", borderColor: isSelected ? 'blue.500' : 'border.default', borderRadius: "md", bg: isSelected ? 'blue.50' : 'bg.panel', _dark: {
+                                                bg: isSelected ? 'blue.900/20' : 'bg.panel',
+                                            }, cursor: "pointer", onClick: () => setSelectedFileId(file.id), _hover: {
+                                                borderColor: isSelected ? 'blue.600' : 'blue.300',
+                                                bg: isSelected ? 'blue.100' : 'bg.muted',
+                                            }, transition: "all 0.2s", children: jsxs(HStack, { gap: 3, children: [jsx(Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, children: isImage && file.url ? (jsx(Image, { src: file.url, alt: file.name, boxSize: "60px", objectFit: "cover", borderRadius: "md" })) : (jsx(Icon, { as: LuFile, boxSize: 6, color: "fg.muted" })) }), jsxs(VStack, { align: "start", flex: 1, gap: 1, children: [jsx(Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.name }), jsxs(HStack, { gap: 2, children: [file.size && (jsx(Fragment, { children: jsx(Text, { fontSize: "xs", color: "fg.muted", children: typeof file.size === 'number'
+                                                                                ? formatBytes(file.size)
+                                                                                : file.size }) })), file.comment && (jsxs(Fragment, { children: [file.size && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: "\u2022" })), jsx(Text, { fontSize: "xs", color: "fg.muted", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.comment })] }))] })] }), isSelected && (jsx(Box, { width: "24px", height: "24px", borderRadius: "full", bg: "blue.500", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, children: jsx(Text, { color: "white", fontSize: "xs", fontWeight: "bold", children: "\u2713" }) }))] }) }, file.id));
+                                    }) })) }))] }) }), jsx(DialogFooter, { children: jsxs(HStack, { gap: 3, justify: "end", children: [jsx(Button$1, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ??
+                                    translate(removeIndex(`${colLabel}.cancel`)) ??
+                                    'Cancel' }), jsx(Button$1, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFileId, children: labels?.select ??
+                                    translate(removeIndex(`${colLabel}.select`)) ??
+                                    'Select' })] }) })] }) }));
+}
 const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
-    const { translate } = useSchemaContext();
-    const { required, gridColumn = 'span 12', gridRow = 'span 1', } = schema;
+    const { filePickerLabels } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', filePicker, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const currentFiles = (watch(column) ?? []);
-    const colLabel = `${prefix}${column}`;
-    return (jsxs(Field, { label: `${translate.t(`${colLabel}.field_label`)}`, required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: 'grid', gridTemplateRows: 'auto 1fr auto', alignItems: 'stretch', errorText: errors[`${colLabel}`]
-            ? translate.t(removeIndex(`${colLabel}.field_required`))
-            : undefined, invalid: !!errors[colLabel], children: [jsx(FileDropzone, { onDrop: ({ files }) => {
-                    const newFiles = files.filter(({ name }) => !currentFiles.some((cur) => cur.name === name));
-                    setValue(colLabel, [...currentFiles, ...newFiles]);
-                }, placeholder: translate.t(removeIndex(`${colLabel}.fileDropzone`)) }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFiles.map((file) => {
-                    return (jsx(Card.Root, { variant: 'subtle', children: jsxs(Card.Body, { gap: "2", cursor: 'pointer', onClick: () => {
-                                setValue(column, currentFiles.filter(({ name }) => {
-                                    return name !== file.name;
-                                }));
-                            }, display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', children: [file.type.startsWith('image/') && (jsx(Image, { src: URL.createObjectURL(file), alt: file.name, boxSize: "50px", objectFit: "cover", borderRadius: "md", marginRight: "2" })), jsx(Box, { children: file.name }), jsx(TiDeleteOutline, {})] }) }, file.name));
+    const currentValue = watch(column) ?? [];
+    const currentFiles = Array.isArray(currentValue)
+        ? currentValue
+        : [];
+    const colLabel = formI18n.colLabel;
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const { onFetchFiles, enableMediaLibrary = false, filterImageOnly = false, } = filePicker || {};
+    const showMediaLibrary = enableMediaLibrary && !!onFetchFiles;
+    const handleMediaLibrarySelect = (fileId) => {
+        const newFiles = [...currentFiles, fileId];
+        setValue(colLabel, newFiles);
+    };
+    const handleRemove = (index) => {
+        const newFiles = currentFiles.filter((_, i) => i !== index);
+        setValue(colLabel, newFiles);
+    };
+    const isFileObject = (value) => {
+        return value instanceof File;
+    };
+    const getFileIdentifier = (file, index) => {
+        if (isFileObject(file)) {
+            return `${file.name}-${file.size}-${index}`;
+        }
+        return file;
+    };
+    const getFileName = (file) => {
+        if (isFileObject(file)) {
+            return file.name;
+        }
+        return typeof file === 'string' ? file : 'Unknown file';
+    };
+    const getFileSize = (file) => {
+        if (isFileObject(file)) {
+            return file.size;
+        }
+        return undefined;
+    };
+    const isImageFile = (file) => {
+        if (isFileObject(file)) {
+            return file.type.startsWith('image/');
+        }
+        if (typeof file === 'string') {
+            return /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file);
+        }
+        return false;
+    };
+    const getImageUrl = (file) => {
+        if (isFileObject(file)) {
+            return URL.createObjectURL(file);
+        }
+        return undefined;
+    };
+    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsxs(VStack, { align: "stretch", gap: 2, children: [jsx(FileDropzone, { onDrop: ({ files }) => {
+                            const newFiles = files.filter(({ name }) => !currentFiles.some((cur) => {
+                                if (isFileObject(cur)) {
+                                    return cur.name === name;
+                                }
+                                return false;
+                            }));
+                            setValue(colLabel, [...currentFiles, ...newFiles]);
+                        }, placeholder: filePickerLabels?.fileDropzone ?? formI18n.t('fileDropzone') }), showMediaLibrary && (jsx(Button$1, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ??
+                            formI18n.t('browse_library') ??
+                            'Browse from Library' }))] }), showMediaLibrary && (jsx(FilePickerDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ??
+                    formI18n.t('dialog_title') ??
+                    'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, labels: filePickerLabels, translate: formI18n.t, colLabel: colLabel })), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFiles.map((file, index) => {
+                    const fileIdentifier = getFileIdentifier(file, index);
+                    const fileName = getFileName(file);
+                    const fileSize = getFileSize(file);
+                    const isImage = isImageFile(file);
+                    const imageUrl = getImageUrl(file);
+                    return (jsx(Card.Root, { variant: 'subtle', children: jsxs(Card.Body, { gap: "2", cursor: 'pointer', onClick: () => handleRemove(index), display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', border: "2px solid", borderColor: "border.default", borderRadius: "md", _hover: {
+                                borderColor: 'blue.300',
+                                bg: 'bg.muted',
+                            }, transition: "all 0.2s", children: [jsx(Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, marginRight: "2", children: isImage && imageUrl ? (jsx(Image, { src: imageUrl, alt: fileName, boxSize: "60px", objectFit: "cover", borderRadius: "md" })) : (jsx(Icon, { as: LuFile, boxSize: 6, color: "fg.muted" })) }), jsxs(VStack, { align: "start", flex: 1, gap: 1, children: [jsx(Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: fileName }), fileSize !== undefined && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: formatBytes(fileSize) }))] }), jsx(Icon, { as: TiDeleteOutline, boxSize: 5, color: "fg.muted" })] }) }, fileIdentifier));
                 }) })] }));
 };
 
@@ -5952,59 +6176,62 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
 const SchemaRenderer = ({ schema, prefix, column, }) => {
     const colSchema = schema;
     const { type, variant, properties: innerProperties, foreign_key, format, items, } = schema;
-    if (variant === "custom-input") {
+    if (variant === 'custom-input') {
         return jsx(CustomInput, { schema: colSchema, prefix, column });
     }
-    if (type === "string") {
+    if (type === 'string') {
         if ((schema.enum ?? []).length > 0) {
             return jsx(EnumPicker, { schema: colSchema, prefix, column });
         }
-        if (variant === "id-picker") {
+        if (variant === 'id-picker') {
             idPickerSanityCheck(column, foreign_key);
             return jsx(IdPicker, { schema: colSchema, prefix, column });
         }
-        if (format === "date") {
+        if (format === 'date') {
             return jsx(DatePicker, { schema: colSchema, prefix, column });
         }
-        if (format === "time") {
+        if (format === 'time') {
             return jsx(TimePicker, { schema: colSchema, prefix, column });
         }
-        if (format === "date-time") {
+        if (format === 'date-time') {
             return jsx(DateTimePicker, { schema: colSchema, prefix, column });
         }
-        if (variant === "text-area") {
+        if (variant === 'text-area') {
             return jsx(TextAreaInput, { schema: colSchema, prefix, column });
         }
         return jsx(StringInputField, { schema: colSchema, prefix, column });
     }
-    if (type === "number" || type === "integer") {
+    if (type === 'number' || type === 'integer') {
         return jsx(NumberInputField, { schema: colSchema, prefix, column });
     }
-    if (type === "boolean") {
+    if (type === 'boolean') {
         return jsx(BooleanPicker, { schema: colSchema, prefix, column });
     }
-    if (type === "object") {
+    if (type === 'object') {
         if (innerProperties) {
             return jsx(ObjectInput, { schema: colSchema, prefix, column });
         }
         return jsx(RecordInput$1, { schema: colSchema, prefix, column });
     }
-    if (type === "array") {
-        if (variant === "id-picker") {
+    if (type === 'array') {
+        if (variant === 'id-picker') {
             idPickerSanityCheck(column, foreign_key);
             return (jsx(IdPicker, { schema: colSchema, prefix, column, isMultiple: true }));
         }
-        if (variant === "tag-picker") {
+        if (variant === 'tag-picker') {
             return jsx(TagPicker, { schema: colSchema, prefix, column });
         }
-        if (variant === "file-picker") {
+        if (variant === 'file-picker') {
             return jsx(FilePicker, { schema: colSchema, prefix, column });
         }
-        if (variant === "enum-picker") {
+        if (variant === 'date-range') {
+            return jsx(DateRangePicker, { schema: colSchema, prefix, column });
+        }
+        if (variant === 'enum-picker') {
             const { items } = colSchema;
             const { enum: enumItems } = items;
             const enumSchema = {
-                type: "string",
+                type: 'string',
                 enum: enumItems,
             };
             return (jsx(EnumPicker, { isMultiple: true, schema: enumSchema, prefix, column }));
@@ -6014,7 +6241,7 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         }
         return jsx(Text, { children: `array ${column}` });
     }
-    if (type === "null") {
+    if (type === 'null') {
         return jsx(Text, { children: `null ${column}` });
     }
     return jsx(Text, { children: "missing type" });
