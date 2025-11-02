@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { TiDeleteOutline } from 'react-icons/ti';
-import { LuFile, LuSearch } from 'react-icons/lu';
+import { LuFile, LuImage, LuSearch } from 'react-icons/lu';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { FileDropzone } from '../FileDropzone';
@@ -65,6 +65,7 @@ function FilePickerDialog({
 }: FilePickerDialogProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFileId, setSelectedFileId] = useState<string>('');
+  const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
 
   const {
     data: filesData,
@@ -101,6 +102,11 @@ function FilePickerDialog({
     onClose();
     setSelectedFileId('');
     setSearchTerm('');
+    setFailedImageIds(new Set());
+  };
+
+  const handleImageError = (fileId: string) => {
+    setFailedImageIds((prev) => new Set(prev).add(fileId));
   };
 
   if (!onFetchFiles) return null;
@@ -129,9 +135,16 @@ function FilePickerDialog({
                 bg="bg.panel"
                 border="1px solid"
                 borderColor="border.default"
+                colorPalette="blue"
                 _focus={{
-                  borderColor: 'blue.500',
-                  boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+                  borderColor: 'colorPalette.500',
+                  _dark: {
+                    borderColor: 'colorPalette.400',
+                  },
+                  boxShadow: {
+                    base: '0 0 0 1px var(--chakra-colors-blue-500)',
+                    _dark: '0 0 0 1px var(--chakra-colors-blue-400)',
+                  },
                 }}
                 pl={10}
               />
@@ -161,14 +174,22 @@ function FilePickerDialog({
             {/* Error State */}
             {isError && (
               <Box
-                bg="red.50"
-                _dark={{ bg: 'red.900/20' }}
+                bg={{ base: 'colorPalette.50', _dark: 'colorPalette.900/20' }}
                 border="1px solid"
-                borderColor="red.200"
+                borderColor={{
+                  base: 'colorPalette.200',
+                  _dark: 'colorPalette.800',
+                }}
+                colorPalette="red"
                 borderRadius="md"
                 p={4}
               >
-                <Text color="red.600" _dark={{ color: 'red.300' }}>
+                <Text
+                  color={{
+                    base: 'colorPalette.600',
+                    _dark: 'colorPalette.300',
+                  }}
+                >
                   {labels?.loadingFailed ??
                     translate(
                       removeIndex(`${colLabel}.error.loading_failed`)
@@ -195,6 +216,7 @@ function FilePickerDialog({
                       const isImage =
                         /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name);
                       const isSelected = selectedFileId === file.id;
+                      const imageFailed = failedImageIds.has(file.id);
 
                       return (
                         <Box
@@ -202,18 +224,41 @@ function FilePickerDialog({
                           p={3}
                           border="2px solid"
                           borderColor={
-                            isSelected ? 'blue.500' : 'border.default'
+                            isSelected
+                              ? {
+                                  base: 'colorPalette.500',
+                                  _dark: 'colorPalette.400',
+                                }
+                              : 'border.default'
                           }
                           borderRadius="md"
-                          bg={isSelected ? 'blue.50' : 'bg.panel'}
-                          _dark={{
-                            bg: isSelected ? 'blue.900/20' : 'bg.panel',
-                          }}
+                          bg={
+                            isSelected
+                              ? {
+                                  base: 'colorPalette.50',
+                                  _dark: 'colorPalette.900/20',
+                                }
+                              : 'bg.panel'
+                          }
+                          colorPalette="blue"
                           cursor="pointer"
                           onClick={() => setSelectedFileId(file.id)}
                           _hover={{
-                            borderColor: isSelected ? 'blue.600' : 'blue.300',
-                            bg: isSelected ? 'blue.100' : 'bg.muted',
+                            borderColor: isSelected
+                              ? {
+                                  base: 'colorPalette.600',
+                                  _dark: 'colorPalette.400',
+                                }
+                              : {
+                                  base: 'colorPalette.300',
+                                  _dark: 'colorPalette.400',
+                                },
+                            bg: isSelected
+                              ? {
+                                  base: 'colorPalette.100',
+                                  _dark: 'colorPalette.800/30',
+                                }
+                              : 'bg.muted',
                           }}
                           transition="all 0.2s"
                         >
@@ -229,13 +274,20 @@ function FilePickerDialog({
                               borderRadius="md"
                               flexShrink={0}
                             >
-                              {isImage && file.url ? (
+                              {isImage && file.url && !imageFailed ? (
                                 <Image
                                   src={file.url}
                                   alt={file.name}
                                   boxSize="60px"
                                   objectFit="cover"
                                   borderRadius="md"
+                                  onError={() => handleImageError(file.id)}
+                                />
+                              ) : isImage && (imageFailed || !file.url) ? (
+                                <Icon
+                                  as={LuImage}
+                                  boxSize={6}
+                                  color="fg.muted"
                                 />
                               ) : (
                                 <Icon
@@ -295,7 +347,11 @@ function FilePickerDialog({
                                 width="24px"
                                 height="24px"
                                 borderRadius="full"
-                                bg="blue.500"
+                                bg={{
+                                  base: 'colorPalette.500',
+                                  _dark: 'colorPalette.400',
+                                }}
+                                colorPalette="blue"
                                 display="flex"
                                 alignItems="center"
                                 justifyContent="center"
@@ -372,6 +428,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
 
   const colLabel = formI18n.colLabel;
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
 
   const {
     onFetchFiles,
@@ -380,6 +437,10 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   } = filePicker || {};
 
   const showMediaLibrary = enableMediaLibrary && !!onFetchFiles;
+
+  const handleImageError = (fileIdentifier: string) => {
+    setFailedImageIds((prev) => new Set(prev).add(fileIdentifier));
+  };
 
   const handleMediaLibrarySelect = (fileId: string) => {
     const newFiles = [...currentFiles, fileId];
@@ -503,9 +564,14 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
           const fileSize = getFileSize(file);
           const isImage = isImageFile(file);
           const imageUrl = getImageUrl(file);
+          const imageFailed = failedImageIds.has(fileIdentifier);
 
           return (
-            <Card.Root variant={'subtle'} key={fileIdentifier}>
+            <Card.Root
+              variant={'subtle'}
+              colorPalette="blue"
+              key={fileIdentifier}
+            >
               <Card.Body
                 gap="2"
                 cursor={'pointer'}
@@ -518,7 +584,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
                 borderColor="border.default"
                 borderRadius="md"
                 _hover={{
-                  borderColor: 'blue.300',
+                  borderColor: 'colorPalette.300',
                   bg: 'bg.muted',
                 }}
                 transition="all 0.2s"
@@ -534,14 +600,17 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
                   flexShrink={0}
                   marginRight="2"
                 >
-                  {isImage && imageUrl ? (
+                  {isImage && imageUrl && !imageFailed ? (
                     <Image
                       src={imageUrl}
                       alt={fileName}
                       boxSize="60px"
                       objectFit="cover"
                       borderRadius="md"
+                      onError={() => handleImageError(fileIdentifier)}
                     />
+                  ) : isImage && (imageFailed || !imageUrl) ? (
+                    <Icon as={LuImage} boxSize={6} color="fg.muted" />
                   ) : (
                     <Icon as={LuFile} boxSize={6} color="fg.muted" />
                   )}

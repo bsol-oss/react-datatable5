@@ -275,4 +275,5 @@ Define in column definition:
 - Default timezone for forms: 'Asia/Hong_Kong' (configurable via context)
 
 - do not check typescript error useless user specify
-- do not use `color` directly, just always prefer to use the chakra ui v3 `colorPalette` and `variant`
+- always search the usage of chakra ui v3 Virtual Color and `variant`
+- always apply color for dark mode

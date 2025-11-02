@@ -1,10 +1,10 @@
-import { Tag } from "@/components/ui/tag";
-import { dropTargetForExternal } from "@atlaskit/pragmatic-drag-and-drop/external/adapter";
-import { getFiles } from "@atlaskit/pragmatic-drag-and-drop/external/file";
-import { getText } from "@atlaskit/pragmatic-drag-and-drop/external/text";
-import { BoxProps, Flex, Grid, GridProps, Input } from "@chakra-ui/react";
-import { ChangeEvent, ReactNode, useEffect, useRef, useState } from "react";
-import invariant from "tiny-invariant";
+import { Tag } from '@/components/ui/tag';
+import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/external/adapter';
+import { getFiles } from '@atlaskit/pragmatic-drag-and-drop/external/file';
+import { getText } from '@atlaskit/pragmatic-drag-and-drop/external/text';
+import { BoxProps, Flex, Grid, GridProps, Input } from '@chakra-ui/react';
+import { ChangeEvent, ReactNode, useEffect, useRef, useState } from 'react';
+import invariant from 'tiny-invariant';
 
 export interface FileDropzoneProps {
   children?: ReactNode;
@@ -17,7 +17,7 @@ export const FileDropzone = ({
   children = undefined,
   gridProps = {},
   onDrop = () => {},
-  placeholder = "Drop files here or click to upload",
+  placeholder = 'Drop files here or click to upload',
 }: FileDropzoneProps) => {
   const ref = useRef(null);
   const [isDraggedOver, setIsDraggedOver] = useState(false);
@@ -34,7 +34,7 @@ export const FileDropzone = ({
       onDrop: ({ source }) => {
         const files = getFiles({ source });
         const text = getText({ source });
-        console.log(files, text, "dfposa");
+        console.log(files, text, 'dfposa');
         onDrop({ files, text });
       },
     });
@@ -45,9 +45,9 @@ export const FileDropzone = ({
   function getColor(isDraggedOver: boolean): BoxProps {
     if (isDraggedOver) {
       return {
-        backgroundColor: "blue.400",
+        backgroundColor: 'blue.400',
         _dark: {
-          backgroundColor: "blue.400",
+          backgroundColor: 'blue.400',
         },
       };
     }
@@ -76,14 +76,15 @@ export const FileDropzone = ({
     <Grid
       {...getColor(isDraggedOver)}
       ref={ref}
-      cursor={"pointer"}
+      cursor={'pointer'}
       onClick={handleClick}
-      borderStyle={"dashed"}
-      borderColor={"colorPalette.400"}
-      alignContent={"center"}
-      justifyContent={"center"}
+      borderStyle={'dashed'}
+      borderColor={'colorPalette.400'}
+      alignContent={'center'}
+      justifyContent={'center'}
       borderWidth={1}
       borderRadius={4}
+      minH="120px"
       {...gridProps}
     >
       {children}
@@ -93,7 +94,7 @@ export const FileDropzone = ({
           <Input
             type="file"
             multiple
-            style={{ display: "none" }}
+            style={{ display: 'none' }}
             ref={fileInput}
             onChange={handleChange}
           />
