@@ -4869,7 +4869,7 @@ function getText(_ref2) {
   return source.getStringData(textMediaType);
 }
 
-const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }, placeholder = "Drop files here or click to upload", }) => {
+const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }, placeholder = 'Drop files here or click to upload', }) => {
     const ref = React.useRef(null);
     const [isDraggedOver, setIsDraggedOver] = React.useState(false);
     React.useEffect(() => {
@@ -4883,7 +4883,7 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
             onDrop: ({ source }) => {
                 const files = getFiles({ source });
                 const text = getText({ source });
-                console.log(files, text, "dfposa");
+                console.log(files, text, 'dfposa');
                 onDrop({ files, text });
             },
         });
@@ -4892,9 +4892,9 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
     function getColor(isDraggedOver) {
         if (isDraggedOver) {
             return {
-                backgroundColor: "blue.400",
+                backgroundColor: 'blue.400',
                 _dark: {
-                    backgroundColor: "blue.400",
+                    backgroundColor: 'blue.400',
                 },
             };
         }
@@ -4915,7 +4915,7 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
         const filesArray = [...event.target.files];
         onDrop({ files: filesArray });
     };
-    return (jsxRuntime.jsxs(react.Grid, { ...getColor(isDraggedOver), ref: ref, cursor: "pointer", onClick: handleClick, borderStyle: "dashed", borderColor: "colorPalette.400", alignContent: "center", justifyContent: "center", borderWidth: 1, borderRadius: 4, ...gridProps, children: [children, !!children === false && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(react.Flex, { children: placeholder }), jsxRuntime.jsx(react.Input, { type: "file", multiple: true, style: { display: "none" }, ref: fileInput, onChange: handleChange })] }))] }));
+    return (jsxRuntime.jsxs(react.Grid, { ...getColor(isDraggedOver), ref: ref, cursor: 'pointer', onClick: handleClick, borderStyle: 'dashed', borderColor: 'colorPalette.400', alignContent: 'center', justifyContent: 'center', borderWidth: 1, borderRadius: 4, minH: "120px", ...gridProps, children: [children, !!children === false && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(react.Flex, { children: placeholder }), jsxRuntime.jsx(react.Input, { type: "file", multiple: true, style: { display: 'none' }, ref: fileInput, onChange: handleChange })] }))] }));
 };
 
 /**
@@ -4935,6 +4935,7 @@ function formatBytes(bytes) {
 function FilePickerDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, labels, translate, colLabel, }) {
     const [searchTerm, setSearchTerm] = React.useState('');
     const [selectedFileId, setSelectedFileId] = React.useState('');
+    const [failedImageIds, setFailedImageIds] = React.useState(new Set());
     const { data: filesData, isLoading, isError, } = reactQuery.useQuery({
         queryKey: ['file-picker-library', searchTerm],
         queryFn: async () => {
@@ -4961,31 +4962,72 @@ function FilePickerDialog({ open, onClose, onSelect, title, filterImageOnly = fa
         onClose();
         setSelectedFileId('');
         setSearchTerm('');
+        setFailedImageIds(new Set());
+    };
+    const handleImageError = (fileId) => {
+        setFailedImageIds((prev) => new Set(prev).add(fileId));
     };
     if (!onFetchFiles)
         return null;
     return (jsxRuntime.jsx(DialogRoot, { open: open, onOpenChange: (e) => !e.open && handleClose(), children: jsxRuntime.jsxs(DialogContent, { maxWidth: "800px", maxHeight: "90vh", children: [jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, { fontSize: "lg", fontWeight: "bold", children: title }), jsxRuntime.jsx(DialogCloseTrigger, {})] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 4, children: [jsxRuntime.jsxs(react.Box, { position: "relative", children: [jsxRuntime.jsx(react.Input, { placeholder: labels?.searchPlaceholder ??
                                             translate(removeIndex(`${colLabel}.search_placeholder`)) ??
-                                            'Search files...', value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), bg: "bg.panel", border: "1px solid", borderColor: "border.default", _focus: {
-                                            borderColor: 'blue.500',
-                                            boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+                                            'Search files...', value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), bg: "bg.panel", border: "1px solid", borderColor: "border.default", colorPalette: "blue", _focus: {
+                                            borderColor: 'colorPalette.500',
+                                            _dark: {
+                                                borderColor: 'colorPalette.400',
+                                            },
+                                            boxShadow: {
+                                                base: '0 0 0 1px var(--chakra-colors-blue-500)',
+                                                _dark: '0 0 0 1px var(--chakra-colors-blue-400)',
+                                            },
                                         }, pl: 10 }), jsxRuntime.jsx(react.Icon, { as: lu.LuSearch, position: "absolute", left: 3, top: "50%", transform: "translateY(-50%)", color: "fg.muted", boxSize: 4 })] }), isLoading && (jsxRuntime.jsxs(react.Box, { textAlign: "center", py: 8, children: [jsxRuntime.jsx(react.Spinner, { size: "lg", colorPalette: "blue" }), jsxRuntime.jsx(react.Text, { mt: 4, color: "fg.muted", children: labels?.loading ??
                                             translate(removeIndex(`${colLabel}.loading`)) ??
-                                            'Loading files...' })] })), isError && (jsxRuntime.jsx(react.Box, { bg: "red.50", _dark: { bg: 'red.900/20' }, border: "1px solid", borderColor: "red.200", borderRadius: "md", p: 4, children: jsxRuntime.jsx(react.Text, { color: "red.600", _dark: { color: 'red.300' }, children: labels?.loadingFailed ??
+                                            'Loading files...' })] })), isError && (jsxRuntime.jsx(react.Box, { bg: { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }, border: "1px solid", borderColor: {
+                                    base: 'colorPalette.200',
+                                    _dark: 'colorPalette.800',
+                                }, colorPalette: "red", borderRadius: "md", p: 4, children: jsxRuntime.jsx(react.Text, { color: {
+                                        base: 'colorPalette.600',
+                                        _dark: 'colorPalette.300',
+                                    }, children: labels?.loadingFailed ??
                                         translate(removeIndex(`${colLabel}.error.loading_failed`)) ??
                                         'Failed to load files' }) })), !isLoading && !isError && (jsxRuntime.jsx(react.Box, { maxHeight: "400px", overflowY: "auto", children: filteredFiles.length === 0 ? (jsxRuntime.jsx(react.Box, { textAlign: "center", py: 8, children: jsxRuntime.jsx(react.Text, { color: "fg.muted", children: labels?.noFilesFound ??
                                             translate(removeIndex(`${colLabel}.no_files_found`)) ??
                                             'No files found' }) })) : (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: filteredFiles.map((file) => {
                                         const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name);
                                         const isSelected = selectedFileId === file.id;
-                                        return (jsxRuntime.jsx(react.Box, { p: 3, border: "2px solid", borderColor: isSelected ? 'blue.500' : 'border.default', borderRadius: "md", bg: isSelected ? 'blue.50' : 'bg.panel', _dark: {
-                                                bg: isSelected ? 'blue.900/20' : 'bg.panel',
-                                            }, cursor: "pointer", onClick: () => setSelectedFileId(file.id), _hover: {
-                                                borderColor: isSelected ? 'blue.600' : 'blue.300',
-                                                bg: isSelected ? 'blue.100' : 'bg.muted',
-                                            }, transition: "all 0.2s", children: jsxRuntime.jsxs(react.HStack, { gap: 3, children: [jsxRuntime.jsx(react.Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, children: isImage && file.url ? (jsxRuntime.jsx(react.Image, { src: file.url, alt: file.name, boxSize: "60px", objectFit: "cover", borderRadius: "md" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 6, color: "fg.muted" })) }), jsxRuntime.jsxs(react.VStack, { align: "start", flex: 1, gap: 1, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.name }), jsxRuntime.jsxs(react.HStack, { gap: 2, children: [file.size && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: typeof file.size === 'number'
+                                        const imageFailed = failedImageIds.has(file.id);
+                                        return (jsxRuntime.jsx(react.Box, { p: 3, border: "2px solid", borderColor: isSelected
+                                                ? {
+                                                    base: 'colorPalette.500',
+                                                    _dark: 'colorPalette.400',
+                                                }
+                                                : 'border.default', borderRadius: "md", bg: isSelected
+                                                ? {
+                                                    base: 'colorPalette.50',
+                                                    _dark: 'colorPalette.900/20',
+                                                }
+                                                : 'bg.panel', colorPalette: "blue", cursor: "pointer", onClick: () => setSelectedFileId(file.id), _hover: {
+                                                borderColor: isSelected
+                                                    ? {
+                                                        base: 'colorPalette.600',
+                                                        _dark: 'colorPalette.400',
+                                                    }
+                                                    : {
+                                                        base: 'colorPalette.300',
+                                                        _dark: 'colorPalette.400',
+                                                    },
+                                                bg: isSelected
+                                                    ? {
+                                                        base: 'colorPalette.100',
+                                                        _dark: 'colorPalette.800/30',
+                                                    }
+                                                    : 'bg.muted',
+                                            }, transition: "all 0.2s", children: jsxRuntime.jsxs(react.HStack, { gap: 3, children: [jsxRuntime.jsx(react.Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, children: isImage && file.url && !imageFailed ? (jsxRuntime.jsx(react.Image, { src: file.url, alt: file.name, boxSize: "60px", objectFit: "cover", borderRadius: "md", onError: () => handleImageError(file.id) })) : isImage && (imageFailed || !file.url) ? (jsxRuntime.jsx(react.Icon, { as: lu.LuImage, boxSize: 6, color: "fg.muted" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 6, color: "fg.muted" })) }), jsxRuntime.jsxs(react.VStack, { align: "start", flex: 1, gap: 1, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.name }), jsxRuntime.jsxs(react.HStack, { gap: 2, children: [file.size && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: typeof file.size === 'number'
                                                                                 ? formatBytes(file.size)
-                                                                                : file.size }) })), file.comment && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [file.size && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: "\u2022" })), jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.comment })] }))] })] }), isSelected && (jsxRuntime.jsx(react.Box, { width: "24px", height: "24px", borderRadius: "full", bg: "blue.500", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, children: jsxRuntime.jsx(react.Text, { color: "white", fontSize: "xs", fontWeight: "bold", children: "\u2713" }) }))] }) }, file.id));
+                                                                                : file.size }) })), file.comment && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [file.size && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: "\u2022" })), jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.comment })] }))] })] }), isSelected && (jsxRuntime.jsx(react.Box, { width: "24px", height: "24px", borderRadius: "full", bg: {
+                                                            base: 'colorPalette.500',
+                                                            _dark: 'colorPalette.400',
+                                                        }, colorPalette: "blue", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, children: jsxRuntime.jsx(react.Text, { color: "white", fontSize: "xs", fontWeight: "bold", children: "\u2713" }) }))] }) }, file.id));
                                     }) })) }))] }) }), jsxRuntime.jsx(DialogFooter, { children: jsxRuntime.jsxs(react.HStack, { gap: 3, justify: "end", children: [jsxRuntime.jsx(react.Button, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ??
                                     translate(removeIndex(`${colLabel}.cancel`)) ??
                                     'Cancel' }), jsxRuntime.jsx(react.Button, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFileId, children: labels?.select ??
@@ -5004,8 +5046,12 @@ const FilePicker = ({ column, schema, prefix }) => {
         : [];
     const colLabel = formI18n.colLabel;
     const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [failedImageIds, setFailedImageIds] = React.useState(new Set());
     const { onFetchFiles, enableMediaLibrary = false, filterImageOnly = false, } = filePicker || {};
     const showMediaLibrary = enableMediaLibrary && !!onFetchFiles;
+    const handleImageError = (fileIdentifier) => {
+        setFailedImageIds((prev) => new Set(prev).add(fileIdentifier));
+    };
     const handleMediaLibrarySelect = (fileId) => {
         const newFiles = [...currentFiles, fileId];
         setValue(colLabel, newFiles);
@@ -5069,10 +5115,11 @@ const FilePicker = ({ column, schema, prefix }) => {
                     const fileSize = getFileSize(file);
                     const isImage = isImageFile(file);
                     const imageUrl = getImageUrl(file);
-                    return (jsxRuntime.jsx(react.Card.Root, { variant: 'subtle', children: jsxRuntime.jsxs(react.Card.Body, { gap: "2", cursor: 'pointer', onClick: () => handleRemove(index), display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', border: "2px solid", borderColor: "border.default", borderRadius: "md", _hover: {
-                                borderColor: 'blue.300',
+                    const imageFailed = failedImageIds.has(fileIdentifier);
+                    return (jsxRuntime.jsx(react.Card.Root, { variant: 'subtle', colorPalette: "blue", children: jsxRuntime.jsxs(react.Card.Body, { gap: "2", cursor: 'pointer', onClick: () => handleRemove(index), display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', border: "2px solid", borderColor: "border.default", borderRadius: "md", _hover: {
+                                borderColor: 'colorPalette.300',
                                 bg: 'bg.muted',
-                            }, transition: "all 0.2s", children: [jsxRuntime.jsx(react.Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, marginRight: "2", children: isImage && imageUrl ? (jsxRuntime.jsx(react.Image, { src: imageUrl, alt: fileName, boxSize: "60px", objectFit: "cover", borderRadius: "md" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 6, color: "fg.muted" })) }), jsxRuntime.jsxs(react.VStack, { align: "start", flex: 1, gap: 1, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: fileName }), fileSize !== undefined && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: formatBytes(fileSize) }))] }), jsxRuntime.jsx(react.Icon, { as: ti.TiDeleteOutline, boxSize: 5, color: "fg.muted" })] }) }, fileIdentifier));
+                            }, transition: "all 0.2s", children: [jsxRuntime.jsx(react.Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, marginRight: "2", children: isImage && imageUrl && !imageFailed ? (jsxRuntime.jsx(react.Image, { src: imageUrl, alt: fileName, boxSize: "60px", objectFit: "cover", borderRadius: "md", onError: () => handleImageError(fileIdentifier) })) : isImage && (imageFailed || !imageUrl) ? (jsxRuntime.jsx(react.Icon, { as: lu.LuImage, boxSize: 6, color: "fg.muted" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 6, color: "fg.muted" })) }), jsxRuntime.jsxs(react.VStack, { align: "start", flex: 1, gap: 1, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: fileName }), fileSize !== undefined && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: formatBytes(fileSize) }))] }), jsxRuntime.jsx(react.Icon, { as: ti.TiDeleteOutline, boxSize: 5, color: "fg.muted" })] }) }, fileIdentifier));
                 }) })] }));
 };
 

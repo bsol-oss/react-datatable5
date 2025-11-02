@@ -1,5 +1,5 @@
-import { GridProps } from "@chakra-ui/react";
-import { ReactNode } from "react";
+import { GridProps } from '@chakra-ui/react';
+import { ReactNode } from 'react';
 export interface FileDropzoneProps {
     children?: ReactNode;
     onDrop?: ({ files, text }: {
