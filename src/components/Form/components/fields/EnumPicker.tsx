@@ -21,7 +21,7 @@ import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
 import { filterArray } from '../../utils/filterArray';
-import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface IdPickerProps {
@@ -44,7 +44,8 @@ export const EnumPicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { translate, enumPickerLabels } = useSchemaContext();
+  const { enumPickerLabels } = useSchemaContext();
+  const formI18n = useFormI18n(column, prefix);
   const { required, variant } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
@@ -52,7 +53,7 @@ export const EnumPicker = ({
   const [limit, setLimit] = useState<number>(10);
   const [openSearchResult, setOpenSearchResult] = useState<boolean>();
   const ref = useRef<HTMLInputElement>(null);
-  const colLabel = `${prefix}${column}`;
+  const colLabel = formI18n.colLabel;
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];
   const dataList = schema.enum ?? [];
@@ -66,18 +67,14 @@ export const EnumPicker = ({
   if (variant === 'radio') {
     return (
       <Field
-        label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+        label={formI18n.label()}
         required={isRequired}
         alignItems={'stretch'}
         {...{
           gridColumn,
           gridRow,
         }}
-        errorText={
-          errors[`${colLabel}`]
-            ? translate.t(removeIndex(`${colLabel}.field_required`))
-            : undefined
-        }
+        errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
         invalid={!!errors[colLabel]}
       >
         <RadioGroup.Root defaultValue="1">
@@ -103,7 +100,7 @@ export const EnumPicker = ({
                     <RadioGroup.ItemText>
                       {!!renderDisplay === true
                         ? renderDisplay(item)
-                        : translate.t(removeIndex(`${colLabel}.${item}`))}
+                        : formI18n.t(item)}
                     </RadioGroup.ItemText>
                   </RadioGroup.Item>
                 );
@@ -117,18 +114,14 @@ export const EnumPicker = ({
 
   return (
     <Field
-      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+      label={formI18n.label()}
       required={isRequired}
       alignItems={'stretch'}
       {...{
         gridColumn,
         gridRow,
       }}
-      errorText={
-        errors[`${colLabel}`]
-          ? translate.t(removeIndex(`${colLabel}.field_required`))
-          : undefined
-      }
+      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
       invalid={!!errors[colLabel]}
     >
       {isMultiple && (
@@ -152,7 +145,7 @@ export const EnumPicker = ({
               >
                 {!!renderDisplay === true
                   ? renderDisplay(item)
-                  : translate.t(removeIndex(`${colLabel}.${item}`))}
+                  : formI18n.t(item)}
               </Tag>
             );
           })}
@@ -164,8 +157,7 @@ export const EnumPicker = ({
               setOpenSearchResult(true);
             }}
           >
-            {enumPickerLabels?.addMore ??
-              translate.t(removeIndex(`${colLabel}.add_more`))}
+            {enumPickerLabels?.addMore ?? formI18n.t('add_more')}
           </Tag>
         </Flex>
       )}
@@ -177,9 +169,7 @@ export const EnumPicker = ({
           }}
           justifyContent={'start'}
         >
-          {!!watchEnum === false
-            ? ''
-            : translate.t(removeIndex(`${colLabel}.${watchEnum ?? 'null'}`))}
+          {!!watchEnum === false ? '' : formI18n.t(watchEnum ?? 'null')}
         </Button>
       )}
       <PopoverRoot
@@ -194,8 +184,7 @@ export const EnumPicker = ({
           <PopoverBody display={'grid'} gap={1}>
             <Input
               placeholder={
-                enumPickerLabels?.typeToSearch ??
-                translate.t(`${colLabel}.type_to_search`)
+                enumPickerLabels?.typeToSearch ?? formI18n.t('type_to_search')
               }
               onChange={(event) => {
                 onSearchChange(event);
@@ -206,7 +195,7 @@ export const EnumPicker = ({
             />
             <PopoverTitle />
             {showTotalAndLimit && (
-              <Text>{`${enumPickerLabels?.total ?? translate.t(removeIndex(`${colLabel}.total`))}: ${count}, ${enumPickerLabels?.showing ?? translate.t(removeIndex(`${colLabel}.showing`))} ${limit}`}</Text>
+              <Text>{`${enumPickerLabels?.total ?? formI18n.t('total')}: ${count}, ${enumPickerLabels?.showing ?? formI18n.t('showing')} ${limit}`}</Text>
             )}
 
             <Grid overflow={'auto'} maxHeight={'20rem'}>
@@ -225,7 +214,7 @@ export const EnumPicker = ({
                     const displayValue =
                       !!renderDisplay === true
                         ? renderDisplay(item)
-                        : translate.t(removeIndex(`${colLabel}.${item}`));
+                        : formI18n.t(item);
 
                     // Convert to string and check if it includes the search term
                     const displayValueString =
@@ -256,7 +245,7 @@ export const EnumPicker = ({
                       >
                         {!!renderDisplay === true
                           ? renderDisplay(item)
-                          : translate.t(removeIndex(`${colLabel}.${item}`))}
+                          : formI18n.t(item)}
                       </Box>
                     );
                   })}
@@ -266,9 +255,7 @@ export const EnumPicker = ({
                   {dataList.length <= 0 && (
                     <>
                       {enumPickerLabels?.emptySearchResult ??
-                        translate.t(
-                          removeIndex(`${colLabel}.empty_search_result`)
-                        )}
+                        formI18n.t('empty_search_result')}
                     </>
                   )}
                 </>
