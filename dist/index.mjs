@@ -3395,6 +3395,27 @@ const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = 
     return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { showLoading: isLoading, ...tableProps, children: [jsx(TableHeader, { ...tableHeaderProps }), bodyComponent, showFooter && jsx(TableFooter, { ...tableFooterProps })] }) }));
 };
 
+/**
+ * DefaultTableServer is a wrapper around DefaultTable that automatically
+ * detects server-side loading state from DataTableServerContext.
+ *
+ * Use this component when working with DataTableServer to automatically
+ * show skeleton loading state during data fetching.
+ *
+ * @example
+ * ```tsx
+ * <DataTableServer columns={columns} {...datatableServer}>
+ *   <DefaultTableServer />
+ * </DataTableServer>
+ * ```
+ */
+const DefaultTableServer = ({ isLoading: isLoadingOverride, ...props }) => {
+    // Automatically detect loading state from server context
+    const serverContext = useDataTableServerContext();
+    const isLoading = isLoadingOverride ?? serverContext?.query?.isLoading ?? false;
+    return jsx(DefaultTable, { ...props, isLoading: isLoading });
+};
+
 const TableCardContainer = ({ children, variant = "", gap = "1rem", gridTemplateColumns = "repeat(auto-fit, minmax(20rem, 1fr))", direction = "row", ...props }) => {
     if (variant === "carousel") {
         return (jsx(Flex, { overflow: "auto", gap: gap, direction: direction, ...props, children: children }));
@@ -7173,4 +7194,4 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
     }
 };
 
-export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, convertToAjvErrorsFormat, createErrorMessage, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CardHeader, DataDisplay, DataTable, DataTableServer, DefaultCardTitle, DefaultForm, DefaultTable, DefaultTableServer, DensityToggleButton, EditSortingButton, EmptyState$1 as EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, convertToAjvErrorsFormat, createErrorMessage, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };

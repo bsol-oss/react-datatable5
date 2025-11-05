@@ -3415,6 +3415,27 @@ const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = 
     return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { showLoading: isLoading, ...tableProps, children: [jsxRuntime.jsx(TableHeader, { ...tableHeaderProps }), bodyComponent, showFooter && jsxRuntime.jsx(TableFooter, { ...tableFooterProps })] }) }));
 };
 
+/**
+ * DefaultTableServer is a wrapper around DefaultTable that automatically
+ * detects server-side loading state from DataTableServerContext.
+ *
+ * Use this component when working with DataTableServer to automatically
+ * show skeleton loading state during data fetching.
+ *
+ * @example
+ * ```tsx
+ * <DataTableServer columns={columns} {...datatableServer}>
+ *   <DefaultTableServer />
+ * </DataTableServer>
+ * ```
+ */
+const DefaultTableServer = ({ isLoading: isLoadingOverride, ...props }) => {
+    // Automatically detect loading state from server context
+    const serverContext = useDataTableServerContext();
+    const isLoading = isLoadingOverride ?? serverContext?.query?.isLoading ?? false;
+    return jsxRuntime.jsx(DefaultTable, { ...props, isLoading: isLoading });
+};
+
 const TableCardContainer = ({ children, variant = "", gap = "1rem", gridTemplateColumns = "repeat(auto-fit, minmax(20rem, 1fr))", direction = "row", ...props }) => {
     if (variant === "carousel") {
         return (jsxRuntime.jsx(react.Flex, { overflow: "auto", gap: gap, direction: direction, ...props, children: children }));
@@ -7200,6 +7221,7 @@ exports.DataTableServer = DataTableServer;
 exports.DefaultCardTitle = DefaultCardTitle;
 exports.DefaultForm = DefaultForm;
 exports.DefaultTable = DefaultTable;
+exports.DefaultTableServer = DefaultTableServer;
 exports.DensityToggleButton = DensityToggleButton;
 exports.EditSortingButton = EditSortingButton;
 exports.EmptyState = EmptyState$1;

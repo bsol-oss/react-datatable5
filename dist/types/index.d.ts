@@ -89,6 +89,7 @@ export * from "./components/DataTable/display/DataDisplay";
 export * from "./components/DataTable/DataTable";
 export * from "./components/DataTable/DataTableServer";
 export * from "./components/DataTable/DefaultTable";
+export * from "./components/DataTable/DefaultTableServer";
 export * from "./components/DataTable/controls/ReloadButton";
 export * from "./components/DataTable/display/Table";
 export * from "./components/DataTable/display/TableBody";
