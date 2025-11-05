@@ -98,7 +98,7 @@ declare module "@tanstack/react-table" {
     }
 }
 
-declare module "@tanstack/react-table" {
+declare module '@tanstack/react-table' {
     interface FilterFns {
         fuzzy: FilterFn<unknown>;
     }

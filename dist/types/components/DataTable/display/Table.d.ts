@@ -1,5 +1,5 @@
-import { TableRootProps } from "@chakra-ui/react";
-import { ReactNode } from "react";
+import { TableRootProps } from '@chakra-ui/react';
+import { ReactNode } from 'react';
 export interface TableProps extends TableRootProps {
     showLoading?: boolean;
     loadingComponent?: ReactNode;

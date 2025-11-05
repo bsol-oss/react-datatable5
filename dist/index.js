@@ -2843,21 +2843,21 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
 function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, tableLabel = {
-    view: "View",
-    edit: "Edit",
-    filterButtonText: "Filter",
-    filterTitle: "Filter",
-    filterReset: "Reset",
-    filterClose: "Close",
-    reloadTooltip: "Reload",
-    reloadButtonText: "Reload",
-    resetSelection: "Reset Selection",
-    resetSorting: "Reset Sorting",
-    rowCountText: "Row Count",
-    hasErrorText: "Has Error",
-    globalFilterPlaceholder: "Search",
-    trueLabel: "True",
-    falseLabel: "False",
+    view: 'View',
+    edit: 'Edit',
+    filterButtonText: 'Filter',
+    filterTitle: 'Filter',
+    filterReset: 'Reset',
+    filterClose: 'Close',
+    reloadTooltip: 'Reload',
+    reloadButtonText: 'Reload',
+    resetSelection: 'Reset Selection',
+    resetSorting: 'Reset Sorting',
+    rowCountText: 'Row Count',
+    hasErrorText: 'Has Error',
+    globalFilterPlaceholder: 'Search',
+    trueLabel: 'True',
+    falseLabel: 'False',
 }, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
@@ -2876,12 +2876,12 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
         enableRowSelection: enableRowSelection,
         enableMultiRowSelection: enableMultiRowSelection,
         enableSubRowSelection: enableSubRowSelection,
-        columnResizeMode: "onChange",
+        columnResizeMode: 'onChange',
         // global filter start
         filterFns: {
             fuzzy: fuzzyFilter,
         },
-        globalFilterFn: "fuzzy",
+        globalFilterFn: 'fuzzy',
         state: {
             pagination,
             sorting,
@@ -2909,7 +2909,7 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
             table: table,
             globalFilter,
             setGlobalFilter,
-            type: "client",
+            type: 'client',
             translate,
             columns: columns,
             sorting,
@@ -3120,7 +3120,7 @@ const Table = ({ children, emptyComponent = EmptyResult, canResize = true, showL
     if (!showLoading && table.getRowModel().rows.length <= 0) {
         return emptyComponent;
     }
-    return (jsxRuntime.jsx(react.Table.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, display: "grid", alignContent: "start", overflowY: "auto", bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, ...props, children: children }));
+    return (jsxRuntime.jsx(react.Table.Root, { stickyHeader: true, variant: 'outline', width: canResize ? table.getCenterTotalSize() : undefined, display: 'grid', alignContent: 'start', overflowY: 'auto', bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, ...props, children: children }));
 };
 
 const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
@@ -3187,7 +3187,7 @@ const TableRowSelector = ({ row, }) => {
 };
 
 const TableBodySkeleton = ({ showSelector = false, canResize = true, }) => {
-    "use no memo";
+    'use no memo';
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
     const [hoveredRow, setHoveredRow] = React.useState(-1);
@@ -3198,9 +3198,9 @@ const TableBodySkeleton = ({ showSelector = false, canResize = true, }) => {
         const tdProps = column.getIsPinned()
             ? {
                 left: showSelector
-                    ? `${column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                    : `${column.getStart("left")}px`,
-                position: "relative",
+                    ? `${column.getStart('left') + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+                    : `${column.getStart('left')}px`,
+                position: 'relative',
             }
             : {};
         return tdProps;
@@ -3211,38 +3211,38 @@ const TableBodySkeleton = ({ showSelector = false, canResize = true, }) => {
         }
         if (hoveredRow === index) {
             return {
-                opacity: "1",
+                opacity: '1',
             };
         }
         return {
-            opacity: "0.8",
+            opacity: '0.8',
         };
     };
     // Get the number of skeleton rows based on current pageSize
     const pageSize = table.getState().pagination.pageSize;
     const visibleColumns = table.getVisibleLeafColumns();
     return (jsxRuntime.jsx(react.Table.Body, { children: Array.from({ length: pageSize }).map((_, rowIndex) => {
-            return (jsxRuntime.jsxs(react.Table.Row, { display: "flex", zIndex: 1, onMouseEnter: () => handleRowHover(rowIndex), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index: rowIndex }), children: [showSelector && (jsxRuntime.jsx(TableRowSelectorSkeleton, {})), visibleColumns.map((column, colIndex) => {
+            return (jsxRuntime.jsxs(react.Table.Row, { display: 'flex', zIndex: 1, onMouseEnter: () => handleRowHover(rowIndex), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index: rowIndex }), children: [showSelector && jsxRuntime.jsx(TableRowSelectorSkeleton, {}), visibleColumns.map((column, colIndex) => {
                         return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, 
                             // styling resize and pinning start
-                            flex: `${canResize ? "0" : "1"} 0 ${column.getSize()}px`, 
+                            flex: `${canResize ? '0' : '1'} 0 ${column.getSize()}px`, 
                             // this is to avoid the cell from being too wide
                             minWidth: `0`, color: {
-                                base: "colorPalette.900",
-                                _dark: "colorPalette.100",
+                                base: 'colorPalette.900',
+                                _dark: 'colorPalette.100',
                             },
-                            bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, ...getTdProps(column), children: jsxRuntime.jsx(react.Skeleton, { height: "20px", width: "80%" }) }, `chakra-table-skeleton-cell-${rowIndex}-${colIndex}`));
+                            bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, ...getTdProps(column), children: jsxRuntime.jsx(react.Skeleton, { height: "20px", width: "80%" }) }, `chakra-table-skeleton-cell-${rowIndex}-${colIndex}`));
                     })] }, `chakra-table-skeleton-row-${rowIndex}`));
         }) }));
 };
 const TableRowSelectorSkeleton = () => {
     const { table } = useDataTableContext();
     const SELECTION_BOX_WIDTH = 20;
-    return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, display: "grid", color: {
-            base: "colorPalette.900",
-            _dark: "colorPalette.100",
+    return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, display: 'grid', color: {
+            base: 'colorPalette.900',
+            _dark: 'colorPalette.100',
         },
-        bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react.Skeleton, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }));
+        bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, justifyItems: 'center', alignItems: 'center', children: jsxRuntime.jsx(react.Skeleton, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }));
 };
 
 const TableFooter = ({ showSelector = false, alwaysShowSelector = true, }) => {
@@ -3407,10 +3407,11 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
 };
 
 const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = '', isLoading = false, }) => {
-    const bodyComponent = isLoading ? (jsxRuntime.jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: tableBodyProps.canResize })) : (jsxRuntime.jsx(TableBody, { ...tableBodyProps }));
     if (variant === 'greedy') {
+        const bodyComponent = isLoading ? (jsxRuntime.jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: false })) : (jsxRuntime.jsx(TableBody, { ...tableBodyProps, canResize: false, ...tableBodyProps }));
         return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { canResize: false, showLoading: isLoading, ...tableProps, children: [jsxRuntime.jsx(TableHeader, { canResize: false, ...tableHeaderProps }), bodyComponent, showFooter && (jsxRuntime.jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
     }
+    const bodyComponent = isLoading ? (jsxRuntime.jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: tableBodyProps.canResize })) : (jsxRuntime.jsx(TableBody, { ...tableBodyProps }));
     return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { showLoading: isLoading, ...tableProps, children: [jsxRuntime.jsx(TableHeader, { ...tableHeaderProps }), bodyComponent, showFooter && jsxRuntime.jsx(TableFooter, { ...tableFooterProps })] }) }));
 };
 

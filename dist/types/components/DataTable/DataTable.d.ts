@@ -1,10 +1,10 @@
-import { ColumnDef, ColumnFiltersState, ColumnOrderState, FilterFn, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
-import { ReactNode } from "react";
-import { RankingInfo } from "@tanstack/match-sorter-utils";
-import { DensityState } from "./controls/DensityFeature";
-import { DataTableLabel } from "./context/DataTableContext";
-import { UseTranslationResponse } from "react-i18next";
-declare module "@tanstack/react-table" {
+import { ColumnDef, ColumnFiltersState, ColumnOrderState, FilterFn, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from '@tanstack/react-table';
+import { ReactNode } from 'react';
+import { RankingInfo } from '@tanstack/match-sorter-utils';
+import { DensityState } from './controls/DensityFeature';
+import { DataTableLabel } from './context/DataTableContext';
+import { UseTranslationResponse } from 'react-i18next';
+declare module '@tanstack/react-table' {
     interface FilterFns {
         fuzzy: FilterFn<unknown>;
     }
