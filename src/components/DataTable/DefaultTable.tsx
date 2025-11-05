@@ -26,16 +26,18 @@ export const DefaultTable = ({
   variant = '',
   isLoading = false,
 }: DefaultTableProps) => {
-  const bodyComponent = isLoading ? (
-    <TableBodySkeleton
-      showSelector={tableBodyProps.showSelector}
-      canResize={tableBodyProps.canResize}
-    />
-  ) : (
-    <TableBody {...tableBodyProps} />
-  );
-
   if (variant === 'greedy') {
+    const bodyComponent = isLoading ? (
+      <TableBodySkeleton
+        showSelector={tableBodyProps.showSelector}
+        {...{ canResize: false }}
+      />
+    ) : (
+      <TableBody
+        {...tableBodyProps}
+        {...{ canResize: false, ...tableBodyProps }}
+      />
+    );
     return (
       <TableControls {...controlProps}>
         <Table {...{ canResize: false, showLoading: isLoading, ...tableProps }}>
@@ -48,6 +50,15 @@ export const DefaultTable = ({
       </TableControls>
     );
   }
+
+  const bodyComponent = isLoading ? (
+    <TableBodySkeleton
+      showSelector={tableBodyProps.showSelector}
+      canResize={tableBodyProps.canResize}
+    />
+  ) : (
+    <TableBody {...tableBodyProps} />
+  );
   return (
     <TableControls {...controlProps}>
       <Table {...{ showLoading: isLoading, ...tableProps }}>
