@@ -18,6 +18,9 @@ export interface DataTableProps<TData = unknown> {
      * Data array for the table.
      *
      * It will pass into as the data in `@tanstack/react-table`
+     * Do not toggle the data array, it will cause the table to re-render in infinite loop.
+     *
+     * @default []
      *
      */
     data: TData[];

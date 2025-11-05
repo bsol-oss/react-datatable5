@@ -1,8 +1,8 @@
-import { Table as ChakraTable, List, TableRootProps } from "@chakra-ui/react";
-import { ReactNode } from "react";
-import { HiColorSwatch } from "react-icons/hi";
-import { EmptyState } from "../../ui/empty-state";
-import { useDataTableContext } from "../context/useDataTableContext";
+import { Table as ChakraTable, List, TableRootProps } from '@chakra-ui/react';
+import { ReactNode } from 'react';
+import { HiColorSwatch } from 'react-icons/hi';
+import { EmptyState } from '../../ui/empty-state';
+import { useDataTableContext } from '../context/useDataTableContext';
 
 export interface TableProps extends TableRootProps {
   showLoading?: boolean;
@@ -29,23 +29,25 @@ export const Table = ({
   children,
   emptyComponent = EmptyResult,
   canResize = true,
+  showLoading = false,
   ...props
 }: TableProps) => {
   const { table } = useDataTableContext();
 
-  if (table.getRowModel().rows.length <= 0) {
+  // Skip empty check when loading to allow skeleton to render
+  if (!showLoading && table.getRowModel().rows.length <= 0) {
     return emptyComponent;
   }
 
   return (
     <ChakraTable.Root
       stickyHeader
-      variant={"outline"}
+      variant={'outline'}
       width={canResize ? table.getCenterTotalSize() : undefined}
-      display={"grid"}
-      alignContent={"start"}
-      overflowY={"auto"}
-      {...{ bg: { base: "colorPalette.50", _dark: "colorPalette.950" } }}
+      display={'grid'}
+      alignContent={'start'}
+      overflowY={'auto'}
+      {...{ bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' } }}
       {...props}
     >
       {children}

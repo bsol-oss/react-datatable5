@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Group, InputElement, Tooltip as Tooltip$1, Icon, List, Table as Table$1, Checkbox as Checkbox$1, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Center, Heading } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Image, EmptyState as EmptyState$2, VStack, Alert, Card, Group, InputElement, Tooltip as Tooltip$1, Icon, List, Table as Table$1, Checkbox as Checkbox$1, Skeleton, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Field as Field$1, Popover, NumberInput, Show, RadioCard, CheckboxGroup, Center, Heading } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef, forwardRef } from 'react';
@@ -3094,9 +3094,10 @@ const EmptyState = React.forwardRef(function EmptyState(props, ref) {
 });
 
 const EmptyResult = (jsx(EmptyState, { icon: jsx(HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxs(List.Root, { variant: "marker", children: [jsx(List.Item, { children: "Try removing filters" }), jsx(List.Item, { children: "Try different keywords" })] }) }));
-const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
+const Table = ({ children, emptyComponent = EmptyResult, canResize = true, showLoading = false, ...props }) => {
     const { table } = useDataTableContext();
-    if (table.getRowModel().rows.length <= 0) {
+    // Skip empty check when loading to allow skeleton to render
+    if (!showLoading && table.getRowModel().rows.length <= 0) {
         return emptyComponent;
     }
     return (jsx(Table$1.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, display: "grid", alignContent: "start", overflowY: "auto", bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, ...props, children: children }));
@@ -3163,6 +3164,65 @@ const TableRowSelector = ({ row, }) => {
         bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, justifyItems: "center", alignItems: "center", children: jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, checked: row.getIsSelected(),
             disabled: !row.getCanSelect(),
             onCheckedChange: row.getToggleSelectedHandler() }) }));
+};
+
+const TableBodySkeleton = ({ showSelector = false, canResize = true, }) => {
+    "use no memo";
+    const { table } = useDataTableContext();
+    const SELECTION_BOX_WIDTH = 20;
+    const [hoveredRow, setHoveredRow] = useState(-1);
+    const handleRowHover = (index) => {
+        setHoveredRow(index);
+    };
+    const getTdProps = (column) => {
+        const tdProps = column.getIsPinned()
+            ? {
+                left: showSelector
+                    ? `${column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+                    : `${column.getStart("left")}px`,
+                position: "relative",
+            }
+            : {};
+        return tdProps;
+    };
+    const getTrProps = ({ hoveredRow, index, }) => {
+        if (hoveredRow === -1) {
+            return {};
+        }
+        if (hoveredRow === index) {
+            return {
+                opacity: "1",
+            };
+        }
+        return {
+            opacity: "0.8",
+        };
+    };
+    // Get the number of skeleton rows based on current pageSize
+    const pageSize = table.getState().pagination.pageSize;
+    const visibleColumns = table.getVisibleLeafColumns();
+    return (jsx(Table$1.Body, { children: Array.from({ length: pageSize }).map((_, rowIndex) => {
+            return (jsxs(Table$1.Row, { display: "flex", zIndex: 1, onMouseEnter: () => handleRowHover(rowIndex), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index: rowIndex }), children: [showSelector && (jsx(TableRowSelectorSkeleton, {})), visibleColumns.map((column, colIndex) => {
+                        return (jsx(Table$1.Cell, { padding: `${table.getDensityValue()}px`, 
+                            // styling resize and pinning start
+                            flex: `${canResize ? "0" : "1"} 0 ${column.getSize()}px`, 
+                            // this is to avoid the cell from being too wide
+                            minWidth: `0`, color: {
+                                base: "colorPalette.900",
+                                _dark: "colorPalette.100",
+                            },
+                            bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, ...getTdProps(column), children: jsx(Skeleton, { height: "20px", width: "80%" }) }, `chakra-table-skeleton-cell-${rowIndex}-${colIndex}`));
+                    })] }, `chakra-table-skeleton-row-${rowIndex}`));
+        }) }));
+};
+const TableRowSelectorSkeleton = () => {
+    const { table } = useDataTableContext();
+    const SELECTION_BOX_WIDTH = 20;
+    return (jsx(Table$1.Cell, { padding: `${table.getDensityValue()}px`, display: "grid", color: {
+            base: "colorPalette.900",
+            _dark: "colorPalette.100",
+        },
+        bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, justifyItems: "center", alignItems: "center", children: jsx(Skeleton, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }));
 };
 
 const TableFooter = ({ showSelector = false, alwaysShowSelector = true, }) => {
@@ -3326,11 +3386,12 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = "", }) => {
-    if (variant === "greedy") {
-        return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { canResize: false, ...{ ...tableProps }, children: [jsx(TableHeader, { canResize: false, ...tableHeaderProps }), jsx(TableBody, { canResize: false, ...tableBodyProps }), showFooter && (jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
+const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = '', isLoading = false, }) => {
+    const bodyComponent = isLoading ? (jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: tableBodyProps.canResize })) : (jsx(TableBody, { ...tableBodyProps }));
+    if (variant === 'greedy') {
+        return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { canResize: false, showLoading: isLoading, ...tableProps, children: [jsx(TableHeader, { canResize: false, ...tableHeaderProps }), bodyComponent, showFooter && (jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
     }
-    return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { ...tableProps, children: [jsx(TableHeader, { ...tableHeaderProps }), jsx(TableBody, { ...tableBodyProps }), showFooter && jsx(TableFooter, { ...tableFooterProps })] }) }));
+    return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { showLoading: isLoading, ...tableProps, children: [jsx(TableHeader, { ...tableHeaderProps }), bodyComponent, showFooter && jsx(TableFooter, { ...tableFooterProps })] }) }));
 };
 
 const TableCardContainer = ({ children, variant = "", gap = "1rem", gridTemplateColumns = "repeat(auto-fit, minmax(20rem, 1fr))", direction = "row", ...props }) => {
@@ -4449,7 +4510,8 @@ function filterArray(array, searchTerm) {
 
 const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLimit = false, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { translate, enumPickerLabels } = useSchemaContext();
+    const { enumPickerLabels } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
     const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
@@ -4457,7 +4519,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
     const [limit, setLimit] = useState(10);
     const [openSearchResult, setOpenSearchResult] = useState();
     const ref = useRef(null);
-    const colLabel = `${prefix}${column}`;
+    const colLabel = formI18n.colLabel;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
     const dataList = schema.enum ?? [];
@@ -4468,10 +4530,8 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
         setLimit(10);
     };
     if (variant === 'radio') {
-        return (jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: 'stretch', gridColumn,
-            gridRow, errorText: errors[`${colLabel}`]
-                ? translate.t(removeIndex(`${colLabel}.field_required`))
-                : undefined, invalid: !!errors[colLabel], children: jsx(RadioGroup$1.Root, { defaultValue: "1", children: jsx(HStack, { gap: "6", children: filterArray(dataList, searchText ?? '').map((item) => {
+        return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+            gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsx(RadioGroup$1.Root, { defaultValue: "1", children: jsx(HStack, { gap: "6", children: filterArray(dataList, searchText ?? '').map((item) => {
                         return (jsxs(RadioGroup$1.Item, { onClick: () => {
                                 if (!isMultiple) {
                                     setOpenSearchResult(false);
@@ -4482,13 +4542,11 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                 setValue(colLabel, [...newSet]);
                             }, value: item, children: [jsx(RadioGroup$1.ItemHiddenInput, {}), jsx(RadioGroup$1.ItemIndicator, {}), jsx(RadioGroup$1.ItemText, { children: !!renderDisplay === true
                                         ? renderDisplay(item)
-                                        : translate.t(removeIndex(`${colLabel}.${item}`)) })] }, `${colLabel}-${item}`));
+                                        : formI18n.t(item) })] }, `${colLabel}-${item}`));
                     }) }) }) }));
     }
-    return (jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`]
-            ? translate.t(removeIndex(`${colLabel}.field_required`))
-            : undefined, invalid: !!errors[colLabel], children: [isMultiple && (jsxs(Flex, { flexFlow: 'wrap', gap: 1, children: [watchEnums.map((enumValue) => {
+    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [isMultiple && (jsxs(Flex, { flexFlow: 'wrap', gap: 1, children: [watchEnums.map((enumValue) => {
                         const item = enumValue;
                         if (!!item === false) {
                             return jsx(Fragment, {});
@@ -4497,19 +4555,15 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                 setValue(column, watchEnums.filter((id) => id != item));
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
-                                : translate.t(removeIndex(`${colLabel}.${item}`)) }, item));
+                                : formI18n.t(item) }, item));
                     }), jsx(Tag, { size: "lg", cursor: 'pointer', onClick: () => {
                             setOpenSearchResult(true);
-                        }, children: enumPickerLabels?.addMore ??
-                            translate.t(removeIndex(`${colLabel}.add_more`)) }, `${colLabel}-add-more-tag`)] })), !isMultiple && (jsx(Button, { variant: 'outline', onClick: () => {
+                        }, children: enumPickerLabels?.addMore ?? formI18n.t('add_more') }, `${colLabel}-add-more-tag`)] })), !isMultiple && (jsx(Button, { variant: 'outline', onClick: () => {
                     setOpenSearchResult(true);
-                }, justifyContent: 'start', children: !!watchEnum === false
-                    ? ''
-                    : translate.t(removeIndex(`${colLabel}.${watchEnum ?? 'null'}`)) })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: 'bottom-start' }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { portalled: false, children: jsxs(PopoverBody, { display: 'grid', gap: 1, children: [jsx(Input, { placeholder: enumPickerLabels?.typeToSearch ??
-                                        translate.t(`${colLabel}.type_to_search`), onChange: (event) => {
+                }, justifyContent: 'start', children: !!watchEnum === false ? '' : formI18n.t(watchEnum ?? 'null') })), jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: 'bottom-start' }, children: [jsx(PopoverTrigger, {}), jsx(PopoverContent, { portalled: false, children: jsxs(PopoverBody, { display: 'grid', gap: 1, children: [jsx(Input, { placeholder: enumPickerLabels?.typeToSearch ?? formI18n.t('type_to_search'), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), showTotalAndLimit && (jsx(Text, { children: `${enumPickerLabels?.total ?? translate.t(removeIndex(`${colLabel}.total`))}: ${count}, ${enumPickerLabels?.showing ?? translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` })), jsxs(Grid, { overflow: 'auto', maxHeight: '20rem', children: [jsx(Flex, { flexFlow: 'column wrap', children: dataList
+                                    }, autoComplete: "off", ref: ref }), jsx(PopoverTitle, {}), showTotalAndLimit && (jsx(Text, { children: `${enumPickerLabels?.total ?? formI18n.t('total')}: ${count}, ${enumPickerLabels?.showing ?? formI18n.t('showing')} ${limit}` })), jsxs(Grid, { overflow: 'auto', maxHeight: '20rem', children: [jsx(Flex, { flexFlow: 'column wrap', children: dataList
                                                 .filter((item) => {
                                                 const searchTerm = (searchText || '').toLowerCase();
                                                 if (!searchTerm)
@@ -4521,7 +4575,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                                 // Check if the display value (translation) contains the search text
                                                 const displayValue = !!renderDisplay === true
                                                     ? renderDisplay(item)
-                                                    : translate.t(removeIndex(`${colLabel}.${item}`));
+                                                    : formI18n.t(item);
                                                 // Convert to string and check if it includes the search term
                                                 const displayValueString = String(displayValue).toLowerCase();
                                                 const displayValueMatch = displayValueString.includes(searchTerm);
@@ -4541,9 +4595,9 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                                         setValue(colLabel, [...newSet]);
                                                     }, ...(selected ? { color: 'colorPalette.400/50' } : {}), children: !!renderDisplay === true
                                                         ? renderDisplay(item)
-                                                        : translate.t(removeIndex(`${colLabel}.${item}`)) }, `${colLabel}-${item}`));
+                                                        : formI18n.t(item) }, `${colLabel}-${item}`));
                                             }) }), isDirty && (jsx(Fragment, { children: dataList.length <= 0 && (jsx(Fragment, { children: enumPickerLabels?.emptySearchResult ??
-                                                    translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] })] }) })] })] }));
+                                                    formI18n.t('empty_search_result') })) }))] })] }) })] })] }));
 };
 
 function isEnteringWindow(_ref) {

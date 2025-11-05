@@ -14,15 +14,15 @@ import {
   Table,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table";
-import { ReactNode } from "react";
+} from '@tanstack/react-table';
+import { ReactNode } from 'react';
 
-import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
-import { DensityFeature, DensityState } from "./controls/DensityFeature";
-import { DataTableContext, DataTableLabel } from "./context/DataTableContext";
-import { UseTranslationResponse } from "react-i18next";
+import { RankingInfo, rankItem } from '@tanstack/match-sorter-utils';
+import { DensityFeature, DensityState } from './controls/DensityFeature';
+import { DataTableContext, DataTableLabel } from './context/DataTableContext';
+import { UseTranslationResponse } from 'react-i18next';
 
-declare module "@tanstack/react-table" {
+declare module '@tanstack/react-table' {
   //add fuzzy filter to the filterFns
   interface FilterFns {
     fuzzy: FilterFn<unknown>;
@@ -52,6 +52,9 @@ export interface DataTableProps<TData = unknown> {
    * Data array for the table.
    *
    * It will pass into as the data in `@tanstack/react-table`
+   * Do not toggle the data array, it will cause the table to re-render in infinite loop.
+   *
+   * @default []
    *
    */
   data: TData[];
@@ -123,21 +126,21 @@ export function DataTable<TData = unknown>({
   translate,
   children,
   tableLabel = {
-    view: "View",
-    edit: "Edit",
-    filterButtonText: "Filter",
-    filterTitle: "Filter",
-    filterReset: "Reset",
-    filterClose: "Close",
-    reloadTooltip: "Reload",
-    reloadButtonText: "Reload",
-    resetSelection: "Reset Selection",
-    resetSorting: "Reset Sorting",
-    rowCountText: "Row Count",
-    hasErrorText: "Has Error",
-    globalFilterPlaceholder: "Search",
-    trueLabel: "True",
-    falseLabel: "False",
+    view: 'View',
+    edit: 'Edit',
+    filterButtonText: 'Filter',
+    filterTitle: 'Filter',
+    filterReset: 'Reset',
+    filterClose: 'Close',
+    reloadTooltip: 'Reload',
+    reloadButtonText: 'Reload',
+    resetSelection: 'Reset Selection',
+    resetSorting: 'Reset Sorting',
+    rowCountText: 'Row Count',
+    hasErrorText: 'Has Error',
+    globalFilterPlaceholder: 'Search',
+    trueLabel: 'True',
+    falseLabel: 'False',
   },
 }: DataTableProps<TData>) {
   const table = useReactTable<TData>({
@@ -157,12 +160,12 @@ export function DataTable<TData = unknown>({
     enableRowSelection: enableRowSelection,
     enableMultiRowSelection: enableMultiRowSelection,
     enableSubRowSelection: enableSubRowSelection,
-    columnResizeMode: "onChange",
+    columnResizeMode: 'onChange',
     // global filter start
     filterFns: {
       fuzzy: fuzzyFilter,
     },
-    globalFilterFn: "fuzzy",
+    globalFilterFn: 'fuzzy',
     state: {
       pagination,
       sorting,
@@ -193,9 +196,9 @@ export function DataTable<TData = unknown>({
         table: table as Table<unknown>,
         globalFilter,
         setGlobalFilter,
-        type: "client",
+        type: 'client',
         translate,
-        columns : columns as ColumnDef<unknown, unknown>[],
+        columns: columns as ColumnDef<unknown, unknown>[],
         sorting,
         setSorting,
         columnFilters,

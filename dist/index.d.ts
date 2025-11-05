@@ -112,6 +112,9 @@ interface DataTableProps<TData = unknown> {
      * Data array for the table.
      *
      * It will pass into as the data in `@tanstack/react-table`
+     * Do not toggle the data array, it will cause the table to re-render in infinite loop.
+     *
+     * @default []
      *
      */
     data: TData[];
@@ -386,7 +389,7 @@ interface TableProps extends TableRootProps {
     canResize?: boolean;
     children: ReactNode;
 }
-declare const Table: ({ children, emptyComponent, canResize, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | react.ReactPortal | react.ReactElement<unknown, string | react.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null;
+declare const Table: ({ children, emptyComponent, canResize, showLoading, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | react.ReactPortal | react.ReactElement<unknown, string | react.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null;
 
 interface TableBodyProps {
     pinnedBgColor?: {
@@ -467,14 +470,15 @@ declare const TableHeader: ({ canResize, showSelector, isSticky, tableHeaderProp
 
 interface DefaultTableProps {
     showFooter?: boolean;
-    tableProps?: Omit<TableProps, "children">;
+    tableProps?: Omit<TableProps, 'children'>;
     tableHeaderProps?: TableHeaderProps;
     tableBodyProps?: TableBodyProps;
     tableFooterProps?: TableFooterProps;
     controlProps?: TableControlsProps;
-    variant?: "" | "greedy";
+    variant?: '' | 'greedy';
+    isLoading?: boolean;
 }
-declare const DefaultTable: ({ showFooter, tableProps, tableHeaderProps, tableBodyProps, tableFooterProps, controlProps, variant, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
+declare const DefaultTable: ({ showFooter, tableProps, tableHeaderProps, tableBodyProps, tableFooterProps, controlProps, variant, isLoading, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
 
 interface ReloadButtonProps {
     variant?: string;

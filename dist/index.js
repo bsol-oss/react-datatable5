@@ -3114,9 +3114,10 @@ const EmptyState = React__namespace.forwardRef(function EmptyState(props, ref) {
 });
 
 const EmptyResult = (jsxRuntime.jsx(EmptyState, { icon: jsxRuntime.jsx(hi.HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxRuntime.jsxs(react.List.Root, { variant: "marker", children: [jsxRuntime.jsx(react.List.Item, { children: "Try removing filters" }), jsxRuntime.jsx(react.List.Item, { children: "Try different keywords" })] }) }));
-const Table = ({ children, emptyComponent = EmptyResult, canResize = true, ...props }) => {
+const Table = ({ children, emptyComponent = EmptyResult, canResize = true, showLoading = false, ...props }) => {
     const { table } = useDataTableContext();
-    if (table.getRowModel().rows.length <= 0) {
+    // Skip empty check when loading to allow skeleton to render
+    if (!showLoading && table.getRowModel().rows.length <= 0) {
         return emptyComponent;
     }
     return (jsxRuntime.jsx(react.Table.Root, { stickyHeader: true, variant: "outline", width: canResize ? table.getCenterTotalSize() : undefined, display: "grid", alignContent: "start", overflowY: "auto", bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, ...props, children: children }));
@@ -3183,6 +3184,65 @@ const TableRowSelector = ({ row, }) => {
         bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, checked: row.getIsSelected(),
             disabled: !row.getCanSelect(),
             onCheckedChange: row.getToggleSelectedHandler() }) }));
+};
+
+const TableBodySkeleton = ({ showSelector = false, canResize = true, }) => {
+    "use no memo";
+    const { table } = useDataTableContext();
+    const SELECTION_BOX_WIDTH = 20;
+    const [hoveredRow, setHoveredRow] = React.useState(-1);
+    const handleRowHover = (index) => {
+        setHoveredRow(index);
+    };
+    const getTdProps = (column) => {
+        const tdProps = column.getIsPinned()
+            ? {
+                left: showSelector
+                    ? `${column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+                    : `${column.getStart("left")}px`,
+                position: "relative",
+            }
+            : {};
+        return tdProps;
+    };
+    const getTrProps = ({ hoveredRow, index, }) => {
+        if (hoveredRow === -1) {
+            return {};
+        }
+        if (hoveredRow === index) {
+            return {
+                opacity: "1",
+            };
+        }
+        return {
+            opacity: "0.8",
+        };
+    };
+    // Get the number of skeleton rows based on current pageSize
+    const pageSize = table.getState().pagination.pageSize;
+    const visibleColumns = table.getVisibleLeafColumns();
+    return (jsxRuntime.jsx(react.Table.Body, { children: Array.from({ length: pageSize }).map((_, rowIndex) => {
+            return (jsxRuntime.jsxs(react.Table.Row, { display: "flex", zIndex: 1, onMouseEnter: () => handleRowHover(rowIndex), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index: rowIndex }), children: [showSelector && (jsxRuntime.jsx(TableRowSelectorSkeleton, {})), visibleColumns.map((column, colIndex) => {
+                        return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, 
+                            // styling resize and pinning start
+                            flex: `${canResize ? "0" : "1"} 0 ${column.getSize()}px`, 
+                            // this is to avoid the cell from being too wide
+                            minWidth: `0`, color: {
+                                base: "colorPalette.900",
+                                _dark: "colorPalette.100",
+                            },
+                            bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, ...getTdProps(column), children: jsxRuntime.jsx(react.Skeleton, { height: "20px", width: "80%" }) }, `chakra-table-skeleton-cell-${rowIndex}-${colIndex}`));
+                    })] }, `chakra-table-skeleton-row-${rowIndex}`));
+        }) }));
+};
+const TableRowSelectorSkeleton = () => {
+    const { table } = useDataTableContext();
+    const SELECTION_BOX_WIDTH = 20;
+    return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, display: "grid", color: {
+            base: "colorPalette.900",
+            _dark: "colorPalette.100",
+        },
+        bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, justifyItems: "center", alignItems: "center", children: jsxRuntime.jsx(react.Skeleton, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }));
 };
 
 const TableFooter = ({ showSelector = false, alwaysShowSelector = true, }) => {
@@ -3346,11 +3406,12 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = "", }) => {
-    if (variant === "greedy") {
-        return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { canResize: false, ...{ ...tableProps }, children: [jsxRuntime.jsx(TableHeader, { canResize: false, ...tableHeaderProps }), jsxRuntime.jsx(TableBody, { canResize: false, ...tableBodyProps }), showFooter && (jsxRuntime.jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
+const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = '', isLoading = false, }) => {
+    const bodyComponent = isLoading ? (jsxRuntime.jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: tableBodyProps.canResize })) : (jsxRuntime.jsx(TableBody, { ...tableBodyProps }));
+    if (variant === 'greedy') {
+        return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { canResize: false, showLoading: isLoading, ...tableProps, children: [jsxRuntime.jsx(TableHeader, { canResize: false, ...tableHeaderProps }), bodyComponent, showFooter && (jsxRuntime.jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
     }
-    return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { ...tableProps, children: [jsxRuntime.jsx(TableHeader, { ...tableHeaderProps }), jsxRuntime.jsx(TableBody, { ...tableBodyProps }), showFooter && jsxRuntime.jsx(TableFooter, { ...tableFooterProps })] }) }));
+    return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { showLoading: isLoading, ...tableProps, children: [jsxRuntime.jsx(TableHeader, { ...tableHeaderProps }), bodyComponent, showFooter && jsxRuntime.jsx(TableFooter, { ...tableFooterProps })] }) }));
 };
 
 const TableCardContainer = ({ children, variant = "", gap = "1rem", gridTemplateColumns = "repeat(auto-fit, minmax(20rem, 1fr))", direction = "row", ...props }) => {
@@ -4469,7 +4530,8 @@ function filterArray(array, searchTerm) {
 
 const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLimit = false, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { translate, enumPickerLabels } = useSchemaContext();
+    const { enumPickerLabels } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
     const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
@@ -4477,7 +4539,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
     const [limit, setLimit] = React.useState(10);
     const [openSearchResult, setOpenSearchResult] = React.useState();
     const ref = React.useRef(null);
-    const colLabel = `${prefix}${column}`;
+    const colLabel = formI18n.colLabel;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
     const dataList = schema.enum ?? [];
@@ -4488,10 +4550,8 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
         setLimit(10);
     };
     if (variant === 'radio') {
-        return (jsxRuntime.jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: 'stretch', gridColumn,
-            gridRow, errorText: errors[`${colLabel}`]
-                ? translate.t(removeIndex(`${colLabel}.field_required`))
-                : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsx(react.RadioGroup.Root, { defaultValue: "1", children: jsxRuntime.jsx(react.HStack, { gap: "6", children: filterArray(dataList, searchText ?? '').map((item) => {
+        return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+            gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsx(react.RadioGroup.Root, { defaultValue: "1", children: jsxRuntime.jsx(react.HStack, { gap: "6", children: filterArray(dataList, searchText ?? '').map((item) => {
                         return (jsxRuntime.jsxs(react.RadioGroup.Item, { onClick: () => {
                                 if (!isMultiple) {
                                     setOpenSearchResult(false);
@@ -4502,13 +4562,11 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                 setValue(colLabel, [...newSet]);
                             }, value: item, children: [jsxRuntime.jsx(react.RadioGroup.ItemHiddenInput, {}), jsxRuntime.jsx(react.RadioGroup.ItemIndicator, {}), jsxRuntime.jsx(react.RadioGroup.ItemText, { children: !!renderDisplay === true
                                         ? renderDisplay(item)
-                                        : translate.t(removeIndex(`${colLabel}.${item}`)) })] }, `${colLabel}-${item}`));
+                                        : formI18n.t(item) })] }, `${colLabel}-${item}`));
                     }) }) }) }));
     }
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`]
-            ? translate.t(removeIndex(`${colLabel}.field_required`))
-            : undefined, invalid: !!errors[colLabel], children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: 'wrap', gap: 1, children: [watchEnums.map((enumValue) => {
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [isMultiple && (jsxRuntime.jsxs(react.Flex, { flexFlow: 'wrap', gap: 1, children: [watchEnums.map((enumValue) => {
                         const item = enumValue;
                         if (!!item === false) {
                             return jsxRuntime.jsx(jsxRuntime.Fragment, {});
@@ -4517,19 +4575,15 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                 setValue(column, watchEnums.filter((id) => id != item));
                             }, children: !!renderDisplay === true
                                 ? renderDisplay(item)
-                                : translate.t(removeIndex(`${colLabel}.${item}`)) }, item));
+                                : formI18n.t(item) }, item));
                     }), jsxRuntime.jsx(Tag, { size: "lg", cursor: 'pointer', onClick: () => {
                             setOpenSearchResult(true);
-                        }, children: enumPickerLabels?.addMore ??
-                            translate.t(removeIndex(`${colLabel}.add_more`)) }, `${colLabel}-add-more-tag`)] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: 'outline', onClick: () => {
+                        }, children: enumPickerLabels?.addMore ?? formI18n.t('add_more') }, `${colLabel}-add-more-tag`)] })), !isMultiple && (jsxRuntime.jsx(Button, { variant: 'outline', onClick: () => {
                     setOpenSearchResult(true);
-                }, justifyContent: 'start', children: !!watchEnum === false
-                    ? ''
-                    : translate.t(removeIndex(`${colLabel}.${watchEnum ?? 'null'}`)) })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: 'bottom-start' }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { portalled: false, children: jsxRuntime.jsxs(PopoverBody, { display: 'grid', gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: enumPickerLabels?.typeToSearch ??
-                                        translate.t(`${colLabel}.type_to_search`), onChange: (event) => {
+                }, justifyContent: 'start', children: !!watchEnum === false ? '' : formI18n.t(watchEnum ?? 'null') })), jsxRuntime.jsxs(PopoverRoot, { open: openSearchResult, onOpenChange: (e) => setOpenSearchResult(e.open), closeOnInteractOutside: true, initialFocusEl: () => ref.current, positioning: { placement: 'bottom-start' }, children: [jsxRuntime.jsx(PopoverTrigger, {}), jsxRuntime.jsx(PopoverContent, { portalled: false, children: jsxRuntime.jsxs(PopoverBody, { display: 'grid', gap: 1, children: [jsxRuntime.jsx(react.Input, { placeholder: enumPickerLabels?.typeToSearch ?? formI18n.t('type_to_search'), onChange: (event) => {
                                         onSearchChange(event);
                                         setOpenSearchResult(true);
-                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), showTotalAndLimit && (jsxRuntime.jsx(react.Text, { children: `${enumPickerLabels?.total ?? translate.t(removeIndex(`${colLabel}.total`))}: ${count}, ${enumPickerLabels?.showing ?? translate.t(removeIndex(`${colLabel}.showing`))} ${limit}` })), jsxRuntime.jsxs(react.Grid, { overflow: 'auto', maxHeight: '20rem', children: [jsxRuntime.jsx(react.Flex, { flexFlow: 'column wrap', children: dataList
+                                    }, autoComplete: "off", ref: ref }), jsxRuntime.jsx(PopoverTitle, {}), showTotalAndLimit && (jsxRuntime.jsx(react.Text, { children: `${enumPickerLabels?.total ?? formI18n.t('total')}: ${count}, ${enumPickerLabels?.showing ?? formI18n.t('showing')} ${limit}` })), jsxRuntime.jsxs(react.Grid, { overflow: 'auto', maxHeight: '20rem', children: [jsxRuntime.jsx(react.Flex, { flexFlow: 'column wrap', children: dataList
                                                 .filter((item) => {
                                                 const searchTerm = (searchText || '').toLowerCase();
                                                 if (!searchTerm)
@@ -4541,7 +4595,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                                 // Check if the display value (translation) contains the search text
                                                 const displayValue = !!renderDisplay === true
                                                     ? renderDisplay(item)
-                                                    : translate.t(removeIndex(`${colLabel}.${item}`));
+                                                    : formI18n.t(item);
                                                 // Convert to string and check if it includes the search term
                                                 const displayValueString = String(displayValue).toLowerCase();
                                                 const displayValueMatch = displayValueString.includes(searchTerm);
@@ -4561,9 +4615,9 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                                         setValue(colLabel, [...newSet]);
                                                     }, ...(selected ? { color: 'colorPalette.400/50' } : {}), children: !!renderDisplay === true
                                                         ? renderDisplay(item)
-                                                        : translate.t(removeIndex(`${colLabel}.${item}`)) }, `${colLabel}-${item}`));
+                                                        : formI18n.t(item) }, `${colLabel}-${item}`));
                                             }) }), isDirty && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: dataList.length <= 0 && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: enumPickerLabels?.emptySearchResult ??
-                                                    translate.t(removeIndex(`${colLabel}.empty_search_result`)) })) }))] })] }) })] })] }));
+                                                    formI18n.t('empty_search_result') })) }))] })] }) })] })] }));
 };
 
 function isEnteringWindow(_ref) {

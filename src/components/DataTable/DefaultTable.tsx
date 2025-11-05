@@ -1,17 +1,19 @@
-import { TableControls, TableControlsProps } from "./controls/TableControls";
-import { Table, TableProps } from "./display/Table";
-import { TableBody, TableBodyProps } from "./display/TableBody";
-import { TableFooter, TableFooterProps } from "./display/TableFooter";
-import { TableHeader, TableHeaderProps } from "./display/TableHeader";
+import { TableControls, TableControlsProps } from './controls/TableControls';
+import { Table, TableProps } from './display/Table';
+import { TableBody, TableBodyProps } from './display/TableBody';
+import { TableBodySkeleton } from './display/TableBodySkeleton';
+import { TableFooter, TableFooterProps } from './display/TableFooter';
+import { TableHeader, TableHeaderProps } from './display/TableHeader';
 
 export interface DefaultTableProps {
   showFooter?: boolean;
-  tableProps?: Omit<TableProps, "children">;
+  tableProps?: Omit<TableProps, 'children'>;
   tableHeaderProps?: TableHeaderProps;
   tableBodyProps?: TableBodyProps;
   tableFooterProps?: TableFooterProps;
   controlProps?: TableControlsProps;
-  variant?: "" | "greedy";
+  variant?: '' | 'greedy';
+  isLoading?: boolean;
 }
 
 export const DefaultTable = ({
@@ -21,14 +23,24 @@ export const DefaultTable = ({
   tableBodyProps = {},
   tableFooterProps = {},
   controlProps = {},
-  variant = "",
+  variant = '',
+  isLoading = false,
 }: DefaultTableProps) => {
-  if (variant === "greedy") {
+  const bodyComponent = isLoading ? (
+    <TableBodySkeleton
+      showSelector={tableBodyProps.showSelector}
+      canResize={tableBodyProps.canResize}
+    />
+  ) : (
+    <TableBody {...tableBodyProps} />
+  );
+
+  if (variant === 'greedy') {
     return (
       <TableControls {...controlProps}>
-        <Table {...{ canResize: false, ...{ ...tableProps } }}>
+        <Table {...{ canResize: false, showLoading: isLoading, ...tableProps }}>
           <TableHeader {...{ canResize: false, ...tableHeaderProps }} />
-          <TableBody {...{ canResize: false, ...tableBodyProps }} />
+          {bodyComponent}
           {showFooter && (
             <TableFooter {...{ canResize: false, ...tableFooterProps }} />
           )}
@@ -38,9 +50,9 @@ export const DefaultTable = ({
   }
   return (
     <TableControls {...controlProps}>
-      <Table {...tableProps}>
+      <Table {...{ showLoading: isLoading, ...tableProps }}>
         <TableHeader {...tableHeaderProps} />
-        <TableBody {...tableBodyProps} />
+        {bodyComponent}
         {showFooter && <TableFooter {...tableFooterProps} />}
       </Table>
     </TableControls>
