@@ -55,6 +55,7 @@ export const IdPicker = ({
 }: IdPickerProps) => {
   const {
     watch,
+    getValues,
     formState: { errors },
     setValue,
   } = useFormContext();
@@ -87,8 +88,24 @@ export const IdPicker = ({
   const ref = useRef<HTMLInputElement>(null);
   const colLabel = formI18n.colLabel;
 
-  const watchId = watch(colLabel);
-  const watchIds = isMultiple ? ((watch(colLabel) ?? []) as string[]) : [];
+  const watchedValue = watch(colLabel);
+  const watchId = !isMultiple ? watchedValue : undefined;
+  const watchIds = isMultiple
+    ? ((Array.isArray(watchedValue) ? watchedValue : []) as string[])
+    : [];
+
+  // Get initial values immediately to ensure query can trigger on mount
+  const initialValue = getValues(colLabel);
+  const initialId = !isMultiple ? initialValue : undefined;
+  const initialIds = isMultiple
+    ? ((Array.isArray(initialValue) ? initialValue : []) as string[])
+    : [];
+
+  // Use watched values if available, otherwise fall back to initial values
+  // This ensures the query can trigger on mount with initial values
+  const currentId = watchId !== undefined ? watchId : initialId;
+  const currentIds =
+    watchedValue !== undefined && isMultiple ? watchIds : initialIds;
 
   // Query for search results
   const query = useQuery({
@@ -134,16 +151,25 @@ export const IdPicker = ({
   });
 
   // Query for currently selected items (to display them properly)
+  // Use currentId/currentIds in queryKey so it includes initial values and updates when watched values change
   const queryDefault = useQuery({
     queryKey: [
       `idpicker-default`,
-      { form: parentSchema.title, column, id: isMultiple ? watchIds : watchId },
+      {
+        form: parentSchema.title,
+        column,
+        id: isMultiple ? currentIds : currentId,
+      },
     ],
     queryFn: async () => {
+      // Use current values (which include initial) for the query
+      const queryId = currentId;
+      const queryIds = currentIds;
+
       if (customQueryFn) {
         const { data, idMap } = await customQueryFn({
-          searching: watchIds.join(','),
-          limit: isMultiple ? watchIds.length : 1,
+          searching: queryIds.join(','),
+          limit: isMultiple ? queryIds.length : 1,
           offset: 0,
         });
 
@@ -154,18 +180,18 @@ export const IdPicker = ({
         return data;
       }
 
-      if (!watchId && (!watchIds || watchIds.length === 0)) {
+      if (!queryId && (!queryIds || queryIds.length === 0)) {
         return { data: [] };
       }
 
-      const searchValue = isMultiple ? watchIds.join(',') : watchId;
+      const searchValue = isMultiple ? queryIds.join(',') : queryId;
 
       const data = await getTableData({
         serverUrl,
         searching: searchValue,
         in_table: table,
-        where: [{ id: column_ref, value: isMultiple ? watchIds : watchId }],
-        limit: isMultiple ? watchIds.length : 1,
+        where: [{ id: column_ref, value: isMultiple ? queryIds : queryId }],
+        limit: isMultiple ? queryIds.length : 1,
         offset: 0,
       });
 
@@ -187,17 +213,9 @@ export const IdPicker = ({
       return data;
     },
     enabled: isMultiple
-      ? Array.isArray(watchIds) && watchIds.length > 0
-      : !!watchId,
+      ? Array.isArray(currentIds) && currentIds.length > 0
+      : !!currentId,
   });
-
-  // Effect to load selected values when component mounts
-  useEffect(() => {
-    if (isMultiple ? watchIds.length > 0 : !!watchId) {
-      queryDefault.refetch();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Effect to trigger initial data fetch when popover opens
   useEffect(() => {
