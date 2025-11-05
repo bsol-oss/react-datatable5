@@ -1,14 +1,21 @@
-import { Table as ChakraTable, List, TableRootProps } from '@chakra-ui/react';
-import { ReactNode } from 'react';
+import {
+  Box,
+  Table as ChakraTable,
+  List,
+  TableRootProps,
+} from '@chakra-ui/react';
+import { ReactNode, useRef } from 'react';
 import { HiColorSwatch } from 'react-icons/hi';
 import { EmptyState } from '../../ui/empty-state';
 import { useDataTableContext } from '../context/useDataTableContext';
+import { useResponsiveColumnVisibility } from '../hooks/useResponsiveColumnVisibility';
 
 export interface TableProps extends TableRootProps {
   showLoading?: boolean;
   loadingComponent?: ReactNode;
   emptyComponent?: ReactNode;
   canResize?: boolean;
+  showSelector?: boolean;
   children: ReactNode;
 }
 
@@ -30,9 +37,18 @@ export const Table = ({
   emptyComponent = EmptyResult,
   canResize = true,
   showLoading = false,
+  showSelector = false,
   ...props
 }: TableProps) => {
   const { table } = useDataTableContext();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Enable responsive column hiding when canResize is false
+  useResponsiveColumnVisibility({
+    containerRef,
+    enabled: !canResize,
+    showSelector,
+  });
 
   // Skip empty check when loading to allow skeleton to render
   if (!showLoading && table.getRowModel().rows.length <= 0) {
@@ -40,17 +56,19 @@ export const Table = ({
   }
 
   return (
-    <ChakraTable.Root
-      stickyHeader
-      variant={'outline'}
-      width={canResize ? table.getCenterTotalSize() : undefined}
-      display={'grid'}
-      alignContent={'start'}
-      overflowY={'auto'}
-      {...{ bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' } }}
-      {...props}
-    >
-      {children}
-    </ChakraTable.Root>
+    <Box ref={containerRef} width="100%" overflow="auto">
+      <ChakraTable.Root
+        stickyHeader
+        variant={'outline'}
+        width={canResize ? table.getCenterTotalSize() : undefined}
+        display={'grid'}
+        alignContent={'start'}
+        overflowY={'auto'}
+        {...{ bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' } }}
+        {...props}
+      >
+        {children}
+      </ChakraTable.Root>
+    </Box>
   );
 };

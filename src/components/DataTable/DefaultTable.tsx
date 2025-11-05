@@ -40,7 +40,17 @@ export const DefaultTable = ({
     );
     return (
       <TableControls {...controlProps}>
-        <Table {...{ canResize: false, showLoading: isLoading, ...tableProps }}>
+        <Table
+          {...{
+            canResize: false,
+            showLoading: isLoading,
+            showSelector:
+              tableHeaderProps.showSelector ??
+              tableBodyProps.showSelector ??
+              false,
+            ...tableProps,
+          }}
+        >
           <TableHeader {...{ canResize: false, ...tableHeaderProps }} />
           {bodyComponent}
           {showFooter && (
@@ -61,7 +71,16 @@ export const DefaultTable = ({
   );
   return (
     <TableControls {...controlProps}>
-      <Table {...{ showLoading: isLoading, ...tableProps }}>
+      <Table
+        {...{
+          showLoading: isLoading,
+          showSelector:
+            tableHeaderProps.showSelector ??
+            tableBodyProps.showSelector ??
+            false,
+          ...tableProps,
+        }}
+      >
         <TableHeader {...tableHeaderProps} />
         {bodyComponent}
         {showFooter && <TableFooter {...tableFooterProps} />}
