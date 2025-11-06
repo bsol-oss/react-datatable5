@@ -6135,6 +6135,9 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         if (variant === 'text-area') {
             return jsxRuntime.jsx(TextAreaInput, { schema: colSchema, prefix, column });
         }
+        if (variant === 'media-library-browser') {
+            return (jsxRuntime.jsx(FormMediaLibraryBrowser, { schema: colSchema, prefix, column }));
+        }
         return jsxRuntime.jsx(StringInputField, { schema: colSchema, prefix, column });
     }
     if (type === 'number' || type === 'integer') {
