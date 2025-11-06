@@ -63,6 +63,11 @@ export const SchemaRenderer = ({
     if (variant === 'text-area') {
       return <TextAreaInput schema={colSchema} {...{ prefix, column }} />;
     }
+    if (variant === 'media-library-browser') {
+      return (
+        <FormMediaLibraryBrowser schema={colSchema} {...{ prefix, column }} />
+      );
+    }
     return <StringInputField schema={colSchema} {...{ prefix, column }} />;
   }
   if (type === 'number' || type === 'integer') {
