@@ -1,6 +1,6 @@
-import { Grid, Text, Button, Input, Flex, Box } from "@chakra-ui/react";
-import { useRef, KeyboardEvent, Dispatch, SetStateAction, useState, useEffect } from "react";
-import { MdCancel } from "react-icons/md";
+import { Box, Button, Flex, Grid, Input, Text } from '@chakra-ui/react';
+import { KeyboardEvent, useEffect, useState } from 'react';
+import { MdCancel } from 'react-icons/md';
 
 interface DurationValue {
   years: number | null;
@@ -33,17 +33,34 @@ export function DurationPicker({
   showSeconds = true,
 }: DurationPickerProps) {
   // Parse initial value
-  const parseDuration = (durationStr: string | null | undefined): DurationValue => {
+  const parseDuration = (
+    durationStr: string | null | undefined
+  ): DurationValue => {
     if (!durationStr) {
-      return { years: null, months: null, days: null, hours: null, minutes: null, seconds: null };
+      return {
+        years: null,
+        months: null,
+        days: null,
+        hours: null,
+        minutes: null,
+        seconds: null,
+      };
     }
 
     // Match ISO 8601 duration format: P[n]Y[n]M[n]DT[n]H[n]M[n]S
-    const regex = /^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/;
+    const regex =
+      /^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/;
     const match = durationStr.match(regex);
-    
+
     if (!match) {
-      return { years: null, months: null, days: null, hours: null, minutes: null, seconds: null };
+      return {
+        years: null,
+        months: null,
+        days: null,
+        hours: null,
+        minutes: null,
+        seconds: null,
+      };
     }
 
     return {
@@ -66,36 +83,39 @@ export function DurationPicker({
   // Convert duration object to ISO 8601 string
   const toDurationString = (dur: DurationValue): string | null => {
     const { years, months, days, hours, minutes, seconds } = dur;
-    
+
     // Check if all values are null
     if (!years && !months && !days && !hours && !minutes && !seconds) {
       return null;
     }
 
-    let result = "P";
-    
+    let result = 'P';
+
     // Date part
     if (years) result += `${years}Y`;
     if (months) result += `${months}M`;
     if (days) result += `${days}D`;
-    
+
     // Time part
     const hasTimePart = hours || minutes || seconds;
     if (hasTimePart) {
-      result += "T";
+      result += 'T';
       if (hours) result += `${hours}H`;
       if (minutes) result += `${minutes}M`;
       if (seconds) result += `${seconds}S`;
     }
 
-    return result === "P" ? null : result;
+    return result === 'P' ? null : result;
   };
 
   // Handle value changes
-  const handleValueChange = (field: keyof DurationValue, newValue: number | null) => {
+  const handleValueChange = (
+    field: keyof DurationValue,
+    newValue: number | null
+  ) => {
     const newDuration = { ...duration, [field]: newValue };
     setDuration(newDuration);
-    
+
     const durationString = toDurationString(newDuration);
     onChange?.(durationString);
   };
@@ -105,35 +125,44 @@ export function DurationPicker({
     e: KeyboardEvent<HTMLInputElement>,
     field: keyof DurationValue
   ) => {
-    if (e.key === "Backspace" && (e.target as HTMLInputElement).value === "") {
+    if (e.key === 'Backspace' && (e.target as HTMLInputElement).value === '') {
       handleValueChange(field, null);
     }
   };
 
   const handleClear = () => {
-    const emptyDuration = { years: null, months: null, days: null, hours: null, minutes: null, seconds: null };
+    const emptyDuration = {
+      years: null,
+      months: null,
+      days: null,
+      hours: null,
+      minutes: null,
+      seconds: null,
+    };
     setDuration(emptyDuration);
     onChange?.(null);
   };
 
-  const DurationInput = ({ 
-    field, 
-    label, 
-    show 
-  }: { 
-    field: keyof DurationValue; 
-    label: string; 
+  const DurationInput = ({
+    field,
+    label,
+    show,
+  }: {
+    field: keyof DurationValue;
+    label: string;
     show: boolean;
   }) => {
     if (!show) return null;
-    
+
     return (
       <Box>
-        <Text fontSize="xs" color="gray.600" mb={1}>{label}</Text>
+        <Text fontSize="xs" color="gray.600" mb={1}>
+          {label}
+        </Text>
         <Input
           type="number"
           min="0"
-          value={duration[field] || ""}
+          value={duration[field] || ''}
           onChange={(e) => {
             const val = parseInt(e.target.value, 10);
             handleValueChange(field, isNaN(val) ? null : val);
@@ -149,7 +178,14 @@ export function DurationPicker({
   };
 
   return (
-    <Flex direction="column" gap={3} p={4} border="1px solid" borderColor="gray.200" borderRadius="md">
+    <Flex
+      direction="column"
+      gap={3}
+      p={4}
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="md"
+    >
       <Flex justify="space-between" align="center">
         <Text fontWeight="bold">Duration Picker</Text>
         <Button onClick={handleClear} size="sm" variant="ghost">
@@ -173,4 +209,4 @@ export function DurationPicker({
       )}
     </Flex>
   );
-} 
+}
