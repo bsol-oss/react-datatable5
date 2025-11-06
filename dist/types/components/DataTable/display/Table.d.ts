@@ -5,6 +5,7 @@ export interface TableProps extends TableRootProps {
     loadingComponent?: ReactNode;
     emptyComponent?: ReactNode;
     canResize?: boolean;
+    showSelector?: boolean;
     children: ReactNode;
 }
-export declare const Table: ({ children, emptyComponent, canResize, showLoading, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | import("react").ReactPortal | import("react").ReactElement<unknown, string | import("react").JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | import("react/jsx-runtime").JSX.Element | null;
+export declare const Table: ({ children, emptyComponent, canResize, showLoading, showSelector, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | import("react").ReactPortal | import("react").ReactElement<unknown, string | import("react").JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | import("react/jsx-runtime").JSX.Element | null;

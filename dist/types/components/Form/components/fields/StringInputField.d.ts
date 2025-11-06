@@ -15,6 +15,10 @@ export interface CustomQueryFnParams {
     searching: string;
     limit: number;
     offset: number;
+    where?: Array<{
+        id: string;
+        value: string | string[];
+    }>;
 }
 export type CustomQueryFn = (params: CustomQueryFnParams) => Promise<CustomQueryFnResponse>;
 export interface ForeignKeyProps {

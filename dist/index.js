@@ -18,13 +18,12 @@ var _defineProperty = require('@babel/runtime/helpers/defineProperty');
 var _toConsumableArray = require('@babel/runtime/helpers/toConsumableArray');
 var rafSchd = require('raf-schd');
 var invariant = require('tiny-invariant');
-var hi = require('react-icons/hi');
-var reactTable = require('@tanstack/react-table');
-var matchSorterUtils = require('@tanstack/match-sorter-utils');
-var bs = require('react-icons/bs');
-var usehooks = require('@uidotdev/usehooks');
 var reactQuery = require('@tanstack/react-query');
 var io5 = require('react-icons/io5');
+var usehooks = require('@uidotdev/usehooks');
+var bs = require('react-icons/bs');
+var hi = require('react-icons/hi');
+var reactTable = require('@tanstack/react-table');
 var gr = require('react-icons/gr');
 var reactI18next = require('react-i18next');
 var axios = require('axios');
@@ -35,6 +34,7 @@ var dayjs = require('dayjs');
 var utc = require('dayjs/plugin/utc');
 var timezone = require('dayjs/plugin/timezone');
 var ti = require('react-icons/ti');
+var matchSorterUtils = require('@tanstack/match-sorter-utils');
 
 function _interopNamespaceDefault(e) {
     var n = Object.create(null);
@@ -2622,13 +2622,12 @@ const ViewDialog = ({ icon = jsxRuntime.jsx(io.IoMdEye, {}) }) => {
     return (jsxRuntime.jsxs(DialogRoot, { children: [jsxRuntime.jsx(react.DialogBackdrop, {}), jsxRuntime.jsx(DialogTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { as: react.Box, variant: "ghost", onClick: viewModel.onOpen, children: [icon, " ", view] }) }), jsxRuntime.jsxs(DialogContent, { children: [jsxRuntime.jsx(DialogCloseTrigger, {}), jsxRuntime.jsx(DialogHeader, { children: jsxRuntime.jsx(DialogTitle, { children: view }) }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsx(TableViewer, {}) }), jsxRuntime.jsx(DialogFooter, {})] })] }));
 };
 
-const CardHeader = ({ row, imageColumnId = undefined, titleColumnId = undefined, tagColumnId = undefined, tagIcon = undefined, showTag = true, imageProps = {}, }) => {
-    if (!!row.original === false) {
-        return jsxRuntime.jsx(jsxRuntime.Fragment, {});
-    }
-    const isShowFirstColumn = !!titleColumnId || showTag;
-    return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto auto", gap: "1rem", children: [!!imageColumnId && (jsxRuntime.jsx(react.Image, { width: "100%", src: row.original[imageColumnId], ...imageProps })), isShowFirstColumn && (jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: [!!titleColumnId && (jsxRuntime.jsx(react.Text, { fontWeight: "bold", fontSize: "large", children: row.original[titleColumnId] })), showTag && (jsxRuntime.jsx(Tag, { fontSize: "large", startElement: tagIcon && tagIcon({}), children: row.original[tagColumnId] }))] }))] }));
-};
+const Tooltip = React__namespace.forwardRef(function Tooltip(props, ref) {
+    const { showArrow, children, disabled, portalled, content, contentProps, portalRef, ...rest } = props;
+    if (disabled)
+        return children;
+    return (jsxRuntime.jsxs(react.Tooltip.Root, { ...rest, children: [jsxRuntime.jsx(react.Tooltip.Trigger, { asChild: true, children: children }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, container: portalRef, children: jsxRuntime.jsx(react.Tooltip.Positioner, { children: jsxRuntime.jsxs(react.Tooltip.Content, { ref: ref, ...contentProps, children: [showArrow && (jsxRuntime.jsx(react.Tooltip.Arrow, { children: jsxRuntime.jsx(react.Tooltip.ArrowTip, {}) })), content] }) }) })] }));
+});
 
 const DataTableServerContext = React.createContext({
     url: "",
@@ -2641,396 +2640,20 @@ const useDataTableServerContext = () => {
     return { ...context, isEmpty };
 };
 
-const EmptyState$1 = ({ title = "No records", description = "Add a new events to get started or refine your search", }) => {
-    const { isEmpty } = useDataTableServerContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isEmpty && (jsxRuntime.jsx(react.EmptyState.Root, { children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [jsxRuntime.jsx(react.EmptyState.Indicator, { children: jsxRuntime.jsx(hi.HiColorSwatch, {}) }), jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })] }) })) }));
-};
-
-const ErrorAlert = ({ showMessage = true }) => {
-    const { query } = useDataTableServerContext();
-    const { isError, error } = query;
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isError && (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsxs(react.Alert.Content, { children: [jsxRuntime.jsx(react.Alert.Title, { children: error.name }), showMessage && (jsxRuntime.jsx(react.Alert.Description, { children: error.message }))] })] })) }));
-};
-
-const snakeToLabel = (str) => {
-    return str
-        .split("_") // Split by underscore
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
-        .join(" "); // Join with space
-};
-
-const RecordDisplay = ({ object, boxProps, translate, prefix = "", }) => {
-    const getColumn = ({ field }) => {
-        if (translate !== undefined) {
-            return translate.t(`${prefix}${field}`);
-        }
-        return snakeToLabel(field);
-    };
-    if (object === null) {
-        return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "null" });
+const ReloadButton = ({ variant = "icon", }) => {
+    const { url } = useDataTableServerContext();
+    const queryClient = reactQuery.useQueryClient();
+    const { tableLabel } = useDataTableContext();
+    const { reloadTooltip, reloadButtonText } = tableLabel;
+    if (variant === "icon") {
+        return (jsxRuntime.jsx(Tooltip, { showArrow: true, content: reloadTooltip, children: jsxRuntime.jsx(Button, { variant: "ghost", onClick: () => {
+                    queryClient.invalidateQueries({ queryKey: [url] });
+                }, "aria-label": "refresh", children: jsxRuntime.jsx(io5.IoReload, {}) }) }));
     }
-    return (jsxRuntime.jsx(react.Grid, { rowGap: 1, padding: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
-            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsxRuntime.jsx(react.Text, { color: "colorPalette.400", children: getColumn({ field }) }), typeof value === "object" ? (jsxRuntime.jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.`, translate: translate })) : (jsxRuntime.jsx(react.Text, { children: JSON.stringify(value) }))] }, field));
-        }) }));
+    return (jsxRuntime.jsxs(Button, { variant: "ghost", onClick: () => {
+            queryClient.invalidateQueries({ queryKey: [url] });
+        }, children: [jsxRuntime.jsx(io5.IoReload, {}), " ", reloadButtonText] }));
 };
-
-const CellRenderer = ({ cell }) => {
-    const { translate } = useDataTableContext();
-    const getLabel = ({ columnId }) => {
-        if (translate !== undefined) {
-            return translate.t(`${columnId}`);
-        }
-        return snakeToLabel(columnId);
-    };
-    const formatValue = (value) => {
-        if (typeof value === "object") {
-            return JSON.stringify(value);
-        }
-        if (typeof value === "string") {
-            return value;
-        }
-        if (typeof value === "number" || typeof value === "boolean") {
-            return `${value}`;
-        }
-        if (value === undefined) {
-            if (translate !== undefined) {
-                return translate.t(`undefined`);
-            }
-            return `undefined`;
-        }
-        throw new Error(`value is unknown, ${typeof value}`);
-    };
-    const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
-    const gridColumn = cell.column.columnDef.meta?.gridColumn ?? [
-        "span 12",
-        "span 6",
-        "span 3",
-    ];
-    const gridRow = cell.column.columnDef.meta?.gridRow ?? {};
-    if (showCustomDataDisplay) {
-        return (jsxRuntime.jsx(react.Flex, { gridColumn, gridRow, children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
-    }
-    const value = cell.getValue();
-    if (typeof value === "object") {
-        return (jsxRuntime.jsxs(react.Box, { gridColumn, gridRow, children: [jsxRuntime.jsx(react.Box, { children: getLabel({ columnId: cell.column.id }) }), jsxRuntime.jsx(RecordDisplay, { boxProps: {
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        borderColor: "gray.400",
-                        paddingX: 4,
-                        paddingY: 2,
-                    }, object: value })] }, cell.id));
-    }
-    return (jsxRuntime.jsxs(react.Box, { gridColumn, gridRow, children: [jsxRuntime.jsx(react.Box, { color: "colorPalette.400", children: getLabel({ columnId: cell.column.id }) }), jsxRuntime.jsx(react.Box, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
-};
-const DataDisplay = ({ variant = "" }) => {
-    const { table, translate } = useDataTableContext();
-    return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
-            const rowId = row.id;
-            return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { display: "grid", gap: 4, padding: 4, gridTemplateColumns: "repeat(12, 1fr)", children: table.getAllColumns().map((column) => {
-                        const childCell = row.getAllCells().find((cell) => {
-                            return cell.id === `${rowId}_${column.id}`;
-                        });
-                        if (column.columns.length > 0) {
-                            return (jsxRuntime.jsxs(react.Card.Root, { margin: "1", gridColumn: "span 12", children: [jsxRuntime.jsx(react.Card.Header, { color: "gray.400", children: translate.t(column.id) }), jsxRuntime.jsx(react.Card.Body, { display: "grid", gap: "4", gridTemplateColumns: "repeat(12, 1fr)", children: column.columns.map((column) => {
-                                            if (!column.getIsVisible()) {
-                                                return jsxRuntime.jsx(jsxRuntime.Fragment, {});
-                                            }
-                                            const foundCell = row
-                                                .getVisibleCells()
-                                                .find((cell) => {
-                                                return cell.id === `${rowId}_${column.id}`;
-                                            });
-                                            return jsxRuntime.jsx(CellRenderer, { cell: foundCell });
-                                        }) })] }, `chakra-table-card-${childCell?.id}`));
-                        }
-                        return jsxRuntime.jsx(CellRenderer, { cell: childCell });
-                    }) }) }, `chakra-table-card-${rowId}`));
-        }) }));
-};
-
-// Reference: https://tanstack.com/table/latest/docs/framework/react/examples/custom-features
-// TypeScript setup for our new feature with all of the same type-safety as stock TanStack Table features
-// end of TS setup!
-// Here is all of the actual javascript code for our new feature
-const DensityFeature = {
-    // define the new feature's initial state
-    getInitialState: (state) => {
-        return {
-            density: "sm",
-            ...state,
-        };
-    },
-    // define the new feature's default options
-    getDefaultOptions: (table) => {
-        return {
-            enableDensity: true,
-            onDensityChange: reactTable.makeStateUpdater("density", table),
-        };
-    },
-    // if you need to add a default column definition...
-    // getDefaultColumnDef: <TData extends RowData>(): Partial<ColumnDef<TData>> => {
-    //   return { meta: {} } //use meta instead of directly adding to the columnDef to avoid typescript stuff that's hard to workaround
-    // },
-    // define the new feature's table instance methods
-    createTable: (table) => {
-        table.setDensity = (updater) => {
-            const safeUpdater = (old) => {
-                let newState = reactTable.functionalUpdate(updater, old);
-                return newState;
-            };
-            return table.options.onDensityChange?.(safeUpdater);
-        };
-        table.toggleDensity = (value) => {
-            table.setDensity((old) => {
-                if (value)
-                    return value;
-                if (old === "sm") {
-                    return "md";
-                }
-                if (old === "md") {
-                    return "lg";
-                }
-                return "sm";
-            });
-        };
-        table.getDensityValue = (value) => {
-            let density;
-            if (value) {
-                density = value;
-            }
-            else {
-                density = table.getState().density;
-            }
-            if (density === "sm") {
-                return 8;
-            }
-            if (density === "md") {
-                return 16;
-            }
-            return 32;
-        };
-    },
-    // if you need to add row instance APIs...
-    // createRow: <TData extends RowData>(row, table): void => {},
-    // if you need to add cell instance APIs...
-    // createCell: <TData extends RowData>(cell, column, row, table): void => {},
-    // if you need to add column instance APIs...
-    // createColumn: <TData extends RowData>(column, table): void => {},
-    // if you need to add header instance APIs...
-    // createHeader: <TData extends RowData>(header, table): void => {},
-};
-//end of custom feature code
-
-// Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
-const fuzzyFilter = (row, columnId, value, addMeta) => {
-    // Rank the item
-    const itemRank = matchSorterUtils.rankItem(row.getValue(columnId), value);
-    // Store the itemRank info
-    addMeta({
-        itemRank,
-    });
-    // Return if the item should be filtered in/out
-    return itemRank.passed;
-};
-/**
- * DataTable will create a context to hold all values to
- * help the render of the DataTable in serverside
- *
- *
- * The query is required to be a GET request that can receive
- * specified params and return a specified response
- *
- * @link https://tanstack.com/table/latest/docs/guide/column-defs
- */
-function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, tableLabel = {
-    view: 'View',
-    edit: 'Edit',
-    filterButtonText: 'Filter',
-    filterTitle: 'Filter',
-    filterReset: 'Reset',
-    filterClose: 'Close',
-    reloadTooltip: 'Reload',
-    reloadButtonText: 'Reload',
-    resetSelection: 'Reset Selection',
-    resetSorting: 'Reset Sorting',
-    rowCountText: 'Row Count',
-    hasErrorText: 'Has Error',
-    globalFilterPlaceholder: 'Search',
-    trueLabel: 'True',
-    falseLabel: 'False',
-}, }) {
-    const table = reactTable.useReactTable({
-        _features: [DensityFeature],
-        data: data,
-        rowCount: data.length,
-        columns: columns,
-        getCoreRowModel: reactTable.getCoreRowModel(),
-        getFilteredRowModel: reactTable.getFilteredRowModel(),
-        getSortedRowModel: reactTable.getSortedRowModel(),
-        getPaginationRowModel: reactTable.getPaginationRowModel(),
-        defaultColumn: {
-            size: 150, //starting column size
-            minSize: 10, //enforced during column resizing
-            maxSize: 10000, //enforced during column resizing
-        },
-        enableRowSelection: enableRowSelection,
-        enableMultiRowSelection: enableMultiRowSelection,
-        enableSubRowSelection: enableSubRowSelection,
-        columnResizeMode: 'onChange',
-        // global filter start
-        filterFns: {
-            fuzzy: fuzzyFilter,
-        },
-        globalFilterFn: 'fuzzy',
-        state: {
-            pagination,
-            sorting,
-            columnFilters,
-            rowSelection,
-            columnOrder,
-            globalFilter,
-            density,
-            columnVisibility,
-        },
-        onPaginationChange: setPagination,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        onRowSelectionChange: setRowSelection,
-        onColumnOrderChange: (state) => {
-            setColumnOrder(state);
-        },
-        onGlobalFilterChange: (state) => {
-            setGlobalFilter(state);
-        },
-        onDensityChange: setDensity,
-        onColumnVisibilityChange: setColumnVisibility,
-    });
-    return (jsxRuntime.jsx(DataTableContext.Provider, { value: {
-            table: table,
-            globalFilter,
-            setGlobalFilter,
-            type: 'client',
-            translate,
-            columns: columns,
-            sorting,
-            setSorting,
-            columnFilters,
-            setColumnFilters,
-            pagination,
-            setPagination,
-            rowSelection,
-            setRowSelection,
-            columnOrder,
-            setColumnOrder,
-            density,
-            setDensity,
-            columnVisibility,
-            setColumnVisibility,
-            data,
-            tableLabel,
-        }, children: children }));
-}
-
-/**
- * DataTableServer will create a context to hold all values to
- * help the render of the DataTable in serverside
- *
- * The query is required to be a GET request that can receive
- * specified params and return a specified response
- *
- * The `useDataTableServer` can help to create the specified request and response
- *
- * @link https://tanstack.com/table/latest/docs/guide/column-defs
- */
-function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel = {
-    view: "View",
-    edit: "Edit",
-    filterButtonText: "Filter",
-    filterTitle: "Filter",
-    filterReset: "Reset",
-    filterClose: "Close",
-    reloadTooltip: "Reload",
-    reloadButtonText: "Reload",
-    resetSelection: "Reset Selection",
-    resetSorting: "Reset Sorting",
-    rowCountText: "Row Count",
-    hasErrorText: "Has Error",
-    globalFilterPlaceholder: "Search",
-    trueLabel: "True",
-    falseLabel: "False",
-}, }) {
-    const table = reactTable.useReactTable({
-        _features: [DensityFeature],
-        data: (query.data?.data ?? []),
-        rowCount: query.data?.count ?? 0,
-        columns: columns,
-        getCoreRowModel: reactTable.getCoreRowModel(),
-        manualPagination: true,
-        manualSorting: true,
-        columnResizeMode: "onChange",
-        defaultColumn: {
-            size: 150, //starting column size
-            minSize: 10, //enforced during column resizing
-            maxSize: 10000, //enforced during column resizing
-        },
-        enableRowSelection: enableRowSelection,
-        enableMultiRowSelection: enableMultiRowSelection,
-        enableSubRowSelection: enableSubRowSelection,
-        state: {
-            pagination,
-            sorting,
-            columnFilters,
-            rowSelection,
-            columnOrder,
-            globalFilter,
-            density,
-            columnVisibility,
-        },
-        onPaginationChange: setPagination,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        onRowSelectionChange: setRowSelection,
-        onColumnOrderChange: (state) => {
-            setColumnOrder(state);
-        },
-        onGlobalFilterChange: (state) => {
-            setGlobalFilter(state);
-        },
-        onDensityChange: setDensity,
-        onColumnVisibilityChange: setColumnVisibility,
-        // for tanstack-table ts bug start
-        filterFns: {
-            fuzzy: () => {
-                return false;
-            },
-        },
-        // for tanstack-table ts bug end
-    });
-    return (jsxRuntime.jsx(DataTableContext.Provider, { value: {
-            table: table,
-            globalFilter,
-            setGlobalFilter,
-            type: "server",
-            translate,
-            columns: columns,
-            sorting,
-            setSorting,
-            columnFilters,
-            setColumnFilters,
-            pagination,
-            setPagination,
-            rowSelection,
-            setRowSelection,
-            columnOrder,
-            setColumnOrder,
-            density,
-            setDensity,
-            columnVisibility,
-            setColumnVisibility,
-            data: query.data?.data ?? [],
-            tableLabel,
-        }, children: jsxRuntime.jsx(DataTableServerContext.Provider, { value: { url, query }, children: children }) }));
-}
 
 const InputGroup = React__namespace.forwardRef(function InputGroup(props, ref) {
     const { startElement, startElementProps, endElement, endElementProps, children, startOffset = "6px", endOffset = "6px", ...rest } = props;
@@ -3060,26 +2683,20 @@ const GlobalFilter = () => {
                 } }) }) }));
 };
 
-const Tooltip = React__namespace.forwardRef(function Tooltip(props, ref) {
-    const { showArrow, children, disabled, portalled, content, contentProps, portalRef, ...rest } = props;
-    if (disabled)
-        return children;
-    return (jsxRuntime.jsxs(react.Tooltip.Root, { ...rest, children: [jsxRuntime.jsx(react.Tooltip.Trigger, { asChild: true, children: children }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, container: portalRef, children: jsxRuntime.jsx(react.Tooltip.Positioner, { children: jsxRuntime.jsxs(react.Tooltip.Content, { ref: ref, ...contentProps, children: [showArrow && (jsxRuntime.jsx(react.Tooltip.Arrow, { children: jsxRuntime.jsx(react.Tooltip.ArrowTip, {}) })), content] }) }) })] }));
-});
+const SelectAllRowsToggle = ({ selectAllIcon = jsxRuntime.jsx(md.MdOutlineChecklist, {}), clearAllIcon = jsxRuntime.jsx(md.MdClear, {}), selectAllText = "", clearAllText = "", }) => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!selectAllText === false && (jsxRuntime.jsx(react.IconButton, { variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
+                    table.getToggleAllRowsSelectedHandler()(event);
+                }, children: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon })), !!selectAllText !== false && (jsxRuntime.jsxs(react.Button, { variant: "ghost", onClick: (event) => {
+                    table.getToggleAllRowsSelectedHandler()(event);
+                }, children: [table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, table.getIsAllRowsSelected() ? clearAllText : selectAllText] }))] }));
+};
 
-const ReloadButton = ({ variant = "icon", }) => {
-    const { url } = useDataTableServerContext();
-    const queryClient = reactQuery.useQueryClient();
-    const { tableLabel } = useDataTableContext();
-    const { reloadTooltip, reloadButtonText } = tableLabel;
-    if (variant === "icon") {
-        return (jsxRuntime.jsx(Tooltip, { showArrow: true, content: reloadTooltip, children: jsxRuntime.jsx(Button, { variant: "ghost", onClick: () => {
-                    queryClient.invalidateQueries({ queryKey: [url] });
-                }, "aria-label": "refresh", children: jsxRuntime.jsx(io5.IoReload, {}) }) }));
-    }
-    return (jsxRuntime.jsxs(Button, { variant: "ghost", onClick: () => {
-            queryClient.invalidateQueries({ queryKey: [url] });
-        }, children: [jsxRuntime.jsx(io5.IoReload, {}), " ", reloadButtonText] }));
+const TableSelector = () => {
+    const { table } = useDataTableContext();
+    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [table.getSelectedRowModel().rows.length > 0 && (jsxRuntime.jsxs(react.Button, { onClick: () => { }, variant: "ghost", display: "flex", gap: "0.25rem", children: [jsxRuntime.jsx(react.Box, { fontSize: "sm", children: `${table.getSelectedRowModel().rows.length}` }), jsxRuntime.jsx(io.IoMdCheckbox, {})] })), !table.getIsAllPageRowsSelected() && jsxRuntime.jsx(SelectAllRowsToggle, {}), table.getSelectedRowModel().rows.length > 0 && (jsxRuntime.jsx(react.IconButton, { variant: "ghost", onClick: () => {
+                    table.resetRowSelection();
+                }, "aria-label": "reset selection", children: jsxRuntime.jsx(md.MdClear, {}) }))] }));
 };
 
 const TableFilterTags = () => {
@@ -3108,19 +2725,166 @@ const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children
                         }) })), showFilterTags && (jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(TableFilterTags, {}) }))] }), jsxRuntime.jsx(react.Grid, { overflow: "auto", bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsxs(react.Flex, { gap: "1rem", alignItems: "center", children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && (jsxRuntime.jsxs(react.Flex, { children: [jsxRuntime.jsx(react.Text, { paddingRight: "0.5rem", children: rowCountText }), jsxRuntime.jsx(RowCountText, {})] }))] }), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: showPagination && jsxRuntime.jsx(Pagination, {}) })] }))] }));
 };
 
-const EmptyState = React__namespace.forwardRef(function EmptyState(props, ref) {
+const EmptyState$1 = React__namespace.forwardRef(function EmptyState(props, ref) {
     const { title, description, icon, children, ...rest } = props;
     return (jsxRuntime.jsx(react.EmptyState.Root, { ref: ref, ...rest, children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [icon && (jsxRuntime.jsx(react.EmptyState.Indicator, { children: icon })), description ? (jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })) : (jsxRuntime.jsx(react.EmptyState.Title, { children: title })), children] }) }));
 });
 
-const EmptyResult = (jsxRuntime.jsx(EmptyState, { icon: jsxRuntime.jsx(hi.HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxRuntime.jsxs(react.List.Root, { variant: "marker", children: [jsxRuntime.jsx(react.List.Item, { children: "Try removing filters" }), jsxRuntime.jsx(react.List.Item, { children: "Try different keywords" })] }) }));
-const Table = ({ children, emptyComponent = EmptyResult, canResize = true, showLoading = false, ...props }) => {
+/**
+ * Hook to automatically hide/show columns based on container width.
+ * Columns are hidden based on their responsivePriority (lower = hide first).
+ * Only activates when canResize={false}.
+ */
+const useResponsiveColumnVisibility = ({ containerRef, enabled, showSelector = false, }) => {
+    const { table, setColumnVisibility } = useDataTableContext();
+    const autoHiddenRef = React.useRef(new Set());
+    const userBaselineRef = React.useRef(null);
+    const SELECTION_BOX_WIDTH = 20;
+    React.useEffect(() => {
+        if (!enabled || !containerRef.current) {
+            // Reset when disabled
+            if (!enabled) {
+                userBaselineRef.current = null;
+                autoHiddenRef.current = new Set();
+            }
+            return;
+        }
+        // Capture baseline visibility when hook is first enabled
+        if (userBaselineRef.current === null) {
+            userBaselineRef.current = { ...table.getState().columnVisibility };
+        }
+        const updateColumnVisibility = () => {
+            const container = containerRef.current;
+            if (!container || !userBaselineRef.current)
+                return;
+            const containerWidth = container.clientWidth;
+            // Get all columns
+            const allColumns = table.getAllLeafColumns();
+            // Get current visibility state
+            const currentVisibility = table.getState().columnVisibility;
+            // Determine user-hidden columns based on baseline
+            // Columns that are hidden in baseline are considered user-hidden
+            const userBaseline = userBaselineRef.current;
+            const userHiddenColumns = new Set();
+            for (const col of allColumns) {
+                // If column was hidden in baseline, it's user-hidden
+                if (userBaseline[col.id] === false) {
+                    userHiddenColumns.add(col.id);
+                }
+            }
+            // Consider all columns except those hidden by user in baseline
+            const columnsToConsider = allColumns.filter((col) => {
+                return !userHiddenColumns.has(col.id);
+            });
+            // Calculate priority for each column
+            // Lower priority = hide first, Infinity = never auto-hide
+            const columnsWithPriority = columnsToConsider.map((col, index) => {
+                const priority = col.columnDef.meta?.responsivePriority ?? Infinity;
+                return {
+                    column: col,
+                    priority,
+                    size: col.getSize(),
+                    index,
+                };
+            });
+            // Sort by priority (ascending), then by index for stable ordering
+            columnsWithPriority.sort((a, b) => {
+                if (a.priority !== b.priority) {
+                    return a.priority - b.priority;
+                }
+                return a.index - b.index;
+            });
+            // Calculate available width (account for selector column if present)
+            const availableWidth = showSelector
+                ? containerWidth - SELECTION_BOX_WIDTH
+                : containerWidth;
+            // Calculate which columns can fit
+            let totalWidth = 0;
+            const columnsToShow = new Set();
+            // Always keep at least one column visible
+            let minColumnsShown = 0;
+            for (const { column, priority } of columnsWithPriority) {
+                // If this is the first column and we haven't shown any, always show it
+                if (minColumnsShown === 0) {
+                    columnsToShow.add(column.id);
+                    totalWidth += column.getSize();
+                    minColumnsShown = 1;
+                    continue;
+                }
+                // Check if adding this column would exceed available width
+                const newTotalWidth = totalWidth + column.getSize();
+                // If priority is Infinity, always show (never auto-hide)
+                if (priority === Infinity) {
+                    columnsToShow.add(column.id);
+                    totalWidth = newTotalWidth;
+                }
+                else if (newTotalWidth <= availableWidth) {
+                    // Column fits, show it
+                    columnsToShow.add(column.id);
+                    totalWidth = newTotalWidth;
+                }
+                else ;
+            }
+            // Update auto-hidden columns
+            const newAutoHidden = new Set();
+            const newVisibility = { ...currentVisibility };
+            // Update visibility for all columns
+            for (const col of allColumns) {
+                const isUserHidden = userHiddenColumns.has(col.id);
+                if (isUserHidden) {
+                    // Respect user preference to hide
+                    newVisibility[col.id] = false;
+                }
+                else {
+                    const shouldBeVisible = columnsToShow.has(col.id);
+                    if (!shouldBeVisible) {
+                        // Column should be auto-hidden
+                        newAutoHidden.add(col.id);
+                        newVisibility[col.id] = false;
+                    }
+                    else {
+                        // Column should be visible
+                        newVisibility[col.id] = true;
+                    }
+                }
+            }
+            // Update auto-hidden ref
+            autoHiddenRef.current = newAutoHidden;
+            // Only update if visibility actually changed
+            const visibilityChanged = Object.keys(newVisibility).some((key) => newVisibility[key] !== currentVisibility[key]) ||
+                Object.keys(currentVisibility).some((key) => newVisibility[key] !== currentVisibility[key]);
+            if (visibilityChanged) {
+                setColumnVisibility(newVisibility);
+            }
+        };
+        // Initial calculation
+        updateColumnVisibility();
+        // Set up ResizeObserver
+        const resizeObserver = new ResizeObserver(() => {
+            updateColumnVisibility();
+        });
+        resizeObserver.observe(containerRef.current);
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, [enabled, containerRef, table, setColumnVisibility, showSelector]);
+};
+
+const EmptyResult = (jsxRuntime.jsx(EmptyState$1, { icon: jsxRuntime.jsx(hi.HiColorSwatch, {}), title: "No results found", description: "Try adjusting your search", children: jsxRuntime.jsxs(react.List.Root, { variant: "marker", children: [jsxRuntime.jsx(react.List.Item, { children: "Try removing filters" }), jsxRuntime.jsx(react.List.Item, { children: "Try different keywords" })] }) }));
+const Table = ({ children, emptyComponent = EmptyResult, canResize = true, showLoading = false, showSelector = false, ...props }) => {
     const { table } = useDataTableContext();
+    const containerRef = React.useRef(null);
+    // Enable responsive column hiding when canResize is false
+    useResponsiveColumnVisibility({
+        containerRef,
+        enabled: !canResize,
+        showSelector,
+    });
     // Skip empty check when loading to allow skeleton to render
     if (!showLoading && table.getRowModel().rows.length <= 0) {
         return emptyComponent;
     }
-    return (jsxRuntime.jsx(react.Table.Root, { stickyHeader: true, variant: 'outline', width: canResize ? table.getCenterTotalSize() : undefined, display: 'grid', alignContent: 'start', overflowY: 'auto', bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, ...props, children: children }));
+    return (jsxRuntime.jsx(react.Box, { ref: containerRef, width: "100%", overflow: "auto", children: jsxRuntime.jsx(react.Table.Root, { stickyHeader: true, variant: 'outline', width: canResize ? table.getCenterTotalSize() : undefined, display: 'grid', alignContent: 'start', overflowY: 'auto', bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, ...props, children: children }) }));
 };
 
 const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
@@ -3186,63 +2950,36 @@ const TableRowSelector = ({ row, }) => {
             onCheckedChange: row.getToggleSelectedHandler() }) }));
 };
 
-const TableBodySkeleton = ({ showSelector = false, canResize = true, }) => {
-    'use no memo';
+const TableCardContainer = ({ children, variant = "", gap = "1rem", gridTemplateColumns = "repeat(auto-fit, minmax(20rem, 1fr))", direction = "row", ...props }) => {
+    if (variant === "carousel") {
+        return (jsxRuntime.jsx(react.Flex, { overflow: "auto", gap: gap, direction: direction, ...props, children: children }));
+    }
+    return (jsxRuntime.jsx(react.Grid, { gridTemplateColumns: gridTemplateColumns, gap: gap, ...props, children: children }));
+};
+
+const DefaultCardTitle = () => {
+    return jsxRuntime.jsx(jsxRuntime.Fragment, {});
+};
+const TableCards = ({ isSelectable = false, showDisplayNameOnly = false, renderTitle = DefaultCardTitle, cardBodyProps = {}, }) => {
     const { table } = useDataTableContext();
-    const SELECTION_BOX_WIDTH = 20;
-    const [hoveredRow, setHoveredRow] = React.useState(-1);
-    const handleRowHover = (index) => {
-        setHoveredRow(index);
-    };
-    const getTdProps = (column) => {
-        const tdProps = column.getIsPinned()
-            ? {
-                left: showSelector
-                    ? `${column.getStart('left') + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                    : `${column.getStart('left')}px`,
-                position: 'relative',
-            }
-            : {};
-        return tdProps;
-    };
-    const getTrProps = ({ hoveredRow, index, }) => {
-        if (hoveredRow === -1) {
-            return {};
-        }
-        if (hoveredRow === index) {
-            return {
-                opacity: '1',
-            };
-        }
-        return {
-            opacity: '0.8',
-        };
-    };
-    // Get the number of skeleton rows based on current pageSize
-    const pageSize = table.getState().pagination.pageSize;
-    const visibleColumns = table.getVisibleLeafColumns();
-    return (jsxRuntime.jsx(react.Table.Body, { children: Array.from({ length: pageSize }).map((_, rowIndex) => {
-            return (jsxRuntime.jsxs(react.Table.Row, { display: 'flex', zIndex: 1, onMouseEnter: () => handleRowHover(rowIndex), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index: rowIndex }), children: [showSelector && jsxRuntime.jsx(TableRowSelectorSkeleton, {}), visibleColumns.map((column, colIndex) => {
-                        return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, 
-                            // styling resize and pinning start
-                            flex: `${canResize ? '0' : '1'} 0 ${column.getSize()}px`, 
-                            // this is to avoid the cell from being too wide
-                            minWidth: `0`, color: {
-                                base: 'colorPalette.900',
-                                _dark: 'colorPalette.100',
-                            },
-                            bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, ...getTdProps(column), children: jsxRuntime.jsx(react.Skeleton, { height: "20px", width: "80%" }) }, `chakra-table-skeleton-cell-${rowIndex}-${colIndex}`));
-                    })] }, `chakra-table-skeleton-row-${rowIndex}`));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getRowModel().rows.map((row) => {
+            return (jsxRuntime.jsx(react.Card.Root, { flex: "1 0 20rem", children: jsxRuntime.jsxs(react.Card.Body, { display: "flex", flexFlow: "column", gap: "0.5rem", ...cardBodyProps, children: [isSelectable && (jsxRuntime.jsx(Checkbox, { isChecked: row.getIsSelected(),
+                            disabled: !row.getCanSelect(),
+                            // indeterminate: row.getIsSomeSelected(),
+                            onChange: row.getToggleSelectedHandler() })), renderTitle(row), jsxRuntime.jsx(react.Grid, { templateColumns: "auto 1fr", gap: "1rem", children: row.getVisibleCells().map((cell) => {
+                                return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsxs(react.Box, { children: [showDisplayNameOnly && (jsxRuntime.jsx(react.Text, { fontWeight: "bold", children: cell.column.columnDef.meta?.displayName ??
+                                                        cell.column.id })), !showDisplayNameOnly && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: reactTable.flexRender(cell.column.columnDef.header, 
+                                                    // @ts-expect-error Assuming the CellContext interface is the same as HeaderContext
+                                                    cell.getContext()) }))] }, `chakra-table-cardcolumnid-${row.id}`), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`)] }));
+                            }) })] }) }, `chakra-table-card-${row.id}`));
         }) }));
 };
-const TableRowSelectorSkeleton = () => {
+
+const TableComponent = ({ render = () => {
+    throw Error("Not Implemented");
+}, }) => {
     const { table } = useDataTableContext();
-    const SELECTION_BOX_WIDTH = 20;
-    return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, display: 'grid', color: {
-            base: 'colorPalette.900',
-            _dark: 'colorPalette.100',
-        },
-        bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, justifyItems: 'center', alignItems: 'center', children: jsxRuntime.jsx(react.Skeleton, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }));
+    return render(table);
 };
 
 const TableFooter = ({ showSelector = false, alwaysShowSelector = true, }) => {
@@ -3406,87 +3143,9 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
                 })] }, `chakra-table-headergroup-${headerGroup.id}`))) }));
 };
 
-const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = '', isLoading = false, }) => {
-    if (variant === 'greedy') {
-        const bodyComponent = isLoading ? (jsxRuntime.jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: false })) : (jsxRuntime.jsx(TableBody, { ...tableBodyProps, canResize: false, ...tableBodyProps }));
-        return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { canResize: false, showLoading: isLoading, ...tableProps, children: [jsxRuntime.jsx(TableHeader, { canResize: false, ...tableHeaderProps }), bodyComponent, showFooter && (jsxRuntime.jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
-    }
-    const bodyComponent = isLoading ? (jsxRuntime.jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: tableBodyProps.canResize })) : (jsxRuntime.jsx(TableBody, { ...tableBodyProps }));
-    return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { showLoading: isLoading, ...tableProps, children: [jsxRuntime.jsx(TableHeader, { ...tableHeaderProps }), bodyComponent, showFooter && jsxRuntime.jsx(TableFooter, { ...tableFooterProps })] }) }));
-};
-
-/**
- * DefaultTableServer is a wrapper around DefaultTable that automatically
- * detects server-side loading state from DataTableServerContext.
- *
- * Use this component when working with DataTableServer to automatically
- * show skeleton loading state during data fetching.
- *
- * @example
- * ```tsx
- * <DataTableServer columns={columns} {...datatableServer}>
- *   <DefaultTableServer />
- * </DataTableServer>
- * ```
- */
-const DefaultTableServer = ({ isLoading: isLoadingOverride, ...props }) => {
-    // Automatically detect loading state from server context
-    const serverContext = useDataTableServerContext();
-    const isLoading = isLoadingOverride ?? serverContext?.query?.isLoading ?? false;
-    return jsxRuntime.jsx(DefaultTable, { ...props, isLoading: isLoading });
-};
-
-const TableCardContainer = ({ children, variant = "", gap = "1rem", gridTemplateColumns = "repeat(auto-fit, minmax(20rem, 1fr))", direction = "row", ...props }) => {
-    if (variant === "carousel") {
-        return (jsxRuntime.jsx(react.Flex, { overflow: "auto", gap: gap, direction: direction, ...props, children: children }));
-    }
-    return (jsxRuntime.jsx(react.Grid, { gridTemplateColumns: gridTemplateColumns, gap: gap, ...props, children: children }));
-};
-
-const DefaultCardTitle = () => {
-    return jsxRuntime.jsx(jsxRuntime.Fragment, {});
-};
-const TableCards = ({ isSelectable = false, showDisplayNameOnly = false, renderTitle = DefaultCardTitle, cardBodyProps = {}, }) => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getRowModel().rows.map((row) => {
-            return (jsxRuntime.jsx(react.Card.Root, { flex: "1 0 20rem", children: jsxRuntime.jsxs(react.Card.Body, { display: "flex", flexFlow: "column", gap: "0.5rem", ...cardBodyProps, children: [isSelectable && (jsxRuntime.jsx(Checkbox, { isChecked: row.getIsSelected(),
-                            disabled: !row.getCanSelect(),
-                            // indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler() })), renderTitle(row), jsxRuntime.jsx(react.Grid, { templateColumns: "auto 1fr", gap: "1rem", children: row.getVisibleCells().map((cell) => {
-                                return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsxs(react.Box, { children: [showDisplayNameOnly && (jsxRuntime.jsx(react.Text, { fontWeight: "bold", children: cell.column.columnDef.meta?.displayName ??
-                                                        cell.column.id })), !showDisplayNameOnly && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: reactTable.flexRender(cell.column.columnDef.header, 
-                                                    // @ts-expect-error Assuming the CellContext interface is the same as HeaderContext
-                                                    cell.getContext()) }))] }, `chakra-table-cardcolumnid-${row.id}`), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`)] }));
-                            }) })] }) }, `chakra-table-card-${row.id}`));
-        }) }));
-};
-
-const TableComponent = ({ render = () => {
-    throw Error("Not Implemented");
-}, }) => {
-    const { table } = useDataTableContext();
-    return render(table);
-};
-
 const TableLoadingComponent = ({ render, }) => {
     const { query } = useDataTableServerContext();
     return jsxRuntime.jsx(jsxRuntime.Fragment, { children: render(query.isLoading) });
-};
-
-const SelectAllRowsToggle = ({ selectAllIcon = jsxRuntime.jsx(md.MdOutlineChecklist, {}), clearAllIcon = jsxRuntime.jsx(md.MdClear, {}), selectAllText = "", clearAllText = "", }) => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [!!selectAllText === false && (jsxRuntime.jsx(react.IconButton, { variant: "ghost", "aria-label": table.getIsAllRowsSelected() ? clearAllText : selectAllText, onClick: (event) => {
-                    table.getToggleAllRowsSelectedHandler()(event);
-                }, children: table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon })), !!selectAllText !== false && (jsxRuntime.jsxs(react.Button, { variant: "ghost", onClick: (event) => {
-                    table.getToggleAllRowsSelectedHandler()(event);
-                }, children: [table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon, table.getIsAllRowsSelected() ? clearAllText : selectAllText] }))] }));
-};
-
-const TableSelector = () => {
-    const { table } = useDataTableContext();
-    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [table.getSelectedRowModel().rows.length > 0 && (jsxRuntime.jsxs(react.Button, { onClick: () => { }, variant: "ghost", display: "flex", gap: "0.25rem", children: [jsxRuntime.jsx(react.Box, { fontSize: "sm", children: `${table.getSelectedRowModel().rows.length}` }), jsxRuntime.jsx(io.IoMdCheckbox, {})] })), !table.getIsAllPageRowsSelected() && jsxRuntime.jsx(SelectAllRowsToggle, {}), table.getSelectedRowModel().rows.length > 0 && (jsxRuntime.jsx(react.IconButton, { variant: "ghost", onClick: () => {
-                    table.resetRowSelection();
-                }, "aria-label": "reset selection", children: jsxRuntime.jsx(md.MdClear, {}) }))] }));
 };
 
 const TextCell = ({ label, containerProps = {}, textProps = {}, children, }) => {
@@ -3494,6 +3153,25 @@ const TextCell = ({ label, containerProps = {}, textProps = {}, children, }) => 
         return (jsxRuntime.jsx(react.Flex, { alignItems: "center", height: "100%", ...containerProps, children: jsxRuntime.jsx(Tooltip, { content: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", children: label }), children: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", ...textProps, children: children }) }) }));
     }
     return (jsxRuntime.jsx(react.Flex, { alignItems: "center", height: "100%", ...containerProps, children: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", ...textProps, children: children }) }));
+};
+
+const CardHeader = ({ row, imageColumnId = undefined, titleColumnId = undefined, tagColumnId = undefined, tagIcon = undefined, showTag = true, imageProps = {}, }) => {
+    if (!!row.original === false) {
+        return jsxRuntime.jsx(jsxRuntime.Fragment, {});
+    }
+    const isShowFirstColumn = !!titleColumnId || showTag;
+    return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto auto", gap: "1rem", children: [!!imageColumnId && (jsxRuntime.jsx(react.Image, { width: "100%", src: row.original[imageColumnId], ...imageProps })), isShowFirstColumn && (jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", flexFlow: "wrap", children: [!!titleColumnId && (jsxRuntime.jsx(react.Text, { fontWeight: "bold", fontSize: "large", children: row.original[titleColumnId] })), showTag && (jsxRuntime.jsx(Tag, { fontSize: "large", startElement: tagIcon && tagIcon({}), children: row.original[tagColumnId] }))] }))] }));
+};
+
+const EmptyState = ({ title = "No records", description = "Add a new events to get started or refine your search", }) => {
+    const { isEmpty } = useDataTableServerContext();
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isEmpty && (jsxRuntime.jsx(react.EmptyState.Root, { children: jsxRuntime.jsxs(react.EmptyState.Content, { children: [jsxRuntime.jsx(react.EmptyState.Indicator, { children: jsxRuntime.jsx(hi.HiColorSwatch, {}) }), jsxRuntime.jsxs(react.VStack, { textAlign: "center", children: [jsxRuntime.jsx(react.EmptyState.Title, { children: title }), jsxRuntime.jsx(react.EmptyState.Description, { children: description })] })] }) })) }));
+};
+
+const ErrorAlert = ({ showMessage = true }) => {
+    const { query } = useDataTableServerContext();
+    const { isError, error } = query;
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: isError && (jsxRuntime.jsxs(react.Alert.Root, { status: "error", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsxs(react.Alert.Content, { children: [jsxRuntime.jsx(react.Alert.Title, { children: error.name }), showMessage && (jsxRuntime.jsx(react.Alert.Description, { children: error.message }))] })] })) }));
 };
 
 const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: defaultPagination = {
@@ -3625,6 +3303,28 @@ const idListSanityCheck = (param, idList, properties) => {
     }
 };
 
+const snakeToLabel = (str) => {
+    return str
+        .split("_") // Split by underscore
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
+        .join(" "); // Join with space
+};
+
+const RecordDisplay = ({ object, boxProps, translate, prefix = "", }) => {
+    const getColumn = ({ field }) => {
+        if (translate !== undefined) {
+            return translate.t(`${prefix}${field}`);
+        }
+        return snakeToLabel(field);
+    };
+    if (object === null) {
+        return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "null" });
+    }
+    return (jsxRuntime.jsx(react.Grid, { rowGap: 1, padding: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
+            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsxRuntime.jsx(react.Text, { color: "colorPalette.400", children: getColumn({ field }) }), typeof value === "object" ? (jsxRuntime.jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.`, translate: translate })) : (jsxRuntime.jsx(react.Text, { children: JSON.stringify(value) }))] }, field));
+        }) }));
+};
+
 const widthSanityCheck = (widthList, ignoreList, properties) => {
     const widthListToolong = widthList.length > Object.keys(properties).length;
     if (widthListToolong) {
@@ -3680,70 +3380,6 @@ const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, 
         }),
     ];
     return columns;
-};
-
-const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
-    const { columns, translate, data } = useDataTableContext();
-    const columnsMap = Object.fromEntries(columns.map((def) => {
-        const { accessorKey, id } = def;
-        if (accessorKey) {
-            return [accessorKey, def];
-        }
-        return [id, def];
-    }));
-    const columnHeaders = Object.keys(columnsMap);
-    const totalWidths = columns
-        .map(({ size }) => {
-        if (!!size === false) {
-            return 0;
-        }
-        if (typeof size === "number") {
-            return size;
-        }
-        return 0;
-    })
-        .reduce((previous, current) => previous + current, 0);
-    const columnWidths = columns
-        .map(({ size }) => {
-        if (!!size === false) {
-            return "1fr";
-        }
-        return `minmax(${size}px, ${(size / totalWidths) * 100}%)`;
-    })
-        .join(" ");
-    console.log({ columnWidths }, "hadfg");
-    const cellProps = {
-        flex: "1 0 0%",
-        overflow: "auto",
-        paddingX: "2",
-        py: "1",
-        color: { base: "colorPalette.900", _dark: "colorPalette.100" },
-        bgColor: { base: "colorPalette.50", _dark: "colorPalette.950" },
-        borderBottomColor: { base: "colorPalette.200", _dark: "colorPalette.800" },
-        borderBottomWidth: "1px",
-        ...{ colorPalette },
-    };
-    if (data.length <= 0) {
-        return jsxRuntime.jsx(jsxRuntime.Fragment, { children: emptyComponent });
-    }
-    return (jsxRuntime.jsxs(react.Grid, { templateColumns: `${columnWidths}`, overflow: "auto", borderWidth: "1px", color: { base: "colorPalette.900", _dark: "colorPalette.100" }, borderColor: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: [jsxRuntime.jsx(react.Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: columnHeaders.map((header) => {
-                    return (jsxRuntime.jsx(react.Box, { flex: "1 0 0%", paddingX: "2", py: "1", overflow: "auto", textOverflow: "ellipsis", children: translate.t(`column_header.${header}`) }));
-                }) }), data.map((record) => {
-                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: columnHeaders.map((header) => {
-                        const { cell } = columnsMap[header];
-                        const value = record[header];
-                        if (!!record === false) {
-                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: translate.t(`column_cell.placeholder`) }));
-                        }
-                        if (cell) {
-                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: cell({ row: { original: record } }) }));
-                        }
-                        if (typeof value === "object") {
-                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: jsxRuntime.jsx(RecordDisplay, { object: value }) }));
-                        }
-                        return jsxRuntime.jsx(react.Box, { ...cellProps, children: value });
-                    }) }));
-            })] }));
 };
 
 //@ts-expect-error TODO: find appropriate type
@@ -5237,7 +4873,7 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
 };
 
 const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
-    const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
+    const { watch, getValues, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { serverUrl, idMap, setIdMap, schema: parentSchema, idPickerLabels, } = useSchemaContext();
     const formI18n = useFormI18n(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, foreign_key, } = schema;
@@ -5249,8 +4885,26 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const [page, setPage] = React.useState(0);
     const ref = React.useRef(null);
     const colLabel = formI18n.colLabel;
-    const watchId = watch(colLabel);
-    const watchIds = isMultiple ? (watch(colLabel) ?? []) : [];
+    const watchedValue = watch(colLabel);
+    const watchId = !isMultiple ? watchedValue : undefined;
+    const watchIds = isMultiple
+        ? (Array.isArray(watchedValue) ? watchedValue : [])
+        : [];
+    // Get initial values immediately to ensure query can trigger on mount
+    const initialValue = getValues(colLabel);
+    const initialId = !isMultiple ? initialValue : undefined;
+    const initialIds = isMultiple
+        ? (Array.isArray(initialValue) ? initialValue : [])
+        : [];
+    // Use watched values if they exist (including empty string for single select),
+    // otherwise fall back to initial values from getValues()
+    // This ensures the query can trigger on mount with initial values
+    // For single: use watchId if it's not undefined/null, otherwise use initialId
+    // For multiple: use watchIds if watchedValue is defined, otherwise use initialIds
+    const currentId = watchId !== undefined && watchId !== null ? watchId : initialId;
+    const currentIds = watchedValue !== undefined && watchedValue !== null && isMultiple
+        ? watchIds
+        : initialIds;
     // Query for search results
     const query = reactQuery.useQuery({
         queryKey: [`idpicker`, { column, searchText, limit, page }],
@@ -5290,33 +4944,43 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         staleTime: 300000,
     });
     // Query for currently selected items (to display them properly)
+    // Use currentId/currentIds in queryKey so it includes initial values and updates when watched values change
     const queryDefault = reactQuery.useQuery({
         queryKey: [
             `idpicker-default`,
-            { form: parentSchema.title, column, id: isMultiple ? watchIds : watchId },
+            {
+                form: parentSchema.title,
+                column,
+                id: isMultiple ? currentIds : currentId,
+            },
         ],
         queryFn: async () => {
+            // Use current values (which include initial) for the query
+            const queryId = currentId;
+            const queryIds = currentIds;
             if (customQueryFn) {
+                // For customQueryFn, pass where clause to fetch specific IDs
                 const { data, idMap } = await customQueryFn({
-                    searching: watchIds.join(','),
-                    limit: isMultiple ? watchIds.length : 1,
+                    searching: '',
+                    limit: isMultiple ? queryIds.length : 1,
                     offset: 0,
+                    where: [{ id: column_ref, value: isMultiple ? queryIds : queryId }],
                 });
                 setIdMap((state) => {
                     return { ...state, ...idMap };
                 });
                 return data;
             }
-            if (!watchId && (!watchIds || watchIds.length === 0)) {
+            if (!queryId && (!queryIds || queryIds.length === 0)) {
                 return { data: [] };
             }
-            const searchValue = isMultiple ? watchIds.join(',') : watchId;
+            const searchValue = isMultiple ? queryIds.join(',') : queryId;
             const data = await getTableData({
                 serverUrl,
                 searching: searchValue,
                 in_table: table,
-                where: [{ id: column_ref, value: isMultiple ? watchIds : watchId }],
-                limit: isMultiple ? watchIds.length : 1,
+                where: [{ id: column_ref, value: isMultiple ? queryIds : queryId }],
+                limit: isMultiple ? queryIds.length : 1,
                 offset: 0,
             });
             const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
@@ -5333,16 +4997,9 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             return data;
         },
         enabled: isMultiple
-            ? Array.isArray(watchIds) && watchIds.length > 0
-            : !!watchId,
+            ? Array.isArray(currentIds) && currentIds.length > 0
+            : !!currentId,
     });
-    // Effect to load selected values when component mounts
-    React.useEffect(() => {
-        if (isMultiple ? watchIds.length > 0 : !!watchId) {
-            queryDefault.refetch();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
     // Effect to trigger initial data fetch when popover opens
     React.useEffect(() => {
         if (openSearchResult) {
@@ -5375,7 +5032,8 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         if (Object.keys(idMap).length <= 0) {
             return '';
         }
-        const record = idMap[watchId];
+        // Use currentId which includes initial values
+        const record = idMap[currentId];
         if (record === undefined) {
             return '';
         }
@@ -7214,6 +6872,526 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
     }
 };
 
+const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
+    const { columns, translate, data } = useDataTableContext();
+    const columnsMap = Object.fromEntries(columns.map((def) => {
+        const { accessorKey, id } = def;
+        if (accessorKey) {
+            return [accessorKey, def];
+        }
+        return [id, def];
+    }));
+    const columnHeaders = Object.keys(columnsMap);
+    const totalWidths = columns
+        .map(({ size }) => {
+        if (!!size === false) {
+            return 0;
+        }
+        if (typeof size === "number") {
+            return size;
+        }
+        return 0;
+    })
+        .reduce((previous, current) => previous + current, 0);
+    const columnWidths = columns
+        .map(({ size }) => {
+        if (!!size === false) {
+            return "1fr";
+        }
+        return `minmax(${size}px, ${(size / totalWidths) * 100}%)`;
+    })
+        .join(" ");
+    console.log({ columnWidths }, "hadfg");
+    const cellProps = {
+        flex: "1 0 0%",
+        overflow: "auto",
+        paddingX: "2",
+        py: "1",
+        color: { base: "colorPalette.900", _dark: "colorPalette.100" },
+        bgColor: { base: "colorPalette.50", _dark: "colorPalette.950" },
+        borderBottomColor: { base: "colorPalette.200", _dark: "colorPalette.800" },
+        borderBottomWidth: "1px",
+        ...{ colorPalette },
+    };
+    if (data.length <= 0) {
+        return jsxRuntime.jsx(jsxRuntime.Fragment, { children: emptyComponent });
+    }
+    return (jsxRuntime.jsxs(react.Grid, { templateColumns: `${columnWidths}`, overflow: "auto", borderWidth: "1px", color: { base: "colorPalette.900", _dark: "colorPalette.100" }, borderColor: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: [jsxRuntime.jsx(react.Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: columnHeaders.map((header) => {
+                    return (jsxRuntime.jsx(react.Box, { flex: "1 0 0%", paddingX: "2", py: "1", overflow: "auto", textOverflow: "ellipsis", children: translate.t(`column_header.${header}`) }));
+                }) }), data.map((record) => {
+                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: columnHeaders.map((header) => {
+                        const { cell } = columnsMap[header];
+                        const value = record[header];
+                        if (!!record === false) {
+                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: translate.t(`column_cell.placeholder`) }));
+                        }
+                        if (cell) {
+                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: cell({ row: { original: record } }) }));
+                        }
+                        if (typeof value === "object") {
+                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: jsxRuntime.jsx(RecordDisplay, { object: value }) }));
+                        }
+                        return jsxRuntime.jsx(react.Box, { ...cellProps, children: value });
+                    }) }));
+            })] }));
+};
+
+const TableBodySkeleton = ({ showSelector = false, canResize = true, }) => {
+    'use no memo';
+    const { table } = useDataTableContext();
+    const SELECTION_BOX_WIDTH = 20;
+    const [hoveredRow, setHoveredRow] = React.useState(-1);
+    const handleRowHover = (index) => {
+        setHoveredRow(index);
+    };
+    const getTdProps = (column) => {
+        const tdProps = column.getIsPinned()
+            ? {
+                left: showSelector
+                    ? `${column.getStart('left') + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+                    : `${column.getStart('left')}px`,
+                position: 'relative',
+            }
+            : {};
+        return tdProps;
+    };
+    const getTrProps = ({ hoveredRow, index, }) => {
+        if (hoveredRow === -1) {
+            return {};
+        }
+        if (hoveredRow === index) {
+            return {
+                opacity: '1',
+            };
+        }
+        return {
+            opacity: '0.8',
+        };
+    };
+    // Get the number of skeleton rows based on current pageSize
+    const pageSize = table.getState().pagination.pageSize;
+    const visibleColumns = table.getVisibleLeafColumns();
+    return (jsxRuntime.jsx(react.Table.Body, { children: Array.from({ length: pageSize }).map((_, rowIndex) => {
+            return (jsxRuntime.jsxs(react.Table.Row, { display: 'flex', zIndex: 1, onMouseEnter: () => handleRowHover(rowIndex), onMouseLeave: () => handleRowHover(-1), ...getTrProps({ hoveredRow, index: rowIndex }), children: [showSelector && jsxRuntime.jsx(TableRowSelectorSkeleton, {}), visibleColumns.map((column, colIndex) => {
+                        return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, 
+                            // styling resize and pinning start
+                            flex: `${canResize ? '0' : '1'} 0 ${column.getSize()}px`, 
+                            // this is to avoid the cell from being too wide
+                            minWidth: `0`, color: {
+                                base: 'colorPalette.900',
+                                _dark: 'colorPalette.100',
+                            },
+                            bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, ...getTdProps(column), children: jsxRuntime.jsx(react.Skeleton, { height: "20px", width: "80%" }) }, `chakra-table-skeleton-cell-${rowIndex}-${colIndex}`));
+                    })] }, `chakra-table-skeleton-row-${rowIndex}`));
+        }) }));
+};
+const TableRowSelectorSkeleton = () => {
+    const { table } = useDataTableContext();
+    const SELECTION_BOX_WIDTH = 20;
+    return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, display: 'grid', color: {
+            base: 'colorPalette.900',
+            _dark: 'colorPalette.100',
+        },
+        bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, justifyItems: 'center', alignItems: 'center', children: jsxRuntime.jsx(react.Skeleton, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }));
+};
+
+const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = '', isLoading = false, }) => {
+    if (variant === 'greedy') {
+        const bodyComponent = isLoading ? (jsxRuntime.jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: false })) : (jsxRuntime.jsx(TableBody, { ...tableBodyProps, canResize: false, ...tableBodyProps }));
+        return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { canResize: false,
+                showLoading: isLoading,
+                showSelector: tableHeaderProps.showSelector ??
+                    tableBodyProps.showSelector ??
+                    false,
+                ...tableProps, children: [jsxRuntime.jsx(TableHeader, { canResize: false, ...tableHeaderProps }), bodyComponent, showFooter && (jsxRuntime.jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
+    }
+    const bodyComponent = isLoading ? (jsxRuntime.jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: tableBodyProps.canResize })) : (jsxRuntime.jsx(TableBody, { ...tableBodyProps }));
+    return (jsxRuntime.jsx(TableControls, { ...controlProps, children: jsxRuntime.jsxs(Table, { showLoading: isLoading,
+            showSelector: tableHeaderProps.showSelector ??
+                tableBodyProps.showSelector ??
+                false,
+            ...tableProps, children: [jsxRuntime.jsx(TableHeader, { ...tableHeaderProps }), bodyComponent, showFooter && jsxRuntime.jsx(TableFooter, { ...tableFooterProps })] }) }));
+};
+
+/**
+ * DefaultTableServer is a wrapper around DefaultTable that automatically
+ * detects server-side loading state from DataTableServerContext.
+ *
+ * Use this component when working with DataTableServer to automatically
+ * show skeleton loading state during data fetching.
+ *
+ * @example
+ * ```tsx
+ * <DataTableServer columns={columns} {...datatableServer}>
+ *   <DefaultTableServer />
+ * </DataTableServer>
+ * ```
+ */
+const DefaultTableServer = ({ isLoading: isLoadingOverride, ...props }) => {
+    // Automatically detect loading state from server context
+    const serverContext = useDataTableServerContext();
+    const isLoading = isLoadingOverride ?? serverContext?.query?.isLoading ?? false;
+    return jsxRuntime.jsx(DefaultTable, { ...props, isLoading: isLoading });
+};
+
+const CellRenderer = ({ cell }) => {
+    const { translate } = useDataTableContext();
+    const getLabel = ({ columnId }) => {
+        if (translate !== undefined) {
+            return translate.t(`${columnId}`);
+        }
+        return snakeToLabel(columnId);
+    };
+    const formatValue = (value) => {
+        if (typeof value === "object") {
+            return JSON.stringify(value);
+        }
+        if (typeof value === "string") {
+            return value;
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+            return `${value}`;
+        }
+        if (value === undefined) {
+            if (translate !== undefined) {
+                return translate.t(`undefined`);
+            }
+            return `undefined`;
+        }
+        throw new Error(`value is unknown, ${typeof value}`);
+    };
+    const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
+    const gridColumn = cell.column.columnDef.meta?.gridColumn ?? [
+        "span 12",
+        "span 6",
+        "span 3",
+    ];
+    const gridRow = cell.column.columnDef.meta?.gridRow ?? {};
+    if (showCustomDataDisplay) {
+        return (jsxRuntime.jsx(react.Flex, { gridColumn, gridRow, children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
+    }
+    const value = cell.getValue();
+    if (typeof value === "object") {
+        return (jsxRuntime.jsxs(react.Box, { gridColumn, gridRow, children: [jsxRuntime.jsx(react.Box, { children: getLabel({ columnId: cell.column.id }) }), jsxRuntime.jsx(RecordDisplay, { boxProps: {
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        borderColor: "gray.400",
+                        paddingX: 4,
+                        paddingY: 2,
+                    }, object: value })] }, cell.id));
+    }
+    return (jsxRuntime.jsxs(react.Box, { gridColumn, gridRow, children: [jsxRuntime.jsx(react.Box, { color: "colorPalette.400", children: getLabel({ columnId: cell.column.id }) }), jsxRuntime.jsx(react.Box, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
+};
+const DataDisplay = ({ variant = "" }) => {
+    const { table, translate } = useDataTableContext();
+    return (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
+            const rowId = row.id;
+            return (jsxRuntime.jsx(react.Card.Root, { children: jsxRuntime.jsx(react.Card.Body, { display: "grid", gap: 4, padding: 4, gridTemplateColumns: "repeat(12, 1fr)", children: table.getAllColumns().map((column) => {
+                        const childCell = row.getAllCells().find((cell) => {
+                            return cell.id === `${rowId}_${column.id}`;
+                        });
+                        if (column.columns.length > 0) {
+                            return (jsxRuntime.jsxs(react.Card.Root, { margin: "1", gridColumn: "span 12", children: [jsxRuntime.jsx(react.Card.Header, { color: "gray.400", children: translate.t(column.id) }), jsxRuntime.jsx(react.Card.Body, { display: "grid", gap: "4", gridTemplateColumns: "repeat(12, 1fr)", children: column.columns.map((column) => {
+                                            if (!column.getIsVisible()) {
+                                                return jsxRuntime.jsx(jsxRuntime.Fragment, {});
+                                            }
+                                            const foundCell = row
+                                                .getVisibleCells()
+                                                .find((cell) => {
+                                                return cell.id === `${rowId}_${column.id}`;
+                                            });
+                                            return jsxRuntime.jsx(CellRenderer, { cell: foundCell });
+                                        }) })] }, `chakra-table-card-${childCell?.id}`));
+                        }
+                        return jsxRuntime.jsx(CellRenderer, { cell: childCell });
+                    }) }) }, `chakra-table-card-${rowId}`));
+        }) }));
+};
+
+// Reference: https://tanstack.com/table/latest/docs/framework/react/examples/custom-features
+// TypeScript setup for our new feature with all of the same type-safety as stock TanStack Table features
+// end of TS setup!
+// Here is all of the actual javascript code for our new feature
+const DensityFeature = {
+    // define the new feature's initial state
+    getInitialState: (state) => {
+        return {
+            density: "sm",
+            ...state,
+        };
+    },
+    // define the new feature's default options
+    getDefaultOptions: (table) => {
+        return {
+            enableDensity: true,
+            onDensityChange: reactTable.makeStateUpdater("density", table),
+        };
+    },
+    // if you need to add a default column definition...
+    // getDefaultColumnDef: <TData extends RowData>(): Partial<ColumnDef<TData>> => {
+    //   return { meta: {} } //use meta instead of directly adding to the columnDef to avoid typescript stuff that's hard to workaround
+    // },
+    // define the new feature's table instance methods
+    createTable: (table) => {
+        table.setDensity = (updater) => {
+            const safeUpdater = (old) => {
+                let newState = reactTable.functionalUpdate(updater, old);
+                return newState;
+            };
+            return table.options.onDensityChange?.(safeUpdater);
+        };
+        table.toggleDensity = (value) => {
+            table.setDensity((old) => {
+                if (value)
+                    return value;
+                if (old === "sm") {
+                    return "md";
+                }
+                if (old === "md") {
+                    return "lg";
+                }
+                return "sm";
+            });
+        };
+        table.getDensityValue = (value) => {
+            let density;
+            if (value) {
+                density = value;
+            }
+            else {
+                density = table.getState().density;
+            }
+            if (density === "sm") {
+                return 8;
+            }
+            if (density === "md") {
+                return 16;
+            }
+            return 32;
+        };
+    },
+    // if you need to add row instance APIs...
+    // createRow: <TData extends RowData>(row, table): void => {},
+    // if you need to add cell instance APIs...
+    // createCell: <TData extends RowData>(cell, column, row, table): void => {},
+    // if you need to add column instance APIs...
+    // createColumn: <TData extends RowData>(column, table): void => {},
+    // if you need to add header instance APIs...
+    // createHeader: <TData extends RowData>(header, table): void => {},
+};
+//end of custom feature code
+
+// Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
+const fuzzyFilter = (row, columnId, value, addMeta) => {
+    // Rank the item
+    const itemRank = matchSorterUtils.rankItem(row.getValue(columnId), value);
+    // Store the itemRank info
+    addMeta({
+        itemRank,
+    });
+    // Return if the item should be filtered in/out
+    return itemRank.passed;
+};
+/**
+ * DataTable will create a context to hold all values to
+ * help the render of the DataTable in serverside
+ *
+ *
+ * The query is required to be a GET request that can receive
+ * specified params and return a specified response
+ *
+ * @link https://tanstack.com/table/latest/docs/guide/column-defs
+ */
+function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, tableLabel = {
+    view: 'View',
+    edit: 'Edit',
+    filterButtonText: 'Filter',
+    filterTitle: 'Filter',
+    filterReset: 'Reset',
+    filterClose: 'Close',
+    reloadTooltip: 'Reload',
+    reloadButtonText: 'Reload',
+    resetSelection: 'Reset Selection',
+    resetSorting: 'Reset Sorting',
+    rowCountText: 'Row Count',
+    hasErrorText: 'Has Error',
+    globalFilterPlaceholder: 'Search',
+    trueLabel: 'True',
+    falseLabel: 'False',
+}, }) {
+    const table = reactTable.useReactTable({
+        _features: [DensityFeature],
+        data: data,
+        rowCount: data.length,
+        columns: columns,
+        getCoreRowModel: reactTable.getCoreRowModel(),
+        getFilteredRowModel: reactTable.getFilteredRowModel(),
+        getSortedRowModel: reactTable.getSortedRowModel(),
+        getPaginationRowModel: reactTable.getPaginationRowModel(),
+        defaultColumn: {
+            size: 150, //starting column size
+            minSize: 10, //enforced during column resizing
+            maxSize: 10000, //enforced during column resizing
+        },
+        enableRowSelection: enableRowSelection,
+        enableMultiRowSelection: enableMultiRowSelection,
+        enableSubRowSelection: enableSubRowSelection,
+        columnResizeMode: 'onChange',
+        // global filter start
+        filterFns: {
+            fuzzy: fuzzyFilter,
+        },
+        globalFilterFn: 'fuzzy',
+        state: {
+            pagination,
+            sorting,
+            columnFilters,
+            rowSelection,
+            columnOrder,
+            globalFilter,
+            density,
+            columnVisibility,
+        },
+        onPaginationChange: setPagination,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        onRowSelectionChange: setRowSelection,
+        onColumnOrderChange: (state) => {
+            setColumnOrder(state);
+        },
+        onGlobalFilterChange: (state) => {
+            setGlobalFilter(state);
+        },
+        onDensityChange: setDensity,
+        onColumnVisibilityChange: setColumnVisibility,
+    });
+    return (jsxRuntime.jsx(DataTableContext.Provider, { value: {
+            table: table,
+            globalFilter,
+            setGlobalFilter,
+            type: 'client',
+            translate,
+            columns: columns,
+            sorting,
+            setSorting,
+            columnFilters,
+            setColumnFilters,
+            pagination,
+            setPagination,
+            rowSelection,
+            setRowSelection,
+            columnOrder,
+            setColumnOrder,
+            density,
+            setDensity,
+            columnVisibility,
+            setColumnVisibility,
+            data,
+            tableLabel,
+        }, children: children }));
+}
+
+/**
+ * DataTableServer will create a context to hold all values to
+ * help the render of the DataTable in serverside
+ *
+ * The query is required to be a GET request that can receive
+ * specified params and return a specified response
+ *
+ * The `useDataTableServer` can help to create the specified request and response
+ *
+ * @link https://tanstack.com/table/latest/docs/guide/column-defs
+ */
+function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel = {
+    view: "View",
+    edit: "Edit",
+    filterButtonText: "Filter",
+    filterTitle: "Filter",
+    filterReset: "Reset",
+    filterClose: "Close",
+    reloadTooltip: "Reload",
+    reloadButtonText: "Reload",
+    resetSelection: "Reset Selection",
+    resetSorting: "Reset Sorting",
+    rowCountText: "Row Count",
+    hasErrorText: "Has Error",
+    globalFilterPlaceholder: "Search",
+    trueLabel: "True",
+    falseLabel: "False",
+}, }) {
+    const table = reactTable.useReactTable({
+        _features: [DensityFeature],
+        data: (query.data?.data ?? []),
+        rowCount: query.data?.count ?? 0,
+        columns: columns,
+        getCoreRowModel: reactTable.getCoreRowModel(),
+        manualPagination: true,
+        manualSorting: true,
+        columnResizeMode: "onChange",
+        defaultColumn: {
+            size: 150, //starting column size
+            minSize: 10, //enforced during column resizing
+            maxSize: 10000, //enforced during column resizing
+        },
+        enableRowSelection: enableRowSelection,
+        enableMultiRowSelection: enableMultiRowSelection,
+        enableSubRowSelection: enableSubRowSelection,
+        state: {
+            pagination,
+            sorting,
+            columnFilters,
+            rowSelection,
+            columnOrder,
+            globalFilter,
+            density,
+            columnVisibility,
+        },
+        onPaginationChange: setPagination,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        onRowSelectionChange: setRowSelection,
+        onColumnOrderChange: (state) => {
+            setColumnOrder(state);
+        },
+        onGlobalFilterChange: (state) => {
+            setGlobalFilter(state);
+        },
+        onDensityChange: setDensity,
+        onColumnVisibilityChange: setColumnVisibility,
+        // for tanstack-table ts bug start
+        filterFns: {
+            fuzzy: () => {
+                return false;
+            },
+        },
+        // for tanstack-table ts bug end
+    });
+    return (jsxRuntime.jsx(DataTableContext.Provider, { value: {
+            table: table,
+            globalFilter,
+            setGlobalFilter,
+            type: "server",
+            translate,
+            columns: columns,
+            sorting,
+            setSorting,
+            columnFilters,
+            setColumnFilters,
+            pagination,
+            setPagination,
+            rowSelection,
+            setRowSelection,
+            columnOrder,
+            setColumnOrder,
+            density,
+            setDensity,
+            columnVisibility,
+            setColumnVisibility,
+            data: query.data?.data ?? [],
+            tableLabel,
+        }, children: jsxRuntime.jsx(DataTableServerContext.Provider, { value: { url, query }, children: children }) }));
+}
+
 exports.CardHeader = CardHeader;
 exports.DataDisplay = DataDisplay;
 exports.DataTable = DataTable;
@@ -7224,7 +7402,7 @@ exports.DefaultTable = DefaultTable;
 exports.DefaultTableServer = DefaultTableServer;
 exports.DensityToggleButton = DensityToggleButton;
 exports.EditSortingButton = EditSortingButton;
-exports.EmptyState = EmptyState$1;
+exports.EmptyState = EmptyState;
 exports.ErrorAlert = ErrorAlert;
 exports.FilterDialog = FilterDialog;
 exports.FormBody = FormBody;

@@ -1,20 +1,71 @@
 /// <reference types="react" />
-import { Row, RowData, OnChangeFn, Updater, FilterFn, ColumnDef, RowSelectionState, ColumnOrderState, ColumnFiltersState, PaginationState, SortingState, VisibilityState, Table as Table$1, Column } from '@tanstack/react-table';
+import { Row, Table as Table$1, RowData, OnChangeFn, Updater, SortingState, ColumnFiltersState, PaginationState, RowSelectionState, ColumnOrderState, VisibilityState, FilterFn, ColumnDef, Column } from '@tanstack/react-table';
 import * as react from 'react';
 import react__default, { ReactNode, Dispatch, SetStateAction } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { ImageProps, GridProps, TableRootProps, TableHeaderProps as TableHeaderProps$1, TableRowProps, BoxProps, FlexProps, CardBodyProps, TextProps } from '@chakra-ui/react';
+import { TableHeaderProps as TableHeaderProps$1, TableRowProps, GridProps, TableRootProps, BoxProps, FlexProps, CardBodyProps, TextProps, ImageProps } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
 import * as react_i18next from 'react-i18next';
 import { UseTranslationResponse } from 'react-i18next';
-import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { UseQueryResult } from '@tanstack/react-query';
+import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { JSONSchema7 } from 'json-schema';
 import { ForeignKeyProps as ForeignKeyProps$1 } from '@/components/Form/components/fields/StringInputField';
 import { AxiosRequestConfig } from 'axios';
 import * as react_hook_form from 'react-hook-form';
 import { UseFormReturn, FieldValues, SubmitHandler } from 'react-hook-form';
 import { RenderProps, Props } from '@bsol-oss/dayzed-react19';
+
+interface TableHeaderTexts {
+    pinColumn?: string;
+    cancelPin?: string;
+    sortAscending?: string;
+    sortDescending?: string;
+    clearSorting?: string;
+}
+interface TableHeaderProps {
+    canResize?: boolean;
+    showSelector?: boolean;
+    isSticky?: boolean;
+    tableHeaderProps?: TableHeaderProps$1;
+    tableRowProps?: TableRowProps;
+    /**
+     * Default text configuration for all columns.
+     * Can be overridden per column via meta.headerTexts.
+     */
+    defaultTexts?: TableHeaderTexts;
+}
+/**
+ * TableHeader component with configurable text strings.
+ *
+ * @example
+ * // Using default texts
+ * <TableHeader />
+ *
+ * @example
+ * // Customizing default texts for all columns
+ * <TableHeader
+ *   defaultTexts={{
+ *     pinColumn: "Pin This Column",
+ *     sortAscending: "Sort A-Z"
+ *   }}
+ * />
+ *
+ * @example
+ * // Customizing texts per column via meta
+ * const columns = [
+ *   columnHelper.accessor("name", {
+ *     header: "Name",
+ *     meta: {
+ *       headerTexts: {
+ *         pinColumn: "Pin Name Column",
+ *         sortAscending: "Sort Names A-Z"
+ *       }
+ *     }
+ *   })
+ * ];
+ */
+declare const TableHeader: ({ canResize, showSelector, isSticky, tableHeaderProps, tableRowProps, defaultTexts, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
 
 interface DensityToggleButtonProps {
     icon?: react__default.ReactElement;
@@ -53,6 +104,124 @@ interface EditViewButtonProps {
     icon?: react__default.ReactElement;
 }
 declare const ViewDialog: ({ icon }: EditViewButtonProps) => react_jsx_runtime.JSX.Element;
+
+interface ReloadButtonProps {
+    variant?: string;
+}
+declare const ReloadButton: ({ variant, }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
+
+declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
+
+declare const TableSelector: () => react_jsx_runtime.JSX.Element;
+
+declare const TableSorter: () => react_jsx_runtime.JSX.Element;
+
+declare const TableViewer: () => react_jsx_runtime.JSX.Element;
+
+interface TableControlsProps {
+    totalText?: string;
+    fitTableWidth?: boolean;
+    fitTableHeight?: boolean;
+    children?: ReactNode;
+    showGlobalFilter?: boolean;
+    showFilter?: boolean;
+    showFilterName?: boolean;
+    showFilterTags?: boolean;
+    showReload?: boolean;
+    showPagination?: boolean;
+    showPageSizeControl?: boolean;
+    showPageCountText?: boolean;
+    showView?: boolean;
+    filterTagsOptions?: {
+        column: string;
+        options: {
+            label: string;
+            value: string;
+        }[];
+    }[];
+    extraItems?: ReactNode;
+    loading?: boolean;
+    hasError?: boolean;
+    gridProps?: GridProps;
+}
+declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterTagsOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
+
+declare const TableFilter: () => react_jsx_runtime.JSX.Element;
+
+declare const TableFilterTags: () => react_jsx_runtime.JSX.Element;
+
+interface TableProps extends TableRootProps {
+    showLoading?: boolean;
+    loadingComponent?: ReactNode;
+    emptyComponent?: ReactNode;
+    canResize?: boolean;
+    showSelector?: boolean;
+    children: ReactNode;
+}
+declare const Table: ({ children, emptyComponent, canResize, showLoading, showSelector, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | react.ReactPortal | react.ReactElement<unknown, string | react.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null;
+
+interface TableBodyProps {
+    pinnedBgColor?: {
+        light: string;
+        dark: string;
+    };
+    showSelector?: boolean;
+    alwaysShowSelector?: boolean;
+    canResize?: boolean;
+}
+interface TableRowSelectorProps<TData> {
+    index: number;
+    row: Row<TData>;
+    hoveredRow: number;
+    pinnedBgColor?: {
+        light: string;
+        dark: string;
+    };
+}
+declare const TableBody: ({ showSelector, canResize, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
+
+interface TableCardContainerProps extends BoxProps {
+    children: ReactNode;
+    variant?: "carousel" | "";
+    gap?: string;
+    gridTemplateColumns?: string;
+    direction?: FlexProps["direction"];
+}
+declare const TableCardContainer: ({ children, variant, gap, gridTemplateColumns, direction, ...props }: TableCardContainerProps) => react_jsx_runtime.JSX.Element;
+
+interface TableCardsProps<TData> {
+    isSelectable?: boolean;
+    showDisplayNameOnly?: boolean;
+    renderTitle?: (row: Row<TData>) => ReactNode | undefined;
+    cardBodyProps?: CardBodyProps;
+}
+declare const DefaultCardTitle: () => react_jsx_runtime.JSX.Element;
+declare const TableCards: <TData>({ isSelectable, showDisplayNameOnly, renderTitle, cardBodyProps, }: TableCardsProps<TData>) => react_jsx_runtime.JSX.Element;
+
+interface TableRendererProps<TData> {
+    render: (render: Table$1<TData>) => react__default.ReactElement;
+}
+declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) => react__default.ReactElement<unknown, string | react__default.JSXElementConstructor<any>>;
+
+interface TableFooterProps {
+    showSelector?: boolean;
+    alwaysShowSelector?: boolean;
+}
+declare const TableFooter: ({ showSelector, alwaysShowSelector, }: TableFooterProps) => react_jsx_runtime.JSX.Element;
+
+interface TableLoadingComponentProps {
+    render: (loading: boolean) => ReactNode;
+}
+declare const TableLoadingComponent: ({ render, }: TableLoadingComponentProps) => react_jsx_runtime.JSX.Element;
+
+interface TextCellProps {
+    label?: string;
+    noOfLines?: number[];
+    children: string | number | ReactNode | ReactNode[];
+    containerProps?: FlexProps;
+    textProps?: TextProps;
+}
+declare const TextCell: ({ label, containerProps, textProps, children, }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
 interface CardHeaderProps<TData> {
     row: Row<TData>;
@@ -97,103 +266,6 @@ declare module "@tanstack/react-table" {
     interface Table<TData extends RowData> extends DensityInstance {
     }
 }
-
-declare module '@tanstack/react-table' {
-    interface FilterFns {
-        fuzzy: FilterFn<unknown>;
-    }
-    interface FilterMeta {
-        itemRank: RankingInfo;
-    }
-}
-interface DataTableProps<TData = unknown> {
-    children?: ReactNode | ReactNode[];
-    /**
-     * Data array for the table.
-     *
-     * It will pass into as the data in `@tanstack/react-table`
-     * Do not toggle the data array, it will cause the table to re-render in infinite loop.
-     *
-     * @default []
-     *
-     */
-    data: TData[];
-    /**
-     * Column definitions for the table.
-     *
-     * It will pass into as the column definitions in `@tanstack/react-table`
-     *
-     * @link https://tanstack.com/table/latest/docs/guide/column-defs
-     */
-    columns: ColumnDef<TData, unknown>[];
-    enableRowSelection?: boolean;
-    enableMultiRowSelection?: boolean;
-    enableSubRowSelection?: boolean;
-    onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
-    columnOrder: ColumnOrderState;
-    columnFilters: ColumnFiltersState;
-    globalFilter: string;
-    density: DensityState;
-    pagination: PaginationState;
-    sorting: SortingState;
-    rowSelection: RowSelectionState;
-    columnVisibility: VisibilityState;
-    setPagination: OnChangeFn<PaginationState>;
-    setSorting: OnChangeFn<SortingState>;
-    setColumnFilters: OnChangeFn<ColumnFiltersState>;
-    setRowSelection: OnChangeFn<RowSelectionState>;
-    setGlobalFilter: OnChangeFn<string>;
-    setColumnOrder: OnChangeFn<ColumnOrderState>;
-    setDensity: OnChangeFn<DensityState>;
-    setColumnVisibility: OnChangeFn<VisibilityState>;
-    translate: UseTranslationResponse<any, any>;
-    tableLabel?: DataTableLabel;
-}
-/**
- * DataTable will create a context to hold all values to
- * help the render of the DataTable in serverside
- *
- *
- * The query is required to be a GET request that can receive
- * specified params and return a specified response
- *
- * @link https://tanstack.com/table/latest/docs/guide/column-defs
- */
-declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, tableLabel, }: DataTableProps<TData>): react_jsx_runtime.JSX.Element;
-
-interface DataTableLabel {
-    view: string;
-    edit: string;
-    filterButtonText: string;
-    filterTitle: string;
-    filterReset: string;
-    filterClose: string;
-    reloadTooltip: string;
-    reloadButtonText: string;
-    resetSelection: string;
-    resetSorting: string;
-    rowCountText: string;
-    hasErrorText: string;
-    globalFilterPlaceholder: string;
-    trueLabel: string;
-    falseLabel: string;
-}
-interface DataTableContextProps<TData = unknown> extends DataTableProps {
-    table: Table$1<TData>;
-    globalFilter: string;
-    setGlobalFilter: OnChangeFn<string>;
-    type: "client" | "server";
-    translate: UseTranslationResponse<any, unknown>;
-    tableLabel: DataTableLabel;
-}
-
-declare const useDataTableContext: <TData>() => DataTableContextProps<TData>;
-
-interface DataDisplayProps {
-    variant?: "horizontal" | "stats" | "";
-    translate?: UseTranslationResponse<any, any>;
-}
-declare const DataDisplay: ({ variant }: DataDisplayProps) => react_jsx_runtime.JSX.Element;
 
 interface DataTableDefaultState {
     sorting?: SortingState;
@@ -307,8 +379,26 @@ interface QueryParams {
 }
 declare const useDataTableServer: <TData>(props: UseDataTableServerProps<TData>) => UseDataTableServerReturn<TData>;
 
-interface DataTableServerProps<TData = unknown> {
-    children: ReactNode | ReactNode[];
+declare module '@tanstack/react-table' {
+    interface FilterFns {
+        fuzzy: FilterFn<unknown>;
+    }
+    interface FilterMeta {
+        itemRank: RankingInfo;
+    }
+}
+interface DataTableProps<TData = unknown> {
+    children?: ReactNode | ReactNode[];
+    /**
+     * Data array for the table.
+     *
+     * It will pass into as the data in `@tanstack/react-table`
+     * Do not toggle the data array, it will cause the table to re-render in infinite loop.
+     *
+     * @default []
+     *
+     */
+    data: TData[];
     /**
      * Column definitions for the table.
      *
@@ -316,10 +406,11 @@ interface DataTableServerProps<TData = unknown> {
      *
      * @link https://tanstack.com/table/latest/docs/guide/column-defs
      */
-    columns: ColumnDef<TData>[];
+    columns: ColumnDef<TData, unknown>[];
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     enableSubRowSelection?: boolean;
+    onRowSelect?: (rowSelectionState: RowSelectionState, data: TData[]) => void;
     columnOrder: ColumnOrderState;
     columnFilters: ColumnFiltersState;
     globalFilter: string;
@@ -336,224 +427,48 @@ interface DataTableServerProps<TData = unknown> {
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
-    query: UseQueryResult<DataResponse<TData>>;
-    url?: string;
     translate: UseTranslationResponse<any, any>;
     tableLabel?: DataTableLabel;
 }
 /**
- * DataTableServer will create a context to hold all values to
+ * DataTable will create a context to hold all values to
  * help the render of the DataTable in serverside
+ *
  *
  * The query is required to be a GET request that can receive
  * specified params and return a specified response
  *
- * The `useDataTableServer` can help to create the specified request and response
- *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-declare function DataTableServer<TData = unknown>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
+declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, tableLabel, }: DataTableProps<TData>): react_jsx_runtime.JSX.Element;
 
-interface TableControlsProps {
-    totalText?: string;
-    fitTableWidth?: boolean;
-    fitTableHeight?: boolean;
-    children?: ReactNode;
-    showGlobalFilter?: boolean;
-    showFilter?: boolean;
-    showFilterName?: boolean;
-    showFilterTags?: boolean;
-    showReload?: boolean;
-    showPagination?: boolean;
-    showPageSizeControl?: boolean;
-    showPageCountText?: boolean;
-    showView?: boolean;
-    filterTagsOptions?: {
-        column: string;
-        options: {
-            label: string;
-            value: string;
-        }[];
-    }[];
-    extraItems?: ReactNode;
-    loading?: boolean;
-    hasError?: boolean;
-    gridProps?: GridProps;
+interface DataTableLabel {
+    view: string;
+    edit: string;
+    filterButtonText: string;
+    filterTitle: string;
+    filterReset: string;
+    filterClose: string;
+    reloadTooltip: string;
+    reloadButtonText: string;
+    resetSelection: string;
+    resetSorting: string;
+    rowCountText: string;
+    hasErrorText: string;
+    globalFilterPlaceholder: string;
+    trueLabel: string;
+    falseLabel: string;
 }
-declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterTagsOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
-
-interface TableProps extends TableRootProps {
-    showLoading?: boolean;
-    loadingComponent?: ReactNode;
-    emptyComponent?: ReactNode;
-    canResize?: boolean;
-    children: ReactNode;
+interface DataTableContextProps<TData = unknown> extends DataTableProps {
+    table: Table$1<TData>;
+    globalFilter: string;
+    setGlobalFilter: OnChangeFn<string>;
+    type: "client" | "server";
+    translate: UseTranslationResponse<any, unknown>;
+    tableLabel: DataTableLabel;
 }
-declare const Table: ({ children, emptyComponent, canResize, showLoading, ...props }: TableProps) => string | number | bigint | boolean | Iterable<ReactNode> | Promise<string | number | bigint | boolean | react.ReactPortal | react.ReactElement<unknown, string | react.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | react_jsx_runtime.JSX.Element | null;
 
-interface TableBodyProps {
-    pinnedBgColor?: {
-        light: string;
-        dark: string;
-    };
-    showSelector?: boolean;
-    alwaysShowSelector?: boolean;
-    canResize?: boolean;
-}
-interface TableRowSelectorProps<TData> {
-    index: number;
-    row: Row<TData>;
-    hoveredRow: number;
-    pinnedBgColor?: {
-        light: string;
-        dark: string;
-    };
-}
-declare const TableBody: ({ showSelector, canResize, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
-
-interface TableFooterProps {
-    showSelector?: boolean;
-    alwaysShowSelector?: boolean;
-}
-declare const TableFooter: ({ showSelector, alwaysShowSelector, }: TableFooterProps) => react_jsx_runtime.JSX.Element;
-
-interface TableHeaderTexts {
-    pinColumn?: string;
-    cancelPin?: string;
-    sortAscending?: string;
-    sortDescending?: string;
-    clearSorting?: string;
-}
-interface TableHeaderProps {
-    canResize?: boolean;
-    showSelector?: boolean;
-    isSticky?: boolean;
-    tableHeaderProps?: TableHeaderProps$1;
-    tableRowProps?: TableRowProps;
-    /**
-     * Default text configuration for all columns.
-     * Can be overridden per column via meta.headerTexts.
-     */
-    defaultTexts?: TableHeaderTexts;
-}
-/**
- * TableHeader component with configurable text strings.
- *
- * @example
- * // Using default texts
- * <TableHeader />
- *
- * @example
- * // Customizing default texts for all columns
- * <TableHeader
- *   defaultTexts={{
- *     pinColumn: "Pin This Column",
- *     sortAscending: "Sort A-Z"
- *   }}
- * />
- *
- * @example
- * // Customizing texts per column via meta
- * const columns = [
- *   columnHelper.accessor("name", {
- *     header: "Name",
- *     meta: {
- *       headerTexts: {
- *         pinColumn: "Pin Name Column",
- *         sortAscending: "Sort Names A-Z"
- *       }
- *     }
- *   })
- * ];
- */
-declare const TableHeader: ({ canResize, showSelector, isSticky, tableHeaderProps, tableRowProps, defaultTexts, }: TableHeaderProps) => react_jsx_runtime.JSX.Element;
-
-interface DefaultTableProps {
-    showFooter?: boolean;
-    tableProps?: Omit<TableProps, 'children'>;
-    tableHeaderProps?: TableHeaderProps;
-    tableBodyProps?: TableBodyProps;
-    tableFooterProps?: TableFooterProps;
-    controlProps?: TableControlsProps;
-    variant?: '' | 'greedy';
-    isLoading?: boolean;
-}
-declare const DefaultTable: ({ showFooter, tableProps, tableHeaderProps, tableBodyProps, tableFooterProps, controlProps, variant, isLoading, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
-
-interface DefaultTableServerProps extends DefaultTableProps {
-    /**
-     * Optional isLoading prop to override auto-detected loading state.
-     * If not provided, will automatically detect from DataTableServerContext.
-     */
-    isLoading?: boolean;
-}
-/**
- * DefaultTableServer is a wrapper around DefaultTable that automatically
- * detects server-side loading state from DataTableServerContext.
- *
- * Use this component when working with DataTableServer to automatically
- * show skeleton loading state during data fetching.
- *
- * @example
- * ```tsx
- * <DataTableServer columns={columns} {...datatableServer}>
- *   <DefaultTableServer />
- * </DataTableServer>
- * ```
- */
-declare const DefaultTableServer: ({ isLoading: isLoadingOverride, ...props }: DefaultTableServerProps) => react_jsx_runtime.JSX.Element;
-
-interface ReloadButtonProps {
-    variant?: string;
-}
-declare const ReloadButton: ({ variant, }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
-
-interface TableCardContainerProps extends BoxProps {
-    children: ReactNode;
-    variant?: "carousel" | "";
-    gap?: string;
-    gridTemplateColumns?: string;
-    direction?: FlexProps["direction"];
-}
-declare const TableCardContainer: ({ children, variant, gap, gridTemplateColumns, direction, ...props }: TableCardContainerProps) => react_jsx_runtime.JSX.Element;
-
-interface TableCardsProps<TData> {
-    isSelectable?: boolean;
-    showDisplayNameOnly?: boolean;
-    renderTitle?: (row: Row<TData>) => ReactNode | undefined;
-    cardBodyProps?: CardBodyProps;
-}
-declare const DefaultCardTitle: () => react_jsx_runtime.JSX.Element;
-declare const TableCards: <TData>({ isSelectable, showDisplayNameOnly, renderTitle, cardBodyProps, }: TableCardsProps<TData>) => react_jsx_runtime.JSX.Element;
-
-interface TableRendererProps<TData> {
-    render: (render: Table$1<TData>) => react__default.ReactElement;
-}
-declare const TableComponent: <TData>({ render, }: TableRendererProps<TData>) => react__default.ReactElement<unknown, string | react__default.JSXElementConstructor<any>>;
-
-declare const TableFilter: () => react_jsx_runtime.JSX.Element;
-
-declare const TableFilterTags: () => react_jsx_runtime.JSX.Element;
-
-interface TableLoadingComponentProps {
-    render: (loading: boolean) => ReactNode;
-}
-declare const TableLoadingComponent: ({ render, }: TableLoadingComponentProps) => react_jsx_runtime.JSX.Element;
-
-declare const TableSelector: () => react_jsx_runtime.JSX.Element;
-
-declare const TableSorter: () => react_jsx_runtime.JSX.Element;
-
-declare const TableViewer: () => react_jsx_runtime.JSX.Element;
-
-interface TextCellProps {
-    label?: string;
-    noOfLines?: number[];
-    children: string | number | ReactNode | ReactNode[];
-    containerProps?: FlexProps;
-    textProps?: TextProps;
-}
-declare const TextCell: ({ label, containerProps, textProps, children, }: TextCellProps) => react_jsx_runtime.JSX.Element;
+declare const useDataTableContext: <TData>() => DataTableContextProps<TData>;
 
 interface GetColumnsConfigs<K extends RowData> {
     schema: JSONSchema7;
@@ -569,14 +484,6 @@ interface GetColumnsConfigs<K extends RowData> {
 declare const widthSanityCheck: <K extends unknown>(widthList: number[], ignoreList: K[], properties: { [key in K as string]?: object | undefined; }) => void;
 declare const getColumns: <TData extends unknown>({ schema, include, ignore, width, meta, defaultWidth, translate, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
 
-interface TableDataDisplayProps {
-    colorPalette?: string;
-    emptyComponent?: ReactNode;
-}
-declare const TableDataDisplay: ({ colorPalette, emptyComponent, }: TableDataDisplayProps) => react_jsx_runtime.JSX.Element;
-
-declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
-
 interface CustomQueryFnResponse {
     /**
      * The data of the query
@@ -591,6 +498,10 @@ interface CustomQueryFnParams {
     searching: string;
     limit: number;
     offset: number;
+    where?: Array<{
+        id: string;
+        value: string | string[];
+    }>;
 }
 type CustomQueryFn = (params: CustomQueryFnParams) => Promise<CustomQueryFnResponse>;
 interface ForeignKeyProps {
@@ -1052,7 +963,101 @@ interface RecordDisplayProps {
 }
 declare const RecordDisplay: ({ object, boxProps, translate, prefix, }: RecordDisplayProps) => react_jsx_runtime.JSX.Element;
 
-declare module "@tanstack/react-table" {
+interface TableDataDisplayProps {
+    colorPalette?: string;
+    emptyComponent?: ReactNode;
+}
+declare const TableDataDisplay: ({ colorPalette, emptyComponent, }: TableDataDisplayProps) => react_jsx_runtime.JSX.Element;
+
+interface DefaultTableProps {
+    showFooter?: boolean;
+    tableProps?: Omit<TableProps, 'children'>;
+    tableHeaderProps?: TableHeaderProps;
+    tableBodyProps?: TableBodyProps;
+    tableFooterProps?: TableFooterProps;
+    controlProps?: TableControlsProps;
+    variant?: '' | 'greedy';
+    isLoading?: boolean;
+}
+declare const DefaultTable: ({ showFooter, tableProps, tableHeaderProps, tableBodyProps, tableFooterProps, controlProps, variant, isLoading, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
+
+interface DefaultTableServerProps extends DefaultTableProps {
+    /**
+     * Optional isLoading prop to override auto-detected loading state.
+     * If not provided, will automatically detect from DataTableServerContext.
+     */
+    isLoading?: boolean;
+}
+/**
+ * DefaultTableServer is a wrapper around DefaultTable that automatically
+ * detects server-side loading state from DataTableServerContext.
+ *
+ * Use this component when working with DataTableServer to automatically
+ * show skeleton loading state during data fetching.
+ *
+ * @example
+ * ```tsx
+ * <DataTableServer columns={columns} {...datatableServer}>
+ *   <DefaultTableServer />
+ * </DataTableServer>
+ * ```
+ */
+declare const DefaultTableServer: ({ isLoading: isLoadingOverride, ...props }: DefaultTableServerProps) => react_jsx_runtime.JSX.Element;
+
+interface DataDisplayProps {
+    variant?: "horizontal" | "stats" | "";
+    translate?: UseTranslationResponse<any, any>;
+}
+declare const DataDisplay: ({ variant }: DataDisplayProps) => react_jsx_runtime.JSX.Element;
+
+interface DataTableServerProps<TData = unknown> {
+    children: ReactNode | ReactNode[];
+    /**
+     * Column definitions for the table.
+     *
+     * It will pass into as the column definitions in `@tanstack/react-table`
+     *
+     * @link https://tanstack.com/table/latest/docs/guide/column-defs
+     */
+    columns: ColumnDef<TData>[];
+    enableRowSelection?: boolean;
+    enableMultiRowSelection?: boolean;
+    enableSubRowSelection?: boolean;
+    columnOrder: ColumnOrderState;
+    columnFilters: ColumnFiltersState;
+    globalFilter: string;
+    density: DensityState;
+    pagination: PaginationState;
+    sorting: SortingState;
+    rowSelection: RowSelectionState;
+    columnVisibility: VisibilityState;
+    setPagination: OnChangeFn<PaginationState>;
+    setSorting: OnChangeFn<SortingState>;
+    setColumnFilters: OnChangeFn<ColumnFiltersState>;
+    setRowSelection: OnChangeFn<RowSelectionState>;
+    setGlobalFilter: OnChangeFn<string>;
+    setColumnOrder: OnChangeFn<ColumnOrderState>;
+    setDensity: OnChangeFn<DensityState>;
+    setColumnVisibility: OnChangeFn<VisibilityState>;
+    query: UseQueryResult<DataResponse<TData>>;
+    url?: string;
+    translate: UseTranslationResponse<any, any>;
+    tableLabel?: DataTableLabel;
+}
+/**
+ * DataTableServer will create a context to hold all values to
+ * help the render of the DataTable in serverside
+ *
+ * The query is required to be a GET request that can receive
+ * specified params and return a specified response
+ *
+ * The `useDataTableServer` can help to create the specified request and response
+ *
+ * @link https://tanstack.com/table/latest/docs/guide/column-defs
+ */
+declare function DataTableServer<TData = unknown>({ columns, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel, }: DataTableServerProps<TData>): react_jsx_runtime.JSX.Element;
+
+declare module '@tanstack/react-table' {
     interface ColumnMeta<TData extends RowData, TValue> {
         /**
          * If `showCustomDisplay` is `true`, it will use the cell render to render the value.
@@ -1091,7 +1096,7 @@ declare module "@tanstack/react-table" {
          * - "dateRange": A date range filter.
          * - "custom": A custom filter function.
          */
-        filterVariant?: "text" | "range" | "select" | "tag" | "boolean" | "dateRange" | "custom";
+        filterVariant?: 'text' | 'range' | 'select' | 'tag' | 'boolean' | 'dateRange' | 'custom';
         /**
          * Options for the select filter variant, if applicable.
          */
@@ -1121,6 +1126,13 @@ declare module "@tanstack/react-table" {
          * @returns A JSX element representing the filter UI.
          */
         renderFilter?: (column: Column<TData>) => ReactNode;
+        /**
+         * Priority for responsive column hiding when table width is too narrow.
+         * Lower priority numbers = hide first (e.g., priority 1 hides before priority 10).
+         * Columns without priority default to Infinity (highest priority, never auto-hide).
+         * Only applies when canResize={false}.
+         */
+        responsivePriority?: number;
     }
 }
 
