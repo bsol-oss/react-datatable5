@@ -889,18 +889,18 @@ type MediaLibraryBrowserPropsBase = {
 };
 type MediaLibraryBrowserPropsSingle = MediaLibraryBrowserPropsBase & {
     multiple?: false;
-    onFileSelect?: (fileId: string) => void;
-    selectedFileId?: string;
-    onSelectedFileIdChange?: (fileId: string) => void;
+    onFileSelect?: (file: FilePickerMediaFile) => void;
+    selectedFile?: FilePickerMediaFile;
+    onSelectedFileChange?: (file: FilePickerMediaFile | undefined) => void;
 };
 type MediaLibraryBrowserPropsMultiple = MediaLibraryBrowserPropsBase & {
     multiple: true;
-    onFileSelect?: (fileId: string[]) => void;
-    selectedFileId?: string[];
-    onSelectedFileIdChange?: (fileId: string[]) => void;
+    onFileSelect?: (files: FilePickerMediaFile[]) => void;
+    selectedFile?: FilePickerMediaFile[];
+    onSelectedFileChange?: (files: FilePickerMediaFile[]) => void;
 };
 type MediaLibraryBrowserProps = MediaLibraryBrowserPropsSingle | MediaLibraryBrowserPropsMultiple;
-declare const MediaLibraryBrowser: ({ onFetchFiles, filterImageOnly, labels, enabled, multiple, onFileSelect, selectedFileId: controlledSelectedFileId, onSelectedFileIdChange, }: MediaLibraryBrowserProps) => react_jsx_runtime.JSX.Element | null;
+declare const MediaLibraryBrowser: ({ onFetchFiles, filterImageOnly, labels, enabled, multiple, onFileSelect, selectedFile: controlledSelectedFile, onSelectedFileChange, }: MediaLibraryBrowserProps) => react_jsx_runtime.JSX.Element | null;
 
 interface UseFormProps {
     preLoadedValues?: FieldValues | undefined;

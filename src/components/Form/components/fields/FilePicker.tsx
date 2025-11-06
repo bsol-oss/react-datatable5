@@ -41,10 +41,10 @@ import {
 // FileValue is File for file-picker variant
 type FileValue = File;
 
-interface FilePickerDialogProps {
+interface MediaBrowserDialogProps {
   open: boolean;
   onClose: () => void;
-  onSelect: (fileId: string) => void;
+  onSelect: (file: FilePickerMediaFile) => void;
   title: string;
   filterImageOnly?: boolean;
   onFetchFiles?: (search: string) => Promise<FilePickerMediaFile[]>;
@@ -55,7 +55,7 @@ interface FilePickerDialogProps {
   colLabel: string;
 }
 
-export function FilePickerDialog({
+export function MediaBrowserDialog({
   open,
   onClose,
   onSelect,
@@ -67,8 +67,10 @@ export function FilePickerDialog({
   labels,
   translate,
   colLabel,
-}: FilePickerDialogProps) {
-  const [selectedFileId, setSelectedFileId] = useState<string>('');
+}: MediaBrowserDialogProps) {
+  const [selectedFile, setSelectedFile] = useState<
+    FilePickerMediaFile | undefined
+  >(undefined);
   const [activeTab, setActiveTab] = useState<string>('browse');
   const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
   const [uploadErrors, setUploadErrors] = useState<Map<string, string>>(
@@ -76,17 +78,17 @@ export function FilePickerDialog({
   );
 
   const handleSelect = () => {
-    if (selectedFileId) {
-      onSelect(selectedFileId);
+    if (selectedFile) {
+      onSelect(selectedFile);
       onClose();
-      setSelectedFileId('');
+      setSelectedFile(undefined);
       setActiveTab('browse');
     }
   };
 
   const handleClose = () => {
     onClose();
-    setSelectedFileId('');
+    setSelectedFile(undefined);
     setActiveTab('browse');
     setUploadingFiles(new Set());
     setUploadErrors(new Map());
@@ -106,16 +108,23 @@ export function FilePickerDialog({
 
       try {
         const fileId = await onUploadFile(file);
-        setSelectedFileId(fileId);
+        // Create a minimal FilePickerMediaFile object from the uploaded file
+        const uploadedFile: FilePickerMediaFile = {
+          id: fileId,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        };
+        setSelectedFile(uploadedFile);
         setUploadingFiles((prev) => {
           const newSet = new Set(prev);
           newSet.delete(fileKey);
           return newSet;
         });
         // Auto-select and close in single-select mode
-        onSelect(fileId);
+        onSelect(uploadedFile);
         onClose();
-        setSelectedFileId('');
+        setSelectedFile(undefined);
         setActiveTab('browse');
       } catch (error) {
         setUploadingFiles((prev) => {
@@ -173,8 +182,8 @@ export function FilePickerDialog({
                     filterImageOnly={filterImageOnly}
                     labels={labels}
                     enabled={open && activeTab === 'browse'}
-                    selectedFileId={selectedFileId}
-                    onSelectedFileIdChange={setSelectedFileId}
+                    selectedFile={selectedFile}
+                    onFileSelect={setSelectedFile}
                   />
                 )}
               </Tabs.Content>
@@ -255,8 +264,8 @@ export function FilePickerDialog({
               filterImageOnly={filterImageOnly}
               labels={labels}
               enabled={open}
-              selectedFileId={selectedFileId}
-              onSelectedFileIdChange={setSelectedFileId}
+              selectedFile={selectedFile}
+              onFileSelect={setSelectedFile}
             />
           ) : null}
         </DialogBody>
@@ -276,7 +285,7 @@ export function FilePickerDialog({
             <Button
               colorPalette="blue"
               onClick={handleSelect}
-              disabled={!selectedFileId}
+              disabled={!selectedFile}
             >
               {labels?.select ??
                 translate(removeIndex(`${colLabel}.select`)) ??

@@ -4624,13 +4624,13 @@ function formatBytes(bytes) {
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 }
 
-const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, enabled = true, multiple = false, onFileSelect, selectedFileId: controlledSelectedFileId, onSelectedFileIdChange, }) => {
+const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, enabled = true, multiple = false, onFileSelect, selectedFile: controlledSelectedFile, onSelectedFileChange, }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [internalSelectedFileId, setInternalSelectedFileId] = useState(multiple ? [] : '');
+    const [internalSelectedFile, setInternalSelectedFile] = useState(multiple ? [] : undefined);
     const [failedImageIds, setFailedImageIds] = useState(new Set());
-    // Use controlled or internal state for selectedFileId
-    const selectedFileId = controlledSelectedFileId ?? internalSelectedFileId;
-    const setSelectedFileId = onSelectedFileIdChange ?? setInternalSelectedFileId;
+    // Use controlled or internal state for selectedFile
+    const selectedFile = controlledSelectedFile ?? internalSelectedFile;
+    const setSelectedFile = onSelectedFileChange ?? setInternalSelectedFile;
     const { data: filesData, isLoading, isError, } = useQuery({
         queryKey: ['file-picker-library', searchTerm],
         queryFn: async () => {
@@ -4645,23 +4645,25 @@ const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, en
     const filteredFiles = filterImageOnly
         ? files.filter((file) => /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name))
         : files;
-    const handleFileClick = (fileId) => {
+    const handleFileClick = (file) => {
         if (multiple) {
-            const currentSelection = Array.isArray(selectedFileId)
-                ? selectedFileId
+            const currentSelection = Array.isArray(selectedFile)
+                ? selectedFile
                 : [];
-            const newSelection = currentSelection.includes(fileId)
-                ? currentSelection.filter((id) => id !== fileId)
-                : [...currentSelection, fileId];
-            setSelectedFileId(newSelection);
+            const isAlreadySelected = currentSelection.some((f) => f.id === file.id);
+            const newSelection = isAlreadySelected
+                ? currentSelection.filter((f) => f.id !== file.id)
+                : [...currentSelection, file];
+            setSelectedFile(newSelection);
             if (onFileSelect) {
                 onFileSelect(newSelection);
             }
         }
         else {
-            setSelectedFileId(fileId);
-            if (onFileSelect) {
-                onFileSelect(fileId);
+            const newFile = selectedFile === file ? undefined : file;
+            setSelectedFile(newFile);
+            if (onFileSelect && newFile) {
+                onFileSelect(newFile);
             }
         }
     };
@@ -4688,9 +4690,10 @@ const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, en
                     }, children: labels?.loadingFailed ?? 'Failed to load files' }) })), !isLoading && !isError && (jsx(Box, { maxHeight: "400px", overflowY: "auto", children: filteredFiles.length === 0 ? (jsx(Box, { textAlign: "center", py: 8, children: jsx(Text, { color: "fg.muted", children: labels?.noFilesFound ?? 'No files found' }) })) : (jsx(VStack, { align: "stretch", gap: 2, children: filteredFiles.map((file) => {
                         const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name);
                         const isSelected = multiple
-                            ? Array.isArray(selectedFileId) &&
-                                selectedFileId.includes(file.id)
-                            : selectedFileId === file.id;
+                            ? Array.isArray(selectedFile) &&
+                                selectedFile.some((f) => f.id === file.id)
+                            : selectedFile?.id ===
+                                file.id;
                         const imageFailed = failedImageIds.has(file.id);
                         return (jsx(Box, { p: 3, border: "2px solid", borderColor: isSelected
                                 ? {
@@ -4702,7 +4705,7 @@ const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, en
                                     base: 'colorPalette.50',
                                     _dark: 'colorPalette.900/20',
                                 }
-                                : 'bg.panel', colorPalette: "blue", cursor: "pointer", onClick: () => handleFileClick(file.id), _hover: {
+                                : 'bg.panel', colorPalette: "blue", cursor: "pointer", onClick: () => handleFileClick(file), _hover: {
                                 borderColor: isSelected
                                     ? {
                                         base: 'colorPalette.600',
@@ -4727,22 +4730,22 @@ const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, en
                     }) })) }))] }));
 };
 
-function FilePickerDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, onUploadFile, enableUpload = false, labels, translate, colLabel, }) {
-    const [selectedFileId, setSelectedFileId] = useState('');
+function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, onUploadFile, enableUpload = false, labels, translate, colLabel, }) {
+    const [selectedFile, setSelectedFile] = useState(undefined);
     const [activeTab, setActiveTab] = useState('browse');
     const [uploadingFiles, setUploadingFiles] = useState(new Set());
     const [uploadErrors, setUploadErrors] = useState(new Map());
     const handleSelect = () => {
-        if (selectedFileId) {
-            onSelect(selectedFileId);
+        if (selectedFile) {
+            onSelect(selectedFile);
             onClose();
-            setSelectedFileId('');
+            setSelectedFile(undefined);
             setActiveTab('browse');
         }
     };
     const handleClose = () => {
         onClose();
-        setSelectedFileId('');
+        setSelectedFile(undefined);
         setActiveTab('browse');
         setUploadingFiles(new Set());
         setUploadErrors(new Map());
@@ -4760,16 +4763,23 @@ function FilePickerDialog({ open, onClose, onSelect, title, filterImageOnly = fa
             });
             try {
                 const fileId = await onUploadFile(file);
-                setSelectedFileId(fileId);
+                // Create a minimal FilePickerMediaFile object from the uploaded file
+                const uploadedFile = {
+                    id: fileId,
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                };
+                setSelectedFile(uploadedFile);
                 setUploadingFiles((prev) => {
                     const newSet = new Set(prev);
                     newSet.delete(fileKey);
                     return newSet;
                 });
                 // Auto-select and close in single-select mode
-                onSelect(fileId);
+                onSelect(uploadedFile);
                 onClose();
-                setSelectedFileId('');
+                setSelectedFile(undefined);
                 setActiveTab('browse');
             }
             catch (error) {
@@ -4793,7 +4803,7 @@ function FilePickerDialog({ open, onClose, onSelect, title, filterImageOnly = fa
                                             translate(removeIndex(`${colLabel}.browse_tab`)) ??
                                             'Browse Library' }), jsx(Tabs.Trigger, { value: "upload", children: labels?.uploadTab ??
                                             translate(removeIndex(`${colLabel}.upload_tab`)) ??
-                                            'Upload Files' })] }), jsx(Tabs.Content, { value: "browse", children: onFetchFiles && (jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open && activeTab === 'browse', selectedFileId: selectedFileId, onSelectedFileIdChange: setSelectedFileId })) }), jsx(Tabs.Content, { value: "upload", children: jsxs(VStack, { align: "stretch", gap: 4, children: [jsx(FileDropzone, { onDrop: ({ files }) => handleFileUpload(files), placeholder: labels?.fileDropzone ??
+                                            'Upload Files' })] }), jsx(Tabs.Content, { value: "browse", children: onFetchFiles && (jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open && activeTab === 'browse', selectedFile: selectedFile, onFileSelect: setSelectedFile })) }), jsx(Tabs.Content, { value: "upload", children: jsxs(VStack, { align: "stretch", gap: 4, children: [jsx(FileDropzone, { onDrop: ({ files }) => handleFileUpload(files), placeholder: labels?.fileDropzone ??
                                                 translate(removeIndex(`${colLabel}.fileDropzone`)) ??
                                                 'Drop files here or click to upload' }), uploadingFiles.size > 0 && (jsx(Box, { children: Array.from(uploadingFiles).map((fileKey) => (jsx(Box, { py: 2, children: jsxs(HStack, { gap: 2, children: [jsx(Spinner, { size: "sm", colorPalette: "blue" }), jsxs(Text, { fontSize: "sm", color: "fg.muted", children: [labels?.uploading ??
                                                                     translate(removeIndex(`${colLabel}.uploading`)) ??
@@ -4808,9 +4818,9 @@ function FilePickerDialog({ open, onClose, onSelect, title, filterImageOnly = fa
                                                         _dark: 'colorPalette.300',
                                                     }, children: [fileKey.split('-')[0], ":", ' ', labels?.uploadFailed ??
                                                             translate(removeIndex(`${colLabel}.upload_failed`)) ??
-                                                            'Upload failed', error && ` - ${error}`] }) }, fileKey))) }))] }) })] })) : onFetchFiles ? (jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open, selectedFileId: selectedFileId, onSelectedFileIdChange: setSelectedFileId })) : null }), jsx(DialogFooter, { children: jsxs(HStack, { gap: 3, justify: "end", children: [jsx(Button$1, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ??
+                                                            'Upload failed', error && ` - ${error}`] }) }, fileKey))) }))] }) })] })) : onFetchFiles ? (jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open, selectedFile: selectedFile, onFileSelect: setSelectedFile })) : null }), jsx(DialogFooter, { children: jsxs(HStack, { gap: 3, justify: "end", children: [jsx(Button$1, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ??
                                     translate(removeIndex(`${colLabel}.cancel`)) ??
-                                    'Cancel' }), jsx(Button$1, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFileId, children: labels?.select ??
+                                    'Cancel' }), jsx(Button$1, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFile, children: labels?.select ??
                                     translate(removeIndex(`${colLabel}.select`)) ??
                                     'Select' })] }) })] }) }));
 }
@@ -4909,17 +4919,70 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
     const colLabel = formI18n.colLabel;
     const [dialogOpen, setDialogOpen] = useState(false);
     const [failedImageIds, setFailedImageIds] = useState(new Set());
+    // Map of file ID to FilePickerMediaFile for display
+    const [fileMap, setFileMap] = useState(new Map());
     const { onFetchFiles, filterImageOnly = false, enableUpload = false, onUploadFile, } = filePicker || {};
+    // Fetch file details for existing file IDs
+    useEffect(() => {
+        if (!onFetchFiles || currentFileIds.length === 0)
+            return;
+        const fetchFileDetails = async () => {
+            setFileMap((prevMap) => {
+                const filesToFetch = currentFileIds.filter((id) => !prevMap.has(id));
+                if (filesToFetch.length === 0)
+                    return prevMap;
+                // Fetch all files and filter for the ones we need
+                onFetchFiles('')
+                    .then((allFiles) => {
+                    setFileMap((currentMap) => {
+                        const newFileMap = new Map(currentMap);
+                        filesToFetch.forEach((id) => {
+                            const file = allFiles.find((f) => f.id === id);
+                            if (file) {
+                                newFileMap.set(id, file);
+                            }
+                        });
+                        return newFileMap;
+                    });
+                })
+                    .catch((error) => {
+                    console.error('Failed to fetch file details:', error);
+                });
+                return prevMap;
+            });
+        };
+        fetchFileDetails();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentFileIds.join(','), onFetchFiles]);
+    // Clean up fileMap when files are removed
+    useEffect(() => {
+        setFileMap((prevMap) => {
+            const currentIds = new Set(currentFileIds);
+            const newFileMap = new Map();
+            prevMap.forEach((file, id) => {
+                if (currentIds.has(id)) {
+                    newFileMap.set(id, file);
+                }
+            });
+            return newFileMap.size !== prevMap.size ? newFileMap : prevMap;
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentFileIds.join(',')]);
     if (!onFetchFiles) {
         return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
             gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsx(Text, { color: "fg.muted", children: "Media library browser requires onFetchFiles" }) }));
     }
-    const handleMediaLibrarySelect = (fileId) => {
+    const handleImageError = (fileIdentifier) => {
+        setFailedImageIds((prev) => new Set(prev).add(fileIdentifier));
+    };
+    const handleMediaLibrarySelect = (file) => {
+        // Store the file in the map for display
+        setFileMap((prev) => new Map(prev).set(file.id, file));
         if (isSingleSelect) {
-            setValue(colLabel, fileId);
+            setValue(colLabel, file.id);
         }
         else {
-            const newFileIds = [...currentFileIds, fileId];
+            const newFileIds = [...currentFileIds, file.id];
             setValue(colLabel, newFileIds);
         }
     };
@@ -4932,21 +4995,24 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
             setValue(colLabel, newFileIds);
         }
     };
-    const isImageId = (fileId) => {
-        return /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(fileId);
-    };
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(Button$1, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ??
                         formI18n.t('browse_library') ??
-                        'Browse from Library' }) }), jsx(FilePickerDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ??
+                        'Browse from Library' }) }), jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ??
                     formI18n.t('dialog_title') ??
                     'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, translate: formI18n.t, colLabel: colLabel }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
-                    const isImage = isImageId(fileId);
+                    const file = fileMap.get(fileId);
+                    const isImage = file
+                        ? /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name)
+                        : /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(fileId);
                     const imageFailed = failedImageIds.has(fileId);
+                    const displayName = file?.name ?? fileId;
                     return (jsx(Card.Root, { variant: 'subtle', colorPalette: "blue", children: jsxs(Card.Body, { gap: "2", cursor: 'pointer', onClick: () => handleRemove(index), display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', border: "2px solid", borderColor: "border.default", borderRadius: "md", _hover: {
                                 borderColor: 'colorPalette.300',
                                 bg: 'bg.muted',
-                            }, transition: "all 0.2s", children: [jsx(Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, marginRight: "2", children: isImage && !imageFailed ? (jsx(Icon, { as: LuImage, boxSize: 6, color: "fg.muted" })) : (jsx(Icon, { as: LuFile, boxSize: 6, color: "fg.muted" })) }), jsx(VStack, { align: "start", flex: 1, gap: 1, children: jsx(Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: fileId }) }), jsx(Icon, { as: TiDeleteOutline, boxSize: 5, color: "fg.muted" })] }) }, `${fileId}-${index}`));
+                            }, transition: "all 0.2s", children: [jsx(Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, marginRight: "2", overflow: "hidden", children: isImage && file?.url && !imageFailed ? (jsx(Image, { src: file.url, alt: displayName, boxSize: "60px", objectFit: "cover", onError: () => handleImageError(fileId) })) : isImage && !imageFailed ? (jsx(Icon, { as: LuImage, boxSize: 6, color: "fg.muted" })) : (jsx(Icon, { as: LuFile, boxSize: 6, color: "fg.muted" })) }), jsxs(VStack, { align: "start", flex: 1, gap: 1, children: [jsx(Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: displayName }), file?.size && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: typeof file.size === 'number'
+                                                ? `${(file.size / 1024).toFixed(1)} KB`
+                                                : file.size }))] }), jsx(Icon, { as: TiDeleteOutline, boxSize: 5, color: "fg.muted" })] }) }, `${fileId}-${index}`));
                 }) })] }));
 };
 

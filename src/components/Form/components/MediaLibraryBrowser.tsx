@@ -26,16 +26,16 @@ type MediaLibraryBrowserPropsBase = {
 
 type MediaLibraryBrowserPropsSingle = MediaLibraryBrowserPropsBase & {
   multiple?: false;
-  onFileSelect?: (fileId: string) => void;
-  selectedFileId?: string;
-  onSelectedFileIdChange?: (fileId: string) => void;
+  onFileSelect?: (file: FilePickerMediaFile) => void;
+  selectedFile?: FilePickerMediaFile;
+  onSelectedFileChange?: (file: FilePickerMediaFile | undefined) => void;
 };
 
 type MediaLibraryBrowserPropsMultiple = MediaLibraryBrowserPropsBase & {
   multiple: true;
-  onFileSelect?: (fileId: string[]) => void;
-  selectedFileId?: string[];
-  onSelectedFileIdChange?: (fileId: string[]) => void;
+  onFileSelect?: (files: FilePickerMediaFile[]) => void;
+  selectedFile?: FilePickerMediaFile[];
+  onSelectedFileChange?: (files: FilePickerMediaFile[]) => void;
 };
 
 export type MediaLibraryBrowserProps =
@@ -49,18 +49,18 @@ export const MediaLibraryBrowser = ({
   enabled = true,
   multiple = false,
   onFileSelect,
-  selectedFileId: controlledSelectedFileId,
-  onSelectedFileIdChange,
+  selectedFile: controlledSelectedFile,
+  onSelectedFileChange,
 }: MediaLibraryBrowserProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [internalSelectedFileId, setInternalSelectedFileId] = useState<
-    string | string[]
-  >(multiple ? [] : '');
+  const [internalSelectedFile, setInternalSelectedFile] = useState<
+    FilePickerMediaFile | FilePickerMediaFile[] | undefined
+  >(multiple ? [] : undefined);
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
 
-  // Use controlled or internal state for selectedFileId
-  const selectedFileId = controlledSelectedFileId ?? internalSelectedFileId;
-  const setSelectedFileId = onSelectedFileIdChange ?? setInternalSelectedFileId;
+  // Use controlled or internal state for selectedFile
+  const selectedFile = controlledSelectedFile ?? internalSelectedFile;
+  const setSelectedFile = onSelectedFileChange ?? setInternalSelectedFile;
 
   const {
     data: filesData,
@@ -84,22 +84,24 @@ export const MediaLibraryBrowser = ({
       )
     : files;
 
-  const handleFileClick = (fileId: string) => {
+  const handleFileClick = (file: FilePickerMediaFile) => {
     if (multiple) {
-      const currentSelection = Array.isArray(selectedFileId)
-        ? selectedFileId
-        : [];
-      const newSelection = currentSelection.includes(fileId)
-        ? currentSelection.filter((id) => id !== fileId)
-        : [...currentSelection, fileId];
-      (setSelectedFileId as (value: string[]) => void)(newSelection);
+      const currentSelection = Array.isArray(selectedFile) ? selectedFile : [];
+      const isAlreadySelected = currentSelection.some((f) => f.id === file.id);
+      const newSelection = isAlreadySelected
+        ? currentSelection.filter((f) => f.id !== file.id)
+        : [...currentSelection, file];
+      (setSelectedFile as (files: FilePickerMediaFile[]) => void)(newSelection);
       if (onFileSelect) {
-        (onFileSelect as (fileId: string[]) => void)(newSelection);
+        (onFileSelect as (files: FilePickerMediaFile[]) => void)(newSelection);
       }
     } else {
-      (setSelectedFileId as (value: string) => void)(fileId);
-      if (onFileSelect) {
-        (onFileSelect as (fileId: string) => void)(fileId);
+      const newFile = selectedFile === file ? undefined : file;
+      (setSelectedFile as (file: FilePickerMediaFile | undefined) => void)(
+        newFile
+      );
+      if (onFileSelect && newFile) {
+        (onFileSelect as (file: FilePickerMediaFile) => void)(newFile);
       }
     }
   };
@@ -195,9 +197,10 @@ export const MediaLibraryBrowser = ({
                   file.name
                 );
                 const isSelected = multiple
-                  ? Array.isArray(selectedFileId) &&
-                    selectedFileId.includes(file.id)
-                  : selectedFileId === file.id;
+                  ? Array.isArray(selectedFile) &&
+                    selectedFile.some((f) => f.id === file.id)
+                  : (selectedFile as FilePickerMediaFile | undefined)?.id ===
+                    file.id;
                 const imageFailed = failedImageIds.has(file.id);
 
                 return (
@@ -224,7 +227,7 @@ export const MediaLibraryBrowser = ({
                     }
                     colorPalette="blue"
                     cursor="pointer"
-                    onClick={() => handleFileClick(file.id)}
+                    onClick={() => handleFileClick(file)}
                     _hover={{
                       borderColor: isSelected
                         ? {

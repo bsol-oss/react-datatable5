@@ -1,14 +1,26 @@
 import { Field } from '@/components/ui/field';
-import { Box, Button, Card, Flex, Icon, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  Icon,
+  Image,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { TiDeleteOutline } from 'react-icons/ti';
 import { LuFile, LuImage } from 'react-icons/lu';
-import { useState } from 'react';
-import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import { useState, useEffect } from 'react';
+import {
+  CustomJSONSchema7,
+  FilePickerMediaFile,
+} from '../types/CustomJSONSchema7';
 import { useFormI18n } from '../../utils/useFormI18n';
 import { useSchemaContext } from '../../useSchemaContext';
 import { InputDefaultProps } from './types';
-import { FilePickerDialog } from './FilePicker';
+import { MediaBrowserDialog } from './FilePicker';
 
 export const FormMediaLibraryBrowser = ({
   column,
@@ -47,6 +59,10 @@ export const FormMediaLibraryBrowser = ({
   const colLabel = formI18n.colLabel;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
+  // Map of file ID to FilePickerMediaFile for display
+  const [fileMap, setFileMap] = useState<Map<string, FilePickerMediaFile>>(
+    new Map()
+  );
 
   const {
     onFetchFiles,
@@ -54,6 +70,55 @@ export const FormMediaLibraryBrowser = ({
     enableUpload = false,
     onUploadFile,
   } = filePicker || {};
+
+  // Fetch file details for existing file IDs
+  useEffect(() => {
+    if (!onFetchFiles || currentFileIds.length === 0) return;
+
+    const fetchFileDetails = async () => {
+      setFileMap((prevMap) => {
+        const filesToFetch = currentFileIds.filter((id) => !prevMap.has(id));
+        if (filesToFetch.length === 0) return prevMap;
+
+        // Fetch all files and filter for the ones we need
+        onFetchFiles('')
+          .then((allFiles) => {
+            setFileMap((currentMap) => {
+              const newFileMap = new Map(currentMap);
+              filesToFetch.forEach((id) => {
+                const file = allFiles.find((f) => f.id === id);
+                if (file) {
+                  newFileMap.set(id, file);
+                }
+              });
+              return newFileMap;
+            });
+          })
+          .catch((error) => {
+            console.error('Failed to fetch file details:', error);
+          });
+        return prevMap;
+      });
+    };
+
+    fetchFileDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFileIds.join(','), onFetchFiles]);
+
+  // Clean up fileMap when files are removed
+  useEffect(() => {
+    setFileMap((prevMap) => {
+      const currentIds = new Set(currentFileIds);
+      const newFileMap = new Map();
+      prevMap.forEach((file, id) => {
+        if (currentIds.has(id)) {
+          newFileMap.set(id, file);
+        }
+      });
+      return newFileMap.size !== prevMap.size ? newFileMap : prevMap;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFileIds.join(',')]);
 
   if (!onFetchFiles) {
     return (
@@ -79,11 +144,14 @@ export const FormMediaLibraryBrowser = ({
     setFailedImageIds((prev) => new Set(prev).add(fileIdentifier));
   };
 
-  const handleMediaLibrarySelect = (fileId: string) => {
+  const handleMediaLibrarySelect = (file: FilePickerMediaFile) => {
+    // Store the file in the map for display
+    setFileMap((prev) => new Map(prev).set(file.id, file));
+
     if (isSingleSelect) {
-      setValue(colLabel, fileId);
+      setValue(colLabel, file.id);
     } else {
-      const newFileIds = [...currentFileIds, fileId];
+      const newFileIds = [...currentFileIds, file.id];
       setValue(colLabel, newFileIds);
     }
   };
@@ -95,10 +163,6 @@ export const FormMediaLibraryBrowser = ({
       const newFileIds = currentFileIds.filter((_, i) => i !== index);
       setValue(colLabel, newFileIds);
     }
-  };
-
-  const isImageId = (fileId: string): boolean => {
-    return /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(fileId);
   };
 
   return (
@@ -127,7 +191,7 @@ export const FormMediaLibraryBrowser = ({
         </Button>
       </VStack>
 
-      <FilePickerDialog
+      <MediaBrowserDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSelect={handleMediaLibrarySelect}
@@ -147,8 +211,12 @@ export const FormMediaLibraryBrowser = ({
 
       <Flex flexFlow={'column'} gap={1}>
         {currentFileIds.map((fileId, index) => {
-          const isImage = isImageId(fileId);
+          const file = fileMap.get(fileId);
+          const isImage = file
+            ? /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name)
+            : /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(fileId);
           const imageFailed = failedImageIds.has(fileId);
+          const displayName = file?.name ?? fileId;
 
           return (
             <Card.Root
@@ -183,8 +251,17 @@ export const FormMediaLibraryBrowser = ({
                   borderRadius="md"
                   flexShrink={0}
                   marginRight="2"
+                  overflow="hidden"
                 >
-                  {isImage && !imageFailed ? (
+                  {isImage && file?.url && !imageFailed ? (
+                    <Image
+                      src={file.url}
+                      alt={displayName}
+                      boxSize="60px"
+                      objectFit="cover"
+                      onError={() => handleImageError(fileId)}
+                    />
+                  ) : isImage && !imageFailed ? (
                     <Icon as={LuImage} boxSize={6} color="fg.muted" />
                   ) : (
                     <Icon as={LuFile} boxSize={6} color="fg.muted" />
@@ -199,8 +276,15 @@ export const FormMediaLibraryBrowser = ({
                     textOverflow="ellipsis"
                     whiteSpace="nowrap"
                   >
-                    {fileId}
+                    {displayName}
                   </Text>
+                  {file?.size && (
+                    <Text fontSize="xs" color="fg.muted">
+                      {typeof file.size === 'number'
+                        ? `${(file.size / 1024).toFixed(1)} KB`
+                        : file.size}
+                    </Text>
+                  )}
                 </VStack>
                 <Icon as={TiDeleteOutline} boxSize={5} color="fg.muted" />
               </Card.Body>
