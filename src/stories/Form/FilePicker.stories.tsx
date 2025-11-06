@@ -80,6 +80,19 @@ i18n
               field_label: 'Basic File Upload',
               fileDropzone: 'Drop files here or click to upload',
             },
+            media_library: {
+              field_label: 'Media Library Browser',
+              browse_library: 'Browse from Library',
+              dialog_title: 'Select File',
+              search_placeholder: 'Search files...',
+              loading: 'Loading files...',
+              cancel: 'Cancel',
+              select: 'Select',
+              no_files_found: 'No files found',
+              error: {
+                loading_failed: 'Failed to load files',
+              },
+            },
           },
         },
       },
@@ -522,6 +535,98 @@ const SingleSelectForm = () => {
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
           console.log('Single file (ID or File object):', data.single_file);
+        },
+        ...form,
+      }}
+    />
+  );
+};
+
+export const FilePickerAndMediaLibrary: Story = {
+  render: () => {
+    return (
+      <Provider>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
+            <FilePickerAndMediaLibraryForm />
+          </I18nextProvider>
+        </QueryClientProvider>
+      </Provider>
+    );
+  },
+};
+
+const FilePickerAndMediaLibraryForm = () => {
+  const form = useForm({ keyPrefix: 'files' });
+
+  const schema = {
+    type: 'object',
+    properties: {
+      file_picker: {
+        type: 'array',
+        variant: 'file-picker',
+        gridColumn: '1/span 6',
+        gridRow: '1/span 1',
+      },
+      media_library: {
+        type: 'array',
+        variant: 'media-library-browser',
+        gridColumn: '7/span 6',
+        gridRow: '1/span 1',
+        filePicker: {
+          onFetchFiles: mockFetchFiles,
+          filterImageOnly: false,
+          enableUpload: true,
+          onUploadFile: async (file: File) => {
+            // Simulate file upload and return file ID
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return `uploaded-${file.name}-${Date.now()}`;
+          },
+        },
+      },
+      single_file_picker: {
+        type: 'string',
+        variant: 'file-picker',
+        gridColumn: '1/span 6',
+        gridRow: '2/span 1',
+      },
+      single_media_library: {
+        type: 'string',
+        variant: 'media-library-browser',
+        gridColumn: '7/span 6',
+        gridRow: '2/span 1',
+        filePicker: {
+          onFetchFiles: mockFetchFiles,
+          filterImageOnly: true,
+          enableUpload: true,
+          onUploadFile: async (file: File) => {
+            // Simulate file upload and return file ID
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return `uploaded-${file.name}-${Date.now()}`;
+          },
+        },
+      },
+    },
+    required: [],
+  } as JSONSchema7;
+
+  return (
+    <DefaultForm
+      formConfig={{
+        schema: schema,
+        serverUrl: 'http://localhost:8081',
+        onSubmit: async (data) => {
+          console.log('Form submitted:', data);
+          console.log('File Picker (File objects):', data.file_picker);
+          console.log('Media Library (String IDs):', data.media_library);
+          console.log(
+            'Single File Picker (File object):',
+            data.single_file_picker
+          );
+          console.log(
+            'Single Media Library (String ID):',
+            data.single_media_library
+          );
         },
         ...form,
       }}

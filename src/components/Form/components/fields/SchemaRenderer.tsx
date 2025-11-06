@@ -8,6 +8,7 @@ import { DatePicker } from './DatePicker';
 import { DateRangePicker } from './DateRangePicker';
 import { EnumPicker } from './EnumPicker';
 import { FilePicker } from './FilePicker';
+import { FormMediaLibraryBrowser } from './FormMediaLibraryBrowser';
 import { IdPicker } from './IdPicker';
 import { NumberInputField } from './NumberInputField';
 import { ObjectInput } from './ObjectInput';
@@ -91,6 +92,11 @@ export const SchemaRenderer = ({
     }
     if (variant === 'file-picker') {
       return <FilePicker schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (variant === 'media-library-browser') {
+      return (
+        <FormMediaLibraryBrowser schema={colSchema} {...{ prefix, column }} />
+      );
     }
     if (variant === 'date-range') {
       return <DateRangePicker schema={colSchema} {...{ prefix, column }} />;

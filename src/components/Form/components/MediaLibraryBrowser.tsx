@@ -17,16 +17,30 @@ import {
 } from './types/CustomJSONSchema7';
 import { formatBytes } from '../utils/formatBytes';
 
-export interface MediaLibraryBrowserProps {
+type MediaLibraryBrowserPropsBase = {
   onFetchFiles?: (search: string) => Promise<FilePickerMediaFile[]>;
   filterImageOnly?: boolean;
   labels?: FilePickerLabels;
   enabled?: boolean;
-  multiple?: boolean;
-  onFileSelect?: (fileId: string | string[]) => void;
-  selectedFileId?: string | string[];
-  onSelectedFileIdChange?: (fileId: string | string[]) => void;
-}
+};
+
+type MediaLibraryBrowserPropsSingle = MediaLibraryBrowserPropsBase & {
+  multiple?: false;
+  onFileSelect?: (fileId: string) => void;
+  selectedFileId?: string;
+  onSelectedFileIdChange?: (fileId: string) => void;
+};
+
+type MediaLibraryBrowserPropsMultiple = MediaLibraryBrowserPropsBase & {
+  multiple: true;
+  onFileSelect?: (fileId: string[]) => void;
+  selectedFileId?: string[];
+  onSelectedFileIdChange?: (fileId: string[]) => void;
+};
+
+export type MediaLibraryBrowserProps =
+  | MediaLibraryBrowserPropsSingle
+  | MediaLibraryBrowserPropsMultiple;
 
 export const MediaLibraryBrowser = ({
   onFetchFiles,
@@ -78,14 +92,14 @@ export const MediaLibraryBrowser = ({
       const newSelection = currentSelection.includes(fileId)
         ? currentSelection.filter((id) => id !== fileId)
         : [...currentSelection, fileId];
-      setSelectedFileId(newSelection);
+      (setSelectedFileId as (value: string[]) => void)(newSelection);
       if (onFileSelect) {
-        onFileSelect(newSelection);
+        (onFileSelect as (fileId: string[]) => void)(newSelection);
       }
     } else {
-      setSelectedFileId(fileId);
+      (setSelectedFileId as (value: string) => void)(fileId);
       if (onFileSelect) {
-        onFileSelect(fileId);
+        (onFileSelect as (fileId: string) => void)(fileId);
       }
     }
   };

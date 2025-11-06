@@ -7,6 +7,8 @@ import {
   HStack,
   Icon,
   Image,
+  Spinner,
+  Tabs,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -36,7 +38,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-type FileValue = File | string;
+// FileValue is File for file-picker variant
+type FileValue = File;
 
 interface FilePickerDialogProps {
   open: boolean;
@@ -45,38 +48,96 @@ interface FilePickerDialogProps {
   title: string;
   filterImageOnly?: boolean;
   onFetchFiles?: (search: string) => Promise<FilePickerMediaFile[]>;
+  onUploadFile?: (file: File) => Promise<string>;
+  enableUpload?: boolean;
   labels?: FilePickerLabels;
   translate: (key: string) => string;
   colLabel: string;
 }
 
-function FilePickerDialog({
+export function FilePickerDialog({
   open,
   onClose,
   onSelect,
   title,
   filterImageOnly = false,
   onFetchFiles,
+  onUploadFile,
+  enableUpload = false,
   labels,
   translate,
   colLabel,
 }: FilePickerDialogProps) {
   const [selectedFileId, setSelectedFileId] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<string>('browse');
+  const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
+  const [uploadErrors, setUploadErrors] = useState<Map<string, string>>(
+    new Map()
+  );
 
   const handleSelect = () => {
     if (selectedFileId) {
       onSelect(selectedFileId);
       onClose();
       setSelectedFileId('');
+      setActiveTab('browse');
     }
   };
 
   const handleClose = () => {
     onClose();
     setSelectedFileId('');
+    setActiveTab('browse');
+    setUploadingFiles(new Set());
+    setUploadErrors(new Map());
   };
 
-  if (!onFetchFiles) return null;
+  const handleFileUpload = async (files: File[]) => {
+    if (!onUploadFile) return;
+
+    for (const file of files) {
+      const fileKey = `${file.name}-${file.size}`;
+      setUploadingFiles((prev) => new Set(prev).add(fileKey));
+      setUploadErrors((prev) => {
+        const newMap = new Map(prev);
+        newMap.delete(fileKey);
+        return newMap;
+      });
+
+      try {
+        const fileId = await onUploadFile(file);
+        setSelectedFileId(fileId);
+        setUploadingFiles((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(fileKey);
+          return newSet;
+        });
+        // Auto-select and close in single-select mode
+        onSelect(fileId);
+        onClose();
+        setSelectedFileId('');
+        setActiveTab('browse');
+      } catch (error) {
+        setUploadingFiles((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(fileKey);
+          return newSet;
+        });
+        setUploadErrors((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(
+            fileKey,
+            error instanceof Error ? error.message : 'Upload failed'
+          );
+          return newMap;
+        });
+      }
+    }
+  };
+
+  const showTabs = enableUpload && !!onUploadFile && !!onFetchFiles;
+
+  if (!onFetchFiles && !onUploadFile) return null;
 
   return (
     <DialogRoot open={open} onOpenChange={(e) => !e.open && handleClose()}>
@@ -88,14 +149,116 @@ function FilePickerDialog({
           <DialogCloseTrigger />
         </DialogHeader>
         <DialogBody>
-          <MediaLibraryBrowser
-            onFetchFiles={onFetchFiles}
-            filterImageOnly={filterImageOnly}
-            labels={labels}
-            enabled={open}
-            selectedFileId={selectedFileId}
-            onSelectedFileIdChange={setSelectedFileId}
-          />
+          {showTabs ? (
+            <Tabs.Root
+              value={activeTab}
+              onValueChange={(e) => setActiveTab(e.value ?? 'browse')}
+            >
+              <Tabs.List>
+                <Tabs.Trigger value="browse">
+                  {labels?.browseTab ??
+                    translate(removeIndex(`${colLabel}.browse_tab`)) ??
+                    'Browse Library'}
+                </Tabs.Trigger>
+                <Tabs.Trigger value="upload">
+                  {labels?.uploadTab ??
+                    translate(removeIndex(`${colLabel}.upload_tab`)) ??
+                    'Upload Files'}
+                </Tabs.Trigger>
+              </Tabs.List>
+              <Tabs.Content value="browse">
+                {onFetchFiles && (
+                  <MediaLibraryBrowser
+                    onFetchFiles={onFetchFiles}
+                    filterImageOnly={filterImageOnly}
+                    labels={labels}
+                    enabled={open && activeTab === 'browse'}
+                    selectedFileId={selectedFileId}
+                    onSelectedFileIdChange={setSelectedFileId}
+                  />
+                )}
+              </Tabs.Content>
+              <Tabs.Content value="upload">
+                <VStack align="stretch" gap={4}>
+                  <FileDropzone
+                    onDrop={({ files }) => handleFileUpload(files)}
+                    placeholder={
+                      labels?.fileDropzone ??
+                      translate(removeIndex(`${colLabel}.fileDropzone`)) ??
+                      'Drop files here or click to upload'
+                    }
+                  />
+                  {uploadingFiles.size > 0 && (
+                    <Box>
+                      {Array.from(uploadingFiles).map((fileKey) => (
+                        <Box key={fileKey} py={2}>
+                          <HStack gap={2}>
+                            <Spinner size="sm" colorPalette="blue" />
+                            <Text fontSize="sm" color="fg.muted">
+                              {labels?.uploading ??
+                                translate(
+                                  removeIndex(`${colLabel}.uploading`)
+                                ) ??
+                                'Uploading...'}{' '}
+                              {fileKey.split('-')[0]}
+                            </Text>
+                          </HStack>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                  {uploadErrors.size > 0 && (
+                    <VStack align="stretch" gap={2}>
+                      {Array.from(uploadErrors.entries()).map(
+                        ([fileKey, error]) => (
+                          <Box
+                            key={fileKey}
+                            bg={{
+                              base: 'colorPalette.50',
+                              _dark: 'colorPalette.900/20',
+                            }}
+                            border="1px solid"
+                            borderColor={{
+                              base: 'colorPalette.200',
+                              _dark: 'colorPalette.800',
+                            }}
+                            colorPalette="red"
+                            borderRadius="md"
+                            p={3}
+                          >
+                            <Text
+                              fontSize="sm"
+                              color={{
+                                base: 'colorPalette.600',
+                                _dark: 'colorPalette.300',
+                              }}
+                            >
+                              {fileKey.split('-')[0]}:{' '}
+                              {labels?.uploadFailed ??
+                                translate(
+                                  removeIndex(`${colLabel}.upload_failed`)
+                                ) ??
+                                'Upload failed'}
+                              {error && ` - ${error}`}
+                            </Text>
+                          </Box>
+                        )
+                      )}
+                    </VStack>
+                  )}
+                </VStack>
+              </Tabs.Content>
+            </Tabs.Root>
+          ) : onFetchFiles ? (
+            <MediaLibraryBrowser
+              onFetchFiles={onFetchFiles}
+              filterImageOnly={filterImageOnly}
+              labels={labels}
+              enabled={open}
+              selectedFileId={selectedFileId}
+              onSelectedFileIdChange={setSelectedFileId}
+            />
+          ) : null}
         </DialogBody>
         <DialogFooter>
           <HStack gap={3} justify="end">
@@ -138,7 +301,6 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
     required,
     gridColumn = 'span 12',
     gridRow = 'span 1',
-    filePicker,
     type,
   } = schema as CustomJSONSchema7;
   const isRequired = required?.some((columnId) => columnId === column);
@@ -147,38 +309,22 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
 
   const currentValue = watch(column) ?? (isSingleSelect ? '' : []);
 
-  // Convert single value to array for rendering, or use array directly
+  // Handle File objects only
   const currentFiles: FileValue[] = isSingleSelect
-    ? currentValue
-      ? [currentValue as FileValue]
+    ? currentValue && currentValue instanceof File
+      ? [currentValue]
       : []
     : Array.isArray(currentValue)
-      ? (currentValue as FileValue[])
+      ? (currentValue as FileValue[]).filter((f) => f instanceof File)
       : [];
 
   const colLabel = formI18n.colLabel;
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
 
-  const {
-    onFetchFiles,
-    enableMediaLibrary = false,
-    filterImageOnly = false,
-  } = filePicker || {};
-
-  const showMediaLibrary = enableMediaLibrary && !!onFetchFiles;
+  // FilePicker variant: Only handle File objects, no media library browser
 
   const handleImageError = (fileIdentifier: string) => {
     setFailedImageIds((prev) => new Set(prev).add(fileIdentifier));
-  };
-
-  const handleMediaLibrarySelect = (fileId: string) => {
-    if (isSingleSelect) {
-      setValue(colLabel, fileId);
-    } else {
-      const newFiles = [...currentFiles, fileId];
-      setValue(colLabel, newFiles);
-    }
   };
 
   const handleRemove = (index: number) => {
@@ -190,46 +336,25 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
     }
   };
 
-  const isFileObject = (value: FileValue): value is File => {
-    return value instanceof File;
-  };
-
   const getFileIdentifier = (file: FileValue, index: number): string => {
-    if (isFileObject(file)) {
-      return `${file.name}-${file.size}-${index}`;
-    }
-    return file;
+    // file-picker: file is a File object, create identifier from name and size
+    return `${file.name}-${file.size}-${index}`;
   };
 
   const getFileName = (file: FileValue): string => {
-    if (isFileObject(file)) {
-      return file.name;
-    }
-    return typeof file === 'string' ? file : 'Unknown file';
+    return file.name;
   };
 
   const getFileSize = (file: FileValue): number | undefined => {
-    if (isFileObject(file)) {
-      return file.size;
-    }
-    return undefined;
+    return file.size;
   };
 
   const isImageFile = (file: FileValue): boolean => {
-    if (isFileObject(file)) {
-      return file.type.startsWith('image/');
-    }
-    if (typeof file === 'string') {
-      return /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file);
-    }
-    return false;
+    return file.type.startsWith('image/');
   };
 
   const getImageUrl = (file: FileValue): string | undefined => {
-    if (isFileObject(file)) {
-      return URL.createObjectURL(file);
-    }
-    return undefined;
+    return URL.createObjectURL(file);
   };
 
   return (
@@ -247,6 +372,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
       <VStack align="stretch" gap={2}>
         <FileDropzone
           onDrop={({ files }) => {
+            // file-picker variant: Store File objects directly (no ID conversion)
             if (isSingleSelect) {
               // In single-select mode, use the first file and replace any existing file
               if (files.length > 0) {
@@ -255,13 +381,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
             } else {
               // In multi-select mode, filter duplicates and append
               const newFiles = files.filter(
-                ({ name }) =>
-                  !currentFiles.some((cur) => {
-                    if (isFileObject(cur)) {
-                      return cur.name === name;
-                    }
-                    return false;
-                  })
+                ({ name }) => !currentFiles.some((cur) => cur.name === name)
               );
               setValue(colLabel, [...currentFiles, ...newFiles]);
             }
@@ -270,38 +390,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
             filePickerLabels?.fileDropzone ?? formI18n.t('fileDropzone')
           }
         />
-        {showMediaLibrary && (
-          <Button
-            variant="outline"
-            onClick={() => setDialogOpen(true)}
-            borderColor="border.default"
-            bg="bg.panel"
-            _hover={{ bg: 'bg.muted' }}
-          >
-            {filePickerLabels?.browseLibrary ??
-              formI18n.t('browse_library') ??
-              'Browse from Library'}
-          </Button>
-        )}
       </VStack>
-
-      {showMediaLibrary && (
-        <FilePickerDialog
-          open={dialogOpen}
-          onClose={() => setDialogOpen(false)}
-          onSelect={handleMediaLibrarySelect}
-          title={
-            filePickerLabels?.dialogTitle ??
-            formI18n.t('dialog_title') ??
-            'Select File'
-          }
-          filterImageOnly={filterImageOnly}
-          onFetchFiles={onFetchFiles}
-          labels={filePickerLabels}
-          translate={formI18n.t}
-          colLabel={colLabel}
-        />
-      )}
 
       <Flex flexFlow={'column'} gap={1}>
         {currentFiles.map((file, index) => {

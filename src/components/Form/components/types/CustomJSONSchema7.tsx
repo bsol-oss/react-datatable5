@@ -43,6 +43,10 @@ export interface FilePickerLabels {
   noFilesFound?: string;
   cancel?: string;
   select?: string;
+  uploadTab?: string;
+  browseTab?: string;
+  uploading?: string;
+  uploadFailed?: string;
 }
 
 export interface CustomJSONSchema7 extends JSONSchema7 {
@@ -92,4 +96,6 @@ export interface FilePickerProps {
   onFetchFiles?: (search: string) => Promise<FilePickerMediaFile[]>;
   enableMediaLibrary?: boolean;
   filterImageOnly?: boolean;
+  enableUpload?: boolean;
+  onUploadFile?: (file: File) => Promise<string>;
 }

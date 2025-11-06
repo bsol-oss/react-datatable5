@@ -1,22 +1,22 @@
-import { Text } from "@chakra-ui/react";
-import { idPickerSanityCheck } from "../core/FormRoot";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { ArrayViewer } from "./ArrayViewer";
-import { BooleanViewer } from "./BooleanViewer";
-import { CustomViewer } from "./CustomViewer";
-import { DateViewer } from "./DateViewer";
-import { EnumViewer } from "./EnumViewer";
-import { FileViewer } from "./FileViewer";
-import { IdViewer } from "./IdViewer";
-import { NumberViewer } from "./NumberViewer";
-import { ObjectViewer } from "./ObjectViewer";
-import { RecordInput } from "./RecordViewer";
-import { StringViewer } from "./StringViewer";
-import { TagViewer } from "./TagViewer";
-import { TextAreaViewer } from "./TextAreaViewer";
-import { TimeViewer } from "./TimeViewer";
-import { DateTimeViewer } from "./DateTimeViewer";
-import { JSONSchema7 } from "json-schema";
+import { Text } from '@chakra-ui/react';
+import { idPickerSanityCheck } from '../core/FormRoot';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import { ArrayViewer } from './ArrayViewer';
+import { BooleanViewer } from './BooleanViewer';
+import { CustomViewer } from './CustomViewer';
+import { DateViewer } from './DateViewer';
+import { EnumViewer } from './EnumViewer';
+import { FileViewer } from './FileViewer';
+import { IdViewer } from './IdViewer';
+import { NumberViewer } from './NumberViewer';
+import { ObjectViewer } from './ObjectViewer';
+import { RecordInput } from './RecordViewer';
+import { StringViewer } from './StringViewer';
+import { TagViewer } from './TagViewer';
+import { TextAreaViewer } from './TextAreaViewer';
+import { TimeViewer } from './TimeViewer';
+import { DateTimeViewer } from './DateTimeViewer';
+import { JSONSchema7 } from 'json-schema';
 
 export interface SchemaRendererProps {
   column: string;
@@ -38,46 +38,46 @@ export const SchemaViewer = ({
     items,
     format,
   } = schema;
-  if (variant === "custom-input") {
+  if (variant === 'custom-input') {
     return <CustomViewer schema={colSchema} {...{ prefix, column }} />;
   }
-  if (type === "string") {
+  if (type === 'string') {
     if ((schema.enum ?? []).length > 0) {
       return <EnumViewer schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "id-picker") {
+    if (variant === 'id-picker') {
       idPickerSanityCheck(column, foreign_key);
       return <IdViewer schema={colSchema} {...{ prefix, column }} />;
     }
-    if (format === "time") {
+    if (format === 'time') {
       return <TimeViewer schema={colSchema} {...{ prefix, column }} />;
     }
-    if (format === "date") {
+    if (format === 'date') {
       return <DateViewer schema={colSchema} {...{ prefix, column }} />;
     }
-    if (format === "date-time") {
+    if (format === 'date-time') {
       return <DateTimeViewer schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "text-area") {
+    if (variant === 'text-area') {
       return <TextAreaViewer schema={colSchema} {...{ prefix, column }} />;
     }
 
     return <StringViewer schema={colSchema} {...{ prefix, column }} />;
   }
-  if (type === "number" || type === "integer") {
+  if (type === 'number' || type === 'integer') {
     return <NumberViewer schema={colSchema} {...{ prefix, column }} />;
   }
-  if (type === "boolean") {
+  if (type === 'boolean') {
     return <BooleanViewer schema={colSchema} {...{ prefix, column }} />;
   }
-  if (type === "object") {
+  if (type === 'object') {
     if (innerProperties) {
       return <ObjectViewer schema={colSchema} {...{ prefix, column }} />;
     }
     return <RecordInput schema={colSchema} {...{ prefix, column }} />;
   }
-  if (type === "array") {
-    if (variant === "id-picker") {
+  if (type === 'array') {
+    if (variant === 'id-picker') {
       idPickerSanityCheck(column, foreign_key);
       return (
         <IdViewer
@@ -86,17 +86,20 @@ export const SchemaViewer = ({
         />
       );
     }
-    if (variant === "tag-picker") {
+    if (variant === 'tag-picker') {
       return <TagViewer schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "file-picker") {
+    if (variant === 'file-picker') {
       return <FileViewer schema={colSchema} {...{ prefix, column }} />;
     }
-    if (variant === "enum-picker") {
+    if (variant === 'media-library-browser') {
+      return <FileViewer schema={colSchema} {...{ prefix, column }} />;
+    }
+    if (variant === 'enum-picker') {
       const { items } = schema;
       const { enum: enumItems } = items as JSONSchema7;
       const enumSchema = {
-        type: "string" as const,
+        type: 'string' as const,
         enum: enumItems,
       };
       return (
@@ -112,7 +115,7 @@ export const SchemaViewer = ({
     }
     return <Text>{`array ${column}`}</Text>;
   }
-  if (type === "null") {
+  if (type === 'null') {
     return <Text>{`null ${column}`}</Text>;
   }
   return <Text>missing type</Text>;
