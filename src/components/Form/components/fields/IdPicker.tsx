@@ -101,11 +101,17 @@ export const IdPicker = ({
     ? ((Array.isArray(initialValue) ? initialValue : []) as string[])
     : [];
 
-  // Use watched values if available, otherwise fall back to initial values
+  // Use watched values if they exist (including empty string for single select),
+  // otherwise fall back to initial values from getValues()
   // This ensures the query can trigger on mount with initial values
-  const currentId = watchId !== undefined ? watchId : initialId;
+  // For single: use watchId if it's not undefined/null, otherwise use initialId
+  // For multiple: use watchIds if watchedValue is defined, otherwise use initialIds
+  const currentId =
+    watchId !== undefined && watchId !== null ? watchId : initialId;
   const currentIds =
-    watchedValue !== undefined && isMultiple ? watchIds : initialIds;
+    watchedValue !== undefined && watchedValue !== null && isMultiple
+      ? watchIds
+      : initialIds;
 
   // Query for search results
   const query = useQuery({
@@ -167,10 +173,12 @@ export const IdPicker = ({
       const queryIds = currentIds;
 
       if (customQueryFn) {
+        // For customQueryFn, pass where clause to fetch specific IDs
         const { data, idMap } = await customQueryFn({
-          searching: queryIds.join(','),
+          searching: '',
           limit: isMultiple ? queryIds.length : 1,
           offset: 0,
+          where: [{ id: column_ref, value: isMultiple ? queryIds : queryId }],
         });
 
         setIdMap((state) => {
@@ -253,7 +261,8 @@ export const IdPicker = ({
     if (Object.keys(idMap).length <= 0) {
       return '';
     }
-    const record = idMap[watchId] as RecordType | undefined;
+    // Use currentId which includes initial values
+    const record = idMap[currentId] as RecordType | undefined;
     if (record === undefined) {
       return '';
     }

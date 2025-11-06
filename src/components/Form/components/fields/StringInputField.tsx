@@ -24,6 +24,7 @@ export interface CustomQueryFnParams {
   searching: string;
   limit: number;
   offset: number;
+  where?: Array<{ id: string; value: string | string[] }>;
 }
 
 export type CustomQueryFn = (
