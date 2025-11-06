@@ -478,3 +478,53 @@ const WithCustomLabelsForm = () => {
     />
   );
 };
+
+export const SingleSelect: Story = {
+  render: () => {
+    return (
+      <Provider>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
+            <SingleSelectForm />
+          </I18nextProvider>
+        </QueryClientProvider>
+      </Provider>
+    );
+  },
+};
+
+const SingleSelectForm = () => {
+  const form = useForm({ keyPrefix: 'files.file_upload' });
+
+  const schema = {
+    type: 'object',
+    properties: {
+      single_file: {
+        type: 'string',
+        variant: 'file-picker',
+        gridColumn: '1/span 12',
+        gridRow: '1/span 1',
+        filePicker: {
+          enableMediaLibrary: true,
+          onFetchFiles: mockFetchFiles,
+          filterImageOnly: false,
+        },
+      },
+    },
+    required: [],
+  } as JSONSchema7;
+
+  return (
+    <DefaultForm
+      formConfig={{
+        schema: schema,
+        serverUrl: 'http://localhost:8081',
+        onSubmit: async (data) => {
+          console.log('Form submitted:', data);
+          console.log('Single file (ID or File object):', data.single_file);
+        },
+        ...form,
+      }}
+    />
+  );
+};

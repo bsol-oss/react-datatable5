@@ -7,16 +7,13 @@ import {
   HStack,
   Icon,
   Image,
-  Input,
-  Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { TiDeleteOutline } from 'react-icons/ti';
-import { LuFile, LuImage, LuSearch } from 'react-icons/lu';
+import { LuFile, LuImage } from 'react-icons/lu';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { FileDropzone } from '../FileDropzone';
 import {
   CustomJSONSchema7,
@@ -28,6 +25,7 @@ import { formatBytes } from '../../utils/formatBytes';
 import { useFormI18n } from '../../utils/useFormI18n';
 import { useSchemaContext } from '../../useSchemaContext';
 import { InputDefaultProps } from './types';
+import { MediaLibraryBrowser } from '../MediaLibraryBrowser';
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -63,50 +61,19 @@ function FilePickerDialog({
   translate,
   colLabel,
 }: FilePickerDialogProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedFileId, setSelectedFileId] = useState<string>('');
-  const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
-
-  const {
-    data: filesData,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ['file-picker-library', searchTerm],
-    queryFn: async () => {
-      if (!onFetchFiles) return { data: [] };
-      const files = await onFetchFiles(searchTerm.trim() || '');
-      return { data: files };
-    },
-    enabled: open && !!onFetchFiles,
-  });
-
-  const files = (filesData?.data || []) as FilePickerMediaFile[];
-
-  const filteredFiles = filterImageOnly
-    ? files.filter((file) =>
-        /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name)
-      )
-    : files;
 
   const handleSelect = () => {
     if (selectedFileId) {
       onSelect(selectedFileId);
       onClose();
       setSelectedFileId('');
-      setSearchTerm('');
     }
   };
 
   const handleClose = () => {
     onClose();
     setSelectedFileId('');
-    setSearchTerm('');
-    setFailedImageIds(new Set());
-  };
-
-  const handleImageError = (fileId: string) => {
-    setFailedImageIds((prev) => new Set(prev).add(fileId));
   };
 
   if (!onFetchFiles) return null;
@@ -121,260 +88,14 @@ function FilePickerDialog({
           <DialogCloseTrigger />
         </DialogHeader>
         <DialogBody>
-          <VStack align="stretch" gap={4}>
-            {/* Search Input */}
-            <Box position="relative">
-              <Input
-                placeholder={
-                  labels?.searchPlaceholder ??
-                  translate(removeIndex(`${colLabel}.search_placeholder`)) ??
-                  'Search files...'
-                }
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                bg="bg.panel"
-                border="1px solid"
-                borderColor="border.default"
-                colorPalette="blue"
-                _focus={{
-                  borderColor: 'colorPalette.500',
-                  _dark: {
-                    borderColor: 'colorPalette.400',
-                  },
-                  boxShadow: {
-                    base: '0 0 0 1px var(--chakra-colors-blue-500)',
-                    _dark: '0 0 0 1px var(--chakra-colors-blue-400)',
-                  },
-                }}
-                pl={10}
-              />
-              <Icon
-                as={LuSearch}
-                position="absolute"
-                left={3}
-                top="50%"
-                transform="translateY(-50%)"
-                color="fg.muted"
-                boxSize={4}
-              />
-            </Box>
-
-            {/* Loading State */}
-            {isLoading && (
-              <Box textAlign="center" py={8}>
-                <Spinner size="lg" colorPalette="blue" />
-                <Text mt={4} color="fg.muted">
-                  {labels?.loading ??
-                    translate(removeIndex(`${colLabel}.loading`)) ??
-                    'Loading files...'}
-                </Text>
-              </Box>
-            )}
-
-            {/* Error State */}
-            {isError && (
-              <Box
-                bg={{ base: 'colorPalette.50', _dark: 'colorPalette.900/20' }}
-                border="1px solid"
-                borderColor={{
-                  base: 'colorPalette.200',
-                  _dark: 'colorPalette.800',
-                }}
-                colorPalette="red"
-                borderRadius="md"
-                p={4}
-              >
-                <Text
-                  color={{
-                    base: 'colorPalette.600',
-                    _dark: 'colorPalette.300',
-                  }}
-                >
-                  {labels?.loadingFailed ??
-                    translate(
-                      removeIndex(`${colLabel}.error.loading_failed`)
-                    ) ??
-                    'Failed to load files'}
-                </Text>
-              </Box>
-            )}
-
-            {/* Files Grid */}
-            {!isLoading && !isError && (
-              <Box maxHeight="400px" overflowY="auto">
-                {filteredFiles.length === 0 ? (
-                  <Box textAlign="center" py={8}>
-                    <Text color="fg.muted">
-                      {labels?.noFilesFound ??
-                        translate(removeIndex(`${colLabel}.no_files_found`)) ??
-                        'No files found'}
-                    </Text>
-                  </Box>
-                ) : (
-                  <VStack align="stretch" gap={2}>
-                    {filteredFiles.map((file) => {
-                      const isImage =
-                        /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name);
-                      const isSelected = selectedFileId === file.id;
-                      const imageFailed = failedImageIds.has(file.id);
-
-                      return (
-                        <Box
-                          key={file.id}
-                          p={3}
-                          border="2px solid"
-                          borderColor={
-                            isSelected
-                              ? {
-                                  base: 'colorPalette.500',
-                                  _dark: 'colorPalette.400',
-                                }
-                              : 'border.default'
-                          }
-                          borderRadius="md"
-                          bg={
-                            isSelected
-                              ? {
-                                  base: 'colorPalette.50',
-                                  _dark: 'colorPalette.900/20',
-                                }
-                              : 'bg.panel'
-                          }
-                          colorPalette="blue"
-                          cursor="pointer"
-                          onClick={() => setSelectedFileId(file.id)}
-                          _hover={{
-                            borderColor: isSelected
-                              ? {
-                                  base: 'colorPalette.600',
-                                  _dark: 'colorPalette.400',
-                                }
-                              : {
-                                  base: 'colorPalette.300',
-                                  _dark: 'colorPalette.400',
-                                },
-                            bg: isSelected
-                              ? {
-                                  base: 'colorPalette.100',
-                                  _dark: 'colorPalette.800/30',
-                                }
-                              : 'bg.muted',
-                          }}
-                          transition="all 0.2s"
-                        >
-                          <HStack gap={3}>
-                            {/* Preview */}
-                            <Box
-                              width="60px"
-                              height="60px"
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="center"
-                              bg="bg.muted"
-                              borderRadius="md"
-                              flexShrink={0}
-                            >
-                              {isImage && file.url && !imageFailed ? (
-                                <Image
-                                  src={file.url}
-                                  alt={file.name}
-                                  boxSize="60px"
-                                  objectFit="cover"
-                                  borderRadius="md"
-                                  onError={() => handleImageError(file.id)}
-                                />
-                              ) : isImage && (imageFailed || !file.url) ? (
-                                <Icon
-                                  as={LuImage}
-                                  boxSize={6}
-                                  color="fg.muted"
-                                />
-                              ) : (
-                                <Icon
-                                  as={LuFile}
-                                  boxSize={6}
-                                  color="fg.muted"
-                                />
-                              )}
-                            </Box>
-
-                            {/* File Info */}
-                            <VStack align="start" flex={1} gap={1}>
-                              <Text
-                                fontSize="sm"
-                                fontWeight="medium"
-                                color="fg.default"
-                                overflow="hidden"
-                                textOverflow="ellipsis"
-                                whiteSpace="nowrap"
-                              >
-                                {file.name}
-                              </Text>
-                              <HStack gap={2}>
-                                {file.size && (
-                                  <>
-                                    <Text fontSize="xs" color="fg.muted">
-                                      {typeof file.size === 'number'
-                                        ? formatBytes(file.size)
-                                        : file.size}
-                                    </Text>
-                                  </>
-                                )}
-                                {file.comment && (
-                                  <>
-                                    {file.size && (
-                                      <Text fontSize="xs" color="fg.muted">
-                                        •
-                                      </Text>
-                                    )}
-                                    <Text
-                                      fontSize="xs"
-                                      color="fg.muted"
-                                      overflow="hidden"
-                                      textOverflow="ellipsis"
-                                      whiteSpace="nowrap"
-                                    >
-                                      {file.comment}
-                                    </Text>
-                                  </>
-                                )}
-                              </HStack>
-                            </VStack>
-
-                            {/* Selected Indicator */}
-                            {isSelected && (
-                              <Box
-                                width="24px"
-                                height="24px"
-                                borderRadius="full"
-                                bg={{
-                                  base: 'colorPalette.500',
-                                  _dark: 'colorPalette.400',
-                                }}
-                                colorPalette="blue"
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                flexShrink={0}
-                              >
-                                <Text
-                                  color="white"
-                                  fontSize="xs"
-                                  fontWeight="bold"
-                                >
-                                  ✓
-                                </Text>
-                              </Box>
-                            )}
-                          </HStack>
-                        </Box>
-                      );
-                    })}
-                  </VStack>
-                )}
-              </Box>
-            )}
-          </VStack>
+          <MediaLibraryBrowser
+            onFetchFiles={onFetchFiles}
+            filterImageOnly={filterImageOnly}
+            labels={labels}
+            enabled={open}
+            selectedFileId={selectedFileId}
+            onSelectedFileIdChange={setSelectedFileId}
+          />
         </DialogBody>
         <DialogFooter>
           <HStack gap={3} justify="end">
@@ -418,13 +139,22 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
     gridColumn = 'span 12',
     gridRow = 'span 1',
     filePicker,
+    type,
   } = schema as CustomJSONSchema7;
   const isRequired = required?.some((columnId) => columnId === column);
 
-  const currentValue = watch(column) ?? [];
-  const currentFiles = Array.isArray(currentValue)
-    ? (currentValue as FileValue[])
-    : [];
+  const isSingleSelect = type === 'string';
+
+  const currentValue = watch(column) ?? (isSingleSelect ? '' : []);
+
+  // Convert single value to array for rendering, or use array directly
+  const currentFiles: FileValue[] = isSingleSelect
+    ? currentValue
+      ? [currentValue as FileValue]
+      : []
+    : Array.isArray(currentValue)
+      ? (currentValue as FileValue[])
+      : [];
 
   const colLabel = formI18n.colLabel;
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -443,13 +173,21 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   };
 
   const handleMediaLibrarySelect = (fileId: string) => {
-    const newFiles = [...currentFiles, fileId];
-    setValue(colLabel, newFiles);
+    if (isSingleSelect) {
+      setValue(colLabel, fileId);
+    } else {
+      const newFiles = [...currentFiles, fileId];
+      setValue(colLabel, newFiles);
+    }
   };
 
   const handleRemove = (index: number) => {
-    const newFiles = currentFiles.filter((_, i) => i !== index);
-    setValue(colLabel, newFiles);
+    if (isSingleSelect) {
+      setValue(colLabel, '');
+    } else {
+      const newFiles = currentFiles.filter((_, i) => i !== index);
+      setValue(colLabel, newFiles);
+    }
   };
 
   const isFileObject = (value: FileValue): value is File => {
@@ -509,16 +247,24 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
       <VStack align="stretch" gap={2}>
         <FileDropzone
           onDrop={({ files }) => {
-            const newFiles = files.filter(
-              ({ name }) =>
-                !currentFiles.some((cur) => {
-                  if (isFileObject(cur)) {
-                    return cur.name === name;
-                  }
-                  return false;
-                })
-            );
-            setValue(colLabel, [...currentFiles, ...newFiles]);
+            if (isSingleSelect) {
+              // In single-select mode, use the first file and replace any existing file
+              if (files.length > 0) {
+                setValue(colLabel, files[0]);
+              }
+            } else {
+              // In multi-select mode, filter duplicates and append
+              const newFiles = files.filter(
+                ({ name }) =>
+                  !currentFiles.some((cur) => {
+                    if (isFileObject(cur)) {
+                      return cur.name === name;
+                    }
+                    return false;
+                  })
+              );
+              setValue(colLabel, [...currentFiles, ...newFiles]);
+            }
           }}
           placeholder={
             filePickerLabels?.fileDropzone ?? formI18n.t('fileDropzone')
@@ -566,6 +312,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
           const imageUrl = getImageUrl(file);
           const imageFailed = failedImageIds.has(fileIdentifier);
 
+          // File Viewer
           return (
             <Card.Root
               variant={'subtle'}
