@@ -4644,10 +4644,13 @@ function formatBytes(bytes) {
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 }
 
-function FilePickerDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, labels, translate, colLabel, }) {
+const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, enabled = true, multiple = false, onFileSelect, selectedFileId: controlledSelectedFileId, onSelectedFileIdChange, }) => {
     const [searchTerm, setSearchTerm] = React.useState('');
-    const [selectedFileId, setSelectedFileId] = React.useState('');
+    const [internalSelectedFileId, setInternalSelectedFileId] = React.useState(multiple ? [] : '');
     const [failedImageIds, setFailedImageIds] = React.useState(new Set());
+    // Use controlled or internal state for selectedFileId
+    const selectedFileId = controlledSelectedFileId ?? internalSelectedFileId;
+    const setSelectedFileId = onSelectedFileIdChange ?? setInternalSelectedFileId;
     const { data: filesData, isLoading, isError, } = reactQuery.useQuery({
         queryKey: ['file-picker-library', searchTerm],
         queryFn: async () => {
@@ -4656,91 +4659,176 @@ function FilePickerDialog({ open, onClose, onSelect, title, filterImageOnly = fa
             const files = await onFetchFiles(searchTerm.trim() || '');
             return { data: files };
         },
-        enabled: open && !!onFetchFiles,
+        enabled: enabled && !!onFetchFiles,
     });
     const files = (filesData?.data || []);
     const filteredFiles = filterImageOnly
         ? files.filter((file) => /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name))
         : files;
-    const handleSelect = () => {
-        if (selectedFileId) {
-            onSelect(selectedFileId);
-            onClose();
-            setSelectedFileId('');
-            setSearchTerm('');
+    const handleFileClick = (fileId) => {
+        if (multiple) {
+            const currentSelection = Array.isArray(selectedFileId)
+                ? selectedFileId
+                : [];
+            const newSelection = currentSelection.includes(fileId)
+                ? currentSelection.filter((id) => id !== fileId)
+                : [...currentSelection, fileId];
+            setSelectedFileId(newSelection);
+            if (onFileSelect) {
+                onFileSelect(newSelection);
+            }
         }
-    };
-    const handleClose = () => {
-        onClose();
-        setSelectedFileId('');
-        setSearchTerm('');
-        setFailedImageIds(new Set());
+        else {
+            setSelectedFileId(fileId);
+            if (onFileSelect) {
+                onFileSelect(fileId);
+            }
+        }
     };
     const handleImageError = (fileId) => {
         setFailedImageIds((prev) => new Set(prev).add(fileId));
     };
     if (!onFetchFiles)
         return null;
-    return (jsxRuntime.jsx(DialogRoot, { open: open, onOpenChange: (e) => !e.open && handleClose(), children: jsxRuntime.jsxs(DialogContent, { maxWidth: "800px", maxHeight: "90vh", children: [jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, { fontSize: "lg", fontWeight: "bold", children: title }), jsxRuntime.jsx(DialogCloseTrigger, {})] }), jsxRuntime.jsx(DialogBody, { children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 4, children: [jsxRuntime.jsxs(react.Box, { position: "relative", children: [jsxRuntime.jsx(react.Input, { placeholder: labels?.searchPlaceholder ??
-                                            translate(removeIndex(`${colLabel}.search_placeholder`)) ??
-                                            'Search files...', value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), bg: "bg.panel", border: "1px solid", borderColor: "border.default", colorPalette: "blue", _focus: {
-                                            borderColor: 'colorPalette.500',
-                                            _dark: {
-                                                borderColor: 'colorPalette.400',
-                                            },
-                                            boxShadow: {
-                                                base: '0 0 0 1px var(--chakra-colors-blue-500)',
-                                                _dark: '0 0 0 1px var(--chakra-colors-blue-400)',
-                                            },
-                                        }, pl: 10 }), jsxRuntime.jsx(react.Icon, { as: lu.LuSearch, position: "absolute", left: 3, top: "50%", transform: "translateY(-50%)", color: "fg.muted", boxSize: 4 })] }), isLoading && (jsxRuntime.jsxs(react.Box, { textAlign: "center", py: 8, children: [jsxRuntime.jsx(react.Spinner, { size: "lg", colorPalette: "blue" }), jsxRuntime.jsx(react.Text, { mt: 4, color: "fg.muted", children: labels?.loading ??
-                                            translate(removeIndex(`${colLabel}.loading`)) ??
-                                            'Loading files...' })] })), isError && (jsxRuntime.jsx(react.Box, { bg: { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }, border: "1px solid", borderColor: {
-                                    base: 'colorPalette.200',
-                                    _dark: 'colorPalette.800',
-                                }, colorPalette: "red", borderRadius: "md", p: 4, children: jsxRuntime.jsx(react.Text, { color: {
+    return (jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 4, children: [jsxRuntime.jsxs(react.Box, { position: "relative", children: [jsxRuntime.jsx(react.Input, { placeholder: labels?.searchPlaceholder ?? 'Search files...', value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), bg: "bg.panel", border: "1px solid", borderColor: "border.default", colorPalette: "blue", _focus: {
+                            borderColor: 'colorPalette.500',
+                            _dark: {
+                                borderColor: 'colorPalette.400',
+                            },
+                            boxShadow: {
+                                base: '0 0 0 1px var(--chakra-colors-blue-500)',
+                                _dark: '0 0 0 1px var(--chakra-colors-blue-400)',
+                            },
+                        }, pl: 10 }), jsxRuntime.jsx(react.Icon, { as: lu.LuSearch, position: "absolute", left: 3, top: "50%", transform: "translateY(-50%)", color: "fg.muted", boxSize: 4 })] }), isLoading && (jsxRuntime.jsxs(react.Box, { textAlign: "center", py: 8, children: [jsxRuntime.jsx(react.Spinner, { size: "lg", colorPalette: "blue" }), jsxRuntime.jsx(react.Text, { mt: 4, color: "fg.muted", children: labels?.loading ?? 'Loading files...' })] })), isError && (jsxRuntime.jsx(react.Box, { bg: { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }, border: "1px solid", borderColor: {
+                    base: 'colorPalette.200',
+                    _dark: 'colorPalette.800',
+                }, colorPalette: "red", borderRadius: "md", p: 4, children: jsxRuntime.jsx(react.Text, { color: {
+                        base: 'colorPalette.600',
+                        _dark: 'colorPalette.300',
+                    }, children: labels?.loadingFailed ?? 'Failed to load files' }) })), !isLoading && !isError && (jsxRuntime.jsx(react.Box, { maxHeight: "400px", overflowY: "auto", children: filteredFiles.length === 0 ? (jsxRuntime.jsx(react.Box, { textAlign: "center", py: 8, children: jsxRuntime.jsx(react.Text, { color: "fg.muted", children: labels?.noFilesFound ?? 'No files found' }) })) : (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: filteredFiles.map((file) => {
+                        const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name);
+                        const isSelected = multiple
+                            ? Array.isArray(selectedFileId) &&
+                                selectedFileId.includes(file.id)
+                            : selectedFileId === file.id;
+                        const imageFailed = failedImageIds.has(file.id);
+                        return (jsxRuntime.jsx(react.Box, { p: 3, border: "2px solid", borderColor: isSelected
+                                ? {
+                                    base: 'colorPalette.500',
+                                    _dark: 'colorPalette.400',
+                                }
+                                : 'border.default', borderRadius: "md", bg: isSelected
+                                ? {
+                                    base: 'colorPalette.50',
+                                    _dark: 'colorPalette.900/20',
+                                }
+                                : 'bg.panel', colorPalette: "blue", cursor: "pointer", onClick: () => handleFileClick(file.id), _hover: {
+                                borderColor: isSelected
+                                    ? {
                                         base: 'colorPalette.600',
-                                        _dark: 'colorPalette.300',
-                                    }, children: labels?.loadingFailed ??
-                                        translate(removeIndex(`${colLabel}.error.loading_failed`)) ??
-                                        'Failed to load files' }) })), !isLoading && !isError && (jsxRuntime.jsx(react.Box, { maxHeight: "400px", overflowY: "auto", children: filteredFiles.length === 0 ? (jsxRuntime.jsx(react.Box, { textAlign: "center", py: 8, children: jsxRuntime.jsx(react.Text, { color: "fg.muted", children: labels?.noFilesFound ??
-                                            translate(removeIndex(`${colLabel}.no_files_found`)) ??
-                                            'No files found' }) })) : (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: filteredFiles.map((file) => {
-                                        const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name);
-                                        const isSelected = selectedFileId === file.id;
-                                        const imageFailed = failedImageIds.has(file.id);
-                                        return (jsxRuntime.jsx(react.Box, { p: 3, border: "2px solid", borderColor: isSelected
-                                                ? {
-                                                    base: 'colorPalette.500',
-                                                    _dark: 'colorPalette.400',
-                                                }
-                                                : 'border.default', borderRadius: "md", bg: isSelected
-                                                ? {
+                                        _dark: 'colorPalette.400',
+                                    }
+                                    : {
+                                        base: 'colorPalette.300',
+                                        _dark: 'colorPalette.400',
+                                    },
+                                bg: isSelected
+                                    ? {
+                                        base: 'colorPalette.100',
+                                        _dark: 'colorPalette.800/30',
+                                    }
+                                    : 'bg.muted',
+                            }, transition: "all 0.2s", children: jsxRuntime.jsxs(react.HStack, { gap: 3, children: [jsxRuntime.jsx(react.Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, children: isImage && file.url && !imageFailed ? (jsxRuntime.jsx(react.Image, { src: file.url, alt: file.name, boxSize: "60px", objectFit: "cover", borderRadius: "md", onError: () => handleImageError(file.id) })) : isImage && (imageFailed || !file.url) ? (jsxRuntime.jsx(react.Icon, { as: lu.LuImage, boxSize: 6, color: "fg.muted" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 6, color: "fg.muted" })) }), jsxRuntime.jsxs(react.VStack, { align: "start", flex: 1, gap: 1, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.name }), jsxRuntime.jsxs(react.HStack, { gap: 2, children: [file.size && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: typeof file.size === 'number'
+                                                                ? formatBytes(file.size)
+                                                                : file.size }) })), file.comment && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [file.size && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: "\u2022" })), jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.comment })] }))] })] }), isSelected && (jsxRuntime.jsx(react.Box, { width: "24px", height: "24px", borderRadius: "full", bg: {
+                                            base: 'colorPalette.500',
+                                            _dark: 'colorPalette.400',
+                                        }, colorPalette: "blue", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, children: jsxRuntime.jsx(react.Text, { color: "white", fontSize: "xs", fontWeight: "bold", children: "\u2713" }) }))] }) }, file.id));
+                    }) })) }))] }));
+};
+
+function FilePickerDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, onUploadFile, enableUpload = false, labels, translate, colLabel, }) {
+    const [selectedFileId, setSelectedFileId] = React.useState('');
+    const [activeTab, setActiveTab] = React.useState('browse');
+    const [uploadingFiles, setUploadingFiles] = React.useState(new Set());
+    const [uploadErrors, setUploadErrors] = React.useState(new Map());
+    const handleSelect = () => {
+        if (selectedFileId) {
+            onSelect(selectedFileId);
+            onClose();
+            setSelectedFileId('');
+            setActiveTab('browse');
+        }
+    };
+    const handleClose = () => {
+        onClose();
+        setSelectedFileId('');
+        setActiveTab('browse');
+        setUploadingFiles(new Set());
+        setUploadErrors(new Map());
+    };
+    const handleFileUpload = async (files) => {
+        if (!onUploadFile)
+            return;
+        for (const file of files) {
+            const fileKey = `${file.name}-${file.size}`;
+            setUploadingFiles((prev) => new Set(prev).add(fileKey));
+            setUploadErrors((prev) => {
+                const newMap = new Map(prev);
+                newMap.delete(fileKey);
+                return newMap;
+            });
+            try {
+                const fileId = await onUploadFile(file);
+                setSelectedFileId(fileId);
+                setUploadingFiles((prev) => {
+                    const newSet = new Set(prev);
+                    newSet.delete(fileKey);
+                    return newSet;
+                });
+                // Auto-select and close in single-select mode
+                onSelect(fileId);
+                onClose();
+                setSelectedFileId('');
+                setActiveTab('browse');
+            }
+            catch (error) {
+                setUploadingFiles((prev) => {
+                    const newSet = new Set(prev);
+                    newSet.delete(fileKey);
+                    return newSet;
+                });
+                setUploadErrors((prev) => {
+                    const newMap = new Map(prev);
+                    newMap.set(fileKey, error instanceof Error ? error.message : 'Upload failed');
+                    return newMap;
+                });
+            }
+        }
+    };
+    const showTabs = enableUpload && !!onUploadFile && !!onFetchFiles;
+    if (!onFetchFiles && !onUploadFile)
+        return null;
+    return (jsxRuntime.jsx(DialogRoot, { open: open, onOpenChange: (e) => !e.open && handleClose(), children: jsxRuntime.jsxs(DialogContent, { maxWidth: "800px", maxHeight: "90vh", children: [jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, { fontSize: "lg", fontWeight: "bold", children: title }), jsxRuntime.jsx(DialogCloseTrigger, {})] }), jsxRuntime.jsx(DialogBody, { children: showTabs ? (jsxRuntime.jsxs(react.Tabs.Root, { value: activeTab, onValueChange: (e) => setActiveTab(e.value ?? 'browse'), children: [jsxRuntime.jsxs(react.Tabs.List, { children: [jsxRuntime.jsx(react.Tabs.Trigger, { value: "browse", children: labels?.browseTab ??
+                                            translate(removeIndex(`${colLabel}.browse_tab`)) ??
+                                            'Browse Library' }), jsxRuntime.jsx(react.Tabs.Trigger, { value: "upload", children: labels?.uploadTab ??
+                                            translate(removeIndex(`${colLabel}.upload_tab`)) ??
+                                            'Upload Files' })] }), jsxRuntime.jsx(react.Tabs.Content, { value: "browse", children: onFetchFiles && (jsxRuntime.jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open && activeTab === 'browse', selectedFileId: selectedFileId, onSelectedFileIdChange: setSelectedFileId })) }), jsxRuntime.jsx(react.Tabs.Content, { value: "upload", children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 4, children: [jsxRuntime.jsx(FileDropzone, { onDrop: ({ files }) => handleFileUpload(files), placeholder: labels?.fileDropzone ??
+                                                translate(removeIndex(`${colLabel}.fileDropzone`)) ??
+                                                'Drop files here or click to upload' }), uploadingFiles.size > 0 && (jsxRuntime.jsx(react.Box, { children: Array.from(uploadingFiles).map((fileKey) => (jsxRuntime.jsx(react.Box, { py: 2, children: jsxRuntime.jsxs(react.HStack, { gap: 2, children: [jsxRuntime.jsx(react.Spinner, { size: "sm", colorPalette: "blue" }), jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: "fg.muted", children: [labels?.uploading ??
+                                                                    translate(removeIndex(`${colLabel}.uploading`)) ??
+                                                                    'Uploading...', ' ', fileKey.split('-')[0]] })] }) }, fileKey))) })), uploadErrors.size > 0 && (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: Array.from(uploadErrors.entries()).map(([fileKey, error]) => (jsxRuntime.jsx(react.Box, { bg: {
                                                     base: 'colorPalette.50',
                                                     _dark: 'colorPalette.900/20',
-                                                }
-                                                : 'bg.panel', colorPalette: "blue", cursor: "pointer", onClick: () => setSelectedFileId(file.id), _hover: {
-                                                borderColor: isSelected
-                                                    ? {
+                                                }, border: "1px solid", borderColor: {
+                                                    base: 'colorPalette.200',
+                                                    _dark: 'colorPalette.800',
+                                                }, colorPalette: "red", borderRadius: "md", p: 3, children: jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: {
                                                         base: 'colorPalette.600',
-                                                        _dark: 'colorPalette.400',
-                                                    }
-                                                    : {
-                                                        base: 'colorPalette.300',
-                                                        _dark: 'colorPalette.400',
-                                                    },
-                                                bg: isSelected
-                                                    ? {
-                                                        base: 'colorPalette.100',
-                                                        _dark: 'colorPalette.800/30',
-                                                    }
-                                                    : 'bg.muted',
-                                            }, transition: "all 0.2s", children: jsxRuntime.jsxs(react.HStack, { gap: 3, children: [jsxRuntime.jsx(react.Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, children: isImage && file.url && !imageFailed ? (jsxRuntime.jsx(react.Image, { src: file.url, alt: file.name, boxSize: "60px", objectFit: "cover", borderRadius: "md", onError: () => handleImageError(file.id) })) : isImage && (imageFailed || !file.url) ? (jsxRuntime.jsx(react.Icon, { as: lu.LuImage, boxSize: 6, color: "fg.muted" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 6, color: "fg.muted" })) }), jsxRuntime.jsxs(react.VStack, { align: "start", flex: 1, gap: 1, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.name }), jsxRuntime.jsxs(react.HStack, { gap: 2, children: [file.size && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: typeof file.size === 'number'
-                                                                                ? formatBytes(file.size)
-                                                                                : file.size }) })), file.comment && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [file.size && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: "\u2022" })), jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.comment })] }))] })] }), isSelected && (jsxRuntime.jsx(react.Box, { width: "24px", height: "24px", borderRadius: "full", bg: {
-                                                            base: 'colorPalette.500',
-                                                            _dark: 'colorPalette.400',
-                                                        }, colorPalette: "blue", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, children: jsxRuntime.jsx(react.Text, { color: "white", fontSize: "xs", fontWeight: "bold", children: "\u2713" }) }))] }) }, file.id));
-                                    }) })) }))] }) }), jsxRuntime.jsx(DialogFooter, { children: jsxRuntime.jsxs(react.HStack, { gap: 3, justify: "end", children: [jsxRuntime.jsx(react.Button, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ??
+                                                        _dark: 'colorPalette.300',
+                                                    }, children: [fileKey.split('-')[0], ":", ' ', labels?.uploadFailed ??
+                                                            translate(removeIndex(`${colLabel}.upload_failed`)) ??
+                                                            'Upload failed', error && ` - ${error}`] }) }, fileKey))) }))] }) })] })) : onFetchFiles ? (jsxRuntime.jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open, selectedFileId: selectedFileId, onSelectedFileIdChange: setSelectedFileId })) : null }), jsxRuntime.jsx(DialogFooter, { children: jsxRuntime.jsxs(react.HStack, { gap: 3, justify: "end", children: [jsxRuntime.jsx(react.Button, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ??
                                     translate(removeIndex(`${colLabel}.cancel`)) ??
                                     'Cancel' }), jsxRuntime.jsx(react.Button, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFileId, children: labels?.select ??
                                     translate(removeIndex(`${colLabel}.select`)) ??
@@ -4750,88 +4838,135 @@ const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { filePickerLabels } = useSchemaContext();
     const formI18n = useFormI18n(column, prefix);
-    const { required, gridColumn = 'span 12', gridRow = 'span 1', filePicker, } = schema;
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', type, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const currentValue = watch(column) ?? [];
-    const currentFiles = Array.isArray(currentValue)
-        ? currentValue
-        : [];
+    const isSingleSelect = type === 'string';
+    const currentValue = watch(column) ?? (isSingleSelect ? '' : []);
+    // Handle File objects only
+    const currentFiles = isSingleSelect
+        ? currentValue && currentValue instanceof File
+            ? [currentValue]
+            : []
+        : Array.isArray(currentValue)
+            ? currentValue.filter((f) => f instanceof File)
+            : [];
     const colLabel = formI18n.colLabel;
-    const [dialogOpen, setDialogOpen] = React.useState(false);
     const [failedImageIds, setFailedImageIds] = React.useState(new Set());
-    const { onFetchFiles, enableMediaLibrary = false, filterImageOnly = false, } = filePicker || {};
-    const showMediaLibrary = enableMediaLibrary && !!onFetchFiles;
+    // FilePicker variant: Only handle File objects, no media library browser
     const handleImageError = (fileIdentifier) => {
         setFailedImageIds((prev) => new Set(prev).add(fileIdentifier));
     };
-    const handleMediaLibrarySelect = (fileId) => {
-        const newFiles = [...currentFiles, fileId];
-        setValue(colLabel, newFiles);
-    };
     const handleRemove = (index) => {
-        const newFiles = currentFiles.filter((_, i) => i !== index);
-        setValue(colLabel, newFiles);
-    };
-    const isFileObject = (value) => {
-        return value instanceof File;
+        if (isSingleSelect) {
+            setValue(colLabel, '');
+        }
+        else {
+            const newFiles = currentFiles.filter((_, i) => i !== index);
+            setValue(colLabel, newFiles);
+        }
     };
     const getFileIdentifier = (file, index) => {
-        if (isFileObject(file)) {
-            return `${file.name}-${file.size}-${index}`;
-        }
-        return file;
+        // file-picker: file is a File object, create identifier from name and size
+        return `${file.name}-${file.size}-${index}`;
     };
     const getFileName = (file) => {
-        if (isFileObject(file)) {
-            return file.name;
-        }
-        return typeof file === 'string' ? file : 'Unknown file';
+        return file.name;
     };
     const getFileSize = (file) => {
-        if (isFileObject(file)) {
-            return file.size;
-        }
-        return undefined;
+        return file.size;
     };
     const isImageFile = (file) => {
-        if (isFileObject(file)) {
-            return file.type.startsWith('image/');
-        }
-        if (typeof file === 'string') {
-            return /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file);
-        }
-        return false;
+        return file.type.startsWith('image/');
     };
     const getImageUrl = (file) => {
-        if (isFileObject(file)) {
-            return URL.createObjectURL(file);
-        }
-        return undefined;
+        return URL.createObjectURL(file);
     };
     return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 2, children: [jsxRuntime.jsx(FileDropzone, { onDrop: ({ files }) => {
-                            const newFiles = files.filter(({ name }) => !currentFiles.some((cur) => {
-                                if (isFileObject(cur)) {
-                                    return cur.name === name;
-                                }
-                                return false;
-                            }));
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: jsxRuntime.jsx(FileDropzone, { onDrop: ({ files }) => {
+                        // file-picker variant: Store File objects directly (no ID conversion)
+                        if (isSingleSelect) {
+                            // In single-select mode, use the first file and replace any existing file
+                            if (files.length > 0) {
+                                setValue(colLabel, files[0]);
+                            }
+                        }
+                        else {
+                            // In multi-select mode, filter duplicates and append
+                            const newFiles = files.filter(({ name }) => !currentFiles.some((cur) => cur.name === name));
                             setValue(colLabel, [...currentFiles, ...newFiles]);
-                        }, placeholder: filePickerLabels?.fileDropzone ?? formI18n.t('fileDropzone') }), showMediaLibrary && (jsxRuntime.jsx(react.Button, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ??
-                            formI18n.t('browse_library') ??
-                            'Browse from Library' }))] }), showMediaLibrary && (jsxRuntime.jsx(FilePickerDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ??
-                    formI18n.t('dialog_title') ??
-                    'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, labels: filePickerLabels, translate: formI18n.t, colLabel: colLabel })), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: currentFiles.map((file, index) => {
+                        }
+                    }, placeholder: filePickerLabels?.fileDropzone ?? formI18n.t('fileDropzone') }) }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: currentFiles.map((file, index) => {
                     const fileIdentifier = getFileIdentifier(file, index);
                     const fileName = getFileName(file);
                     const fileSize = getFileSize(file);
                     const isImage = isImageFile(file);
                     const imageUrl = getImageUrl(file);
                     const imageFailed = failedImageIds.has(fileIdentifier);
+                    // File Viewer
                     return (jsxRuntime.jsx(react.Card.Root, { variant: 'subtle', colorPalette: "blue", children: jsxRuntime.jsxs(react.Card.Body, { gap: "2", cursor: 'pointer', onClick: () => handleRemove(index), display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', border: "2px solid", borderColor: "border.default", borderRadius: "md", _hover: {
                                 borderColor: 'colorPalette.300',
                                 bg: 'bg.muted',
                             }, transition: "all 0.2s", children: [jsxRuntime.jsx(react.Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, marginRight: "2", children: isImage && imageUrl && !imageFailed ? (jsxRuntime.jsx(react.Image, { src: imageUrl, alt: fileName, boxSize: "60px", objectFit: "cover", borderRadius: "md", onError: () => handleImageError(fileIdentifier) })) : isImage && (imageFailed || !imageUrl) ? (jsxRuntime.jsx(react.Icon, { as: lu.LuImage, boxSize: 6, color: "fg.muted" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 6, color: "fg.muted" })) }), jsxRuntime.jsxs(react.VStack, { align: "start", flex: 1, gap: 1, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: fileName }), fileSize !== undefined && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: formatBytes(fileSize) }))] }), jsxRuntime.jsx(react.Icon, { as: ti.TiDeleteOutline, boxSize: 5, color: "fg.muted" })] }) }, fileIdentifier));
+                }) })] }));
+};
+
+const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
+    const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
+    const { filePickerLabels } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix);
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', filePicker, type, } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const isSingleSelect = type === 'string';
+    const currentValue = watch(column) ?? (isSingleSelect ? '' : []);
+    // Handle string IDs only
+    const currentFileIds = isSingleSelect
+        ? currentValue
+            ? [currentValue]
+            : []
+        : Array.isArray(currentValue)
+            ? currentValue
+            : [];
+    const colLabel = formI18n.colLabel;
+    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [failedImageIds, setFailedImageIds] = React.useState(new Set());
+    const { onFetchFiles, filterImageOnly = false, enableUpload = false, onUploadFile, } = filePicker || {};
+    if (!onFetchFiles) {
+        return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+            gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsx(react.Text, { color: "fg.muted", children: "Media library browser requires onFetchFiles" }) }));
+    }
+    const handleMediaLibrarySelect = (fileId) => {
+        if (isSingleSelect) {
+            setValue(colLabel, fileId);
+        }
+        else {
+            const newFileIds = [...currentFileIds, fileId];
+            setValue(colLabel, newFileIds);
+        }
+    };
+    const handleRemove = (index) => {
+        if (isSingleSelect) {
+            setValue(colLabel, '');
+        }
+        else {
+            const newFileIds = currentFileIds.filter((_, i) => i !== index);
+            setValue(colLabel, newFileIds);
+        }
+    };
+    const isImageId = (fileId) => {
+        return /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(fileId);
+    };
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: jsxRuntime.jsx(react.Button, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ??
+                        formI18n.t('browse_library') ??
+                        'Browse from Library' }) }), jsxRuntime.jsx(FilePickerDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ??
+                    formI18n.t('dialog_title') ??
+                    'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, translate: formI18n.t, colLabel: colLabel }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
+                    const isImage = isImageId(fileId);
+                    const imageFailed = failedImageIds.has(fileId);
+                    return (jsxRuntime.jsx(react.Card.Root, { variant: 'subtle', colorPalette: "blue", children: jsxRuntime.jsxs(react.Card.Body, { gap: "2", cursor: 'pointer', onClick: () => handleRemove(index), display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', border: "2px solid", borderColor: "border.default", borderRadius: "md", _hover: {
+                                borderColor: 'colorPalette.300',
+                                bg: 'bg.muted',
+                            }, transition: "all 0.2s", children: [jsxRuntime.jsx(react.Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, marginRight: "2", children: isImage && !imageFailed ? (jsxRuntime.jsx(react.Icon, { as: lu.LuImage, boxSize: 6, color: "fg.muted" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 6, color: "fg.muted" })) }), jsxRuntime.jsx(react.VStack, { align: "start", flex: 1, gap: 1, children: jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: fileId }) }), jsxRuntime.jsx(react.Icon, { as: ti.TiDeleteOutline, boxSize: 5, color: "fg.muted" })] }) }, `${fileId}-${index}`));
                 }) })] }));
 };
 
@@ -6025,6 +6160,9 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         if (variant === 'file-picker') {
             return jsxRuntime.jsx(FilePicker, { schema: colSchema, prefix, column });
         }
+        if (variant === 'media-library-browser') {
+            return (jsxRuntime.jsx(FormMediaLibraryBrowser, { schema: colSchema, prefix, column }));
+        }
         if (variant === 'date-range') {
             return jsxRuntime.jsx(DateRangePicker, { schema: colSchema, prefix, column });
         }
@@ -6416,59 +6554,62 @@ const DateTimeViewer = ({ column, schema, prefix }) => {
 const SchemaViewer = ({ schema, prefix, column, }) => {
     const colSchema = schema;
     const { type, variant, properties: innerProperties, foreign_key, items, format, } = schema;
-    if (variant === "custom-input") {
+    if (variant === 'custom-input') {
         return jsxRuntime.jsx(CustomViewer, { schema: colSchema, prefix, column });
     }
-    if (type === "string") {
+    if (type === 'string') {
         if ((schema.enum ?? []).length > 0) {
             return jsxRuntime.jsx(EnumViewer, { schema: colSchema, prefix, column });
         }
-        if (variant === "id-picker") {
+        if (variant === 'id-picker') {
             idPickerSanityCheck(column, foreign_key);
             return jsxRuntime.jsx(IdViewer, { schema: colSchema, prefix, column });
         }
-        if (format === "time") {
+        if (format === 'time') {
             return jsxRuntime.jsx(TimeViewer, { schema: colSchema, prefix, column });
         }
-        if (format === "date") {
+        if (format === 'date') {
             return jsxRuntime.jsx(DateViewer, { schema: colSchema, prefix, column });
         }
-        if (format === "date-time") {
+        if (format === 'date-time') {
             return jsxRuntime.jsx(DateTimeViewer, { schema: colSchema, prefix, column });
         }
-        if (variant === "text-area") {
+        if (variant === 'text-area') {
             return jsxRuntime.jsx(TextAreaViewer, { schema: colSchema, prefix, column });
         }
         return jsxRuntime.jsx(StringViewer, { schema: colSchema, prefix, column });
     }
-    if (type === "number" || type === "integer") {
+    if (type === 'number' || type === 'integer') {
         return jsxRuntime.jsx(NumberViewer, { schema: colSchema, prefix, column });
     }
-    if (type === "boolean") {
+    if (type === 'boolean') {
         return jsxRuntime.jsx(BooleanViewer, { schema: colSchema, prefix, column });
     }
-    if (type === "object") {
+    if (type === 'object') {
         if (innerProperties) {
             return jsxRuntime.jsx(ObjectViewer, { schema: colSchema, prefix, column });
         }
         return jsxRuntime.jsx(RecordInput, { schema: colSchema, prefix, column });
     }
-    if (type === "array") {
-        if (variant === "id-picker") {
+    if (type === 'array') {
+        if (variant === 'id-picker') {
             idPickerSanityCheck(column, foreign_key);
             return (jsxRuntime.jsx(IdViewer, { schema: colSchema, prefix, column, isMultiple: true }));
         }
-        if (variant === "tag-picker") {
+        if (variant === 'tag-picker') {
             return jsxRuntime.jsx(TagViewer, { schema: colSchema, prefix, column });
         }
-        if (variant === "file-picker") {
+        if (variant === 'file-picker') {
             return jsxRuntime.jsx(FileViewer, { schema: colSchema, prefix, column });
         }
-        if (variant === "enum-picker") {
+        if (variant === 'media-library-browser') {
+            return jsxRuntime.jsx(FileViewer, { schema: colSchema, prefix, column });
+        }
+        if (variant === 'enum-picker') {
             const { items } = schema;
             const { enum: enumItems } = items;
             const enumSchema = {
-                type: "string",
+                type: 'string',
                 enum: enumItems,
             };
             return (jsxRuntime.jsx(EnumViewer, { isMultiple: true, schema: enumSchema, prefix, column }));
@@ -6478,7 +6619,7 @@ const SchemaViewer = ({ schema, prefix, column, }) => {
         }
         return jsxRuntime.jsx(react.Text, { children: `array ${column}` });
     }
-    if (type === "null") {
+    if (type === 'null') {
         return jsxRuntime.jsx(react.Text, { children: `null ${column}` });
     }
     return jsxRuntime.jsx(react.Text, { children: "missing type" });
@@ -7409,6 +7550,7 @@ exports.FormBody = FormBody;
 exports.FormRoot = FormRoot;
 exports.FormTitle = FormTitle;
 exports.GlobalFilter = GlobalFilter;
+exports.MediaLibraryBrowser = MediaLibraryBrowser;
 exports.PageSizeControl = PageSizeControl;
 exports.Pagination = Pagination;
 exports.RecordDisplay = RecordDisplay;

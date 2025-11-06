@@ -1,4 +1,4 @@
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 export interface SchemaRendererProps {
     column: string;
     schema: CustomJSONSchema7;
