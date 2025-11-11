@@ -4647,9 +4647,7 @@ const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, en
         : files;
     const handleFileClick = (file) => {
         if (multiple) {
-            const currentSelection = Array.isArray(selectedFile)
-                ? selectedFile
-                : [];
+            const currentSelection = Array.isArray(selectedFile) ? selectedFile : [];
             const isAlreadySelected = currentSelection.some((f) => f.id === file.id);
             const newSelection = isAlreadySelected
                 ? currentSelection.filter((f) => f.id !== file.id)

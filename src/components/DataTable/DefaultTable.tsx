@@ -1,3 +1,4 @@
+import { Row } from '@tanstack/react-table';
 import { TableControls, TableControlsProps } from './controls/TableControls';
 import { Table, TableProps } from './display/Table';
 import { TableBody, TableBodyProps } from './display/TableBody';
@@ -14,6 +15,7 @@ export interface DefaultTableProps {
   controlProps?: TableControlsProps;
   variant?: '' | 'greedy';
   isLoading?: boolean;
+  onRowClick?: (row: Row<unknown>) => void;
 }
 
 export const DefaultTable = ({
@@ -25,6 +27,7 @@ export const DefaultTable = ({
   controlProps = {},
   variant = '',
   isLoading = false,
+  onRowClick,
 }: DefaultTableProps) => {
   if (variant === 'greedy') {
     const bodyComponent = isLoading ? (
@@ -35,7 +38,8 @@ export const DefaultTable = ({
     ) : (
       <TableBody
         {...tableBodyProps}
-        {...{ canResize: false, ...tableBodyProps }}
+        canResize={false}
+        onRowClick={onRowClick}
       />
     );
     return (
@@ -67,7 +71,7 @@ export const DefaultTable = ({
       canResize={tableBodyProps.canResize}
     />
   ) : (
-    <TableBody {...tableBodyProps} />
+    <TableBody {...tableBodyProps} onRowClick={onRowClick} />
   );
   return (
     <TableControls {...controlProps}>
