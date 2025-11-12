@@ -51,6 +51,7 @@ export const IdPicker = ({
     setIdMap,
     schema: parentSchema,
     idPickerLabels,
+    comboboxInDialog,
   } = useSchemaContext();
   const formI18n = useFormI18n(column, prefix);
   const {
@@ -334,6 +335,11 @@ export const IdPicker = ({
         openOnClick
         invalid={!!errors[colLabel]}
         width="100%"
+        positioning={
+          comboboxInDialog
+            ? { strategy: 'fixed', hideWhenDetached: true }
+            : undefined
+        }
       >
         <Combobox.Control>
           <Combobox.Input
@@ -359,7 +365,7 @@ export const IdPicker = ({
           </Combobox.IndicatorGroup>
         </Combobox.Control>
 
-        <Portal>
+        {comboboxInDialog ? (
           <Combobox.Positioner>
             <Combobox.Content>
               {isError ? (
@@ -408,7 +414,58 @@ export const IdPicker = ({
               )}
             </Combobox.Content>
           </Combobox.Positioner>
-        </Portal>
+        ) : (
+          <Portal>
+            <Combobox.Positioner>
+              <Combobox.Content>
+                {isError ? (
+                  <Text p={2} color="fg.error" fontSize="sm">
+                    {formI18n.t('loading_failed')}
+                  </Text>
+                ) : isFetching || isLoading || isPending || isSearching ? (
+                  // Show skeleton items to prevent UI shift
+                  <>
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <Flex
+                        key={`skeleton-${index}`}
+                        p={2}
+                        align="center"
+                        gap={2}
+                      >
+                        <Skeleton height="20px" flex="1" />
+                      </Flex>
+                    ))}
+                  </>
+                ) : collection.items.length === 0 ? (
+                  <Combobox.Empty>
+                    {searchText
+                      ? idPickerLabels?.emptySearchResult ??
+                        formI18n.t('empty_search_result')
+                      : idPickerLabels?.initialResults ??
+                        formI18n.t('initial_results')}
+                  </Combobox.Empty>
+                ) : (
+                  <>
+                    {collection.items.map(
+                      (
+                        item: { label: string; value: string; raw: RecordType },
+                        index
+                      ) => (
+                        <Combobox.Item
+                          key={item.value ?? `item-${index}`}
+                          item={item}
+                        >
+                          <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                          <Combobox.ItemIndicator />
+                        </Combobox.Item>
+                      )
+                    )}
+                  </>
+                )}
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Portal>
+        )}
       </Combobox.Root>
     </Field>
   );

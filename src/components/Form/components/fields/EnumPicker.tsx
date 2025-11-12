@@ -36,7 +36,7 @@ export const EnumPicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { enumPickerLabels } = useSchemaContext();
+  const { enumPickerLabels, comboboxInDialog } = useSchemaContext();
   const formI18n = useFormI18n(column, prefix);
   const { required, variant } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
@@ -182,6 +182,11 @@ export const EnumPicker = ({
         openOnClick
         invalid={!!errors[colLabel]}
         width="100%"
+        positioning={
+          comboboxInDialog
+            ? { strategy: 'fixed', hideWhenDetached: true }
+            : undefined
+        }
       >
         <Combobox.Control>
           <Combobox.Input
@@ -201,7 +206,7 @@ export const EnumPicker = ({
           </Combobox.IndicatorGroup>
         </Combobox.Control>
 
-        <Portal>
+        {comboboxInDialog ? (
           <Combobox.Positioner>
             <Combobox.Content>
               {showTotalAndLimit && (
@@ -231,7 +236,39 @@ export const EnumPicker = ({
               )}
             </Combobox.Content>
           </Combobox.Positioner>
-        </Portal>
+        ) : (
+          <Portal>
+            <Combobox.Positioner>
+              <Combobox.Content>
+                {showTotalAndLimit && (
+                  <Text p={2} fontSize="sm" color="fg.muted">
+                    {`${enumPickerLabels?.total ?? formI18n.t('total')}: ${
+                      collection.items.length
+                    }`}
+                  </Text>
+                )}
+                {collection.items.length === 0 ? (
+                  <Combobox.Empty>
+                    {enumPickerLabels?.emptySearchResult ??
+                      formI18n.t('empty_search_result')}
+                  </Combobox.Empty>
+                ) : (
+                  <>
+                    {collection.items.map((item, index) => (
+                      <Combobox.Item
+                        key={item.value ?? `item-${index}`}
+                        item={item}
+                      >
+                        <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                        <Combobox.ItemIndicator />
+                      </Combobox.Item>
+                    ))}
+                  </>
+                )}
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Portal>
+        )}
       </Combobox.Root>
     </Field>
   );
