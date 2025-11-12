@@ -1,31 +1,19 @@
-import { Button } from '@/components/ui/button';
-import {
-  PaginationNextTrigger,
-  PaginationPageText,
-  PaginationPrevTrigger,
-  PaginationRoot,
-} from '@/components/ui/pagination';
-import {
-  PopoverBody,
-  PopoverContent,
-  PopoverRoot,
-  PopoverTitle,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { InfoTip } from '@/components/ui/toggle-tip';
 import { Tag } from '@/components/ui/tag';
 import {
+  Badge,
   Box,
+  Combobox,
   Flex,
-  Grid,
   HStack,
   Icon,
-  Input,
+  Portal,
   Spinner,
   Text,
+  useFilter,
+  useListCollection,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { ChangeEvent, ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
@@ -82,10 +70,7 @@ export const IdPicker = ({
     customQueryFn,
   } = foreign_key as ForeignKeyProps;
   const [searchText, setSearchText] = useState<string>('');
-  const [limit, setLimit] = useState<number>(10);
-  const [openSearchResult, setOpenSearchResult] = useState<boolean>();
-  const [page, setPage] = useState(0);
-  const ref = useRef<HTMLInputElement>(null);
+  const [limit] = useState<number>(50); // Increased limit for combobox
   const colLabel = formI18n.colLabel;
 
   const watchedValue = watch(colLabel);
@@ -103,9 +88,6 @@ export const IdPicker = ({
 
   // Use watched values if they exist (including empty string for single select),
   // otherwise fall back to initial values from getValues()
-  // This ensures the query can trigger on mount with initial values
-  // For single: use watchId if it's not undefined/null, otherwise use initialId
-  // For multiple: use watchIds if watchedValue is defined, otherwise use initialIds
   const currentId =
     watchId !== undefined && watchId !== null ? watchId : initialId;
   const currentIds =
@@ -113,15 +95,22 @@ export const IdPicker = ({
       ? watchIds
       : initialIds;
 
-  // Query for search results
+  // Current value for combobox (array format)
+  const currentValue = isMultiple
+    ? currentIds.filter((id) => id != null && id !== '')
+    : currentId
+    ? [currentId]
+    : [];
+
+  // Query for search results (async loading)
   const query = useQuery({
-    queryKey: [`idpicker`, { column, searchText, limit, page }],
+    queryKey: [`idpicker`, { column, searchText, limit }],
     queryFn: async () => {
       if (customQueryFn) {
         const { data, idMap } = await customQueryFn({
           searching: searchText ?? '',
           limit: limit,
-          offset: page * limit,
+          offset: 0,
         });
 
         setIdMap((state) => {
@@ -135,7 +124,7 @@ export const IdPicker = ({
         searching: searchText ?? '',
         in_table: table,
         limit: limit,
-        offset: page * limit,
+        offset: 0,
       });
       const newMap = Object.fromEntries(
         (data ?? { data: [] }).data.map((item: RecordType) => {
@@ -152,12 +141,11 @@ export const IdPicker = ({
       });
       return data;
     },
-    enabled: openSearchResult === true,
+    enabled: true, // Always enabled for combobox
     staleTime: 300000,
   });
 
   // Query for currently selected items (to display them properly)
-  // Use currentId/currentIds in queryKey so it includes initial values and updates when watched values change
   const queryDefault = useQuery({
     queryKey: [
       `idpicker-default`,
@@ -168,12 +156,10 @@ export const IdPicker = ({
       },
     ],
     queryFn: async () => {
-      // Use current values (which include initial) for the query
       const queryId = currentId;
       const queryIds = currentIds;
 
       if (customQueryFn) {
-        // For customQueryFn, pass where clause to fetch specific IDs
         const { data, idMap } = await customQueryFn({
           searching: '',
           limit: isMultiple ? queryIds.length : 1,
@@ -192,11 +178,9 @@ export const IdPicker = ({
         return { data: [] };
       }
 
-      const searchValue = isMultiple ? queryIds.join(',') : queryId;
-
       const data = await getTableData({
         serverUrl,
-        searching: searchValue,
+        searching: '',
         in_table: table,
         where: [{ id: column_ref, value: isMultiple ? queryIds : queryId }],
         limit: isMultiple ? queryIds.length : 1,
@@ -225,53 +209,68 @@ export const IdPicker = ({
       : !!currentId,
   });
 
-  // Effect to trigger initial data fetch when popover opens
-  useEffect(() => {
-    if (openSearchResult) {
-      // Reset search text when opening the popover
-      setSearchText('');
-      // Reset page to first page
-      setPage(0);
-      // Fetch initial data
-      query.refetch();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openSearchResult]);
-
-  const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchText(event.target.value);
-    setPage(0);
-    query.refetch();
-  };
-
-  const handleLimitChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const newLimit = Number(event.target.value);
-    setLimit(newLimit);
-    // Reset to first page when changing limit
-    setPage(0);
-    // Trigger a new search with the updated limit
-    query.refetch();
-  };
-
   const { isLoading, isFetching, data, isPending, isError } = query;
   const dataList = data?.data ?? [];
-  const count = data?.count ?? 0;
 
-  const getPickedValue = (): ReactNode => {
-    if (Object.keys(idMap).length <= 0) {
-      return '';
-    }
-    // Use currentId which includes initial values
-    const record = idMap[currentId] as RecordType | undefined;
-    if (record === undefined) {
-      return '';
-    }
-    if (!!renderDisplay === true) {
-      return renderDisplay(record);
-    }
+  // Transform data for combobox collection
+  const comboboxItems = useMemo(() => {
+    return dataList.map((item: RecordType) => ({
+      label: !!renderDisplay === true
+        ? String(renderDisplay(item))
+        : String(item[display_column] ?? ''),
+      value: String(item[column_ref]),
+      raw: item,
+    }));
+  }, [dataList, display_column, column_ref, renderDisplay]);
 
-    return record[display_column];
+  // Use filter hook for combobox
+  const { contains } = useFilter({ sensitivity: 'base' });
+
+  // Create collection for combobox
+  const { collection, filter, set } = useListCollection({
+    initialItems: comboboxItems,
+    itemToString: (item) => item.label,
+    itemToValue: (item) => item.value,
+    filter: contains,
+  });
+
+
+  // Handle input value change (search)
+  const handleInputValueChange = (details: Combobox.InputValueChangeDetails) => {
+    setSearchText(details.inputValue);
+    // Filter will be applied after data is fetched
   };
+
+  // Handle value change
+  const handleValueChange = (details: Combobox.ValueChangeDetails) => {
+    if (isMultiple) {
+      setValue(colLabel, details.value);
+    } else {
+      setValue(colLabel, details.value[0] || '');
+    }
+  };
+
+  // Debounce search to avoid too many API calls and update collection after data loads
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchText !== undefined) {
+        query.refetch();
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchText, query]);
+
+  // Update collection and filter when data changes
+  useEffect(() => {
+    if (dataList.length > 0) {
+      set(comboboxItems);
+      // Apply filter to the collection
+      if (searchText) {
+        filter(searchText);
+      }
+    }
+  }, [dataList, comboboxItems, set, filter, searchText]);
 
   return (
     <Field
@@ -285,14 +284,14 @@ export const IdPicker = ({
       errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
       invalid={!!errors[colLabel]}
     >
-      {/* Multiple Picker */}
-      {isMultiple && (
-        <Flex flexFlow={'wrap'} gap={1}>
-          {watchIds.map((id: string) => {
+      {/* Multiple Picker - Show selected tags */}
+      {isMultiple && currentValue.length > 0 && (
+        <Flex flexFlow={'wrap'} gap={1} mb={2}>
+          {currentValue.map((id: string) => {
             const item = idMap[id] as RecordType | undefined;
             if (item === undefined) {
               return (
-                <Text key={id}>
+                <Text key={id} fontSize="sm">
                   {idPickerLabels?.undefined ?? formI18n.t('undefined')}
                 </Text>
               );
@@ -302,12 +301,10 @@ export const IdPicker = ({
                 key={id}
                 closable
                 onClick={() => {
-                  setValue(
-                    colLabel,
-                    watchIds.filter(
-                      (itemId: string) => itemId !== item[column_ref]
-                    )
+                  const newValue = currentValue.filter(
+                    (itemId: string) => itemId !== id
                   );
+                  setValue(colLabel, newValue);
                 }}
               >
                 {!!renderDisplay === true
@@ -316,170 +313,85 @@ export const IdPicker = ({
               </Tag>
             );
           })}
-
-          <Tag
-            cursor={'pointer'}
-            onClick={() => {
-              setOpenSearchResult(true);
-            }}
-          >
-            {idPickerLabels?.addMore ?? formI18n.t('add_more')}
-          </Tag>
         </Flex>
       )}
 
-      {/* Single Picker */}
-      {!isMultiple && (
-        <Button
-          variant={'outline'}
-          onClick={() => {
-            setOpenSearchResult(true);
-          }}
-          justifyContent={'start'}
-        >
-          {queryDefault.isLoading ? <Spinner size="sm" /> : getPickedValue()}
-        </Button>
-      )}
-
-      <PopoverRoot
-        open={openSearchResult}
-        onOpenChange={(e) => setOpenSearchResult(e.open)}
-        closeOnInteractOutside
-        initialFocusEl={() => ref.current}
-        positioning={{ placement: 'bottom-start', strategy: 'fixed' }}
+      <Combobox.Root
+        collection={collection}
+        value={currentValue}
+        onValueChange={handleValueChange}
+        onInputValueChange={handleInputValueChange}
+        multiple={isMultiple}
+        closeOnSelect={!isMultiple}
+        openOnClick
+        invalid={!!errors[colLabel]}
+        width="100%"
       >
-        <PopoverTrigger />
-        <PopoverContent portalled={false}>
-          <PopoverBody display={'grid'} gap={1}>
-            {/* Search Input */}
-            <Input
-              placeholder={
-                idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search')
-              }
-              onChange={onSearchChange}
-              autoComplete="off"
-              ref={ref}
-              value={searchText}
-            />
-            <PopoverTitle />
-            {openSearchResult && (
-              <>
-                {(isFetching || isLoading || isPending) && <Spinner />}
-                {isError && (
-                  <Icon color={'red.400'}>
-                    <BiError />
-                  </Icon>
-                )}
-
-                {/* Total and Limit */}
-                <Flex justifyContent="space-between" alignItems="center">
-                  <Flex alignItems="center" gap="2">
-                    <InfoTip>
-                      {`${idPickerLabels?.total ?? formI18n.t('total')} ${count}, ${idPickerLabels?.showing ?? formI18n.t('showing')} ${limit} ${idPickerLabels?.perPage ?? formI18n.t('per_page', { defaultValue: 'per page' })}`}
-                    </InfoTip>
-                    <Text fontSize="sm" fontWeight="bold">
-                      {count}
-                      <Text as="span" fontSize="xs" ml="1" color="gray.500">
-                        /{' '}
-                        {count > 0
-                          ? `${page * limit + 1}-${Math.min((page + 1) * limit, count)}`
-                          : '0'}
-                      </Text>
-                    </Text>
-                  </Flex>
-                  <Box>
-                    <select
-                      value={limit}
-                      onChange={handleLimitChange}
-                      style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        border: '1px solid #ccc',
-                        fontSize: '14px',
-                      }}
-                    >
-                      <option value="5">5</option>
-                      <option value="10">10</option>
-                      <option value="20">20</option>
-                      <option value="30">30</option>
-                    </select>
-                  </Box>
-                </Flex>
-
-                {/* Data List */}
-                <Grid overflowY={'auto'}>
-                  {dataList.length > 0 ? (
-                    <Flex flexFlow={'column wrap'} gap={1}>
-                      {dataList.map((item: RecordType) => {
-                        const selected = isMultiple
-                          ? watchIds.some((id) => item[column_ref] === id)
-                          : watchId === item[column_ref];
-                        return (
-                          <Box
-                            key={item[column_ref]}
-                            cursor={'pointer'}
-                            onClick={() => {
-                              if (!isMultiple) {
-                                setOpenSearchResult(false);
-                                setValue(colLabel, item[column_ref]);
-                                return;
-                              }
-                              // For multiple selection, don't add if already selected
-                              if (selected) return;
-
-                              const newSet = new Set([
-                                ...(watchIds ?? []),
-                                item[column_ref],
-                              ]);
-                              setValue(colLabel, [...newSet]);
-                            }}
-                            opacity={0.7}
-                            _hover={{ opacity: 1 }}
-                            {...(selected
-                              ? {
-                                  color: 'colorPalette.400/50',
-                                  fontWeight: 'bold',
-                                }
-                              : {})}
-                          >
-                            {!!renderDisplay === true
-                              ? renderDisplay(item)
-                              : item[display_column]}
-                          </Box>
-                        );
-                      })}
-                    </Flex>
-                  ) : (
-                    <Text>
-                      {searchText
-                        ? idPickerLabels?.emptySearchResult ??
-                          formI18n.t('empty_search_result')
-                        : idPickerLabels?.initialResults ??
-                          formI18n.t('initial_results')}
-                    </Text>
-                  )}
-                </Grid>
-
-                {/* Pagination */}
-                <PaginationRoot
-                  justifySelf={'center'}
-                  count={count}
-                  pageSize={limit}
-                  defaultPage={1}
-                  page={page + 1}
-                  onPageChange={(e) => setPage(e.page - 1)}
-                >
-                  <HStack gap="4">
-                    <PaginationPrevTrigger />
-                    {count > 0 && <PaginationPageText />}
-                    <PaginationNextTrigger />
-                  </HStack>
-                </PaginationRoot>
-              </>
+        <Combobox.Control>
+          <Combobox.Input
+            placeholder={
+              idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search')
+            }
+          />
+          <Combobox.IndicatorGroup>
+            {(isFetching || isLoading || isPending) && (
+              <Spinner size="xs" />
             )}
-          </PopoverBody>
-        </PopoverContent>
-      </PopoverRoot>
+            {isError && (
+              <Icon color="fg.error">
+                <BiError />
+              </Icon>
+            )}
+            {!isMultiple && currentValue.length > 0 && (
+              <Combobox.ClearTrigger
+                onClick={() => {
+                  setValue(colLabel, '');
+                }}
+              />
+            )}
+            <Combobox.Trigger />
+          </Combobox.IndicatorGroup>
+        </Combobox.Control>
+
+        <Portal>
+          <Combobox.Positioner>
+            <Combobox.Content>
+              {isFetching || isLoading || isPending ? (
+                <HStack p={2} justify="center">
+                  <Spinner size="xs" />
+                  <Text fontSize="sm">
+                    {idPickerLabels?.loading ?? formI18n.t('loading')}
+                  </Text>
+                </HStack>
+              ) : isError ? (
+                <Text p={2} color="fg.error" fontSize="sm">
+                  {idPickerLabels?.loadingFailed ??
+                    formI18n.t('loading_failed')}
+                </Text>
+              ) : collection.items.length === 0 ? (
+                <Combobox.Empty>
+                  {searchText
+                    ? idPickerLabels?.emptySearchResult ??
+                      formI18n.t('empty_search_result')
+                    : idPickerLabels?.initialResults ??
+                      formI18n.t('initial_results')}
+                </Combobox.Empty>
+              ) : (
+                <>
+                  {collection.items.map((item) => (
+                    <Combobox.Item key={item.value} item={item}>
+                      <Combobox.ItemText>
+                        {item.label}
+                      </Combobox.ItemText>
+                      <Combobox.ItemIndicator />
+                    </Combobox.Item>
+                  ))}
+                </>
+              )}
+            </Combobox.Content>
+          </Combobox.Positioner>
+        </Portal>
+      </Combobox.Root>
     </Field>
   );
 };
