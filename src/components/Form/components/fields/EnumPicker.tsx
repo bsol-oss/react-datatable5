@@ -50,8 +50,8 @@ export const EnumPicker = ({
   const currentValue = isMultiple
     ? watchEnums.filter((val) => val != null && val !== '')
     : watchEnum
-    ? [watchEnum]
-    : [];
+      ? [watchEnum]
+      : [];
 
   // Transform enum data for combobox collection
   const comboboxItems = useMemo(() => {
@@ -76,7 +76,9 @@ export const EnumPicker = ({
   });
 
   // Handle input value change (search)
-  const handleInputValueChange = (details: Combobox.InputValueChangeDetails) => {
+  const handleInputValueChange = (
+    details: Combobox.InputValueChangeDetails
+  ) => {
     filter(details.inputValue);
   };
 
@@ -216,8 +218,11 @@ export const EnumPicker = ({
                 </Combobox.Empty>
               ) : (
                 <>
-                  {collection.items.map((item) => (
-                    <Combobox.Item key={item.value} item={item}>
+                  {collection.items.map((item, index) => (
+                    <Combobox.Item
+                      key={item.value ?? `item-${index}`}
+                      item={item}
+                    >
                       <Combobox.ItemText>{item.label}</Combobox.ItemText>
                       <Combobox.ItemIndicator />
                     </Combobox.Item>

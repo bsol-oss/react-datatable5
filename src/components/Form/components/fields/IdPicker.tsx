@@ -1,19 +1,17 @@
 import { Tag } from '@/components/ui/tag';
 import {
-  Badge,
-  Box,
   Combobox,
   Flex,
-  HStack,
   Icon,
   Portal,
+  Skeleton,
   Spinner,
   Text,
   useFilter,
   useListCollection,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
@@ -70,6 +68,7 @@ export const IdPicker = ({
     customQueryFn,
   } = foreign_key as ForeignKeyProps;
   const [searchText, setSearchText] = useState<string>('');
+  const [debouncedSearchText, setDebouncedSearchText] = useState<string>('');
   const [limit] = useState<number>(50); // Increased limit for combobox
   const colLabel = formI18n.colLabel;
 
@@ -99,16 +98,25 @@ export const IdPicker = ({
   const currentValue = isMultiple
     ? currentIds.filter((id) => id != null && id !== '')
     : currentId
-    ? [currentId]
-    : [];
+      ? [currentId]
+      : [];
+
+  // Debounce search text to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchText]);
 
   // Query for search results (async loading)
   const query = useQuery({
-    queryKey: [`idpicker`, { column, searchText, limit }],
+    queryKey: [`idpicker`, { column, searchText: debouncedSearchText, limit }],
     queryFn: async () => {
       if (customQueryFn) {
         const { data, idMap } = await customQueryFn({
-          searching: searchText ?? '',
+          searching: debouncedSearchText ?? '',
           limit: limit,
           offset: 0,
         });
@@ -121,7 +129,7 @@ export const IdPicker = ({
       }
       const data = await getTableData({
         serverUrl,
-        searching: searchText ?? '',
+        searching: debouncedSearchText ?? '',
         in_table: table,
         limit: limit,
         offset: 0,
@@ -146,7 +154,8 @@ export const IdPicker = ({
   });
 
   // Query for currently selected items (to display them properly)
-  const queryDefault = useQuery({
+  // This query is needed for side effects (populating idMap) even though the result isn't directly used
+  const _queryDefault = useQuery({
     queryKey: [
       `idpicker-default`,
       {
@@ -212,12 +221,16 @@ export const IdPicker = ({
   const { isLoading, isFetching, data, isPending, isError } = query;
   const dataList = data?.data ?? [];
 
+  // Check if we're currently searching (user typed but debounce hasn't fired yet)
+  const isSearching = searchText !== debouncedSearchText;
+
   // Transform data for combobox collection
   const comboboxItems = useMemo(() => {
     return dataList.map((item: RecordType) => ({
-      label: !!renderDisplay === true
-        ? String(renderDisplay(item))
-        : String(item[display_column] ?? ''),
+      label:
+        !!renderDisplay === true
+          ? String(renderDisplay(item))
+          : String(item[display_column] ?? ''),
       value: String(item[column_ref]),
       raw: item,
     }));
@@ -229,14 +242,17 @@ export const IdPicker = ({
   // Create collection for combobox
   const { collection, filter, set } = useListCollection({
     initialItems: comboboxItems,
-    itemToString: (item) => item.label,
-    itemToValue: (item) => item.value,
+    itemToString: (item: { label: string; value: string; raw: RecordType }) =>
+      item.label,
+    itemToValue: (item: { label: string; value: string; raw: RecordType }) =>
+      item.value,
     filter: contains,
   });
 
-
   // Handle input value change (search)
-  const handleInputValueChange = (details: Combobox.InputValueChangeDetails) => {
+  const handleInputValueChange = (
+    details: Combobox.InputValueChangeDetails
+  ) => {
     setSearchText(details.inputValue);
     // Filter will be applied after data is fetched
   };
@@ -250,27 +266,19 @@ export const IdPicker = ({
     }
   };
 
-  // Debounce search to avoid too many API calls and update collection after data loads
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchText !== undefined) {
-        query.refetch();
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchText, query]);
-
   // Update collection and filter when data changes
   useEffect(() => {
-    if (dataList.length > 0) {
+    if (dataList.length > 0 && comboboxItems.length > 0) {
       set(comboboxItems);
-      // Apply filter to the collection
+      // Apply filter to the collection using the immediate searchText for UI responsiveness
       if (searchText) {
         filter(searchText);
       }
     }
-  }, [dataList, comboboxItems, set, filter, searchText]);
+    // Only depend on dataList and searchText, not comboboxItems (which is derived from dataList)
+    // set and filter are stable functions from useListCollection
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataList, searchText]);
 
   return (
     <Field
@@ -334,9 +342,7 @@ export const IdPicker = ({
             }
           />
           <Combobox.IndicatorGroup>
-            {(isFetching || isLoading || isPending) && (
-              <Spinner size="xs" />
-            )}
+            {(isFetching || isLoading || isPending) && <Spinner size="xs" />}
             {isError && (
               <Icon color="fg.error">
                 <BiError />
@@ -356,18 +362,24 @@ export const IdPicker = ({
         <Portal>
           <Combobox.Positioner>
             <Combobox.Content>
-              {isFetching || isLoading || isPending ? (
-                <HStack p={2} justify="center">
-                  <Spinner size="xs" />
-                  <Text fontSize="sm">
-                    {idPickerLabels?.loading ?? formI18n.t('loading')}
-                  </Text>
-                </HStack>
-              ) : isError ? (
+              {isError ? (
                 <Text p={2} color="fg.error" fontSize="sm">
-                  {idPickerLabels?.loadingFailed ??
-                    formI18n.t('loading_failed')}
+                  {formI18n.t('loading_failed')}
                 </Text>
+              ) : isFetching || isLoading || isPending || isSearching ? (
+                // Show skeleton items to prevent UI shift
+                <>
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Flex
+                      key={`skeleton-${index}`}
+                      p={2}
+                      align="center"
+                      gap={2}
+                    >
+                      <Skeleton height="20px" flex="1" />
+                    </Flex>
+                  ))}
+                </>
               ) : collection.items.length === 0 ? (
                 <Combobox.Empty>
                   {searchText
@@ -378,14 +390,20 @@ export const IdPicker = ({
                 </Combobox.Empty>
               ) : (
                 <>
-                  {collection.items.map((item) => (
-                    <Combobox.Item key={item.value} item={item}>
-                      <Combobox.ItemText>
-                        {item.label}
-                      </Combobox.ItemText>
-                      <Combobox.ItemIndicator />
-                    </Combobox.Item>
-                  ))}
+                  {collection.items.map(
+                    (
+                      item: { label: string; value: string; raw: RecordType },
+                      index
+                    ) => (
+                      <Combobox.Item
+                        key={item.value ?? `item-${index}`}
+                        item={item}
+                      >
+                        <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                        <Combobox.ItemIndicator />
+                      </Combobox.Item>
+                    )
+                  )}
                 </>
               )}
             </Combobox.Content>
