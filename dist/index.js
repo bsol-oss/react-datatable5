@@ -3627,7 +3627,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
     showSubmitButton: true,
     showResetButton: true,
     showTitle: true,
-}, requireConfirmation = false, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, }) => {
+}, requireConfirmation = false, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, comboboxInDialog = false, }) => {
     const [isSuccess, setIsSuccess] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
     const [isSubmiting, setIsSubmiting] = React.useState(false);
@@ -3718,6 +3718,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
             enumPickerLabels,
             filePickerLabels,
             ajvResolver: ajvResolver(schema),
+            comboboxInDialog,
         }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: children }) }));
 };
 
@@ -4178,7 +4179,7 @@ const DateRangePicker = ({ column, schema, prefix, }) => {
 
 const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLimit = false, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { enumPickerLabels } = useSchemaContext();
+    const { enumPickerLabels, comboboxInDialog } = useSchemaContext();
     const formI18n = useFormI18n(column, prefix);
     const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -4247,10 +4248,13 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                         }, children: !!renderDisplay === true
                             ? renderDisplay(enumValue)
                             : formI18n.t(enumValue) }, enumValue));
-                }) })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: enumPickerLabels?.typeToSearch ?? formI18n.t('type_to_search') }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [!isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
+                }) })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: comboboxInDialog
+                    ? { strategy: 'fixed', hideWhenDetached: true }
+                    : undefined, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: enumPickerLabels?.typeToSearch ?? formI18n.t('type_to_search') }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [!isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
                                             setValue(colLabel, '');
-                                        } })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [showTotalAndLimit && (jsxRuntime.jsx(react.Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? formI18n.t('total')}: ${collection.items.length}` })), collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ??
-                                            formI18n.t('empty_search_result') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) }) })] })] }));
+                                        } })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), comboboxInDialog ? (jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [showTotalAndLimit && (jsxRuntime.jsx(react.Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? formI18n.t('total')}: ${collection.items.length}` })), collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ??
+                                        formI18n.t('empty_search_result') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [showTotalAndLimit && (jsxRuntime.jsx(react.Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? formI18n.t('total')}: ${collection.items.length}` })), collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ??
+                                            formI18n.t('empty_search_result') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) }) }))] })] }));
 };
 
 function isEnteringWindow(_ref) {
@@ -5039,7 +5043,7 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
 
 const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, getValues, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { serverUrl, idMap, setIdMap, schema: parentSchema, idPickerLabels, } = useSchemaContext();
+    const { serverUrl, idMap, setIdMap, schema: parentSchema, idPickerLabels, comboboxInDialog, } = useSchemaContext();
     const formI18n = useFormI18n(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -5232,15 +5236,23 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                         }, children: !!renderDisplay === true
                             ? renderDisplay(item)
                             : item[display_column] }, id));
-                }) })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search') }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, { size: "xs" }), isError && (jsxRuntime.jsx(react.Icon, { color: "fg.error", children: jsxRuntime.jsx(bi.BiError, {}) })), !isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
+                }) })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: comboboxInDialog
+                    ? { strategy: 'fixed', hideWhenDetached: true }
+                    : undefined, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search') }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, { size: "xs" }), isError && (jsxRuntime.jsx(react.Icon, { color: "fg.error", children: jsxRuntime.jsx(bi.BiError, {}) })), !isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
                                             setValue(colLabel, '');
-                                        } })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: formI18n.t('loading_failed') })) : isFetching || isLoading || isPending || isSearching ? (
+                                        } })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), comboboxInDialog ? (jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: formI18n.t('loading_failed') })) : isFetching || isLoading || isPending || isSearching ? (
+                            // Show skeleton items to prevent UI shift
+                            jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
+                                    ? idPickerLabels?.emptySearchResult ??
+                                        formI18n.t('empty_search_result')
+                                    : idPickerLabels?.initialResults ??
+                                        formI18n.t('initial_results') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: formI18n.t('loading_failed') })) : isFetching || isLoading || isPending || isSearching ? (
                                 // Show skeleton items to prevent UI shift
                                 jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
                                         ? idPickerLabels?.emptySearchResult ??
                                             formI18n.t('empty_search_result')
                                         : idPickerLabels?.initialResults ??
-                                            formI18n.t('initial_results') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) })] })] }));
+                                            formI18n.t('initial_results') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) }))] })] }));
 };
 
 const NumberInputRoot = React__namespace.forwardRef(function NumberInput(props, ref) {

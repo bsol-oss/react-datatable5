@@ -45,5 +45,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
     enumPickerLabels?: EnumPickerLabels;
     filePickerLabels?: FilePickerLabels;
     ajvResolver: Resolver<FieldValues>;
+    comboboxInDialog?: boolean;
 }
 export declare const SchemaFormContext: import("react").Context<SchemaFormContext<unknown>>;
