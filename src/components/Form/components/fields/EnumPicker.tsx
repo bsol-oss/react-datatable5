@@ -1,26 +1,18 @@
-import { Button } from '@/components/ui/button';
-import {
-  PopoverBody,
-  PopoverContent,
-  PopoverRoot,
-  PopoverTitle,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { Tag } from '@/components/ui/tag';
 import {
-  Box,
+  Combobox,
   Flex,
-  Grid,
   HStack,
-  Input,
+  Portal,
   RadioGroup,
   Text,
+  useFilter,
+  useListCollection,
 } from '@chakra-ui/react';
-import { ChangeEvent, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
-import { filterArray } from '../../utils/filterArray';
 import { useFormI18n } from '../../utils/useFormI18n';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
@@ -49,19 +41,52 @@ export const EnumPicker = ({
   const { required, variant } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
-  const [searchText, setSearchText] = useState<string>();
-  const [limit, setLimit] = useState<number>(10);
-  const [openSearchResult, setOpenSearchResult] = useState<boolean>();
-  const ref = useRef<HTMLInputElement>(null);
   const colLabel = formI18n.colLabel;
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];
   const dataList = schema.enum ?? [];
-  const count = schema.enum?.length ?? 0;
-  const isDirty = (searchText?.length ?? 0) > 0;
-  const onSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchText(event.target.value);
-    setLimit(10);
+
+  // Current value for combobox (array format)
+  const currentValue = isMultiple
+    ? watchEnums.filter((val) => val != null && val !== '')
+    : watchEnum
+    ? [watchEnum]
+    : [];
+
+  // Transform enum data for combobox collection
+  const comboboxItems = useMemo(() => {
+    return (dataList as string[]).map((item: string) => ({
+      label:
+        !!renderDisplay === true
+          ? String(renderDisplay(item))
+          : formI18n.t(item),
+      value: item,
+    }));
+  }, [dataList, renderDisplay, formI18n]);
+
+  // Use filter hook for combobox
+  const { contains } = useFilter({ sensitivity: 'base' });
+
+  // Create collection for combobox
+  const { collection, filter } = useListCollection({
+    initialItems: comboboxItems,
+    itemToString: (item) => item.label,
+    itemToValue: (item) => item.value,
+    filter: contains,
+  });
+
+  // Handle input value change (search)
+  const handleInputValueChange = (details: Combobox.InputValueChangeDetails) => {
+    filter(details.inputValue);
+  };
+
+  // Handle value change
+  const handleValueChange = (details: Combobox.ValueChangeDetails) => {
+    if (isMultiple) {
+      setValue(colLabel, details.value);
+    } else {
+      setValue(colLabel, details.value[0] || '');
+    }
   };
 
   if (variant === 'radio') {
@@ -77,35 +102,28 @@ export const EnumPicker = ({
         errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
         invalid={!!errors[colLabel]}
       >
-        <RadioGroup.Root defaultValue="1">
+        <RadioGroup.Root
+          value={!isMultiple ? watchEnum : undefined}
+          onValueChange={(details) => {
+            if (!isMultiple) {
+              setValue(colLabel, details.value);
+            }
+          }}
+        >
           <HStack gap="6">
-            {filterArray(dataList as string[], searchText ?? '').map(
-              (item: string) => {
-                return (
-                  <RadioGroup.Item
-                    key={`${colLabel}-${item}`}
-                    onClick={() => {
-                      if (!isMultiple) {
-                        setOpenSearchResult(false);
-                        setValue(colLabel, item);
-                        return;
-                      }
-                      const newSet = new Set([...(watchEnums ?? []), item]);
-                      setValue(colLabel, [...newSet]);
-                    }}
-                    value={item}
-                  >
-                    <RadioGroup.ItemHiddenInput />
-                    <RadioGroup.ItemIndicator />
-                    <RadioGroup.ItemText>
-                      {!!renderDisplay === true
-                        ? renderDisplay(item)
-                        : formI18n.t(item)}
-                    </RadioGroup.ItemText>
-                  </RadioGroup.Item>
-                );
-              }
-            )}
+            {(dataList as string[]).map((item: string) => {
+              return (
+                <RadioGroup.Item key={`${colLabel}-${item}`} value={item}>
+                  <RadioGroup.ItemHiddenInput />
+                  <RadioGroup.ItemIndicator />
+                  <RadioGroup.ItemText>
+                    {!!renderDisplay === true
+                      ? renderDisplay(item)
+                      : formI18n.t(item)}
+                  </RadioGroup.ItemText>
+                </RadioGroup.Item>
+              );
+            })}
           </HStack>
         </RadioGroup.Root>
       </Field>
@@ -124,146 +142,92 @@ export const EnumPicker = ({
       errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
       invalid={!!errors[colLabel]}
     >
-      {isMultiple && (
-        <Flex flexFlow={'wrap'} gap={1}>
-          {watchEnums.map((enumValue) => {
-            const item = enumValue;
-            if (!!item === false) {
-              return <></>;
+      {/* Multiple Picker - Show selected tags */}
+      {isMultiple && currentValue.length > 0 && (
+        <Flex flexFlow={'wrap'} gap={1} mb={2}>
+          {currentValue.map((enumValue: string) => {
+            if (!enumValue) {
+              return null;
             }
             return (
               <Tag
-                key={item}
+                key={enumValue}
                 size="lg"
                 closable
                 onClick={() => {
-                  setValue(
-                    column,
-                    watchEnums.filter((id: string) => id != item)
+                  const newValue = currentValue.filter(
+                    (val: string) => val !== enumValue
                   );
+                  setValue(colLabel, newValue);
                 }}
               >
                 {!!renderDisplay === true
-                  ? renderDisplay(item)
-                  : formI18n.t(item)}
+                  ? renderDisplay(enumValue)
+                  : formI18n.t(enumValue)}
               </Tag>
             );
           })}
-          <Tag
-            key={`${colLabel}-add-more-tag`}
-            size="lg"
-            cursor={'pointer'}
-            onClick={() => {
-              setOpenSearchResult(true);
-            }}
-          >
-            {enumPickerLabels?.addMore ?? formI18n.t('add_more')}
-          </Tag>
         </Flex>
       )}
-      {!isMultiple && (
-        <Button
-          variant={'outline'}
-          onClick={() => {
-            setOpenSearchResult(true);
-          }}
-          justifyContent={'start'}
-        >
-          {!!watchEnum === false ? '' : formI18n.t(watchEnum ?? 'null')}
-        </Button>
-      )}
-      <PopoverRoot
-        open={openSearchResult}
-        onOpenChange={(e) => setOpenSearchResult(e.open)}
-        closeOnInteractOutside
-        initialFocusEl={() => ref.current}
-        positioning={{ placement: 'bottom-start' }}
+
+      <Combobox.Root
+        collection={collection}
+        value={currentValue}
+        onValueChange={handleValueChange}
+        onInputValueChange={handleInputValueChange}
+        multiple={isMultiple}
+        closeOnSelect={!isMultiple}
+        openOnClick
+        invalid={!!errors[colLabel]}
+        width="100%"
       >
-        <PopoverTrigger />
-        <PopoverContent portalled={false}>
-          <PopoverBody display={'grid'} gap={1}>
-            <Input
-              placeholder={
-                enumPickerLabels?.typeToSearch ?? formI18n.t('type_to_search')
-              }
-              onChange={(event) => {
-                onSearchChange(event);
-                setOpenSearchResult(true);
-              }}
-              autoComplete="off"
-              ref={ref}
-            />
-            <PopoverTitle />
-            {showTotalAndLimit && (
-              <Text>{`${enumPickerLabels?.total ?? formI18n.t('total')}: ${count}, ${enumPickerLabels?.showing ?? formI18n.t('showing')} ${limit}`}</Text>
+        <Combobox.Control>
+          <Combobox.Input
+            placeholder={
+              enumPickerLabels?.typeToSearch ?? formI18n.t('type_to_search')
+            }
+          />
+          <Combobox.IndicatorGroup>
+            {!isMultiple && currentValue.length > 0 && (
+              <Combobox.ClearTrigger
+                onClick={() => {
+                  setValue(colLabel, '');
+                }}
+              />
             )}
+            <Combobox.Trigger />
+          </Combobox.IndicatorGroup>
+        </Combobox.Control>
 
-            <Grid overflow={'auto'} maxHeight={'20rem'}>
-              <Flex flexFlow={'column wrap'}>
-                {(dataList as string[])
-                  .filter((item: string) => {
-                    const searchTerm = (searchText || '').toLowerCase();
-                    if (!searchTerm) return true;
-
-                    // Check if the original enum value contains the search text
-                    const enumValueMatch = item
-                      .toLowerCase()
-                      .includes(searchTerm);
-
-                    // Check if the display value (translation) contains the search text
-                    const displayValue =
-                      !!renderDisplay === true
-                        ? renderDisplay(item)
-                        : formI18n.t(item);
-
-                    // Convert to string and check if it includes the search term
-                    const displayValueString =
-                      String(displayValue).toLowerCase();
-                    const displayValueMatch =
-                      displayValueString.includes(searchTerm);
-
-                    return enumValueMatch || displayValueMatch;
-                  })
-                  .map((item: string) => {
-                    const selected = isMultiple
-                      ? watchEnums.some((enumValue) => item === enumValue)
-                      : watchEnum == item;
-                    return (
-                      <Box
-                        key={`${colLabel}-${item}`}
-                        cursor={'pointer'}
-                        onClick={() => {
-                          if (!isMultiple) {
-                            setOpenSearchResult(false);
-                            setValue(colLabel, item);
-                            return;
-                          }
-                          const newSet = new Set([...(watchEnums ?? []), item]);
-                          setValue(colLabel, [...newSet]);
-                        }}
-                        {...(selected ? { color: 'colorPalette.400/50' } : {})}
-                      >
-                        {!!renderDisplay === true
-                          ? renderDisplay(item)
-                          : formI18n.t(item)}
-                      </Box>
-                    );
-                  })}
-              </Flex>
-              {isDirty && (
+        <Portal>
+          <Combobox.Positioner>
+            <Combobox.Content>
+              {showTotalAndLimit && (
+                <Text p={2} fontSize="sm" color="fg.muted">
+                  {`${enumPickerLabels?.total ?? formI18n.t('total')}: ${
+                    collection.items.length
+                  }`}
+                </Text>
+              )}
+              {collection.items.length === 0 ? (
+                <Combobox.Empty>
+                  {enumPickerLabels?.emptySearchResult ??
+                    formI18n.t('empty_search_result')}
+                </Combobox.Empty>
+              ) : (
                 <>
-                  {dataList.length <= 0 && (
-                    <>
-                      {enumPickerLabels?.emptySearchResult ??
-                        formI18n.t('empty_search_result')}
-                    </>
-                  )}
+                  {collection.items.map((item) => (
+                    <Combobox.Item key={item.value} item={item}>
+                      <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                      <Combobox.ItemIndicator />
+                    </Combobox.Item>
+                  ))}
                 </>
               )}
-            </Grid>
-          </PopoverBody>
-        </PopoverContent>
-      </PopoverRoot>
+            </Combobox.Content>
+          </Combobox.Positioner>
+        </Portal>
+      </Combobox.Root>
     </Field>
   );
 };
