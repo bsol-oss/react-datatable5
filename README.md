@@ -308,4 +308,5 @@ npm run storybook
 
 ```
 npm version prerelease --preid=beta
+npm publish
 ```
