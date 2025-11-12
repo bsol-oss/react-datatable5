@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Tooltip as Tooltip$1, Group, InputElement, Icon, EmptyState as EmptyState$2, VStack, List, Table as Table$1, Checkbox as Checkbox$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, NumberInput, Show, RadioCard, CheckboxGroup, Center, Heading, Skeleton } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Tooltip as Tooltip$1, Group, InputElement, Icon, EmptyState as EmptyState$2, VStack, List, Table as Table$1, Checkbox as Checkbox$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, Skeleton, NumberInput, Show, RadioCard, CheckboxGroup, Center, Heading } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef, useMemo, forwardRef } from 'react';
@@ -4230,7 +4230,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                 }) })), jsxs(Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", children: [jsxs(Combobox.Control, { children: [jsx(Combobox.Input, { placeholder: enumPickerLabels?.typeToSearch ?? formI18n.t('type_to_search') }), jsxs(Combobox.IndicatorGroup, { children: [!isMultiple && currentValue.length > 0 && (jsx(Combobox.ClearTrigger, { onClick: () => {
                                             setValue(colLabel, '');
                                         } })), jsx(Combobox.Trigger, {})] })] }), jsx(Portal, { children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [showTotalAndLimit && (jsx(Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? formI18n.t('total')}: ${collection.items.length}` })), collection.items.length === 0 ? (jsx(Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ??
-                                            formI18n.t('empty_search_result') })) : (jsx(Fragment, { children: collection.items.map((item) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: item.label }), jsx(Combobox.ItemIndicator, {})] }, item.value))) }))] }) }) })] })] }));
+                                            formI18n.t('empty_search_result') })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: item.label }), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) }) })] })] }));
 };
 
 function isEnteringWindow(_ref) {
@@ -5025,6 +5025,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const { table, column: column_ref, display_column, customQueryFn, } = foreign_key;
     const [searchText, setSearchText] = useState('');
+    const [debouncedSearchText, setDebouncedSearchText] = useState('');
     const [limit] = useState(50); // Increased limit for combobox
     const colLabel = formI18n.colLabel;
     const watchedValue = watch(colLabel);
@@ -5050,13 +5051,20 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         : currentId
             ? [currentId]
             : [];
+    // Debounce search text to avoid too many API calls
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchText(searchText);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchText]);
     // Query for search results (async loading)
     const query = useQuery({
-        queryKey: [`idpicker`, { column, searchText, limit }],
+        queryKey: [`idpicker`, { column, searchText: debouncedSearchText, limit }],
         queryFn: async () => {
             if (customQueryFn) {
                 const { data, idMap } = await customQueryFn({
-                    searching: searchText ?? '',
+                    searching: debouncedSearchText ?? '',
                     limit: limit,
                     offset: 0,
                 });
@@ -5067,7 +5075,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             }
             const data = await getTableData({
                 serverUrl,
-                searching: searchText ?? '',
+                searching: debouncedSearchText ?? '',
                 in_table: table,
                 limit: limit,
                 offset: 0,
@@ -5089,6 +5097,7 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         staleTime: 300000,
     });
     // Query for currently selected items (to display them properly)
+    // This query is needed for side effects (populating idMap) even though the result isn't directly used
     useQuery({
         queryKey: [
             `idpicker-default`,
@@ -5143,6 +5152,8 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     });
     const { isLoading, isFetching, data, isPending, isError } = query;
     const dataList = data?.data ?? [];
+    // Check if we're currently searching (user typed but debounce hasn't fired yet)
+    const isSearching = searchText !== debouncedSearchText;
     // Transform data for combobox collection
     const comboboxItems = useMemo(() => {
         return dataList.map((item) => ({
@@ -5176,25 +5187,19 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             setValue(colLabel, details.value[0] || '');
         }
     };
-    // Debounce search to avoid too many API calls and update collection after data loads
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (searchText !== undefined) {
-                query.refetch();
-            }
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [searchText, query]);
     // Update collection and filter when data changes
     useEffect(() => {
-        if (dataList.length > 0) {
+        if (dataList.length > 0 && comboboxItems.length > 0) {
             set(comboboxItems);
-            // Apply filter to the collection
+            // Apply filter to the collection using the immediate searchText for UI responsiveness
             if (searchText) {
                 filter(searchText);
             }
         }
-    }, [dataList, comboboxItems, set, filter, searchText]);
+        // Only depend on dataList and searchText, not comboboxItems (which is derived from dataList)
+        // set and filter are stable functions from useListCollection
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dataList, searchText]);
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [isMultiple && currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((id) => {
                     const item = idMap[id];
@@ -5207,14 +5212,15 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                         }, children: !!renderDisplay === true
                             ? renderDisplay(item)
                             : item[display_column] }, id));
-                }) })), jsxs(Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", children: [jsxs(Combobox.Control, { children: [jsx(Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search') }), jsxs(Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && (jsx(Spinner, { size: "xs" })), isError && (jsx(Icon, { color: "fg.error", children: jsx(BiError, {}) })), !isMultiple && currentValue.length > 0 && (jsx(Combobox.ClearTrigger, { onClick: () => {
+                }) })), jsxs(Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", children: [jsxs(Combobox.Control, { children: [jsx(Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search') }), jsxs(Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsx(Spinner, { size: "xs" }), isError && (jsx(Icon, { color: "fg.error", children: jsx(BiError, {}) })), !isMultiple && currentValue.length > 0 && (jsx(Combobox.ClearTrigger, { onClick: () => {
                                             setValue(colLabel, '');
-                                        } })), jsx(Combobox.Trigger, {})] })] }), jsx(Portal, { children: jsx(Combobox.Positioner, { children: jsx(Combobox.Content, { children: isFetching || isLoading || isPending ? (jsxs(HStack, { p: 2, justify: "center", children: [jsx(Spinner, { size: "xs" }), jsx(Text, { fontSize: "sm", children: idPickerLabels?.loading ?? formI18n.t('loading') })] })) : isError ? (jsx(Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.loadingFailed ??
-                                        formI18n.t('loading_failed') })) : collection.items.length === 0 ? (jsx(Combobox.Empty, { children: searchText
+                                        } })), jsx(Combobox.Trigger, {})] })] }), jsx(Portal, { children: jsx(Combobox.Positioner, { children: jsx(Combobox.Content, { children: isError ? (jsx(Text, { p: 2, color: "fg.error", fontSize: "sm", children: formI18n.t('loading_failed') })) : isFetching || isLoading || isPending || isSearching ? (
+                                // Show skeleton items to prevent UI shift
+                                jsx(Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsx(Flex, { p: 2, align: "center", gap: 2, children: jsx(Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsx(Combobox.Empty, { children: searchText
                                         ? idPickerLabels?.emptySearchResult ??
                                             formI18n.t('empty_search_result')
                                         : idPickerLabels?.initialResults ??
-                                            formI18n.t('initial_results') })) : (jsx(Fragment, { children: collection.items.map((item) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: item.label }), jsx(Combobox.ItemIndicator, {})] }, item.value))) })) }) }) })] })] }));
+                                            formI18n.t('initial_results') })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: item.label }), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) })] })] }));
 };
 
 const NumberInputRoot = React.forwardRef(function NumberInput$1(props, ref) {
