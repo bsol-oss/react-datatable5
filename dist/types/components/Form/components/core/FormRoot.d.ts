@@ -33,7 +33,7 @@ export interface FormRootProps<TData extends FieldValues> {
     idPickerLabels?: IdPickerLabels;
     enumPickerLabels?: EnumPickerLabels;
     filePickerLabels?: FilePickerLabels;
-    comboboxInDialog?: boolean;
+    insideDialog?: boolean;
 }
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
@@ -50,4 +50,4 @@ export declare const idPickerSanityCheck: (column: string, foreign_key?: {
     column?: string | undefined;
     display_column?: string | undefined;
 } | undefined) => void;
-export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, comboboxInDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
