@@ -53,7 +53,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
   enumPickerLabels?: EnumPickerLabels;
   filePickerLabels?: FilePickerLabels;
   ajvResolver: Resolver<FieldValues>;
-  comboboxInDialog?: boolean;
+  insideDialog?: boolean;
 }
 
 //@ts-expect-error TODO: find appropriate type

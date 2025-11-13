@@ -45,14 +45,8 @@ export const IdPicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const {
-    serverUrl,
-    idMap,
-    setIdMap,
-    schema: parentSchema,
-    idPickerLabels,
-    comboboxInDialog,
-  } = useSchemaContext();
+  const { serverUrl, idMap, setIdMap, idPickerLabels, insideDialog } =
+    useSchemaContext();
   const formI18n = useFormI18n(column, prefix);
   const {
     required,
@@ -152,71 +146,6 @@ export const IdPicker = ({
     },
     enabled: true, // Always enabled for combobox
     staleTime: 300000,
-  });
-
-  // Query for currently selected items (to display them properly)
-  // This query is needed for side effects (populating idMap) even though the result isn't directly used
-  const _queryDefault = useQuery({
-    queryKey: [
-      `idpicker-default`,
-      {
-        form: parentSchema.title,
-        column,
-        id: isMultiple ? currentIds : currentId,
-      },
-    ],
-    queryFn: async () => {
-      const queryId = currentId;
-      const queryIds = currentIds;
-
-      if (customQueryFn) {
-        const { data, idMap } = await customQueryFn({
-          searching: '',
-          limit: isMultiple ? queryIds.length : 1,
-          offset: 0,
-          where: [{ id: column_ref, value: isMultiple ? queryIds : queryId }],
-        });
-
-        setIdMap((state) => {
-          return { ...state, ...idMap };
-        });
-
-        return data;
-      }
-
-      if (!queryId && (!queryIds || queryIds.length === 0)) {
-        return { data: [] };
-      }
-
-      const data = await getTableData({
-        serverUrl,
-        searching: '',
-        in_table: table,
-        where: [{ id: column_ref, value: isMultiple ? queryIds : queryId }],
-        limit: isMultiple ? queryIds.length : 1,
-        offset: 0,
-      });
-
-      const newMap = Object.fromEntries(
-        (data ?? { data: [] }).data.map((item: RecordType) => {
-          return [
-            item[column_ref],
-            {
-              ...item,
-            },
-          ];
-        })
-      );
-
-      setIdMap((state) => {
-        return { ...state, ...newMap };
-      });
-
-      return data;
-    },
-    enabled: isMultiple
-      ? Array.isArray(currentIds) && currentIds.length > 0
-      : !!currentId,
   });
 
   const { isLoading, isFetching, data, isPending, isError } = query;
@@ -336,7 +265,7 @@ export const IdPicker = ({
         invalid={!!errors[colLabel]}
         width="100%"
         positioning={
-          comboboxInDialog
+          insideDialog
             ? { strategy: 'fixed', hideWhenDetached: true }
             : undefined
         }
@@ -365,7 +294,7 @@ export const IdPicker = ({
           </Combobox.IndicatorGroup>
         </Combobox.Control>
 
-        {comboboxInDialog ? (
+        {insideDialog ? (
           <Combobox.Positioner>
             <Combobox.Content>
               {isError ? (

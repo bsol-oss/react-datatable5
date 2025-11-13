@@ -36,7 +36,7 @@ export const EnumPicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { enumPickerLabels, comboboxInDialog } = useSchemaContext();
+  const { enumPickerLabels, insideDialog } = useSchemaContext();
   const formI18n = useFormI18n(column, prefix);
   const { required, variant } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
@@ -183,7 +183,7 @@ export const EnumPicker = ({
         invalid={!!errors[colLabel]}
         width="100%"
         positioning={
-          comboboxInDialog
+          insideDialog
             ? { strategy: 'fixed', hideWhenDetached: true }
             : undefined
         }
@@ -206,7 +206,7 @@ export const EnumPicker = ({
           </Combobox.IndicatorGroup>
         </Combobox.Control>
 
-        {comboboxInDialog ? (
+        {insideDialog ? (
           <Combobox.Positioner>
             <Combobox.Content>
               {showTotalAndLimit && (

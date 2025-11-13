@@ -51,7 +51,7 @@ export interface FormRootProps<TData extends FieldValues> {
   idPickerLabels?: IdPickerLabels;
   enumPickerLabels?: EnumPickerLabels;
   filePickerLabels?: FilePickerLabels;
-  comboboxInDialog?: boolean;
+  insideDialog?: boolean;
 }
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -124,7 +124,7 @@ export const FormRoot = <TData extends FieldValues>({
   idPickerLabels,
   enumPickerLabels,
   filePickerLabels,
-  comboboxInDialog = false,
+  insideDialog = false,
 }: FormRootProps<TData>) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -220,7 +220,7 @@ export const FormRoot = <TData extends FieldValues>({
         enumPickerLabels,
         filePickerLabels,
         ajvResolver: ajvResolver(schema),
-        comboboxInDialog,
+        insideDialog,
       }}
     >
       <FormProvider {...form}>{children}</FormProvider>
