@@ -458,23 +458,38 @@ const WithCustomLabelsForm = () => {
         filePicker: {
           enableMediaLibrary: true,
           onFetchFiles: mockFetchFiles,
+          enableUpload: true,
+          onUploadFile: async (file: File) => {
+            // Simulate file upload and return file ID
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return `uploaded-${file.name}-${Date.now()}`;
+          },
         },
       },
     },
     required: [],
   } as JSONSchema7;
 
-  // Custom labels that override i18n translations
+  // Custom labels that override i18n translations - showing all available labels
   const customFilePickerLabels = {
+    // Dropzone label (shown in the main file picker dropzone)
     fileDropzone: '🎬 Drag and drop your files here, or click to browse',
+    // Media Library Browser labels
     browseLibrary: '📚 Open Media Library',
     dialogTitle: 'Media Library - Select Your File',
     searchPlaceholder: 'Type to search files...',
     loading: '⏳ Please wait, loading files...',
     loadingFailed: '❌ Oops! Failed to load files. Please try again.',
     noFilesFound: '🔍 No files match your search',
+    // Dialog action buttons
     cancel: '✖️ Cancel',
     select: '✓ Choose This File',
+    // Tab labels (shown when enableUpload is true)
+    browseTab: '📂 Browse Library',
+    uploadTab: '⬆️ Upload Files',
+    // Upload status labels
+    uploading: '⏳ Uploading file...',
+    uploadFailed: '❌ Upload failed. Please try again.',
   };
 
   return (
