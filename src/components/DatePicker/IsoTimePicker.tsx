@@ -1,6 +1,17 @@
-import { Grid, Text, Button, Input, Flex } from "@chakra-ui/react";
-import { useRef, KeyboardEvent, Dispatch, SetStateAction } from "react";
-import { MdCancel } from "react-icons/md";
+import {
+  Button,
+  Combobox,
+  Flex,
+  Grid,
+  Icon,
+  InputGroup,
+  Portal,
+  useFilter,
+  useListCollection,
+} from '@chakra-ui/react';
+import { Dispatch, SetStateAction, useMemo } from 'react';
+import { BsClock } from 'react-icons/bs';
+import { MdCancel } from 'react-icons/md';
 
 interface IsoTimePickerProps {
   hour: number | null;
@@ -16,6 +27,14 @@ interface IsoTimePickerProps {
   }) => void;
 }
 
+interface TimeOption {
+  label: string;
+  value: string;
+  hour: number;
+  minute: number;
+  second: number;
+}
+
 export function IsoTimePicker({
   hour,
   setHour,
@@ -23,152 +42,211 @@ export function IsoTimePicker({
   setMinute,
   second,
   setSecond,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onChange = (_newValue) => {},
 }: IsoTimePickerProps) {
-  // Refs for focus management
-  const hourInputRef = useRef<HTMLInputElement>(null);
-  const minuteInputRef = useRef<HTMLInputElement>(null);
-  const secondInputRef = useRef<HTMLInputElement>(null);
+  // Generate time options (every 15 minutes, seconds always 0)
+  const timeOptions = useMemo<TimeOption[]>(() => {
+    const options: TimeOption[] = [];
 
-  // Centralized handler for key events, value changes, and focus management
-  const handleKeyDown = (
-    e: KeyboardEvent<HTMLInputElement>,
-    field: "hour" | "minute" | "second"
-  ) => {
-    const input = e.target as HTMLInputElement;
-    const value = input.value;
-
-    // Handle navigation between fields
-    if (e.key === "Tab") {
-      return;
-    }
-
-    if (e.key === ":" && field === "hour") {
-      e.preventDefault();
-      minuteInputRef.current?.focus();
-      return;
-    }
-
-    if (e.key === ":" && field === "minute") {
-      e.preventDefault();
-      secondInputRef.current?.focus();
-      return;
-    }
-
-    if (e.key === "Backspace" && value === "") {
-      e.preventDefault();
-      if (field === "minute") {
-        hourInputRef.current?.focus();
-      } else if (field === "second") {
-        minuteInputRef.current?.focus();
-      }
-      return;
-    }
-
-    // Handle number inputs
-    if (field === "hour") {
-      if (e.key.match(/^[0-9]$/)) {
-        const newValue = value + e.key;
-        const numValue = parseInt(newValue, 10);
-        if (numValue > 23) {
-          const digitValue = parseInt(e.key, 10);
-          setHour(digitValue);
-          onChange({ hour: digitValue, minute, second });
-          return;
-        }
-        if (numValue >= 0 && numValue <= 23) {
-          setHour(numValue);
-          onChange({ hour: numValue, minute, second });
-          e.preventDefault();
-          minuteInputRef.current?.focus();
-        }
-      }
-    } else if (field === "minute") {
-      if (e.key.match(/^[0-9]$/)) {
-        const newValue = value + e.key;
-        const numValue = parseInt(newValue, 10);
-        if (numValue > 59) {
-          const digitValue = parseInt(e.key, 10);
-          setMinute(digitValue);
-          onChange({ hour, minute: digitValue, second });
-          return;
-        }
-        if (numValue >= 0 && numValue <= 59) {
-          setMinute(numValue);
-          onChange({ hour, minute: numValue, second });
-          e.preventDefault();
-          secondInputRef.current?.focus();
-        }
-      }
-    } else if (field === "second") {
-      if (e.key.match(/^[0-9]$/)) {
-        const newValue = value + e.key;
-        const numValue = parseInt(newValue, 10);
-        if (numValue > 59) {
-          const digitValue = parseInt(e.key, 10);
-          setSecond(digitValue);
-          onChange({ hour, minute, second: digitValue });
-          return;
-        }
-        if (numValue >= 0 && numValue <= 59) {
-          setSecond(numValue);
-          onChange({ hour, minute, second: numValue });
-        }
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const label = `${h.toString().padStart(2, '0')}:${m
+          .toString()
+          .padStart(2, '0')}:00`;
+        options.push({
+          label,
+          value: `${h}:${m}:0`,
+          hour: h,
+          minute: m,
+          second: 0,
+        });
       }
     }
-  };
+    return options;
+  }, []);
+
+  const { contains } = useFilter({ sensitivity: 'base' });
+
+  const { collection, filter } = useListCollection({
+    initialItems: timeOptions,
+    itemToString: (item) => item.label,
+    itemToValue: (item) => item.value,
+    filter: contains,
+  });
+
+  // Get current value string for combobox
+  const currentValue = useMemo(() => {
+    if (hour === null || minute === null || second === null) {
+      return '';
+    }
+    return `${hour}:${minute}:${second}`;
+  }, [hour, minute, second]);
+
+  // Get display text for combobox
+  const displayText = useMemo(() => {
+    if (hour === null || minute === null || second === null) {
+      return '';
+    }
+    return `${hour.toString().padStart(2, '0')}:${minute
+      .toString()
+      .padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+  }, [hour, minute, second]);
 
   const handleClear = () => {
     setHour(null);
     setMinute(null);
     setSecond(null);
+    filter(''); // Reset filter to show all options
     onChange({ hour: null, minute: null, second: null });
-    hourInputRef.current?.focus();
+  };
+
+  const handleValueChange = (details: Combobox.ValueChangeDetails) => {
+    if (details.value.length === 0) {
+      handleClear();
+      return;
+    }
+
+    const selectedValue = details.value[0];
+    const selectedOption = timeOptions.find(
+      (opt) => opt.value === selectedValue
+    );
+
+    if (selectedOption) {
+      setHour(selectedOption.hour);
+      setMinute(selectedOption.minute);
+      setSecond(selectedOption.second);
+      filter(''); // Reset filter after selection
+      onChange({
+        hour: selectedOption.hour,
+        minute: selectedOption.minute,
+        second: selectedOption.second,
+      });
+    }
+  };
+
+  const handleInputValueChange = (
+    details: Combobox.InputValueChangeDetails
+  ) => {
+    const inputValue = details.inputValue.trim();
+
+    // Filter the collection based on input
+    filter(inputValue);
+
+    if (!inputValue) {
+      return;
+    }
+
+    // Parse HH:mm:ss or HH:mm format
+    const timePattern = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/;
+    const match = inputValue.match(timePattern);
+
+    if (match) {
+      const parsedHour = parseInt(match[1], 10);
+      const parsedMinute = parseInt(match[2], 10);
+      const parsedSecond = match[3] ? parseInt(match[3], 10) : 0;
+
+      // Validate ranges
+      if (
+        parsedHour >= 0 &&
+        parsedHour <= 23 &&
+        parsedMinute >= 0 &&
+        parsedMinute <= 59 &&
+        parsedSecond >= 0 &&
+        parsedSecond <= 59
+      ) {
+        setHour(parsedHour);
+        setMinute(parsedMinute);
+        setSecond(parsedSecond);
+        onChange({
+          hour: parsedHour,
+          minute: parsedMinute,
+          second: parsedSecond,
+        });
+      }
+    } else {
+      // Try to parse formats like "123045" (HHmmss) or "1230" (HHmm)
+      const numbersOnly = inputValue.replace(/[^0-9]/g, '');
+
+      if (numbersOnly.length >= 4) {
+        const parsedHour = parseInt(numbersOnly.slice(0, 2), 10);
+        const parsedMinute = parseInt(numbersOnly.slice(2, 4), 10);
+        const parsedSecond =
+          numbersOnly.length >= 6 ? parseInt(numbersOnly.slice(4, 6), 10) : 0;
+
+        // Validate ranges
+        if (
+          parsedHour >= 0 &&
+          parsedHour <= 23 &&
+          parsedMinute >= 0 &&
+          parsedMinute <= 59 &&
+          parsedSecond >= 0 &&
+          parsedSecond <= 59
+        ) {
+          setHour(parsedHour);
+          setMinute(parsedMinute);
+          setSecond(parsedSecond);
+          onChange({
+            hour: parsedHour,
+            minute: parsedMinute,
+            second: parsedSecond,
+          });
+        }
+      }
+    }
   };
 
   return (
     <Flex direction="column" gap={3}>
       <Grid
-        justifyContent={"center"}
-        alignItems={"center"}
-        templateColumns={"60px 10px 60px 10px 60px auto"}
+        justifyContent={'center'}
+        alignItems={'center'}
+        templateColumns={'1fr auto'}
         gap="2"
         width="auto"
         minWidth="300px"
       >
-        <Input
-          ref={hourInputRef}
-          type="text"
-          value={hour === null ? "" : hour.toString().padStart(2, "0")}
-          onKeyDown={(e) => handleKeyDown(e, "hour")}
-          placeholder="HH"
-          maxLength={2}
-          textAlign="center"
-        />
-        <Text>:</Text>
-        <Input
-          ref={minuteInputRef}
-          type="text"
-          value={minute === null ? "" : minute.toString().padStart(2, "0")}
-          onKeyDown={(e) => handleKeyDown(e, "minute")}
-          placeholder="MM"
-          maxLength={2}
-          textAlign="center"
-        />
-        <Text>:</Text>
-        <Input
-          ref={secondInputRef}
-          type="text"
-          value={second === null ? "" : second.toString().padStart(2, "0")}
-          onKeyDown={(e) => handleKeyDown(e, "second")}
-          placeholder="SS"
-          maxLength={2}
-          textAlign="center"
-        />
+        <Combobox.Root
+          collection={collection}
+          value={currentValue ? [currentValue] : []}
+          onValueChange={handleValueChange}
+          onInputValueChange={handleInputValueChange}
+          allowCustomValue
+          selectionBehavior="replace"
+          openOnClick
+          width="100%"
+        >
+          <Combobox.Control>
+            <InputGroup startElement={<BsClock />}>
+              <Combobox.Input placeholder="HH:mm:ss" value={displayText} />
+            </InputGroup>
+            <Combobox.IndicatorGroup>
+              <Combobox.ClearTrigger />
+              <Combobox.Trigger />
+            </Combobox.IndicatorGroup>
+          </Combobox.Control>
+
+          <Portal>
+            <Combobox.Positioner>
+              <Combobox.Content>
+                <Combobox.Empty>No time found</Combobox.Empty>
+                {collection.items.map((item) => (
+                  <Combobox.Item item={item} key={item.value}>
+                    {item.label}
+                    <Combobox.ItemIndicator />
+                  </Combobox.Item>
+                ))}
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Portal>
+        </Combobox.Root>
+
         <Button onClick={handleClear} size="sm" variant="ghost">
-          <MdCancel />
+          <Icon>
+            <MdCancel />
+          </Icon>
         </Button>
       </Grid>
     </Flex>
   );
-} 
+}
