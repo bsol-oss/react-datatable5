@@ -1,7 +1,11 @@
-import { Button, IconButton } from "@chakra-ui/react";
-import React from "react";
-import { MdClear, MdOutlineChecklist } from "react-icons/md";
-import { useDataTableContext } from "../context/useDataTableContext";
+import { Button, IconButton } from '@chakra-ui/react';
+import React from 'react';
+import { MdClear, MdOutlineChecklist } from 'react-icons/md';
+import { useDataTableContext } from '../context/useDataTableContext';
+import {
+  areAllRowsSelected,
+  createToggleAllRowsHandler,
+} from '../utils/selectors';
 
 export interface SelectAllRowsToggleProps {
   selectAllIcon?: React.ReactElement;
@@ -13,34 +17,32 @@ export interface SelectAllRowsToggleProps {
 export const SelectAllRowsToggle = ({
   selectAllIcon = <MdOutlineChecklist />,
   clearAllIcon = <MdClear />,
-  selectAllText = "",
-  clearAllText = "",
+  selectAllText = '',
+  clearAllText = '',
 }: SelectAllRowsToggleProps) => {
-  const { table } = useDataTableContext();
+  const { table, rowSelection, setRowSelection } = useDataTableContext();
+  const allRowsSelected = areAllRowsSelected(table, rowSelection);
+  const toggleHandler = createToggleAllRowsHandler(
+    table,
+    rowSelection,
+    setRowSelection
+  );
+
   return (
     <>
       {!!selectAllText === false && (
         <IconButton
-          variant={"ghost"}
-          aria-label={
-            table.getIsAllRowsSelected() ? clearAllText : selectAllText
-          }
-          onClick={(event) => {
-            table.getToggleAllRowsSelectedHandler()(event);
-          }}
+          variant={'ghost'}
+          aria-label={allRowsSelected ? clearAllText : selectAllText}
+          onClick={toggleHandler}
         >
-          {table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon}
+          {allRowsSelected ? clearAllIcon : selectAllIcon}
         </IconButton>
       )}
       {!!selectAllText !== false && (
-        <Button
-          variant={"ghost"}
-          onClick={(event) => {
-            table.getToggleAllRowsSelectedHandler()(event);
-          }}
-        >
-          {table.getIsAllRowsSelected() ? clearAllIcon : selectAllIcon}
-          {table.getIsAllRowsSelected() ? clearAllText : selectAllText}
+        <Button variant={'ghost'} onClick={toggleHandler}>
+          {allRowsSelected ? clearAllIcon : selectAllIcon}
+          {allRowsSelected ? clearAllText : selectAllText}
         </Button>
       )}
     </>

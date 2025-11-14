@@ -138,7 +138,7 @@ export const ExtraSmallDensity: Story = {
       <Provider>
         <Box>
           <Text fontWeight="bold" mb={4}>
-            Extra Small Density (xs) - 4px padding
+            Extra Small Density (xs) - 2px padding
           </Text>
           <DataTable columns={columns} data={data.slice(0, 10)} {...datatable}>
             <DefaultTable
@@ -165,7 +165,7 @@ export const SmallDensity: Story = {
       <Provider>
         <Box>
           <Text fontWeight="bold" mb={4}>
-            Small Density (sm) - 8px padding
+            Small Density (sm) - 4px padding
           </Text>
           <DataTable columns={columns} data={data.slice(0, 10)} {...datatable}>
             <DefaultTable
@@ -192,7 +192,7 @@ export const MediumDensity: Story = {
       <Provider>
         <Box>
           <Text fontWeight="bold" mb={4}>
-            Medium Density (md) - 16px padding
+            Medium Density (md) - 8px padding
           </Text>
           <DataTable columns={columns} data={data.slice(0, 10)} {...datatable}>
             <DefaultTable
@@ -219,7 +219,7 @@ export const LargeDensity: Story = {
       <Provider>
         <Box>
           <Text fontWeight="bold" mb={4}>
-            Large Density (lg) - 32px padding
+            Large Density (lg) - 12px padding
           </Text>
           <DataTable columns={columns} data={data.slice(0, 10)} {...datatable}>
             <DefaultTable
@@ -272,7 +272,7 @@ export const DensityComparison: Story = {
           <Flex direction="column" gap={8}>
             <Box>
               <Text fontWeight="semibold" mb={2}>
-                Extra Small (xs) - 4px padding
+                Extra Small (xs) - 2px padding
               </Text>
               <DataTable
                 columns={columns}
@@ -288,7 +288,7 @@ export const DensityComparison: Story = {
 
             <Box>
               <Text fontWeight="semibold" mb={2}>
-                Small (sm) - 8px padding
+                Small (sm) - 4px padding
               </Text>
               <DataTable
                 columns={columns}
@@ -304,7 +304,7 @@ export const DensityComparison: Story = {
 
             <Box>
               <Text fontWeight="semibold" mb={2}>
-                Medium (md) - 16px padding
+                Medium (md) - 8px padding
               </Text>
               <DataTable
                 columns={columns}
@@ -320,7 +320,7 @@ export const DensityComparison: Story = {
 
             <Box>
               <Text fontWeight="semibold" mb={2}>
-                Large (lg) - 32px padding
+                Large (lg) - 12px padding
               </Text>
               <DataTable
                 columns={columns}

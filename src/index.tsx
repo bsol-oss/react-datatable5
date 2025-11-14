@@ -111,6 +111,7 @@ export * from './components/DataTable/controls/ViewDialog';
 export * from './components/DataTable/controls/ReloadButton';
 export * from './components/Filter/GlobalFilter';
 export * from './components/DataTable/controls/TableSelector';
+export * from './components/DataTable/controls/SelectAllRowsToggle';
 export * from './components/DataTable/controls/TableSorter';
 export * from './components/DataTable/controls/TableViewer';
 export * from './components/DataTable/controls/TableControls';

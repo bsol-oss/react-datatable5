@@ -110,15 +110,15 @@ export const DensityFeature: TableFeature<any> = {
         density = table.getState().density;
       }
       if (density === 'xs') {
-        return 4;
+        return 2;
       }
       if (density === 'sm') {
-        return 8;
+        return 4;
       }
       if (density === 'md') {
-        return 16;
+        return 8;
       }
-      return 32;
+      return 12;
     };
   },
 

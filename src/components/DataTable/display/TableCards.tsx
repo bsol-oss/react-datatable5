@@ -1,14 +1,13 @@
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from '@/components/ui/checkbox';
+import { Box, Card, CardBodyProps, Grid, Text } from '@chakra-ui/react';
+import { flexRender, Row } from '@tanstack/react-table';
+import { ReactNode } from 'react';
+import { useDataTableContext } from '../context/useDataTableContext';
 import {
-  Box,
-  Card,
-  CardBodyProps,
-  Grid,
-  Text
-} from "@chakra-ui/react";
-import { flexRender, Row } from "@tanstack/react-table";
-import { ReactNode } from "react";
-import { useDataTableContext } from "../context/useDataTableContext";
+  isRowSelected,
+  canRowSelect,
+  createRowToggleHandler,
+} from '../utils/selectors';
 
 export interface TableCardsProps<TData> {
   isSelectable?: boolean;
@@ -27,37 +26,41 @@ export const TableCards = <TData,>({
   renderTitle = DefaultCardTitle,
   cardBodyProps = {},
 }: TableCardsProps<TData>) => {
-  const { table } = useDataTableContext();
+  const { table, rowSelection, setRowSelection } = useDataTableContext();
 
   return (
     <>
       {table.getRowModel().rows.map((row) => {
         return (
-          <Card.Root key={`chakra-table-card-${row.id}`} flex={"1 0 20rem"}>
+          <Card.Root key={`chakra-table-card-${row.id}`} flex={'1 0 20rem'}>
             <Card.Body
-              display={"flex"}
-              flexFlow={"column"}
-              gap={"0.5rem"}
+              display={'flex'}
+              flexFlow={'column'}
+              gap={'0.5rem'}
               {...cardBodyProps}
             >
               {isSelectable && (
                 <Checkbox
                   {...{
-                    isChecked: row.getIsSelected(),
-                    disabled: !row.getCanSelect(),
+                    isChecked: isRowSelected(row.id, rowSelection),
+                    disabled: !canRowSelect(row),
                     // indeterminate: row.getIsSomeSelected(),
-                    onChange: row.getToggleSelectedHandler(),
+                    onChange: createRowToggleHandler(
+                      row,
+                      rowSelection,
+                      setRowSelection
+                    ),
                   }}
                 ></Checkbox>
               )}
               {renderTitle(row as Row<TData>)}
-              <Grid templateColumns={"auto 1fr"} gap={"1rem"}>
+              <Grid templateColumns={'auto 1fr'} gap={'1rem'}>
                 {row.getVisibleCells().map((cell) => {
                   return (
                     <>
                       <Box key={`chakra-table-cardcolumnid-${row.id}`}>
                         {showDisplayNameOnly && (
-                          <Text fontWeight={"bold"}>
+                          <Text fontWeight={'bold'}>
                             {cell.column.columnDef.meta?.displayName ??
                               cell.column.id}
                           </Text>
@@ -74,7 +77,7 @@ export const TableCards = <TData,>({
                       </Box>
                       <Box
                         key={`chakra-table-cardcolumn-${row.id}`}
-                        justifySelf={"end"}
+                        justifySelf={'end'}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

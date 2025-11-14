@@ -1,14 +1,14 @@
-import { Button } from "@chakra-ui/react";
-import { useDataTableContext } from "../context/useDataTableContext";
+import { Button } from '@chakra-ui/react';
+import { useDataTableContext } from '../context/useDataTableContext';
+import { resetRowSelection } from '../utils/selectors';
 
 export const ResetSelectionButton = () => {
-  const { table } = useDataTableContext();
-  const { tableLabel } = useDataTableContext();
+  const { tableLabel, setRowSelection } = useDataTableContext();
   const { resetSelection } = tableLabel;
   return (
     <Button
       onClick={() => {
-        table.resetRowSelection();
+        resetRowSelection(setRowSelection);
       }}
     >
       {resetSelection}

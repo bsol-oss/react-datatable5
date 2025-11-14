@@ -20,6 +20,10 @@ import { GrAscend, GrDescend } from 'react-icons/gr';
 import { MdPushPin } from 'react-icons/md';
 import { useDataTableContext } from '../context/useDataTableContext';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  areAllRowsSelected,
+  createToggleAllRowsHandler,
+} from '../utils/selectors';
 
 export interface TableHeaderTexts {
   pinColumn?: string;
@@ -89,7 +93,7 @@ export const TableHeader = ({
   tableRowProps = {},
   defaultTexts = {},
 }: TableHeaderProps) => {
-  const { table } = useDataTableContext();
+  const { table, rowSelection, setRowSelection } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
 
   // Merge default texts with provided defaults
@@ -214,9 +218,13 @@ export const TableHeader = ({
                 width={`${SELECTION_BOX_WIDTH}px`}
                 height={`${SELECTION_BOX_WIDTH}px`}
                 {...{
-                  checked: table.getIsAllRowsSelected(),
-                  // indeterminate: table.getIsSomeRowsSelected(),
-                  onChange: table.getToggleAllRowsSelectedHandler(),
+                  checked: areAllRowsSelected(table, rowSelection),
+                  // indeterminate: areSomeRowsSelected(table, rowSelection),
+                  onChange: createToggleAllRowsHandler(
+                    table,
+                    rowSelection,
+                    setRowSelection
+                  ),
                 }}
                 // TODO: select all rows in page
               ></Checkbox>

@@ -1,8 +1,13 @@
-import { Box, Table, TableRowProps } from "@chakra-ui/react";
-import { Cell, flexRender, Row } from "@tanstack/react-table";
-import { useState } from "react";
-import { Checkbox } from "../../ui/checkbox";
-import { useDataTableContext } from "../context/useDataTableContext";
+import { Box, Table, TableRowProps } from '@chakra-ui/react';
+import { Cell, flexRender, Row } from '@tanstack/react-table';
+import { useState } from 'react';
+import { Checkbox } from '../../ui/checkbox';
+import { useDataTableContext } from '../context/useDataTableContext';
+import {
+  isRowSelected,
+  canRowSelect,
+  createRowToggleHandler,
+} from '../utils/selectors';
 export interface TableBodyProps {
   pinnedBgColor?: { light: string; dark: string };
   showSelector?: boolean;
@@ -24,7 +29,7 @@ export const TableBody = ({
   showSelector = false,
   canResize = true,
 }: TableBodyProps) => {
-  "use no memo";
+  'use no memo';
   const { table } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
   const [hoveredRow, setHoveredRow] = useState<number>(-1);
@@ -37,9 +42,9 @@ export const TableBody = ({
     const tdProps = cell.column.getIsPinned()
       ? {
           left: showSelector
-            ? `${cell.column.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-            : `${cell.column.getStart("left")}px`,
-          position: "relative",
+            ? `${cell.column.getStart('left') + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+            : `${cell.column.getStart('left')}px`,
+          position: 'relative',
         }
       : {};
     return tdProps;
@@ -57,12 +62,12 @@ export const TableBody = ({
     }
     if (hoveredRow === index) {
       return {
-        opacity: "1",
+        opacity: '1',
       };
     }
 
     return {
-      opacity: "0.8",
+      opacity: '0.8',
     };
   };
 
@@ -71,7 +76,7 @@ export const TableBody = ({
       {table.getRowModel().rows.map((row, index) => {
         return (
           <Table.Row
-            display={"flex"}
+            display={'flex'}
             key={`chakra-table-row-${row.id}`}
             zIndex={1}
             onMouseEnter={() => handleRowHover(index)}
@@ -91,15 +96,15 @@ export const TableBody = ({
                   padding={`${table.getDensityValue()}px`}
                   key={`chakra-table-rowcell-${cell.id}-${index}`}
                   // styling resize and pinning start
-                  flex={`${canResize ? "0" : "1"} 0 ${cell.column.getSize()}px`}
+                  flex={`${canResize ? '0' : '1'} 0 ${cell.column.getSize()}px`}
                   // this is to avoid the cell from being too wide
                   minWidth={`0`}
                   {...{
                     color: {
-                      base: "colorPalette.900",
-                      _dark: "colorPalette.100",
+                      base: 'colorPalette.900',
+                      _dark: 'colorPalette.100',
                     },
-                    bg: { base: "colorPalette.50", _dark: "colorPalette.950" },
+                    bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' },
                   }}
                   {...getTdProps(cell)}
                 >
@@ -114,33 +119,38 @@ export const TableBody = ({
   );
 };
 
-const TableRowSelector = <TData,>({
-  row,
-}: TableRowSelectorProps<TData>) => {
-  const { table } = useDataTableContext();
+const TableRowSelector = <TData,>({ row }: TableRowSelectorProps<TData>) => {
+  const { table, rowSelection, setRowSelection } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
+  const isSelected = isRowSelected(row.id, rowSelection);
+  const canSelect = canRowSelect(row);
+  const toggleHandler = createRowToggleHandler(
+    row,
+    rowSelection,
+    setRowSelection
+  );
 
   return (
     <Table.Cell
       padding={`${table.getDensityValue()}px`}
-      display={"grid"}
+      display={'grid'}
       {...{
         color: {
-          base: "colorPalette.900",
-          _dark: "colorPalette.100",
+          base: 'colorPalette.900',
+          _dark: 'colorPalette.100',
         },
-        bg: { base: "colorPalette.50", _dark: "colorPalette.950" },
+        bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' },
       }}
-      justifyItems={"center"}
-      alignItems={"center"}
+      justifyItems={'center'}
+      alignItems={'center'}
     >
       <Checkbox
         width={`${SELECTION_BOX_WIDTH}px`}
         height={`${SELECTION_BOX_WIDTH}px`}
         {...{
-          checked: row.getIsSelected(),
-          disabled: !row.getCanSelect(),
-          onCheckedChange: row.getToggleSelectedHandler(),
+          checked: isSelected,
+          disabled: !canSelect,
+          onCheckedChange: toggleHandler,
         }}
       />
     </Table.Cell>

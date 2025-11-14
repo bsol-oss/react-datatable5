@@ -1,9 +1,14 @@
-import { Box, Flex, MenuRoot, MenuTrigger, Table } from "@chakra-ui/react";
-import { flexRender } from "@tanstack/react-table";
-import { useState } from "react";
-import { BiDownArrow, BiUpArrow } from "react-icons/bi";
-import { Checkbox } from "../../ui/checkbox";
-import { useDataTableContext } from "../context/useDataTableContext";
+import { Box, Flex, MenuRoot, MenuTrigger, Table } from '@chakra-ui/react';
+import { flexRender } from '@tanstack/react-table';
+import { useState } from 'react';
+import { BiDownArrow, BiUpArrow } from 'react-icons/bi';
+import { Checkbox } from '../../ui/checkbox';
+import { useDataTableContext } from '../context/useDataTableContext';
+import {
+  areAllRowsSelected,
+  areSomeRowsSelected,
+  createToggleAllRowsHandler,
+} from '../utils/selectors';
 
 export interface TableFooterProps {
   showSelector?: boolean;
@@ -14,7 +19,7 @@ export const TableFooter = ({
   showSelector = false,
   alwaysShowSelector = true,
 }: TableFooterProps) => {
-  const table = useDataTableContext().table;
+  const { table, rowSelection, setRowSelection } = useDataTableContext();
   const SELECTION_BOX_WIDTH = 20;
   const [hoveredCheckBox, setHoveredCheckBox] = useState<boolean>(false);
 
@@ -26,7 +31,7 @@ export const TableFooter = ({
     if (alwaysShowSelector) {
       return true;
     }
-    if (table.getIsAllRowsSelected()) {
+    if (areAllRowsSelected(table, rowSelection)) {
       return true;
     }
     if (hoveredCheckBox) {
@@ -39,7 +44,7 @@ export const TableFooter = ({
     <Table.Footer>
       {table.getFooterGroups().map((footerGroup) => (
         <Table.Row
-          display={"flex"}
+          display={'flex'}
           key={`chakra-table-footergroup-${footerGroup.id}`}
         >
           {showSelector && (
@@ -47,22 +52,26 @@ export const TableFooter = ({
               padding={`${table.getDensityValue()}px`}
               onMouseEnter={() => handleRowHover(true)}
               onMouseLeave={() => handleRowHover(false)}
-              display={"grid"}
+              display={'grid'}
             >
               {isCheckBoxVisible() && (
                 <Box
-                  margin={"0rem"}
-                  display={"grid"}
-                  justifyItems={"center"}
-                  alignItems={"center"}
+                  margin={'0rem'}
+                  display={'grid'}
+                  justifyItems={'center'}
+                  alignItems={'center'}
                 >
                   <Checkbox
                     width={`${SELECTION_BOX_WIDTH}px`}
                     height={`${SELECTION_BOX_WIDTH}px`}
                     {...{
-                      isChecked: table.getIsAllRowsSelected(),
-                      // indeterminate: table.getIsSomeRowsSelected(),
-                      onChange: table.getToggleAllRowsSelectedHandler(),
+                      isChecked: areAllRowsSelected(table, rowSelection),
+                      // indeterminate: areSomeRowsSelected(table, rowSelection),
+                      onChange: createToggleAllRowsHandler(
+                        table,
+                        rowSelection,
+                        setRowSelection
+                      ),
                     }}
                   ></Checkbox>
                 </Box>
@@ -70,10 +79,10 @@ export const TableFooter = ({
               {!isCheckBoxVisible() && (
                 <Box
                   as="span"
-                  margin={"0rem"}
-                  display={"grid"}
-                  justifyItems={"center"}
-                  alignItems={"center"}
+                  margin={'0rem'}
+                  display={'grid'}
+                  justifyItems={'center'}
+                  alignItems={'center'}
                   width={`${SELECTION_BOX_WIDTH}px`}
                   height={`${SELECTION_BOX_WIDTH}px`}
                 />
@@ -82,24 +91,24 @@ export const TableFooter = ({
           )}
           {footerGroup.headers.map((header) => (
             <Table.Cell
-              padding={"0"}
+              padding={'0'}
               key={`chakra-table-footer-${header.column.id}-${footerGroup.id}`}
               columnSpan={`${header.colSpan}`}
               // styling resize and pinning start
               maxWidth={`${header.getSize()}px`}
               width={`${header.getSize()}px`}
-              display={"grid"}
+              display={'grid'}
             >
               <MenuRoot>
                 <MenuTrigger asChild>
                   <Box
                     padding={`${table.getDensityValue()}px`}
-                    display={"flex"}
-                    alignItems={"center"}
-                    justifyContent={"start"}
-                    borderRadius={"0rem"}
+                    display={'flex'}
+                    alignItems={'center'}
+                    justifyContent={'start'}
+                    borderRadius={'0rem'}
                   >
-                    <Flex gap="0.5rem" alignItems={"center"}>
+                    <Flex gap="0.5rem" alignItems={'center'}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -110,10 +119,10 @@ export const TableFooter = ({
                         {header.column.getCanSort() && (
                           <>
                             {header.column.getIsSorted() === false && <></>}
-                            {header.column.getIsSorted() === "asc" && (
+                            {header.column.getIsSorted() === 'asc' && (
                               <BiUpArrow />
                             )}
-                            {header.column.getIsSorted() === "desc" && (
+                            {header.column.getIsSorted() === 'desc' && (
                               <BiDownArrow />
                             )}
                           </>
