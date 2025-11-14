@@ -25,7 +25,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { translate, timezone } = useSchemaContext();
+  const { translate, timezone, insideDialog } = useSchemaContext();
 
   const {
     required,
@@ -145,25 +145,49 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
             {!!value ? `${displayedTime}` : ''}
           </Button>
         </Popover.Trigger>
-        <Popover.Positioner>
-          <Popover.Content>
-            <Popover.Body>
-              <CustomTimePicker
-                hour={hour}
-                setHour={setHour}
-                minute={minute}
-                setMinute={setMinute}
-                meridiem={meridiem}
-                setMeridiem={setMeridiem}
-                onChange={handleTimeChange}
-                meridiemLabel={{
-                  am: translate.t(`common.am`, { defaultValue: 'AM' }),
-                  pm: translate.t(`common.pm`, { defaultValue: 'PM' }),
-                }}
-              />
-            </Popover.Body>
-          </Popover.Content>
-        </Popover.Positioner>
+        {insideDialog ? (
+          <Popover.Positioner>
+            <Popover.Content maxH="70vh" overflowY="auto">
+              <Popover.Body overflow="visible">
+                <CustomTimePicker
+                  hour={hour}
+                  setHour={setHour}
+                  minute={minute}
+                  setMinute={setMinute}
+                  meridiem={meridiem}
+                  setMeridiem={setMeridiem}
+                  onChange={handleTimeChange}
+                  meridiemLabel={{
+                    am: translate.t(`common.am`, { defaultValue: 'AM' }),
+                    pm: translate.t(`common.pm`, { defaultValue: 'PM' }),
+                  }}
+                />
+              </Popover.Body>
+            </Popover.Content>
+          </Popover.Positioner>
+        ) : (
+          <Portal>
+            <Popover.Positioner>
+              <Popover.Content>
+                <Popover.Body>
+                  <CustomTimePicker
+                    hour={hour}
+                    setHour={setHour}
+                    minute={minute}
+                    setMinute={setMinute}
+                    meridiem={meridiem}
+                    setMeridiem={setMeridiem}
+                    onChange={handleTimeChange}
+                    meridiemLabel={{
+                      am: translate.t(`common.am`, { defaultValue: 'AM' }),
+                      pm: translate.t(`common.pm`, { defaultValue: 'PM' }),
+                    }}
+                  />
+                </Popover.Body>
+              </Popover.Content>
+            </Popover.Positioner>
+          </Portal>
+        )}
       </Popover.Root>
     </Field>
   );

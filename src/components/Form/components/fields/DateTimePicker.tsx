@@ -1,13 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
-import {
-  PopoverBody,
-  PopoverContent,
-  PopoverRoot,
-  PopoverTitle,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Text } from '@chakra-ui/react';
+import { Popover, Portal } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -32,7 +25,7 @@ export const DateTimePicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { timezone, dateTimePickerLabels } = useSchemaContext();
+  const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
   const formI18n = useFormI18n(column, prefix);
   const {
     required,
@@ -74,6 +67,91 @@ export const DateTimePicker = ({
     }
   }, [selectedDate, dateFormat, colLabel, setValue]);
 
+  const dateTimePickerLabelsConfig = {
+    monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
+      formI18n.translate.t(`common.month_1`, {
+        defaultValue: 'January',
+      }),
+      formI18n.translate.t(`common.month_2`, {
+        defaultValue: 'February',
+      }),
+      formI18n.translate.t(`common.month_3`, {
+        defaultValue: 'March',
+      }),
+      formI18n.translate.t(`common.month_4`, {
+        defaultValue: 'April',
+      }),
+      formI18n.translate.t(`common.month_5`, {
+        defaultValue: 'May',
+      }),
+      formI18n.translate.t(`common.month_6`, {
+        defaultValue: 'June',
+      }),
+      formI18n.translate.t(`common.month_7`, {
+        defaultValue: 'July',
+      }),
+      formI18n.translate.t(`common.month_8`, {
+        defaultValue: 'August',
+      }),
+      formI18n.translate.t(`common.month_9`, {
+        defaultValue: 'September',
+      }),
+      formI18n.translate.t(`common.month_10`, {
+        defaultValue: 'October',
+      }),
+      formI18n.translate.t(`common.month_11`, {
+        defaultValue: 'November',
+      }),
+      formI18n.translate.t(`common.month_12`, {
+        defaultValue: 'December',
+      }),
+    ],
+    weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
+      formI18n.translate.t(`common.weekday_1`, {
+        defaultValue: 'Sun',
+      }),
+      formI18n.translate.t(`common.weekday_2`, {
+        defaultValue: 'Mon',
+      }),
+      formI18n.translate.t(`common.weekday_3`, {
+        defaultValue: 'Tue',
+      }),
+      formI18n.translate.t(`common.weekday_4`, {
+        defaultValue: 'Wed',
+      }),
+      formI18n.translate.t(`common.weekday_5`, {
+        defaultValue: 'Thu',
+      }),
+      formI18n.translate.t(`common.weekday_6`, {
+        defaultValue: 'Fri',
+      }),
+      formI18n.translate.t(`common.weekday_7`, {
+        defaultValue: 'Sat',
+      }),
+    ],
+    backButtonLabel:
+      dateTimePickerLabels?.backButtonLabel ??
+      formI18n.translate.t(`common.back_button`, {
+        defaultValue: 'Back',
+      }),
+    forwardButtonLabel:
+      dateTimePickerLabels?.forwardButtonLabel ??
+      formI18n.translate.t(`common.forward_button`, {
+        defaultValue: 'Forward',
+      }),
+  };
+
+  const dateTimePickerContent = (
+    <ChakraDateTimePicker
+      value={selectedDate}
+      onChange={(date) => {
+        setValue(colLabel, dayjs(date).tz(timezone).format(dateFormat));
+      }}
+      timezone={timezone}
+      labels={dateTimePickerLabelsConfig}
+    />
+  );
+
   return (
     <Field
       label={formI18n.label()}
@@ -86,12 +164,12 @@ export const DateTimePicker = ({
       errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
       invalid={!!errors[colLabel]}
     >
-      <PopoverRoot
+      <Popover.Root
         open={open}
         onOpenChange={(e) => setOpen(e.open)}
         closeOnInteractOutside
       >
-        <PopoverTrigger asChild>
+        <Popover.Trigger asChild>
           <Button
             size="sm"
             variant="outline"
@@ -103,93 +181,23 @@ export const DateTimePicker = ({
             <MdDateRange />
             {selectedDate !== undefined ? `${displayDate}` : ''}
           </Button>
-        </PopoverTrigger>
-        <PopoverContent minW={'450px'}>
-          <PopoverBody>
-            <PopoverTitle />
-            <ChakraDateTimePicker
-              value={selectedDate}
-              onChange={(date) => {
-                setValue(colLabel, dayjs(date).tz(timezone).format(dateFormat));
-              }}
-              timezone={timezone}
-              labels={{
-                monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
-                  formI18n.translate.t(`common.month_1`, {
-                    defaultValue: 'January',
-                  }),
-                  formI18n.translate.t(`common.month_2`, {
-                    defaultValue: 'February',
-                  }),
-                  formI18n.translate.t(`common.month_3`, {
-                    defaultValue: 'March',
-                  }),
-                  formI18n.translate.t(`common.month_4`, {
-                    defaultValue: 'April',
-                  }),
-                  formI18n.translate.t(`common.month_5`, {
-                    defaultValue: 'May',
-                  }),
-                  formI18n.translate.t(`common.month_6`, {
-                    defaultValue: 'June',
-                  }),
-                  formI18n.translate.t(`common.month_7`, {
-                    defaultValue: 'July',
-                  }),
-                  formI18n.translate.t(`common.month_8`, {
-                    defaultValue: 'August',
-                  }),
-                  formI18n.translate.t(`common.month_9`, {
-                    defaultValue: 'September',
-                  }),
-                  formI18n.translate.t(`common.month_10`, {
-                    defaultValue: 'October',
-                  }),
-                  formI18n.translate.t(`common.month_11`, {
-                    defaultValue: 'November',
-                  }),
-                  formI18n.translate.t(`common.month_12`, {
-                    defaultValue: 'December',
-                  }),
-                ],
-                weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
-                  formI18n.translate.t(`common.weekday_1`, {
-                    defaultValue: 'Sun',
-                  }),
-                  formI18n.translate.t(`common.weekday_2`, {
-                    defaultValue: 'Mon',
-                  }),
-                  formI18n.translate.t(`common.weekday_3`, {
-                    defaultValue: 'Tue',
-                  }),
-                  formI18n.translate.t(`common.weekday_4`, {
-                    defaultValue: 'Wed',
-                  }),
-                  formI18n.translate.t(`common.weekday_5`, {
-                    defaultValue: 'Thu',
-                  }),
-                  formI18n.translate.t(`common.weekday_6`, {
-                    defaultValue: 'Fri',
-                  }),
-                  formI18n.translate.t(`common.weekday_7`, {
-                    defaultValue: 'Sat',
-                  }),
-                ],
-                backButtonLabel:
-                  dateTimePickerLabels?.backButtonLabel ??
-                  formI18n.translate.t(`common.back_button`, {
-                    defaultValue: 'Back',
-                  }),
-                forwardButtonLabel:
-                  dateTimePickerLabels?.forwardButtonLabel ??
-                  formI18n.translate.t(`common.forward_button`, {
-                    defaultValue: 'Forward',
-                  }),
-              }}
-            />
-          </PopoverBody>
-        </PopoverContent>
-      </PopoverRoot>
+        </Popover.Trigger>
+        {insideDialog ? (
+          <Popover.Positioner>
+            <Popover.Content>
+              <Popover.Body>{dateTimePickerContent}</Popover.Body>
+            </Popover.Content>
+          </Popover.Positioner>
+        ) : (
+          <Portal>
+            <Popover.Positioner>
+              <Popover.Content>
+                <Popover.Body>{dateTimePickerContent}</Popover.Body>
+              </Popover.Content>
+            </Popover.Positioner>
+          </Portal>
+        )}
+      </Popover.Root>
     </Field>
   );
 };

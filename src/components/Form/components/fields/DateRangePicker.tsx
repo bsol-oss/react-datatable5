@@ -2,16 +2,10 @@ import RangeDatePicker from '@/components/DatePicker/RangeDatePicker';
 import { getRangeDates } from '@/components/DatePicker/getRangeDates';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
-import {
-  PopoverBody,
-  PopoverContent,
-  PopoverRoot,
-  PopoverTitle,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, Portal } from '@chakra-ui/react';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { MdDateRange } from 'react-icons/md';
@@ -32,7 +26,7 @@ export const DateRangePicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { timezone, dateTimePickerLabels } = useSchemaContext();
+  const { timezone, insideDialog } = useSchemaContext();
   const formI18n = useFormI18n(column, prefix);
   const {
     required,
@@ -116,12 +110,12 @@ export const DateRangePicker = ({
       errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
       invalid={!!errors[colLabel]}
     >
-      <PopoverRoot
+      <Popover.Root
         open={open}
         onOpenChange={(e) => setOpen(e.open)}
         closeOnInteractOutside
       >
-        <PopoverTrigger asChild>
+        <Popover.Trigger asChild>
           <Button
             size="sm"
             variant="outline"
@@ -133,37 +127,75 @@ export const DateRangePicker = ({
             <MdDateRange />
             {getDisplayText()}
           </Button>
-        </PopoverTrigger>
-        <PopoverContent minW={'600px'}>
-          <PopoverBody>
-            <PopoverTitle />
-            <RangeDatePicker
-              selected={selectedDates}
-              onDateSelected={({ selected, selectable, date }) => {
-                const newDates =
-                  getRangeDates({
-                    selectable,
-                    date,
-                    selectedDates,
-                  }) ?? [];
+        </Popover.Trigger>
+        {insideDialog ? (
+          <Popover.Positioner>
+            <Popover.Content>
+              <Popover.Body>
+                <RangeDatePicker
+                  selected={selectedDates}
+                  onDateSelected={({ selected, selectable, date }) => {
+                    const newDates =
+                      getRangeDates({
+                        selectable,
+                        date,
+                        selectedDates,
+                      }) ?? [];
 
-                // Convert Date[] to string[]
-                const formattedDates = newDates
-                  .map((dateObj) =>
-                    dayjs(dateObj).tz(timezone).format(dateFormat)
-                  )
-                  .filter((dateStr) => dateStr);
+                    // Convert Date[] to string[]
+                    const formattedDates = newDates
+                      .map((dateObj) =>
+                        dayjs(dateObj).tz(timezone).format(dateFormat)
+                      )
+                      .filter((dateStr) => dateStr);
 
-                setValue(colLabel, formattedDates, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                });
-              }}
-              monthsToDisplay={2}
-            />
-          </PopoverBody>
-        </PopoverContent>
-      </PopoverRoot>
+                    setValue(colLabel, formattedDates, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  }}
+                  monthsToDisplay={2}
+                  withPopover={false}
+                />
+              </Popover.Body>
+            </Popover.Content>
+          </Popover.Positioner>
+        ) : (
+          <Portal>
+            <Popover.Positioner>
+              <Popover.Content>
+                <Popover.Body>
+                  <RangeDatePicker
+                    selected={selectedDates}
+                    onDateSelected={({ selected, selectable, date }) => {
+                      const newDates =
+                        getRangeDates({
+                          selectable,
+                          date,
+                          selectedDates,
+                        }) ?? [];
+
+                      // Convert Date[] to string[]
+                      const formattedDates = newDates
+                        .map((dateObj) =>
+                          dayjs(dateObj).tz(timezone).format(dateFormat)
+                        )
+                        .filter((dateStr) => dateStr);
+
+                      setValue(colLabel, formattedDates, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }}
+                    monthsToDisplay={2}
+                    withPopover={false}
+                  />
+                </Popover.Body>
+              </Popover.Content>
+            </Popover.Positioner>
+          </Portal>
+        )}
+      </Popover.Root>
     </Field>
   );
 };

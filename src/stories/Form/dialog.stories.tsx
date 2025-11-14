@@ -88,6 +88,14 @@ const SomeForm = () => {
         type: 'string',
         format: 'time',
       },
+      someDateRange: {
+        type: 'array',
+        variant: 'date-range',
+        items: {
+          type: 'string',
+          format: 'date',
+        },
+      },
     },
     required: ['someTextarea', 'someNumber'],
     errorMessage: {

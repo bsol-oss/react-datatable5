@@ -1,11 +1,11 @@
-import { Radio, RadioGroup } from "@/components/ui/radio";
-import { Flex, Grid, Input, Text } from "@chakra-ui/react";
-import { Column } from "@tanstack/react-table";
-import RangeDatePicker from "../../DatePicker/RangeDatePicker";
-import { getRangeDates } from "../../DatePicker/getRangeDates";
-import RangeFilter from "../../Filter/RangeFilter";
-import { TagFilter } from "../../Filter/TagFilter";
-import { useDataTableContext } from "../context/useDataTableContext";
+import { Radio, RadioGroup } from '@/components/ui/radio';
+import { Flex, Grid, Input, Text } from '@chakra-ui/react';
+import { Column } from '@tanstack/react-table';
+import RangeDatePicker from '../../DatePicker/RangeDatePicker';
+import { getRangeDates } from '../../DatePicker/getRangeDates';
+import RangeFilter from '../../Filter/RangeFilter';
+import { TagFilter } from '../../Filter/TagFilter';
+import { useDataTableContext } from '../context/useDataTableContext';
 
 const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
   const { tableLabel } = useDataTableContext();
@@ -15,11 +15,11 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
 
   if (column.columns.length > 0) {
     return (
-      <Flex flexFlow={"column"} gap={1}>
+      <Flex flexFlow={'column'} gap={1}>
         <Text>{displayName}</Text>
         <Grid
           key={column.id}
-          gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}
+          gridTemplateColumns={'repeat(auto-fit, minmax(20rem, 1fr))'}
           gap={1}
         >
           {column.columns.map((column) => {
@@ -32,17 +32,17 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
   if (!column.getCanFilter()) {
     return <></>;
   }
-  if (filterVariant === "select") {
+  if (filterVariant === 'select') {
     return (
-      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
+      <Flex key={column.id} flexFlow={'column'} gap="0.25rem">
         <Text>{displayName}</Text>
         <RadioGroup
-          value={column.getFilterValue() ? String(column.getFilterValue()) : ""}
+          value={column.getFilterValue() ? String(column.getFilterValue()) : ''}
           onValueChange={(details) => {
             column.setFilterValue(details.value);
           }}
         >
-          <Flex flexFlow={"wrap"} gap={"0.5rem"}>
+          <Flex flexFlow={'wrap'} gap={'0.5rem'}>
             {filterOptions.length === 0 && <Text>No filter options</Text>}
             {filterOptions.length > 0 &&
               filterOptions.map((item) => (
@@ -55,9 +55,9 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
       </Flex>
     );
   }
-  if (filterVariant === "tag") {
+  if (filterVariant === 'tag') {
     return (
-      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
+      <Flex key={column.id} flexFlow={'column'} gap="0.25rem">
         <Text>{displayName}</Text>
         <TagFilter
           availableTags={filterOptions.map((item) => ({
@@ -75,15 +75,15 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
       </Flex>
     );
   }
-  if (filterVariant === "boolean") {
-    const { trueLabel, falseLabel } = tableLabel; 
+  if (filterVariant === 'boolean') {
+    const { trueLabel, falseLabel } = tableLabel;
     return (
-      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
+      <Flex key={column.id} flexFlow={'column'} gap="0.25rem">
         <Text>{displayName}</Text>
         <TagFilter
           availableTags={[
-            { label: trueLabel, value: "true" },
-            { label: falseLabel, value: "false" },
+            { label: trueLabel, value: 'true' },
+            { label: falseLabel, value: 'false' },
           ]}
           selectedTags={(column.getFilterValue() ?? []) as string[]}
           onTagChange={(tags) => {
@@ -96,7 +96,7 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
       </Flex>
     );
   }
-  if (filterVariant === "range") {
+  if (filterVariant === 'range') {
     const filterValue = (column.getFilterValue() as [number, number]) ?? [
       undefined,
       undefined,
@@ -109,7 +109,7 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
       defaultValue: [4, 50],
     };
     return (
-      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
+      <Flex key={column.id} flexFlow={'column'} gap="0.25rem">
         <Text>{displayName}</Text>
         <RangeFilter
           range={filterValue}
@@ -126,10 +126,10 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
     );
   }
 
-  if (filterVariant === "dateRange") {
+  if (filterVariant === 'dateRange') {
     const filterValue = (column.getFilterValue() as Date[]) ?? [];
     return (
-      <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
+      <Flex key={column.id} flexFlow={'column'} gap="0.25rem">
         <Text>{displayName}</Text>
         <RangeDatePicker
           selected={filterValue}
@@ -144,24 +144,25 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
               return newDates;
             });
           }}
+          withPopover={false}
         />
       </Flex>
     );
   }
 
-  if (filterVariant === "custom") {
+  if (filterVariant === 'custom') {
     const renderFilter = column.columnDef.meta?.renderFilter;
     if (renderFilter === undefined) {
-      throw new Error("renderFilter is undefined");
+      throw new Error('renderFilter is undefined');
     }
     return <>{renderFilter(column)}</>;
   }
 
   return (
-    <Flex key={column.id} flexFlow={"column"} gap="0.25rem">
+    <Flex key={column.id} flexFlow={'column'} gap="0.25rem">
       <Text>{displayName}</Text>
       <Input
-        value={column.getFilterValue() ? String(column.getFilterValue()) : ""}
+        value={column.getFilterValue() ? String(column.getFilterValue()) : ''}
         onChange={(e) => {
           column.setFilterValue(e.target.value);
         }}
