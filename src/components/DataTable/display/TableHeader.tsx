@@ -175,7 +175,7 @@ export const TableHeader = ({
     });
 
     // Add padding for better UX (density padding + some extra space)
-    const padding = table.getDensityValue() * 2 + 24;
+    const padding = table.getDensityValue() * 2 + 4;
     const minSize = (header.column.columnDef.minSize as number) || 10;
     const finalWidth = Math.max(maxWidth + padding, minSize);
 
