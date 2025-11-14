@@ -34,7 +34,7 @@ export const Basic: Story = {
           </Text>
           <DateTimePicker value={value} onChange={setValue} />
           {value && (
-            <Box p={2} bg="gray.100" borderRadius="md">
+            <Box p={2} bg="bg.subtle" borderRadius="md">
               <Text fontSize="sm">Selected: {value}</Text>
             </Box>
           )}
@@ -69,7 +69,7 @@ export const WithStartTime: Story = {
             startTime={startTime}
           />
           {value && (
-            <Box p={2} bg="gray.100" borderRadius="md">
+            <Box p={2} bg="bg.subtle" borderRadius="md">
               <Text fontSize="sm">Selected: {value}</Text>
               <Text fontSize="sm">
                 Duration: {dayjs(value).diff(dayjs(startTime), 'minute')}{' '}
@@ -110,7 +110,7 @@ export const WithStartTimeISO: Story = {
             startTime={startTime}
           />
           {value && (
-            <Box p={2} bg="gray.100" borderRadius="md">
+            <Box p={2} bg="bg.subtle" borderRadius="md">
               <Text fontSize="sm">Selected: {value}</Text>
               <Text fontSize="sm">
                 Duration: {dayjs(value).diff(dayjs(startTime), 'second')}{' '}
@@ -149,7 +149,7 @@ export const WithStartTimeSameDay: Story = {
             startTime={startTime}
           />
           {value && (
-            <Box p={2} bg="gray.100" borderRadius="md">
+            <Box p={2} bg="bg.subtle" borderRadius="md">
               <Text fontSize="sm">Selected: {value}</Text>
               <Text fontSize="sm">
                 Duration: {dayjs(value).diff(dayjs(startTime), 'hour')} hours{' '}
@@ -193,7 +193,7 @@ export const WithStartTimeDifferentDay: Story = {
             startTime={startTime}
           />
           {value && (
-            <Box p={2} bg="gray.100" borderRadius="md">
+            <Box p={2} bg="bg.subtle" borderRadius="md">
               <Text fontSize="sm">Selected: {value}</Text>
               <Text fontSize="sm">
                 Duration: {dayjs(value).diff(dayjs(startTime), 'day')} days{' '}

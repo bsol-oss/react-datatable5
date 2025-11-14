@@ -42,6 +42,7 @@ interface TimeOption {
   hour: number;
   minute: number;
   second: number;
+  searchText: string; // Time without duration for searching
 }
 
 export function IsoTimePicker({
@@ -138,6 +139,7 @@ export function IsoTimePicker({
           hour: h,
           minute: m,
           second: 0,
+          searchText: timeDisplay, // Use base time without duration for searching
         });
       }
     }
@@ -148,7 +150,7 @@ export function IsoTimePicker({
 
   const { collection, filter } = useListCollection({
     initialItems: timeOptions,
-    itemToString: (item) => item.label,
+    itemToString: (item) => item.searchText, // Use searchText (without duration) for filtering
     itemToValue: (item) => item.value,
     filter: contains,
   });

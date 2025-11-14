@@ -5,13 +5,21 @@ import {
   Icon,
   InputGroup,
   Portal,
+  Text,
   useFilter,
   useListCollection,
 } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { Dispatch, SetStateAction, useMemo } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useMemo,
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
 import { BsClock } from 'react-icons/bs';
 import { MdCancel } from 'react-icons/md';
 
@@ -45,6 +53,7 @@ interface TimeOption {
   hour: number;
   minute: number;
   meridiem: 'am' | 'pm';
+  searchText: string; // Time without duration for searching
 }
 
 export function TimePicker({
@@ -151,6 +160,7 @@ export function TimePicker({
             hour: h,
             minute: m,
             meridiem: mer,
+            searchText: displayTime, // Use base time without duration for searching
           });
         }
       }
@@ -162,10 +172,29 @@ export function TimePicker({
 
   const { collection, filter } = useListCollection({
     initialItems: timeOptions,
-    itemToString: (item) => item.label,
+    itemToString: (item) => item.searchText, // Use searchText (without duration) for filtering
     itemToValue: (item) => item.value,
     filter: contains,
   });
+
+  // Track input mode vs display mode
+  const [isInputMode, setIsInputMode] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Switch to display mode when value is selected
+  useEffect(() => {
+    if (hour !== null && minute !== null && meridiem !== null) {
+      setIsInputMode(false);
+    }
+  }, [hour, minute, meridiem]);
+
+  // Focus input when switching to input mode
+  useEffect(() => {
+    if (isInputMode && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isInputMode]);
 
   // Get current value string for combobox
   const currentValue = useMemo(() => {
@@ -175,8 +204,13 @@ export function TimePicker({
     return `${hour}:${minute.toString().padStart(2, '0')}:${meridiem}`;
   }, [hour, minute, meridiem]);
 
-  // Get display text for combobox
-  const displayText = useMemo(() => {
+  // INPUT MODE: Show raw input text (no duration)
+  const inputModeText = useMemo(() => {
+    return inputValue;
+  }, [inputValue]);
+
+  // DISPLAY MODE: Show selected value with duration
+  const displayModeText = useMemo(() => {
     if (hour === null || minute === null || meridiem === null) {
       return '';
     }
@@ -197,7 +231,7 @@ export function TimePicker({
       'hh:mm a'
     );
 
-    // Show duration difference if startTime is provided
+    // Add duration if startTime is provided
     if (startTime && selectedDate) {
       const startDateObj = dayjs(startTime).tz(timezone);
       const selectedDateObj = dayjs(selectedDate).tz(timezone);
@@ -229,10 +263,15 @@ export function TimePicker({
     return timeDisplay;
   }, [hour, minute, meridiem, timezone, startTime, selectedDate]);
 
+  // Choose text based on mode
+  const displayText = isInputMode ? inputModeText : displayModeText;
+
   const handleClear = () => {
     setHour(null);
     setMinute(null);
     setMeridiem(null);
+    setIsInputMode(false);
+    setInputValue('');
     filter(''); // Reset filter to show all options
     onChange({ hour: null, minute: null, meridiem: null });
   };
@@ -252,6 +291,8 @@ export function TimePicker({
       setHour(selectedOption.hour);
       setMinute(selectedOption.minute);
       setMeridiem(selectedOption.meridiem);
+      setIsInputMode(false); // Switch to display mode
+      setInputValue('');
       filter(''); // Reset filter after selection
       onChange({
         hour: selectedOption.hour,
@@ -261,83 +302,120 @@ export function TimePicker({
     }
   };
 
+  // Handle Enter key to select first filtered option
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && collection.items.length > 0) {
+      e.preventDefault();
+      const firstOption = collection.items[0];
+      if (firstOption) {
+        const selectedOption = timeOptions.find(
+          (opt) => opt.value === firstOption.value
+        );
+        if (selectedOption) {
+          setHour(selectedOption.hour);
+          setMinute(selectedOption.minute);
+          setMeridiem(selectedOption.meridiem);
+          setIsInputMode(false); // Switch to display mode
+          setInputValue('');
+          filter('');
+          onChange({
+            hour: selectedOption.hour,
+            minute: selectedOption.minute,
+            meridiem: selectedOption.meridiem,
+          });
+        }
+      }
+    }
+  };
+
   const handleInputValueChange = (
     details: Combobox.InputValueChangeDetails
   ) => {
     const inputValue = details.inputValue.trim();
+    setInputValue(inputValue);
+    setIsInputMode(true); // Switch to input mode
 
     // Filter the collection based on input
     filter(inputValue);
 
     if (!inputValue) {
+      setIsInputMode(false);
       return;
     }
 
-    // Try to parse custom input (e.g., "12:30pm", "12:30 pm", "1230pm")
-    const normalized = inputValue
-      .toLowerCase()
-      .replace(/\s+/g, '')
-      .replace(/[^0-9apm]/g, '');
+    // Try to parse custom input using explicit regex patterns
+    const normalized = inputValue.toLowerCase().replace(/\s+/g, '');
 
-    // Extract hour, minute, and meridiem from input
-    const meridiemMatch = normalized.match(/(am|pm)/);
-    const mer = meridiemMatch ? (meridiemMatch[1] as 'am' | 'pm') : null;
-    const numbersOnly = normalized.replace(/(am|pm)/g, '');
+    // Pattern 1: 12-hour format with meridiem (e.g., "930pm", "1230am", "9:30pm", "12:30am")
+    // Matches: 1-2 digits hour, optional colon, 2 digits minute, am/pm
+    const pattern12HourWithMeridiem = /^(\d{1,2}):?(\d{2})(am|pm)$/;
+    const match12Hour = normalized.match(pattern12HourWithMeridiem);
 
-    if (numbersOnly.length >= 3) {
-      let hourStr = numbersOnly.slice(0, -2);
-      let minuteStr = numbersOnly.slice(-2);
+    if (match12Hour) {
+      const parsedHour = parseInt(match12Hour[1], 10);
+      const parsedMinute = parseInt(match12Hour[2], 10);
+      const parsedMeridiem = match12Hour[3] as 'am' | 'pm';
 
-      // Handle formats like "930pm" -> "9:30pm"
-      if (numbersOnly.length === 3) {
-        hourStr = numbersOnly.slice(0, 1);
-        minuteStr = numbersOnly.slice(1);
+      // Validate hour (1-12)
+      if (parsedHour < 1 || parsedHour > 12) {
+        return;
       }
 
-      const parsedHour = parseInt(hourStr);
-      const parsedMinute = parseInt(minuteStr);
+      // Validate minute (0-59)
+      const validMinute = parsedMinute > 59 ? 0 : parsedMinute;
 
-      if (!isNaN(parsedHour) && !isNaN(parsedMinute)) {
-        let newHour = parsedHour;
-        let newMinute = parsedMinute;
-        let newMeridiem = mer;
+      setHour(parsedHour);
+      setMinute(validMinute);
+      setMeridiem(parsedMeridiem);
+      onChange({
+        hour: parsedHour,
+        minute: validMinute,
+        meridiem: parsedMeridiem,
+      });
+      return;
+    }
 
-        // Validate and normalize
-        if (parsedHour > 24) {
-          return;
-        }
+    // Pattern 2: 24-hour format (e.g., "2130", "09:30", "21:30")
+    // Matches: 1-2 digits hour, optional colon, 2 digits minute
+    const pattern24Hour = /^(\d{2}):?(\d{2})$/;
+    const match24Hour = normalized.match(pattern24Hour);
 
-        // Convert 24-hour to 12-hour format if needed
-        if (parsedHour === 24) {
-          newMeridiem = 'am';
-          newHour = 12;
-        } else if (parsedHour > 12) {
-          newMeridiem = 'pm';
-          newHour = parsedHour - 12;
-        } else if (parsedHour === 12) {
-          newMeridiem = newMeridiem ?? 'pm';
-          newHour = 12;
-        } else if (parsedHour === 0) {
-          newMeridiem = 'am';
-          newHour = 12;
-        } else {
-          newMeridiem = newMeridiem ?? 'am';
-          newHour = parsedHour;
-        }
+    if (match24Hour) {
+      let parsedHour = parseInt(match24Hour[1], 10);
+      const parsedMinute = parseInt(match24Hour[2], 10);
 
-        if (parsedMinute > 59) {
-          newMinute = 0;
-        }
-
-        setHour(newHour);
-        setMinute(newMinute);
-        setMeridiem(newMeridiem);
-        onChange({
-          hour: newHour,
-          minute: newMinute,
-          meridiem: newMeridiem,
-        });
+      // Validate hour (0-23)
+      if (parsedHour > 23) {
+        return;
       }
+
+      // Convert 24-hour to 12-hour format
+      let parsedMeridiem: 'am' | 'pm';
+      if (parsedHour === 0) {
+        parsedHour = 12;
+        parsedMeridiem = 'am';
+      } else if (parsedHour === 12) {
+        parsedHour = 12;
+        parsedMeridiem = 'pm';
+      } else if (parsedHour > 12) {
+        parsedHour = parsedHour - 12;
+        parsedMeridiem = 'pm';
+      } else {
+        parsedMeridiem = 'am';
+      }
+
+      // Validate minute (0-59)
+      const validMinute = parsedMinute > 59 ? 0 : parsedMinute;
+
+      setHour(parsedHour);
+      setMinute(validMinute);
+      setMeridiem(parsedMeridiem);
+      onChange({
+        hour: parsedHour,
+        minute: validMinute,
+        meridiem: parsedMeridiem,
+      });
+      return;
     }
   };
 
@@ -361,13 +439,54 @@ export function TimePicker({
         width="100%"
       >
         <Combobox.Control>
-          <InputGroup startElement={<BsClock />}>
-            <Combobox.Input placeholder="Select time" value={displayText} />
-          </InputGroup>
-          <Combobox.IndicatorGroup>
-            <Combobox.ClearTrigger />
-            <Combobox.Trigger />
-          </Combobox.IndicatorGroup>
+          {isInputMode ? (
+            <InputGroup startElement={<BsClock />}>
+              <Combobox.Input
+                ref={inputRef}
+                placeholder="Select time"
+                value={displayText}
+                onKeyDown={handleKeyDown}
+              />
+            </InputGroup>
+          ) : (
+            <Grid
+              templateColumns="auto 1fr auto"
+              alignItems="center"
+              gap={2}
+              width="100%"
+              minHeight="40px"
+              px={3}
+              border="1px solid"
+              borderColor="gray.200"
+              borderRadius="md"
+              cursor="pointer"
+              onClick={() => setIsInputMode(true)}
+            >
+              <Icon>
+                <BsClock />
+              </Icon>
+              <Text
+                fontSize="sm"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+              >
+                {displayText || 'Select time'}
+              </Text>
+              <Combobox.Trigger
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsInputMode(true);
+                }}
+              />
+            </Grid>
+          )}
+          {isInputMode && (
+            <Combobox.IndicatorGroup>
+              <Combobox.ClearTrigger />
+              <Combobox.Trigger />
+            </Combobox.IndicatorGroup>
+          )}
         </Combobox.Control>
 
         <Portal>
