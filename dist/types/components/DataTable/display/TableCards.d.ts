@@ -1,6 +1,6 @@
-import { CardBodyProps } from "@chakra-ui/react";
-import { Row } from "@tanstack/react-table";
-import { ReactNode } from "react";
+import { CardBodyProps } from '@chakra-ui/react';
+import { Row } from '@tanstack/react-table';
+import { ReactNode } from 'react';
 export interface TableCardsProps<TData> {
     isSelectable?: boolean;
     showDisplayNameOnly?: boolean;

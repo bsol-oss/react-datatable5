@@ -1,5 +1,5 @@
-import { OnChangeFn, Updater, RowData, TableFeature } from "@tanstack/react-table";
-export type DensityState = "sm" | "md" | "lg";
+import { OnChangeFn, Updater, RowData, TableFeature } from '@tanstack/react-table';
+export type DensityState = 'xs' | 'sm' | 'md' | 'lg';
 export interface DensityTableState {
     density: DensityState;
 }
@@ -12,7 +12,7 @@ export interface DensityInstance {
     toggleDensity: (value?: DensityState) => void;
     getDensityValue: (value?: DensityState) => number;
 }
-declare module "@tanstack/react-table" {
+declare module '@tanstack/react-table' {
     interface TableState extends DensityTableState {
     }
     interface TableOptionsResolved<TData extends RowData> extends DensityOptions {

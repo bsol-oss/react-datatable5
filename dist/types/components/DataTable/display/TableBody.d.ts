@@ -1,4 +1,4 @@
-import { Row } from "@tanstack/react-table";
+import { Row } from '@tanstack/react-table';
 export interface TableBodyProps {
     pinnedBgColor?: {
         light: string;

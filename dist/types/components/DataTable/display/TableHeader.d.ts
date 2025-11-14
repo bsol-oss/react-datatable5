@@ -1,4 +1,4 @@
-import { TableHeaderProps as ChakraTableHeaderProps, TableRowProps } from "@chakra-ui/react";
+import { TableHeaderProps as ChakraTableHeaderProps, TableRowProps } from '@chakra-ui/react';
 export interface TableHeaderTexts {
     pinColumn?: string;
     cancelPin?: string;
