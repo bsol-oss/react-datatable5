@@ -1,6 +1,6 @@
 {
   "name": "@bsol-oss/react-datatable5",
-  "version": "12.0.0-beta.88",
+  "version": "12.0.0-beta.89",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
