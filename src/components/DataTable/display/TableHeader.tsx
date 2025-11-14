@@ -4,22 +4,22 @@ import {
   Flex,
   Table,
   TableRowProps,
-} from "@chakra-ui/react";
-import { flexRender, Header } from "@tanstack/react-table";
-import { MdCancel, MdClear, MdFilterListAlt } from "react-icons/md";
+} from '@chakra-ui/react';
+import { flexRender, Header } from '@tanstack/react-table';
+import { MdCancel, MdClear, MdFilterListAlt } from 'react-icons/md';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   MenuContent,
   MenuItem,
   MenuRoot,
   MenuTrigger,
-} from "@/components/ui/menu";
-import { BiDownArrow, BiUpArrow } from "react-icons/bi";
-import { GrAscend, GrDescend } from "react-icons/gr";
-import { MdPushPin } from "react-icons/md";
-import { useDataTableContext } from "../context/useDataTableContext";
-import { Checkbox } from "@/components/ui/checkbox";
+} from '@/components/ui/menu';
+import { BiDownArrow, BiUpArrow } from 'react-icons/bi';
+import { GrAscend, GrDescend } from 'react-icons/gr';
+import { MdPushPin } from 'react-icons/md';
+import { useDataTableContext } from '../context/useDataTableContext';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export interface TableHeaderTexts {
   pinColumn?: string;
@@ -44,29 +44,29 @@ export interface TableHeaderProps {
 
 // Default text values
 const DEFAULT_HEADER_TEXTS: Required<TableHeaderTexts> = {
-  pinColumn: "Pin Column",
-  cancelPin: "Cancel Pin",
-  sortAscending: "Sort Ascending",
-  sortDescending: "Sort Descending",
-  clearSorting: "Clear Sorting",
+  pinColumn: 'Pin Column',
+  cancelPin: 'Cancel Pin',
+  sortAscending: 'Sort Ascending',
+  sortDescending: 'Sort Descending',
+  clearSorting: 'Clear Sorting',
 };
 
 /**
  * TableHeader component with configurable text strings.
- * 
+ *
  * @example
  * // Using default texts
  * <TableHeader />
- * 
+ *
  * @example
  * // Customizing default texts for all columns
- * <TableHeader 
+ * <TableHeader
  *   defaultTexts={{
  *     pinColumn: "Pin This Column",
  *     sortAscending: "Sort A-Z"
  *   }}
  * />
- * 
+ *
  * @example
  * // Customizing texts per column via meta
  * const columns = [
@@ -96,7 +96,10 @@ export const TableHeader = ({
   const mergedDefaultTexts = { ...DEFAULT_HEADER_TEXTS, ...defaultTexts };
 
   // Helper function to get text for a specific header
-  const getHeaderText = (header: Header<unknown, unknown>, key: keyof TableHeaderTexts): string => {
+  const getHeaderText = (
+    header: Header<unknown, unknown>,
+    key: keyof TableHeaderTexts
+  ): string => {
     const columnMeta = header.column.columnDef.meta;
     return columnMeta?.headerTexts?.[key] || mergedDefaultTexts[key];
   };
@@ -105,45 +108,107 @@ export const TableHeader = ({
     const thProps = header.column.getIsPinned()
       ? {
           left: showSelector
-            ? `${header.getStart("left") + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-            : `${header.getStart("left")}px`,
-          position: "sticky",
+            ? `${header.getStart('left') + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
+            : `${header.getStart('left')}px`,
+          position: 'sticky',
           zIndex: 100 + 1,
         }
       : {};
     return thProps;
   };
   const stickyProps = {
-    position: "sticky",
+    position: 'sticky',
     top: 0,
+  };
+
+  const handleAutoSize = (
+    header: Header<unknown, unknown>,
+    event: React.MouseEvent
+  ) => {
+    const headerElement = event.currentTarget.closest('th') as HTMLElement;
+    if (!headerElement) return;
+
+    // Find the table container
+    const tableContainer =
+      headerElement.closest('[role="table"]') ||
+      headerElement.closest('table') ||
+      headerElement.closest('div');
+    if (!tableContainer) return;
+
+    // Calculate the actual column index accounting for selector column
+    const columnIndex = header.index;
+    const actualColumnIndex = showSelector ? columnIndex + 1 : columnIndex;
+
+    // Get all rows (header and body) - Chakra UI Table uses flex layout
+    const rows = Array.from(
+      tableContainer.querySelectorAll('[role="row"], tr')
+    );
+
+    let maxWidth = 0;
+
+    // Measure all cells in this column
+    rows.forEach((row) => {
+      // Get all cells in the row (td, th, or Chakra Table.Cell/Table.ColumnHeader)
+      const cells = Array.from(row.children) as HTMLElement[];
+      const cell = cells[actualColumnIndex];
+
+      if (cell) {
+        // Create a temporary clone to measure content without constraints
+        const clone = cell.cloneNode(true) as HTMLElement;
+        clone.style.position = 'absolute';
+        clone.style.visibility = 'hidden';
+        clone.style.width = 'auto';
+        clone.style.maxWidth = 'none';
+        clone.style.whiteSpace = 'nowrap';
+        clone.style.flex = 'none';
+        document.body.appendChild(clone);
+
+        const width = clone.scrollWidth;
+        maxWidth = Math.max(maxWidth, width);
+
+        document.body.removeChild(clone);
+      }
+    });
+
+    // Add padding for better UX (density padding + some extra space)
+    const padding = table.getDensityValue() * 2 + 24;
+    const minSize = (header.column.columnDef.minSize as number) || 10;
+    const finalWidth = Math.max(maxWidth + padding, minSize);
+
+    // Set the column size - setSize exists on column but may not be fully typed in @tanstack/react-table
+    console.log('finalWidth', finalWidth);
+    table.setColumnSizing((current) => ({
+      ...current,
+      [header.id]: finalWidth,
+    }));
   };
 
   return (
     <Table.Header
       {...(isSticky ? stickyProps : {})}
-      {...{ bgColor: "transparent" }}
+      {...{ bgColor: 'transparent' }}
       {...tableHeaderProps}
     >
       {table.getHeaderGroups().map((headerGroup) => (
         <Table.Row
-          display={"flex"}
+          display={'flex'}
           key={`chakra-table-headergroup-${headerGroup.id}`}
-          {...{ bgColor: "transparent" }}
+          {...{ bgColor: 'transparent' }}
           {...tableRowProps}
         >
           {showSelector && (
             <Table.ColumnHeader
               padding={`${table.getDensityValue()}px`}
-              display={"grid"}
+              display={'grid'}
               {...{
                 color: {
-                  base: "colorPalette.900",
-                  _dark: "colorPalette.100",
+                  base: 'colorPalette.900',
+                  _dark: 'colorPalette.100',
                 },
-                bg: { base: "colorPalette.50", _dark: "colorPalette.950" },
+                bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' },
               }}
-              justifyItems={"center"}
-              alignItems={"center"}
+              justifyItems={'center'}
+              alignItems={'center'}
             >
               <Checkbox
                 width={`${SELECTION_BOX_WIDTH}px`}
@@ -161,7 +226,7 @@ export const TableHeader = ({
             const resizeProps = {
               onMouseDown: header.getResizeHandler(),
               onTouchStart: header.getResizeHandler(),
-              cursor: "col-resize",
+              cursor: 'col-resize',
             };
 
             return (
@@ -170,16 +235,16 @@ export const TableHeader = ({
                 key={`chakra-table-header-${header.id}`}
                 columnSpan={`${header.colSpan}`}
                 // styling resize and pinning start
-                flex={`${canResize ? "0" : "1"} 0 ${header.column.getSize()}px`}
-                display={"grid"}
-                gridTemplateColumns={"1fr auto"}
+                flex={`${canResize ? '0' : '1'} 0 ${header.column.getSize()}px`}
+                display={'grid'}
+                gridTemplateColumns={'1fr auto'}
                 zIndex={1500 + header.index}
                 {...{
                   color: {
-                    base: "colorPalette.800",
-                    _dark: "colorPalette.200",
+                    base: 'colorPalette.800',
+                    _dark: 'colorPalette.200',
                   },
-                  bg: { base: "colorPalette.100", _dark: "colorPalette.900" },
+                  bg: { base: 'colorPalette.100', _dark: 'colorPalette.900' },
                 }}
                 {...getThProps(header)}
               >
@@ -187,30 +252,30 @@ export const TableHeader = ({
                   <MenuTrigger asChild>
                     <Flex
                       padding={`${table.getDensityValue()}px`}
-                      alignItems={"center"}
-                      justifyContent={"start"}
-                      borderRadius={"0rem"}
-                      overflow={"auto"}
+                      alignItems={'center'}
+                      justifyContent={'start'}
+                      borderRadius={'0rem'}
+                      overflow={'auto'}
                       {...{
                         color: {
-                          base: "colorPalette.800",
-                          _dark: "colorPalette.200",
+                          base: 'colorPalette.800',
+                          _dark: 'colorPalette.200',
                           _hover: {
-                            base: "colorPalette.700",
-                            _dark: "colorPalette.300",
+                            base: 'colorPalette.700',
+                            _dark: 'colorPalette.300',
                           },
                         },
                         bg: {
-                          base: "colorPalette.100",
-                          _dark: "colorPalette.900",
+                          base: 'colorPalette.100',
+                          _dark: 'colorPalette.900',
                           _hover: {
-                            base: "colorPalette.200",
-                            _dark: "colorPalette.800",
+                            base: 'colorPalette.200',
+                            _dark: 'colorPalette.800',
                           },
                         },
                       }}
                     >
-                      <Flex gap="0.5rem" alignItems={"center"}>
+                      <Flex gap="0.5rem" alignItems={'center'}>
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -221,10 +286,10 @@ export const TableHeader = ({
                           {header.column.getCanSort() && (
                             <>
                               {header.column.getIsSorted() === false && <></>}
-                              {header.column.getIsSorted() === "asc" && (
+                              {header.column.getIsSorted() === 'asc' && (
                                 <BiUpArrow />
                               )}
-                              {header.column.getIsSorted() === "desc" && (
+                              {header.column.getIsSorted() === 'desc' && (
                                 <BiDownArrow />
                               )}
                             </>
@@ -241,26 +306,26 @@ export const TableHeader = ({
                     {!header.column.getIsPinned() && (
                       <MenuItem asChild value="pin-column">
                         <Button
-                          variant={"ghost"}
+                          variant={'ghost'}
                           onClick={() => {
-                            header.column.pin("left");
+                            header.column.pin('left');
                           }}
                         >
                           <MdPushPin />
-                          {getHeaderText(header, "pinColumn")}
+                          {getHeaderText(header, 'pinColumn')}
                         </Button>
                       </MenuItem>
                     )}
                     {header.column.getIsPinned() && (
                       <MenuItem asChild value="cancel-pin">
                         <Button
-                          variant={"ghost"}
+                          variant={'ghost'}
                           onClick={() => {
                             header.column.pin(false);
                           }}
                         >
                           <MdCancel />
-                          {getHeaderText(header, "cancelPin")}
+                          {getHeaderText(header, 'cancelPin')}
                         </Button>
                       </MenuItem>
                     )}
@@ -268,7 +333,7 @@ export const TableHeader = ({
                       <>
                         <MenuItem asChild value="sort-ascend">
                           <Button
-                            variant={"ghost"}
+                            variant={'ghost'}
                             onClick={() => {
                               table.setSorting((state) => {
                                 return [
@@ -281,12 +346,12 @@ export const TableHeader = ({
                             }}
                           >
                             <GrAscend />
-                            {getHeaderText(header, "sortAscending")}
+                            {getHeaderText(header, 'sortAscending')}
                           </Button>
                         </MenuItem>
                         <MenuItem asChild value="sort-descend">
                           <Button
-                            variant={"ghost"}
+                            variant={'ghost'}
                             onClick={() => {
                               table.setSorting((state) => {
                                 return [
@@ -299,20 +364,20 @@ export const TableHeader = ({
                             }}
                           >
                             <GrDescend />
-                            {getHeaderText(header, "sortDescending")}
+                            {getHeaderText(header, 'sortDescending')}
                           </Button>
                         </MenuItem>
 
                         {header.column.getIsSorted() && (
                           <MenuItem asChild value="clear-sorting">
                             <Button
-                              variant={"ghost"}
+                              variant={'ghost'}
                               onClick={() => {
                                 header.column.clearSorting();
                               }}
                             >
                               <MdClear />
-                              {getHeaderText(header, "clearSorting")}
+                              {getHeaderText(header, 'clearSorting')}
                             </Button>
                           </MenuItem>
                         )}
@@ -323,22 +388,25 @@ export const TableHeader = ({
 
                 {canResize && (
                   <Box
-                    borderRight={"0.2rem solid"}
+                    borderRight={'0.2rem solid'}
                     borderRightColor={
                       header.column.getIsResizing()
-                        ? "colorPalette.700"
-                        : "transparent"
+                        ? 'colorPalette.700'
+                        : 'transparent'
                     }
-                    position={"relative"}
-                    right={"0.1rem"}
-                    width={"2px"}
-                    height={"100%"}
-                    userSelect={"none"}
-                    style={{ touchAction: "none" }}
+                    position={'relative'}
+                    right={'0.1rem'}
+                    width={'2px'}
+                    height={'100%'}
+                    userSelect={'none'}
+                    style={{ touchAction: 'none' }}
                     _hover={{
                       borderRightColor: header.column.getIsResizing()
-                        ? "colorPalette.700"
-                        : "colorPalette.400",
+                        ? 'colorPalette.700'
+                        : 'colorPalette.400',
+                    }}
+                    onDoubleClick={(e) => {
+                      handleAutoSize(header, e);
                     }}
                     {...resizeProps}
                   ></Box>
