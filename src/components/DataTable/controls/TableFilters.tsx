@@ -144,7 +144,6 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
               return newDates;
             });
           }}
-          withPopover={false}
         />
       </Flex>
     );

@@ -130,11 +130,11 @@ export const DateRangePicker = ({
         </Popover.Trigger>
         {insideDialog ? (
           <Popover.Positioner>
-            <Popover.Content>
+            <Popover.Content width="fit-content" minW="50rem" minH="25rem">
               <Popover.Body>
                 <RangeDatePicker
                   selected={selectedDates}
-                  onDateSelected={({ selected, selectable, date }) => {
+                  onDateSelected={({ selectable, date }) => {
                     const newDates =
                       getRangeDates({
                         selectable,
@@ -163,11 +163,11 @@ export const DateRangePicker = ({
         ) : (
           <Portal>
             <Popover.Positioner>
-              <Popover.Content>
+              <Popover.Content width="fit-content" minW="50rem" minH="25rem">
                 <Popover.Body>
                   <RangeDatePicker
                     selected={selectedDates}
-                    onDateSelected={({ selected, selectable, date }) => {
+                    onDateSelected={({ selectable, date }) => {
                       const newDates =
                         getRangeDates({
                           selectable,

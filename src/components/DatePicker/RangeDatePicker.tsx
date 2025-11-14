@@ -1,7 +1,6 @@
-import { Box, Button, Grid, Popover, Portal } from '@chakra-ui/react';
 import Dayzed, { Props, RenderProps } from '@bsol-oss/dayzed-react19';
+import { Box, Button, Grid } from '@chakra-ui/react';
 import React, { createContext, useContext, useState } from 'react';
-import dayjs from 'dayjs';
 
 export interface RangeCalendarProps extends RenderProps {
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -137,7 +136,12 @@ function Calendar({
                 } | null>
               >;
             }) => (
-              <Grid key={`${calendar.month}${calendar.year}`} gap={4}>
+              // month and year
+              <Grid
+                key={`${calendar.month}${calendar.year}`}
+                gap={4}
+                alignContent="start"
+              >
                 <Grid justifyContent={'center'}>
                   {monthNamesFull[calendar.month]} {calendar.year}
                 </Grid>

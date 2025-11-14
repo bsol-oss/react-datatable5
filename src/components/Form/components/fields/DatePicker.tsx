@@ -180,14 +180,14 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
         </Popover.Trigger>
         {insideDialog ? (
           <Popover.Positioner>
-            <Popover.Content>
+            <Popover.Content width="fit-content" minH="25rem">
               <Popover.Body>{datePickerContent}</Popover.Body>
             </Popover.Content>
           </Popover.Positioner>
         ) : (
           <Portal>
             <Popover.Positioner>
-              <Popover.Content>
+              <Popover.Content width="fit-content" minH="25rem">
                 <Popover.Body>{datePickerContent}</Popover.Body>
               </Popover.Content>
             </Popover.Positioner>
