@@ -1,6 +1,6 @@
-import { Box, Flex } from "@chakra-ui/react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { DataTable } from "../../components/DataTable/DataTable";
+import { Box, Flex } from '@chakra-ui/react';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { DataTable } from '../../components/DataTable/DataTable';
 import {
   FilterDialog,
   ViewDialog,
@@ -13,34 +13,34 @@ import {
   TableSelector,
   Table as TableWithData,
   TextCell,
-  useDataTable
-} from "../../index";
-import { data, Product } from "../product_data";
-import { Provider } from "@/components/ui/provider";
+  useDataTable,
+} from '../../index';
+import { data, Product } from '../product_data';
+import { Provider } from '@/components/ui/provider';
 
 export default {
-  title: "react-datatable5/DataTable/interactive",
+  title: 'react-datatable5/DataTable/interactive',
   component: DataTable,
   argTypes: {
-    data: { control: { type: "array" } },
-    columns: { control: { type: "array" } },
-    enableRowSelection: { control: { type: "boolean" } },
-    enableMultiRowSelection: { control: { type: "boolean" } },
-    enableSubRowSelection: { control: { type: "boolean" } },
-    onRowSelect: { action: "onRowSelect" },
-    columnOrder: { control: { type: "array" } },
-    columnFilters: { control: { type: "object" } },
-    globalFilter: { control: { type: "text" } },
-    density: { control: { type: "select", options: ["sm", "md", "lg"] } },
-    pagination: { control: { type: "object" } },
-    sorting: { control: { type: "array" } },
-    rowSelection: { control: { type: "object" } },
+    data: { control: { type: 'array' } },
+    columns: { control: { type: 'array' } },
+    enableRowSelection: { control: { type: 'boolean' } },
+    enableMultiRowSelection: { control: { type: 'boolean' } },
+    enableSubRowSelection: { control: { type: 'boolean' } },
+    onRowSelect: { action: 'onRowSelect' },
+    columnOrder: { control: { type: 'array' } },
+    columnFilters: { control: { type: 'object' } },
+    globalFilter: { control: { type: 'text' } },
+    density: { control: { type: 'select', options: ['xs', 'sm', 'md', 'lg'] } },
+    pagination: { control: { type: 'object' } },
+    sorting: { control: { type: 'array' } },
+    rowSelection: { control: { type: 'object' } },
   },
 };
 
 const Template = (args: any) => {
   const datatable = useDataTable({
-    default: { sorting: [{ id: "title", desc: false }] },
+    default: { sorting: [{ id: 'title', desc: false }] },
   });
   return (
     <Provider>
@@ -78,17 +78,17 @@ const columnHelper = createColumnHelper<Product>();
 const columns: ColumnDef<Product>[] = [
   // Display Column
   columnHelper.display({
-    id: "actions",
+    id: 'actions',
     header: () => <span>Actions</span>,
     cell: (props) => <RowActions row={props.row.original} />,
   }),
 
   // Grouping Column
   columnHelper.group({
-    header: "Information",
+    header: 'Information',
     footer: (props) => props.column.id,
     columns: [
-      columnHelper.accessor("id", {
+      columnHelper.accessor('id', {
         cell: (props) => {
           return <TextCell>{props.row.original.id}</TextCell>;
         },
@@ -96,7 +96,7 @@ const columns: ColumnDef<Product>[] = [
         footer: (props) => props.column.id,
         size: 50,
       }),
-      columnHelper.accessor("title", {
+      columnHelper.accessor('title', {
         cell: (props) => {
           return (
             <Box padding="0">
@@ -111,7 +111,7 @@ const columns: ColumnDef<Product>[] = [
         size: 100,
       }),
       // Accessor Column
-      columnHelper.accessor("description", {
+      columnHelper.accessor('description', {
         cell: (props) => {
           return <TextCell>{props.row.original.description}</TextCell>;
         },
@@ -132,10 +132,10 @@ Playground.args = {
   enableMultiRowSelection: true,
   enableSubRowSelection: true,
   onRowSelect: () => {},
-  columnOrder: ["actions", "id", "title", "description"],
+  columnOrder: ['actions', 'id', 'title', 'description'],
   columnFilters: [],
-  globalFilter: "",
-  density: "sm",
+  globalFilter: '',
+  density: 'sm',
   pagination: { pageIndex: 0, pageSize: 10 },
   sorting: [],
   rowSelection: {},

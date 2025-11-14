@@ -9,10 +9,10 @@ import {
   Table,
   makeStateUpdater,
   functionalUpdate,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 
 // define types for our new feature's custom state
-export type DensityState = "sm" | "md" | "lg";
+export type DensityState = 'xs' | 'sm' | 'md' | 'lg';
 export interface DensityTableState {
   density: DensityState;
 }
@@ -31,7 +31,7 @@ export interface DensityInstance {
 }
 
 // Use declaration merging to add our new feature APIs and state types to TanStack Table's existing types.
-declare module "@tanstack/react-table" {
+declare module '@tanstack/react-table' {
   //merge our new feature's state with the existing table state
   interface TableState extends DensityTableState {}
   //merge our new feature's options with the existing table options
@@ -59,7 +59,7 @@ export const DensityFeature: TableFeature<any> = {
   // define the new feature's initial state
   getInitialState: (state): DensityTableState => {
     return {
-      density: "sm",
+      density: 'sm',
       ...state,
     };
   },
@@ -70,7 +70,7 @@ export const DensityFeature: TableFeature<any> = {
   ): DensityOptions => {
     return {
       enableDensity: true,
-      onDensityChange: makeStateUpdater("density", table),
+      onDensityChange: makeStateUpdater('density', table),
     } as DensityOptions;
   },
   // if you need to add a default column definition...
@@ -90,13 +90,16 @@ export const DensityFeature: TableFeature<any> = {
     table.toggleDensity = (value) => {
       table.setDensity((old) => {
         if (value) return value;
-        if (old === "sm") {
-          return "md";
+        if (old === 'xs') {
+          return 'sm';
         }
-        if (old === "md") {
-          return "lg";
+        if (old === 'sm') {
+          return 'md';
         }
-        return "sm";
+        if (old === 'md') {
+          return 'lg';
+        }
+        return 'xs';
       });
     };
     table.getDensityValue = (value) => {
@@ -106,10 +109,13 @@ export const DensityFeature: TableFeature<any> = {
       } else {
         density = table.getState().density;
       }
-      if (density === "sm") {
+      if (density === 'xs') {
+        return 4;
+      }
+      if (density === 'sm') {
         return 8;
       }
-      if (density === "md") {
+      if (density === 'md') {
         return 16;
       }
       return 32;
