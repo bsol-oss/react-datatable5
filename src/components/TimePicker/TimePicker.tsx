@@ -9,9 +9,14 @@ import {
   useListCollection,
 } from '@chakra-ui/react';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { Dispatch, SetStateAction, useMemo } from 'react';
 import { BsClock } from 'react-icons/bs';
 import { MdCancel } from 'react-icons/md';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface TimePickerProps {
   hour: number | null;
@@ -30,6 +35,8 @@ interface TimePickerProps {
     pm: string;
   };
   timezone?: string;
+  startTime?: string;
+  selectedDate?: string;
 }
 
 interface TimeOption {
@@ -55,17 +62,36 @@ export function TimePicker({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onChange = (_newValue) => {},
   timezone = 'Asia/Hong_Kong',
+  startTime,
+  selectedDate,
 }: TimePickerProps) {
   // Generate time options (every 15 minutes)
   const timeOptions = useMemo<TimeOption[]>(() => {
     const options: TimeOption[] = [];
     const meridiemOptions: ('am' | 'pm')[] = ['am', 'pm'];
 
+    // Get start time for comparison if provided
+    let startDateTime: dayjs.Dayjs | null = null;
+    let shouldFilterByDate = false;
+    if (startTime && selectedDate) {
+      const startDateObj = dayjs(startTime).tz(timezone);
+      const selectedDateObj = dayjs(selectedDate).tz(timezone);
+
+      if (startDateObj.isValid() && selectedDateObj.isValid()) {
+        startDateTime = startDateObj;
+        // Only filter if dates are the same
+        shouldFilterByDate =
+          startDateObj.format('YYYY-MM-DD') ===
+          selectedDateObj.format('YYYY-MM-DD');
+      }
+    }
+
     for (const mer of meridiemOptions) {
       for (let h = 1; h <= 12; h++) {
         for (let m = 0; m < 60; m += 15) {
           const hour24 =
             mer === 'am' ? (h === 12 ? 0 : h) : h === 12 ? 12 : h + 12;
+
           const timeStr = dayjs()
             .tz(timezone)
             .hour(hour24)
@@ -74,8 +100,53 @@ export function TimePicker({
           const displayTime = dayjs(`1970-01-01T${timeStr}`, 'HH:mmZ').format(
             'hh:mm a'
           );
+
+          // Filter out times that would result in negative duration (only when dates are the same)
+          if (startDateTime && selectedDate && shouldFilterByDate) {
+            const selectedDateObj = dayjs(selectedDate).tz(timezone);
+            const optionDateTime = selectedDateObj
+              .hour(hour24)
+              .minute(m)
+              .second(0)
+              .millisecond(0);
+
+            if (optionDateTime.isBefore(startDateTime)) {
+              continue; // Skip this option as it would result in negative duration
+            }
+          }
+
+          // Calculate and append duration if startTime is provided
+          let label = displayTime;
+          if (startDateTime && selectedDate) {
+            const selectedDateObj = dayjs(selectedDate).tz(timezone);
+            const optionDateTime = selectedDateObj
+              .hour(hour24)
+              .minute(m)
+              .second(0)
+              .millisecond(0);
+
+            if (
+              optionDateTime.isValid() &&
+              optionDateTime.isAfter(startDateTime)
+            ) {
+              const diffMs = optionDateTime.diff(startDateTime);
+              const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+              const diffMinutes = Math.floor(
+                (diffMs % (1000 * 60 * 60)) / (1000 * 60)
+              );
+
+              if (diffHours > 0 || diffMinutes > 0) {
+                const diffText =
+                  diffHours > 0
+                    ? `${diffHours}h ${diffMinutes}m`
+                    : `${diffMinutes}m`;
+                label = `${displayTime} (+${diffText})`;
+              }
+            }
+          }
+
           options.push({
-            label: displayTime,
+            label,
             value: `${h}:${m.toString().padStart(2, '0')}:${mer}`,
             hour: h,
             minute: m,
@@ -85,7 +156,7 @@ export function TimePicker({
       }
     }
     return options;
-  }, [timezone]);
+  }, [timezone, startTime, selectedDate]);
 
   const { contains } = useFilter({ sensitivity: 'base' });
 
@@ -122,8 +193,41 @@ export function TimePicker({
       .hour(hour24)
       .minute(minute)
       .format('HH:mmZ');
-    return dayjs(`1970-01-01T${timeStr}`, 'HH:mmZ').format('hh:mm a');
-  }, [hour, minute, meridiem, timezone]);
+    const timeDisplay = dayjs(`1970-01-01T${timeStr}`, 'HH:mmZ').format(
+      'hh:mm a'
+    );
+
+    // Show duration difference if startTime is provided
+    if (startTime && selectedDate) {
+      const startDateObj = dayjs(startTime).tz(timezone);
+      const selectedDateObj = dayjs(selectedDate).tz(timezone);
+      const currentDateTime = selectedDateObj
+        .hour(hour24)
+        .minute(minute)
+        .second(0)
+        .millisecond(0);
+
+      if (startDateObj.isValid() && currentDateTime.isValid()) {
+        const diffMs = currentDateTime.diff(startDateObj);
+        if (diffMs >= 0) {
+          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+          const diffMinutes = Math.floor(
+            (diffMs % (1000 * 60 * 60)) / (1000 * 60)
+          );
+
+          if (diffHours > 0 || diffMinutes > 0) {
+            const diffText =
+              diffHours > 0
+                ? `${diffHours}h ${diffMinutes}m`
+                : `${diffMinutes}m`;
+            return `${timeDisplay} (+${diffText})`;
+          }
+        }
+      }
+    }
+
+    return timeDisplay;
+  }, [hour, minute, meridiem, timezone, startTime, selectedDate]);
 
   const handleClear = () => {
     setHour(null);

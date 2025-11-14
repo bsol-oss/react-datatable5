@@ -12,6 +12,12 @@ import {
 import { Dispatch, SetStateAction, useMemo } from 'react';
 import { BsClock } from 'react-icons/bs';
 import { MdCancel } from 'react-icons/md';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface IsoTimePickerProps {
   hour: number | null;
@@ -25,6 +31,9 @@ interface IsoTimePickerProps {
     minute: number | null;
     second: number | null;
   }) => void;
+  startTime?: string;
+  selectedDate?: string;
+  timezone?: string;
 }
 
 interface TimeOption {
@@ -44,16 +53,85 @@ export function IsoTimePicker({
   setSecond,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onChange = (_newValue) => {},
+  startTime,
+  selectedDate,
+  timezone = 'Asia/Hong_Kong',
 }: IsoTimePickerProps) {
   // Generate time options (every 15 minutes, seconds always 0)
   const timeOptions = useMemo<TimeOption[]>(() => {
     const options: TimeOption[] = [];
 
+    // Get start time for comparison if provided
+    let startDateTime: dayjs.Dayjs | null = null;
+    let shouldFilterByDate = false;
+    if (startTime && selectedDate) {
+      const startDateObj = dayjs(startTime).tz(timezone);
+      const selectedDateObj = dayjs(selectedDate).tz(timezone);
+
+      if (startDateObj.isValid() && selectedDateObj.isValid()) {
+        startDateTime = startDateObj;
+        // Only filter if dates are the same
+        shouldFilterByDate =
+          startDateObj.format('YYYY-MM-DD') ===
+          selectedDateObj.format('YYYY-MM-DD');
+      }
+    }
+
     for (let h = 0; h < 24; h++) {
       for (let m = 0; m < 60; m += 15) {
-        const label = `${h.toString().padStart(2, '0')}:${m
+        const timeDisplay = `${h.toString().padStart(2, '0')}:${m
           .toString()
           .padStart(2, '0')}:00`;
+
+        // Filter out times that would result in negative duration (only when dates are the same)
+        if (startDateTime && selectedDate && shouldFilterByDate) {
+          const selectedDateObj = dayjs(selectedDate).tz(timezone);
+          const optionDateTime = selectedDateObj
+            .hour(h)
+            .minute(m)
+            .second(0)
+            .millisecond(0);
+
+          if (optionDateTime.isBefore(startDateTime)) {
+            continue; // Skip this option as it would result in negative duration
+          }
+        }
+
+        // Calculate and append duration if startTime is provided
+        let label = timeDisplay;
+        if (startDateTime && selectedDate) {
+          const selectedDateObj = dayjs(selectedDate).tz(timezone);
+          const optionDateTime = selectedDateObj
+            .hour(h)
+            .minute(m)
+            .second(0)
+            .millisecond(0);
+
+          if (
+            optionDateTime.isValid() &&
+            optionDateTime.isAfter(startDateTime)
+          ) {
+            const diffMs = optionDateTime.diff(startDateTime);
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMinutes = Math.floor(
+              (diffMs % (1000 * 60 * 60)) / (1000 * 60)
+            );
+            const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+            if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+              let diffText = '';
+              if (diffHours > 0) {
+                diffText = `${diffHours}h ${diffMinutes}m`;
+              } else if (diffMinutes > 0) {
+                diffText = `${diffMinutes}m ${diffSeconds}s`;
+              } else {
+                diffText = `${diffSeconds}s`;
+              }
+              label = `${timeDisplay} (+${diffText})`;
+            }
+          }
+        }
+
         options.push({
           label,
           value: `${h}:${m}:0`,
@@ -64,7 +142,7 @@ export function IsoTimePicker({
       }
     }
     return options;
-  }, []);
+  }, [startTime, selectedDate, timezone]);
 
   const { contains } = useFilter({ sensitivity: 'base' });
 
@@ -88,10 +166,46 @@ export function IsoTimePicker({
     if (hour === null || minute === null || second === null) {
       return '';
     }
-    return `${hour.toString().padStart(2, '0')}:${minute
+    const timeDisplay = `${hour.toString().padStart(2, '0')}:${minute
       .toString()
       .padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
-  }, [hour, minute, second]);
+
+    // Show duration difference if startTime is provided
+    if (startTime && selectedDate) {
+      const startDateObj = dayjs(startTime).tz(timezone);
+      const selectedDateObj = dayjs(selectedDate).tz(timezone);
+      const currentDateTime = selectedDateObj
+        .hour(hour)
+        .minute(minute)
+        .second(second ?? 0)
+        .millisecond(0);
+
+      if (startDateObj.isValid() && currentDateTime.isValid()) {
+        const diffMs = currentDateTime.diff(startDateObj);
+        if (diffMs >= 0) {
+          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+          const diffMinutes = Math.floor(
+            (diffMs % (1000 * 60 * 60)) / (1000 * 60)
+          );
+          const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+          if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+            let diffText = '';
+            if (diffHours > 0) {
+              diffText = `${diffHours}h ${diffMinutes}m`;
+            } else if (diffMinutes > 0) {
+              diffText = `${diffMinutes}m ${diffSeconds}s`;
+            } else {
+              diffText = `${diffSeconds}s`;
+            }
+            return `${timeDisplay} (+${diffText})`;
+          }
+        }
+      }
+    }
+
+    return timeDisplay;
+  }, [hour, minute, second, startTime, selectedDate, timezone]);
 
   const handleClear = () => {
     setHour(null);

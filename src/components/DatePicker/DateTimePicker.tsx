@@ -4,7 +4,12 @@ import DatePicker, { DatePickerLabels } from './DatePicker';
 import { TimePicker } from '../TimePicker/TimePicker';
 import { IsoTimePicker } from './IsoTimePicker';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { FaTrash } from 'react-icons/fa6';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface DateTimePickerProps {
   value?: string;
@@ -13,6 +18,7 @@ interface DateTimePickerProps {
   showSeconds?: boolean;
   labels?: DatePickerLabels;
   timezone?: string;
+  startTime?: string;
 }
 
 interface TimeData12Hour {
@@ -54,6 +60,7 @@ export function DateTimePicker({
     forwardButtonLabel: 'Next',
   },
   timezone = 'Asia/Hong_Kong',
+  startTime,
 }: DateTimePickerProps) {
   const [selectedDate, setSelectedDate] = useState<string>(value || '');
 
@@ -73,12 +80,19 @@ export function DateTimePicker({
     value ? dayjs(value).hour() : null
   );
   const [second, setSecond] = useState<number | null>(
-    value ? dayjs(value).second() : null
+    showSeconds && value ? dayjs(value).second() : null
   );
 
   const handleDateChange = (date: string) => {
     setSelectedDate(date);
-    updateDateTime(dayjs(date).tz(timezone).toISOString());
+    // When showSeconds is false, ignore seconds from the date
+    const dateObj = dayjs(date).tz(timezone);
+    if (!showSeconds && dateObj.isValid()) {
+      const dateWithoutSeconds = dateObj.second(0).millisecond(0).toISOString();
+      updateDateTime(dateWithoutSeconds);
+    } else {
+      updateDateTime(dateObj.toISOString());
+    }
   };
 
   const handleTimeChange = (timeData: TimeData) => {
@@ -86,7 +100,12 @@ export function DateTimePicker({
       const data = timeData as TimeData24Hour;
       setHour24(data.hour);
       setMinute(data.minute);
-      if (showSeconds) setSecond(data.second ?? null);
+      if (showSeconds) {
+        setSecond(data.second ?? null);
+      } else {
+        // Ignore seconds - always set to null when showSeconds is false
+        setSecond(null);
+      }
     } else {
       const data = timeData as TimeData12Hour;
       setHour12(data.hour);
@@ -123,11 +142,12 @@ export function DateTimePicker({
       const data = timeData as TimeData24Hour | undefined;
       const h = data?.hour ?? hour24;
       const m = data?.minute ?? minute;
-      const s = showSeconds ? data?.second ?? second : 0;
+      // Always ignore seconds when showSeconds is false - set to 0
+      const s = showSeconds ? data?.second ?? second ?? 0 : 0;
 
       if (h !== null) newDate.setHours(h);
       if (m !== null) newDate.setMinutes(m);
-      if (s !== null) newDate.setSeconds(s);
+      newDate.setSeconds(s);
     } else {
       const data = timeData as TimeData12Hour | undefined;
       const h = data?.hour ?? hour12;
@@ -159,6 +179,11 @@ export function DateTimePicker({
 
   const isISO = format === 'iso-date-time';
 
+  // Normalize startTime to ignore milliseconds
+  const normalizedStartTime = startTime
+    ? dayjs(startTime).tz(timezone).millisecond(0).toISOString()
+    : undefined;
+
   return (
     <Flex
       direction="column"
@@ -177,6 +202,12 @@ export function DateTimePicker({
         }
         monthsToDisplay={1}
         labels={labels}
+        minDate={
+          normalizedStartTime &&
+          dayjs(normalizedStartTime).tz(timezone).isValid()
+            ? dayjs(normalizedStartTime).tz(timezone).startOf('day').toDate()
+            : undefined
+        }
       />
 
       <Grid templateColumns="1fr auto" alignItems="center" gap={4}>
@@ -186,9 +217,12 @@ export function DateTimePicker({
             setHour={setHour24}
             minute={minute}
             setMinute={setMinute}
-            second={second}
-            setSecond={setSecond}
+            second={showSeconds ? second : null}
+            setSecond={showSeconds ? setSecond : () => {}}
             onChange={handleTimeChange}
+            startTime={normalizedStartTime}
+            selectedDate={selectedDate}
+            timezone={timezone}
           />
         ) : (
           <TimePicker
@@ -199,6 +233,9 @@ export function DateTimePicker({
             meridiem={meridiem}
             setMeridiem={setMeridiem}
             onChange={handleTimeChange}
+            startTime={normalizedStartTime}
+            selectedDate={selectedDate}
+            timezone={timezone}
           />
         )}
 
