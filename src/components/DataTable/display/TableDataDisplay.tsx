@@ -1,8 +1,8 @@
-import { Box, BoxProps, Grid } from "@chakra-ui/react";
-import { useDataTableContext } from "../context/useDataTableContext";
-import { RecordDisplay } from "./RecordDisplay";
-import { ReactNode } from "react";
-import { flexRender } from "@tanstack/react-table";
+import { Box, BoxProps, Grid } from '@chakra-ui/react';
+import { useDataTableContext } from '../context/useDataTableContext';
+import { RecordDisplay } from './RecordDisplay';
+import { ReactNode } from 'react';
+import { flexRender } from '@tanstack/react-table';
 
 export interface TableDataDisplayProps {
   colorPalette?: string;
@@ -13,7 +13,7 @@ export const TableDataDisplay = ({
   colorPalette,
   emptyComponent,
 }: TableDataDisplayProps) => {
-  const { columns, translate, data } = useDataTableContext();
+  const { columns, data } = useDataTableContext();
   const columnsMap = Object.fromEntries(
     columns.map((def) => {
       const { accessorKey, id } = def;
@@ -29,7 +29,7 @@ export const TableDataDisplay = ({
       if (!!size === false) {
         return 0;
       }
-      if (typeof size === "number") {
+      if (typeof size === 'number') {
         return size;
       }
       return 0;
@@ -38,23 +38,23 @@ export const TableDataDisplay = ({
   const columnWidths = columns
     .map(({ size }) => {
       if (!!size === false) {
-        return "1fr";
+        return '1fr';
       }
 
       return `minmax(${size}px, ${(size / totalWidths) * 100}%)`;
     })
-    .join(" ");
+    .join(' ');
 
-  console.log({ columnWidths }, "hadfg");
+  console.log({ columnWidths }, 'hadfg');
   const cellProps: BoxProps = {
-    flex: "1 0 0%",
-    overflow: "auto",
-    paddingX: "2",
-    py: "1",
-    color: { base: "colorPalette.900", _dark: "colorPalette.100" },
-    bgColor: { base: "colorPalette.50", _dark: "colorPalette.950" },
-    borderBottomColor: { base: "colorPalette.200", _dark: "colorPalette.800" },
-    borderBottomWidth: "1px",
+    flex: '1 0 0%',
+    overflow: 'auto',
+    paddingX: '2',
+    py: '1',
+    color: { base: 'colorPalette.900', _dark: 'colorPalette.100' },
+    bgColor: { base: 'colorPalette.50', _dark: 'colorPalette.950' },
+    borderBottomColor: { base: 'colorPalette.200', _dark: 'colorPalette.800' },
+    borderBottomWidth: '1px',
     ...{ colorPalette },
   };
   if (data.length <= 0) {
@@ -63,28 +63,29 @@ export const TableDataDisplay = ({
   return (
     <Grid
       templateColumns={`${columnWidths}`}
-      overflow={"auto"}
-      borderWidth={"1px"}
-      color={{ base: "colorPalette.900", _dark: "colorPalette.100" }}
-      borderColor={{ base: "colorPalette.200", _dark: "colorPalette.800" }}
+      overflow={'auto'}
+      borderWidth={'1px'}
+      color={{ base: 'colorPalette.900', _dark: 'colorPalette.100' }}
+      borderColor={{ base: 'colorPalette.200', _dark: 'colorPalette.800' }}
       {...{ colorPalette }}
     >
       <Grid
         templateColumns={`${columnWidths}`}
         column={`1/span ${columns.length}`}
-        bg={{ base: "colorPalette.200", _dark: "colorPalette.800" }}
+        bg={{ base: 'colorPalette.200', _dark: 'colorPalette.800' }}
         {...{ colorPalette }}
       >
         {columnHeaders.map((header) => {
+          const columnDef = columnsMap[header];
           return (
             <Box
-              flex={"1 0 0%"}
-              paddingX={"2"}
-              py={"1"}
-              overflow={"auto"}
-              textOverflow={"ellipsis"}
+              flex={'1 0 0%'}
+              paddingX={'2'}
+              py={'1'}
+              overflow={'auto'}
+              textOverflow={'ellipsis'}
             >
-              {translate.t(`column_header.${header}`)}
+              {columnDef?.meta?.displayName ?? header}
             </Box>
           );
         })}
@@ -98,9 +99,7 @@ export const TableDataDisplay = ({
               const value = record[header];
               if (!!record === false) {
                 return (
-                  <Box {...cellProps}>
-                    {translate.t(`column_cell.placeholder`)}
-                  </Box>
+                  <Box {...cellProps}>{/* Placeholder for empty record */}</Box>
                 );
               }
               if (cell) {
@@ -110,7 +109,7 @@ export const TableDataDisplay = ({
                   </Box>
                 );
               }
-              if (typeof value === "object") {
+              if (typeof value === 'object') {
                 return (
                   <Box {...cellProps}>
                     <RecordDisplay object={value} />

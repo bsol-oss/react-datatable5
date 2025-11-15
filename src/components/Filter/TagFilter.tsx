@@ -1,6 +1,7 @@
-import { Flex } from "@chakra-ui/react";
-import React from "react";
-import { Tag } from "@/components/ui/tag";
+import { Flex } from '@chakra-ui/react';
+import React from 'react';
+import { CheckboxCard } from '@/components/ui/checkbox-card';
+
 interface TagFilterProps {
   availableTags: {
     label?: string;
@@ -17,35 +18,38 @@ export const TagFilter: React.FC<TagFilterProps> = ({
   onTagChange,
   selectOne = false,
 }) => {
-  const toggleTag = (tag: string) => {
+  const handleTagChange = (tag: string, checked: boolean) => {
     if (selectOne) {
-      if (selectedTags.includes(tag)) {
-        onTagChange([]);
-      } else {
+      if (checked) {
         onTagChange([tag]);
+      } else {
+        onTagChange([]);
       }
       return;
     }
-    if (selectedTags.includes(tag)) {
-      onTagChange(selectedTags.filter((t) => t !== tag));
-    } else {
+    if (checked) {
       onTagChange([...selectedTags, tag]);
+    } else {
+      onTagChange(selectedTags.filter((t) => t !== tag));
     }
   };
 
   return (
-    <Flex flexFlow={"wrap"} p={"0.5rem"} gap={"0.5rem"}>
+    <Flex flexFlow={'wrap'} p={'0.5rem'} gap={'0.5rem'}>
       {availableTags.map((tag) => {
         const { label, value } = tag;
+        const isChecked = selectedTags.includes(value);
         return (
-          <Tag
-            variant={selectedTags.includes(value) ? "solid" : "outline"}
-            cursor="pointer"
-            closable={selectedTags.includes(value) ? true : undefined}
-            onClick={() => toggleTag(value)}
-          >
-            {label ?? value}
-          </Tag>
+          <CheckboxCard
+            key={value}
+            checked={isChecked}
+            label={label ?? value}
+            size="sm"
+            variant={isChecked ? 'solid' : 'outline'}
+            onCheckedChange={(details) => {
+              handleTagChange(value, Boolean(details.checked));
+            }}
+          />
         );
       })}
     </Flex>
