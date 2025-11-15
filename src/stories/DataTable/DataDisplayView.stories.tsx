@@ -1,23 +1,23 @@
-import { DataDisplay } from "@/components/DataTable/display/DataDisplay";
-import { DataTable } from "@/components/DataTable/DataTable";
-import { TableComponent } from "@/components/DataTable/display/TableComponent";
-import { TextCell } from "@/components/DataTable/display/TextCell";
-import { useDataTable } from "@/components/DataTable/useDataTable";
-import { Provider } from "@/components/ui/provider";
-import { Box, Text } from "@chakra-ui/react";
-import type { Meta, StoryObj } from "@storybook/react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { data, Product } from "../product_data";
+import { DataDisplay } from '@/components/DataTable/display/DataDisplay';
+import { DataTable } from '@/components/DataTable/DataTable';
+import { TableComponent } from '@/components/DataTable/display/TableComponent';
+import { TextCell } from '@/components/DataTable/display/TextCell';
+import { useDataTable } from '@/components/DataTable/useDataTable';
+import { Provider } from '@/components/ui/provider';
+import { Box, Text } from '@chakra-ui/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { data, Product } from '../product_data';
 import {
   I18nextProvider,
   initReactI18next,
   useTranslation,
-} from "react-i18next";
-import i18n from "i18next";
+} from 'react-i18next';
+import i18n from 'i18next';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: "react-datatable5/DataTable/Data Display View",
+  title: 'react-datatable5/DataTable/Data Display View',
   component: DataDisplay,
   parameters: {},
 
@@ -31,7 +31,7 @@ export default meta;
 i18n
   .use(initReactI18next) // bind react-i18next to the instance
   .init({
-    fallbackLng: "en",
+    fallbackLng: 'en',
     debug: true,
 
     interpolation: {
@@ -42,7 +42,7 @@ i18n
 export const DataDisplayStory: Story = {
   render: () => {
     return (
-      <I18nextProvider i18n={i18n} defaultNS={"translation"}>
+      <I18nextProvider i18n={i18n} defaultNS={'translation'}>
         <DataDisplayView />
       </I18nextProvider>
     );
@@ -55,24 +55,24 @@ const RowActions = () => {
 
 const DataDisplayView = () => {
   const datatable = useDataTable({
-    default: { sorting: [{ id: "title", desc: false }] },
+    default: { sorting: [{ id: 'title', desc: false }] },
   });
-  const translate = useTranslation("", { keyPrefix: "goood" });
+  const translate = useTranslation('', { keyPrefix: 'goood' });
   const columnHelper = createColumnHelper<Product>();
   const columns: ColumnDef<Product>[] = [
     // Display Column
     columnHelper.display({
-      id: "actions",
+      id: 'actions',
       header: () => <span>Actions</span>,
       cell: (props) => <RowActions />,
     }),
 
     // Grouping Column
     columnHelper.group({
-      header: "Information",
+      header: 'Information',
       footer: (props) => props.column.id,
       columns: [
-        columnHelper.accessor("id", {
+        columnHelper.accessor('id', {
           cell: (props) => {
             return <TextCell>{props.row.original.id}</TextCell>;
           },
@@ -80,10 +80,10 @@ const DataDisplayView = () => {
           footer: (props) => props.column.id,
           size: 50,
         }),
-        columnHelper.accessor("title", {
+        columnHelper.accessor('title', {
           cell: (props) => {
             return (
-              <Box padding={"0rem"}>
+              <Box padding={'0rem'}>
                 <TextCell label={props.row.original.title}>
                   {props.row.original.title}
                 </TextCell>
@@ -95,9 +95,9 @@ const DataDisplayView = () => {
           size: 200,
         }),
         // Accessor Column
-        columnHelper.accessor("description", {
+        columnHelper.accessor('description', {
           cell: (props) => {
-            return <Box color={"blue"}>{props.row.original.description}</Box>;
+            return <Box color={'blue'}>{props.row.original.description}</Box>;
           },
           header: () => <span>Description</span>,
           footer: (props) => props.column.id,
@@ -107,7 +107,7 @@ const DataDisplayView = () => {
           },
         }),
         // Accessor Column
-        columnHelper.accessor("price", {
+        columnHelper.accessor('price', {
           cell: (props) => {
             return <TextCell>{props.row.original.price}</TextCell>;
           },
@@ -116,7 +116,7 @@ const DataDisplayView = () => {
           size: 80,
         }),
         // Accessor Column
-        columnHelper.accessor("discountPercentage", {
+        columnHelper.accessor('discountPercentage', {
           cell: (props) => {
             return <TextCell>{props.row.original.discountPercentage}</TextCell>;
           },
@@ -126,7 +126,7 @@ const DataDisplayView = () => {
           enableColumnFilter: false,
         }),
         // Accessor Column
-        columnHelper.accessor("rating", {
+        columnHelper.accessor('rating', {
           cell: (props) => {
             return <TextCell>{props.row.original.rating}</TextCell>;
           },
@@ -135,7 +135,7 @@ const DataDisplayView = () => {
           size: 80,
         }),
         // Accessor Column
-        columnHelper.accessor("stock", {
+        columnHelper.accessor('stock', {
           cell: (props) => {
             return <TextCell>{props.row.original.stock}</TextCell>;
           },
@@ -144,7 +144,7 @@ const DataDisplayView = () => {
           size: 80,
         }),
         // Accessor Column
-        columnHelper.accessor("brand", {
+        columnHelper.accessor('brand', {
           cell: (props) => {
             return <TextCell>{props.row.original.brand}</TextCell>;
           },
@@ -152,16 +152,16 @@ const DataDisplayView = () => {
           footer: () => <span>Brand</span>,
           size: 160,
           meta: {
-            displayName: "Brand",
-            filterVariant: "select",
+            displayName: 'Brand',
+            filterVariant: 'select',
             filterOptions: [
-              { label: "Apple", value: "Apple" },
-              { label: "Huawei", value: "Huawei" },
+              { label: 'Apple', value: 'Apple' },
+              { label: 'Huawei', value: 'Huawei' },
             ],
           },
         }),
         // Accessor Column
-        columnHelper.accessor("category", {
+        columnHelper.accessor('category', {
           cell: (props) => {
             return <TextCell>{props.row.original.category}</TextCell>;
           },
@@ -169,15 +169,15 @@ const DataDisplayView = () => {
           footer: () => <span>Category</span>,
           size: 160,
           meta: {
-            displayName: "Brand",
-            filterVariant: "select",
+            displayName: 'Brand',
+            filterVariant: 'select',
             filterOptions: [
-              { label: "fragrances", value: "fragrances" },
-              { label: "groceries", value: "groceries" },
-              { label: "home-decoration", value: "home-decoration" },
-              { label: "laptops", value: "laptops" },
-              { label: "skincare", value: "skincare" },
-              { label: "smartphones", value: "smartphones" },
+              { label: 'fragrances', value: 'fragrances' },
+              { label: 'groceries', value: 'groceries' },
+              { label: 'home-decoration', value: 'home-decoration' },
+              { label: 'laptops', value: 'laptops' },
+              { label: 'skincare', value: 'skincare' },
+              { label: 'smartphones', value: 'smartphones' },
             ],
           },
         }),
@@ -189,7 +189,7 @@ const DataDisplayView = () => {
       <DataTable columns={columns} data={data} {...datatable}>
         <DataDisplay />
         <DataDisplay variant="stats" translate={translate} />
-        <Box width={"20rem"}>
+        <Box width={'20rem'}>
           <DataDisplay variant="horizontal" />
         </Box>
         <DataDisplay variant="horizontal" />

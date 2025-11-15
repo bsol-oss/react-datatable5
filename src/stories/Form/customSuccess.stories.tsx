@@ -1,16 +1,24 @@
-import { DefaultForm } from "@/components/Form/components/core/DefaultForm";
-import { useForm } from "@/components/Form/useForm";
-import { Provider } from "@/components/ui/provider";
-import { Box, Button, Flex, Text, VStack, HStack, Icon } from "@chakra-ui/react";
-import type { Meta, StoryObj } from "@storybook/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import i18n from "i18next";
-import { JSONSchema7 } from "json-schema";
-import { I18nextProvider, initReactI18next } from "react-i18next";
+import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
+import { useForm } from '@/components/Form/useForm';
+import { Provider } from '@/components/ui/provider';
+import {
+  Box,
+  Button,
+  Flex,
+  Text,
+  VStack,
+  HStack,
+  Icon,
+} from '@chakra-ui/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import i18n from 'i18next';
+import { JSONSchema7 } from 'json-schema';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: "react-datatable5/Form",
+  title: 'react-datatable5/Form',
   component: DefaultForm,
   parameters: {},
 
@@ -25,7 +33,7 @@ const queryClient = new QueryClient();
 i18n
   .use(initReactI18next) // bind react-i18next to the instance
   .init({
-    fallbackLng: "en",
+    fallbackLng: 'en',
     debug: true,
 
     interpolation: {
@@ -38,7 +46,7 @@ export const DefaultSuccess: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={"translation"}>
+          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
             <DefaultSuccessForm />
           </I18nextProvider>
         </QueryClientProvider>
@@ -52,7 +60,7 @@ export const CustomSuccess: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={"translation"}>
+          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
             <CustomSuccessForm />
           </I18nextProvider>
         </QueryClientProvider>
@@ -64,39 +72,39 @@ export const CustomSuccess: Story = {
 // Story 1: Default Success Behavior
 const DefaultSuccessForm = () => {
   const form = useForm({
-    keyPrefix: "default",
+    keyPrefix: 'default',
     preLoadedValues: {},
   });
 
   const schema = {
-    type: "object",
+    type: 'object',
     properties: {
       name: {
-        type: "string",
-        title: "Full Name",
+        type: 'string',
+        title: 'Full Name',
         minLength: 2,
       },
       email: {
-        type: "string",
-        title: "Email Address",
-        format: "email",
+        type: 'string',
+        title: 'Email Address',
+        format: 'email',
       },
       message: {
-        type: "string",
-        title: "Message",
-        variant: "text-area",
+        type: 'string',
+        title: 'Message',
+        variant: 'text-area',
         minLength: 10,
       },
     },
-    required: ["name", "email", "message"],
+    required: ['name', 'email', 'message'],
     errorMessage: {
       required: {
-        name: "Name is required",
-        email: "Email is required",
-        message: "Message is required",
+        name: 'Name is required',
+        email: 'Email is required',
+        message: 'Message is required',
       },
-      minLength: "Please provide more details",
-      format: "Please enter a valid email address",
+      minLength: 'Please provide more details',
+      format: 'Please enter a valid email address',
     },
   } as JSONSchema7;
 
@@ -104,11 +112,11 @@ const DefaultSuccessForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema as JSONSchema7,
-        serverUrl: "http://localhost:8123",
+        serverUrl: 'http://localhost:8123',
         onSubmit: async (data) => {
-          console.log("Form submitted with data:", data);
+          console.log('Form submitted with data:', data);
           // Simulate API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         },
         ...form,
       }}
@@ -119,39 +127,39 @@ const DefaultSuccessForm = () => {
 // Story 2: Custom Success Component
 const CustomSuccessForm = () => {
   const form = useForm({
-    keyPrefix: "custom",
+    keyPrefix: 'custom',
     preLoadedValues: {},
   });
 
   const schema = {
-    type: "object",
+    type: 'object',
     properties: {
       name: {
-        type: "string",
-        title: "Full Name",
+        type: 'string',
+        title: 'Full Name',
         minLength: 2,
       },
       email: {
-        type: "string",
-        title: "Email Address",
-        format: "email",
+        type: 'string',
+        title: 'Email Address',
+        format: 'email',
       },
       message: {
-        type: "string",
-        title: "Message",
-        variant: "text-area",
+        type: 'string',
+        title: 'Message',
+        variant: 'text-area',
         minLength: 10,
       },
     },
-    required: ["name", "email", "message"],
+    required: ['name', 'email', 'message'],
     errorMessage: {
       required: {
-        name: "Name is required",
-        email: "Email is required",
-        message: "Message is required",
+        name: 'Name is required',
+        email: 'Email is required',
+        message: 'Message is required',
       },
-      minLength: "Please provide more details",
-      format: "Please enter a valid email address",
+      minLength: 'Please provide more details',
+      format: 'Please enter a valid email address',
     },
   } as JSONSchema7;
 
@@ -159,11 +167,11 @@ const CustomSuccessForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema as JSONSchema7,
-        serverUrl: "http://localhost:8123",
+        serverUrl: 'http://localhost:8123',
         onSubmit: async (data) => {
-          console.log("Form submitted with data:", data);
+          console.log('Form submitted with data:', data);
           // Simulate API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         },
         customSuccessRenderer: (resetHandler) => (
           <Box
@@ -178,7 +186,7 @@ const CustomSuccessForm = () => {
             <VStack spacing={6}>
               {/* Celebration Icon */}
               <Box fontSize="4xl">🎉</Box>
-              
+
               {/* Success Message */}
               <VStack spacing={2}>
                 <Text fontSize="2xl" fontWeight="bold" color="green.700">
@@ -213,14 +221,10 @@ const CustomSuccessForm = () => {
               </HStack>
 
               {/* Additional Info */}
-              <Box
-                bg="green.100"
-                borderRadius="md"
-                p={3}
-                w="full"
-              >
+              <Box bg="green.100" borderRadius="md" p={3} w="full">
                 <Text fontSize="sm" color="green.700">
-                  💡 Tip: You can customize this success screen by providing a customSuccessRenderer prop
+                  💡 Tip: You can customize this success screen by providing a
+                  customSuccessRenderer prop
                 </Text>
               </Box>
             </VStack>

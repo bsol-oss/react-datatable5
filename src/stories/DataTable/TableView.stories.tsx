@@ -1,14 +1,14 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import CardViewShowcase from "./CardViewShowcase";
-import TableViewShowcase from "./TableViewShowcase";
-import DefaultTableShowcase from "./DefaultTableShowcase";
-import DefaultTableShowcase2 from "./DefaultTableShowcase2";
-import MinimalShowcase from "./MinimalShowcase";
-import MinimalShowcase2 from "./MinimalShowcase2";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import CardViewShowcase from './CardViewShowcase';
+import TableViewShowcase from './TableViewShowcase';
+import DefaultTableShowcase from './DefaultTableShowcase';
+import DefaultTableShowcase2 from './DefaultTableShowcase2';
+import MinimalShowcase from './MinimalShowcase';
+import MinimalShowcase2 from './MinimalShowcase2';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: "react-datatable5/DataTable",
+  title: 'react-datatable5/DataTable',
   component: TableViewShowcase,
   parameters: {},
 

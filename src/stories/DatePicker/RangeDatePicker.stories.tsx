@@ -3,7 +3,7 @@ import { getRangeDates } from '@/components/DatePicker/getRangeDates';
 import RangeDatePicker from '@/components/DatePicker/RangeDatePicker';
 import { Provider } from '@/components/ui/provider';
 import { Button, Flex } from '@chakra-ui/react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export

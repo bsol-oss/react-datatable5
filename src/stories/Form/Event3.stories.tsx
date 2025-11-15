@@ -1,15 +1,15 @@
-import { DefaultForm } from "@/components/Form/components/core/DefaultForm";
-import { useForm } from "@/components/Form/useForm";
-import { Provider } from "@/components/ui/provider";
-import type { Meta, StoryObj } from "@storybook/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import i18n from "i18next";
-import { JSONSchema7 } from "json-schema";
-import { I18nextProvider, initReactI18next } from "react-i18next";
-import { CustomQueryFnParams } from "@/components/Form/components/fields/StringInputField";
+import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
+import { useForm } from '@/components/Form/useForm';
+import { Provider } from '@/components/ui/provider';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import i18n from 'i18next';
+import { JSONSchema7 } from 'json-schema';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
+import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: "react-datatable5/Form",
+  title: 'react-datatable5/Form',
   component: DefaultForm,
   parameters: {},
 
@@ -24,7 +24,7 @@ const queryClient = new QueryClient();
 i18n
   .use(initReactI18next) // bind react-i18next to the instance
   .init({
-    fallbackLng: "en",
+    fallbackLng: 'en',
     debug: true,
 
     interpolation: {
@@ -37,7 +37,7 @@ export const Event3: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={"translation"}>
+          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
             <SomeForm />
           </I18nextProvider>
         </QueryClientProvider>
@@ -47,56 +47,58 @@ export const Event3: Story = {
 };
 
 const SomeForm = () => {
-  const form = useForm({ keyPrefix: "nice" });
+  const form = useForm({ keyPrefix: 'nice' });
 
   return (
     <DefaultForm
       formConfig={{
         schema: {
-          type: "object",
+          type: 'object',
           properties: {
             someString: {
-              type: "string",
-              variant: "id-picker",
+              type: 'string',
+              variant: 'id-picker',
               foreign_key: {
-                display_column: "name",
-                table: "core_people",
-                column: "id",
-                customQueryFn: async ({
-                  searching,
-                }: CustomQueryFnParams) => {
+                display_column: 'name',
+                table: 'core_people',
+                column: 'id',
+                customQueryFn: async ({ searching }: CustomQueryFnParams) => {
                   return {
                     data: {
                       data: [
                         {
-                          id: "12333",
-                          name: "John Doe",
+                          id: '12333',
+                          name: 'John Doe',
                         },
                         {
-                          id: "12334",
-                          name: "Jane Doe",
+                          id: '12334',
+                          name: 'Jane Doe',
                         },
-                      ].filter((item) => item.name.toLowerCase().includes(searching.toLowerCase())),
+                      ].filter((item) =>
+                        item.name
+                          .toLowerCase()
+                          .includes(searching.toLowerCase())
+                      ),
                     },
                     idMap: {
-                      "12333": {
-                        id: "12333",
-                        name: "John Doe",
+                      '12333': {
+                        id: '12333',
+                        name: 'John Doe',
                       },
-                      "12334": {
-                        id: "12334",
-                        name: "Jane Doe",
+                      '12334': {
+                        id: '12334',
+                        name: 'Jane Doe',
                       },
                     },
                   };
-                } , 
+                },
               },
-            }
+            },
           },
         } as JSONSchema7,
         // include: ["name"],
         // ignore: ["id", "created_at", "updated_at"],
-        serverUrl: "http://localhost:8081",
+        serverUrl: 'http://localhost:8081',
         ...form,
       }}
     />

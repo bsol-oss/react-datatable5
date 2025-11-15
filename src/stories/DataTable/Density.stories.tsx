@@ -9,7 +9,7 @@ import {
 } from '../../index';
 import { data, Product } from '../product_data';
 import { Provider } from '@/components/ui/provider';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'react-datatable5/DataTable/Density',

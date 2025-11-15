@@ -1,19 +1,19 @@
-import { DataTableServer } from "@/components/DataTable/DataTableServer";
-import { DefaultTable } from "@/components/DataTable/DefaultTable";
-import { DataDisplay } from "@/components/DataTable/display/DataDisplay";
-import { TableComponent } from "@/components/DataTable/display/TableComponent";
-import { useDataTableServer } from "@/components/DataTable/useDataTableServer";
-import { getColumns } from "@/components/DataTable/utils/getColumns";
-import { Provider } from "@/components/ui/provider";
-import { Box, Text } from "@chakra-ui/react";
-import type { Meta, StoryObj } from "@storybook/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { JSONSchema7 } from "json-schema";
-import { peopleSchema } from "../schema";
+import { DataTableServer } from '@/components/DataTable/DataTableServer';
+import { DefaultTable } from '@/components/DataTable/DefaultTable';
+import { DataDisplay } from '@/components/DataTable/display/DataDisplay';
+import { TableComponent } from '@/components/DataTable/display/TableComponent';
+import { useDataTableServer } from '@/components/DataTable/useDataTableServer';
+import { getColumns } from '@/components/DataTable/utils/getColumns';
+import { Provider } from '@/components/ui/provider';
+import { Box, Text } from '@chakra-ui/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { JSONSchema7 } from 'json-schema';
+import { peopleSchema } from '../schema';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: "react-datatable5/DataTableServer/getColumns",
+  title: 'react-datatable5/DataTableServer/getColumns',
   component: DataDisplay,
   parameters: {},
 
@@ -42,8 +42,8 @@ const DataDisplayView = () => {
 
 const AddressApp = () => {
   const datatable = useDataTableServer({
-    url: "http://localhost:8081/api/g/core_people",
-    default: { sorting: [{ id: "id", desc: false }] },
+    url: 'http://localhost:8081/api/g/core_people',
+    default: { sorting: [{ id: 'id', desc: false }] },
   });
   const columns = getColumns<string>({
     schema: peopleSchema as JSONSchema7,
@@ -75,7 +75,7 @@ const AddressApp = () => {
         />
         <DataDisplay />
         <DataDisplay variant="stats" />
-        <Box width={"20rem"}>
+        <Box width={'20rem'}>
           <DataDisplay variant="horizontal" />
         </Box>
         <DataDisplay variant="horizontal" />

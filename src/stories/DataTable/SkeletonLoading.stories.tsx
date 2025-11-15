@@ -2,7 +2,7 @@ import { Provider } from '@/components/ui/provider';
 import { Box, Button, Flex, Text } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DataTable, DefaultTable, TextCell, useDataTable } from '../../index';
 import { data, Product } from '../product_data';
 

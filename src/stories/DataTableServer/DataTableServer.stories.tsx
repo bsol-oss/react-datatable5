@@ -1,14 +1,14 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import CardViewShowcase from "./CardViewShowcase";
-import DefaultTableShowcase from "./DefaultTableShowcase";
-import DefaultTableShowcaseTwo from "./DefaultTableShowcase2";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import TableViewShowcase from "../DataTable/TableViewShowcase";
-import DefaultTableShowcase3 from "./DefaultTableShowcase3";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import CardViewShowcase from './CardViewShowcase';
+import DefaultTableShowcase from './DefaultTableShowcase';
+import DefaultTableShowcaseTwo from './DefaultTableShowcase2';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import TableViewShowcase from '../DataTable/TableViewShowcase';
+import DefaultTableShowcase3 from './DefaultTableShowcase3';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: "react-datatable5/DataTableServer",
+  title: 'react-datatable5/DataTableServer',
   component: TableViewShowcase,
   parameters: {},
 

@@ -1,18 +1,18 @@
-import { RecordDisplay } from "@/components/DataTable/display/RecordDisplay";
-import { DataDisplay } from "@/components/DataTable/display/DataDisplay";
-import { Provider } from "@/components/ui/provider";
-import type { Meta, StoryObj } from "@storybook/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RecordDisplay } from '@/components/DataTable/display/RecordDisplay';
+import { DataDisplay } from '@/components/DataTable/display/DataDisplay';
+import { Provider } from '@/components/ui/provider';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   I18nextProvider,
   initReactI18next,
   useTranslation,
-} from "react-i18next";
-import i18n from "i18next";
+} from 'react-i18next';
+import i18n from 'i18next';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: "react-datatable5/DisplayComponent",
+  title: 'react-datatable5/DisplayComponent',
   component: RecordDisplay,
   parameters: {},
 
@@ -37,13 +37,13 @@ const DataDisplayView = () => {
       <Provider>
         <RecordDisplay
           object={{
-            nice: "job",
-            good: "good good good",
+            nice: 'job',
+            good: 'good good good',
             food: {
-              fruit: "grape",
+              fruit: 'grape',
               some: {
-                column: "id",
-                value: "b1f00432-e623-d6d3-c262-d50f7881f8ab",
+                column: 'id',
+                value: 'b1f00432-e623-d6d3-c262-d50f7881f8ab',
               },
             },
           }}
@@ -56,7 +56,7 @@ const DataDisplayView = () => {
 i18n
   .use(initReactI18next) // bind react-i18next to the instance
   .init({
-    fallbackLng: "en",
+    fallbackLng: 'en',
     debug: true,
 
     interpolation: {
@@ -67,7 +67,7 @@ i18n
 export const ObjectDisplay2: Story = {
   render: () => {
     return (
-      <I18nextProvider i18n={i18n} defaultNS={"translation"}>
+      <I18nextProvider i18n={i18n} defaultNS={'translation'}>
         <Provider>
           <SomeRecord />
         </Provider>
@@ -77,19 +77,19 @@ export const ObjectDisplay2: Story = {
 };
 
 const SomeRecord = () => {
-  const translate = useTranslation("", { keyPrefix: "goood" });
+  const translate = useTranslation('', { keyPrefix: 'goood' });
 
   return (
     <RecordDisplay
       translate={translate}
       object={{
-        nice: "job",
-        good: "good good good",
+        nice: 'job',
+        good: 'good good good',
         food: {
-          fruit: "grape",
+          fruit: 'grape',
           some: {
-            column: "id",
-            value: "b1f00432-e623-d6d3-c262-d50f7881f8ab",
+            column: 'id',
+            value: 'b1f00432-e623-d6d3-c262-d50f7881f8ab',
           },
         },
       }}

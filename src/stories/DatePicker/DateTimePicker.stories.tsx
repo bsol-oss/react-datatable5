@@ -1,7 +1,7 @@
 import { DateTimePicker } from '@/components/DatePicker/DateTimePicker';
 import { Provider } from '@/components/ui/provider';
 import { Box, Text, VStack } from '@chakra-ui/react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
