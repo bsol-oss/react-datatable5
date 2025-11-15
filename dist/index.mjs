@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, Tag as Tag$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, CheckboxCard as CheckboxCard$1, Tooltip as Tooltip$1, Group, InputElement, Icon, EmptyState as EmptyState$2, VStack, List, Table as Table$1, Checkbox as Checkbox$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, Skeleton, NumberInput, Show, RadioCard, CheckboxGroup, Center, Heading } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Icon, EmptyState as EmptyState$2, VStack, List, Table as Table$1, Checkbox as Checkbox$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Tag as Tag$1, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, Skeleton, NumberInput, Show, RadioCard, CheckboxGroup, InputGroup as InputGroup$1, Center, Heading } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import React__default, { createContext, useContext, useState, useEffect, useRef, useMemo, forwardRef } from 'react';
@@ -166,22 +166,30 @@ const Radio = React.forwardRef(function Radio(props, ref) {
 });
 const RadioGroup = RadioGroup$1.Root;
 
-const monthNamesFull = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-];
-const weekdayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const RangeDatePickerContext = createContext({
+    labels: {
+        monthNamesFull: [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
+        ],
+        weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        backButtonLabel: 'Back',
+        forwardButtonLabel: 'Next',
+    },
+});
 function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, selected = [], firstDayOfWeek = 0, }) {
+    const { labels } = useContext(RangeDatePickerContext);
+    const { monthNamesFull, weekdayNamesShort, backButtonLabel, forwardButtonLabel, } = labels;
     const [hoveredDate, setHoveredDate] = useState();
     const onMouseLeave = () => {
         setHoveredDate(undefined);
@@ -207,16 +215,18 @@ function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, se
         return false;
     };
     if (calendars.length) {
-        return (jsxs(Grid, { onMouseLeave: onMouseLeave, children: [jsxs(Grid, { templateColumns: "repeat(4, auto)", justifyContent: "center", children: [jsx(Button$1, { variant: "ghost", ...getBackProps({
+        return (jsxs(Grid, { onMouseLeave: onMouseLeave, children: [jsxs(Grid, { templateColumns: 'repeat(4, auto)', justifyContent: 'center', children: [jsx(Button$1, { variant: 'ghost', ...getBackProps({
                                 calendars,
                                 offset: 12,
-                            }), children: "<<" }), jsx(Button$1, { variant: "ghost", ...getBackProps({ calendars }), children: "Back" }), jsx(Button$1, { variant: "ghost", ...getForwardProps({ calendars }), children: "Next" }), jsx(Button$1, { variant: "ghost", ...getForwardProps({
+                            }), children: '<<' }), jsx(Button$1, { variant: 'ghost', ...getBackProps({ calendars }), children: backButtonLabel }), jsx(Button$1, { variant: 'ghost', ...getForwardProps({ calendars }), children: forwardButtonLabel }), jsx(Button$1, { variant: 'ghost', ...getForwardProps({
                                 calendars,
                                 offset: 12,
-                            }), children: ">>" })] }), jsx(Grid, { templateColumns: "repeat(2, auto)", justifyContent: "center", gap: 4, children: calendars.map((calendar) => (jsxs(Grid, { gap: 4, children: [jsxs(Grid, { justifyContent: "center", children: [monthNamesFull[calendar.month], " ", calendar.year] }), jsx(Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: [0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                            }), children: '>>' })] }), jsx(Grid, { templateColumns: 'repeat(2, auto)', justifyContent: 'center', gap: 4, children: calendars.map((calendar) => (
+                    // month and year
+                    jsxs(Grid, { gap: 4, alignContent: "start", children: [jsxs(Grid, { justifyContent: 'center', children: [monthNamesFull[calendar.month], " ", calendar.year] }), jsx(Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: [0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
                                     const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                                    return (jsx(Box, { minWidth: "48px", textAlign: "center", children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
-                                }) }), jsx(Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: calendar.weeks.map((week, windex) => week.map((dateObj, index) => {
+                                    return (jsx(Box, { minWidth: '48px', textAlign: 'center', children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
+                                }) }), jsx(Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: calendar.weeks.map((week, windex) => week.map((dateObj, index) => {
                                     const key = `${calendar.month}${calendar.year}${windex}${index}`;
                                     if (!dateObj) {
                                         return jsx(Box, {}, key);
@@ -225,29 +235,29 @@ function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, se
                                     const getStyle = ({ selected, unavailable, today, isInRange, }) => {
                                         if (unavailable) {
                                             return {
-                                                colorPalette: "gray",
-                                                variant: "solid",
+                                                colorPalette: 'gray',
+                                                variant: 'solid',
                                             };
                                         }
                                         if (selected) {
                                             return {
-                                                colorPalette: "blue",
-                                                variant: "solid",
+                                                colorPalette: 'blue',
+                                                variant: 'solid',
                                             };
                                         }
                                         if (isInRange) {
                                             return {
-                                                colorPalette: "blue",
-                                                variant: "subtle",
+                                                colorPalette: 'blue',
+                                                variant: 'subtle',
                                             };
                                         }
                                         if (today) {
                                             return {
-                                                colorPalette: "green",
-                                                variant: "solid",
+                                                colorPalette: 'green',
+                                                variant: 'solid',
                                             };
                                         }
-                                        return { variant: "ghost" };
+                                        return { variant: 'ghost' };
                                     };
                                     return (jsx(Button$1, { ...getDateProps({
                                             dateObj,
@@ -259,18 +269,34 @@ function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, se
                                             unavailable: !selectable,
                                             today,
                                             isInRange: isInRange(date),
-                                        }), children: selectable ? date.getDate() : "X" }, key));
+                                        }), children: selectable ? date.getDate() : 'X' }, key));
                                 })) })] }, `${calendar.month}${calendar.year}`))) })] }));
     }
     return null;
 }
-class RangeDatePicker extends React__default.Component {
-    render() {
-        return (jsx(Dayzed, { onDateSelected: this.props.onDateSelected, selected: this.props.selected, firstDayOfWeek: this.props.firstDayOfWeek, showOutsideDays: this.props.showOutsideDays, date: this.props.date, minDate: this.props.minDate, maxDate: this.props.maxDate, monthsToDisplay: this.props.monthsToDisplay, render: (dayzedData) => (jsx(Calendar$1, { ...dayzedData,
-                firstDayOfWeek: this.props.firstDayOfWeek,
-                selected: this.props.selected })) }));
-    }
-}
+const RangeDatePicker = ({ labels = {
+    monthNamesFull: [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+    ],
+    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    backButtonLabel: 'Back',
+    forwardButtonLabel: 'Next',
+}, selected = [], onDateSelected, firstDayOfWeek, showOutsideDays, date, minDate, maxDate, monthsToDisplay, ...rest }) => {
+    return (jsx(RangeDatePickerContext.Provider, { value: { labels }, children: jsx(Dayzed, { onDateSelected: onDateSelected, selected: selected, firstDayOfWeek: firstDayOfWeek, showOutsideDays: showOutsideDays, date: date, minDate: minDate, maxDate: maxDate, monthsToDisplay: monthsToDisplay, ...rest, render: (dayzedData) => (jsx(Calendar$1, { ...dayzedData,
+                firstDayOfWeek,
+                selected: selected })) }) }));
+};
 
 const getRangeDates = ({ selectable, date, selectedDates, }) => {
     if (!selectable) {
@@ -331,32 +357,38 @@ const RangeFilter = ({ range, setRange, defaultValue, min, max, step, }) => {
                 onValueChange: (val) => setRange(val.value) })] }));
 };
 
-const Tag = React.forwardRef(function Tag(props, ref) {
-    const { startElement, endElement, onClose, closable = !!onClose, children, ...rest } = props;
-    return (jsxs(Tag$1.Root, { ref: ref, ...rest, children: [startElement && (jsx(Tag$1.StartElement, { children: startElement })), jsx(Tag$1.Label, { children: children }), endElement && (jsx(Tag$1.EndElement, { children: endElement })), closable && (jsx(Tag$1.EndElement, { children: jsx(Tag$1.CloseTrigger, { onClick: onClose }) }))] }));
+const CheckboxCard = React.forwardRef(function CheckboxCard(props, ref) {
+    const { inputProps, label, description, icon, addon, indicator = jsx(CheckboxCard$1.Indicator, {}), indicatorPlacement = "end", ...rest } = props;
+    const hasContent = label || description || icon;
+    const ContentWrapper = indicator ? CheckboxCard$1.Content : React.Fragment;
+    return (jsxs(CheckboxCard$1.Root, { ...rest, children: [jsx(CheckboxCard$1.HiddenInput, { ref: ref, ...inputProps }), jsxs(CheckboxCard$1.Control, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxs(ContentWrapper, { children: [icon, label && (jsx(CheckboxCard$1.Label, { children: label })), description && (jsx(CheckboxCard$1.Description, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsx(CheckboxCard$1.Addon, { children: addon })] }));
 });
+CheckboxCard$1.Indicator;
 
 const TagFilter = ({ availableTags, selectedTags, onTagChange, selectOne = false, }) => {
-    const toggleTag = (tag) => {
+    const handleTagChange = (tag, checked) => {
         if (selectOne) {
-            if (selectedTags.includes(tag)) {
-                onTagChange([]);
+            if (checked) {
+                onTagChange([tag]);
             }
             else {
-                onTagChange([tag]);
+                onTagChange([]);
             }
             return;
         }
-        if (selectedTags.includes(tag)) {
-            onTagChange(selectedTags.filter((t) => t !== tag));
-        }
-        else {
+        if (checked) {
             onTagChange([...selectedTags, tag]);
         }
+        else {
+            onTagChange(selectedTags.filter((t) => t !== tag));
+        }
     };
-    return (jsx(Flex, { flexFlow: "wrap", p: "0.5rem", gap: "0.5rem", children: availableTags.map((tag) => {
+    return (jsx(Flex, { flexFlow: 'wrap', p: '0.5rem', gap: '0.5rem', children: availableTags.map((tag) => {
             const { label, value } = tag;
-            return (jsx(Tag, { variant: selectedTags.includes(value) ? "solid" : "outline", cursor: "pointer", closable: selectedTags.includes(value) ? true : undefined, onClick: () => toggleTag(value), children: label ?? value }));
+            const isChecked = selectedTags.includes(value);
+            return (jsx(CheckboxCard, { checked: isChecked, label: label ?? value, size: "sm", variant: isChecked ? 'solid' : 'outline', onCheckedChange: (details) => {
+                    handleTagChange(value, Boolean(details.checked));
+                } }, value));
         }) }));
 };
 
@@ -366,21 +398,21 @@ const Filter = ({ column }) => {
     const displayName = column.columnDef.meta?.displayName ?? column.id;
     const filterOptions = column.columnDef.meta?.filterOptions ?? [];
     if (column.columns.length > 0) {
-        return (jsxs(Flex, { flexFlow: "column", gap: 1, children: [jsx(Text, { children: displayName }), jsx(Grid, { gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", gap: 1, children: column.columns.map((column) => {
+        return (jsxs(Flex, { flexFlow: 'column', gap: 1, children: [jsx(Text, { children: displayName }), jsx(Grid, { gridTemplateColumns: 'repeat(auto-fit, minmax(20rem, 1fr))', gap: 1, children: column.columns.map((column) => {
                         return jsx(Filter, { column: column }, column.id);
                     }) }, column.id)] }));
     }
     if (!column.getCanFilter()) {
         return jsx(Fragment, {});
     }
-    if (filterVariant === "select") {
-        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(RadioGroup, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", onValueChange: (details) => {
+    if (filterVariant === 'select') {
+        return (jsxs(Flex, { flexFlow: 'column', gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(RadioGroup, { value: column.getFilterValue() ? String(column.getFilterValue()) : '', onValueChange: (details) => {
                         column.setFilterValue(details.value);
-                    }, children: jsxs(Flex, { flexFlow: "wrap", gap: "0.5rem", children: [filterOptions.length === 0 && jsx(Text, { children: "No filter options" }), filterOptions.length > 0 &&
+                    }, children: jsxs(Flex, { flexFlow: 'wrap', gap: '0.5rem', children: [filterOptions.length === 0 && jsx(Text, { children: "No filter options" }), filterOptions.length > 0 &&
                                 filterOptions.map((item) => (jsx(Radio, { value: item.value, children: item.label }, item.value)))] }) })] }, column.id));
     }
-    if (filterVariant === "tag") {
-        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(TagFilter, { availableTags: filterOptions.map((item) => ({
+    if (filterVariant === 'tag') {
+        return (jsxs(Flex, { flexFlow: 'column', gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(TagFilter, { availableTags: filterOptions.map((item) => ({
                         label: item.label,
                         value: item.value,
                     })), selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
@@ -390,11 +422,11 @@ const Filter = ({ column }) => {
                         column.setFilterValue(tags);
                     } })] }, column.id));
     }
-    if (filterVariant === "boolean") {
+    if (filterVariant === 'boolean') {
         const { trueLabel, falseLabel } = tableLabel;
-        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(TagFilter, { availableTags: [
-                        { label: trueLabel, value: "true" },
-                        { label: falseLabel, value: "false" },
+        return (jsxs(Flex, { flexFlow: 'column', gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(TagFilter, { availableTags: [
+                        { label: trueLabel, value: 'true' },
+                        { label: falseLabel, value: 'false' },
                     ], selectedTags: (column.getFilterValue() ?? []), onTagChange: (tags) => {
                         if (tags.length === 0) {
                             return column.setFilterValue(undefined);
@@ -402,7 +434,7 @@ const Filter = ({ column }) => {
                         column.setFilterValue(tags);
                     } })] }, column.id));
     }
-    if (filterVariant === "range") {
+    if (filterVariant === 'range') {
         const filterValue = column.getFilterValue() ?? [
             undefined,
             undefined,
@@ -414,14 +446,14 @@ const Filter = ({ column }) => {
             step: 1,
             defaultValue: [4, 50],
         };
-        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(RangeFilter, { range: filterValue, setRange: function (value) {
+        return (jsxs(Flex, { flexFlow: 'column', gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(RangeFilter, { range: filterValue, setRange: function (value) {
                         // throw new Error("Function not implemented.");
                         column.setFilterValue(value);
                     }, defaultValue: defaultValue, min: min, max: max, step: step })] }, column.id));
     }
-    if (filterVariant === "dateRange") {
+    if (filterVariant === 'dateRange') {
         const filterValue = column.getFilterValue() ?? [];
-        return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(RangeDatePicker, { selected: filterValue, onDateSelected: ({ selected, selectable, date }) => {
+        return (jsxs(Flex, { flexFlow: 'column', gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(RangeDatePicker, { selected: filterValue, onDateSelected: ({ selected, selectable, date }) => {
                         const newDates = getRangeDates({
                             selectable,
                             date,
@@ -432,14 +464,14 @@ const Filter = ({ column }) => {
                         });
                     } })] }, column.id));
     }
-    if (filterVariant === "custom") {
+    if (filterVariant === 'custom') {
         const renderFilter = column.columnDef.meta?.renderFilter;
         if (renderFilter === undefined) {
-            throw new Error("renderFilter is undefined");
+            throw new Error('renderFilter is undefined');
         }
         return jsx(Fragment, { children: renderFilter(column) });
     }
-    return (jsxs(Flex, { flexFlow: "column", gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(Input, { value: column.getFilterValue() ? String(column.getFilterValue()) : "", onChange: (e) => {
+    return (jsxs(Flex, { flexFlow: 'column', gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(Input, { value: column.getFilterValue() ? String(column.getFilterValue()) : '', onChange: (e) => {
                     column.setFilterValue(e.target.value);
                 } })] }, column.id));
 };
@@ -2584,21 +2616,13 @@ function draggable(args) {
 
 /** Arguments given to all monitor feedback functions (eg `canMonitor()`) for a `monitorForElements` */
 
-const CheckboxCard = React.forwardRef(function CheckboxCard(props, ref) {
-    const { inputProps, label, description, icon, addon, indicator = jsx(CheckboxCard$1.Indicator, {}), indicatorPlacement = "end", ...rest } = props;
-    const hasContent = label || description || icon;
-    const ContentWrapper = indicator ? CheckboxCard$1.Content : React.Fragment;
-    return (jsxs(CheckboxCard$1.Root, { ...rest, children: [jsx(CheckboxCard$1.HiddenInput, { ref: ref, ...inputProps }), jsxs(CheckboxCard$1.Control, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxs(ContentWrapper, { children: [icon, label && (jsx(CheckboxCard$1.Label, { children: label })), description && (jsx(CheckboxCard$1.Description, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsx(CheckboxCard$1.Addon, { children: addon })] }));
-});
-CheckboxCard$1.Indicator;
-
 function ColumnCard({ columnId }) {
     const ref = useRef(null);
     const [dragging, setDragging] = useState(false); // NEW
-    const { table, translate } = useDataTableContext();
-    const displayName = translate.t(columnId);
+    const { table } = useDataTableContext();
     const column = table.getColumn(columnId);
     invariant(column);
+    const displayName = column.columnDef.meta?.displayName ?? columnId;
     useEffect(() => {
         const el = ref.current;
         invariant(el);
@@ -2611,7 +2635,7 @@ function ColumnCard({ columnId }) {
             onDrop: () => setDragging(false), // NEW
         });
     }, [columnId, table]);
-    return (jsxs(Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsx(Flex, { alignItems: "center", padding: "0", cursor: "grab", children: jsx(FaGripLinesVertical, { color: "colorPalette.400" }) }), jsx(Flex, { justifyContent: "space-between", alignItems: "center", children: jsx(CheckboxCard, { variant: "surface", label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
+    return (jsxs(Grid, { ref: ref, templateColumns: "auto 1fr", gap: "0.5rem", alignItems: "center", style: dragging ? { opacity: 0.4 } : {}, children: [jsx(Flex, { alignItems: "center", padding: "0", cursor: 'grab', children: jsx(FaGripLinesVertical, { color: "colorPalette.400" }) }), jsx(Flex, { justifyContent: "space-between", alignItems: "center", children: jsx(CheckboxCard, { variant: 'surface', label: displayName, checked: column.getIsVisible(), onChange: column.getToggleVisibilityHandler() }) })] }));
 }
 function CardContainer({ location, children }) {
     const ref = useRef(null);
@@ -2633,9 +2657,9 @@ function CardContainer({ location, children }) {
     function getColor(isDraggedOver) {
         if (isDraggedOver) {
             return {
-                backgroundColor: "blue.400",
+                backgroundColor: 'blue.400',
                 _dark: {
-                    backgroundColor: "blue.400",
+                    backgroundColor: 'blue.400',
                 },
             };
         }
@@ -2667,7 +2691,7 @@ const TableViewer = () => {
                 const sourceColumn = source.data.column;
                 const columnOrder = order.map((id) => {
                     if (id == sourceColumn.id) {
-                        return "<marker>";
+                        return '<marker>';
                     }
                     return id;
                 });
@@ -2677,12 +2701,12 @@ const TableViewer = () => {
                     ...columnBefore,
                     sourceColumn.id,
                     ...columnAfter,
-                ].filter((id) => id != "<marker>");
+                ].filter((id) => id != '<marker>');
                 table.setColumnOrder(newOrder);
             },
         });
     }, [table]);
-    return (jsx(Flex, { flexFlow: "column", gap: "0.25rem", children: order.map((columnId, index) => {
+    return (jsx(Flex, { flexFlow: 'column', gap: '0.25rem', children: order.map((columnId, index) => {
             return (jsx(CardContainer, { location: index, children: jsx(ColumnCard, { columnId: columnId }) }));
         }) }));
 };
@@ -2773,12 +2797,31 @@ const TableSelector = () => {
 
 const TableFilterTags = () => {
     const { table } = useDataTableContext();
-    return (jsx(Flex, { gap: "0.5rem", flexFlow: "wrap", children: table.getState().columnFilters.map(({ id, value }) => {
-            return (jsx(Tag, { gap: "0.5rem", closable: true, cursor: "pointer", onClick: () => {
-                    table.setColumnFilters(table.getState().columnFilters.filter((filter) => {
-                        return filter.value != value;
-                    }));
-                }, children: `${id}: ${value}` }, `${id}-${value}`));
+    return (jsx(Flex, { gap: '0.5rem', flexFlow: 'wrap', children: table.getState().columnFilters.map(({ id, value }) => {
+            const column = table.getColumn(id);
+            const displayName = column?.columnDef.meta?.displayName ?? id;
+            // Format the value for display
+            const formatValue = (val) => {
+                if (Array.isArray(val)) {
+                    return val.join(', ');
+                }
+                if (val === null || val === undefined) {
+                    return '';
+                }
+                return String(val);
+            };
+            const displayValue = formatValue(value);
+            const label = displayValue
+                ? `${displayName}: ${displayValue}`
+                : displayName;
+            return (jsx(CheckboxCard, { checked: true, label: label, size: "sm", variant: "outline", colorPalette: "blue", onCheckedChange: (details) => {
+                    if (!details.checked) {
+                        table.setColumnFilters(table.getState().columnFilters.filter((filter) => {
+                            return (filter.id !== id ||
+                                JSON.stringify(filter.value) !== JSON.stringify(value));
+                        }));
+                    }
+                } }, `${id}-${JSON.stringify(value)}`));
         }) }));
 };
 
@@ -3278,6 +3321,11 @@ const TextCell = ({ label, containerProps = {}, textProps = {}, children, }) => 
     }
     return (jsx(Flex, { alignItems: "center", height: "100%", ...containerProps, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", ...textProps, children: children }) }));
 };
+
+const Tag = React.forwardRef(function Tag(props, ref) {
+    const { startElement, endElement, onClose, closable = !!onClose, children, ...rest } = props;
+    return (jsxs(Tag$1.Root, { ref: ref, ...rest, children: [startElement && (jsx(Tag$1.StartElement, { children: startElement })), jsx(Tag$1.Label, { children: children }), endElement && (jsx(Tag$1.EndElement, { children: endElement })), closable && (jsx(Tag$1.EndElement, { children: jsx(Tag$1.CloseTrigger, { onClick: onClose }) }))] }));
+});
 
 const CardHeader = ({ row, imageColumnId = undefined, titleColumnId = undefined, tagColumnId = undefined, tagIcon = undefined, showTag = true, imageProps = {}, }) => {
     if (!!row.original === false) {
@@ -4017,24 +4065,6 @@ let DatePicker$1 = class DatePicker extends React__default.Component {
     }
 };
 
-const PopoverContent = React.forwardRef(function PopoverContent(props, ref) {
-    const { portalled = true, portalRef, ...rest } = props;
-    return (jsx(Portal, { disabled: !portalled, container: portalRef, children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { ref: ref, ...rest }) }) }));
-});
-React.forwardRef(function PopoverArrow(props, ref) {
-    return (jsx(Popover.Arrow, { ...props, ref: ref, children: jsx(Popover.ArrowTip, {}) }));
-});
-React.forwardRef(function PopoverCloseTrigger(props, ref) {
-    return (jsx(Popover.CloseTrigger, { position: "absolute", top: "1", insetEnd: "1", ...props, asChild: true, ref: ref, children: jsx(CloseButton, { size: "sm" }) }));
-});
-const PopoverTitle = Popover.Title;
-Popover.Description;
-Popover.Footer;
-Popover.Header;
-const PopoverRoot = Popover.Root;
-const PopoverBody = Popover.Body;
-const PopoverTrigger = Popover.Trigger;
-
 /**
  * Custom hook to simplify i18n translation for form fields.
  * Automatically handles colLabel construction and removeIndex logic.
@@ -4103,7 +4133,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { timezone, dateTimePickerLabels } = useSchemaContext();
+    const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
     const formI18n = useFormI18n(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -4136,90 +4166,92 @@ const DatePicker = ({ column, schema, prefix }) => {
             console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue]);
+    const datePickerLabels = {
+        monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
+            formI18n.translate.t(`common.month_1`, {
+                defaultValue: 'January',
+            }),
+            formI18n.translate.t(`common.month_2`, {
+                defaultValue: 'February',
+            }),
+            formI18n.translate.t(`common.month_3`, {
+                defaultValue: 'March',
+            }),
+            formI18n.translate.t(`common.month_4`, {
+                defaultValue: 'April',
+            }),
+            formI18n.translate.t(`common.month_5`, {
+                defaultValue: 'May',
+            }),
+            formI18n.translate.t(`common.month_6`, {
+                defaultValue: 'June',
+            }),
+            formI18n.translate.t(`common.month_7`, {
+                defaultValue: 'July',
+            }),
+            formI18n.translate.t(`common.month_8`, {
+                defaultValue: 'August',
+            }),
+            formI18n.translate.t(`common.month_9`, {
+                defaultValue: 'September',
+            }),
+            formI18n.translate.t(`common.month_10`, {
+                defaultValue: 'October',
+            }),
+            formI18n.translate.t(`common.month_11`, {
+                defaultValue: 'November',
+            }),
+            formI18n.translate.t(`common.month_12`, {
+                defaultValue: 'December',
+            }),
+        ],
+        weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
+            formI18n.translate.t(`common.weekday_1`, {
+                defaultValue: 'Sun',
+            }),
+            formI18n.translate.t(`common.weekday_2`, {
+                defaultValue: 'Mon',
+            }),
+            formI18n.translate.t(`common.weekday_3`, {
+                defaultValue: 'Tue',
+            }),
+            formI18n.translate.t(`common.weekday_4`, {
+                defaultValue: 'Wed',
+            }),
+            formI18n.translate.t(`common.weekday_5`, {
+                defaultValue: 'Thu',
+            }),
+            formI18n.translate.t(`common.weekday_6`, {
+                defaultValue: 'Fri',
+            }),
+            formI18n.translate.t(`common.weekday_7`, {
+                defaultValue: 'Sat',
+            }),
+        ],
+        backButtonLabel: dateTimePickerLabels?.backButtonLabel ??
+            formI18n.translate.t(`common.back_button`, {
+                defaultValue: 'Back',
+            }),
+        forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ??
+            formI18n.translate.t(`common.forward_button`, {
+                defaultValue: 'Forward',
+            }),
+    };
+    const datePickerContent = (jsx(DatePicker$1, { selected: new Date(selectedDate), onDateSelected: ({ date }) => {
+            setValue(colLabel, dayjs(date).format(dateFormat));
+            setOpen(false);
+        }, labels: datePickerLabels }));
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
-                        }, justifyContent: 'start', children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ''] }) }), jsx(PopoverContent, { children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DatePicker$1, { selected: new Date(selectedDate), onDateSelected: ({ date }) => {
-                                    setValue(colLabel, dayjs(date).format(dateFormat));
-                                    setOpen(false);
-                                }, labels: {
-                                    monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
-                                        formI18n.translate.t(`common.month_1`, {
-                                            defaultValue: 'January',
-                                        }),
-                                        formI18n.translate.t(`common.month_2`, {
-                                            defaultValue: 'February',
-                                        }),
-                                        formI18n.translate.t(`common.month_3`, {
-                                            defaultValue: 'March',
-                                        }),
-                                        formI18n.translate.t(`common.month_4`, {
-                                            defaultValue: 'April',
-                                        }),
-                                        formI18n.translate.t(`common.month_5`, {
-                                            defaultValue: 'May',
-                                        }),
-                                        formI18n.translate.t(`common.month_6`, {
-                                            defaultValue: 'June',
-                                        }),
-                                        formI18n.translate.t(`common.month_7`, {
-                                            defaultValue: 'July',
-                                        }),
-                                        formI18n.translate.t(`common.month_8`, {
-                                            defaultValue: 'August',
-                                        }),
-                                        formI18n.translate.t(`common.month_9`, {
-                                            defaultValue: 'September',
-                                        }),
-                                        formI18n.translate.t(`common.month_10`, {
-                                            defaultValue: 'October',
-                                        }),
-                                        formI18n.translate.t(`common.month_11`, {
-                                            defaultValue: 'November',
-                                        }),
-                                        formI18n.translate.t(`common.month_12`, {
-                                            defaultValue: 'December',
-                                        }),
-                                    ],
-                                    weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
-                                        formI18n.translate.t(`common.weekday_1`, {
-                                            defaultValue: 'Sun',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_2`, {
-                                            defaultValue: 'Mon',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_3`, {
-                                            defaultValue: 'Tue',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_4`, {
-                                            defaultValue: 'Wed',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_5`, {
-                                            defaultValue: 'Thu',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_6`, {
-                                            defaultValue: 'Fri',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_7`, {
-                                            defaultValue: 'Sat',
-                                        }),
-                                    ],
-                                    backButtonLabel: dateTimePickerLabels?.backButtonLabel ??
-                                        formI18n.translate.t(`common.back_button`, {
-                                            defaultValue: 'Back',
-                                        }),
-                                    forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ??
-                                        formI18n.translate.t(`common.forward_button`, {
-                                            defaultValue: 'Forward',
-                                        }),
-                                } })] }) })] }) }));
+                        }, justifyContent: 'start', children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) }))] }) }));
 };
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const DateRangePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { timezone, dateTimePickerLabels } = useSchemaContext();
+    const { timezone, insideDialog } = useSchemaContext();
     const formI18n = useFormI18n(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
@@ -4282,9 +4314,9 @@ const DateRangePicker = ({ column, schema, prefix, }) => {
         }
     }, [selectedDateRange, dateFormat, colLabel, setValue, timezone]);
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
-                        }, justifyContent: 'start', children: [jsx(MdDateRange, {}), getDisplayText()] }) }), jsx(PopoverContent, { minW: '600px', children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(RangeDatePicker, { selected: selectedDates, onDateSelected: ({ selected, selectable, date }) => {
+                        }, justifyContent: 'start', children: [jsx(MdDateRange, {}), getDisplayText()] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "50rem", minH: "25rem", children: jsx(Popover.Body, { children: jsx(RangeDatePicker, { selected: selectedDates, onDateSelected: ({ selectable, date }) => {
                                     const newDates = getRangeDates({
                                         selectable,
                                         date,
@@ -4298,7 +4330,21 @@ const DateRangePicker = ({ column, schema, prefix, }) => {
                                         shouldValidate: true,
                                         shouldDirty: true,
                                     });
-                                }, monthsToDisplay: 2 })] }) })] }) }));
+                                }, monthsToDisplay: 2, withPopover: false }) }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "50rem", minH: "25rem", children: jsx(Popover.Body, { children: jsx(RangeDatePicker, { selected: selectedDates, onDateSelected: ({ selectable, date }) => {
+                                        const newDates = getRangeDates({
+                                            selectable,
+                                            date,
+                                            selectedDates,
+                                        }) ?? [];
+                                        // Convert Date[] to string[]
+                                        const formattedDates = newDates
+                                            .map((dateObj) => dayjs(dateObj).tz(timezone).format(dateFormat))
+                                            .filter((dateStr) => dateStr);
+                                        setValue(colLabel, formattedDates, {
+                                            shouldValidate: true,
+                                            shouldDirty: true,
+                                        });
+                                    }, monthsToDisplay: 2, withPopover: false }) }) }) }) }))] }) }));
 };
 
 const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLimit = false, }) => {
@@ -5692,134 +5738,310 @@ const TextAreaInput = ({ column, schema, prefix, }) => {
                 : undefined, invalid: !!fieldError, children: jsx(Textarea, { value: watchValue, onChange: (value) => setValue(colLabel, value) }) }) }));
 };
 
-function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem, meridiemLabel = {
-    am: "am",
-    pm: "pm",
-}, onChange = (_newValue) => { }, timezone = "Asia/Hong_Kong", }) {
+dayjs.extend(utc);
+dayjs.extend(timezone);
+function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem, 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+meridiemLabel: _meridiemLabel = {
+    am: 'am',
+    pm: 'pm',
+}, 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedDate, }) {
+    // Generate time options (every 15 minutes)
+    const timeOptions = useMemo(() => {
+        const options = [];
+        const meridiemOptions = ['am', 'pm'];
+        // Get start time for comparison if provided
+        let startDateTime = null;
+        let shouldFilterByDate = false;
+        if (startTime && selectedDate) {
+            const startDateObj = dayjs(startTime).tz(timezone);
+            const selectedDateObj = dayjs(selectedDate).tz(timezone);
+            if (startDateObj.isValid() && selectedDateObj.isValid()) {
+                startDateTime = startDateObj;
+                // Only filter if dates are the same
+                shouldFilterByDate =
+                    startDateObj.format('YYYY-MM-DD') ===
+                        selectedDateObj.format('YYYY-MM-DD');
+            }
+        }
+        for (const mer of meridiemOptions) {
+            for (let h = 1; h <= 12; h++) {
+                for (let m = 0; m < 60; m += 15) {
+                    const hour24 = mer === 'am' ? (h === 12 ? 0 : h) : h === 12 ? 12 : h + 12;
+                    const timeStr = dayjs()
+                        .tz(timezone)
+                        .hour(hour24)
+                        .minute(m)
+                        .format('HH:mmZ');
+                    const displayTime = dayjs(`1970-01-01T${timeStr}`, 'HH:mmZ').format('hh:mm a');
+                    // Filter out times that would result in negative duration (only when dates are the same)
+                    if (startDateTime && selectedDate && shouldFilterByDate) {
+                        const selectedDateObj = dayjs(selectedDate).tz(timezone);
+                        const optionDateTime = selectedDateObj
+                            .hour(hour24)
+                            .minute(m)
+                            .second(0)
+                            .millisecond(0);
+                        if (optionDateTime.isBefore(startDateTime)) {
+                            continue; // Skip this option as it would result in negative duration
+                        }
+                    }
+                    // Calculate and append duration if startTime is provided
+                    let label = displayTime;
+                    if (startDateTime && selectedDate) {
+                        const selectedDateObj = dayjs(selectedDate).tz(timezone);
+                        const optionDateTime = selectedDateObj
+                            .hour(hour24)
+                            .minute(m)
+                            .second(0)
+                            .millisecond(0);
+                        if (optionDateTime.isValid() &&
+                            optionDateTime.isAfter(startDateTime)) {
+                            const diffMs = optionDateTime.diff(startDateTime);
+                            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                            if (diffHours > 0 || diffMinutes > 0) {
+                                const diffText = diffHours > 0
+                                    ? `${diffHours}h ${diffMinutes}m`
+                                    : `${diffMinutes}m`;
+                                label = `${displayTime} (+${diffText})`;
+                            }
+                        }
+                    }
+                    options.push({
+                        label,
+                        value: `${h}:${m.toString().padStart(2, '0')}:${mer}`,
+                        hour: h,
+                        minute: m,
+                        meridiem: mer,
+                        searchText: displayTime, // Use base time without duration for searching
+                    });
+                }
+            }
+        }
+        return options;
+    }, [timezone, startTime, selectedDate]);
+    const { contains } = useFilter({ sensitivity: 'base' });
+    const { collection, filter } = useListCollection({
+        initialItems: timeOptions,
+        itemToString: (item) => item.searchText, // Use searchText (without duration) for filtering
+        itemToValue: (item) => item.value,
+        filter: contains,
+    });
+    // Track input mode vs display mode
+    const [isInputMode, setIsInputMode] = useState(false);
+    const [inputValue, setInputValue] = useState('');
+    const inputRef = useRef(null);
+    // Switch to display mode when value is selected
+    useEffect(() => {
+        if (hour !== null && minute !== null && meridiem !== null) {
+            setIsInputMode(false);
+        }
+    }, [hour, minute, meridiem]);
+    // Focus input when switching to input mode
+    useEffect(() => {
+        if (isInputMode && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isInputMode]);
+    // Get current value string for combobox
+    const currentValue = useMemo(() => {
+        if (hour === null || minute === null || meridiem === null) {
+            return '';
+        }
+        return `${hour}:${minute.toString().padStart(2, '0')}:${meridiem}`;
+    }, [hour, minute, meridiem]);
+    // INPUT MODE: Show raw input text (no duration)
+    const inputModeText = useMemo(() => {
+        return inputValue;
+    }, [inputValue]);
+    // DISPLAY MODE: Show selected value with duration
+    const displayModeText = useMemo(() => {
+        if (hour === null || minute === null || meridiem === null) {
+            return '';
+        }
+        const hour24 = meridiem === 'am'
+            ? hour === 12
+                ? 0
+                : hour
+            : hour === 12
+                ? 12
+                : hour + 12;
+        const timeStr = dayjs()
+            .tz(timezone)
+            .hour(hour24)
+            .minute(minute)
+            .format('HH:mmZ');
+        const timeDisplay = dayjs(`1970-01-01T${timeStr}`, 'HH:mmZ').format('hh:mm a');
+        // Add duration if startTime is provided
+        if (startTime && selectedDate) {
+            const startDateObj = dayjs(startTime).tz(timezone);
+            const selectedDateObj = dayjs(selectedDate).tz(timezone);
+            const currentDateTime = selectedDateObj
+                .hour(hour24)
+                .minute(minute)
+                .second(0)
+                .millisecond(0);
+            if (startDateObj.isValid() && currentDateTime.isValid()) {
+                const diffMs = currentDateTime.diff(startDateObj);
+                if (diffMs >= 0) {
+                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    if (diffHours > 0 || diffMinutes > 0) {
+                        const diffText = diffHours > 0
+                            ? `${diffHours}h ${diffMinutes}m`
+                            : `${diffMinutes}m`;
+                        return `${timeDisplay} (+${diffText})`;
+                    }
+                }
+            }
+        }
+        return timeDisplay;
+    }, [hour, minute, meridiem, timezone, startTime, selectedDate]);
+    // Choose text based on mode
+    const displayText = isInputMode ? inputModeText : displayModeText;
     const handleClear = () => {
         setHour(null);
         setMinute(null);
         setMeridiem(null);
-        setInputValue("");
-        setShowInput(false);
+        setIsInputMode(false);
+        setInputValue('');
+        filter(''); // Reset filter to show all options
         onChange({ hour: null, minute: null, meridiem: null });
     };
-    const getTimeString = (hour, minute, meridiem) => {
-        if (hour === null || minute === null || meridiem === null) {
-            return "";
-        }
-        // if the hour is 24, set the hour to 0
-        if (hour === 24) {
-            return dayjs().tz(timezone).hour(0).minute(minute).format("HH:mmZ");
-        }
-        // use dayjs to format the time at current timezone
-        // if meridiem is pm, add 12 hours
-        let newHour = hour;
-        if (meridiem === "pm" && hour !== 12) {
-            newHour = hour + 12;
-        }
-        // if the hour is 12, set the meridiem to am, and set the hour to 0
-        else if (meridiem === "am" && hour === 12) {
-            newHour = 0;
-        }
-        return dayjs().tz(timezone).hour(newHour).minute(minute).format("HH:mmZ");
-    };
-    const stringTime = getTimeString(hour, minute, meridiem);
-    const [inputValue, setInputValue] = useState("");
-    const [showInput, setShowInput] = useState(false);
-    const handleBlur = (text) => {
-        // ignore all non-numeric characters
-        if (!text) {
-            return;
-        }
-        const value = text.replace(/[^0-9apm]/g, "");
-        if (value === "") {
+    const handleValueChange = (details) => {
+        if (details.value.length === 0) {
             handleClear();
             return;
         }
-        // if the value is a valid time, parse it and set the hour, minute, and meridiem
-        // if the value is not a valid time, set the stringTime to the value
-        // first two characters are the hour
-        // next two characters are the minute
-        // final two characters are the meridiem
-        const hour = parseInt(value.slice(0, 2));
-        const minute = parseInt(value.slice(2, 4));
-        const meridiem = value.slice(4, 6);
-        // validate the hour and minute
-        if (isNaN(hour) || isNaN(minute)) {
-            setInputValue("");
-            return;
+        const selectedValue = details.value[0];
+        const selectedOption = timeOptions.find((opt) => opt.value === selectedValue);
+        if (selectedOption) {
+            setHour(selectedOption.hour);
+            setMinute(selectedOption.minute);
+            setMeridiem(selectedOption.meridiem);
+            setIsInputMode(false); // Switch to display mode
+            setInputValue('');
+            filter(''); // Reset filter after selection
+            onChange({
+                hour: selectedOption.hour,
+                minute: selectedOption.minute,
+                meridiem: selectedOption.meridiem,
+            });
         }
-        // if the hour is larger than 24, set the hour to 24
-        if (hour > 24) {
-            setInputValue("");
-            return;
-        }
-        let newHour = hour;
-        let newMinute = minute;
-        let newMeridiem = meridiem;
-        // if the hour is 24, set the meridiem to am, and set the hour to 0
-        if (hour === 24) {
-            newMeridiem = "am";
-            newHour = 0;
-        }
-        // if the hour is greater than 12, set the meridiem to pm, and subtract 12 from the hour
-        else if (hour > 12) {
-            newMeridiem = "pm";
-            newHour = hour - 12;
-        }
-        // if the hour is 12, set the meridiem to pm, and set the hour to 12
-        else if (hour === 12) {
-            newMeridiem = "pm";
-            newHour = 12;
-        }
-        // if the hour is 0, set the meridiem to am, and set the hour to 12
-        else if (hour === 0) {
-            newMeridiem = "am";
-            newHour = 12;
-        }
-        else {
-            newMeridiem = meridiem ?? "am";
-            newHour = hour;
-        }
-        if (minute > 59) {
-            newMinute = 0;
-        }
-        else {
-            newMinute = minute;
-        }
-        onChange({
-            hour: newHour,
-            minute: newMinute,
-            meridiem: newMeridiem,
-        });
-        setShowInput(false);
     };
+    // Handle Enter key to select first filtered option
     const handleKeyDown = (e) => {
-        if (e.key === "Enter") {
-            handleBlur(e.currentTarget.value);
+        if (e.key === 'Enter' && collection.items.length > 0) {
+            e.preventDefault();
+            const firstOption = collection.items[0];
+            if (firstOption) {
+                const selectedOption = timeOptions.find((opt) => opt.value === firstOption.value);
+                if (selectedOption) {
+                    setHour(selectedOption.hour);
+                    setMinute(selectedOption.minute);
+                    setMeridiem(selectedOption.meridiem);
+                    setIsInputMode(false); // Switch to display mode
+                    setInputValue('');
+                    filter('');
+                    onChange({
+                        hour: selectedOption.hour,
+                        minute: selectedOption.minute,
+                        meridiem: selectedOption.meridiem,
+                    });
+                }
+            }
         }
     };
-    const inputRef = useRef(null);
-    return (jsxs(Grid, { justifyContent: "center", alignItems: "center", templateColumns: "200px auto", gap: "2", width: "auto", minWidth: "250px", children: [jsx(Input, { onKeyDown: handleKeyDown, onChange: (e) => {
-                    setInputValue(e.currentTarget.value);
-                }, onBlur: (e) => {
-                    handleBlur(e.currentTarget.value);
-                }, onFocus: (e) => {
-                    e.currentTarget.select();
-                }, value: inputValue, display: showInput ? undefined : "none", ref: inputRef }), jsxs(Button$1, { onClick: () => {
-                    setShowInput(true);
-                    setInputValue(dayjs(`1970-01-01T${getTimeString(hour, minute, meridiem)}`, "hh:mmZ").format("HH:mm"));
-                    inputRef.current?.focus();
-                }, display: showInput ? "none" : "flex", alignItems: "center", justifyContent: "start", variant: "outline", gap: 2, children: [jsx(Icon, { size: "sm", children: jsx(BsClock, {}) }), jsx(Text, { fontSize: "sm", children: stringTime
-                            ? dayjs(`1970-01-01T${stringTime}`, "hh:mmZ").format("hh:mm a")
-                            : "" })] }), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "ghost", children: jsx(MdCancel, {}) })] }));
+    const handleInputValueChange = (details) => {
+        const inputValue = details.inputValue.trim();
+        setInputValue(inputValue);
+        setIsInputMode(true); // Switch to input mode
+        // Filter the collection based on input
+        filter(inputValue);
+        if (!inputValue) {
+            setIsInputMode(false);
+            return;
+        }
+        // Try to parse custom input using explicit regex patterns
+        const normalized = inputValue.toLowerCase().replace(/\s+/g, '');
+        // Pattern 1: 12-hour format with meridiem (e.g., "930pm", "1230am", "9:30pm", "12:30am")
+        // Matches: 1-2 digits hour, optional colon, 2 digits minute, am/pm
+        const pattern12HourWithMeridiem = /^(\d{1,2}):?(\d{2})(am|pm)$/;
+        const match12Hour = normalized.match(pattern12HourWithMeridiem);
+        if (match12Hour) {
+            const parsedHour = parseInt(match12Hour[1], 10);
+            const parsedMinute = parseInt(match12Hour[2], 10);
+            const parsedMeridiem = match12Hour[3];
+            // Validate hour (1-12)
+            if (parsedHour < 1 || parsedHour > 12) {
+                return;
+            }
+            // Validate minute (0-59)
+            const validMinute = parsedMinute > 59 ? 0 : parsedMinute;
+            setHour(parsedHour);
+            setMinute(validMinute);
+            setMeridiem(parsedMeridiem);
+            onChange({
+                hour: parsedHour,
+                minute: validMinute,
+                meridiem: parsedMeridiem,
+            });
+            return;
+        }
+        // Pattern 2: 24-hour format (e.g., "2130", "09:30", "21:30")
+        // Matches: 1-2 digits hour, optional colon, 2 digits minute
+        const pattern24Hour = /^(\d{2}):?(\d{2})$/;
+        const match24Hour = normalized.match(pattern24Hour);
+        if (match24Hour) {
+            let parsedHour = parseInt(match24Hour[1], 10);
+            const parsedMinute = parseInt(match24Hour[2], 10);
+            // Validate hour (0-23)
+            if (parsedHour > 23) {
+                return;
+            }
+            // Convert 24-hour to 12-hour format
+            let parsedMeridiem;
+            if (parsedHour === 0) {
+                parsedHour = 12;
+                parsedMeridiem = 'am';
+            }
+            else if (parsedHour === 12) {
+                parsedHour = 12;
+                parsedMeridiem = 'pm';
+            }
+            else if (parsedHour > 12) {
+                parsedHour = parsedHour - 12;
+                parsedMeridiem = 'pm';
+            }
+            else {
+                parsedMeridiem = 'am';
+            }
+            // Validate minute (0-59)
+            const validMinute = parsedMinute > 59 ? 0 : parsedMinute;
+            setHour(parsedHour);
+            setMinute(validMinute);
+            setMeridiem(parsedMeridiem);
+            onChange({
+                hour: parsedHour,
+                minute: validMinute,
+                meridiem: parsedMeridiem,
+            });
+            return;
+        }
+    };
+    return (jsxs(Grid, { justifyContent: 'center', alignItems: 'center', templateColumns: '200px auto', gap: "2", width: "auto", minWidth: "250px", children: [jsxs(Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, width: "100%", children: [jsxs(Combobox.Control, { children: [isInputMode ? (jsx(InputGroup$1, { startElement: jsx(BsClock, {}), children: jsx(Combobox.Input, { ref: inputRef, placeholder: "Select time", value: displayText, onKeyDown: handleKeyDown }) })) : (jsxs(Grid, { templateColumns: "auto 1fr auto", alignItems: "center", gap: 2, width: "100%", minHeight: "40px", px: 3, border: "1px solid", borderColor: "gray.200", borderRadius: "md", cursor: "pointer", onClick: () => setIsInputMode(true), children: [jsx(Icon, { children: jsx(BsClock, {}) }), jsx(Text, { fontSize: "sm", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: displayText || 'Select time' }), jsx(Combobox.Trigger, { onClick: (e) => {
+                                            e.stopPropagation();
+                                            setIsInputMode(true);
+                                        } })] })), isInputMode && (jsxs(Combobox.IndicatorGroup, { children: [jsx(Combobox.ClearTrigger, {}), jsx(Combobox.Trigger, {})] }))] }), jsx(Portal, { children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [jsx(Combobox.Empty, { children: "No time found" }), collection.items.map((item) => (jsxs(Combobox.Item, { item: item, children: [item.label, jsx(Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "ghost", children: jsx(Icon, { children: jsx(MdCancel, {}) }) })] }));
 }
 
 dayjs.extend(timezone);
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { translate, timezone } = useSchemaContext();
+    const { translate, timezone, insideDialog } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1', timeFormat = 'HH:mm:ssZ', displayTimeFormat = 'hh:mm A', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
@@ -5882,153 +6104,305 @@ const TimePicker = ({ column, schema, prefix }) => {
             ? translate.t(removeIndex(`${colLabel}.field_required`))
             : undefined, invalid: !!errors[colLabel], children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
-                        }, justifyContent: 'start', children: [jsx(IoMdClock, {}), !!value ? `${displayedTime}` : ''] }) }), jsx(Popover.Positioner, { children: jsx(Popover.Content, { children: jsx(Popover.Body, { children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
+                        }, justifyContent: 'start', children: [jsx(IoMdClock, {}), !!value ? `${displayedTime}` : ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsx(Popover.Body, { overflow: "visible", children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
                                     am: translate.t(`common.am`, { defaultValue: 'AM' }),
                                     pm: translate.t(`common.pm`, { defaultValue: 'PM' }),
-                                } }) }) }) })] }) }));
+                                } }) }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { children: jsx(Popover.Body, { children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
+                                        am: translate.t(`common.am`, { defaultValue: 'AM' }),
+                                        pm: translate.t(`common.pm`, { defaultValue: 'PM' }),
+                                    } }) }) }) }) }))] }) }));
 };
 
-function IsoTimePicker({ hour, setHour, minute, setMinute, second, setSecond, onChange = (_newValue) => { }, }) {
-    // Refs for focus management
-    const hourInputRef = useRef(null);
-    const minuteInputRef = useRef(null);
-    const secondInputRef = useRef(null);
-    // Centralized handler for key events, value changes, and focus management
-    const handleKeyDown = (e, field) => {
-        const input = e.target;
-        const value = input.value;
-        // Handle navigation between fields
-        if (e.key === "Tab") {
-            return;
-        }
-        if (e.key === ":" && field === "hour") {
-            e.preventDefault();
-            minuteInputRef.current?.focus();
-            return;
-        }
-        if (e.key === ":" && field === "minute") {
-            e.preventDefault();
-            secondInputRef.current?.focus();
-            return;
-        }
-        if (e.key === "Backspace" && value === "") {
-            e.preventDefault();
-            if (field === "minute") {
-                hourInputRef.current?.focus();
-            }
-            else if (field === "second") {
-                minuteInputRef.current?.focus();
-            }
-            return;
-        }
-        // Handle number inputs
-        if (field === "hour") {
-            if (e.key.match(/^[0-9]$/)) {
-                const newValue = value + e.key;
-                const numValue = parseInt(newValue, 10);
-                if (numValue > 23) {
-                    const digitValue = parseInt(e.key, 10);
-                    setHour(digitValue);
-                    onChange({ hour: digitValue, minute, second });
-                    return;
-                }
-                if (numValue >= 0 && numValue <= 23) {
-                    setHour(numValue);
-                    onChange({ hour: numValue, minute, second });
-                    e.preventDefault();
-                    minuteInputRef.current?.focus();
-                }
+dayjs.extend(utc);
+dayjs.extend(timezone);
+function IsoTimePicker({ hour, setHour, minute, setMinute, second, setSecond, 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Kong', }) {
+    // Generate time options (every 15 minutes, seconds always 0)
+    const timeOptions = useMemo(() => {
+        const options = [];
+        // Get start time for comparison if provided
+        let startDateTime = null;
+        let shouldFilterByDate = false;
+        if (startTime && selectedDate) {
+            const startDateObj = dayjs(startTime).tz(timezone);
+            const selectedDateObj = dayjs(selectedDate).tz(timezone);
+            if (startDateObj.isValid() && selectedDateObj.isValid()) {
+                startDateTime = startDateObj;
+                // Only filter if dates are the same
+                shouldFilterByDate =
+                    startDateObj.format('YYYY-MM-DD') ===
+                        selectedDateObj.format('YYYY-MM-DD');
             }
         }
-        else if (field === "minute") {
-            if (e.key.match(/^[0-9]$/)) {
-                const newValue = value + e.key;
-                const numValue = parseInt(newValue, 10);
-                if (numValue > 59) {
-                    const digitValue = parseInt(e.key, 10);
-                    setMinute(digitValue);
-                    onChange({ hour, minute: digitValue, second });
-                    return;
+        for (let h = 0; h < 24; h++) {
+            for (let m = 0; m < 60; m += 15) {
+                const timeDisplay = `${h.toString().padStart(2, '0')}:${m
+                    .toString()
+                    .padStart(2, '0')}:00`;
+                // Filter out times that would result in negative duration (only when dates are the same)
+                if (startDateTime && selectedDate && shouldFilterByDate) {
+                    const selectedDateObj = dayjs(selectedDate).tz(timezone);
+                    const optionDateTime = selectedDateObj
+                        .hour(h)
+                        .minute(m)
+                        .second(0)
+                        .millisecond(0);
+                    if (optionDateTime.isBefore(startDateTime)) {
+                        continue; // Skip this option as it would result in negative duration
+                    }
                 }
-                if (numValue >= 0 && numValue <= 59) {
-                    setMinute(numValue);
-                    onChange({ hour, minute: numValue, second });
-                    e.preventDefault();
-                    secondInputRef.current?.focus();
+                // Calculate and append duration if startTime is provided
+                let label = timeDisplay;
+                if (startDateTime && selectedDate) {
+                    const selectedDateObj = dayjs(selectedDate).tz(timezone);
+                    const optionDateTime = selectedDateObj
+                        .hour(h)
+                        .minute(m)
+                        .second(0)
+                        .millisecond(0);
+                    if (optionDateTime.isValid() &&
+                        optionDateTime.isAfter(startDateTime)) {
+                        const diffMs = optionDateTime.diff(startDateTime);
+                        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                        const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+                        if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+                            let diffText = '';
+                            if (diffHours > 0) {
+                                diffText = `${diffHours}h ${diffMinutes}m`;
+                            }
+                            else if (diffMinutes > 0) {
+                                diffText = `${diffMinutes}m ${diffSeconds}s`;
+                            }
+                            else {
+                                diffText = `${diffSeconds}s`;
+                            }
+                            label = `${timeDisplay} (+${diffText})`;
+                        }
+                    }
+                }
+                options.push({
+                    label,
+                    value: `${h}:${m}:0`,
+                    hour: h,
+                    minute: m,
+                    second: 0,
+                    searchText: timeDisplay, // Use base time without duration for searching
+                });
+            }
+        }
+        return options;
+    }, [startTime, selectedDate, timezone]);
+    const { contains } = useFilter({ sensitivity: 'base' });
+    const { collection, filter } = useListCollection({
+        initialItems: timeOptions,
+        itemToString: (item) => item.searchText, // Use searchText (without duration) for filtering
+        itemToValue: (item) => item.value,
+        filter: contains,
+    });
+    // Get current value string for combobox
+    const currentValue = useMemo(() => {
+        if (hour === null || minute === null || second === null) {
+            return '';
+        }
+        return `${hour}:${minute}:${second}`;
+    }, [hour, minute, second]);
+    // Get display text for combobox
+    const displayText = useMemo(() => {
+        if (hour === null || minute === null || second === null) {
+            return '';
+        }
+        const timeDisplay = `${hour.toString().padStart(2, '0')}:${minute
+            .toString()
+            .padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+        // Show duration difference if startTime is provided
+        if (startTime && selectedDate) {
+            const startDateObj = dayjs(startTime).tz(timezone);
+            const selectedDateObj = dayjs(selectedDate).tz(timezone);
+            const currentDateTime = selectedDateObj
+                .hour(hour)
+                .minute(minute)
+                .second(second ?? 0)
+                .millisecond(0);
+            if (startDateObj.isValid() && currentDateTime.isValid()) {
+                const diffMs = currentDateTime.diff(startDateObj);
+                if (diffMs >= 0) {
+                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+                    if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+                        let diffText = '';
+                        if (diffHours > 0) {
+                            diffText = `${diffHours}h ${diffMinutes}m`;
+                        }
+                        else if (diffMinutes > 0) {
+                            diffText = `${diffMinutes}m ${diffSeconds}s`;
+                        }
+                        else {
+                            diffText = `${diffSeconds}s`;
+                        }
+                        return `${timeDisplay} (+${diffText})`;
+                    }
                 }
             }
         }
-        else if (field === "second") {
-            if (e.key.match(/^[0-9]$/)) {
-                const newValue = value + e.key;
-                const numValue = parseInt(newValue, 10);
-                if (numValue > 59) {
-                    const digitValue = parseInt(e.key, 10);
-                    setSecond(digitValue);
-                    onChange({ hour, minute, second: digitValue });
-                    return;
-                }
-                if (numValue >= 0 && numValue <= 59) {
-                    setSecond(numValue);
-                    onChange({ hour, minute, second: numValue });
-                }
-            }
-        }
-    };
+        return timeDisplay;
+    }, [hour, minute, second, startTime, selectedDate, timezone]);
     const handleClear = () => {
         setHour(null);
         setMinute(null);
         setSecond(null);
+        filter(''); // Reset filter to show all options
         onChange({ hour: null, minute: null, second: null });
-        hourInputRef.current?.focus();
     };
-    return (jsx(Flex, { direction: "column", gap: 3, children: jsxs(Grid, { justifyContent: "center", alignItems: "center", templateColumns: "60px 10px 60px 10px 60px auto", gap: "2", width: "auto", minWidth: "300px", children: [jsx(Input, { ref: hourInputRef, type: "text", value: hour === null ? "" : hour.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "hour"), placeholder: "HH", maxLength: 2, textAlign: "center" }), jsx(Text, { children: ":" }), jsx(Input, { ref: minuteInputRef, type: "text", value: minute === null ? "" : minute.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "minute"), placeholder: "MM", maxLength: 2, textAlign: "center" }), jsx(Text, { children: ":" }), jsx(Input, { ref: secondInputRef, type: "text", value: second === null ? "" : second.toString().padStart(2, "0"), onKeyDown: (e) => handleKeyDown(e, "second"), placeholder: "SS", maxLength: 2, textAlign: "center" }), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "ghost", children: jsx(MdCancel, {}) })] }) }));
+    const handleValueChange = (details) => {
+        if (details.value.length === 0) {
+            handleClear();
+            return;
+        }
+        const selectedValue = details.value[0];
+        const selectedOption = timeOptions.find((opt) => opt.value === selectedValue);
+        if (selectedOption) {
+            setHour(selectedOption.hour);
+            setMinute(selectedOption.minute);
+            setSecond(selectedOption.second);
+            filter(''); // Reset filter after selection
+            onChange({
+                hour: selectedOption.hour,
+                minute: selectedOption.minute,
+                second: selectedOption.second,
+            });
+        }
+    };
+    const handleInputValueChange = (details) => {
+        const inputValue = details.inputValue.trim();
+        // Filter the collection based on input
+        filter(inputValue);
+        if (!inputValue) {
+            return;
+        }
+        // Parse HH:mm:ss or HH:mm format
+        const timePattern = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/;
+        const match = inputValue.match(timePattern);
+        if (match) {
+            const parsedHour = parseInt(match[1], 10);
+            const parsedMinute = parseInt(match[2], 10);
+            const parsedSecond = match[3] ? parseInt(match[3], 10) : 0;
+            // Validate ranges
+            if (parsedHour >= 0 &&
+                parsedHour <= 23 &&
+                parsedMinute >= 0 &&
+                parsedMinute <= 59 &&
+                parsedSecond >= 0 &&
+                parsedSecond <= 59) {
+                setHour(parsedHour);
+                setMinute(parsedMinute);
+                setSecond(parsedSecond);
+                onChange({
+                    hour: parsedHour,
+                    minute: parsedMinute,
+                    second: parsedSecond,
+                });
+            }
+        }
+        else {
+            // Try to parse formats like "123045" (HHmmss) or "1230" (HHmm)
+            const numbersOnly = inputValue.replace(/[^0-9]/g, '');
+            if (numbersOnly.length >= 4) {
+                const parsedHour = parseInt(numbersOnly.slice(0, 2), 10);
+                const parsedMinute = parseInt(numbersOnly.slice(2, 4), 10);
+                const parsedSecond = numbersOnly.length >= 6 ? parseInt(numbersOnly.slice(4, 6), 10) : 0;
+                // Validate ranges
+                if (parsedHour >= 0 &&
+                    parsedHour <= 23 &&
+                    parsedMinute >= 0 &&
+                    parsedMinute <= 59 &&
+                    parsedSecond >= 0 &&
+                    parsedSecond <= 59) {
+                    setHour(parsedHour);
+                    setMinute(parsedMinute);
+                    setSecond(parsedSecond);
+                    onChange({
+                        hour: parsedHour,
+                        minute: parsedMinute,
+                        second: parsedSecond,
+                    });
+                }
+            }
+        }
+    };
+    return (jsx(Flex, { direction: "column", gap: 3, children: jsxs(Grid, { justifyContent: 'center', alignItems: 'center', templateColumns: '1fr auto', gap: "2", width: "auto", minWidth: "300px", children: [jsxs(Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, width: "100%", children: [jsxs(Combobox.Control, { children: [jsx(InputGroup$1, { startElement: jsx(BsClock, {}), children: jsx(Combobox.Input, { placeholder: "HH:mm:ss", value: displayText }) }), jsxs(Combobox.IndicatorGroup, { children: [jsx(Combobox.ClearTrigger, {}), jsx(Combobox.Trigger, {})] })] }), jsx(Portal, { children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [jsx(Combobox.Empty, { children: "No time found" }), collection.items.map((item) => (jsxs(Combobox.Item, { item: item, children: [item.label, jsx(Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "ghost", children: jsx(Icon, { children: jsx(MdCancel, {}) }) })] }) }));
 }
 
-function DateTimePicker$1({ value, onChange, format = "date-time", showSeconds = false, labels = {
+dayjs.extend(utc);
+dayjs.extend(timezone);
+function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds = false, labels = {
     monthNamesShort: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
     ],
-    weekdayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    backButtonLabel: "Back",
-    forwardButtonLabel: "Next",
-}, timezone = "Asia/Hong_Kong", }) {
-    const [selectedDate, setSelectedDate] = useState(value || "");
+    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    backButtonLabel: 'Back',
+    forwardButtonLabel: 'Next',
+}, timezone = 'Asia/Hong_Kong', startTime, }) {
+    const [selectedDate, setSelectedDate] = useState(value || '');
     // Time state for 12-hour format
     const [hour12, setHour12] = useState(value ? dayjs(value).hour() % 12 || 12 : null);
     const [minute, setMinute] = useState(value ? dayjs(value).minute() : null);
-    const [meridiem, setMeridiem] = useState(value ? (dayjs(value).hour() >= 12 ? "pm" : "am") : null);
+    const [meridiem, setMeridiem] = useState(value ? (dayjs(value).hour() >= 12 ? 'pm' : 'am') : null);
     // Time state for 24-hour format
     const [hour24, setHour24] = useState(value ? dayjs(value).hour() : null);
-    const [second, setSecond] = useState(value ? dayjs(value).second() : null);
+    const [second, setSecond] = useState(showSeconds && value ? dayjs(value).second() : null);
     const handleDateChange = (date) => {
         setSelectedDate(date);
-        updateDateTime(dayjs(date).tz(timezone).toISOString());
-    };
-    const handleTimeChange = (timeData) => {
-        if (format === "iso-date-time") {
-            setHour24(timeData.hour);
-            setMinute(timeData.minute);
-            if (showSeconds)
-                setSecond(timeData.second);
+        // When showSeconds is false, ignore seconds from the date
+        const dateObj = dayjs(date).tz(timezone);
+        if (!showSeconds && dateObj.isValid()) {
+            const dateWithoutSeconds = dateObj.second(0).millisecond(0).toISOString();
+            updateDateTime(dateWithoutSeconds);
         }
         else {
-            setHour12(timeData.hour);
-            setMinute(timeData.minute);
-            setMeridiem(timeData.meridiem);
+            updateDateTime(dateObj.toISOString());
         }
-        updateDateTime(dayjs(selectedDate).tz(timezone).toISOString(), timeData);
+    };
+    const handleTimeChange = (timeData) => {
+        if (format === 'iso-date-time') {
+            const data = timeData;
+            setHour24(data.hour);
+            setMinute(data.minute);
+            if (showSeconds) {
+                setSecond(data.second ?? null);
+            }
+            else {
+                // Ignore seconds - always set to null when showSeconds is false
+                setSecond(null);
+            }
+        }
+        else {
+            const data = timeData;
+            setHour12(data.hour);
+            setMinute(data.minute);
+            setMeridiem(data.meridiem);
+        }
+        // Use selectedDate if valid, otherwise use today's date as fallback
+        const dateToUse = selectedDate && dayjs(selectedDate).isValid()
+            ? selectedDate
+            : dayjs().tz(timezone).toISOString();
+        const dateObj = dayjs(dateToUse).tz(timezone);
+        if (dateObj.isValid()) {
+            updateDateTime(dateObj.toISOString(), timeData);
+        }
     };
     const updateDateTime = (date, timeData) => {
         if (!date) {
@@ -6036,27 +6410,33 @@ function DateTimePicker$1({ value, onChange, format = "date-time", showSeconds =
             return;
         }
         // use dayjs to convert the date to the timezone
-        const newDate = dayjs(date).tz(timezone).toDate();
-        if (format === "iso-date-time") {
-            const h = timeData?.hour ?? hour24;
-            const m = timeData?.minute ?? minute;
-            const s = showSeconds ? timeData?.second ?? second : 0;
+        const dateObj = dayjs(date).tz(timezone);
+        if (!dateObj.isValid()) {
+            return;
+        }
+        const newDate = dateObj.toDate();
+        if (format === 'iso-date-time') {
+            const data = timeData;
+            const h = data?.hour ?? hour24;
+            const m = data?.minute ?? minute;
+            // Always ignore seconds when showSeconds is false - set to 0
+            const s = showSeconds ? data?.second ?? second ?? 0 : 0;
             if (h !== null)
                 newDate.setHours(h);
             if (m !== null)
                 newDate.setMinutes(m);
-            if (s !== null)
-                newDate.setSeconds(s);
+            newDate.setSeconds(s);
         }
         else {
-            const h = timeData?.hour ?? hour12;
-            const m = timeData?.minute ?? minute;
-            const mer = timeData?.meridiem ?? meridiem;
+            const data = timeData;
+            const h = data?.hour ?? hour12;
+            const m = data?.minute ?? minute;
+            const mer = data?.meridiem ?? meridiem;
             if (h !== null && mer !== null) {
                 let hour24 = h;
-                if (mer === "am" && h === 12)
+                if (mer === 'am' && h === 12)
                     hour24 = 0;
-                else if (mer === "pm" && h < 12)
+                else if (mer === 'pm' && h < 12)
                     hour24 = h + 12;
                 newDate.setHours(hour24);
             }
@@ -6067,7 +6447,7 @@ function DateTimePicker$1({ value, onChange, format = "date-time", showSeconds =
         onChange?.(dayjs(newDate).tz(timezone).toISOString());
     };
     const handleClear = () => {
-        setSelectedDate("");
+        setSelectedDate('');
         setHour12(null);
         setHour24(null);
         setMinute(null);
@@ -6075,21 +6455,26 @@ function DateTimePicker$1({ value, onChange, format = "date-time", showSeconds =
         setMeridiem(null);
         onChange?.(undefined);
     };
-    const isISO = format === "iso-date-time";
-    return (jsxs(Flex, { direction: "column", gap: 4, p: 4, border: "1px solid", borderColor: "gray.200", borderRadius: "md", children: [jsx(DatePicker$1, { selected: selectedDate
-                    ? dayjs(selectedDate).tz(timezone).toDate()
-                    : new Date(), onDateSelected: ({ date }) => handleDateChange(dayjs(date).tz(timezone).toISOString()), monthsToDisplay: 1, labels: labels }), jsxs(Grid, { templateColumns: "1fr auto", alignItems: "center", gap: 4, children: [isISO ? (jsx(IsoTimePicker, { hour: hour24, setHour: setHour24, minute: minute, setMinute: setMinute, second: second, setSecond: setSecond, onChange: handleTimeChange })) : (jsx(TimePicker$1, { hour: hour12, setHour: setHour12, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange })), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "outline", colorScheme: "red", children: jsx(Icon, { as: FaTrash }) })] }), selectedDate && (jsxs(Flex, { gap: 2, children: [jsx(Text, { fontSize: "sm", color: { base: "gray.600", _dark: "gray.600" }, children: dayjs(value).format(isISO
+    const isISO = format === 'iso-date-time';
+    // Normalize startTime to ignore milliseconds
+    const normalizedStartTime = startTime
+        ? dayjs(startTime).tz(timezone).millisecond(0).toISOString()
+        : undefined;
+    return (jsxs(Flex, { direction: "column", gap: 4, p: 4, border: "1px solid", borderColor: "gray.200", borderRadius: "md", children: [jsx(DatePicker$1, { selected: selectedDate ? dayjs(selectedDate).tz(timezone).toDate() : new Date(), onDateSelected: ({ date }) => handleDateChange(dayjs(date).tz(timezone).toISOString()), monthsToDisplay: 1, labels: labels, minDate: normalizedStartTime &&
+                    dayjs(normalizedStartTime).tz(timezone).isValid()
+                    ? dayjs(normalizedStartTime).tz(timezone).startOf('day').toDate()
+                    : undefined }), jsxs(Grid, { templateColumns: "1fr auto", alignItems: "center", gap: 4, children: [isISO ? (jsx(IsoTimePicker, { hour: hour24, setHour: setHour24, minute: minute, setMinute: setMinute, second: showSeconds ? second : null, setSecond: showSeconds ? setSecond : () => { }, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone })) : (jsx(TimePicker$1, { hour: hour12, setHour: setHour12, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone })), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "outline", colorScheme: "red", children: jsx(Icon, { as: FaTrash }) })] }), selectedDate && (jsxs(Flex, { gap: 2, children: [jsx(Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: dayjs(value).format(isISO
                             ? showSeconds
-                                ? "YYYY-MM-DD HH:mm:ss"
-                                : "YYYY-MM-DD HH:mm"
-                            : "YYYY-MM-DD hh:mm A ") }), jsx(Text, { fontSize: "sm", color: { base: "gray.600", _dark: "gray.600" }, children: dayjs(value).tz(timezone).format("Z") }), jsx(Text, { fontSize: "sm", color: { base: "gray.600", _dark: "gray.600" }, children: timezone })] }))] }));
+                                ? 'YYYY-MM-DD HH:mm:ss'
+                                : 'YYYY-MM-DD HH:mm'
+                            : 'YYYY-MM-DD hh:mm A ') }), jsx(Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: dayjs(value).tz(timezone).format('Z') }), jsx(Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezone })] }))] }));
 }
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const DateTimePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { timezone, dateTimePickerLabels } = useSchemaContext();
+    const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
     const formI18n = useFormI18n(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD HH:mm:ss', 
     // with timezone
@@ -6124,82 +6509,84 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue]);
+    const dateTimePickerLabelsConfig = {
+        monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
+            formI18n.translate.t(`common.month_1`, {
+                defaultValue: 'January',
+            }),
+            formI18n.translate.t(`common.month_2`, {
+                defaultValue: 'February',
+            }),
+            formI18n.translate.t(`common.month_3`, {
+                defaultValue: 'March',
+            }),
+            formI18n.translate.t(`common.month_4`, {
+                defaultValue: 'April',
+            }),
+            formI18n.translate.t(`common.month_5`, {
+                defaultValue: 'May',
+            }),
+            formI18n.translate.t(`common.month_6`, {
+                defaultValue: 'June',
+            }),
+            formI18n.translate.t(`common.month_7`, {
+                defaultValue: 'July',
+            }),
+            formI18n.translate.t(`common.month_8`, {
+                defaultValue: 'August',
+            }),
+            formI18n.translate.t(`common.month_9`, {
+                defaultValue: 'September',
+            }),
+            formI18n.translate.t(`common.month_10`, {
+                defaultValue: 'October',
+            }),
+            formI18n.translate.t(`common.month_11`, {
+                defaultValue: 'November',
+            }),
+            formI18n.translate.t(`common.month_12`, {
+                defaultValue: 'December',
+            }),
+        ],
+        weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
+            formI18n.translate.t(`common.weekday_1`, {
+                defaultValue: 'Sun',
+            }),
+            formI18n.translate.t(`common.weekday_2`, {
+                defaultValue: 'Mon',
+            }),
+            formI18n.translate.t(`common.weekday_3`, {
+                defaultValue: 'Tue',
+            }),
+            formI18n.translate.t(`common.weekday_4`, {
+                defaultValue: 'Wed',
+            }),
+            formI18n.translate.t(`common.weekday_5`, {
+                defaultValue: 'Thu',
+            }),
+            formI18n.translate.t(`common.weekday_6`, {
+                defaultValue: 'Fri',
+            }),
+            formI18n.translate.t(`common.weekday_7`, {
+                defaultValue: 'Sat',
+            }),
+        ],
+        backButtonLabel: dateTimePickerLabels?.backButtonLabel ??
+            formI18n.translate.t(`common.back_button`, {
+                defaultValue: 'Back',
+            }),
+        forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ??
+            formI18n.translate.t(`common.forward_button`, {
+                defaultValue: 'Forward',
+            }),
+    };
+    const dateTimePickerContent = (jsx(DateTimePicker$1, { value: selectedDate, onChange: (date) => {
+            setValue(colLabel, dayjs(date).tz(timezone).format(dateFormat));
+        }, timezone: timezone, labels: dateTimePickerLabelsConfig }));
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(PopoverRoot, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(PopoverTrigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
-                        }, justifyContent: 'start', children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ''] }) }), jsx(PopoverContent, { minW: '450px', children: jsxs(PopoverBody, { children: [jsx(PopoverTitle, {}), jsx(DateTimePicker$1, { value: selectedDate, onChange: (date) => {
-                                    setValue(colLabel, dayjs(date).tz(timezone).format(dateFormat));
-                                }, timezone: timezone, labels: {
-                                    monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
-                                        formI18n.translate.t(`common.month_1`, {
-                                            defaultValue: 'January',
-                                        }),
-                                        formI18n.translate.t(`common.month_2`, {
-                                            defaultValue: 'February',
-                                        }),
-                                        formI18n.translate.t(`common.month_3`, {
-                                            defaultValue: 'March',
-                                        }),
-                                        formI18n.translate.t(`common.month_4`, {
-                                            defaultValue: 'April',
-                                        }),
-                                        formI18n.translate.t(`common.month_5`, {
-                                            defaultValue: 'May',
-                                        }),
-                                        formI18n.translate.t(`common.month_6`, {
-                                            defaultValue: 'June',
-                                        }),
-                                        formI18n.translate.t(`common.month_7`, {
-                                            defaultValue: 'July',
-                                        }),
-                                        formI18n.translate.t(`common.month_8`, {
-                                            defaultValue: 'August',
-                                        }),
-                                        formI18n.translate.t(`common.month_9`, {
-                                            defaultValue: 'September',
-                                        }),
-                                        formI18n.translate.t(`common.month_10`, {
-                                            defaultValue: 'October',
-                                        }),
-                                        formI18n.translate.t(`common.month_11`, {
-                                            defaultValue: 'November',
-                                        }),
-                                        formI18n.translate.t(`common.month_12`, {
-                                            defaultValue: 'December',
-                                        }),
-                                    ],
-                                    weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
-                                        formI18n.translate.t(`common.weekday_1`, {
-                                            defaultValue: 'Sun',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_2`, {
-                                            defaultValue: 'Mon',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_3`, {
-                                            defaultValue: 'Tue',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_4`, {
-                                            defaultValue: 'Wed',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_5`, {
-                                            defaultValue: 'Thu',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_6`, {
-                                            defaultValue: 'Fri',
-                                        }),
-                                        formI18n.translate.t(`common.weekday_7`, {
-                                            defaultValue: 'Sat',
-                                        }),
-                                    ],
-                                    backButtonLabel: dateTimePickerLabels?.backButtonLabel ??
-                                        formI18n.translate.t(`common.back_button`, {
-                                            defaultValue: 'Back',
-                                        }),
-                                    forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ??
-                                        formI18n.translate.t(`common.forward_button`, {
-                                            defaultValue: 'Forward',
-                                        }),
-                                } })] }) })] }) }));
+                        }, justifyContent: 'start', children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "450px", minH: "25rem", children: jsx(Popover.Body, { children: dateTimePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "450px", minH: "25rem", children: jsx(Popover.Body, { children: dateTimePickerContent }) }) }) }))] }) }));
 };
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {
@@ -7110,7 +7497,7 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
 };
 
 const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
-    const { columns, translate, data } = useDataTableContext();
+    const { columns, data } = useDataTableContext();
     const columnsMap = Object.fromEntries(columns.map((def) => {
         const { accessorKey, id } = def;
         if (accessorKey) {
@@ -7124,7 +7511,7 @@ const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
         if (!!size === false) {
             return 0;
         }
-        if (typeof size === "number") {
+        if (typeof size === 'number') {
             return size;
         }
         return 0;
@@ -7133,39 +7520,40 @@ const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
     const columnWidths = columns
         .map(({ size }) => {
         if (!!size === false) {
-            return "1fr";
+            return '1fr';
         }
         return `minmax(${size}px, ${(size / totalWidths) * 100}%)`;
     })
-        .join(" ");
-    console.log({ columnWidths }, "hadfg");
+        .join(' ');
+    console.log({ columnWidths }, 'hadfg');
     const cellProps = {
-        flex: "1 0 0%",
-        overflow: "auto",
-        paddingX: "2",
-        py: "1",
-        color: { base: "colorPalette.900", _dark: "colorPalette.100" },
-        bgColor: { base: "colorPalette.50", _dark: "colorPalette.950" },
-        borderBottomColor: { base: "colorPalette.200", _dark: "colorPalette.800" },
-        borderBottomWidth: "1px",
+        flex: '1 0 0%',
+        overflow: 'auto',
+        paddingX: '2',
+        py: '1',
+        color: { base: 'colorPalette.900', _dark: 'colorPalette.100' },
+        bgColor: { base: 'colorPalette.50', _dark: 'colorPalette.950' },
+        borderBottomColor: { base: 'colorPalette.200', _dark: 'colorPalette.800' },
+        borderBottomWidth: '1px',
         ...{ colorPalette },
     };
     if (data.length <= 0) {
         return jsx(Fragment, { children: emptyComponent });
     }
-    return (jsxs(Grid, { templateColumns: `${columnWidths}`, overflow: "auto", borderWidth: "1px", color: { base: "colorPalette.900", _dark: "colorPalette.100" }, borderColor: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: [jsx(Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: "colorPalette.200", _dark: "colorPalette.800" }, colorPalette, children: columnHeaders.map((header) => {
-                    return (jsx(Box, { flex: "1 0 0%", paddingX: "2", py: "1", overflow: "auto", textOverflow: "ellipsis", children: translate.t(`column_header.${header}`) }));
+    return (jsxs(Grid, { templateColumns: `${columnWidths}`, overflow: 'auto', borderWidth: '1px', color: { base: 'colorPalette.900', _dark: 'colorPalette.100' }, borderColor: { base: 'colorPalette.200', _dark: 'colorPalette.800' }, colorPalette, children: [jsx(Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: 'colorPalette.200', _dark: 'colorPalette.800' }, colorPalette, children: columnHeaders.map((header) => {
+                    const columnDef = columnsMap[header];
+                    return (jsx(Box, { flex: '1 0 0%', paddingX: '2', py: '1', overflow: 'auto', textOverflow: 'ellipsis', children: columnDef?.meta?.displayName ?? header }));
                 }) }), data.map((record) => {
                 return (jsx(Fragment, { children: columnHeaders.map((header) => {
                         const { cell } = columnsMap[header];
                         const value = record[header];
                         if (!!record === false) {
-                            return (jsx(Box, { ...cellProps, children: translate.t(`column_cell.placeholder`) }));
+                            return (jsx(Box, { ...cellProps }));
                         }
                         if (cell) {
                             return (jsx(Box, { ...cellProps, children: cell({ row: { original: record } }) }));
                         }
-                        if (typeof value === "object") {
+                        if (typeof value === 'object') {
                             return (jsx(Box, { ...cellProps, children: jsx(RecordDisplay, { object: value }) }));
                         }
                         return jsx(Box, { ...cellProps, children: value });
@@ -7272,63 +7660,57 @@ const DefaultTableServer = ({ isLoading: isLoadingOverride, ...props }) => {
 };
 
 const CellRenderer = ({ cell }) => {
-    const { translate } = useDataTableContext();
     const getLabel = ({ columnId }) => {
-        if (translate !== undefined) {
-            return translate.t(`${columnId}`);
-        }
-        return snakeToLabel(columnId);
+        const column = cell.column;
+        return column.columnDef.meta?.displayName ?? snakeToLabel(columnId);
     };
     const formatValue = (value) => {
-        if (typeof value === "object") {
+        if (typeof value === 'object') {
             return JSON.stringify(value);
         }
-        if (typeof value === "string") {
+        if (typeof value === 'string') {
             return value;
         }
-        if (typeof value === "number" || typeof value === "boolean") {
+        if (typeof value === 'number' || typeof value === 'boolean') {
             return `${value}`;
         }
         if (value === undefined) {
-            if (translate !== undefined) {
-                return translate.t(`undefined`);
-            }
             return `undefined`;
         }
         throw new Error(`value is unknown, ${typeof value}`);
     };
     const showCustomDataDisplay = cell.column.columnDef.meta?.showCustomDisplay ?? false;
     const gridColumn = cell.column.columnDef.meta?.gridColumn ?? [
-        "span 12",
-        "span 6",
-        "span 3",
+        'span 12',
+        'span 6',
+        'span 3',
     ];
     const gridRow = cell.column.columnDef.meta?.gridRow ?? {};
     if (showCustomDataDisplay) {
         return (jsx(Flex, { gridColumn, gridRow, children: flexRender(cell.column.columnDef.cell, cell.getContext()) }, cell.id));
     }
     const value = cell.getValue();
-    if (typeof value === "object") {
+    if (typeof value === 'object') {
         return (jsxs(Box, { gridColumn, gridRow, children: [jsx(Box, { children: getLabel({ columnId: cell.column.id }) }), jsx(RecordDisplay, { boxProps: {
                         borderWidth: 1,
                         borderRadius: 4,
-                        borderColor: "gray.400",
+                        borderColor: 'gray.400',
                         paddingX: 4,
                         paddingY: 2,
                     }, object: value })] }, cell.id));
     }
-    return (jsxs(Box, { gridColumn, gridRow, children: [jsx(Box, { color: "colorPalette.400", children: getLabel({ columnId: cell.column.id }) }), jsx(Box, { wordBreak: "break-word", textOverflow: "ellipsis", overflow: "hidden", children: `${formatValue(cell.getValue())}` })] }, cell.id));
+    return (jsxs(Box, { gridColumn, gridRow, children: [jsx(Box, { color: 'colorPalette.400', children: getLabel({ columnId: cell.column.id }) }), jsx(Box, { wordBreak: 'break-word', textOverflow: 'ellipsis', overflow: 'hidden', children: `${formatValue(cell.getValue())}` })] }, cell.id));
 };
-const DataDisplay = ({ variant = "" }) => {
-    const { table, translate } = useDataTableContext();
-    return (jsx(Flex, { flexFlow: "column", gap: "1", children: table.getRowModel().rows.map((row) => {
+const DataDisplay = ({ variant = '' }) => {
+    const { table } = useDataTableContext();
+    return (jsx(Flex, { flexFlow: 'column', gap: '1', children: table.getRowModel().rows.map((row) => {
             const rowId = row.id;
-            return (jsx(Card.Root, { children: jsx(Card.Body, { display: "grid", gap: 4, padding: 4, gridTemplateColumns: "repeat(12, 1fr)", children: table.getAllColumns().map((column) => {
+            return (jsx(Card.Root, { children: jsx(Card.Body, { display: 'grid', gap: 4, padding: 4, gridTemplateColumns: 'repeat(12, 1fr)', children: table.getAllColumns().map((column) => {
                         const childCell = row.getAllCells().find((cell) => {
                             return cell.id === `${rowId}_${column.id}`;
                         });
                         if (column.columns.length > 0) {
-                            return (jsxs(Card.Root, { margin: "1", gridColumn: "span 12", children: [jsx(Card.Header, { color: "gray.400", children: translate.t(column.id) }), jsx(Card.Body, { display: "grid", gap: "4", gridTemplateColumns: "repeat(12, 1fr)", children: column.columns.map((column) => {
+                            return (jsxs(Card.Root, { margin: '1', gridColumn: 'span 12', children: [jsx(Card.Header, { color: 'gray.400', children: column.columnDef.meta?.displayName ?? column.id }), jsx(Card.Body, { display: 'grid', gap: '4', gridTemplateColumns: 'repeat(12, 1fr)', children: column.columns.map((column) => {
                                             if (!column.getIsVisible()) {
                                                 return jsx(Fragment, {});
                                             }

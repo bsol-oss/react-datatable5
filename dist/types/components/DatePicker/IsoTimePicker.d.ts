@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from 'react';
 interface IsoTimePickerProps {
     hour: number | null;
     setHour: Dispatch<SetStateAction<number | null>>;
@@ -11,6 +11,9 @@ interface IsoTimePickerProps {
         minute: number | null;
         second: number | null;
     }) => void;
+    startTime?: string;
+    selectedDate?: string;
+    timezone?: string;
 }
-export declare function IsoTimePicker({ hour, setHour, minute, setMinute, second, setSecond, onChange, }: IsoTimePickerProps): import("react/jsx-runtime").JSX.Element;
+export declare function IsoTimePicker({ hour, setHour, minute, setMinute, second, setSecond, onChange, startTime, selectedDate, timezone, }: IsoTimePickerProps): import("react/jsx-runtime").JSX.Element;
 export {};
