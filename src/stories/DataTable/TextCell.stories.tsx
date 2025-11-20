@@ -1,8 +1,14 @@
 import { Provider } from '@/components/ui/provider';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { DataTable, DefaultTable, TextCell, useDataTable } from '../../index';
+import {
+  DataTable,
+  DefaultTable,
+  GlobalFilter,
+  TextCell,
+  useDataTable,
+} from '../../index';
 import { data, Product } from '../product_data';
 
 const meta = {
@@ -633,6 +639,102 @@ export const ColorPaletteVariations: Story = {
             data={extendedData}
             {...datatable}
           >
+            <DefaultTable />
+          </DataTable>
+        </Box>
+      </Provider>
+    );
+  },
+};
+
+// Story 10: Text Highlighting with Global Filter
+const HighlightingColumns: ColumnDef<ExtendedProduct>[] = [
+  columnHelper.accessor('id', {
+    header: () => <span>ID</span>,
+    cell: (props) => <TextCell text={props.row.original.id} />,
+    size: 80,
+  }),
+  columnHelper.accessor('title', {
+    header: () => <span>Title (Plain Text)</span>,
+    cell: (props) => <TextCell text={props.row.original.title} />,
+    size: 200,
+  }),
+  columnHelper.accessor('title', {
+    id: 'titleLink',
+    header: () => <span>Title (Link)</span>,
+    cell: (props) => (
+      <TextCell
+        text={props.row.original.title}
+        href={props.row.original.website}
+      />
+    ),
+    size: 200,
+  }),
+  columnHelper.accessor('orderId', {
+    header: () => <span>Order ID (Copyable)</span>,
+    cell: (props) => <TextCell text={props.row.original.orderId} isCopyable />,
+    size: 150,
+  }),
+  columnHelper.accessor('status', {
+    header: () => <span>Status (Badge)</span>,
+    cell: (props) => (
+      <TextCell
+        text={props.row.original.status}
+        isBadge
+        badgeColor={
+          props.row.original.status === 'active'
+            ? 'green'
+            : props.row.original.status === 'inactive'
+              ? 'red'
+              : 'yellow'
+        }
+      />
+    ),
+    size: 120,
+  }),
+  columnHelper.accessor('tags', {
+    header: () => <span>Tags (Array of Badges)</span>,
+    cell: (props) => (
+      <TextCell text={props.row.original.tags || []} colorPalette="purple" />
+    ),
+    size: 250,
+  }),
+];
+
+export const TextHighlightingWithGlobalFilter: Story = {
+  render: () => {
+    const datatable = useDataTable({
+      default: {
+        sorting: [{ id: 'id', desc: false }],
+        pagination: { pageSize: 10, pageIndex: 0 },
+      },
+    });
+
+    return (
+      <Provider>
+        <Box p={4}>
+          <Text fontSize="lg" fontWeight="bold" mb={2}>
+            Text Highlighting with Global Filter
+          </Text>
+          <Text fontSize="sm" color="fg.muted" mb={4}>
+            When you type in the global filter search box, matching text in all
+            TextCell components will be automatically highlighted with a yellow
+            background. This works across all TextCell variants: plain text,
+            links, copyable text, badges, and arrays of badges. Try searching
+            for terms like "iPhone", "active", "new", or "ORD" to see the
+            highlighting in action.
+          </Text>
+          <DataTable
+            columns={HighlightingColumns}
+            data={extendedData}
+            {...datatable}
+          >
+            <Flex mb={4} gap={2} alignItems="center">
+              <Text fontSize="sm" fontWeight="medium">
+                Search:
+              </Text>
+              <GlobalFilter />
+            </Flex>
             <DefaultTable />
           </DataTable>
         </Box>

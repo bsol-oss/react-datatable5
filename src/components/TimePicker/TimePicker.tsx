@@ -1,25 +1,18 @@
 import {
   Button,
   Combobox,
+  Flex,
   Grid,
   Icon,
   InputGroup,
   Portal,
-  Text,
   useFilter,
   useListCollection,
 } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import {
-  Dispatch,
-  SetStateAction,
-  useMemo,
-  useState,
-  useEffect,
-  useRef,
-} from 'react';
+import { Dispatch, SetStateAction, useMemo } from 'react';
 import { BsClock } from 'react-icons/bs';
 import { MdCancel } from 'react-icons/md';
 
@@ -139,12 +132,17 @@ export function TimePicker({
               const diffMinutes = Math.floor(
                 (diffMs % (1000 * 60 * 60)) / (1000 * 60)
               );
+              const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
 
-              if (diffHours > 0 || diffMinutes > 0) {
-                const diffText =
-                  diffHours > 0
-                    ? `${diffHours}h ${diffMinutes}m`
-                    : `${diffMinutes}m`;
+              if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+                let diffText = '';
+                if (diffHours > 0) {
+                  diffText = `${diffHours}h ${diffMinutes}m`;
+                } else if (diffMinutes > 0) {
+                  diffText = `${diffMinutes}m ${diffSeconds}s`;
+                } else {
+                  diffText = `${diffSeconds}s`;
+                }
                 label = `${displayTime} (+${diffText})`;
               }
             }
@@ -173,26 +171,6 @@ export function TimePicker({
     filter: contains,
   });
 
-  // Track input mode vs display mode
-  const [isInputMode, setIsInputMode] = useState(false);
-  const [inputValue, setInputValue] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Switch to display mode when value is selected
-  useEffect(() => {
-    if (hour !== null && minute !== null && meridiem !== null) {
-      setIsInputMode(false);
-      setInputValue(''); // Clear input value when switching to display mode
-    }
-  }, [hour, minute, meridiem]);
-
-  // Focus input when switching to input mode
-  useEffect(() => {
-    if (isInputMode && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isInputMode]);
-
   // Get current value string for combobox
   const currentValue = useMemo(() => {
     if (hour === null || minute === null || meridiem === null) {
@@ -201,13 +179,8 @@ export function TimePicker({
     return `${hour}:${minute.toString().padStart(2, '0')}:${meridiem}`;
   }, [hour, minute, meridiem]);
 
-  // INPUT MODE: Show raw input text (no duration)
-  const inputModeText = useMemo(() => {
-    return inputValue;
-  }, [inputValue]);
-
-  // DISPLAY MODE: Show selected value with duration
-  const displayModeText = useMemo(() => {
+  // Get display text for combobox
+  const displayText = useMemo(() => {
     if (hour === null || minute === null || meridiem === null) {
       return '';
     }
@@ -227,7 +200,7 @@ export function TimePicker({
     const formattedMinute = minute.toString().padStart(2, '0');
     const timeDisplay = `${formattedHour}:${formattedMinute} ${meridiem}`;
 
-    // Add duration if startTime is provided
+    // Show duration difference if startTime is provided
     if (startTime && selectedDate) {
       const startDateObj = dayjs(startTime).tz(timezone);
       const selectedDateObj = dayjs(selectedDate).tz(timezone);
@@ -244,12 +217,17 @@ export function TimePicker({
           const diffMinutes = Math.floor(
             (diffMs % (1000 * 60 * 60)) / (1000 * 60)
           );
+          const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
 
-          if (diffHours > 0 || diffMinutes > 0) {
-            const diffText =
-              diffHours > 0
-                ? `${diffHours}h ${diffMinutes}m`
-                : `${diffMinutes}m`;
+          if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+            let diffText = '';
+            if (diffHours > 0) {
+              diffText = `${diffHours}h ${diffMinutes}m`;
+            } else if (diffMinutes > 0) {
+              diffText = `${diffMinutes}m ${diffSeconds}s`;
+            } else {
+              diffText = `${diffSeconds}s`;
+            }
             return `${timeDisplay} (+${diffText})`;
           }
         }
@@ -257,17 +235,12 @@ export function TimePicker({
     }
 
     return timeDisplay;
-  }, [hour, minute, meridiem, timezone, startTime, selectedDate]);
-
-  // Choose text based on mode
-  const displayText = isInputMode ? inputModeText : displayModeText;
+  }, [hour, minute, meridiem, startTime, selectedDate, timezone]);
 
   const handleClear = () => {
     setHour(null);
     setMinute(null);
     setMeridiem(null);
-    setIsInputMode(false);
-    setInputValue('');
     filter(''); // Reset filter to show all options
     onChange({ hour: null, minute: null, meridiem: null });
   };
@@ -287,8 +260,6 @@ export function TimePicker({
       setHour(selectedOption.hour);
       setMinute(selectedOption.minute);
       setMeridiem(selectedOption.meridiem);
-      setIsInputMode(false); // Switch to display mode
-      setInputValue('');
       filter(''); // Reset filter after selection
       onChange({
         hour: selectedOption.hour,
@@ -298,44 +269,15 @@ export function TimePicker({
     }
   };
 
-  // Handle Enter key to select first filtered option
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && collection.items.length > 0) {
-      e.preventDefault();
-      const firstOption = collection.items[0];
-      if (firstOption) {
-        const selectedOption = timeOptions.find(
-          (opt) => opt.value === firstOption.value
-        );
-        if (selectedOption) {
-          setHour(selectedOption.hour);
-          setMinute(selectedOption.minute);
-          setMeridiem(selectedOption.meridiem);
-          setIsInputMode(false); // Switch to display mode
-          setInputValue('');
-          filter('');
-          onChange({
-            hour: selectedOption.hour,
-            minute: selectedOption.minute,
-            meridiem: selectedOption.meridiem,
-          });
-        }
-      }
-    }
-  };
-
   const handleInputValueChange = (
     details: Combobox.InputValueChangeDetails
   ) => {
     const inputValue = details.inputValue.trim();
-    setInputValue(inputValue);
-    setIsInputMode(true); // Switch to input mode
 
     // Filter the collection based on input
     filter(inputValue);
 
     if (!inputValue) {
-      setIsInputMode(false);
       return;
     }
 
@@ -358,14 +300,16 @@ export function TimePicker({
       }
 
       // Validate minute (0-59)
-      const validMinute = parsedMinute > 59 ? 0 : parsedMinute;
+      if (parsedMinute < 0 || parsedMinute > 59) {
+        return;
+      }
 
       setHour(parsedHour);
-      setMinute(validMinute);
+      setMinute(parsedMinute);
       setMeridiem(parsedMeridiem);
       onChange({
         hour: parsedHour,
-        minute: validMinute,
+        minute: parsedMinute,
         meridiem: parsedMeridiem,
       });
       return;
@@ -373,7 +317,7 @@ export function TimePicker({
 
     // Pattern 2: 24-hour format (e.g., "2130", "09:30", "21:30")
     // Matches: 1-2 digits hour, optional colon, 2 digits minute
-    const pattern24Hour = /^(\d{2}):?(\d{2})$/;
+    const pattern24Hour = /^(\d{1,2}):?(\d{2})$/;
     const match24Hour = normalized.match(pattern24Hour);
 
     if (match24Hour) {
@@ -381,7 +325,12 @@ export function TimePicker({
       const parsedMinute = parseInt(match24Hour[2], 10);
 
       // Validate hour (0-23)
-      if (parsedHour > 23) {
+      if (parsedHour < 0 || parsedHour > 23) {
+        return;
+      }
+
+      // Validate minute (0-59)
+      if (parsedMinute < 0 || parsedMinute > 59) {
         return;
       }
 
@@ -400,15 +349,12 @@ export function TimePicker({
         parsedMeridiem = 'am';
       }
 
-      // Validate minute (0-59)
-      const validMinute = parsedMinute > 59 ? 0 : parsedMinute;
-
       setHour(parsedHour);
-      setMinute(validMinute);
+      setMinute(parsedMinute);
       setMeridiem(parsedMeridiem);
       onChange({
         hour: parsedHour,
-        minute: validMinute,
+        minute: parsedMinute,
         meridiem: parsedMeridiem,
       });
       return;
@@ -416,95 +362,56 @@ export function TimePicker({
   };
 
   return (
-    <Grid
-      justifyContent={'center'}
-      alignItems={'center'}
-      templateColumns={'200px auto'}
-      gap="2"
-      width="auto"
-      minWidth="250px"
-    >
-      <Combobox.Root
-        collection={collection}
-        value={currentValue ? [currentValue] : []}
-        onValueChange={handleValueChange}
-        onInputValueChange={handleInputValueChange}
-        allowCustomValue
-        selectionBehavior="replace"
-        openOnClick
-        width="100%"
+    <Flex direction="column" gap={3}>
+      <Grid
+        justifyContent={'center'}
+        alignItems={'center'}
+        templateColumns={'1fr auto'}
+        gap="2"
+        width="auto"
+        minWidth="300px"
       >
-        <Combobox.Control>
-          {isInputMode ? (
+        <Combobox.Root
+          collection={collection}
+          value={currentValue ? [currentValue] : []}
+          onValueChange={handleValueChange}
+          onInputValueChange={handleInputValueChange}
+          allowCustomValue
+          selectionBehavior="replace"
+          openOnClick
+          width="100%"
+        >
+          <Combobox.Control>
             <InputGroup startElement={<BsClock />}>
-              <Combobox.Input
-                ref={inputRef}
-                placeholder="Select time"
-                value={displayText}
-                onKeyDown={handleKeyDown}
-              />
+              <Combobox.Input placeholder="hh:mm a" value={displayText} />
             </InputGroup>
-          ) : (
-            <Grid
-              templateColumns="auto 1fr auto"
-              alignItems="center"
-              gap={2}
-              width="100%"
-              minHeight="40px"
-              px={3}
-              border="1px solid"
-              borderColor="gray.200"
-              borderRadius="md"
-              cursor="pointer"
-              onClick={() => setIsInputMode(true)}
-            >
-              <Icon>
-                <BsClock />
-              </Icon>
-              <Text
-                fontSize="sm"
-                overflow="hidden"
-                textOverflow="ellipsis"
-                whiteSpace="nowrap"
-              >
-                {displayText || 'Select time'}
-              </Text>
-              <Combobox.Trigger
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsInputMode(true);
-                }}
-              />
-            </Grid>
-          )}
-          {isInputMode && (
             <Combobox.IndicatorGroup>
               <Combobox.ClearTrigger />
               <Combobox.Trigger />
             </Combobox.IndicatorGroup>
-          )}
-        </Combobox.Control>
+          </Combobox.Control>
 
-        <Portal>
-          <Combobox.Positioner>
-            <Combobox.Content>
-              <Combobox.Empty>No time found</Combobox.Empty>
-              {collection.items.map((item) => (
-                <Combobox.Item item={item} key={item.value}>
-                  {item.label}
-                  <Combobox.ItemIndicator />
-                </Combobox.Item>
-              ))}
-            </Combobox.Content>
-          </Combobox.Positioner>
-        </Portal>
-      </Combobox.Root>
+          <Portal>
+            <Combobox.Positioner>
+              <Combobox.Content>
+                <Combobox.Empty>No time found</Combobox.Empty>
+                {collection.items.map((item) => (
+                  <Combobox.Item item={item} key={item.value}>
+                    {item.label}
+                    <Combobox.ItemIndicator />
+                  </Combobox.Item>
+                ))}
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Portal>
+        </Combobox.Root>
 
-      <Button onClick={handleClear} size="sm" variant="ghost">
-        <Icon>
-          <MdCancel />
-        </Icon>
-      </Button>
-    </Grid>
+        <Button onClick={handleClear} size="sm" variant="ghost">
+          <Icon>
+            <MdCancel />
+          </Icon>
+        </Button>
+      </Grid>
+    </Flex>
   );
 }

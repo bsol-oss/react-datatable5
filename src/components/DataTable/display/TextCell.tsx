@@ -9,9 +9,10 @@ import {
   Text,
   TextProps,
 } from '@chakra-ui/react';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { LuExternalLink } from 'react-icons/lu';
 import { TextWithCopy } from './TextWithCopy';
+import { useDataTableContext } from '../context/useDataTableContext';
 
 interface RenderValueProps {
   text: string | number | null | undefined;
@@ -21,7 +22,62 @@ interface RenderValueProps {
   isBadge?: boolean;
   badgeColor?: string;
   colorPalette?: string;
+  globalFilter?: string;
 }
+
+// Helper function to highlight matching text
+const highlightText = (
+  text: string | number,
+  searchTerm: string | undefined
+): ReactNode => {
+  if (!searchTerm || searchTerm.trim() === '') {
+    return String(text);
+  }
+
+  const textStr = String(text);
+  const searchLower = searchTerm.toLowerCase();
+  const textLower = textStr.toLowerCase();
+  const parts: ReactNode[] = [];
+  let lastIndex = 0;
+  let index = textLower.indexOf(searchLower, lastIndex);
+
+  while (index !== -1) {
+    // Add text before match
+    if (index > lastIndex) {
+      parts.push(textStr.substring(lastIndex, index));
+    }
+
+    // Add highlighted match
+    parts.push(
+      <Text
+        key={index}
+        as="mark"
+        bg={{
+          base: 'yellow.200',
+          _dark: 'yellow.800',
+        }}
+        color={{
+          base: 'gray.900',
+          _dark: 'gray.100',
+        }}
+        px={0.5}
+        borderRadius="sm"
+      >
+        {textStr.substring(index, index + searchTerm.length)}
+      </Text>
+    );
+
+    lastIndex = index + searchTerm.length;
+    index = textLower.indexOf(searchLower, lastIndex);
+  }
+
+  // Add remaining text
+  if (lastIndex < textStr.length) {
+    parts.push(textStr.substring(lastIndex));
+  }
+
+  return parts.length > 0 ? <>{parts}</> : textStr;
+};
 
 const RenderValue = ({
   text,
@@ -31,9 +87,17 @@ const RenderValue = ({
   isBadge,
   badgeColor,
   colorPalette,
+  globalFilter,
 }: RenderValueProps) => {
+  const highlightedText = useMemo(
+    () => highlightText(text ?? '', globalFilter),
+    [text, globalFilter]
+  );
+
   if (isBadge) {
-    return <Badge colorPalette={colorPalette || badgeColor}>{text}</Badge>;
+    return (
+      <Badge colorPalette={colorPalette || badgeColor}>{highlightedText}</Badge>
+    );
   }
 
   // onClick takes precedence over href
@@ -53,7 +117,7 @@ const RenderValue = ({
         }}
         transition="all 0.2s"
       >
-        {text}
+        {highlightedText}
       </Box>
     );
   }
@@ -68,16 +132,22 @@ const RenderValue = ({
           textDecoration: 'underline',
         }}
       >
-        {text} <Icon as={LuExternalLink} />
+        {highlightedText} <Icon as={LuExternalLink} />
       </Link>
     );
   }
 
   if (isCopyable) {
-    return <TextWithCopy text={text} />;
+    return (
+      <TextWithCopy
+        text={text}
+        globalFilter={globalFilter}
+        highlightedText={highlightedText}
+      />
+    );
   }
 
-  return <>{text}</>;
+  return <>{highlightedText}</>;
 };
 
 export interface TextCellProps {
@@ -131,12 +201,21 @@ export const TextCell = ({
   textProps = {},
   children,
 }: TextCellProps) => {
+  // Get globalFilter from context
+  // If not in DataTable context, will use default empty string from context
+  const { globalFilter } = useDataTableContext();
+
   // Legacy API: if children is provided, use old behavior
   if (children !== undefined) {
     const displayText =
       typeof children === 'string' || typeof children === 'number'
         ? String(children)
         : children;
+
+    const highlightedDisplayText =
+      typeof displayText === 'string' || typeof displayText === 'number'
+        ? highlightText(displayText, globalFilter)
+        : displayText;
 
     if (label) {
       return (
@@ -155,7 +234,7 @@ export const TextCell = ({
               wordBreak={'break-all'}
               {...textProps}
             >
-              {displayText}
+              {highlightedDisplayText}
             </Text>
           </Tooltip>
         </Flex>
@@ -170,7 +249,7 @@ export const TextCell = ({
           wordBreak={'break-all'}
           {...textProps}
         >
-          {displayText}
+          {highlightedDisplayText}
         </Text>
       </Flex>
     );
@@ -182,11 +261,14 @@ export const TextCell = ({
   if (Array.isArray(displayValue)) {
     return (
       <Flex gap={2} flexWrap="wrap">
-        {displayValue.map((item, index) => (
-          <Badge key={index} colorPalette={colorPalette || badgeColor}>
-            {item}
-          </Badge>
-        ))}
+        {displayValue.map((item, index) => {
+          const highlightedItem = highlightText(item, globalFilter);
+          return (
+            <Badge key={index} colorPalette={colorPalette || badgeColor}>
+              {highlightedItem}
+            </Badge>
+          );
+        })}
       </Flex>
     );
   }
@@ -225,6 +307,7 @@ export const TextCell = ({
         isBadge={isBadge}
         badgeColor={badgeColor}
         colorPalette={colorPalette}
+        globalFilter={globalFilter}
       />
     </Box>
   );
