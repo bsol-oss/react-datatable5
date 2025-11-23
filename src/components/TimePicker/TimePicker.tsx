@@ -101,14 +101,10 @@ export function TimePicker({
           const hour24 =
             mer === 'am' ? (h === 12 ? 0 : h) : h === 12 ? 12 : h + 12;
 
-          const timeStr = dayjs()
-            .tz(timezone)
-            .hour(hour24)
-            .minute(m)
-            .format('HH:mmZ');
-          const displayTime = dayjs(`1970-01-01T${timeStr}`, 'HH:mmZ').format(
-            'hh:mm a'
-          );
+          // Format time directly without using dayjs with dummy dates
+          const formattedHour = h.toString().padStart(2, '0');
+          const formattedMinute = m.toString().padStart(2, '0');
+          const displayTime = `${formattedHour}:${formattedMinute} ${mer}`;
 
           // Filter out times that would result in negative duration (only when dates are the same)
           if (startDateTime && selectedDate && shouldFilterByDate) {
@@ -186,6 +182,7 @@ export function TimePicker({
   useEffect(() => {
     if (hour !== null && minute !== null && meridiem !== null) {
       setIsInputMode(false);
+      setInputValue(''); // Clear input value when switching to display mode
     }
   }, [hour, minute, meridiem]);
 
@@ -214,6 +211,8 @@ export function TimePicker({
     if (hour === null || minute === null || meridiem === null) {
       return '';
     }
+
+    // Format time directly without using dummy dates
     const hour24 =
       meridiem === 'am'
         ? hour === 12
@@ -222,14 +221,11 @@ export function TimePicker({
         : hour === 12
           ? 12
           : hour + 12;
-    const timeStr = dayjs()
-      .tz(timezone)
-      .hour(hour24)
-      .minute(minute)
-      .format('HH:mmZ');
-    const timeDisplay = dayjs(`1970-01-01T${timeStr}`, 'HH:mmZ').format(
-      'hh:mm a'
-    );
+
+    // Format hour and minute with proper padding (12-hour format)
+    const formattedHour = hour.toString().padStart(2, '0');
+    const formattedMinute = minute.toString().padStart(2, '0');
+    const timeDisplay = `${formattedHour}:${formattedMinute} ${meridiem}`;
 
     // Add duration if startTime is provided
     if (startTime && selectedDate) {

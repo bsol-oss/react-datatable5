@@ -1,6 +1,7 @@
 import { Button, Flex, Grid, Icon, Text } from '@chakra-ui/react';
-import { useState } from 'react';
-import DatePicker, { DatePickerLabels } from './DatePicker';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { DatePickerInput } from './DatePickerInput';
+import { DatePickerLabels } from './DatePicker';
 import { TimePicker } from '../TimePicker/TimePicker';
 import { IsoTimePicker } from './IsoTimePicker';
 import dayjs from 'dayjs';
@@ -19,6 +20,8 @@ interface DateTimePickerProps {
   labels?: DatePickerLabels;
   timezone?: string;
   startTime?: string;
+  minDate?: Date;
+  maxDate?: Date;
 }
 
 interface TimeData12Hour {
@@ -61,43 +64,177 @@ export function DateTimePicker({
   },
   timezone = 'Asia/Hong_Kong',
   startTime,
+  minDate,
+  maxDate,
 }: DateTimePickerProps) {
-  const [selectedDate, setSelectedDate] = useState<string>(value || '');
+  console.log('[DateTimePicker] Component initialized with props:', {
+    value,
+    format,
+    showSeconds,
+    timezone,
+    startTime,
+    minDate,
+    maxDate,
+  });
+
+  // Initialize selectedDate from value prop, converting ISO to YYYY-MM-DD format
+  const getDateString = useCallback(
+    (val?: string) => {
+      if (!val) return '';
+      const dateObj = dayjs(val).tz(timezone);
+      return dateObj.isValid() ? dateObj.format('YYYY-MM-DD') : '';
+    },
+    [timezone]
+  );
+
+  const [selectedDate, setSelectedDate] = useState<string>(
+    getDateString(value)
+  );
+
+  // Helper to get time values from value prop with timezone
+  const getTimeFromValue = useCallback(
+    (val?: string) => {
+      console.log('[DateTimePicker] getTimeFromValue called:', {
+        val,
+        timezone,
+        showSeconds,
+      });
+      if (!val) {
+        console.log('[DateTimePicker] No value provided, returning nulls');
+        return {
+          hour12: null,
+          minute: null,
+          meridiem: null as 'am' | 'pm' | null,
+          hour24: null,
+          second: null,
+        };
+      }
+      const dateObj = dayjs(val).tz(timezone);
+      console.log('[DateTimePicker] Parsed date object:', {
+        original: val,
+        timezone,
+        isValid: dateObj.isValid(),
+        formatted: dateObj.format('YYYY-MM-DD HH:mm:ss Z'),
+        hour24: dateObj.hour(),
+        minute: dateObj.minute(),
+        second: dateObj.second(),
+      });
+      if (!dateObj.isValid()) {
+        console.log('[DateTimePicker] Invalid date object, returning nulls');
+        return {
+          hour12: null,
+          minute: null,
+          meridiem: null as 'am' | 'pm' | null,
+          hour24: null,
+          second: null,
+        };
+      }
+      const hour24Value = dateObj.hour();
+      const hour12Value = hour24Value % 12 || 12;
+      const minuteValue = dateObj.minute();
+      const meridiemValue: 'am' | 'pm' = hour24Value >= 12 ? 'pm' : 'am';
+      const secondValue = showSeconds ? dateObj.second() : null;
+
+      const result = {
+        hour12: hour12Value,
+        minute: minuteValue,
+        meridiem: meridiemValue,
+        hour24: hour24Value,
+        second: secondValue,
+      };
+      console.log('[DateTimePicker] Extracted time values:', result);
+      return result;
+    },
+    [timezone, showSeconds]
+  );
+
+  const initialTime = getTimeFromValue(value);
+  console.log('[DateTimePicker] Initial time from value:', {
+    value,
+    initialTime,
+  });
 
   // Time state for 12-hour format
-  const [hour12, setHour12] = useState<number | null>(
-    value ? dayjs(value).hour() % 12 || 12 : null
-  );
-  const [minute, setMinute] = useState<number | null>(
-    value ? dayjs(value).minute() : null
-  );
+  const [hour12, setHour12] = useState<number | null>(initialTime.hour12);
+  const [minute, setMinute] = useState<number | null>(initialTime.minute);
   const [meridiem, setMeridiem] = useState<'am' | 'pm' | null>(
-    value ? (dayjs(value).hour() >= 12 ? 'pm' : 'am') : null
+    initialTime.meridiem
   );
 
   // Time state for 24-hour format
-  const [hour24, setHour24] = useState<number | null>(
-    value ? dayjs(value).hour() : null
-  );
-  const [second, setSecond] = useState<number | null>(
-    showSeconds && value ? dayjs(value).second() : null
-  );
+  const [hour24, setHour24] = useState<number | null>(initialTime.hour24);
+  const [second, setSecond] = useState<number | null>(initialTime.second);
+
+  // Sync selectedDate and time states when value prop changes
+  useEffect(() => {
+    console.log('[DateTimePicker] useEffect triggered - value changed:', {
+      value,
+      timezone,
+      format,
+    });
+    const dateString = getDateString(value);
+    console.log('[DateTimePicker] Setting selectedDate:', dateString);
+    setSelectedDate(dateString);
+    const timeData = getTimeFromValue(value);
+    console.log('[DateTimePicker] Updating time states:', {
+      timeData,
+    });
+    setHour12(timeData.hour12);
+    setMinute(timeData.minute);
+    setMeridiem(timeData.meridiem);
+    setHour24(timeData.hour24);
+    setSecond(timeData.second);
+  }, [value, getTimeFromValue, getDateString]);
 
   const handleDateChange = (date: string) => {
+    console.log('[DateTimePicker] handleDateChange called:', {
+      date,
+      timezone,
+      showSeconds,
+      currentTimeStates: { hour12, minute, meridiem, hour24, second },
+    });
     setSelectedDate(date);
+    // Parse the date string (YYYY-MM-DD) in the specified timezone
+    const dateObj = dayjs.tz(date, timezone);
+    console.log('[DateTimePicker] Parsed date object:', {
+      date,
+      timezone,
+      isValid: dateObj.isValid(),
+      isoString: dateObj.toISOString(),
+      formatted: dateObj.format('YYYY-MM-DD HH:mm:ss Z'),
+    });
+    if (!dateObj.isValid()) {
+      console.warn('[DateTimePicker] Invalid date object in handleDateChange');
+      return;
+    }
     // When showSeconds is false, ignore seconds from the date
-    const dateObj = dayjs(date).tz(timezone);
-    if (!showSeconds && dateObj.isValid()) {
+    if (!showSeconds) {
       const dateWithoutSeconds = dateObj.second(0).millisecond(0).toISOString();
+      console.log(
+        '[DateTimePicker] Updating date without seconds:',
+        dateWithoutSeconds
+      );
       updateDateTime(dateWithoutSeconds);
     } else {
-      updateDateTime(dateObj.toISOString());
+      const dateWithSeconds = dateObj.toISOString();
+      console.log(
+        '[DateTimePicker] Updating date with seconds:',
+        dateWithSeconds
+      );
+      updateDateTime(dateWithSeconds);
     }
   };
 
   const handleTimeChange = (timeData: TimeData) => {
+    console.log('[DateTimePicker] handleTimeChange called:', {
+      timeData,
+      format,
+      selectedDate,
+      timezone,
+    });
     if (format === 'iso-date-time') {
       const data = timeData as TimeData24Hour;
+      console.log('[DateTimePicker] ISO format - setting 24-hour time:', data);
       setHour24(data.hour);
       setMinute(data.minute);
       if (showSeconds) {
@@ -108,6 +245,7 @@ export function DateTimePicker({
       }
     } else {
       const data = timeData as TimeData12Hour;
+      console.log('[DateTimePicker] 12-hour format - setting time:', data);
       setHour12(data.hour);
       setMinute(data.minute);
       setMeridiem(data.meridiem);
@@ -119,14 +257,30 @@ export function DateTimePicker({
         ? selectedDate
         : dayjs().tz(timezone).toISOString();
 
+    console.log('[DateTimePicker] Date to use for update:', {
+      selectedDate,
+      dateToUse,
+    });
+
     const dateObj = dayjs(dateToUse).tz(timezone);
     if (dateObj.isValid()) {
       updateDateTime(dateObj.toISOString(), timeData);
+    } else {
+      console.warn('[DateTimePicker] Invalid date object in handleTimeChange');
     }
   };
 
   const updateDateTime = (date?: string, timeData?: TimeData) => {
+    console.log('[DateTimePicker] updateDateTime called:', {
+      date,
+      timeData,
+      format,
+      currentStates: { hour12, minute, meridiem, hour24, second },
+    });
     if (!date) {
+      console.log(
+        '[DateTimePicker] No date provided, calling onChange(undefined)'
+      );
       onChange?.(undefined);
       return;
     }
@@ -134,37 +288,113 @@ export function DateTimePicker({
     // use dayjs to convert the date to the timezone
     const dateObj = dayjs(date).tz(timezone);
     if (!dateObj.isValid()) {
+      console.warn(
+        '[DateTimePicker] Invalid date object in updateDateTime:',
+        date
+      );
       return;
     }
     const newDate = dateObj.toDate();
 
     if (format === 'iso-date-time') {
       const data = timeData as TimeData24Hour | undefined;
-      const h = data?.hour ?? hour24;
-      const m = data?.minute ?? minute;
+      // Use timeData values if provided, otherwise fall back to current state
+      // But if timeData is explicitly provided with nulls, we need to check if all are null
+      const h = data !== undefined ? data.hour : hour24;
+      const m = data !== undefined ? data.minute : minute;
       // Always ignore seconds when showSeconds is false - set to 0
-      const s = showSeconds ? data?.second ?? second ?? 0 : 0;
+      const s = showSeconds
+        ? data !== undefined
+          ? data.second ?? null
+          : second ?? 0
+        : 0;
+
+      // If all time values are null, clear the value
+      if (h === null && m === null && (showSeconds ? s === null : true)) {
+        console.log(
+          '[DateTimePicker] All time values are null, clearing value'
+        );
+        onChange?.(undefined);
+        return;
+      }
+
+      console.log('[DateTimePicker] ISO format - setting time on date:', {
+        h,
+        m,
+        s,
+        showSeconds,
+      });
 
       if (h !== null) newDate.setHours(h);
       if (m !== null) newDate.setMinutes(m);
-      newDate.setSeconds(s);
+      newDate.setSeconds(s ?? 0);
     } else {
       const data = timeData as TimeData12Hour | undefined;
-      const h = data?.hour ?? hour12;
-      const m = data?.minute ?? minute;
-      const mer = data?.meridiem ?? meridiem;
+      console.log('[DateTimePicker] Processing 12-hour format:', {
+        'data !== undefined': data !== undefined,
+        'data?.hour': data?.hour,
+        'data?.minute': data?.minute,
+        'data?.meridiem': data?.meridiem,
+        'current hour12': hour12,
+        'current minute': minute,
+        'current meridiem': meridiem,
+      });
+      // Use timeData values if provided, otherwise fall back to current state
+      const h = data !== undefined ? data.hour : hour12;
+      const m = data !== undefined ? data.minute : minute;
+      const mer = data !== undefined ? data.meridiem : meridiem;
+
+      console.log('[DateTimePicker] Resolved time values:', { h, m, mer });
+
+      // If all time values are null, clear the value
+      if (h === null && m === null && mer === null) {
+        console.log(
+          '[DateTimePicker] All time values are null, clearing value'
+        );
+        onChange?.(undefined);
+        return;
+      }
+
+      console.log('[DateTimePicker] 12-hour format - converting time:', {
+        h,
+        m,
+        mer,
+      });
 
       if (h !== null && mer !== null) {
         let hour24 = h;
         if (mer === 'am' && h === 12) hour24 = 0;
         else if (mer === 'pm' && h < 12) hour24 = h + 12;
+        console.log('[DateTimePicker] Converted to 24-hour:', {
+          h,
+          mer,
+          hour24,
+        });
         newDate.setHours(hour24);
+      } else {
+        console.log(
+          '[DateTimePicker] Skipping hour update - h or mer is null:',
+          {
+            h,
+            mer,
+          }
+        );
       }
-      if (m !== null) newDate.setMinutes(m);
+      if (m !== null) {
+        newDate.setMinutes(m);
+      } else {
+        console.log('[DateTimePicker] Skipping minute update - m is null');
+      }
       newDate.setSeconds(0);
     }
 
-    onChange?.(dayjs(newDate).tz(timezone).toISOString());
+    const finalISO = dayjs(newDate).tz(timezone).toISOString();
+    console.log('[DateTimePicker] Final ISO string to emit:', {
+      newDate: newDate.toISOString(),
+      timezone,
+      finalISO,
+    });
+    onChange?.(finalISO);
   };
 
   const handleClear = () => {
@@ -184,6 +414,83 @@ export function DateTimePicker({
     ? dayjs(startTime).tz(timezone).millisecond(0).toISOString()
     : undefined;
 
+  // Determine minDate: prioritize explicit minDate prop, then fall back to startTime
+  const effectiveMinDate = minDate
+    ? minDate
+    : normalizedStartTime && dayjs(normalizedStartTime).tz(timezone).isValid()
+      ? dayjs(normalizedStartTime).tz(timezone).startOf('day').toDate()
+      : undefined;
+
+  // Log current state before render
+  useEffect(() => {
+    console.log('[DateTimePicker] Current state before render:', {
+      isISO,
+      hour12,
+      minute,
+      meridiem,
+      hour24,
+      second,
+      selectedDate,
+      normalizedStartTime,
+      timezone,
+    });
+  }, [
+    isISO,
+    hour12,
+    minute,
+    meridiem,
+    hour24,
+    second,
+    selectedDate,
+    normalizedStartTime,
+    timezone,
+  ]);
+
+  // Compute display text from current state
+  const displayText = useMemo(() => {
+    if (!selectedDate) return null;
+
+    const dateObj = dayjs.tz(selectedDate, timezone);
+    if (!dateObj.isValid()) return null;
+
+    if (isISO) {
+      // For ISO format, use hour24, minute, second
+      if (hour24 === null || minute === null) return null;
+      const dateTimeObj = dateObj
+        .hour(hour24)
+        .minute(minute)
+        .second(second ?? 0);
+      return dateTimeObj.format(
+        showSeconds ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD HH:mm'
+      );
+    } else {
+      // For 12-hour format, use hour12, minute, meridiem
+      if (hour12 === null || minute === null || meridiem === null) return null;
+      // Convert to 24-hour format for dayjs
+      let hour24Value = hour12;
+      if (meridiem === 'am' && hour12 === 12) hour24Value = 0;
+      else if (meridiem === 'pm' && hour12 < 12) hour24Value = hour12 + 12;
+      const dateTimeObj = dateObj.hour(hour24Value).minute(minute).second(0);
+      return dateTimeObj.format('YYYY-MM-DD hh:mm A');
+    }
+  }, [
+    selectedDate,
+    isISO,
+    hour12,
+    minute,
+    meridiem,
+    hour24,
+    second,
+    showSeconds,
+    timezone,
+  ]);
+
+  const timezoneOffset = useMemo(() => {
+    if (!selectedDate) return null;
+    const dateObj = dayjs.tz(selectedDate, timezone);
+    return dateObj.isValid() ? dateObj.format('Z') : null;
+  }, [selectedDate, timezone]);
+
   return (
     <Flex
       direction="column"
@@ -193,21 +500,24 @@ export function DateTimePicker({
       borderColor="gray.200"
       borderRadius="md"
     >
-      <DatePicker
-        selected={
-          selectedDate ? dayjs(selectedDate).tz(timezone).toDate() : new Date()
-        }
-        onDateSelected={({ date }: { date: Date }) =>
-          handleDateChange(dayjs(date).tz(timezone).toISOString())
-        }
-        monthsToDisplay={1}
+      <DatePickerInput
+        value={selectedDate || undefined}
+        onChange={(date) => {
+          if (date) {
+            handleDateChange(date);
+          } else {
+            setSelectedDate('');
+            onChange?.(undefined);
+          }
+        }}
+        placeholder="Select a date"
+        dateFormat="YYYY-MM-DD"
+        displayFormat="YYYY-MM-DD"
         labels={labels}
-        minDate={
-          normalizedStartTime &&
-          dayjs(normalizedStartTime).tz(timezone).isValid()
-            ? dayjs(normalizedStartTime).tz(timezone).startOf('day').toDate()
-            : undefined
-        }
+        timezone={timezone}
+        minDate={effectiveMinDate}
+        maxDate={maxDate}
+        monthsToDisplay={1}
       />
 
       <Grid templateColumns="1fr auto" alignItems="center" gap={4}>
@@ -249,20 +559,16 @@ export function DateTimePicker({
         </Button>
       </Grid>
 
-      {selectedDate && (
+      {displayText && (
         <Flex gap={2}>
           <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.600' }}>
-            {dayjs(value).format(
-              isISO
-                ? showSeconds
-                  ? 'YYYY-MM-DD HH:mm:ss'
-                  : 'YYYY-MM-DD HH:mm'
-                : 'YYYY-MM-DD hh:mm A '
-            )}
+            {displayText}
           </Text>
-          <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.600' }}>
-            {dayjs(value).tz(timezone).format('Z')}
-          </Text>
+          {timezoneOffset && (
+            <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.600' }}>
+              {timezoneOffset}
+            </Text>
+          )}
           <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.600' }}>
             {timezone}
           </Text>
