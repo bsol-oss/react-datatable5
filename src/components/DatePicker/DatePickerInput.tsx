@@ -26,6 +26,7 @@ export interface DatePickerInputProps {
   showOutsideDays?: boolean;
   monthsToDisplay?: number;
   insideDialog?: boolean;
+  readOnly?: boolean;
 }
 
 export function DatePickerInput({
@@ -60,6 +61,7 @@ export function DatePickerInput({
   showOutsideDays,
   monthsToDisplay = 1,
   insideDialog = false,
+  readOnly = false,
 }: DatePickerInputProps) {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -194,6 +196,7 @@ export function DatePickerInput({
       open={open}
       onOpenChange={(e) => setOpen(e.open)}
       closeOnInteractOutside
+      autoFocus={false}
     >
       <InputGroup
         endElement={
@@ -217,6 +220,7 @@ export function DatePickerInput({
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
+          readOnly={readOnly}
         />
       </InputGroup>
       {insideDialog ? (

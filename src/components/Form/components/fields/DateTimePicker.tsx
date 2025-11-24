@@ -4,7 +4,7 @@ import { Popover, Portal } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { MdDateRange } from 'react-icons/md';
 import { useSchemaContext } from '../../useSchemaContext';
@@ -39,33 +39,10 @@ export const DateTimePicker = ({
   const colLabel = formI18n.colLabel;
   const [open, setOpen] = useState(false);
   const selectedDate = watch(colLabel);
-  const displayDate = dayjs(selectedDate)
-    .tz(timezone)
-    .format(displayDateFormat);
-
-  useEffect(() => {
-    try {
-      if (selectedDate) {
-        // Parse the selectedDate as UTC or in a specific timezone to avoid +8 hour shift
-        // For example, parse as UTC:
-        const parsedDate = dayjs(selectedDate).tz(timezone);
-        if (!parsedDate.isValid()) return;
-
-        // Format according to dateFormat from schema
-        const formatted = parsedDate.format(dateFormat);
-
-        // Update the form value only if different to avoid loops
-        if (formatted !== selectedDate) {
-          setValue(colLabel, formatted, {
-            shouldValidate: true,
-            shouldDirty: true,
-          });
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, [selectedDate, dateFormat, colLabel, setValue]);
+  const displayDate =
+    selectedDate && dayjs(selectedDate).tz(timezone).isValid()
+      ? dayjs(selectedDate).tz(timezone).format(displayDateFormat)
+      : '';
 
   const dateTimePickerLabelsConfig = {
     monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
@@ -145,7 +122,16 @@ export const DateTimePicker = ({
     <ChakraDateTimePicker
       value={selectedDate}
       onChange={(date) => {
-        setValue(colLabel, dayjs(date).tz(timezone).format(dateFormat));
+        if (!date || date === null || date === undefined) {
+          setValue(colLabel, undefined);
+          return;
+        }
+        const dateObj = dayjs(date).tz(timezone);
+        if (dateObj.isValid()) {
+          setValue(colLabel, dateObj.format(dateFormat));
+        } else {
+          setValue(colLabel, undefined);
+        }
       }}
       timezone={timezone}
       labels={dateTimePickerLabelsConfig}
@@ -168,6 +154,7 @@ export const DateTimePicker = ({
         open={open}
         onOpenChange={(e) => setOpen(e.open)}
         closeOnInteractOutside
+        autoFocus={false}
       >
         <Popover.Trigger asChild>
           <Button
@@ -179,7 +166,7 @@ export const DateTimePicker = ({
             justifyContent={'start'}
           >
             <MdDateRange />
-            {selectedDate !== undefined ? `${displayDate}` : ''}
+            {displayDate || ''}
           </Button>
         </Popover.Trigger>
         {insideDialog ? (

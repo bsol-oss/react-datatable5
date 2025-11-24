@@ -2,10 +2,11 @@ import {
   Button,
   Combobox,
   Flex,
-  Grid,
   Icon,
   InputGroup,
   Portal,
+  Tag,
+  Text,
   useFilter,
   useListCollection,
 } from '@chakra-ui/react';
@@ -38,6 +39,7 @@ interface TimePickerProps {
   timezone?: string;
   startTime?: string;
   selectedDate?: string;
+  portalled?: boolean;
 }
 
 interface TimeOption {
@@ -47,6 +49,7 @@ interface TimeOption {
   minute: number;
   meridiem: 'am' | 'pm';
   searchText: string; // Time without duration for searching
+  durationText?: string; // Duration difference text (e.g., "+2h 30m")
 }
 
 export function TimePicker({
@@ -66,6 +69,7 @@ export function TimePicker({
   timezone = 'Asia/Hong_Kong',
   startTime,
   selectedDate,
+  portalled = true,
 }: TimePickerProps) {
   // Generate time options (every 15 minutes)
   const timeOptions = useMemo<TimeOption[]>(() => {
@@ -113,8 +117,8 @@ export function TimePicker({
             }
           }
 
-          // Calculate and append duration if startTime is provided
-          let label = displayTime;
+          // Calculate duration if startTime is provided
+          let durationText: string | undefined;
           if (startDateTime && selectedDate) {
             const selectedDateObj = dayjs(selectedDate).tz(timezone);
             const optionDateTime = selectedDateObj
@@ -143,18 +147,19 @@ export function TimePicker({
                 } else {
                   diffText = `${diffSeconds}s`;
                 }
-                label = `${displayTime} (+${diffText})`;
+                durationText = `+${diffText}`;
               }
             }
           }
 
           options.push({
-            label,
+            label: displayTime,
             value: `${h}:${m.toString().padStart(2, '0')}:${mer}`,
             hour: h,
             minute: m,
             meridiem: mer,
             searchText: displayTime, // Use base time without duration for searching
+            durationText,
           });
         }
       }
@@ -179,13 +184,18 @@ export function TimePicker({
     return `${hour}:${minute.toString().padStart(2, '0')}:${meridiem}`;
   }, [hour, minute, meridiem]);
 
-  // Get display text for combobox
-  const displayText = useMemo(() => {
-    if (hour === null || minute === null || meridiem === null) {
-      return '';
+  // Calculate duration difference
+  const durationDiff = useMemo(() => {
+    if (
+      !startTime ||
+      !selectedDate ||
+      hour === null ||
+      minute === null ||
+      meridiem === null
+    ) {
+      return null;
     }
 
-    // Format time directly without using dummy dates
     const hour24 =
       meridiem === 'am'
         ? hour === 12
@@ -195,46 +205,40 @@ export function TimePicker({
           ? 12
           : hour + 12;
 
-    // Format hour and minute with proper padding (12-hour format)
-    const formattedHour = hour.toString().padStart(2, '0');
-    const formattedMinute = minute.toString().padStart(2, '0');
-    const timeDisplay = `${formattedHour}:${formattedMinute} ${meridiem}`;
+    const startDateObj = dayjs(startTime).tz(timezone);
+    const selectedDateObj = dayjs(selectedDate).tz(timezone);
+    const currentDateTime = selectedDateObj
+      .hour(hour24)
+      .minute(minute)
+      .second(0)
+      .millisecond(0);
 
-    // Show duration difference if startTime is provided
-    if (startTime && selectedDate) {
-      const startDateObj = dayjs(startTime).tz(timezone);
-      const selectedDateObj = dayjs(selectedDate).tz(timezone);
-      const currentDateTime = selectedDateObj
-        .hour(hour24)
-        .minute(minute)
-        .second(0)
-        .millisecond(0);
-
-      if (startDateObj.isValid() && currentDateTime.isValid()) {
-        const diffMs = currentDateTime.diff(startDateObj);
-        if (diffMs >= 0) {
-          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-          const diffMinutes = Math.floor(
-            (diffMs % (1000 * 60 * 60)) / (1000 * 60)
-          );
-          const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-
-          if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
-            let diffText = '';
-            if (diffHours > 0) {
-              diffText = `${diffHours}h ${diffMinutes}m`;
-            } else if (diffMinutes > 0) {
-              diffText = `${diffMinutes}m ${diffSeconds}s`;
-            } else {
-              diffText = `${diffSeconds}s`;
-            }
-            return `${timeDisplay} (+${diffText})`;
-          }
-        }
-      }
+    if (!startDateObj.isValid() || !currentDateTime.isValid()) {
+      return null;
     }
 
-    return timeDisplay;
+    const diffMs = currentDateTime.diff(startDateObj);
+    if (diffMs < 0) {
+      return null;
+    }
+
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+    if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+      let diffText = '';
+      if (diffHours > 0) {
+        diffText = `${diffHours}h ${diffMinutes}m`;
+      } else if (diffMinutes > 0) {
+        diffText = `${diffMinutes}m ${diffSeconds}s`;
+      } else {
+        diffText = `${diffSeconds}s`;
+      }
+      return `+${diffText}`;
+    }
+
+    return null;
   }, [hour, minute, meridiem, startTime, selectedDate, timezone]);
 
   const handleClear = () => {
@@ -269,20 +273,19 @@ export function TimePicker({
     }
   };
 
-  const handleInputValueChange = (
-    details: Combobox.InputValueChangeDetails
-  ) => {
-    const inputValue = details.inputValue.trim();
+  // Parse input value and update state
+  const parseAndCommitInput = (value: string) => {
+    const trimmedValue = value.trim();
 
     // Filter the collection based on input
-    filter(inputValue);
+    filter(trimmedValue);
 
-    if (!inputValue) {
+    if (!trimmedValue) {
       return;
     }
 
     // Try to parse custom input using explicit regex patterns
-    const normalized = inputValue.toLowerCase().replace(/\s+/g, '');
+    const normalized = trimmedValue.toLowerCase().replace(/\s+/g, '');
 
     // Pattern 1: 12-hour format with meridiem (e.g., "930pm", "1230am", "9:30pm", "12:30am")
     // Matches: 1-2 digits hour, optional colon, 2 digits minute, am/pm
@@ -296,11 +299,15 @@ export function TimePicker({
 
       // Validate hour (1-12)
       if (parsedHour < 1 || parsedHour > 12) {
+        // Parse failed, select first result
+        selectFirstResult();
         return;
       }
 
       // Validate minute (0-59)
       if (parsedMinute < 0 || parsedMinute > 59) {
+        // Parse failed, select first result
+        selectFirstResult();
         return;
       }
 
@@ -326,11 +333,15 @@ export function TimePicker({
 
       // Validate hour (0-23)
       if (parsedHour < 0 || parsedHour > 23) {
+        // Parse failed, select first result
+        selectFirstResult();
         return;
       }
 
       // Validate minute (0-59)
       if (parsedMinute < 0 || parsedMinute > 59) {
+        // Parse failed, select first result
+        selectFirstResult();
         return;
       }
 
@@ -359,18 +370,63 @@ export function TimePicker({
       });
       return;
     }
+
+    // Parse failed, select first result
+    selectFirstResult();
+  };
+
+  // Select first result from filtered collection
+  const selectFirstResult = () => {
+    if (collection.items.length > 0) {
+      const firstItem = collection.items[0];
+      setHour(firstItem.hour);
+      setMinute(firstItem.minute);
+      setMeridiem(firstItem.meridiem);
+      filter(''); // Reset filter after selection
+      onChange({
+        hour: firstItem.hour,
+        minute: firstItem.minute,
+        meridiem: firstItem.meridiem,
+      });
+    }
+  };
+
+  const handleInputValueChange = (
+    details: Combobox.InputValueChangeDetails
+  ) => {
+    // Filter the collection based on input, but don't parse yet
+    filter(details.inputValue);
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Select all text when focusing
+    e.target.select();
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Parse and commit the input value when losing focus
+    const inputValue = e.target.value;
+    if (inputValue) {
+      parseAndCommitInput(inputValue);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Commit input on Enter key
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const inputValue = e.currentTarget.value;
+      if (inputValue) {
+        parseAndCommitInput(inputValue);
+      }
+      // Blur the input
+      (e.currentTarget as HTMLInputElement)?.blur();
+    }
   };
 
   return (
     <Flex direction="column" gap={3}>
-      <Grid
-        justifyContent={'center'}
-        alignItems={'center'}
-        templateColumns={'1fr auto'}
-        gap="2"
-        width="auto"
-        minWidth="300px"
-      >
+      <Flex alignItems="center" gap="2" width="auto" minWidth="300px">
         <Combobox.Root
           collection={collection}
           value={currentValue ? [currentValue] : []}
@@ -379,25 +435,37 @@ export function TimePicker({
           allowCustomValue
           selectionBehavior="replace"
           openOnClick
-          width="100%"
+          flex={1}
         >
           <Combobox.Control>
             <InputGroup startElement={<BsClock />}>
-              <Combobox.Input placeholder="hh:mm a" value={displayText} />
+              <Combobox.Input
+                placeholder="hh:mm a"
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+              />
             </InputGroup>
             <Combobox.IndicatorGroup>
-              <Combobox.ClearTrigger />
+              {/* <Combobox.ClearTrigger /> */}
               <Combobox.Trigger />
             </Combobox.IndicatorGroup>
           </Combobox.Control>
 
-          <Portal>
+          <Portal disabled={!portalled}>
             <Combobox.Positioner>
               <Combobox.Content>
                 <Combobox.Empty>No time found</Combobox.Empty>
                 {collection.items.map((item) => (
                   <Combobox.Item item={item} key={item.value}>
-                    {item.label}
+                    <Flex alignItems="center" gap={2} width="100%">
+                      <Text flex={1}>{item.label}</Text>
+                      {item.durationText && (
+                        <Tag.Root size="sm" colorPalette="blue">
+                          <Tag.Label>{item.durationText}</Tag.Label>
+                        </Tag.Root>
+                      )}
+                    </Flex>
                     <Combobox.ItemIndicator />
                   </Combobox.Item>
                 ))}
@@ -406,12 +474,18 @@ export function TimePicker({
           </Portal>
         </Combobox.Root>
 
+        {durationDiff && (
+          <Tag.Root size="sm">
+            <Tag.Label>{durationDiff}</Tag.Label>
+          </Tag.Root>
+        )}
+
         <Button onClick={handleClear} size="sm" variant="ghost">
           <Icon>
             <MdCancel />
           </Icon>
         </Button>
-      </Grid>
+      </Flex>
     </Flex>
   );
 }

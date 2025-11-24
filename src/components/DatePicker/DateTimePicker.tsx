@@ -22,6 +22,7 @@ interface DateTimePickerProps {
   startTime?: string;
   minDate?: Date;
   maxDate?: Date;
+  portalled?: boolean;
 }
 
 interface TimeData12Hour {
@@ -66,6 +67,7 @@ export function DateTimePicker({
   startTime,
   minDate,
   maxDate,
+  portalled = false,
 }: DateTimePickerProps) {
   console.log('[DateTimePicker] Component initialized with props:', {
     value,
@@ -79,7 +81,7 @@ export function DateTimePicker({
 
   // Initialize selectedDate from value prop, converting ISO to YYYY-MM-DD format
   const getDateString = useCallback(
-    (val?: string) => {
+    (val?: string | null) => {
       if (!val) return '';
       const dateObj = dayjs(val).tz(timezone);
       return dateObj.isValid() ? dateObj.format('YYYY-MM-DD') : '';
@@ -93,7 +95,7 @@ export function DateTimePicker({
 
   // Helper to get time values from value prop with timezone
   const getTimeFromValue = useCallback(
-    (val?: string) => {
+    (val?: string | null) => {
       console.log('[DateTimePicker] getTimeFromValue called:', {
         val,
         timezone,
@@ -172,6 +174,34 @@ export function DateTimePicker({
       timezone,
       format,
     });
+
+    // If value is null, undefined, or invalid, clear all fields
+    if (!value || value === null || value === undefined) {
+      console.log(
+        '[DateTimePicker] Value is null/undefined, clearing all fields'
+      );
+      setSelectedDate('');
+      setHour12(null);
+      setMinute(null);
+      setMeridiem(null);
+      setHour24(null);
+      setSecond(null);
+      return;
+    }
+
+    // Check if value is valid
+    const dateObj = dayjs(value).tz(timezone);
+    if (!dateObj.isValid()) {
+      console.log('[DateTimePicker] Invalid value, clearing all fields');
+      setSelectedDate('');
+      setHour12(null);
+      setMinute(null);
+      setMeridiem(null);
+      setHour24(null);
+      setSecond(null);
+      return;
+    }
+
     const dateString = getDateString(value);
     console.log('[DateTimePicker] Setting selectedDate:', dateString);
     setSelectedDate(dateString);
@@ -184,7 +214,7 @@ export function DateTimePicker({
     setMeridiem(timeData.meridiem);
     setHour24(timeData.hour24);
     setSecond(timeData.second);
-  }, [value, getTimeFromValue, getDateString]);
+  }, [value, getTimeFromValue, getDateString, timezone]);
 
   const handleDateChange = (date: string) => {
     console.log('[DateTimePicker] handleDateChange called:', {
@@ -193,6 +223,20 @@ export function DateTimePicker({
       showSeconds,
       currentTimeStates: { hour12, minute, meridiem, hour24, second },
     });
+
+    // If date is empty or invalid, clear all fields
+    if (!date || date === '') {
+      console.log('[DateTimePicker] Empty date, clearing all fields');
+      setSelectedDate('');
+      setHour12(null);
+      setMinute(null);
+      setMeridiem(null);
+      setHour24(null);
+      setSecond(null);
+      onChange?.(undefined);
+      return;
+    }
+
     setSelectedDate(date);
     // Parse the date string (YYYY-MM-DD) in the specified timezone
     const dateObj = dayjs.tz(date, timezone);
@@ -204,7 +248,16 @@ export function DateTimePicker({
       formatted: dateObj.format('YYYY-MM-DD HH:mm:ss Z'),
     });
     if (!dateObj.isValid()) {
-      console.warn('[DateTimePicker] Invalid date object in handleDateChange');
+      console.warn(
+        '[DateTimePicker] Invalid date object in handleDateChange, clearing fields'
+      );
+      setSelectedDate('');
+      setHour12(null);
+      setMinute(null);
+      setMeridiem(null);
+      setHour24(null);
+      setSecond(null);
+      onChange?.(undefined);
       return;
     }
     // When showSeconds is false, ignore seconds from the date
@@ -251,36 +304,55 @@ export function DateTimePicker({
       setMeridiem(data.meridiem);
     }
 
-    // Use selectedDate if valid, otherwise use today's date as fallback
-    const dateToUse =
-      selectedDate && dayjs(selectedDate).isValid()
-        ? selectedDate
-        : dayjs().tz(timezone).toISOString();
+    // Use selectedDate if valid, otherwise clear all fields
+    if (!selectedDate || !dayjs(selectedDate).isValid()) {
+      console.log(
+        '[DateTimePicker] No valid selectedDate, clearing all fields'
+      );
+      setSelectedDate('');
+      setHour12(null);
+      setMinute(null);
+      setMeridiem(null);
+      setHour24(null);
+      setSecond(null);
+      onChange?.(undefined);
+      return;
+    }
 
-    console.log('[DateTimePicker] Date to use for update:', {
-      selectedDate,
-      dateToUse,
-    });
-
-    const dateObj = dayjs(dateToUse).tz(timezone);
+    const dateObj = dayjs(selectedDate).tz(timezone);
     if (dateObj.isValid()) {
       updateDateTime(dateObj.toISOString(), timeData);
     } else {
-      console.warn('[DateTimePicker] Invalid date object in handleTimeChange');
+      console.warn(
+        '[DateTimePicker] Invalid date object in handleTimeChange, clearing fields'
+      );
+      setSelectedDate('');
+      setHour12(null);
+      setMinute(null);
+      setMeridiem(null);
+      setHour24(null);
+      setSecond(null);
+      onChange?.(undefined);
     }
   };
 
-  const updateDateTime = (date?: string, timeData?: TimeData) => {
+  const updateDateTime = (date?: string | null, timeData?: TimeData) => {
     console.log('[DateTimePicker] updateDateTime called:', {
       date,
       timeData,
       format,
       currentStates: { hour12, minute, meridiem, hour24, second },
     });
-    if (!date) {
+    if (!date || date === null || date === undefined) {
       console.log(
-        '[DateTimePicker] No date provided, calling onChange(undefined)'
+        '[DateTimePicker] No date provided, clearing all fields and calling onChange(undefined)'
       );
+      setSelectedDate('');
+      setHour12(null);
+      setMinute(null);
+      setMeridiem(null);
+      setHour24(null);
+      setSecond(null);
       onChange?.(undefined);
       return;
     }
@@ -289,9 +361,16 @@ export function DateTimePicker({
     const dateObj = dayjs(date).tz(timezone);
     if (!dateObj.isValid()) {
       console.warn(
-        '[DateTimePicker] Invalid date object in updateDateTime:',
+        '[DateTimePicker] Invalid date object in updateDateTime, clearing fields:',
         date
       );
+      setSelectedDate('');
+      setHour12(null);
+      setMinute(null);
+      setMeridiem(null);
+      setHour24(null);
+      setSecond(null);
+      onChange?.(undefined);
       return;
     }
     const newDate = dateObj.toDate();
@@ -518,6 +597,7 @@ export function DateTimePicker({
         minDate={effectiveMinDate}
         maxDate={maxDate}
         monthsToDisplay={1}
+        readOnly={true}
       />
 
       <Grid templateColumns="1fr auto" alignItems="center" gap={4}>
@@ -533,6 +613,7 @@ export function DateTimePicker({
             startTime={normalizedStartTime}
             selectedDate={selectedDate}
             timezone={timezone}
+            portalled={portalled}
           />
         ) : (
           <TimePicker
@@ -546,6 +627,7 @@ export function DateTimePicker({
             startTime={normalizedStartTime}
             selectedDate={selectedDate}
             timezone={timezone}
+            portalled={portalled}
           />
         )}
 
