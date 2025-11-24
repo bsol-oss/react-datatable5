@@ -155,16 +155,15 @@ export const IdPicker = ({
   const isSearching = searchText !== debouncedSearchText;
 
   // Transform data for combobox collection
+  // label is used for filtering/searching (must be a string)
+  // raw item is stored for custom rendering
   const comboboxItems = useMemo(() => {
     return dataList.map((item: RecordType) => ({
-      label:
-        !!renderDisplay === true
-          ? String(renderDisplay(item))
-          : String(item[display_column] ?? ''),
+      label: String(item[display_column] ?? ''), // Always use display_column for filtering
       value: String(item[column_ref]),
       raw: item,
     }));
-  }, [dataList, display_column, column_ref, renderDisplay]);
+  }, [dataList, display_column, column_ref]);
 
   // Use filter hook for combobox
   const { contains } = useFilter({ sensitivity: 'base' });
@@ -334,7 +333,11 @@ export const IdPicker = ({
                         key={item.value ?? `item-${index}`}
                         item={item}
                       >
-                        <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                        <Combobox.ItemText>
+                          {!!renderDisplay === true
+                            ? renderDisplay(item.raw)
+                            : item.label}
+                        </Combobox.ItemText>
                         <Combobox.ItemIndicator />
                       </Combobox.Item>
                     )
@@ -384,7 +387,11 @@ export const IdPicker = ({
                           key={item.value ?? `item-${index}`}
                           item={item}
                         >
-                          <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                          <Combobox.ItemText>
+                            {!!renderDisplay === true
+                              ? renderDisplay(item.raw)
+                              : item.label}
+                          </Combobox.ItemText>
                           <Combobox.ItemIndicator />
                         </Combobox.Item>
                       )

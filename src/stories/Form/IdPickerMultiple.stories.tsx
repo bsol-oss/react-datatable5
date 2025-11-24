@@ -20,6 +20,7 @@ import {
   List,
 } from '@chakra-ui/react';
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * IdPicker Multiple Selection Story
@@ -35,6 +36,7 @@ import { useState } from 'react';
  * - Duplicate prevention
  * - Visual feedback for selected items
  * - Required vs optional multiple selection
+ * - Custom option rendering with renderDisplay
  */
 
 const meta = {
@@ -102,6 +104,20 @@ i18n.use(initReactI18next).init({
         'stakeholders.empty_search_result': 'No stakeholders found',
         'stakeholders.initial_results':
           'Start typing to search for stakeholders',
+
+        // Custom option examples
+        'custom_team_members.field_label': 'Team Members (Custom Display)',
+        'custom_team_members.field_required':
+          'At least one team member is required',
+        'custom_team_members.undefined': 'Member not found',
+        'custom_team_members.add_more': 'Add Team Member',
+        'custom_team_members.type_to_search': 'Search team members...',
+        'custom_team_members.total': 'Total',
+        'custom_team_members.showing': 'Showing',
+        'custom_team_members.per_page': 'per page',
+        'custom_team_members.empty_search_result': 'No team members found',
+        'custom_team_members.initial_results':
+          'Start typing to search for team members',
       },
     },
   },
@@ -325,6 +341,76 @@ const customTeamMemberQueryFn = async ({
   };
 };
 
+// Type definition for team member
+interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  role: string;
+}
+
+// Example render functions for documentation
+// These are used in code examples below and can be referenced in schemas
+
+// Example 1: Simple custom display - Name with email
+// @ts-expect-error - Used in documentation examples
+const renderNameWithEmail = (item: unknown): ReactNode => {
+  const member = item as TeamMember;
+  return (
+    <HStack gap={2}>
+      <Text fontWeight="medium">{member.name}</Text>
+      <Text fontSize="sm" color="fg.muted">
+        ({member.email})
+      </Text>
+    </HStack>
+  );
+};
+
+// Example 2: Rich custom display - Name, role, and department badge
+const renderRichDisplay = (item: unknown): ReactNode => {
+  const member = item as TeamMember;
+  const departmentColors: Record<string, string> = {
+    Engineering: 'blue',
+    Design: 'purple',
+    Marketing: 'pink',
+    Sales: 'green',
+    HR: 'orange',
+    Finance: 'yellow',
+    Operations: 'cyan',
+  };
+  return (
+    <HStack gap={3} align="center">
+      <VStack gap={0} align="start" flex={1}>
+        <Text fontWeight="semibold">{member.name}</Text>
+        <Text fontSize="xs" color="fg.muted">
+          {member.role}
+        </Text>
+      </VStack>
+      <Badge
+        colorPalette={departmentColors[member.department] || 'gray'}
+        variant="subtle"
+      >
+        {member.department}
+      </Badge>
+    </HStack>
+  );
+};
+
+// Example 3: Compact display for tags - Just name and department
+// @ts-expect-error - Used in documentation examples
+const renderCompactTag = (item: unknown): ReactNode => {
+  const member = item as TeamMember;
+  return (
+    <HStack gap={1}>
+      <Text>{member.name}</Text>
+      <Text fontSize="xs" color="fg.muted">
+        • {member.department}
+      </Text>
+    </HStack>
+  );
+};
+
 export const IdPickerMultipleSelection: Story = {
   render: () => {
     return (
@@ -395,6 +481,22 @@ const IdPickerMultipleForm = () => {
           customQueryFn: customTeamMemberQueryFn,
         },
       },
+
+      // Custom option rendering example
+      custom_team_members: {
+        type: 'array',
+        variant: 'id-picker',
+        items: {
+          type: 'string',
+        },
+        foreign_key: {
+          display_column: 'name',
+          table: 'team_members',
+          column: 'id',
+          customQueryFn: customTeamMemberQueryFn,
+        },
+        renderDisplay: renderRichDisplay, // Custom rendering function
+      },
     },
   } as JSONSchema7;
 
@@ -431,6 +533,10 @@ const IdPickerMultipleForm = () => {
                   <List.Item>
                     <strong>Duplicate prevention:</strong> Already selected
                     items are highlighted
+                  </List.Item>
+                  <List.Item>
+                    <strong>Custom option rendering:</strong> Customize how
+                    options appear using renderDisplay
                   </List.Item>
                 </List.Root>
               </Alert.Description>
@@ -575,6 +681,246 @@ const IdPickerMultipleForm = () => {
               <Text color="gray.300">Custom data fetching function</Text>
             </HStack>
           </VStack>
+        </VStack>
+      </Box>
+
+      {/* Custom Option Rendering Section */}
+      <Box p={6} borderRadius="lg" borderWidth="1px">
+        <VStack gap={4} align="stretch">
+          <Heading size="md">Custom Option Rendering</Heading>
+          <Text>
+            Use the <Code>renderDisplay</Code> property to customize how options
+            are displayed in both the dropdown and selected tags. This allows
+            you to show rich information, badges, icons, or any custom React
+            components.
+          </Text>
+
+          <Alert.Root status="info" borderRadius="md">
+            <Alert.Indicator />
+            <Alert.Content>
+              <Alert.Title>How renderDisplay Works:</Alert.Title>
+              <Alert.Description>
+                <List.Root variant="marker" mt={2}>
+                  <List.Item>
+                    The function receives the item object as a parameter
+                  </List.Item>
+                  <List.Item>
+                    Return any ReactNode (JSX, text, components, etc.)
+                  </List.Item>
+                  <List.Item>
+                    Used in both dropdown options and selected tags
+                  </List.Item>
+                  <List.Item>
+                    Falls back to <Code>display_column</Code> if not provided
+                  </List.Item>
+                </List.Root>
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
+
+          <VStack gap={4} align="stretch" mt={4}>
+            <Box>
+              <Heading size="sm" mb={2}>
+                Example 1: Simple Custom Display
+              </Heading>
+              <Text fontSize="sm" mb={2}>
+                Show name with email in parentheses:
+              </Text>
+              <Box
+                p={4}
+                bg="gray.50"
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor="gray.200"
+              >
+                <Code
+                  colorScheme="gray"
+                  p={4}
+                  display="block"
+                  whiteSpace="pre-wrap"
+                  fontSize="sm"
+                >
+                  {`const renderNameWithEmail = (item: unknown): ReactNode => {
+  const member = item as TeamMember;
+  return (
+    <HStack gap={2}>
+      <Text fontWeight="medium">{member.name}</Text>
+      <Text fontSize="sm" color="fg.muted">
+        ({member.email})
+      </Text>
+    </HStack>
+  );
+};
+
+// In schema:
+{
+  "type": "array",
+  "variant": "id-picker",
+  "renderDisplay": renderNameWithEmail, // ← Reference the function
+  // ... other properties
+}`}
+                </Code>
+              </Box>
+            </Box>
+
+            <Separator />
+
+            <Box>
+              <Heading size="sm" mb={2}>
+                Example 2: Rich Display with Badges
+              </Heading>
+              <Text fontSize="sm" mb={2}>
+                Show name, role, and department badge (used in the form below):
+              </Text>
+              <Box
+                p={4}
+                bg="gray.50"
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor="gray.200"
+              >
+                <Code
+                  colorScheme="gray"
+                  p={4}
+                  display="block"
+                  whiteSpace="pre-wrap"
+                  fontSize="sm"
+                >
+                  {`const renderRichDisplay = (item: unknown): ReactNode => {
+  const member = item as TeamMember;
+  const departmentColors = {
+    Engineering: 'blue',
+    Design: 'purple',
+    Marketing: 'pink',
+    // ... more colors
+  };
+  return (
+    <HStack gap={3} align="center">
+      <VStack gap={0} align="start" flex={1}>
+        <Text fontWeight="semibold">{member.name}</Text>
+        <Text fontSize="xs" color="fg.muted">
+          {member.role}
+        </Text>
+      </VStack>
+      <Badge
+        colorPalette={departmentColors[member.department] || 'gray'}
+        variant="subtle"
+      >
+        {member.department}
+      </Badge>
+    </HStack>
+  );
+};`}
+                </Code>
+              </Box>
+            </Box>
+
+            <Separator />
+
+            <Box>
+              <Heading size="sm" mb={2}>
+                Example 3: Compact Tag Display
+              </Heading>
+              <Text fontSize="sm" mb={2}>
+                Compact format for selected tags:
+              </Text>
+              <Box
+                p={4}
+                bg="gray.50"
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor="gray.200"
+              >
+                <Code
+                  colorScheme="gray"
+                  p={4}
+                  display="block"
+                  whiteSpace="pre-wrap"
+                  fontSize="sm"
+                >
+                  {`const renderCompactTag = (item: unknown): ReactNode => {
+  const member = item as TeamMember;
+  return (
+    <HStack gap={1}>
+      <Text>{member.name}</Text>
+      <Text fontSize="xs" color="fg.muted">
+        • {member.department}
+      </Text>
+    </HStack>
+  );
+};
+
+// Usage: renderDisplay: renderCompactTag`}
+                </Code>
+              </Box>
+            </Box>
+          </VStack>
+
+          <Box mt={4} p={4} bg="blue.50" borderRadius="md" borderWidth="1px">
+            <Text fontWeight="bold" mb={2}>
+              💡 Pro Tips:
+            </Text>
+            <List.Root variant="marker" gap={1}>
+              <List.Item fontSize="sm">
+                Use TypeScript type assertions to access item properties safely
+              </List.Item>
+              <List.Item fontSize="sm">
+                Keep tag displays compact since they appear inline
+              </List.Item>
+              <List.Item fontSize="sm">
+                Use Chakra UI components for consistent styling
+              </List.Item>
+              <List.Item fontSize="sm">
+                Consider accessibility - ensure text is readable and contrast is
+                sufficient
+              </List.Item>
+            </List.Root>
+          </Box>
+        </VStack>
+      </Box>
+
+      {/* Custom Option Demo Form */}
+      <Box p={6} borderRadius="lg" borderWidth="1px" boxShadow="sm">
+        <VStack gap={4} align="stretch">
+          <Heading size="md">Custom Option Rendering Demo</Heading>
+          <Text>
+            The field below uses <Code>renderDisplay</Code> to show team members
+            with their name, role, and department badge. Notice how the options
+            in the dropdown and the selected tags both use the custom rendering.
+          </Text>
+
+          <DefaultForm
+            formConfig={{
+              schema: {
+                type: 'object',
+                title: 'Custom Display Example',
+                properties: {
+                  custom_team_members: {
+                    type: 'array',
+                    variant: 'id-picker',
+                    items: {
+                      type: 'string',
+                    },
+                    foreign_key: {
+                      display_column: 'name',
+                      table: 'team_members',
+                      column: 'id',
+                      customQueryFn: customTeamMemberQueryFn,
+                    },
+                    renderDisplay: renderRichDisplay, // Uses renderRichDisplay
+                  },
+                },
+              } as JSONSchema7,
+              serverUrl: 'http://localhost:8081',
+              onSubmit: async (data) => {
+                console.log('Custom display form submitted:', data);
+                alert(
+                  `Selected ${data.custom_team_members?.length || 0} team members with custom display!`
+                );
+              },
+              ...form,
+            }}
+          />
         </VStack>
       </Box>
 
