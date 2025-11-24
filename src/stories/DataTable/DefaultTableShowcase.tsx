@@ -1,9 +1,9 @@
-import { Provider } from "@/components/ui/provider";
-import { Box, Button, Text } from "@chakra-ui/react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { useDataTable } from "../../components/DataTable/useDataTable";
-import { DataTable, DefaultTable, TableComponent, TextCell } from "../../index";
-import { data, Product } from "../product_data";
+import { Provider } from '@/components/ui/provider';
+import { Box, Button, Text } from '@chakra-ui/react';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { useDataTable } from '../../components/DataTable/useDataTable';
+import { DataTable, DefaultTable, TableComponent, TextCell } from '../../index';
+import { data, Product } from '../product_data';
 // Uncomment the following imports when using DataTableServer
 // import { DataTableServer } from "../../components/DataTable/DataTableServer";
 // import { useDataTableServer } from "../../components/DataTable/useDataTableServer";
@@ -18,30 +18,24 @@ const RowActions = ({ row }: RowActionsProps) => {
 
 const DefaultTableShowcase = () => {
   const datatable = useDataTable({
-    default: { sorting: [{ id: "title", desc: false }] },
+    default: { sorting: [{ id: 'title', desc: false }] },
   });
-  
-  // Example of how to use DataTableServer with proper typing:
-  // const datatableServer = useDataTableServer<Product>({
-  //   url: "/api/products",
-  //   default: { sorting: [{ id: "title", desc: false }] },
-  // });
-  
+
   const columnHelper = createColumnHelper<Product>();
   const columns: ColumnDef<Product>[] = [
     // Display Column
     columnHelper.display({
-      id: "actions",
+      id: 'actions',
       header: () => <span>Actions</span>,
       cell: (props) => <RowActions row={props.row.original} />,
     }),
 
     // Grouping Column
     columnHelper.group({
-      header: "Information",
+      header: 'Information',
       footer: (props) => props.column.id,
       columns: [
-        columnHelper.accessor("id", {
+        columnHelper.accessor('id', {
           cell: (props) => {
             return <TextCell>{props.row.original.id}</TextCell>;
           },
@@ -49,10 +43,10 @@ const DefaultTableShowcase = () => {
           footer: (props) => props.column.id,
           size: 50,
         }),
-        columnHelper.accessor("title", {
+        columnHelper.accessor('title', {
           cell: (props) => {
             return (
-              <Box padding={"0rem"}>
+              <Box padding={'0rem'}>
                 <TextCell label={props.row.original.title}>
                   {props.row.original.title}
                 </TextCell>
@@ -64,7 +58,7 @@ const DefaultTableShowcase = () => {
           size: 200,
         }),
         // Accessor Column
-        columnHelper.accessor("description", {
+        columnHelper.accessor('description', {
           cell: (props) => {
             return <TextCell>{props.row.original.description}</TextCell>;
           },
@@ -73,7 +67,7 @@ const DefaultTableShowcase = () => {
           size: 400,
         }),
         // Accessor Column
-        columnHelper.accessor("price", {
+        columnHelper.accessor('price', {
           cell: (props) => {
             return <TextCell>{props.row.original.price}</TextCell>;
           },
@@ -82,7 +76,7 @@ const DefaultTableShowcase = () => {
           size: 80,
         }),
         // Accessor Column
-        columnHelper.accessor("discountPercentage", {
+        columnHelper.accessor('discountPercentage', {
           cell: (props) => {
             return <TextCell>{props.row.original.discountPercentage}</TextCell>;
           },
@@ -92,7 +86,7 @@ const DefaultTableShowcase = () => {
           enableColumnFilter: false,
         }),
         // Accessor Column
-        columnHelper.accessor("rating", {
+        columnHelper.accessor('rating', {
           cell: (props) => {
             return <TextCell>{props.row.original.rating}</TextCell>;
           },
@@ -101,7 +95,7 @@ const DefaultTableShowcase = () => {
           size: 80,
         }),
         // Accessor Column
-        columnHelper.accessor("stock", {
+        columnHelper.accessor('stock', {
           cell: (props) => {
             return <TextCell>{props.row.original.stock}</TextCell>;
           },
@@ -110,7 +104,7 @@ const DefaultTableShowcase = () => {
           size: 80,
         }),
         // Accessor Column
-        columnHelper.accessor("brand", {
+        columnHelper.accessor('brand', {
           cell: (props) => {
             return <TextCell>{props.row.original.brand}</TextCell>;
           },
@@ -119,20 +113,20 @@ const DefaultTableShowcase = () => {
           size: 160,
           meta: {
             // config to traditional chinese if possible
-            displayName: "品牌",
-            filterVariant: "select",
+            displayName: '品牌',
+            filterVariant: 'select',
             filterOptions: [
-              { label: "苹果", value: "Apple" },
-              { label: "华为", value: "Huawei" },
+              { label: '苹果', value: 'Apple' },
+              { label: '华为', value: 'Huawei' },
             ],
             headerTexts: {
-              pinColumn: "固定品牌列",
-              sortAscending: "品牌排序A-Z",
+              pinColumn: '固定品牌列',
+              sortAscending: '品牌排序A-Z',
             },
           },
         }),
         // Accessor Column
-        columnHelper.accessor("category", {
+        columnHelper.accessor('category', {
           cell: (props) => {
             return <TextCell>{props.row.original.category}</TextCell>;
           },
@@ -140,15 +134,15 @@ const DefaultTableShowcase = () => {
           footer: () => <span>Category</span>,
           size: 160,
           meta: {
-            displayName: "Brand",
-            filterVariant: "select",
+            displayName: 'Brand',
+            filterVariant: 'select',
             filterOptions: [
-              { label: "fragrances", value: "fragrances" },
-              { label: "groceries", value: "groceries" },
-              { label: "home-decoration", value: "home-decoration" },
-              { label: "laptops", value: "laptops" },
-              { label: "skincare", value: "skincare" },
-              { label: "smartphones", value: "smartphones" },
+              { label: 'fragrances', value: 'fragrances' },
+              { label: 'groceries', value: 'groceries' },
+              { label: 'home-decoration', value: 'home-decoration' },
+              { label: 'laptops', value: 'laptops' },
+              { label: 'skincare', value: 'skincare' },
+              { label: 'smartphones', value: 'smartphones' },
             ],
           },
         }),
@@ -162,26 +156,25 @@ const DefaultTableShowcase = () => {
       <DataTable columns={columns} data={data} {...datatable}>
         <DefaultTable
           controlProps={{
-
             filterTagsOptions: [
               {
-                column: "category",
+                column: 'category',
                 options: [
-                  { label: "fragrances", value: "fragrances" },
-                  { label: "groceries", value: "groceries" },
-                  { label: "home-decoration", value: "home-decoration" },
-                  { label: "laptops", value: "laptops" },
-                  { label: "skincare", value: "skincare" },
-                  { label: "smartphones", value: "smartphones" },
+                  { label: 'fragrances', value: 'fragrances' },
+                  { label: 'groceries', value: 'groceries' },
+                  { label: 'home-decoration', value: 'home-decoration' },
+                  { label: 'laptops', value: 'laptops' },
+                  { label: 'skincare', value: 'skincare' },
+                  { label: 'smartphones', value: 'smartphones' },
                 ],
               },
             ],
             gridProps: {
-              colorPalette: "red",
+              colorPalette: 'red',
             },
           }}
           tableProps={{
-            colorPalette: "red",
+            colorPalette: 'red',
           }}
           tableBodyProps={{ showSelector: true }}
           tableHeaderProps={{ showSelector: true }}
@@ -190,17 +183,15 @@ const DefaultTableShowcase = () => {
           controlProps={{
             showPagination: false,
             gridProps: {
-              colorPalette: "purple",
-            }
+              colorPalette: 'purple',
+            },
           }}
-          tableProps={{
-        
-          }}
+          tableProps={{}}
           tableBodyProps={{ showSelector: true }}
           tableHeaderProps={{
             showSelector: true,
             tableRowProps: {
-              height: "20",
+              height: '20',
             },
           }}
         />
@@ -219,19 +210,19 @@ const DefaultTableShowcase = () => {
                   table.setRowSelection({});
                 }}
               >
-                {"reset select"}
+                {'reset select'}
               </Button>
             );
           }}
         />
-        <Box width="400px" height={"400px"}>
+        <Box width="400px" height={'400px'}>
           <DefaultTable
             controlProps={{
               showFilter: true,
             }}
           />
         </Box>
-        <Box width="2400px" height={"2400px"}>
+        <Box width="2400px" height={'2400px'}>
           <DefaultTable
             controlProps={{
               showFilter: true,
@@ -239,9 +230,9 @@ const DefaultTableShowcase = () => {
           />
         </Box>
 
-        <Text> {"fitTable={true}"}</Text>
+        <Text> {'fitTable={true}'}</Text>
 
-        <Box width="400px" height={"400px"}>
+        <Box width="400px" height={'400px'}>
           <DefaultTable
             controlProps={{
               showFilter: true,
@@ -249,7 +240,7 @@ const DefaultTableShowcase = () => {
             }}
           />
         </Box>
-        <Box width="2400px" height={"2400px"}>
+        <Box width="2400px" height={'2400px'}>
           <DefaultTable
             controlProps={{
               showFilter: true,
@@ -259,7 +250,7 @@ const DefaultTableShowcase = () => {
           />
         </Box>
 
-        <Box width="2400px" height={"2400px"}>
+        <Box width="2400px" height={'2400px'}>
           <DefaultTable
             controlProps={{
               showFilter: true,
@@ -275,7 +266,7 @@ const DefaultTableShowcase = () => {
           }}
         />
       </DataTable>
-      
+
       {/* Example of how to use DataTableServer with proper typing:
       
       <DataTableServer<Product>
