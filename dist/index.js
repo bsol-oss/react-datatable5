@@ -34,6 +34,7 @@ var dayjs = require('dayjs');
 var utc = require('dayjs/plugin/utc');
 var timezone = require('dayjs/plugin/timezone');
 var ti = require('react-icons/ti');
+var customParseFormat = require('dayjs/plugin/customParseFormat');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
 
 function _interopNamespaceDefault(e) {
@@ -3335,11 +3336,136 @@ const TableLoadingComponent = ({ render, }) => {
     return jsxRuntime.jsx(jsxRuntime.Fragment, { children: render(query.isLoading) });
 };
 
-const TextCell = ({ label, containerProps = {}, textProps = {}, children, }) => {
-    if (label) {
-        return (jsxRuntime.jsx(react.Flex, { alignItems: "center", height: "100%", ...containerProps, children: jsxRuntime.jsx(Tooltip, { content: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", children: label }), children: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", ...textProps, children: children }) }) }));
+// Helper function to highlight matching text
+const highlightText$1 = (text, searchTerm) => {
+    if (!searchTerm || searchTerm.trim() === '') {
+        return String(text);
     }
-    return (jsxRuntime.jsx(react.Flex, { alignItems: "center", height: "100%", ...containerProps, children: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-all", ...textProps, children: children }) }));
+    const textStr = String(text);
+    const searchLower = searchTerm.toLowerCase();
+    const textLower = textStr.toLowerCase();
+    const parts = [];
+    let lastIndex = 0;
+    let index = textLower.indexOf(searchLower, lastIndex);
+    while (index !== -1) {
+        // Add text before match
+        if (index > lastIndex) {
+            parts.push(textStr.substring(lastIndex, index));
+        }
+        // Add highlighted match
+        parts.push(jsxRuntime.jsx(react.Text, { as: "mark", bg: {
+                base: 'yellow.200',
+                _dark: 'yellow.800',
+            }, color: {
+                base: 'gray.900',
+                _dark: 'gray.100',
+            }, px: 0.5, borderRadius: "sm", children: textStr.substring(index, index + searchTerm.length) }, index));
+        lastIndex = index + searchTerm.length;
+        index = textLower.indexOf(searchLower, lastIndex);
+    }
+    // Add remaining text
+    if (lastIndex < textStr.length) {
+        parts.push(textStr.substring(lastIndex));
+    }
+    return parts.length > 0 ? jsxRuntime.jsx(jsxRuntime.Fragment, { children: parts }) : textStr;
+};
+const TextWithCopy = ({ text, globalFilter, highlightedText, }) => {
+    const textValue = String(text ?? '');
+    const displayText = highlightedText !== undefined
+        ? highlightedText
+        : highlightText$1(textValue, globalFilter);
+    return (jsxRuntime.jsxs(react.HStack, { gap: 2, alignItems: "center", children: [jsxRuntime.jsx(react.Text, { as: "span", children: displayText }), jsxRuntime.jsx(react.Clipboard.Root, { value: textValue, children: jsxRuntime.jsx(react.Clipboard.Trigger, { asChild: true, children: jsxRuntime.jsx(react.IconButton, { size: "xs", variant: "ghost", "aria-label": "Copy", children: jsxRuntime.jsx(react.Clipboard.Indicator, { copied: jsxRuntime.jsx(lu.LuCheck, {}), children: jsxRuntime.jsx(lu.LuCopy, {}) }) }) }) })] }));
+};
+
+// Helper function to highlight matching text
+const highlightText = (text, searchTerm) => {
+    if (!searchTerm || searchTerm.trim() === '') {
+        return String(text);
+    }
+    const textStr = String(text);
+    const searchLower = searchTerm.toLowerCase();
+    const textLower = textStr.toLowerCase();
+    const parts = [];
+    let lastIndex = 0;
+    let index = textLower.indexOf(searchLower, lastIndex);
+    while (index !== -1) {
+        // Add text before match
+        if (index > lastIndex) {
+            parts.push(textStr.substring(lastIndex, index));
+        }
+        // Add highlighted match
+        parts.push(jsxRuntime.jsx(react.Text, { as: "mark", bg: {
+                base: 'yellow.200',
+                _dark: 'yellow.800',
+            }, color: {
+                base: 'gray.900',
+                _dark: 'gray.100',
+            }, px: 0.5, borderRadius: "sm", children: textStr.substring(index, index + searchTerm.length) }, index));
+        lastIndex = index + searchTerm.length;
+        index = textLower.indexOf(searchLower, lastIndex);
+    }
+    // Add remaining text
+    if (lastIndex < textStr.length) {
+        parts.push(textStr.substring(lastIndex));
+    }
+    return parts.length > 0 ? jsxRuntime.jsx(jsxRuntime.Fragment, { children: parts }) : textStr;
+};
+const RenderValue = ({ text, href, onClick, isCopyable, isBadge, badgeColor, colorPalette, globalFilter, }) => {
+    const highlightedText = React.useMemo(() => highlightText(text ?? '', globalFilter), [text, globalFilter]);
+    if (isBadge) {
+        return (jsxRuntime.jsx(react.Badge, { colorPalette: colorPalette || badgeColor, children: highlightedText }));
+    }
+    // onClick takes precedence over href
+    if (onClick) {
+        return (jsxRuntime.jsx(react.Box, { as: "button", onClick: onClick, cursor: "pointer", textAlign: "left", _hover: {
+                textDecoration: 'underline',
+                color: {
+                    base: 'blue.500',
+                    _dark: 'blue.400',
+                },
+            }, transition: "all 0.2s", children: highlightedText }));
+    }
+    if (href) {
+        return (jsxRuntime.jsxs(react.Link, { href: href, target: "_blank", rel: "noopener noreferrer", _hover: {
+                textDecoration: 'underline',
+            }, children: [highlightedText, " ", jsxRuntime.jsx(react.Icon, { as: lu.LuExternalLink })] }));
+    }
+    if (isCopyable) {
+        return (jsxRuntime.jsx(TextWithCopy, { text: text, globalFilter: globalFilter, highlightedText: highlightedText }));
+    }
+    return jsxRuntime.jsx(jsxRuntime.Fragment, { children: highlightedText });
+};
+const TextCell = ({ text, href, onClick, isCopyable, isBadge, badgeColor, colorPalette, 
+// Legacy props
+label, containerProps = {}, textProps = {}, children, }) => {
+    // Get globalFilter from context
+    // If not in DataTable context, will use default empty string from context
+    const { globalFilter } = useDataTableContext();
+    // Legacy API: if children is provided, use old behavior
+    if (children !== undefined) {
+        const displayText = typeof children === 'string' || typeof children === 'number'
+            ? String(children)
+            : children;
+        const highlightedDisplayText = typeof displayText === 'string' || typeof displayText === 'number'
+            ? highlightText(displayText, globalFilter)
+            : displayText;
+        if (label) {
+            return (jsxRuntime.jsx(react.Flex, { alignItems: 'center', height: '100%', ...containerProps, children: jsxRuntime.jsx(Tooltip, { content: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: 'ellipsis', children: label }), children: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: 'ellipsis', wordBreak: 'break-all', ...textProps, children: highlightedDisplayText }) }) }));
+        }
+        return (jsxRuntime.jsx(react.Flex, { alignItems: 'center', height: '100%', ...containerProps, children: jsxRuntime.jsx(react.Text, { as: "span", overflow: "hidden", textOverflow: 'ellipsis', wordBreak: 'break-all', ...textProps, children: highlightedDisplayText }) }));
+    }
+    // New API: use text prop
+    const displayValue = text ?? children;
+    if (Array.isArray(displayValue)) {
+        return (jsxRuntime.jsx(react.Flex, { gap: 2, flexWrap: "wrap", children: displayValue.map((item, index) => {
+                const highlightedItem = highlightText(item, globalFilter);
+                return (jsxRuntime.jsx(react.Badge, { colorPalette: colorPalette || badgeColor, children: highlightedItem }, index));
+            }) }));
+    }
+    if (!!displayValue === false) {
+        return (jsxRuntime.jsx(react.Text, { textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden", wordBreak: "break-all", display: "flex", alignItems: "center", height: "100%", children: "-" }));
+    }
+    return (jsxRuntime.jsx(react.Box, { textOverflow: "ellipsis", whiteSpace: "nowrap", wordBreak: "break-all", overflow: "auto", display: "flex", alignItems: "center", height: "100%", children: jsxRuntime.jsx(RenderValue, { text: displayValue, href: href, onClick: onClick, isCopyable: isCopyable, isBadge: isBadge, badgeColor: badgeColor, colorPalette: colorPalette, globalFilter: globalFilter }) }));
 };
 
 const Tag = React__namespace.forwardRef(function Tag(props, ref) {
@@ -5315,15 +5441,15 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     // Check if we're currently searching (user typed but debounce hasn't fired yet)
     const isSearching = searchText !== debouncedSearchText;
     // Transform data for combobox collection
+    // label is used for filtering/searching (must be a string)
+    // raw item is stored for custom rendering
     const comboboxItems = React.useMemo(() => {
         return dataList.map((item) => ({
-            label: !!renderDisplay === true
-                ? String(renderDisplay(item))
-                : String(item[display_column] ?? ''),
+            label: String(item[display_column] ?? ''), // Always use display_column for filtering
             value: String(item[column_ref]),
             raw: item,
         }));
-    }, [dataList, display_column, column_ref, renderDisplay]);
+    }, [dataList, display_column, column_ref]);
     // Use filter hook for combobox
     const { contains } = react.useFilter({ sensitivity: 'base' });
     // Create collection for combobox
@@ -5382,13 +5508,17 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                                     ? idPickerLabels?.emptySearchResult ??
                                         formI18n.t('empty_search_result')
                                     : idPickerLabels?.initialResults ??
-                                        formI18n.t('initial_results') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: formI18n.t('loading_failed') })) : isFetching || isLoading || isPending || isSearching ? (
+                                        formI18n.t('initial_results') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplay === true
+                                                ? renderDisplay(item.raw)
+                                                : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: formI18n.t('loading_failed') })) : isFetching || isLoading || isPending || isSearching ? (
                                 // Show skeleton items to prevent UI shift
                                 jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
                                         ? idPickerLabels?.emptySearchResult ??
                                             formI18n.t('empty_search_result')
                                         : idPickerLabels?.initialResults ??
-                                            formI18n.t('initial_results') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) }))] })] }));
+                                            formI18n.t('initial_results') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplay === true
+                                                    ? renderDisplay(item.raw)
+                                                    : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) }))] })] }));
 };
 
 const NumberInputRoot = React__namespace.forwardRef(function NumberInput(props, ref) {
@@ -5767,7 +5897,7 @@ meridiemLabel: _meridiemLabel = {
     pm: 'pm',
 }, 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedDate, }) {
+onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedDate, portalled = true, }) {
     // Generate time options (every 15 minutes)
     const timeOptions = React.useMemo(() => {
         const options = [];
@@ -5790,12 +5920,10 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
             for (let h = 1; h <= 12; h++) {
                 for (let m = 0; m < 60; m += 15) {
                     const hour24 = mer === 'am' ? (h === 12 ? 0 : h) : h === 12 ? 12 : h + 12;
-                    const timeStr = dayjs()
-                        .tz(timezone)
-                        .hour(hour24)
-                        .minute(m)
-                        .format('HH:mmZ');
-                    const displayTime = dayjs(`1970-01-01T${timeStr}`, 'HH:mmZ').format('hh:mm a');
+                    // Format time directly without using dayjs with dummy dates
+                    const formattedHour = h.toString().padStart(2, '0');
+                    const formattedMinute = m.toString().padStart(2, '0');
+                    const displayTime = `${formattedHour}:${formattedMinute} ${mer}`;
                     // Filter out times that would result in negative duration (only when dates are the same)
                     if (startDateTime && selectedDate && shouldFilterByDate) {
                         const selectedDateObj = dayjs(selectedDate).tz(timezone);
@@ -5808,8 +5936,8 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
                             continue; // Skip this option as it would result in negative duration
                         }
                     }
-                    // Calculate and append duration if startTime is provided
-                    let label = displayTime;
+                    // Calculate duration if startTime is provided
+                    let durationText;
                     if (startDateTime && selectedDate) {
                         const selectedDateObj = dayjs(selectedDate).tz(timezone);
                         const optionDateTime = selectedDateObj
@@ -5822,21 +5950,30 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
                             const diffMs = optionDateTime.diff(startDateTime);
                             const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                             const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                            if (diffHours > 0 || diffMinutes > 0) {
-                                const diffText = diffHours > 0
-                                    ? `${diffHours}h ${diffMinutes}m`
-                                    : `${diffMinutes}m`;
-                                label = `${displayTime} (+${diffText})`;
+                            const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+                            if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+                                let diffText = '';
+                                if (diffHours > 0) {
+                                    diffText = `${diffHours}h ${diffMinutes}m`;
+                                }
+                                else if (diffMinutes > 0) {
+                                    diffText = `${diffMinutes}m ${diffSeconds}s`;
+                                }
+                                else {
+                                    diffText = `${diffSeconds}s`;
+                                }
+                                durationText = `+${diffText}`;
                             }
                         }
                     }
                     options.push({
-                        label,
+                        label: displayTime,
                         value: `${h}:${m.toString().padStart(2, '0')}:${mer}`,
                         hour: h,
                         minute: m,
                         meridiem: mer,
                         searchText: displayTime, // Use base time without duration for searching
+                        durationText,
                     });
                 }
             }
@@ -5850,22 +5987,6 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
         itemToValue: (item) => item.value,
         filter: contains,
     });
-    // Track input mode vs display mode
-    const [isInputMode, setIsInputMode] = React.useState(false);
-    const [inputValue, setInputValue] = React.useState('');
-    const inputRef = React.useRef(null);
-    // Switch to display mode when value is selected
-    React.useEffect(() => {
-        if (hour !== null && minute !== null && meridiem !== null) {
-            setIsInputMode(false);
-        }
-    }, [hour, minute, meridiem]);
-    // Focus input when switching to input mode
-    React.useEffect(() => {
-        if (isInputMode && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [isInputMode]);
     // Get current value string for combobox
     const currentValue = React.useMemo(() => {
         if (hour === null || minute === null || meridiem === null) {
@@ -5873,14 +5994,14 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
         }
         return `${hour}:${minute.toString().padStart(2, '0')}:${meridiem}`;
     }, [hour, minute, meridiem]);
-    // INPUT MODE: Show raw input text (no duration)
-    const inputModeText = React.useMemo(() => {
-        return inputValue;
-    }, [inputValue]);
-    // DISPLAY MODE: Show selected value with duration
-    const displayModeText = React.useMemo(() => {
-        if (hour === null || minute === null || meridiem === null) {
-            return '';
+    // Calculate duration difference
+    const durationDiff = React.useMemo(() => {
+        if (!startTime ||
+            !selectedDate ||
+            hour === null ||
+            minute === null ||
+            meridiem === null) {
+            return null;
         }
         const hour24 = meridiem === 'am'
             ? hour === 12
@@ -5889,45 +6010,42 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
             : hour === 12
                 ? 12
                 : hour + 12;
-        const timeStr = dayjs()
-            .tz(timezone)
+        const startDateObj = dayjs(startTime).tz(timezone);
+        const selectedDateObj = dayjs(selectedDate).tz(timezone);
+        const currentDateTime = selectedDateObj
             .hour(hour24)
             .minute(minute)
-            .format('HH:mmZ');
-        const timeDisplay = dayjs(`1970-01-01T${timeStr}`, 'HH:mmZ').format('hh:mm a');
-        // Add duration if startTime is provided
-        if (startTime && selectedDate) {
-            const startDateObj = dayjs(startTime).tz(timezone);
-            const selectedDateObj = dayjs(selectedDate).tz(timezone);
-            const currentDateTime = selectedDateObj
-                .hour(hour24)
-                .minute(minute)
-                .second(0)
-                .millisecond(0);
-            if (startDateObj.isValid() && currentDateTime.isValid()) {
-                const diffMs = currentDateTime.diff(startDateObj);
-                if (diffMs >= 0) {
-                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                    if (diffHours > 0 || diffMinutes > 0) {
-                        const diffText = diffHours > 0
-                            ? `${diffHours}h ${diffMinutes}m`
-                            : `${diffMinutes}m`;
-                        return `${timeDisplay} (+${diffText})`;
-                    }
-                }
-            }
+            .second(0)
+            .millisecond(0);
+        if (!startDateObj.isValid() || !currentDateTime.isValid()) {
+            return null;
         }
-        return timeDisplay;
-    }, [hour, minute, meridiem, timezone, startTime, selectedDate]);
-    // Choose text based on mode
-    const displayText = isInputMode ? inputModeText : displayModeText;
+        const diffMs = currentDateTime.diff(startDateObj);
+        if (diffMs < 0) {
+            return null;
+        }
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+        if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+            let diffText = '';
+            if (diffHours > 0) {
+                diffText = `${diffHours}h ${diffMinutes}m`;
+            }
+            else if (diffMinutes > 0) {
+                diffText = `${diffMinutes}m ${diffSeconds}s`;
+            }
+            else {
+                diffText = `${diffSeconds}s`;
+            }
+            return `+${diffText}`;
+        }
+        return null;
+    }, [hour, minute, meridiem, startTime, selectedDate, timezone]);
     const handleClear = () => {
         setHour(null);
         setMinute(null);
         setMeridiem(null);
-        setIsInputMode(false);
-        setInputValue('');
         filter(''); // Reset filter to show all options
         onChange({ hour: null, minute: null, meridiem: null });
     };
@@ -5942,8 +6060,6 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
             setHour(selectedOption.hour);
             setMinute(selectedOption.minute);
             setMeridiem(selectedOption.meridiem);
-            setIsInputMode(false); // Switch to display mode
-            setInputValue('');
             filter(''); // Reset filter after selection
             onChange({
                 hour: selectedOption.hour,
@@ -5952,41 +6068,16 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
             });
         }
     };
-    // Handle Enter key to select first filtered option
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && collection.items.length > 0) {
-            e.preventDefault();
-            const firstOption = collection.items[0];
-            if (firstOption) {
-                const selectedOption = timeOptions.find((opt) => opt.value === firstOption.value);
-                if (selectedOption) {
-                    setHour(selectedOption.hour);
-                    setMinute(selectedOption.minute);
-                    setMeridiem(selectedOption.meridiem);
-                    setIsInputMode(false); // Switch to display mode
-                    setInputValue('');
-                    filter('');
-                    onChange({
-                        hour: selectedOption.hour,
-                        minute: selectedOption.minute,
-                        meridiem: selectedOption.meridiem,
-                    });
-                }
-            }
-        }
-    };
-    const handleInputValueChange = (details) => {
-        const inputValue = details.inputValue.trim();
-        setInputValue(inputValue);
-        setIsInputMode(true); // Switch to input mode
+    // Parse input value and update state
+    const parseAndCommitInput = (value) => {
+        const trimmedValue = value.trim();
         // Filter the collection based on input
-        filter(inputValue);
-        if (!inputValue) {
-            setIsInputMode(false);
+        filter(trimmedValue);
+        if (!trimmedValue) {
             return;
         }
         // Try to parse custom input using explicit regex patterns
-        const normalized = inputValue.toLowerCase().replace(/\s+/g, '');
+        const normalized = trimmedValue.toLowerCase().replace(/\s+/g, '');
         // Pattern 1: 12-hour format with meridiem (e.g., "930pm", "1230am", "9:30pm", "12:30am")
         // Matches: 1-2 digits hour, optional colon, 2 digits minute, am/pm
         const pattern12HourWithMeridiem = /^(\d{1,2}):?(\d{2})(am|pm)$/;
@@ -5997,29 +6088,43 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
             const parsedMeridiem = match12Hour[3];
             // Validate hour (1-12)
             if (parsedHour < 1 || parsedHour > 12) {
+                // Parse failed, select first result
+                selectFirstResult();
                 return;
             }
             // Validate minute (0-59)
-            const validMinute = parsedMinute > 59 ? 0 : parsedMinute;
+            if (parsedMinute < 0 || parsedMinute > 59) {
+                // Parse failed, select first result
+                selectFirstResult();
+                return;
+            }
             setHour(parsedHour);
-            setMinute(validMinute);
+            setMinute(parsedMinute);
             setMeridiem(parsedMeridiem);
             onChange({
                 hour: parsedHour,
-                minute: validMinute,
+                minute: parsedMinute,
                 meridiem: parsedMeridiem,
             });
             return;
         }
         // Pattern 2: 24-hour format (e.g., "2130", "09:30", "21:30")
         // Matches: 1-2 digits hour, optional colon, 2 digits minute
-        const pattern24Hour = /^(\d{2}):?(\d{2})$/;
+        const pattern24Hour = /^(\d{1,2}):?(\d{2})$/;
         const match24Hour = normalized.match(pattern24Hour);
         if (match24Hour) {
             let parsedHour = parseInt(match24Hour[1], 10);
             const parsedMinute = parseInt(match24Hour[2], 10);
             // Validate hour (0-23)
-            if (parsedHour > 23) {
+            if (parsedHour < 0 || parsedHour > 23) {
+                // Parse failed, select first result
+                selectFirstResult();
+                return;
+            }
+            // Validate minute (0-59)
+            if (parsedMinute < 0 || parsedMinute > 59) {
+                // Parse failed, select first result
+                selectFirstResult();
                 return;
             }
             // Convert 24-hour to 12-hour format
@@ -6039,23 +6144,62 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
             else {
                 parsedMeridiem = 'am';
             }
-            // Validate minute (0-59)
-            const validMinute = parsedMinute > 59 ? 0 : parsedMinute;
             setHour(parsedHour);
-            setMinute(validMinute);
+            setMinute(parsedMinute);
             setMeridiem(parsedMeridiem);
             onChange({
                 hour: parsedHour,
-                minute: validMinute,
+                minute: parsedMinute,
                 meridiem: parsedMeridiem,
             });
             return;
         }
+        // Parse failed, select first result
+        selectFirstResult();
     };
-    return (jsxRuntime.jsxs(react.Grid, { justifyContent: 'center', alignItems: 'center', templateColumns: '200px auto', gap: "2", width: "auto", minWidth: "250px", children: [jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, width: "100%", children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [isInputMode ? (jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { ref: inputRef, placeholder: "Select time", value: displayText, onKeyDown: handleKeyDown }) })) : (jsxRuntime.jsxs(react.Grid, { templateColumns: "auto 1fr auto", alignItems: "center", gap: 2, width: "100%", minHeight: "40px", px: 3, border: "1px solid", borderColor: "gray.200", borderRadius: "md", cursor: "pointer", onClick: () => setIsInputMode(true), children: [jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(bs.BsClock, {}) }), jsxRuntime.jsx(react.Text, { fontSize: "sm", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: displayText || 'Select time' }), jsxRuntime.jsx(react.Combobox.Trigger, { onClick: (e) => {
-                                            e.stopPropagation();
-                                            setIsInputMode(true);
-                                        } })] })), isInputMode && (jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [jsxRuntime.jsx(react.Combobox.ClearTrigger, {}), jsxRuntime.jsx(react.Combobox.Trigger, {})] }))] }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: "No time found" }), collection.items.map((item) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [item.label, jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(md.MdCancel, {}) }) })] }));
+    // Select first result from filtered collection
+    const selectFirstResult = () => {
+        if (collection.items.length > 0) {
+            const firstItem = collection.items[0];
+            setHour(firstItem.hour);
+            setMinute(firstItem.minute);
+            setMeridiem(firstItem.meridiem);
+            filter(''); // Reset filter after selection
+            onChange({
+                hour: firstItem.hour,
+                minute: firstItem.minute,
+                meridiem: firstItem.meridiem,
+            });
+        }
+    };
+    const handleInputValueChange = (details) => {
+        // Filter the collection based on input, but don't parse yet
+        filter(details.inputValue);
+    };
+    const handleFocus = (e) => {
+        // Select all text when focusing
+        e.target.select();
+    };
+    const handleBlur = (e) => {
+        // Parse and commit the input value when losing focus
+        const inputValue = e.target.value;
+        if (inputValue) {
+            parseAndCommitInput(inputValue);
+        }
+    };
+    const handleKeyDown = (e) => {
+        // Commit input on Enter key
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const inputValue = e.currentTarget.value;
+            if (inputValue) {
+                parseAndCommitInput(inputValue);
+            }
+            // Blur the input
+            e.currentTarget?.blur();
+        }
+    };
+    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", width: "auto", minWidth: "300px", children: [jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, flex: 1, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { placeholder: "hh:mm a", onFocus: handleFocus, onBlur: handleBlur, onKeyDown: handleKeyDown }) }), jsxRuntime.jsx(react.Combobox.IndicatorGroup, { children: jsxRuntime.jsx(react.Combobox.Trigger, {}) })] }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: "No time found" }), collection.items.map((item) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: 2, width: "100%", children: [jsxRuntime.jsx(react.Text, { flex: 1, children: item.label }), item.durationText && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", colorPalette: "blue", children: jsxRuntime.jsx(react.Tag.Label, { children: item.durationText }) }))] }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), durationDiff && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: durationDiff }) })), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(md.MdCancel, {}) }) })] }) }));
 }
 
 dayjs.extend(timezone);
@@ -6135,9 +6279,136 @@ const TimePicker = ({ column, schema, prefix }) => {
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
+function DatePickerInput({ value, onChange, placeholder = 'Select a date', dateFormat = 'YYYY-MM-DD', displayFormat = 'YYYY-MM-DD', labels = {
+    monthNamesShort: [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+    ],
+    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    backButtonLabel: 'Back',
+    forwardButtonLabel: 'Next',
+}, timezone = 'Asia/Hong_Kong', minDate, maxDate, firstDayOfWeek, showOutsideDays, monthsToDisplay = 1, insideDialog = false, readOnly = false, }) {
+    const [open, setOpen] = React.useState(false);
+    const [inputValue, setInputValue] = React.useState('');
+    // Update input value when prop value changes
+    React.useEffect(() => {
+        if (value) {
+            const formatted = typeof value === 'string'
+                ? dayjs(value).tz(timezone).isValid()
+                    ? dayjs(value).tz(timezone).format(displayFormat)
+                    : ''
+                : dayjs(value).tz(timezone).format(displayFormat);
+            setInputValue(formatted);
+        }
+        else {
+            setInputValue('');
+        }
+    }, [value, displayFormat, timezone]);
+    // Convert value to Date object for DatePicker
+    const selectedDate = value
+        ? typeof value === 'string'
+            ? dayjs(value).tz(timezone).isValid()
+                ? dayjs(value).tz(timezone).toDate()
+                : new Date()
+            : value
+        : new Date();
+    // Shared function to parse and validate input value
+    const parseAndValidateInput = (inputVal) => {
+        // If empty, clear the value
+        if (!inputVal.trim()) {
+            onChange?.(undefined);
+            setInputValue('');
+            return;
+        }
+        // Try parsing with displayFormat first
+        let parsedDate = dayjs(inputVal, displayFormat, true);
+        // If that fails, try common date formats
+        if (!parsedDate.isValid()) {
+            parsedDate = dayjs(inputVal);
+        }
+        // If still invalid, try parsing with dateFormat
+        if (!parsedDate.isValid()) {
+            parsedDate = dayjs(inputVal, dateFormat, true);
+        }
+        // If valid, check constraints and update
+        if (parsedDate.isValid()) {
+            const dateObj = parsedDate.tz(timezone).toDate();
+            // Check min/max constraints
+            if (minDate && dateObj < minDate) {
+                // Invalid: before minDate, reset to prop value
+                resetToPropValue();
+                return;
+            }
+            if (maxDate && dateObj > maxDate) {
+                // Invalid: after maxDate, reset to prop value
+                resetToPropValue();
+                return;
+            }
+            // Valid date - format and update
+            const formattedDate = parsedDate.tz(timezone).format(dateFormat);
+            const formattedDisplay = parsedDate.tz(timezone).format(displayFormat);
+            onChange?.(formattedDate);
+            setInputValue(formattedDisplay);
+        }
+        else {
+            // Invalid date - reset to prop value
+            resetToPropValue();
+        }
+    };
+    // Helper function to reset input to prop value
+    const resetToPropValue = () => {
+        if (value) {
+            const formatted = typeof value === 'string'
+                ? dayjs(value).tz(timezone).isValid()
+                    ? dayjs(value).tz(timezone).format(displayFormat)
+                    : ''
+                : dayjs(value).tz(timezone).format(displayFormat);
+            setInputValue(formatted);
+        }
+        else {
+            setInputValue('');
+        }
+    };
+    const handleInputChange = (e) => {
+        // Only update the input value, don't parse yet
+        setInputValue(e.target.value);
+    };
+    const handleInputBlur = () => {
+        // Parse and validate when input loses focus
+        parseAndValidateInput(inputValue);
+    };
+    const handleKeyDown = (e) => {
+        // Parse and validate when Enter is pressed
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            parseAndValidateInput(inputValue);
+        }
+    };
+    const handleDateSelected = ({ date }) => {
+        const formattedDate = dayjs(date).tz(timezone).format(dateFormat);
+        onChange?.(formattedDate);
+        setOpen(false);
+    };
+    const datePickerContent = (jsxRuntime.jsx(DatePicker$1, { selected: selectedDate, onDateSelected: handleDateSelected, labels: labels, minDate: minDate, maxDate: maxDate, firstDayOfWeek: firstDayOfWeek, showOutsideDays: showOutsideDays, monthsToDisplay: monthsToDisplay }));
+    return (jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(InputGroup, { endElement: jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsx(react.IconButton, { variant: "ghost", size: "2xs", "aria-label": "Open calendar", onClick: () => setOpen(true), children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(md.MdDateRange, {}) }) }) }), children: jsxRuntime.jsx(react.Input, { value: inputValue, onChange: handleInputChange, onBlur: handleInputBlur, onKeyDown: handleKeyDown, placeholder: placeholder, readOnly: readOnly }) }), insideDialog ? (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minH: "25rem", children: jsxRuntime.jsx(react.Popover.Body, { children: datePickerContent }) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minH: "25rem", children: jsxRuntime.jsx(react.Popover.Body, { children: datePickerContent }) }) }) }))] }));
+}
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 function IsoTimePicker({ hour, setHour, minute, setMinute, second, setSecond, 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Kong', }) {
+onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Kong', portalled = true, }) {
     // Generate time options (every 15 minutes, seconds always 0)
     const timeOptions = React.useMemo(() => {
         const options = [];
@@ -6172,8 +6443,8 @@ onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Ko
                         continue; // Skip this option as it would result in negative duration
                     }
                 }
-                // Calculate and append duration if startTime is provided
-                let label = timeDisplay;
+                // Calculate duration if startTime is provided
+                let durationText;
                 if (startDateTime && selectedDate) {
                     const selectedDateObj = dayjs(selectedDate).tz(timezone);
                     const optionDateTime = selectedDateObj
@@ -6198,17 +6469,18 @@ onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Ko
                             else {
                                 diffText = `${diffSeconds}s`;
                             }
-                            label = `${timeDisplay} (+${diffText})`;
+                            durationText = `+${diffText}`;
                         }
                     }
                 }
                 options.push({
-                    label,
+                    label: timeDisplay,
                     value: `${h}:${m}:0`,
                     hour: h,
                     minute: m,
                     second: 0,
                     searchText: timeDisplay, // Use base time without duration for searching
+                    durationText,
                 });
             }
         }
@@ -6228,46 +6500,46 @@ onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Ko
         }
         return `${hour}:${minute}:${second}`;
     }, [hour, minute, second]);
-    // Get display text for combobox
-    const displayText = React.useMemo(() => {
-        if (hour === null || minute === null || second === null) {
-            return '';
+    // Calculate duration difference
+    const durationDiff = React.useMemo(() => {
+        if (!startTime ||
+            !selectedDate ||
+            hour === null ||
+            minute === null ||
+            second === null) {
+            return null;
         }
-        const timeDisplay = `${hour.toString().padStart(2, '0')}:${minute
-            .toString()
-            .padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
-        // Show duration difference if startTime is provided
-        if (startTime && selectedDate) {
-            const startDateObj = dayjs(startTime).tz(timezone);
-            const selectedDateObj = dayjs(selectedDate).tz(timezone);
-            const currentDateTime = selectedDateObj
-                .hour(hour)
-                .minute(minute)
-                .second(second ?? 0)
-                .millisecond(0);
-            if (startDateObj.isValid() && currentDateTime.isValid()) {
-                const diffMs = currentDateTime.diff(startDateObj);
-                if (diffMs >= 0) {
-                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                    const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-                    if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
-                        let diffText = '';
-                        if (diffHours > 0) {
-                            diffText = `${diffHours}h ${diffMinutes}m`;
-                        }
-                        else if (diffMinutes > 0) {
-                            diffText = `${diffMinutes}m ${diffSeconds}s`;
-                        }
-                        else {
-                            diffText = `${diffSeconds}s`;
-                        }
-                        return `${timeDisplay} (+${diffText})`;
-                    }
-                }
+        const startDateObj = dayjs(startTime).tz(timezone);
+        const selectedDateObj = dayjs(selectedDate).tz(timezone);
+        const currentDateTime = selectedDateObj
+            .hour(hour)
+            .minute(minute)
+            .second(second ?? 0)
+            .millisecond(0);
+        if (!startDateObj.isValid() || !currentDateTime.isValid()) {
+            return null;
+        }
+        const diffMs = currentDateTime.diff(startDateObj);
+        if (diffMs < 0) {
+            return null;
+        }
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+        if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+            let diffText = '';
+            if (diffHours > 0) {
+                diffText = `${diffHours}h ${diffMinutes}m`;
             }
+            else if (diffMinutes > 0) {
+                diffText = `${diffMinutes}m ${diffSeconds}s`;
+            }
+            else {
+                diffText = `${diffSeconds}s`;
+            }
+            return `+${diffText}`;
         }
-        return timeDisplay;
+        return null;
     }, [hour, minute, second, startTime, selectedDate, timezone]);
     const handleClear = () => {
         setHour(null);
@@ -6295,16 +6567,17 @@ onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Ko
             });
         }
     };
-    const handleInputValueChange = (details) => {
-        const inputValue = details.inputValue.trim();
+    // Parse input value and update state
+    const parseAndCommitInput = (value) => {
+        const trimmedValue = value.trim();
         // Filter the collection based on input
-        filter(inputValue);
-        if (!inputValue) {
+        filter(trimmedValue);
+        if (!trimmedValue) {
             return;
         }
         // Parse HH:mm:ss or HH:mm format
         const timePattern = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/;
-        const match = inputValue.match(timePattern);
+        const match = trimmedValue.match(timePattern);
         if (match) {
             const parsedHour = parseInt(match[1], 10);
             const parsedMinute = parseInt(match[2], 10);
@@ -6324,11 +6597,12 @@ onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Ko
                     minute: parsedMinute,
                     second: parsedSecond,
                 });
+                return;
             }
         }
         else {
             // Try to parse formats like "123045" (HHmmss) or "1230" (HHmm)
-            const numbersOnly = inputValue.replace(/[^0-9]/g, '');
+            const numbersOnly = trimmedValue.replace(/[^0-9]/g, '');
             if (numbersOnly.length >= 4) {
                 const parsedHour = parseInt(numbersOnly.slice(0, 2), 10);
                 const parsedMinute = parseInt(numbersOnly.slice(2, 4), 10);
@@ -6348,11 +6622,56 @@ onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Ko
                         minute: parsedMinute,
                         second: parsedSecond,
                     });
+                    return;
                 }
             }
         }
+        // Parse failed, select first result
+        selectFirstResult();
     };
-    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Grid, { justifyContent: 'center', alignItems: 'center', templateColumns: '1fr auto', gap: "2", width: "auto", minWidth: "300px", children: [jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, width: "100%", children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { placeholder: "HH:mm:ss", value: displayText }) }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [jsxRuntime.jsx(react.Combobox.ClearTrigger, {}), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: "No time found" }), collection.items.map((item) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [item.label, jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(md.MdCancel, {}) }) })] }) }));
+    // Select first result from filtered collection
+    const selectFirstResult = () => {
+        if (collection.items.length > 0) {
+            const firstItem = collection.items[0];
+            setHour(firstItem.hour);
+            setMinute(firstItem.minute);
+            setSecond(firstItem.second);
+            filter(''); // Reset filter after selection
+            onChange({
+                hour: firstItem.hour,
+                minute: firstItem.minute,
+                second: firstItem.second,
+            });
+        }
+    };
+    const handleInputValueChange = (details) => {
+        // Filter the collection based on input, but don't parse yet
+        filter(details.inputValue);
+    };
+    const handleFocus = (e) => {
+        // Select all text when focusing
+        e.target.select();
+    };
+    const handleBlur = (e) => {
+        // Parse and commit the input value when losing focus
+        const inputValue = e.target.value;
+        if (inputValue) {
+            parseAndCommitInput(inputValue);
+        }
+    };
+    const handleKeyDown = (e) => {
+        // Commit input on Enter key
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const inputValue = e.currentTarget.value;
+            if (inputValue) {
+                parseAndCommitInput(inputValue);
+            }
+            // Blur the input
+            e.currentTarget?.blur();
+        }
+    };
+    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", width: "auto", minWidth: "300px", children: [jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, flex: 1, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { placeholder: "HH:mm:ss", onFocus: handleFocus, onBlur: handleBlur, onKeyDown: handleKeyDown }) }), jsxRuntime.jsx(react.Combobox.IndicatorGroup, { children: jsxRuntime.jsx(react.Combobox.Trigger, {}) })] }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: "No time found" }), collection.items.map((item) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: 2, width: "100%", children: [jsxRuntime.jsx(react.Text, { flex: 1, children: item.label }), item.durationText && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: item.durationText }) }))] }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), durationDiff && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: durationDiff }) })), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(md.MdCancel, {}) }) })] }) }));
 }
 
 dayjs.extend(utc);
@@ -6375,30 +6694,193 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Next',
-}, timezone = 'Asia/Hong_Kong', startTime, }) {
-    const [selectedDate, setSelectedDate] = React.useState(value || '');
+}, timezone = 'Asia/Hong_Kong', startTime, minDate, maxDate, portalled = false, }) {
+    console.log('[DateTimePicker] Component initialized with props:', {
+        value,
+        format,
+        showSeconds,
+        timezone,
+        startTime,
+        minDate,
+        maxDate,
+    });
+    // Initialize selectedDate from value prop, converting ISO to YYYY-MM-DD format
+    const getDateString = React.useCallback((val) => {
+        if (!val)
+            return '';
+        const dateObj = dayjs(val).tz(timezone);
+        return dateObj.isValid() ? dateObj.format('YYYY-MM-DD') : '';
+    }, [timezone]);
+    const [selectedDate, setSelectedDate] = React.useState(getDateString(value));
+    // Helper to get time values from value prop with timezone
+    const getTimeFromValue = React.useCallback((val) => {
+        console.log('[DateTimePicker] getTimeFromValue called:', {
+            val,
+            timezone,
+            showSeconds,
+        });
+        if (!val) {
+            console.log('[DateTimePicker] No value provided, returning nulls');
+            return {
+                hour12: null,
+                minute: null,
+                meridiem: null,
+                hour24: null,
+                second: null,
+            };
+        }
+        const dateObj = dayjs(val).tz(timezone);
+        console.log('[DateTimePicker] Parsed date object:', {
+            original: val,
+            timezone,
+            isValid: dateObj.isValid(),
+            formatted: dateObj.format('YYYY-MM-DD HH:mm:ss Z'),
+            hour24: dateObj.hour(),
+            minute: dateObj.minute(),
+            second: dateObj.second(),
+        });
+        if (!dateObj.isValid()) {
+            console.log('[DateTimePicker] Invalid date object, returning nulls');
+            return {
+                hour12: null,
+                minute: null,
+                meridiem: null,
+                hour24: null,
+                second: null,
+            };
+        }
+        const hour24Value = dateObj.hour();
+        const hour12Value = hour24Value % 12 || 12;
+        const minuteValue = dateObj.minute();
+        const meridiemValue = hour24Value >= 12 ? 'pm' : 'am';
+        const secondValue = showSeconds ? dateObj.second() : null;
+        const result = {
+            hour12: hour12Value,
+            minute: minuteValue,
+            meridiem: meridiemValue,
+            hour24: hour24Value,
+            second: secondValue,
+        };
+        console.log('[DateTimePicker] Extracted time values:', result);
+        return result;
+    }, [timezone, showSeconds]);
+    const initialTime = getTimeFromValue(value);
+    console.log('[DateTimePicker] Initial time from value:', {
+        value,
+        initialTime,
+    });
     // Time state for 12-hour format
-    const [hour12, setHour12] = React.useState(value ? dayjs(value).hour() % 12 || 12 : null);
-    const [minute, setMinute] = React.useState(value ? dayjs(value).minute() : null);
-    const [meridiem, setMeridiem] = React.useState(value ? (dayjs(value).hour() >= 12 ? 'pm' : 'am') : null);
+    const [hour12, setHour12] = React.useState(initialTime.hour12);
+    const [minute, setMinute] = React.useState(initialTime.minute);
+    const [meridiem, setMeridiem] = React.useState(initialTime.meridiem);
     // Time state for 24-hour format
-    const [hour24, setHour24] = React.useState(value ? dayjs(value).hour() : null);
-    const [second, setSecond] = React.useState(showSeconds && value ? dayjs(value).second() : null);
+    const [hour24, setHour24] = React.useState(initialTime.hour24);
+    const [second, setSecond] = React.useState(initialTime.second);
+    // Sync selectedDate and time states when value prop changes
+    React.useEffect(() => {
+        console.log('[DateTimePicker] useEffect triggered - value changed:', {
+            value,
+            timezone,
+            format,
+        });
+        // If value is null, undefined, or invalid, clear all fields
+        if (!value || value === null || value === undefined) {
+            console.log('[DateTimePicker] Value is null/undefined, clearing all fields');
+            setSelectedDate('');
+            setHour12(null);
+            setMinute(null);
+            setMeridiem(null);
+            setHour24(null);
+            setSecond(null);
+            return;
+        }
+        // Check if value is valid
+        const dateObj = dayjs(value).tz(timezone);
+        if (!dateObj.isValid()) {
+            console.log('[DateTimePicker] Invalid value, clearing all fields');
+            setSelectedDate('');
+            setHour12(null);
+            setMinute(null);
+            setMeridiem(null);
+            setHour24(null);
+            setSecond(null);
+            return;
+        }
+        const dateString = getDateString(value);
+        console.log('[DateTimePicker] Setting selectedDate:', dateString);
+        setSelectedDate(dateString);
+        const timeData = getTimeFromValue(value);
+        console.log('[DateTimePicker] Updating time states:', {
+            timeData,
+        });
+        setHour12(timeData.hour12);
+        setMinute(timeData.minute);
+        setMeridiem(timeData.meridiem);
+        setHour24(timeData.hour24);
+        setSecond(timeData.second);
+    }, [value, getTimeFromValue, getDateString, timezone]);
     const handleDateChange = (date) => {
+        console.log('[DateTimePicker] handleDateChange called:', {
+            date,
+            timezone,
+            showSeconds,
+            currentTimeStates: { hour12, minute, meridiem, hour24, second },
+        });
+        // If date is empty or invalid, clear all fields
+        if (!date || date === '') {
+            console.log('[DateTimePicker] Empty date, clearing all fields');
+            setSelectedDate('');
+            setHour12(null);
+            setMinute(null);
+            setMeridiem(null);
+            setHour24(null);
+            setSecond(null);
+            onChange?.(undefined);
+            return;
+        }
         setSelectedDate(date);
+        // Parse the date string (YYYY-MM-DD) in the specified timezone
+        const dateObj = dayjs.tz(date, timezone);
+        console.log('[DateTimePicker] Parsed date object:', {
+            date,
+            timezone,
+            isValid: dateObj.isValid(),
+            isoString: dateObj.toISOString(),
+            formatted: dateObj.format('YYYY-MM-DD HH:mm:ss Z'),
+        });
+        if (!dateObj.isValid()) {
+            console.warn('[DateTimePicker] Invalid date object in handleDateChange, clearing fields');
+            setSelectedDate('');
+            setHour12(null);
+            setMinute(null);
+            setMeridiem(null);
+            setHour24(null);
+            setSecond(null);
+            onChange?.(undefined);
+            return;
+        }
         // When showSeconds is false, ignore seconds from the date
-        const dateObj = dayjs(date).tz(timezone);
-        if (!showSeconds && dateObj.isValid()) {
+        if (!showSeconds) {
             const dateWithoutSeconds = dateObj.second(0).millisecond(0).toISOString();
+            console.log('[DateTimePicker] Updating date without seconds:', dateWithoutSeconds);
             updateDateTime(dateWithoutSeconds);
         }
         else {
-            updateDateTime(dateObj.toISOString());
+            const dateWithSeconds = dateObj.toISOString();
+            console.log('[DateTimePicker] Updating date with seconds:', dateWithSeconds);
+            updateDateTime(dateWithSeconds);
         }
     };
     const handleTimeChange = (timeData) => {
+        console.log('[DateTimePicker] handleTimeChange called:', {
+            timeData,
+            format,
+            selectedDate,
+            timezone,
+        });
         if (format === 'iso-date-time') {
             const data = timeData;
+            console.log('[DateTimePicker] ISO format - setting 24-hour time:', data);
             setHour24(data.hour);
             setMinute(data.minute);
             if (showSeconds) {
@@ -6411,60 +6893,161 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         }
         else {
             const data = timeData;
+            console.log('[DateTimePicker] 12-hour format - setting time:', data);
             setHour12(data.hour);
             setMinute(data.minute);
             setMeridiem(data.meridiem);
         }
-        // Use selectedDate if valid, otherwise use today's date as fallback
-        const dateToUse = selectedDate && dayjs(selectedDate).isValid()
-            ? selectedDate
-            : dayjs().tz(timezone).toISOString();
-        const dateObj = dayjs(dateToUse).tz(timezone);
+        // Use selectedDate if valid, otherwise clear all fields
+        if (!selectedDate || !dayjs(selectedDate).isValid()) {
+            console.log('[DateTimePicker] No valid selectedDate, clearing all fields');
+            setSelectedDate('');
+            setHour12(null);
+            setMinute(null);
+            setMeridiem(null);
+            setHour24(null);
+            setSecond(null);
+            onChange?.(undefined);
+            return;
+        }
+        const dateObj = dayjs(selectedDate).tz(timezone);
         if (dateObj.isValid()) {
             updateDateTime(dateObj.toISOString(), timeData);
         }
+        else {
+            console.warn('[DateTimePicker] Invalid date object in handleTimeChange, clearing fields');
+            setSelectedDate('');
+            setHour12(null);
+            setMinute(null);
+            setMeridiem(null);
+            setHour24(null);
+            setSecond(null);
+            onChange?.(undefined);
+        }
     };
     const updateDateTime = (date, timeData) => {
-        if (!date) {
+        console.log('[DateTimePicker] updateDateTime called:', {
+            date,
+            timeData,
+            format,
+            currentStates: { hour12, minute, meridiem, hour24, second },
+        });
+        if (!date || date === null || date === undefined) {
+            console.log('[DateTimePicker] No date provided, clearing all fields and calling onChange(undefined)');
+            setSelectedDate('');
+            setHour12(null);
+            setMinute(null);
+            setMeridiem(null);
+            setHour24(null);
+            setSecond(null);
             onChange?.(undefined);
             return;
         }
         // use dayjs to convert the date to the timezone
         const dateObj = dayjs(date).tz(timezone);
         if (!dateObj.isValid()) {
+            console.warn('[DateTimePicker] Invalid date object in updateDateTime, clearing fields:', date);
+            setSelectedDate('');
+            setHour12(null);
+            setMinute(null);
+            setMeridiem(null);
+            setHour24(null);
+            setSecond(null);
+            onChange?.(undefined);
             return;
         }
         const newDate = dateObj.toDate();
         if (format === 'iso-date-time') {
             const data = timeData;
-            const h = data?.hour ?? hour24;
-            const m = data?.minute ?? minute;
+            // Use timeData values if provided, otherwise fall back to current state
+            // But if timeData is explicitly provided with nulls, we need to check if all are null
+            const h = data !== undefined ? data.hour : hour24;
+            const m = data !== undefined ? data.minute : minute;
             // Always ignore seconds when showSeconds is false - set to 0
-            const s = showSeconds ? data?.second ?? second ?? 0 : 0;
+            const s = showSeconds
+                ? data !== undefined
+                    ? data.second ?? null
+                    : second ?? 0
+                : 0;
+            // If all time values are null, clear the value
+            if (h === null && m === null && (showSeconds ? s === null : true)) {
+                console.log('[DateTimePicker] All time values are null, clearing value');
+                onChange?.(undefined);
+                return;
+            }
+            console.log('[DateTimePicker] ISO format - setting time on date:', {
+                h,
+                m,
+                s,
+                showSeconds,
+            });
             if (h !== null)
                 newDate.setHours(h);
             if (m !== null)
                 newDate.setMinutes(m);
-            newDate.setSeconds(s);
+            newDate.setSeconds(s ?? 0);
         }
         else {
             const data = timeData;
-            const h = data?.hour ?? hour12;
-            const m = data?.minute ?? minute;
-            const mer = data?.meridiem ?? meridiem;
+            console.log('[DateTimePicker] Processing 12-hour format:', {
+                'data !== undefined': data !== undefined,
+                'data?.hour': data?.hour,
+                'data?.minute': data?.minute,
+                'data?.meridiem': data?.meridiem,
+                'current hour12': hour12,
+                'current minute': minute,
+                'current meridiem': meridiem,
+            });
+            // Use timeData values if provided, otherwise fall back to current state
+            const h = data !== undefined ? data.hour : hour12;
+            const m = data !== undefined ? data.minute : minute;
+            const mer = data !== undefined ? data.meridiem : meridiem;
+            console.log('[DateTimePicker] Resolved time values:', { h, m, mer });
+            // If all time values are null, clear the value
+            if (h === null && m === null && mer === null) {
+                console.log('[DateTimePicker] All time values are null, clearing value');
+                onChange?.(undefined);
+                return;
+            }
+            console.log('[DateTimePicker] 12-hour format - converting time:', {
+                h,
+                m,
+                mer,
+            });
             if (h !== null && mer !== null) {
                 let hour24 = h;
                 if (mer === 'am' && h === 12)
                     hour24 = 0;
                 else if (mer === 'pm' && h < 12)
                     hour24 = h + 12;
+                console.log('[DateTimePicker] Converted to 24-hour:', {
+                    h,
+                    mer,
+                    hour24,
+                });
                 newDate.setHours(hour24);
             }
-            if (m !== null)
+            else {
+                console.log('[DateTimePicker] Skipping hour update - h or mer is null:', {
+                    h,
+                    mer,
+                });
+            }
+            if (m !== null) {
                 newDate.setMinutes(m);
+            }
+            else {
+                console.log('[DateTimePicker] Skipping minute update - m is null');
+            }
             newDate.setSeconds(0);
         }
-        onChange?.(dayjs(newDate).tz(timezone).toISOString());
+        const finalISO = dayjs(newDate).tz(timezone).toISOString();
+        console.log('[DateTimePicker] Final ISO string to emit:', {
+            newDate: newDate.toISOString(),
+            timezone,
+            finalISO,
+        });
+        onChange?.(finalISO);
     };
     const handleClear = () => {
         setSelectedDate('');
@@ -6480,14 +7063,92 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     const normalizedStartTime = startTime
         ? dayjs(startTime).tz(timezone).millisecond(0).toISOString()
         : undefined;
-    return (jsxRuntime.jsxs(react.Flex, { direction: "column", gap: 4, p: 4, border: "1px solid", borderColor: "gray.200", borderRadius: "md", children: [jsxRuntime.jsx(DatePicker$1, { selected: selectedDate ? dayjs(selectedDate).tz(timezone).toDate() : new Date(), onDateSelected: ({ date }) => handleDateChange(dayjs(date).tz(timezone).toISOString()), monthsToDisplay: 1, labels: labels, minDate: normalizedStartTime &&
-                    dayjs(normalizedStartTime).tz(timezone).isValid()
-                    ? dayjs(normalizedStartTime).tz(timezone).startOf('day').toDate()
-                    : undefined }), jsxRuntime.jsxs(react.Grid, { templateColumns: "1fr auto", alignItems: "center", gap: 4, children: [isISO ? (jsxRuntime.jsx(IsoTimePicker, { hour: hour24, setHour: setHour24, minute: minute, setMinute: setMinute, second: showSeconds ? second : null, setSecond: showSeconds ? setSecond : () => { }, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone })) : (jsxRuntime.jsx(TimePicker$1, { hour: hour12, setHour: setHour12, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone })), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "outline", colorScheme: "red", children: jsxRuntime.jsx(react.Icon, { as: fa6.FaTrash }) })] }), selectedDate && (jsxRuntime.jsxs(react.Flex, { gap: 2, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: dayjs(value).format(isISO
-                            ? showSeconds
-                                ? 'YYYY-MM-DD HH:mm:ss'
-                                : 'YYYY-MM-DD HH:mm'
-                            : 'YYYY-MM-DD hh:mm A ') }), jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: dayjs(value).tz(timezone).format('Z') }), jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezone })] }))] }));
+    // Determine minDate: prioritize explicit minDate prop, then fall back to startTime
+    const effectiveMinDate = minDate
+        ? minDate
+        : normalizedStartTime && dayjs(normalizedStartTime).tz(timezone).isValid()
+            ? dayjs(normalizedStartTime).tz(timezone).startOf('day').toDate()
+            : undefined;
+    // Log current state before render
+    React.useEffect(() => {
+        console.log('[DateTimePicker] Current state before render:', {
+            isISO,
+            hour12,
+            minute,
+            meridiem,
+            hour24,
+            second,
+            selectedDate,
+            normalizedStartTime,
+            timezone,
+        });
+    }, [
+        isISO,
+        hour12,
+        minute,
+        meridiem,
+        hour24,
+        second,
+        selectedDate,
+        normalizedStartTime,
+        timezone,
+    ]);
+    // Compute display text from current state
+    const displayText = React.useMemo(() => {
+        if (!selectedDate)
+            return null;
+        const dateObj = dayjs.tz(selectedDate, timezone);
+        if (!dateObj.isValid())
+            return null;
+        if (isISO) {
+            // For ISO format, use hour24, minute, second
+            if (hour24 === null || minute === null)
+                return null;
+            const dateTimeObj = dateObj
+                .hour(hour24)
+                .minute(minute)
+                .second(second ?? 0);
+            return dateTimeObj.format(showSeconds ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD HH:mm');
+        }
+        else {
+            // For 12-hour format, use hour12, minute, meridiem
+            if (hour12 === null || minute === null || meridiem === null)
+                return null;
+            // Convert to 24-hour format for dayjs
+            let hour24Value = hour12;
+            if (meridiem === 'am' && hour12 === 12)
+                hour24Value = 0;
+            else if (meridiem === 'pm' && hour12 < 12)
+                hour24Value = hour12 + 12;
+            const dateTimeObj = dateObj.hour(hour24Value).minute(minute).second(0);
+            return dateTimeObj.format('YYYY-MM-DD hh:mm A');
+        }
+    }, [
+        selectedDate,
+        isISO,
+        hour12,
+        minute,
+        meridiem,
+        hour24,
+        second,
+        showSeconds,
+        timezone,
+    ]);
+    const timezoneOffset = React.useMemo(() => {
+        if (!selectedDate)
+            return null;
+        const dateObj = dayjs.tz(selectedDate, timezone);
+        return dateObj.isValid() ? dateObj.format('Z') : null;
+    }, [selectedDate, timezone]);
+    return (jsxRuntime.jsxs(react.Flex, { direction: "column", gap: 4, p: 4, border: "1px solid", borderColor: "gray.200", borderRadius: "md", children: [jsxRuntime.jsx(DatePickerInput, { value: selectedDate || undefined, onChange: (date) => {
+                    if (date) {
+                        handleDateChange(date);
+                    }
+                    else {
+                        setSelectedDate('');
+                        onChange?.(undefined);
+                    }
+                }, placeholder: "Select a date", dateFormat: "YYYY-MM-DD", displayFormat: "YYYY-MM-DD", labels: labels, timezone: timezone, minDate: effectiveMinDate, maxDate: maxDate, monthsToDisplay: 1, readOnly: true }), jsxRuntime.jsxs(react.Grid, { templateColumns: "1fr auto", alignItems: "center", gap: 4, children: [isISO ? (jsxRuntime.jsx(IsoTimePicker, { hour: hour24, setHour: setHour24, minute: minute, setMinute: setMinute, second: showSeconds ? second : null, setSecond: showSeconds ? setSecond : () => { }, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone, portalled: portalled })) : (jsxRuntime.jsx(TimePicker$1, { hour: hour12, setHour: setHour12, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone, portalled: portalled })), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "outline", colorScheme: "red", children: jsxRuntime.jsx(react.Icon, { as: fa6.FaTrash }) })] }), displayText && (jsxRuntime.jsxs(react.Flex, { gap: 2, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: displayText }), timezoneOffset && (jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezoneOffset })), jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezone })] }))] }));
 }
 
 dayjs.extend(utc);
@@ -6503,32 +7164,9 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
     const colLabel = formI18n.colLabel;
     const [open, setOpen] = React.useState(false);
     const selectedDate = watch(colLabel);
-    const displayDate = dayjs(selectedDate)
-        .tz(timezone)
-        .format(displayDateFormat);
-    React.useEffect(() => {
-        try {
-            if (selectedDate) {
-                // Parse the selectedDate as UTC or in a specific timezone to avoid +8 hour shift
-                // For example, parse as UTC:
-                const parsedDate = dayjs(selectedDate).tz(timezone);
-                if (!parsedDate.isValid())
-                    return;
-                // Format according to dateFormat from schema
-                const formatted = parsedDate.format(dateFormat);
-                // Update the form value only if different to avoid loops
-                if (formatted !== selectedDate) {
-                    setValue(colLabel, formatted, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                    });
-                }
-            }
-        }
-        catch (e) {
-            console.error(e);
-        }
-    }, [selectedDate, dateFormat, colLabel, setValue]);
+    const displayDate = selectedDate && dayjs(selectedDate).tz(timezone).isValid()
+        ? dayjs(selectedDate).tz(timezone).format(displayDateFormat)
+        : '';
     const dateTimePickerLabelsConfig = {
         monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
             formI18n.translate.t(`common.month_1`, {
@@ -6601,12 +7239,22 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             }),
     };
     const dateTimePickerContent = (jsxRuntime.jsx(DateTimePicker$1, { value: selectedDate, onChange: (date) => {
-            setValue(colLabel, dayjs(date).tz(timezone).format(dateFormat));
+            if (!date || date === null || date === undefined) {
+                setValue(colLabel, undefined);
+                return;
+            }
+            const dateObj = dayjs(date).tz(timezone);
+            if (dateObj.isValid()) {
+                setValue(colLabel, dateObj.format(dateFormat));
+            }
+            else {
+                setValue(colLabel, undefined);
+            }
         }, timezone: timezone, labels: dateTimePickerLabelsConfig }));
     return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
-                        }, justifyContent: 'start', children: [jsxRuntime.jsx(md.MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ''] }) }), insideDialog ? (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "450px", minH: "25rem", children: jsxRuntime.jsx(react.Popover.Body, { children: dateTimePickerContent }) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "450px", minH: "25rem", children: jsxRuntime.jsx(react.Popover.Body, { children: dateTimePickerContent }) }) }) }))] }) }));
+                        }, justifyContent: 'start', children: [jsxRuntime.jsx(md.MdDateRange, {}), displayDate || ''] }) }), insideDialog ? (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "450px", minH: "25rem", children: jsxRuntime.jsx(react.Popover.Body, { children: dateTimePickerContent }) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "450px", minH: "25rem", children: jsxRuntime.jsx(react.Popover.Body, { children: dateTimePickerContent }) }) }) }))] }) }));
 };
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {
@@ -8041,6 +8689,7 @@ exports.CardHeader = CardHeader;
 exports.DataDisplay = DataDisplay;
 exports.DataTable = DataTable;
 exports.DataTableServer = DataTableServer;
+exports.DatePickerInput = DatePickerInput;
 exports.DefaultCardTitle = DefaultCardTitle;
 exports.DefaultForm = DefaultForm;
 exports.DefaultTable = DefaultTable;

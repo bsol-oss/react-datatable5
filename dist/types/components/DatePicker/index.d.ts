@@ -4,4 +4,5 @@ export { IsoTimePicker } from './IsoTimePicker';
 export { DateTimePicker } from './DateTimePicker';
 export { DurationPicker } from './DurationPicker';
 export { UniversalPicker } from './UniversalPicker';
-export type { DatePickerProps, CalendarProps, GetDateColorProps, GetVariantProps } from './DatePicker';
+export { DatePickerInput } from './DatePickerInput';
+export type { DatePickerProps, CalendarProps, GetDateColorProps, GetVariantProps, } from './DatePicker';

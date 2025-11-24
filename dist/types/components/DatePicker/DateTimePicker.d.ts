@@ -7,6 +7,9 @@ interface DateTimePickerProps {
     labels?: DatePickerLabels;
     timezone?: string;
     startTime?: string;
+    minDate?: Date;
+    maxDate?: Date;
+    portalled?: boolean;
 }
-export declare function DateTimePicker({ value, onChange, format, showSeconds, labels, timezone, startTime, }: DateTimePickerProps): import("react/jsx-runtime").JSX.Element;
+export declare function DateTimePicker({ value, onChange, format, showSeconds, labels, timezone, startTime, minDate, maxDate, portalled, }: DateTimePickerProps): import("react/jsx-runtime").JSX.Element;
 export {};
