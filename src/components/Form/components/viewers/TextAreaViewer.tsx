@@ -1,9 +1,9 @@
-import { Text } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import { Field } from "../../../ui/field";
-import { useSchemaContext } from "../../useSchemaContext";
-import { removeIndex } from "../../utils/removeIndex";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { Text } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import { Field } from '../../../ui/field';
+import { useSchemaContext } from '../../useSchemaContext';
+import { removeIndex } from '../../utils/removeIndex';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface TextAreaViewerProps {
   column: string;
@@ -11,11 +11,6 @@ export interface TextAreaViewerProps {
   prefix: string;
 }
 
-export interface ForeignKeyProps {
-  column: string;
-  table: string;
-  display_column: string;
-}
 export const TextAreaViewer = ({
   column,
   schema,
@@ -26,7 +21,7 @@ export const TextAreaViewer = ({
     formState: { errors },
   } = useFormContext();
   const { translate } = useSchemaContext();
-  const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
+  const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
@@ -38,9 +33,9 @@ export const TextAreaViewer = ({
         gridColumn={gridColumn}
         gridRow={gridRow}
       >
-        <Text whiteSpace="pre-wrap">{value}</Text>{" "}
+        <Text whiteSpace="pre-wrap">{value}</Text>{' '}
         {errors[colLabel] && (
-          <Text color={"red.400"}>
+          <Text color={'red.400'}>
             {translate.t(removeIndex(`${colLabel}.field_required`))}
           </Text>
         )}

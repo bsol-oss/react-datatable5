@@ -34,7 +34,6 @@ export type CustomQueryFn = (
 export interface ForeignKeyProps {
   column: string;
   table: string;
-  display_column: string;
   customQueryFn?: CustomQueryFn;
 }
 export const StringInputField = ({

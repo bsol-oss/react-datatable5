@@ -13,11 +13,6 @@ export interface TextAreaInputProps {
   prefix: string;
 }
 
-export interface ForeignKeyProps {
-  column: string;
-  table: string;
-  display_column: string;
-}
 export const TextAreaInput = ({
   column,
   schema,

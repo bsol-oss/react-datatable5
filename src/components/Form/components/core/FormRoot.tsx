@@ -58,7 +58,6 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
   variant: string;
   in_table: string;
   column_ref: string;
-  display_column: string;
   gridColumn: string;
   gridRow: string;
   foreign_key: ForeignKeyProps;
@@ -70,7 +69,6 @@ export const idPickerSanityCheck = (
   foreign_key?: {
     table?: string;
     column?: string;
-    display_column?: string;
   }
 ) => {
   if (!!foreign_key == false) {
@@ -78,16 +76,11 @@ export const idPickerSanityCheck = (
       `The key foreign_key does not exist in properties of column ${column} when using id-picker.`
     );
   }
-  const { table, column: foreignKeyColumn, display_column } = foreign_key;
+  const { table, column: foreignKeyColumn } = foreign_key;
 
   if (!!table == false) {
     throw new Error(
       `The key table does not exist in properties of column ${table} when using id-picker.`
-    );
-  }
-  if (!!display_column == false) {
-    throw new Error(
-      `The key display_column does not exist in properties of column ${column} when using id-picker.`
     );
   }
   if (!!foreignKeyColumn == false) {

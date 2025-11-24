@@ -77,6 +77,11 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
   errorMessages?: Partial<Record<ValidationErrorType | string, string>>;
   filePicker?: FilePickerProps;
 }
+
+// Default renderDisplay function that stringifies JSON
+export const defaultRenderDisplay = (item: unknown): ReactNode => {
+  return JSON.stringify(item);
+};
 export interface TagPickerProps {
   column: string;
   schema: CustomJSONSchema7;

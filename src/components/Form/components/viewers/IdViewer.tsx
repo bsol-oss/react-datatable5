@@ -1,11 +1,13 @@
-import { Tag } from "@/components/ui/tag";
-import { Flex, Text } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import { Field } from "../../../ui/field";
-import { useSchemaContext } from "../../useSchemaContext";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { ForeignKeyProps } from "./StringViewer";
-import { removeIndex } from "../../utils/removeIndex";
+import { Tag } from '@/components/ui/tag';
+import { Flex, Text } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import { Field } from '../../../ui/field';
+import { useSchemaContext } from '../../useSchemaContext';
+import { removeIndex } from '../../utils/removeIndex';
+import {
+  CustomJSONSchema7,
+  defaultRenderDisplay,
+} from '../types/CustomJSONSchema7';
 
 export interface IdViewerProps {
   column: string;
@@ -27,13 +29,12 @@ export const IdViewer = ({
   const { idMap, translate } = useSchemaContext();
   const {
     required,
-    gridColumn = "span 12",
-    gridRow = "span 1",
+    gridColumn = 'span 12',
+    gridRow = 'span 1',
     renderDisplay,
     foreign_key,
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const { display_column } = foreign_key as ForeignKeyProps;
 
   const colLabel = `${prefix}${column}`;
   const watchId = watch(colLabel);
@@ -41,27 +42,30 @@ export const IdViewer = ({
 
   const getPickedValue = () => {
     if (Object.keys(idMap).length <= 0) {
-      return "";
+      return '';
     }
     const record = idMap[watchId];
     if (record === undefined) {
-      return "";
+      return '';
     }
-    return record[display_column];
+    const rendered = renderDisplay
+      ? renderDisplay(record)
+      : defaultRenderDisplay(record);
+    return typeof rendered === 'string' ? rendered : JSON.stringify(record);
   };
 
   return (
     <Field
       label={`${translate.t(removeIndex(`${column}.field_label`))}`}
       required={isRequired}
-      alignItems={"stretch"}
+      alignItems={'stretch'}
       {...{
         gridColumn,
         gridRow,
       }}
     >
       {isMultiple && (
-        <Flex flexFlow={"wrap"} gap={1}>
+        <Flex flexFlow={'wrap'} gap={1}>
           {watchIds.map((id: string) => {
             const item = idMap[id];
             if (item === undefined) {
@@ -73,9 +77,9 @@ export const IdViewer = ({
             }
             return (
               <Tag key={id} closable>
-                {!!renderDisplay === true
+                {renderDisplay
                   ? renderDisplay(item)
-                  : item[display_column]}
+                  : defaultRenderDisplay(item)}
               </Tag>
             );
           })}
@@ -84,7 +88,7 @@ export const IdViewer = ({
       {!isMultiple && <Text>{getPickedValue()}</Text>}
 
       {errors[`${colLabel}`] && (
-        <Text color={"red.400"}>
+        <Text color={'red.400'}>
           {translate.t(removeIndex(`${colLabel}.field_required`))}
         </Text>
       )}

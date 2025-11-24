@@ -17,7 +17,10 @@ import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
 import { getTableData } from '../../utils/getTableData';
 import { ForeignKeyProps } from './StringInputField';
-import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import {
+  CustomJSONSchema7,
+  defaultRenderDisplay,
+} from '../types/CustomJSONSchema7';
 import { useFormI18n } from '../../utils/useFormI18n';
 import { BiError } from 'react-icons/bi';
 
@@ -59,7 +62,6 @@ export const IdPicker = ({
   const {
     table,
     column: column_ref,
-    display_column,
     customQueryFn,
   } = foreign_key as ForeignKeyProps;
   const [searchText, setSearchText] = useState<string>('');
@@ -158,12 +160,16 @@ export const IdPicker = ({
   // label is used for filtering/searching (must be a string)
   // raw item is stored for custom rendering
   const comboboxItems = useMemo(() => {
-    return dataList.map((item: RecordType) => ({
-      label: String(item[display_column] ?? ''), // Always use display_column for filtering
-      value: String(item[column_ref]),
-      raw: item,
-    }));
-  }, [dataList, display_column, column_ref]);
+    const renderFn = renderDisplay || defaultRenderDisplay;
+    return dataList.map((item: RecordType) => {
+      const rendered = renderFn(item);
+      return {
+        label: typeof rendered === 'string' ? rendered : JSON.stringify(item), // Use string for filtering
+        value: String(item[column_ref]),
+        raw: item,
+      };
+    });
+  }, [dataList, column_ref, renderDisplay]);
 
   // Use filter hook for combobox
   const { contains } = useFilter({ sensitivity: 'base' });
@@ -244,9 +250,9 @@ export const IdPicker = ({
                   setValue(colLabel, newValue);
                 }}
               >
-                {!!renderDisplay === true
+                {renderDisplay
                   ? renderDisplay(item)
-                  : item[display_column]}
+                  : defaultRenderDisplay(item)}
               </Tag>
             );
           })}
