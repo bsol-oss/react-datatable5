@@ -49,6 +49,14 @@ export interface FilePickerLabels {
   uploadFailed?: string;
 }
 
+export interface FormButtonLabels {
+  submit?: string;
+  reset?: string;
+  cancel?: string;
+  confirm?: string;
+  submitAgain?: string;
+}
+
 export interface CustomJSONSchema7 extends JSONSchema7 {
   gridColumn?: string;
   gridRow?: string;

@@ -10,7 +10,7 @@ import { FileViewer } from './FileViewer';
 import { IdViewer } from './IdViewer';
 import { NumberViewer } from './NumberViewer';
 import { ObjectViewer } from './ObjectViewer';
-import { RecordInput } from './RecordViewer';
+import { RecordViewer } from './RecordViewer';
 import { StringViewer } from './StringViewer';
 import { TagViewer } from './TagViewer';
 import { TextAreaViewer } from './TextAreaViewer';
@@ -74,7 +74,7 @@ export const SchemaViewer = ({
     if (innerProperties) {
       return <ObjectViewer schema={colSchema} {...{ prefix, column }} />;
     }
-    return <RecordInput schema={colSchema} {...{ prefix, column }} />;
+    return <RecordViewer schema={colSchema} {...{ prefix, column }} />;
   }
   if (type === 'array') {
     if (variant === 'id-picker') {

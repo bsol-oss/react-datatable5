@@ -7,10 +7,9 @@ export const SubmitButton = () => {
     setValidatedData,
     setIsError,
     setIsConfirming,
-    setError,
-    schema,
     requireConfirmation,
     onFormSubmit,
+    formButtonLabels,
   } = useSchemaContext();
   const methods = useFormContext();
 
@@ -48,7 +47,7 @@ export const SubmitButton = () => {
       }}
       formNoValidate
     >
-      {translate.t('submit')}
+      {formButtonLabels?.submit ?? translate.t('submit')}
     </Button>
   );
 };

@@ -36,6 +36,7 @@ export const FormBody = <TData extends object>() => {
     customSuccessRenderer,
     displayConfig,
     onFormSubmit,
+    formButtonLabels,
   } = useSchemaContext();
   const { showSubmitButton, showResetButton } = displayConfig;
   const methods = useFormContext();
@@ -98,7 +99,7 @@ export const FormBody = <TData extends object>() => {
         </Alert.Root>
         <Flex justifyContent={'end'}>
           <Button onClick={resetHandler} formNoValidate>
-            {translate.t('submit_again')}
+            {formButtonLabels?.submitAgain ?? translate.t('submit_again')}
           </Button>
         </Flex>
       </Flex>
@@ -132,14 +133,14 @@ export const FormBody = <TData extends object>() => {
             }}
             variant={'subtle'}
           >
-            {translate.t('cancel')}
+            {formButtonLabels?.cancel ?? translate.t('cancel')}
           </Button>
           <Button
             onClick={() => {
               onFormSubmit(validatedData);
             }}
           >
-            {translate.t('confirm')}
+            {formButtonLabels?.confirm ?? translate.t('confirm')}
           </Button>
         </Flex>
 
@@ -178,7 +179,7 @@ export const FormBody = <TData extends object>() => {
             }}
             variant={'subtle'}
           >
-            {translate.t('reset')}
+            {formButtonLabels?.reset ?? translate.t('reset')}
           </Button>
         )}
         {showSubmitButton && <SubmitButton />}

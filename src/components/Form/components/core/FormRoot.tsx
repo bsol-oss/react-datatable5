@@ -19,6 +19,7 @@ import {
   IdPickerLabels,
   EnumPickerLabels,
   FilePickerLabels,
+  FormButtonLabels,
 } from '../types/CustomJSONSchema7';
 
 export interface FormRootProps<TData extends FieldValues> {
@@ -51,6 +52,7 @@ export interface FormRootProps<TData extends FieldValues> {
   idPickerLabels?: IdPickerLabels;
   enumPickerLabels?: EnumPickerLabels;
   filePickerLabels?: FilePickerLabels;
+  formButtonLabels?: FormButtonLabels;
   insideDialog?: boolean;
 }
 
@@ -117,6 +119,7 @@ export const FormRoot = <TData extends FieldValues>({
   idPickerLabels,
   enumPickerLabels,
   filePickerLabels,
+  formButtonLabels,
   insideDialog = false,
 }: FormRootProps<TData>) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
@@ -212,6 +215,7 @@ export const FormRoot = <TData extends FieldValues>({
         idPickerLabels,
         enumPickerLabels,
         filePickerLabels,
+        formButtonLabels,
         ajvResolver: ajvResolver(schema),
         insideDialog,
       }}
