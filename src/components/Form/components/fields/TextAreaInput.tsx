@@ -4,6 +4,7 @@ import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
 import { removeIndex } from '../../utils/removeIndex';
 import { getFieldError } from '../../utils/getFieldError';
+import { useFormI18n } from '../../utils/useFormI18n';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { Textarea } from '@/components/TextArea/TextArea';
 
@@ -22,20 +23,20 @@ export const TextAreaInput = ({
     register,
     formState: { errors },
   } = useFormContext();
-  const { translate } = useSchemaContext();
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const form = useFormContext();
   const { setValue, watch } = form;
   const fieldError = getFieldError(errors, colLabel);
+  const formI18n = useFormI18n(column, prefix, schema);
 
   const watchValue = watch(colLabel);
 
   return (
     <>
       <Field
-        label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+        label={formI18n.label()}
         required={isRequired}
         gridColumn={gridColumn ?? 'span 4'}
         gridRow={gridRow ?? 'span 1'}
@@ -43,7 +44,7 @@ export const TextAreaInput = ({
         errorText={
           fieldError
             ? fieldError.includes('required')
-              ? translate.t(removeIndex(`${colLabel}.field_required`))
+              ? formI18n.required()
               : fieldError
             : undefined
         }

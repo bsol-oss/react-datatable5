@@ -5,6 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
 
 export interface DatePickerProps {
   column: string;
@@ -18,25 +19,21 @@ export const BooleanPicker = ({ schema, column, prefix }: DatePickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { translate } = useSchemaContext();
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
+  const formI18n = useFormI18n(column, prefix, schema);
   return (
     <Field
-      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+      label={formI18n.label()}
       required={isRequired}
       alignItems={'stretch'}
       {...{
         gridColumn,
         gridRow,
       }}
-      errorText={
-        errors[`${colLabel}`]
-          ? translate.t(removeIndex(`${colLabel}.field_required`))
-          : undefined
-      }
+      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
       invalid={!!errors[colLabel]}
     >
       <CheckboxCard

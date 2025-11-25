@@ -35,6 +35,7 @@ export const IdViewer = ({
     foreign_key,
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
+  const formI18n = useFormI18n(column, prefix, schema);
 
   const colLabel = `${prefix}${column}`;
   const watchId = watch(colLabel);
@@ -56,7 +57,7 @@ export const IdViewer = ({
 
   return (
     <Field
-      label={`${translate.t(removeIndex(`${column}.field_label`))}`}
+      label={formI18n.label()}
       required={isRequired}
       alignItems={'stretch'}
       {...{

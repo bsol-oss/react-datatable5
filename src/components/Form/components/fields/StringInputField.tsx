@@ -4,6 +4,7 @@ import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
 import { removeIndex } from '../../utils/removeIndex';
 import { getFieldError } from '../../utils/getFieldError';
+import { useFormI18n } from '../../utils/useFormI18n';
 import { InputDefaultProps } from './types';
 
 export interface StringInputFieldProps extends InputDefaultProps {}
@@ -45,15 +46,15 @@ export const StringInputField = ({
     register,
     formState: { errors },
   } = useFormContext();
-  const { translate } = useSchemaContext();
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const fieldError = getFieldError(errors, colLabel);
+  const formI18n = useFormI18n(column, prefix, schema);
   return (
     <>
       <Field
-        label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+        label={formI18n.label()}
         required={isRequired}
         gridColumn={gridColumn}
         gridRow={gridRow}

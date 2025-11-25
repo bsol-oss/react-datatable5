@@ -50,7 +50,7 @@ export const IdPicker = ({
   } = useFormContext();
   const { serverUrl, idMap, setIdMap, idPickerLabels, insideDialog } =
     useSchemaContext();
-  const formI18n = useFormI18n(column, prefix);
+  const formI18n = useFormI18n(column, prefix, schema);
   const {
     required,
     gridColumn = 'span 12',

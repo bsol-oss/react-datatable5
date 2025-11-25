@@ -3,6 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
 import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface StringInputFieldProps {
@@ -20,24 +21,22 @@ export const StringViewer = ({
     watch,
     formState: { errors },
   } = useFormContext();
-  const { translate } = useSchemaContext();
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
+  const formI18n = useFormI18n(column, prefix, schema);
   return (
     <>
       <Field
-        label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+        label={formI18n.label()}
         required={isRequired}
         gridColumn={gridColumn ?? 'span 4'}
         gridRow={gridRow ?? 'span 1'}
       >
         <Text>{value}</Text>
         {errors[colLabel] && (
-          <Text color={'red.400'}>
-            {translate.t(removeIndex(`${colLabel}.field_required`))}
-          </Text>
+          <Text color={'red.400'}>{formI18n.required()}</Text>
         )}
       </Field>
     </>

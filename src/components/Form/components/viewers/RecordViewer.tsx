@@ -1,11 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/field";
-import { Card, Grid, IconButton, Input, Show, Text } from "@chakra-ui/react";
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
-import { CgClose } from "react-icons/cg";
-import { useSchemaContext } from "../../useSchemaContext";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Card, Grid, IconButton, Input, Show, Text } from '@chakra-ui/react';
+import { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { CgClose } from 'react-icons/cg';
+import { useSchemaContext } from '../../useSchemaContext';
+import { useFormI18n } from '../../utils/useFormI18n';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface DatePickerProps {
   schema: CustomJSONSchema7;
@@ -13,30 +14,26 @@ export interface DatePickerProps {
   prefix: string;
 }
 
-export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
+export const RecordViewer = ({ column, schema, prefix }: DatePickerProps) => {
   const {
     formState: { errors },
-    setValue,
     getValues,
   } = useFormContext();
-  const { translate } = useSchemaContext();
-  const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
+  const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const entries = Object.entries(getValues(column) ?? {});
-  const [showNewEntries, setShowNewEntries] = useState<boolean>(false);
-  const [newKey, setNewKey] = useState<string>();
-  const [newValue, setNewValue] = useState<string>();
+  const formI18n = useFormI18n(column, prefix, schema);
 
   return (
     <Field
-      label={`${translate.t(`${column}.field_label`)}`}
+      label={formI18n.label()}
       required={isRequired}
-      alignItems={"stretch"}
+      alignItems={'stretch'}
       {...{ gridColumn, gridRow }}
     >
       {entries.map(([key, value]) => {
         return (
-          <Grid templateColumns={"1fr 1fr auto"} gap={1}>
+          <Grid templateColumns={'1fr 1fr auto'} gap={1}>
             <Input
               value={key}
               onChange={(e) => {
@@ -61,7 +58,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
               autoComplete="off"
             />
             <IconButton
-              variant={"ghost"}
+              variant={'ghost'}
               onClick={() => {
                 const filtered = entries.filter(([target]) => {
                   return target !== key;
@@ -77,7 +74,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
       <Show when={showNewEntries}>
         <Card.Root>
           <Card.Body gap="2">
-            <Grid templateColumns={"1fr 1fr auto"} gap={1}>
+            <Grid templateColumns={'1fr 1fr auto'} gap={1}>
               <Input
                 value={newKey}
                 onChange={(e) => {
@@ -96,7 +93,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
           </Card.Body>
           <Card.Footer justifyContent="flex-end">
             <IconButton
-              variant={"subtle"}
+              variant={'subtle'}
               onClick={() => {
                 setShowNewEntries(false);
                 setNewKey(undefined);
@@ -137,7 +134,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
         {translate.t(`${column}.addNew`)}
       </Button>
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${column}.field_required`)}</Text>
+        <Text color={'red.400'}>{formI18n.required()}</Text>
       )}
     </Field>
   );

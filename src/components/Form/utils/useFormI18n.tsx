@@ -1,5 +1,5 @@
-import { useSchemaContext } from "../useSchemaContext";
-import { removeIndex } from "./removeIndex";
+import { useSchemaContext } from '../useSchemaContext';
+import { removeIndex } from './removeIndex';
 
 /**
  * Custom hook to simplify i18n translation for form fields.
@@ -26,7 +26,11 @@ import { removeIndex } from "./removeIndex";
  * const colLabel = formI18n.colLabel;
  * ```
  */
-export const useFormI18n = (column: string, prefix: string = "") => {
+export const useFormI18n = (
+  column: string,
+  prefix: string = '',
+  schema?: { title?: string }
+) => {
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
 
@@ -37,11 +41,17 @@ export const useFormI18n = (column: string, prefix: string = "") => {
     colLabel,
 
     /**
-     * Get the field label translation
-     * Equivalent to: translate.t(removeIndex(`${colLabel}.field_label`))
+     * Get the field label from schema title prop, or fall back to translation
+     * Uses schema.title if available, otherwise: translate.t(removeIndex(`${colLabel}.field_label`))
      */
     label: (options?: any): string => {
-      return translate.t(removeIndex(`${colLabel}.field_label`), options) as string;
+      if (schema?.title) {
+        return schema.title;
+      }
+      return translate.t(
+        removeIndex(`${colLabel}.field_label`),
+        options
+      ) as string;
     },
 
     /**
@@ -49,7 +59,10 @@ export const useFormI18n = (column: string, prefix: string = "") => {
      * Equivalent to: translate.t(removeIndex(`${colLabel}.field_required`))
      */
     required: (options?: any): string => {
-      return translate.t(removeIndex(`${colLabel}.field_required`), options) as string;
+      return translate.t(
+        removeIndex(`${colLabel}.field_required`),
+        options
+      ) as string;
     },
 
     /**

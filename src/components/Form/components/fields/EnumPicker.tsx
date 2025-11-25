@@ -37,7 +37,7 @@ export const EnumPicker = ({
     setValue,
   } = useFormContext();
   const { enumPickerLabels, insideDialog } = useSchemaContext();
-  const formI18n = useFormI18n(column, prefix);
+  const formI18n = useFormI18n(column, prefix, schema);
   const { required, variant } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;

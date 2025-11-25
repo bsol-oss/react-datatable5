@@ -1,10 +1,11 @@
-import { Field } from "@/components/ui/field";
-import { Text } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import { useSchemaContext } from "../../useSchemaContext";
-import { removeIndex } from "../../utils/removeIndex";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import dayjs from "dayjs";
+import { Field } from '@/components/ui/field';
+import { Text } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import { useSchemaContext } from '../../useSchemaContext';
+import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import dayjs from 'dayjs';
 
 export interface DateViewerProps {
   column: string;
@@ -17,31 +18,34 @@ export const DateViewer = ({ column, schema, prefix }: DateViewerProps) => {
     watch,
     formState: { errors },
   } = useFormContext();
-  const { translate, timezone } = useSchemaContext();
+  const { timezone } = useSchemaContext();
   const {
     required,
-    gridColumn =  "span 4",
-    gridRow =  "span 1",
-    displayDateFormat = "YYYY-MM-DD",
+    gridColumn = 'span 4',
+    gridRow = 'span 1',
+    displayDateFormat = 'YYYY-MM-DD',
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const selectedDate = watch(colLabel);
-  const displayDate = dayjs(selectedDate).tz(timezone).format(displayDateFormat);
+  const formI18n = useFormI18n(column, prefix, schema);
+  const displayDate = dayjs(selectedDate)
+    .tz(timezone)
+    .format(displayDateFormat);
 
   return (
     <Field
-      label={`${translate.t(removeIndex(`${column}.field_label`))}`}
+      label={formI18n.label()}
       required={isRequired}
-      alignItems={"stretch"}
+      alignItems={'stretch'}
       {...{
         gridColumn,
         gridRow,
       }}
     >
-      <Text> {selectedDate !== undefined ? displayDate : ""}</Text>
+      <Text> {selectedDate !== undefined ? displayDate : ''}</Text>
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{translate.t(`${column}.field_required`)}</Text>
+        <Text color={'red.400'}>{formI18n.required()}</Text>
       )}
     </Field>
   );

@@ -1,9 +1,10 @@
-import { Box, Grid, Text } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import { useSchemaContext } from "../../useSchemaContext";
-import { ColumnViewer } from "./ColumnViewer";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { removeIndex } from "../../utils/removeIndex";
+import { Box, Grid, Text } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import { useSchemaContext } from '../../useSchemaContext';
+import { ColumnViewer } from './ColumnViewer';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
 
 export interface ObjectViewerProps {
   schema: CustomJSONSchema7;
@@ -14,14 +15,14 @@ export interface ObjectViewerProps {
 export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
   const {
     properties,
-    gridColumn = "span 12",
-    gridRow = "span 1",
+    gridColumn = 'span 12',
+    gridRow = 'span 1',
     required,
     showLabel = true,
   } = schema;
-  const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
+  const formI18n = useFormI18n(column, prefix, schema);
   const {
     formState: { errors },
   } = useFormContext();
@@ -32,22 +33,22 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
     <Box {...{ gridRow, gridColumn }}>
       {showLabel && (
         <Box as="label">
-          {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+          {formI18n.label()}
           {isRequired && <span>*</span>}
         </Box>
       )}
       <Grid
         gap="4"
-        padding={"4"}
-        gridTemplateColumns={"repeat(12, 1fr)"}
-        autoFlow={"row"}
-        bgColor={{ base: "colorPalette.100", _dark: "colorPalette.900" }}
-        p={"1"}
-        borderRadius={"md"}
-        borderWidth={"thin"}
+        padding={'4'}
+        gridTemplateColumns={'repeat(12, 1fr)'}
+        autoFlow={'row'}
+        bgColor={{ base: 'colorPalette.100', _dark: 'colorPalette.900' }}
+        p={'1'}
+        borderRadius={'md'}
+        borderWidth={'thin'}
         borderColor={{
-          base: "colorPalette.200",
-          _dark: "colorPalette.800",
+          base: 'colorPalette.200',
+          _dark: 'colorPalette.800',
         }}
       >
         {Object.keys(properties ?? {}).map((key) => {
@@ -65,9 +66,7 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
         })}
       </Grid>
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.field_required`))}
-        </Text>
+        <Text color={'red.400'}>{formI18n.required()}</Text>
       )}
     </Box>
   );

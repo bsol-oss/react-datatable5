@@ -4,6 +4,7 @@ import { useSchemaContext } from '../../useSchemaContext';
 import { ColumnRenderer } from './ColumnRenderer';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
 
 export interface ObjectInputProps {
   schema: CustomJSONSchema7;
@@ -19,9 +20,9 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
     required,
     showLabel = true,
   } = schema;
-  const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
+  const formI18n = useFormI18n(column, prefix, schema);
   const {
     formState: { errors },
   } = useFormContext();
@@ -32,7 +33,7 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
     <Box {...{ gridRow, gridColumn }}>
       {showLabel && (
         <Box as="label">
-          {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+          {formI18n.label()}
           {isRequired && <span>*</span>}
         </Box>
       )}
@@ -66,9 +67,7 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
         })}
       </Grid>
       {errors[`${column}`] && (
-        <Text color={'red.400'}>
-          {translate.t(removeIndex(`${colLabel}.field_required`))}
-        </Text>
+        <Text color={'red.400'}>{formI18n.required()}</Text>
       )}
     </Box>
   );

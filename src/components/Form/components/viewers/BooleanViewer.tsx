@@ -1,9 +1,10 @@
-import { Field } from "@/components/ui/field";
-import { Text } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import { useSchemaContext } from "../../useSchemaContext";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { removeIndex } from "../../utils/removeIndex";
+import { Field } from '@/components/ui/field';
+import { Text } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import { useSchemaContext } from '../../useSchemaContext';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
 
 export interface BooleanViewerProps {
   column: string;
@@ -20,30 +21,24 @@ export const BooleanViewer = ({
     watch,
     formState: { errors },
   } = useFormContext();
-  const { translate } = useSchemaContext();
-  const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
+  const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
+  const formI18n = useFormI18n(column, prefix, schema);
   return (
     <Field
-      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+      label={formI18n.label()}
       required={isRequired}
-      alignItems={"stretch"}
+      alignItems={'stretch'}
       {...{
         gridColumn,
         gridRow,
       }}
     >
-      <Text>
-        {value
-          ? translate.t(removeIndex(`${colLabel}.true`))
-          : translate.t(removeIndex(`${colLabel}.false`))}
-      </Text>
+      <Text>{value ? formI18n.t('true') : formI18n.t('false')}</Text>
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.field_required`))}
-        </Text>
+        <Text color={'red.400'}>{formI18n.required()}</Text>
       )}
     </Field>
   );

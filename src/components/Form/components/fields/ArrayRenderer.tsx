@@ -1,10 +1,11 @@
-import { Box, Button, Flex, Grid, Icon, Text } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import { CgTrash } from "react-icons/cg";
-import { useSchemaContext } from "../../useSchemaContext";
-import { removeIndex } from "../../utils/removeIndex";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { SchemaRenderer } from "./SchemaRenderer";
+import { Box, Button, Flex, Grid, Icon, Text } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import { CgTrash } from 'react-icons/cg';
+import { useSchemaContext } from '../../useSchemaContext';
+import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import { SchemaRenderer } from './SchemaRenderer';
 
 export interface ArrayRendererProps {
   column: string;
@@ -17,13 +18,13 @@ export const ArrayRenderer = ({
   column,
   prefix,
 }: ArrayRendererProps) => {
-  const { gridRow, gridColumn = "1/span 12", required, items } = schema;
+  const { gridRow, gridColumn = '1/span 12', required, items } = schema;
   // @ts-expect-error TODO: find suitable types
   const { type } = items;
 
-  const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
+  const formI18n = useFormI18n(column, prefix, schema);
   const {
     formState: { errors },
     setValue,
@@ -31,27 +32,27 @@ export const ArrayRenderer = ({
   } = useFormContext();
   const fields = (watch(colLabel) ?? []) as any[];
   return (
-    <Flex {...{ gridRow, gridColumn }} flexFlow={"column"} gap={2}>
+    <Flex {...{ gridRow, gridColumn }} flexFlow={'column'} gap={2}>
       <Box as="label">
-        {`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+        {formI18n.label()}
         {isRequired && <span>*</span>}
       </Box>
-      <Flex flexFlow={"column"} gap={2} >
+      <Flex flexFlow={'column'} gap={2}>
         {fields.map((field, index) => (
           <Grid
             key={`${colLabel}.${index}`}
             gridTemplateColumns={'1fr auto'}
             gap={2}
-            bgColor={{ base: "colorPalette.100", _dark: "colorPalette.900" }}
+            bgColor={{ base: 'colorPalette.100', _dark: 'colorPalette.900' }}
             p={2}
             borderRadius={4}
             borderWidth={1}
             borderColor={{
-              base: "colorPalette.200",
-              _dark: "colorPalette.800",
+              base: 'colorPalette.200',
+              _dark: 'colorPalette.800',
             }}
           >
-            <Grid gridTemplateColumns={"repeat(12, 1fr)"} autoFlow={"row"}>
+            <Grid gridTemplateColumns={'repeat(12, 1fr)'} autoFlow={'row'}>
               <SchemaRenderer
                 {...{
                   column: `${index}`,
@@ -61,9 +62,9 @@ export const ArrayRenderer = ({
                 }}
               />
             </Grid>
-            <Flex justifyContent={"end"}>
+            <Flex justifyContent={'end'}>
               <Button
-                variant={"ghost"}
+                variant={'ghost'}
                 onClick={() => {
                   setValue(
                     colLabel,
@@ -84,15 +85,15 @@ export const ArrayRenderer = ({
       <Flex>
         <Button
           onClick={() => {
-            if (type === "number") {
+            if (type === 'number') {
               setValue(colLabel, [...fields, 0]);
               return;
             }
-            if (type === "string") {
-              setValue(colLabel, [...fields, ""]);
+            if (type === 'string') {
+              setValue(colLabel, [...fields, '']);
               return;
             }
-            if (type === "boolean") {
+            if (type === 'boolean') {
               setValue(colLabel, [...fields, false]);
               return;
             }
@@ -104,9 +105,7 @@ export const ArrayRenderer = ({
       </Flex>
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {translate.t(removeIndex(`${colLabel}.field_required`))}
-        </Text>
+        <Text color={'red.400'}>{formI18n.required()}</Text>
       )}
     </Flex>
   );

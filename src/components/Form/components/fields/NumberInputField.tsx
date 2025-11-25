@@ -8,6 +8,7 @@ import { useSchemaContext } from '../../useSchemaContext';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { removeIndex } from '../../utils/removeIndex';
 import { getFieldError } from '../../utils/getFieldError';
+import { useFormI18n } from '../../utils/useFormI18n';
 export interface NumberInputFieldProps {
   column: string;
   schema: CustomJSONSchema7;
@@ -24,7 +25,6 @@ export const NumberInputField = ({
     formState: { errors },
     watch,
   } = useFormContext();
-  const { translate } = useSchemaContext();
   const {
     required,
     gridColumn = 'span 12',
@@ -35,15 +35,16 @@ export const NumberInputField = ({
   const colLabel = `${prefix}${column}`;
   const value = watch(`${colLabel}`);
   const fieldError = getFieldError(errors, colLabel);
+  const formI18n = useFormI18n(column, prefix, schema);
   return (
     <Field
-      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+      label={formI18n.label()}
       required={isRequired}
       {...{ gridColumn, gridRow }}
       errorText={
         fieldError
           ? fieldError.includes('required')
-            ? translate.t(removeIndex(`${colLabel}.field_required`))
+            ? formI18n.required()
             : fieldError
           : undefined
       }

@@ -26,7 +26,7 @@ export const DateTimePicker = ({
     setValue,
   } = useFormContext();
   const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
-  const formI18n = useFormI18n(column, prefix);
+  const formI18n = useFormI18n(column, prefix, schema);
   const {
     required,
     gridColumn = 'span 12',

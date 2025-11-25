@@ -8,6 +8,7 @@ import { useFormContext } from 'react-hook-form';
 import { IoMdClock } from 'react-icons/io';
 import { useSchemaContext } from '../../useSchemaContext';
 import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import timezone from 'dayjs/plugin/timezone';
 
@@ -25,7 +26,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { translate, timezone, insideDialog } = useSchemaContext();
+  const { timezone, insideDialog } = useSchemaContext();
 
   const {
     required,
@@ -36,6 +37,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
+  const formI18n = useFormI18n(column, prefix, schema);
   const [open, setOpen] = useState(false);
   const value = watch(colLabel);
   const displayedTime = dayjs(`1970-01-01T${value}`).tz(timezone).isValid()
@@ -113,18 +115,14 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
 
   return (
     <Field
-      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+      label={formI18n.label()}
       required={isRequired}
       alignItems={'stretch'}
       {...{
         gridColumn,
         gridRow,
       }}
-      errorText={
-        errors[`${colLabel}`]
-          ? translate.t(removeIndex(`${colLabel}.field_required`))
-          : undefined
-      }
+      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
       invalid={!!errors[colLabel]}
     >
       <Popover.Root

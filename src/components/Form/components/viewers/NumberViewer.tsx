@@ -4,6 +4,7 @@ import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
 export interface NumberInputFieldProps {
   column: string;
   schema: CustomJSONSchema7;
@@ -19,11 +20,11 @@ export const NumberViewer = ({
     watch,
     formState: { errors },
   } = useFormContext();
-  const { translate } = useSchemaContext();
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
+  const formI18n = useFormI18n(column, prefix, schema);
 
   // Format the value for display if formatOptions are provided
   const formatValue = (val: string | number | undefined) => {
@@ -48,15 +49,13 @@ export const NumberViewer = ({
 
   return (
     <Field
-      label={`${translate.t(removeIndex(`${colLabel}.field_label`))}`}
+      label={formI18n.label()}
       required={isRequired}
       {...{ gridColumn, gridRow }}
     >
       <Text>{formatValue(value)}</Text>
       {errors[`${column}`] && (
-        <Text color={'red.400'}>
-          {translate.t(removeIndex(`${colLabel}.field_required`))}
-        </Text>
+        <Text color={'red.400'}>{formI18n.required()}</Text>
       )}
     </Field>
   );

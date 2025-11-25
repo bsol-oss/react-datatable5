@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { CgClose } from 'react-icons/cg';
 import { useSchemaContext } from '../../useSchemaContext';
+import { useFormI18n } from '../../utils/useFormI18n';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface DatePickerProps {
@@ -26,18 +27,15 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
   const [showNewEntries, setShowNewEntries] = useState<boolean>(false);
   const [newKey, setNewKey] = useState<string>();
   const [newValue, setNewValue] = useState<string>();
+  const formI18n = useFormI18n(column, prefix, schema);
 
   return (
     <Field
-      label={`${translate.t(`${column}.field_label`)}`}
+      label={formI18n.label()}
       required={isRequired}
       alignItems={'stretch'}
       {...{ gridColumn, gridRow }}
-      errorText={
-        errors[`${column}`]
-          ? translate.t(`${column}.field_required`)
-          : undefined
-      }
+      errorText={errors[`${column}`] ? formI18n.required() : undefined}
       invalid={!!errors[column]}
     >
       {entries.map(([key, value]) => {
