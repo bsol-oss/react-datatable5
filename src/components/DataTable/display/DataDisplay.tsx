@@ -100,7 +100,7 @@ export const DataDisplay = ({ variant = '' }: DataDisplayProps) => {
                 if (column.columns.length > 0) {
                   return (
                     <Card.Root
-                      key={`chakra-table-card-${childCell?.id}`}
+                      key={`chakra-table-card-${rowId}-${column.id}`}
                       margin={'1'}
                       gridColumn={'span 12'}
                     >
@@ -112,22 +112,32 @@ export const DataDisplay = ({ variant = '' }: DataDisplayProps) => {
                         gap={'4'}
                         gridTemplateColumns={'repeat(12, 1fr)'}
                       >
-                        {column.columns.map((column) => {
-                          if (!column.getIsVisible()) {
-                            return <></>;
+                        {column.columns.map((subColumn) => {
+                          if (!subColumn.getIsVisible()) {
+                            return null;
                           }
                           const foundCell = row
                             .getVisibleCells()
                             .find((cell) => {
-                              return cell.id === `${rowId}_${column.id}`;
+                              return cell.id === `${rowId}_${subColumn.id}`;
                             });
-                          return <CellRenderer {...{ cell: foundCell }} />;
+                          return (
+                            <CellRenderer
+                              key={`chakra-table-cell-${rowId}-${subColumn.id}`}
+                              {...{ cell: foundCell }}
+                            />
+                          );
                         })}
                       </Card.Body>
                     </Card.Root>
                   );
                 }
-                return <CellRenderer {...{ cell: childCell }} />;
+                return (
+                  <CellRenderer
+                    key={`chakra-table-cell-${rowId}-${column.id}`}
+                    {...{ cell: childCell }}
+                  />
+                );
               })}
             </Card.Body>
           </Card.Root>

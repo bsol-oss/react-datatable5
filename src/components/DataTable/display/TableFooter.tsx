@@ -48,46 +48,43 @@ export const TableFooter = ({
           key={`chakra-table-footergroup-${footerGroup.id}`}
         >
           {showSelector && (
-            <Table.Header
+            <Table.Cell
               padding={`${table.getDensityValue()}px`}
               onMouseEnter={() => handleRowHover(true)}
               onMouseLeave={() => handleRowHover(false)}
               display={'grid'}
+              justifyItems={'center'}
+              alignItems={'center'}
+              {...{
+                color: {
+                  base: 'colorPalette.900',
+                  _dark: 'colorPalette.100',
+                },
+                bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' },
+              }}
             >
-              {isCheckBoxVisible() && (
-                <Box
-                  margin={'0rem'}
-                  display={'grid'}
-                  justifyItems={'center'}
-                  alignItems={'center'}
-                >
-                  <Checkbox
-                    width={`${SELECTION_BOX_WIDTH}px`}
-                    height={`${SELECTION_BOX_WIDTH}px`}
-                    {...{
-                      isChecked: areAllRowsSelected(table, rowSelection),
-                      // indeterminate: areSomeRowsSelected(table, rowSelection),
-                      onChange: createToggleAllRowsHandler(
-                        table,
-                        rowSelection,
-                        setRowSelection
-                      ),
-                    }}
-                  ></Checkbox>
-                </Box>
-              )}
-              {!isCheckBoxVisible() && (
+              {isCheckBoxVisible() ? (
+                <Checkbox
+                  width={`${SELECTION_BOX_WIDTH}px`}
+                  height={`${SELECTION_BOX_WIDTH}px`}
+                  {...{
+                    checked: areAllRowsSelected(table, rowSelection),
+                    // indeterminate: areSomeRowsSelected(table, rowSelection),
+                    onChange: createToggleAllRowsHandler(
+                      table,
+                      rowSelection,
+                      setRowSelection
+                    ),
+                  }}
+                />
+              ) : (
                 <Box
                   as="span"
-                  margin={'0rem'}
-                  display={'grid'}
-                  justifyItems={'center'}
-                  alignItems={'center'}
                   width={`${SELECTION_BOX_WIDTH}px`}
                   height={`${SELECTION_BOX_WIDTH}px`}
                 />
               )}
-            </Table.Header>
+            </Table.Cell>
           )}
           {footerGroup.headers.map((header) => (
             <Table.Cell

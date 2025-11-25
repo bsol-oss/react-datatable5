@@ -42,7 +42,7 @@ export const TableCards = <TData,>({
               {isSelectable && (
                 <Checkbox
                   {...{
-                    isChecked: isRowSelected(row.id, rowSelection),
+                    checked: isRowSelected(row.id, rowSelection),
                     disabled: !canRowSelect(row),
                     // indeterminate: row.getIsSomeSelected(),
                     onChange: createRowToggleHandler(
@@ -57,8 +57,11 @@ export const TableCards = <TData,>({
               <Grid templateColumns={'auto 1fr'} gap={'1rem'}>
                 {row.getVisibleCells().map((cell) => {
                   return (
-                    <>
-                      <Box key={`chakra-table-cardcolumnid-${row.id}`}>
+                    <Box
+                      key={`chakra-table-cardcell-${cell.id}`}
+                      display="contents"
+                    >
+                      <Box>
                         {showDisplayNameOnly && (
                           <Text fontWeight={'bold'}>
                             {cell.column.columnDef.meta?.displayName ??
@@ -75,16 +78,13 @@ export const TableCards = <TData,>({
                           </>
                         )}
                       </Box>
-                      <Box
-                        key={`chakra-table-cardcolumn-${row.id}`}
-                        justifySelf={'end'}
-                      >
+                      <Box justifySelf={'end'}>
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
                         )}
                       </Box>
-                    </>
+                    </Box>
                   );
                 })}
               </Grid>

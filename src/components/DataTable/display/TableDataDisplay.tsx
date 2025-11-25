@@ -45,7 +45,6 @@ export const TableDataDisplay = ({
     })
     .join(' ');
 
-  console.log({ columnWidths }, 'hadfg');
   const cellProps: BoxProps = {
     flex: '1 0 0%',
     overflow: 'auto',
@@ -79,6 +78,7 @@ export const TableDataDisplay = ({
           const columnDef = columnsMap[header];
           return (
             <Box
+              key={`chakra-table-header-${header}`}
               flex={'1 0 0%'}
               paddingX={'2'}
               py={'1'}
@@ -91,34 +91,52 @@ export const TableDataDisplay = ({
         })}
       </Grid>
 
-      {data.map((record) => {
+      {data.map((record, recordIndex) => {
         return (
-          <>
+          <Box key={`chakra-table-record-${recordIndex}`} display="contents">
             {columnHeaders.map((header) => {
               const { cell } = columnsMap[header];
               const value = record[header];
               if (!!record === false) {
                 return (
-                  <Box {...cellProps}>{/* Placeholder for empty record */}</Box>
+                  <Box
+                    key={`chakra-table-cell-${recordIndex}-${header}`}
+                    {...cellProps}
+                  >
+                    {/* Placeholder for empty record */}
+                  </Box>
                 );
               }
               if (cell) {
                 return (
-                  <Box {...cellProps}>
+                  <Box
+                    key={`chakra-table-cell-${recordIndex}-${header}`}
+                    {...cellProps}
+                  >
                     {cell({ row: { original: record } })}
                   </Box>
                 );
               }
               if (typeof value === 'object') {
                 return (
-                  <Box {...cellProps}>
+                  <Box
+                    key={`chakra-table-cell-${recordIndex}-${header}`}
+                    {...cellProps}
+                  >
                     <RecordDisplay object={value} />
                   </Box>
                 );
               }
-              return <Box {...cellProps}>{value}</Box>;
+              return (
+                <Box
+                  key={`chakra-table-cell-${recordIndex}-${header}`}
+                  {...cellProps}
+                >
+                  {value}
+                </Box>
+              );
             })}
-          </>
+          </Box>
         );
       })}
     </Grid>
