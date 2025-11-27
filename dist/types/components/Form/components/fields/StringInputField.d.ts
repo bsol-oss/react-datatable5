@@ -24,7 +24,6 @@ export type CustomQueryFn = (params: CustomQueryFnParams) => Promise<CustomQuery
 export interface ForeignKeyProps {
     column: string;
     table: string;
-    display_column: string;
     customQueryFn?: CustomQueryFn;
 }
 export declare const StringInputField: ({ column, schema, prefix, }: StringInputFieldProps) => import("react/jsx-runtime").JSX.Element;

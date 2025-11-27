@@ -23,14 +23,16 @@
  * const colLabel = formI18n.colLabel;
  * ```
  */
-export declare const useFormI18n: (column: string, prefix?: string) => {
+export declare const useFormI18n: (column: string, prefix?: string, schema?: {
+    title?: string;
+}) => {
     /**
      * The constructed column label (prefix + column)
      */
     colLabel: string;
     /**
-     * Get the field label translation
-     * Equivalent to: translate.t(removeIndex(`${colLabel}.field_label`))
+     * Get the field label from schema title prop, or fall back to translation
+     * Uses schema.title if available, otherwise: translate.t(removeIndex(`${colLabel}.field_label`))
      */
     label: (options?: any) => string;
     /**

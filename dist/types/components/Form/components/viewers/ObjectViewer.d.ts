@@ -1,4 +1,4 @@
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 export interface ObjectViewerProps {
     schema: CustomJSONSchema7;
     column: string;

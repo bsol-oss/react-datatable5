@@ -44,6 +44,13 @@ export interface FilePickerLabels {
     uploading?: string;
     uploadFailed?: string;
 }
+export interface FormButtonLabels {
+    submit?: string;
+    reset?: string;
+    cancel?: string;
+    confirm?: string;
+    submitAgain?: string;
+}
 export interface CustomJSONSchema7 extends JSONSchema7 {
     gridColumn?: string;
     gridRow?: string;
@@ -72,6 +79,7 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
     errorMessages?: Partial<Record<ValidationErrorType | string, string>>;
     filePicker?: FilePickerProps;
 }
+export declare const defaultRenderDisplay: (item: unknown) => ReactNode;
 export interface TagPickerProps {
     column: string;
     schema: CustomJSONSchema7;

@@ -562,16 +562,111 @@ const { withContext } = react.createRecipeContext({ key: "button" });
 const LinkButton = withContext("a");
 
 const [RootPropsProvider, useRootProps] = react.createContext({
-    name: "RootPropsProvider",
+    name: 'RootPropsProvider',
 });
 const variantMap = {
-    outline: { default: "ghost", ellipsis: "plain", current: "outline" },
-    solid: { default: "outline", ellipsis: "outline", current: "solid" },
-    subtle: { default: "ghost", ellipsis: "plain", current: "subtle" },
+    outline: { default: 'ghost', ellipsis: 'plain', current: 'outline' },
+    solid: { default: 'outline', ellipsis: 'outline', current: 'solid' },
+    subtle: { default: 'ghost', ellipsis: 'plain', current: 'subtle' },
 };
 const PaginationRoot = React__namespace.forwardRef(function PaginationRoot(props, ref) {
-    const { size = "sm", variant = "outline", getHref, ...rest } = props;
-    return (jsxRuntime.jsx(RootPropsProvider, { value: { size, variantMap: variantMap[variant], getHref }, children: jsxRuntime.jsx(react.Pagination.Root, { ref: ref, type: getHref ? "link" : "button", ...rest }) }));
+    const { size = 'sm', variant = 'outline', getHref, siblingCount, minSiblingCount = 1, maxSiblingCount, ...rest } = props;
+    const containerRef = React__namespace.useRef(null);
+    const [calculatedSiblingCount, setCalculatedSiblingCount] = React__namespace.useState(siblingCount);
+    React__namespace.useEffect(() => {
+        if (siblingCount !== undefined || !containerRef.current) {
+            setCalculatedSiblingCount(siblingCount);
+            return;
+        }
+        const container = containerRef.current;
+        let rafId = null;
+        const calculateSiblingCount = () => {
+            if (!container)
+                return;
+            const width = container.offsetWidth;
+            if (width === 0)
+                return;
+            // Estimate button width based on size
+            // These are approximate widths including padding for different button sizes
+            const buttonWidthMap = {
+                xs: 28,
+                sm: 36,
+                md: 40,
+                lg: 44,
+            };
+            let buttonWidth = buttonWidthMap[size] || 36;
+            // Try to measure actual button if available (for more accuracy)
+            const buttons = container.querySelectorAll('button');
+            if (buttons.length > 0) {
+                const firstButton = buttons[0];
+                if (firstButton.offsetWidth > 0) {
+                    // Use measured width, but account for text content variation
+                    const measuredWidth = firstButton.offsetWidth;
+                    // Page number buttons might be slightly wider due to text, use measured width
+                    buttonWidth = Math.max(buttonWidth, measuredWidth);
+                }
+            }
+            // Account for prev/next buttons and gaps
+            // HStack gap is typically 8px in Chakra UI
+            const gap = 8;
+            const prevNextWidth = buttonWidth * 2 + gap;
+            const availableWidth = Math.max(0, width - prevNextWidth);
+            // Each page button takes buttonWidth + gap
+            const buttonWithGap = buttonWidth + gap;
+            const maxButtons = Math.floor(availableWidth / buttonWithGap);
+            // Calculate sibling count
+            // Minimum structure: [prev] [1] [current] [last] [next] = 5 buttons
+            // With siblings: [prev] [1] [...] [current-N] ... [current] ... [current+N] [...] [last] [next]
+            // We need: prev(1) + first(1) + ellipsis(1) + siblings*2 + current(1) + ellipsis(1) + last(1) + next(1)
+            // Minimum: 5 buttons (prev, first, current, last, next)
+            // With siblings: 5 + siblings*2 + ellipsis*2 (if needed)
+            const minRequired = 5;
+            const extraButtons = Math.max(0, maxButtons - minRequired);
+            // Calculate sibling count
+            // If we have enough space for ellipsis (2 buttons), account for that
+            let calculated = minSiblingCount;
+            if (extraButtons >= 4) {
+                // Space for ellipsis (2) + siblings
+                calculated = Math.floor((extraButtons - 2) / 2);
+            }
+            else if (extraButtons >= 2) {
+                // Space for some siblings but not ellipsis
+                calculated = Math.floor(extraButtons / 2);
+            }
+            // Apply max limit if provided
+            if (maxSiblingCount !== undefined) {
+                calculated = Math.min(calculated, maxSiblingCount);
+            }
+            setCalculatedSiblingCount(Math.max(minSiblingCount, calculated));
+        };
+        const resizeObserver = new ResizeObserver(() => {
+            // Use requestAnimationFrame to debounce and ensure DOM is updated
+            if (rafId !== null) {
+                cancelAnimationFrame(rafId);
+            }
+            rafId = requestAnimationFrame(calculateSiblingCount);
+        });
+        resizeObserver.observe(container);
+        // Initial calculation after a short delay to ensure buttons are rendered
+        const timeoutId = setTimeout(calculateSiblingCount, 100);
+        return () => {
+            resizeObserver.disconnect();
+            if (rafId !== null) {
+                cancelAnimationFrame(rafId);
+            }
+            clearTimeout(timeoutId);
+        };
+    }, [size, siblingCount, minSiblingCount, maxSiblingCount]);
+    const mergedRef = React__namespace.useCallback((node) => {
+        if (typeof ref === 'function') {
+            ref(node);
+        }
+        else if (ref) {
+            ref.current = node;
+        }
+        containerRef.current = node;
+    }, [ref]);
+    return (jsxRuntime.jsx(RootPropsProvider, { value: { size, variantMap: variantMap[variant], getHref }, children: jsxRuntime.jsx(react.Pagination.Root, { ref: mergedRef, type: getHref ? 'link' : 'button', siblingCount: calculatedSiblingCount, ...rest }) }));
 });
 const PaginationEllipsis = React__namespace.forwardRef(function PaginationEllipsis(props, ref) {
     const { size, variantMap } = useRootProps();
@@ -605,16 +700,16 @@ const PaginationNextTrigger = React__namespace.forwardRef(function PaginationNex
 });
 const PaginationItems = (props) => {
     return (jsxRuntime.jsx(react.Pagination.Context, { children: ({ pages }) => pages.map((page, index) => {
-            return page.type === "ellipsis" ? (jsxRuntime.jsx(PaginationEllipsis, { index: index, ...props }, index)) : (jsxRuntime.jsx(PaginationItem, { type: "page", value: page.value, ...props }, index));
+            return page.type === 'ellipsis' ? (jsxRuntime.jsx(PaginationEllipsis, { index: index, ...props }, index)) : (jsxRuntime.jsx(PaginationItem, { type: "page", value: page.value, ...props }, index));
         }) }));
 };
 React__namespace.forwardRef(function PaginationPageText(props, ref) {
-    const { format = "compact", ...rest } = props;
+    const { format = 'compact', ...rest } = props;
     const { page, totalPages, pageRange, count } = react.usePaginationContext();
     const content = React__namespace.useMemo(() => {
-        if (format === "short")
+        if (format === 'short')
             return `${page} / ${totalPages}`;
-        if (format === "compact")
+        if (format === 'compact')
             return `${page} / ${totalPages}`;
         return `${pageRange.start + 1} - ${Math.min(pageRange.end, count)} / ${count}`;
     }, [format, page, totalPages, pageRange, count]);
@@ -3102,14 +3197,14 @@ const DefaultCardTitle = () => {
 const TableCards = ({ isSelectable = false, showDisplayNameOnly = false, renderTitle = DefaultCardTitle, cardBodyProps = {}, }) => {
     const { table, rowSelection, setRowSelection } = useDataTableContext();
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: table.getRowModel().rows.map((row) => {
-            return (jsxRuntime.jsx(react.Card.Root, { flex: '1 0 20rem', children: jsxRuntime.jsxs(react.Card.Body, { display: 'flex', flexFlow: 'column', gap: '0.5rem', ...cardBodyProps, children: [isSelectable && (jsxRuntime.jsx(Checkbox, { isChecked: isRowSelected(row.id, rowSelection),
+            return (jsxRuntime.jsx(react.Card.Root, { flex: '1 0 20rem', children: jsxRuntime.jsxs(react.Card.Body, { display: 'flex', flexFlow: 'column', gap: '0.5rem', ...cardBodyProps, children: [isSelectable && (jsxRuntime.jsx(Checkbox, { checked: isRowSelected(row.id, rowSelection),
                             disabled: !canRowSelect(row),
                             // indeterminate: row.getIsSomeSelected(),
                             onChange: createRowToggleHandler(row, rowSelection, setRowSelection) })), renderTitle(row), jsxRuntime.jsx(react.Grid, { templateColumns: 'auto 1fr', gap: '1rem', children: row.getVisibleCells().map((cell) => {
-                                return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsxs(react.Box, { children: [showDisplayNameOnly && (jsxRuntime.jsx(react.Text, { fontWeight: 'bold', children: cell.column.columnDef.meta?.displayName ??
+                                return (jsxRuntime.jsxs(react.Box, { display: "contents", children: [jsxRuntime.jsxs(react.Box, { children: [showDisplayNameOnly && (jsxRuntime.jsx(react.Text, { fontWeight: 'bold', children: cell.column.columnDef.meta?.displayName ??
                                                         cell.column.id })), !showDisplayNameOnly && (jsxRuntime.jsx(jsxRuntime.Fragment, { children: reactTable.flexRender(cell.column.columnDef.header, 
                                                     // @ts-expect-error Assuming the CellContext interface is the same as HeaderContext
-                                                    cell.getContext()) }))] }, `chakra-table-cardcolumnid-${row.id}`), jsxRuntime.jsx(react.Box, { justifySelf: 'end', children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-cardcolumn-${row.id}`)] }));
+                                                    cell.getContext()) }))] }), jsxRuntime.jsx(react.Box, { justifySelf: 'end', children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) })] }, `chakra-table-cardcell-${cell.id}`));
                             }) })] }) }, `chakra-table-card-${row.id}`));
         }) }));
 };
@@ -3140,9 +3235,13 @@ const TableFooter = ({ showSelector = false, alwaysShowSelector = true, }) => {
         }
         return false;
     };
-    return (jsxRuntime.jsx(react.Table.Footer, { children: table.getFooterGroups().map((footerGroup) => (jsxRuntime.jsxs(react.Table.Row, { display: 'flex', children: [showSelector && (jsxRuntime.jsxs(react.Table.Header, { padding: `${table.getDensityValue()}px`, onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: 'grid', children: [isCheckBoxVisible() && (jsxRuntime.jsx(react.Box, { margin: '0rem', display: 'grid', justifyItems: 'center', alignItems: 'center', children: jsxRuntime.jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, isChecked: areAllRowsSelected(table, rowSelection),
-                                // indeterminate: areSomeRowsSelected(table, rowSelection),
-                                onChange: createToggleAllRowsHandler(table, rowSelection, setRowSelection) }) })), !isCheckBoxVisible() && (jsxRuntime.jsx(react.Box, { as: "span", margin: '0rem', display: 'grid', justifyItems: 'center', alignItems: 'center', width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }))] })), footerGroup.headers.map((header) => (jsxRuntime.jsx(react.Table.Cell, { padding: '0', columnSpan: `${header.colSpan}`, 
+    return (jsxRuntime.jsx(react.Table.Footer, { children: table.getFooterGroups().map((footerGroup) => (jsxRuntime.jsxs(react.Table.Row, { display: 'flex', children: [showSelector && (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, onMouseEnter: () => handleRowHover(true), onMouseLeave: () => handleRowHover(false), display: 'grid', justifyItems: 'center', alignItems: 'center', color: {
+                        base: 'colorPalette.900',
+                        _dark: 'colorPalette.100',
+                    },
+                    bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, children: isCheckBoxVisible() ? (jsxRuntime.jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, checked: areAllRowsSelected(table, rowSelection),
+                        // indeterminate: areSomeRowsSelected(table, rowSelection),
+                        onChange: createToggleAllRowsHandler(table, rowSelection, setRowSelection) })) : (jsxRuntime.jsx(react.Box, { as: "span", width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` })) })), footerGroup.headers.map((header) => (jsxRuntime.jsx(react.Table.Cell, { padding: '0', columnSpan: `${header.colSpan}`, 
                     // styling resize and pinning start
                     maxWidth: `${header.getSize()}px`, width: `${header.getSize()}px`, display: 'grid', children: jsxRuntime.jsx(react.MenuRoot, { children: jsxRuntime.jsx(react.MenuTrigger, { asChild: true, children: jsxRuntime.jsx(react.Box, { padding: `${table.getDensityValue()}px`, display: 'flex', alignItems: 'center', justifyContent: 'start', borderRadius: '0rem', children: jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: 'center', children: [header.isPlaceholder
                                             ? null
@@ -3374,7 +3473,7 @@ const TextWithCopy = ({ text, globalFilter, highlightedText, }) => {
     const displayText = highlightedText !== undefined
         ? highlightedText
         : highlightText$1(textValue, globalFilter);
-    return (jsxRuntime.jsxs(react.HStack, { gap: 2, alignItems: "center", children: [jsxRuntime.jsx(react.Text, { as: "span", children: displayText }), jsxRuntime.jsx(react.Clipboard.Root, { value: textValue, children: jsxRuntime.jsx(react.Clipboard.Trigger, { asChild: true, children: jsxRuntime.jsx(react.IconButton, { size: "xs", variant: "ghost", "aria-label": "Copy", children: jsxRuntime.jsx(react.Clipboard.Indicator, { copied: jsxRuntime.jsx(lu.LuCheck, {}), children: jsxRuntime.jsx(lu.LuCopy, {}) }) }) }) })] }));
+    return (jsxRuntime.jsxs(react.HStack, { gap: 2, alignItems: "center", children: [jsxRuntime.jsx(react.Text, { as: "span", children: displayText }), jsxRuntime.jsx(react.Clipboard.Root, { value: textValue, children: jsxRuntime.jsx(react.Clipboard.Trigger, { asChild: true, children: jsxRuntime.jsx(react.IconButton, { size: "xs", variant: "ghost", "aria-label": "Copy", fontSize: "1em", children: jsxRuntime.jsx(react.Clipboard.Indicator, { copied: jsxRuntime.jsx(lu.LuCheck, {}), children: jsxRuntime.jsx(lu.LuCopy, {}) }) }) }) })] }));
 };
 
 // Helper function to highlight matching text
@@ -3628,7 +3727,7 @@ const snakeToLabel = (str) => {
         .join(" "); // Join with space
 };
 
-const RecordDisplay = ({ object, boxProps, translate, prefix = "", }) => {
+const RecordDisplay = ({ object, boxProps, translate, prefix = '', }) => {
     const getColumn = ({ field }) => {
         if (translate !== undefined) {
             return translate.t(`${prefix}${field}`);
@@ -3638,8 +3737,9 @@ const RecordDisplay = ({ object, boxProps, translate, prefix = "", }) => {
     if (object === null) {
         return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "null" });
     }
-    return (jsxRuntime.jsx(react.Grid, { rowGap: 1, padding: 1, overflow: "auto", ...boxProps, children: Object.entries(object).map(([field, value]) => {
-            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: "auto 1fr", children: [jsxRuntime.jsx(react.Text, { color: "colorPalette.400", children: getColumn({ field }) }), typeof value === "object" ? (jsxRuntime.jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.`, translate: translate })) : (jsxRuntime.jsx(react.Text, { children: JSON.stringify(value) }))] }, field));
+    return (jsxRuntime.jsx(react.Grid, { rowGap: 1, padding: 1, overflow: 'auto', ...boxProps, children: Object.entries(object).map(([field, value], index) => {
+            const uniqueKey = `${prefix}${field}-${index}`;
+            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: 'auto 1fr', children: [jsxRuntime.jsx(react.Text, { color: 'colorPalette.400', children: getColumn({ field }) }), typeof value === 'object' && value !== null ? (jsxRuntime.jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.`, translate: translate })) : (jsxRuntime.jsx(react.Text, { children: JSON.stringify(value) }))] }, uniqueKey));
         }) }));
 };
 
@@ -3930,12 +4030,9 @@ const idPickerSanityCheck = (column, foreign_key) => {
     if (!!foreign_key == false) {
         throw new Error(`The key foreign_key does not exist in properties of column ${column} when using id-picker.`);
     }
-    const { table, column: foreignKeyColumn, display_column } = foreign_key;
+    const { table, column: foreignKeyColumn } = foreign_key;
     if (!!table == false) {
         throw new Error(`The key table does not exist in properties of column ${table} when using id-picker.`);
-    }
-    if (!!display_column == false) {
-        throw new Error(`The key display_column does not exist in properties of column ${column} when using id-picker.`);
     }
     if (!!foreignKeyColumn == false) {
         throw new Error(`The key column does not exist in properties of column ${column} when using id-picker.`);
@@ -3945,7 +4042,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
     showSubmitButton: true,
     showResetButton: true,
     showTitle: true,
-}, requireConfirmation = false, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, insideDialog = false, }) => {
+}, requireConfirmation = false, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, insideDialog = false, }) => {
     const [isSuccess, setIsSuccess] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
     const [isSubmiting, setIsSubmiting] = React.useState(false);
@@ -4035,6 +4132,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
             idPickerLabels,
             enumPickerLabels,
             filePickerLabels,
+            formButtonLabels,
             ajvResolver: ajvResolver(schema),
             insideDialog,
         }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: children }) }));
@@ -4044,40 +4142,107 @@ function removeIndex(str) {
     return str.replace(/\.\d+\./g, ".");
 }
 
-const ArrayRenderer = ({ schema, column, prefix, }) => {
-    const { gridRow, gridColumn = "1/span 12", required, items } = schema;
-    // @ts-expect-error TODO: find suitable types
-    const { type } = items;
+/**
+ * Custom hook to simplify i18n translation for form fields.
+ * Automatically handles colLabel construction and removeIndex logic.
+ *
+ * @param column - The column name
+ * @param prefix - The prefix for the field (usually empty string or parent path)
+ * @returns Object with translation helper functions
+ *
+ * @example
+ * ```tsx
+ * const formI18n = useFormI18n(column, prefix);
+ *
+ * // Get field label
+ * <Field label={formI18n.label()} />
+ *
+ * // Get error message
+ * <Text>{formI18n.required()}</Text>
+ *
+ * // Get custom translation key
+ * <Text>{formI18n.t('add_more')}</Text>
+ *
+ * // Access the raw colLabel
+ * const colLabel = formI18n.colLabel;
+ * ```
+ */
+const useFormI18n$1 = (column, prefix = '', schema) => {
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
+    return {
+        /**
+         * The constructed column label (prefix + column)
+         */
+        colLabel,
+        /**
+         * Get the field label from schema title prop, or fall back to translation
+         * Uses schema.title if available, otherwise: translate.t(removeIndex(`${colLabel}.field_label`))
+         */
+        label: (options) => {
+            if (schema?.title) {
+                return schema.title;
+            }
+            return translate.t(removeIndex(`${colLabel}.field_label`), options);
+        },
+        /**
+         * Get the required error message translation
+         * Equivalent to: translate.t(removeIndex(`${colLabel}.field_required`))
+         */
+        required: (options) => {
+            return translate.t(removeIndex(`${colLabel}.field_required`), options);
+        },
+        /**
+         * Get a translation for any custom key relative to the field
+         * Equivalent to: translate.t(removeIndex(`${colLabel}.${key}`))
+         *
+         * @param key - The translation key suffix (e.g., 'add_more', 'total', etc.)
+         * @param options - Optional translation options (e.g., defaultValue, interpolation variables)
+         */
+        t: (key, options) => {
+            return translate.t(removeIndex(`${colLabel}.${key}`), options);
+        },
+        /**
+         * Access to the original translate object for edge cases
+         */
+        translate,
+    };
+};
+
+const ArrayRenderer = ({ schema, column, prefix, }) => {
+    const { gridRow, gridColumn = '1/span 12', required, items } = schema;
+    // @ts-expect-error TODO: find suitable types
+    const { type } = items;
+    const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const { formState: { errors }, setValue, watch, } = reactHookForm.useFormContext();
     const fields = (watch(colLabel) ?? []);
-    return (jsxRuntime.jsxs(react.Flex, { gridRow, gridColumn, flexFlow: "column", gap: 2, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: 2, children: fields.map((field, index) => (jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: '1fr auto', gap: 2, bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
-                        base: "colorPalette.200",
-                        _dark: "colorPalette.800",
-                    }, children: [jsxRuntime.jsx(react.Grid, { gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsxRuntime.jsx(SchemaRenderer, { column: `${index}`,
+    return (jsxRuntime.jsxs(react.Flex, { gridRow, gridColumn, flexFlow: 'column', gap: 2, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [formI18n.label(), isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 2, children: fields.map((field, index) => (jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: '1fr auto', gap: 2, bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
+                        base: 'colorPalette.200',
+                        _dark: 'colorPalette.800',
+                    }, children: [jsxRuntime.jsx(react.Grid, { gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: jsxRuntime.jsx(SchemaRenderer, { column: `${index}`,
                                 prefix: `${colLabel}.`,
                                 // @ts-expect-error find suitable types
-                                schema: { showLabel: false, ...(items ?? {}) } }) }), jsxRuntime.jsx(react.Flex, { justifyContent: "end", children: jsxRuntime.jsx(react.Button, { variant: "ghost", onClick: () => {
+                                schema: { showLabel: false, ...(items ?? {}) } }) }), jsxRuntime.jsx(react.Flex, { justifyContent: 'end', children: jsxRuntime.jsx(react.Button, { variant: 'ghost', onClick: () => {
                                     setValue(colLabel, fields.filter((_, curIndex) => {
                                         return curIndex !== index;
                                     }));
                                 }, children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(cg.CgTrash, {}) }) }) })] }, `${colLabel}.${index}`))) }), jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(react.Button, { onClick: () => {
-                        if (type === "number") {
+                        if (type === 'number') {
                             setValue(colLabel, [...fields, 0]);
                             return;
                         }
-                        if (type === "string") {
-                            setValue(colLabel, [...fields, ""]);
+                        if (type === 'string') {
+                            setValue(colLabel, [...fields, '']);
                             return;
                         }
-                        if (type === "boolean") {
+                        if (type === 'boolean') {
                             setValue(colLabel, [...fields, false]);
                             return;
                         }
                         setValue(colLabel, [...fields, {}]);
-                    }, children: translate.t(removeIndex(`${colLabel}.add`)) }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                    }, children: translate.t(removeIndex(`${colLabel}.add`)) }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const Field = React__namespace.forwardRef(function Field(props, ref) {
@@ -4087,15 +4252,13 @@ const Field = React__namespace.forwardRef(function Field(props, ref) {
 
 const BooleanPicker = ({ schema, column, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    return (jsxRuntime.jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`]
-            ? translate.t(removeIndex(`${colLabel}.field_required`))
-            : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsx(CheckboxCard, { checked: value, variant: 'surface', onChange: () => {
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsx(CheckboxCard, { checked: value, variant: 'surface', onChange: () => {
                 setValue(colLabel, !value);
             } }) }));
 };
@@ -4211,76 +4374,12 @@ let DatePicker$1 = class DatePicker extends React.Component {
     }
 };
 
-/**
- * Custom hook to simplify i18n translation for form fields.
- * Automatically handles colLabel construction and removeIndex logic.
- *
- * @param column - The column name
- * @param prefix - The prefix for the field (usually empty string or parent path)
- * @returns Object with translation helper functions
- *
- * @example
- * ```tsx
- * const formI18n = useFormI18n(column, prefix);
- *
- * // Get field label
- * <Field label={formI18n.label()} />
- *
- * // Get error message
- * <Text>{formI18n.required()}</Text>
- *
- * // Get custom translation key
- * <Text>{formI18n.t('add_more')}</Text>
- *
- * // Access the raw colLabel
- * const colLabel = formI18n.colLabel;
- * ```
- */
-const useFormI18n = (column, prefix = "") => {
-    const { translate } = useSchemaContext();
-    const colLabel = `${prefix}${column}`;
-    return {
-        /**
-         * The constructed column label (prefix + column)
-         */
-        colLabel,
-        /**
-         * Get the field label translation
-         * Equivalent to: translate.t(removeIndex(`${colLabel}.field_label`))
-         */
-        label: (options) => {
-            return translate.t(removeIndex(`${colLabel}.field_label`), options);
-        },
-        /**
-         * Get the required error message translation
-         * Equivalent to: translate.t(removeIndex(`${colLabel}.field_required`))
-         */
-        required: (options) => {
-            return translate.t(removeIndex(`${colLabel}.field_required`), options);
-        },
-        /**
-         * Get a translation for any custom key relative to the field
-         * Equivalent to: translate.t(removeIndex(`${colLabel}.${key}`))
-         *
-         * @param key - The translation key suffix (e.g., 'add_more', 'total', etc.)
-         * @param options - Optional translation options (e.g., defaultValue, interpolation variables)
-         */
-        t: (key, options) => {
-            return translate.t(removeIndex(`${colLabel}.${key}`), options);
-        },
-        /**
-         * Access to the original translate object for edge cases
-         */
-        translate,
-    };
-};
-
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
@@ -4398,7 +4497,7 @@ dayjs.extend(timezone);
 const DateRangePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { timezone, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n$1(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
@@ -4496,7 +4595,7 @@ const DateRangePicker = ({ column, schema, prefix, }) => {
 const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLimit = false, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { enumPickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
@@ -5140,7 +5239,7 @@ function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = 
 const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { filePickerLabels } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n$1(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', type, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const isSingleSelect = type === 'string';
@@ -5216,7 +5315,7 @@ const FilePicker = ({ column, schema, prefix }) => {
 const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { filePickerLabels } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n$1(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', filePicker, type, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const isSingleSelect = type === 'string';
@@ -5357,13 +5456,18 @@ const getTableData = async ({ serverUrl, in_table, searching = "", where = [], l
     }
 };
 
+// Default renderDisplay function that stringifies JSON
+const defaultRenderDisplay = (item) => {
+    return JSON.stringify(item);
+};
+
 const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, getValues, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { serverUrl, idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { table, column: column_ref, display_column, customQueryFn, } = foreign_key;
+    const { table, column: column_ref, customQueryFn, } = foreign_key;
     const [searchText, setSearchText] = React.useState('');
     const [debouncedSearchText, setDebouncedSearchText] = React.useState('');
     const [limit] = React.useState(50); // Increased limit for combobox
@@ -5444,12 +5548,16 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     // label is used for filtering/searching (must be a string)
     // raw item is stored for custom rendering
     const comboboxItems = React.useMemo(() => {
-        return dataList.map((item) => ({
-            label: String(item[display_column] ?? ''), // Always use display_column for filtering
-            value: String(item[column_ref]),
-            raw: item,
-        }));
-    }, [dataList, display_column, column_ref]);
+        const renderFn = renderDisplay || defaultRenderDisplay;
+        return dataList.map((item) => {
+            const rendered = renderFn(item);
+            return {
+                label: typeof rendered === 'string' ? rendered : JSON.stringify(item), // Use string for filtering
+                value: String(item[column_ref]),
+                raw: item,
+            };
+        });
+    }, [dataList, column_ref, renderDisplay]);
     // Use filter hook for combobox
     const { contains } = react.useFilter({ sensitivity: 'base' });
     // Create collection for combobox
@@ -5495,9 +5603,9 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                     return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
                             const newValue = currentValue.filter((itemId) => itemId !== id);
                             setValue(colLabel, newValue);
-                        }, children: !!renderDisplay === true
+                        }, children: renderDisplay
                             ? renderDisplay(item)
-                            : item[display_column] }, id));
+                            : defaultRenderDisplay(item) }, id));
                 }) })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: insideDialog
                     ? { strategy: 'fixed', hideWhenDetached: true }
                     : undefined, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search') }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, { size: "xs" }), isError && (jsxRuntime.jsx(react.Icon, { color: "fg.error", children: jsxRuntime.jsx(bi.BiError, {}) })), !isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
@@ -5586,15 +5694,15 @@ const extractErrorMessage = (error) => {
 
 const NumberInputField = ({ schema, column, prefix, }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1', numberStorageType = 'number', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(`${colLabel}`);
     const fieldError = getFieldError(errors, colLabel);
-    return (jsxRuntime.jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn, gridRow, errorText: fieldError
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn, gridRow, errorText: fieldError
             ? fieldError.includes('required')
-                ? translate.t(removeIndex(`${colLabel}.field_required`))
+                ? formI18n.required()
                 : fieldError
             : undefined, invalid: !!fieldError, children: jsxRuntime.jsx(NumberInputRoot, { value: value, onValueChange: (details) => {
                 // Store as string or number based on configuration, default to number
@@ -5607,14 +5715,14 @@ const NumberInputField = ({ schema, column, prefix, }) => {
 
 const ObjectInput = ({ schema, column, prefix }) => {
     const { properties, gridColumn = 'span 12', gridRow = 'span 1', required, showLabel = true, } = schema;
-    const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const { formState: { errors }, } = reactHookForm.useFormContext();
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
     }
-    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [showLabel && (jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] })), jsxRuntime.jsx(react.Grid, { bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
+    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [showLabel && (jsxRuntime.jsxs(react.Box, { as: "label", children: [formI18n.label(), isRequired && jsxRuntime.jsx("span", { children: "*" })] })), jsxRuntime.jsx(react.Grid, { bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
                     base: 'colorPalette.200',
                     _dark: 'colorPalette.800',
                 }, gap: "4", padding: '4', gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: Object.keys(properties ?? {}).map((key) => {
@@ -5624,10 +5732,10 @@ const ObjectInput = ({ schema, column, prefix }) => {
                         prefix: `${prefix}${column}.`,
                         properties,
                         parentRequired: required }, `form-${colLabel}-${key}`));
-                }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
-const RecordInput$1 = ({ column, schema, prefix }) => {
+const RecordInput = ({ column, schema, prefix }) => {
     const { formState: { errors }, setValue, getValues, } = reactHookForm.useFormContext();
     const { translate } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
@@ -5636,9 +5744,8 @@ const RecordInput$1 = ({ column, schema, prefix }) => {
     const [showNewEntries, setShowNewEntries] = React.useState(false);
     const [newKey, setNewKey] = React.useState();
     const [newValue, setNewValue] = React.useState();
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(`${column}.field_label`)}`, required: isRequired, alignItems: 'stretch', gridColumn, gridRow, errorText: errors[`${column}`]
-            ? translate.t(`${column}.field_required`)
-            : undefined, invalid: !!errors[column], children: [entries.map(([key, value]) => {
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn, gridRow, errorText: errors[`${column}`] ? formI18n.required() : undefined, invalid: !!errors[column], children: [entries.map(([key, value]) => {
                 return (jsxRuntime.jsxs(react.Grid, { templateColumns: '1fr 1fr auto', gap: 1, children: [jsxRuntime.jsx(react.Input, { value: key, onChange: (e) => {
                                 const filtered = entries.filter(([target]) => {
                                     return target !== key;
@@ -5683,12 +5790,12 @@ const RecordInput$1 = ({ column, schema, prefix }) => {
 
 const StringInputField = ({ column, schema, prefix, }) => {
     const { register, formState: { errors }, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const fieldError = getFieldError(errors, colLabel);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: fieldError, invalid: !!fieldError, children: jsxRuntime.jsx(react.Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: fieldError, invalid: !!fieldError, children: jsxRuntime.jsx(react.Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
 };
 
 const RadioCardItem = React__namespace.forwardRef(function RadioCardItem(props, ref) {
@@ -5873,17 +5980,17 @@ Textarea.displayName = "Textarea";
 
 const TextAreaInput = ({ column, schema, prefix, }) => {
     const { register, formState: { errors }, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const form = reactHookForm.useFormContext();
     const { setValue, watch } = form;
     const fieldError = getFieldError(errors, colLabel);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const watchValue = watch(colLabel);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: "grid", errorText: fieldError
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: "grid", errorText: fieldError
                 ? fieldError.includes('required')
-                    ? translate.t(removeIndex(`${colLabel}.field_required`))
+                    ? formI18n.required()
                     : fieldError
                 : undefined, invalid: !!fieldError, children: jsxRuntime.jsx(Textarea, { value: watchValue, onChange: (value) => setValue(colLabel, value) }) }) }));
 };
@@ -6205,10 +6312,11 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
 dayjs.extend(timezone);
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { translate, timezone, insideDialog } = useSchemaContext();
+    const { timezone, insideDialog } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1', timeFormat = 'HH:mm:ssZ', displayTimeFormat = 'hh:mm A', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const [open, setOpen] = React.useState(false);
     const value = watch(colLabel);
     const displayedTime = dayjs(`1970-01-01T${value}`).tz(timezone).isValid()
@@ -6263,10 +6371,8 @@ const TimePicker = ({ column, schema, prefix }) => {
         const timeString = getTimeString(newHour, newMinute, newMeridiem);
         setValue(colLabel, timeString, { shouldValidate: true, shouldDirty: true });
     };
-    return (jsxRuntime.jsx(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`]
-            ? translate.t(removeIndex(`${colLabel}.field_required`))
-            : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
+    return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
                         }, justifyContent: 'start', children: [jsxRuntime.jsx(io.IoMdClock, {}), !!value ? `${displayedTime}` : ''] }) }), insideDialog ? (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsxRuntime.jsx(react.Popover.Body, { overflow: "visible", children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, meridiemLabel: {
                                     am: translate.t(`common.am`, { defaultValue: 'AM' }),
@@ -7156,7 +7262,7 @@ dayjs.extend(timezone);
 const DateTimePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD HH:mm:ss', 
     // with timezone
     dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ', } = schema;
@@ -7298,7 +7404,7 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         if (innerProperties) {
             return jsxRuntime.jsx(ObjectInput, { schema: colSchema, prefix, column });
         }
-        return jsxRuntime.jsx(RecordInput$1, { schema: colSchema, prefix, column });
+        return jsxRuntime.jsx(RecordInput, { schema: colSchema, prefix, column });
     }
     if (type === 'array') {
         if (variant === 'id-picker') {
@@ -7352,32 +7458,30 @@ const ColumnRenderer = ({ column, properties, prefix, parentRequired, }) => {
 };
 
 const ArrayViewer = ({ schema, column, prefix }) => {
-    const { gridColumn = "span 12", gridRow = "span 1", required, items, } = schema;
-    const { translate } = useSchemaContext();
+    const { gridColumn = 'span 12', gridRow = 'span 1', required, items, } = schema;
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const values = watch(colLabel) ?? [];
-    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", gridColumn: "1/span12", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: 1, children: values.map((field, index) => (jsxRuntime.jsx(react.Flex, { flexFlow: "column", bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: "2", borderRadius: "md", borderWidth: "thin", borderColor: {
-                        base: "colorPalette.200",
-                        _dark: "colorPalette.800",
-                    }, children: jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", children: jsxRuntime.jsx(SchemaViewer, { column: `${index}`,
+    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", gridColumn: '1/span12', children: [formI18n.label(), isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: values.map((field, index) => (jsxRuntime.jsx(react.Flex, { flexFlow: 'column', bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: '2', borderRadius: 'md', borderWidth: 'thin', borderColor: {
+                        base: 'colorPalette.200',
+                        _dark: 'colorPalette.800',
+                    }, children: jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: jsxRuntime.jsx(SchemaViewer, { column: `${index}`,
                             prefix: `${colLabel}.`,
                             // @ts-expect-error find suitable types
-                            schema: { showLabel: false, ...(items ?? {}) } }) }) }, `form-${prefix}${column}.${index}`))) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                            schema: { showLabel: false, ...(items ?? {}) } }) }) }, `form-${prefix}${column}.${index}`))) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const BooleanViewer = ({ schema, column, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
+    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsxRuntime.jsx(react.Text, { children: value
-                    ? translate.t(removeIndex(`${colLabel}.true`))
-                    : translate.t(removeIndex(`${colLabel}.false`)) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, children: [jsxRuntime.jsx(react.Text, { children: value ? formI18n.t('true') : formI18n.t('false') }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const CustomViewer = ({ column, schema, prefix }) => {
@@ -7394,19 +7498,22 @@ const CustomViewer = ({ column, schema, prefix }) => {
 
 const DateViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD", } = schema;
+    const { timezone } = useSchemaContext();
+    const { required, gridColumn = 'span 4', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
-    const displayDate = dayjs(selectedDate).tz(timezone).format(displayDateFormat);
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsxRuntime.jsxs(react.Text, { children: [" ", selectedDate !== undefined ? displayDate : ""] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    const displayDate = dayjs(selectedDate)
+        .tz(timezone)
+        .format(displayDateFormat);
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, children: [jsxRuntime.jsxs(react.Text, { children: [" ", selectedDate !== undefined ? displayDate : ''] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n$1(column, prefix);
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
@@ -7427,54 +7534,56 @@ const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
 
 const FileViewer = ({ column, schema, prefix }) => {
     const { watch } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 12", gridRow = "span 1", } = schema;
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const currentFiles = (watch(column) ?? []);
-    const colLabel = `${prefix}${column}`;
-    return (jsxRuntime.jsx(Field, { label: `${translate.t(`${colLabel}.field_label`)}`, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, display: "grid", gridTemplateRows: "auto 1fr auto", alignItems: "stretch", children: jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: 1, children: currentFiles.map((file) => {
-                return (jsxRuntime.jsx(react.Card.Root, { variant: "subtle", children: jsxRuntime.jsxs(react.Card.Body, { gap: "2", display: "flex", flexFlow: "row", alignItems: "center", padding: "2", children: [file.type.startsWith("image/") && (jsxRuntime.jsx(react.Image, { src: URL.createObjectURL(file), alt: file.name, boxSize: "50px", objectFit: "cover", borderRadius: "md", marginRight: "2" })), jsxRuntime.jsx(react.Box, { children: file.name })] }) }, file.name));
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, display: 'grid', gridTemplateRows: 'auto 1fr auto', alignItems: 'stretch', children: jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: currentFiles.map((file) => {
+                return (jsxRuntime.jsx(react.Card.Root, { variant: 'subtle', children: jsxRuntime.jsxs(react.Card.Body, { gap: "2", display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', children: [file.type.startsWith('image/') && (jsxRuntime.jsx(react.Image, { src: URL.createObjectURL(file), alt: file.name, boxSize: "50px", objectFit: "cover", borderRadius: "md", marginRight: "2" })), jsxRuntime.jsx(react.Box, { children: file.name })] }) }, file.name));
             }) }) }));
 };
 
 const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const { idMap, translate } = useSchemaContext();
-    const { required, gridColumn = "span 12", gridRow = "span 1", renderDisplay, foreign_key, } = schema;
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { display_column } = foreign_key;
+    const formI18n = useFormI18n(column, prefix, schema);
     const colLabel = `${prefix}${column}`;
     const watchId = watch(colLabel);
     const watchIds = (watch(colLabel) ?? []);
     const getPickedValue = () => {
         if (Object.keys(idMap).length <= 0) {
-            return "";
+            return '';
         }
         const record = idMap[watchId];
         if (record === undefined) {
-            return "";
+            return '';
         }
-        return record[display_column];
+        const rendered = renderDisplay
+            ? renderDisplay(record)
+            : defaultRenderDisplay(record);
+        return typeof rendered === 'string' ? rendered : JSON.stringify(record);
     };
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [isMultiple && (jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", gap: 1, children: watchIds.map((id) => {
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, children: [isMultiple && (jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 1, children: watchIds.map((id) => {
                     const item = idMap[id];
                     if (item === undefined) {
                         return (jsxRuntime.jsx(react.Text, { children: translate.t(removeIndex(`${colLabel}.undefined`)) }, id));
                     }
-                    return (jsxRuntime.jsx(Tag, { closable: true, children: !!renderDisplay === true
+                    return (jsxRuntime.jsx(Tag, { closable: true, children: renderDisplay
                             ? renderDisplay(item)
-                            : item[display_column] }, id));
-                }) })), !isMultiple && jsxRuntime.jsx(react.Text, { children: getPickedValue() }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                            : defaultRenderDisplay(item) }, id));
+                }) })), !isMultiple && jsxRuntime.jsx(react.Text, { children: getPickedValue() }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
 };
 
 const NumberViewer = ({ schema, column, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     // Format the value for display if formatOptions are provided
     const formatValue = (val) => {
         if (val === undefined || val === null || val === '')
@@ -7493,90 +7602,49 @@ const NumberViewer = ({ schema, column, prefix, }) => {
         }
         return String(val);
     };
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn, gridRow, children: [jsxRuntime.jsx(react.Text, { children: formatValue(value) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, gridColumn, gridRow, children: [jsxRuntime.jsx(react.Text, { children: formatValue(value) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const ObjectViewer = ({ schema, column, prefix }) => {
-    const { properties, gridColumn = "span 12", gridRow = "span 1", required, showLabel = true, } = schema;
-    const { translate } = useSchemaContext();
+    const { properties, gridColumn = 'span 12', gridRow = 'span 1', required, showLabel = true, } = schema;
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const { formState: { errors }, } = reactHookForm.useFormContext();
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
     }
-    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [showLabel && (jsxRuntime.jsxs(react.Box, { as: "label", children: [`${translate.t(removeIndex(`${colLabel}.field_label`))}`, isRequired && jsxRuntime.jsx("span", { children: "*" })] })), jsxRuntime.jsx(react.Grid, { gap: "4", padding: "4", gridTemplateColumns: "repeat(12, 1fr)", autoFlow: "row", bgColor: { base: "colorPalette.100", _dark: "colorPalette.900" }, p: "1", borderRadius: "md", borderWidth: "thin", borderColor: {
-                    base: "colorPalette.200",
-                    _dark: "colorPalette.800",
+    return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [showLabel && (jsxRuntime.jsxs(react.Box, { as: "label", children: [formI18n.label(), isRequired && jsxRuntime.jsx("span", { children: "*" })] })), jsxRuntime.jsx(react.Grid, { gap: "4", padding: '4', gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: '1', borderRadius: 'md', borderWidth: 'thin', borderColor: {
+                    base: 'colorPalette.200',
+                    _dark: 'colorPalette.800',
                 }, children: Object.keys(properties ?? {}).map((key) => {
                     return (
                     // @ts-expect-error find suitable types
                     jsxRuntime.jsx(ColumnViewer, { column: `${key}`,
                         prefix: `${prefix}${column}.`,
                         properties }, `form-objectviewer-${colLabel}-${key}`));
-                }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
-const RecordInput = ({ column, schema, prefix }) => {
-    const { formState: { errors }, setValue, getValues, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
+const RecordViewer = ({ column, schema, prefix }) => {
+    const { formState: { errors }, getValues, } = reactHookForm.useFormContext();
+    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const entries = Object.entries(getValues(column) ?? {});
-    const [showNewEntries, setShowNewEntries] = React.useState(false);
-    const [newKey, setNewKey] = React.useState();
-    const [newValue, setNewValue] = React.useState();
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(`${column}.field_label`)}`, required: isRequired, alignItems: "stretch", gridColumn, gridRow, children: [entries.map(([key, value]) => {
-                return (jsxRuntime.jsxs(react.Grid, { templateColumns: "1fr 1fr auto", gap: 1, children: [jsxRuntime.jsx(react.Input, { value: key, onChange: (e) => {
-                                const filtered = entries.filter(([target]) => {
-                                    return target !== key;
-                                });
-                                setValue(column, Object.fromEntries([...filtered, [e.target.value, value]]));
-                            }, autoComplete: "off" }), jsxRuntime.jsx(react.Input, { value: value, onChange: (e) => {
-                                setValue(column, {
-                                    ...getValues(column),
-                                    [key]: e.target.value,
-                                });
-                            }, autoComplete: "off" }), jsxRuntime.jsx(react.IconButton, { variant: "ghost", onClick: () => {
-                                const filtered = entries.filter(([target]) => {
-                                    return target !== key;
-                                });
-                                setValue(column, Object.fromEntries([...filtered]));
-                            }, children: jsxRuntime.jsx(cg.CgClose, {}) })] }));
-            }), jsxRuntime.jsx(react.Show, { when: showNewEntries, children: jsxRuntime.jsxs(react.Card.Root, { children: [jsxRuntime.jsx(react.Card.Body, { gap: "2", children: jsxRuntime.jsxs(react.Grid, { templateColumns: "1fr 1fr auto", gap: 1, children: [jsxRuntime.jsx(react.Input, { value: newKey, onChange: (e) => {
-                                            setNewKey(e.target.value);
-                                        }, autoComplete: "off" }), jsxRuntime.jsx(react.Input, { value: newValue, onChange: (e) => {
-                                            setNewValue(e.target.value);
-                                        }, autoComplete: "off" })] }) }), jsxRuntime.jsxs(react.Card.Footer, { justifyContent: "flex-end", children: [jsxRuntime.jsx(react.IconButton, { variant: "subtle", onClick: () => {
-                                        setShowNewEntries(false);
-                                        setNewKey(undefined);
-                                        setNewValue(undefined);
-                                    }, children: jsxRuntime.jsx(cg.CgClose, {}) }), jsxRuntime.jsx(Button, { onClick: () => {
-                                        if (!!newKey === false) {
-                                            setShowNewEntries(false);
-                                            setNewKey(undefined);
-                                            setNewValue(undefined);
-                                            return;
-                                        }
-                                        setValue(column, Object.fromEntries([...entries, [newKey, newValue]]));
-                                        setShowNewEntries(false);
-                                        setNewKey(undefined);
-                                        setNewValue(undefined);
-                                    }, children: translate.t(`${column}.save`) })] })] }) }), jsxRuntime.jsx(Button, { onClick: () => {
-                    setShowNewEntries(true);
-                    setNewKey(undefined);
-                    setNewValue(undefined);
-                }, children: translate.t(`${column}.addNew`) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn, gridRow, children: [entries.length === 0 ? (jsxRuntime.jsx(react.Text, { color: "gray.500", children: "No entries" })) : (jsxRuntime.jsx(react.Grid, { templateColumns: '1fr 1fr', gap: 2, children: entries.map(([key, value]) => {
+                    return (jsxRuntime.jsxs(react.Grid, { templateColumns: '1fr 1fr', gap: 2, children: [jsxRuntime.jsxs(react.Text, { fontWeight: "medium", children: [key, ":"] }), jsxRuntime.jsx(react.Text, { children: String(value ?? '') })] }, key));
+                }) })), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const StringViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
+    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn ?? "span 4", gridRow: gridRow ?? "span 1", children: [jsxRuntime.jsx(react.Text, { children: value }), errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', children: [jsxRuntime.jsx(react.Text, { children: value }), errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }) }));
 };
 
 const TagViewer = ({ column, schema, prefix }) => {
@@ -7666,40 +7734,44 @@ const TagViewer = ({ column, schema, prefix }) => {
 
 const TextAreaViewer = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
-    const { required, gridColumn = "span 12", gridRow = "span 1" } = schema;
+    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${colLabel}.field_label`))}`, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, children: [jsxRuntime.jsx(react.Text, { whiteSpace: "pre-wrap", children: value }), " ", errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }) }));
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, children: [jsxRuntime.jsx(react.Text, { whiteSpace: "pre-wrap", children: value }), ' ', errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }) }));
 };
 
 const TimeViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 12", gridRow = "span 1", displayTimeFormat = "hh:mm A", } = schema;
+    const { timezone } = useSchemaContext();
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', displayTimeFormat = 'hh:mm A', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
+    const formI18n = useFormI18n$1(column, prefix, schema);
     const displayedTime = dayjs(`1970-01-01T${selectedDate}`)
         .tz(timezone)
         .isValid()
         ? dayjs(`1970-01-01T${selectedDate}`).tz(timezone).format(displayTimeFormat)
-        : "";
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsxRuntime.jsx(react.Text, { children: displayedTime }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
+        : '';
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, children: [jsxRuntime.jsx(react.Text, { children: displayedTime }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const DateTimeViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const { translate, timezone } = useSchemaContext();
-    const { required, gridColumn = "span 4", gridRow = "span 1", displayDateFormat = "YYYY-MM-DD HH:mm:ss", } = schema;
+    const { timezone } = useSchemaContext();
+    const { required, gridColumn = 'span 4', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD HH:mm:ss', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
-    const displayDate = dayjs(selectedDate).tz(timezone).format(displayDateFormat);
-    return (jsxRuntime.jsxs(Field, { label: `${translate.t(removeIndex(`${column}.field_label`))}`, required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [jsxRuntime.jsxs(react.Text, { children: [" ", selectedDate !== undefined ? displayDate : ""] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: translate.t(`${column}.field_required`) }))] }));
+    const formI18n = useFormI18n$1(column, prefix, schema);
+    const displayDate = dayjs(selectedDate)
+        .tz(timezone)
+        .format(displayDateFormat);
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, children: [jsxRuntime.jsxs(react.Text, { children: [" ", selectedDate !== undefined ? displayDate : ''] }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const SchemaViewer = ({ schema, prefix, column, }) => {
@@ -7740,7 +7812,7 @@ const SchemaViewer = ({ schema, prefix, column, }) => {
         if (innerProperties) {
             return jsxRuntime.jsx(ObjectViewer, { schema: colSchema, prefix, column });
         }
-        return jsxRuntime.jsx(RecordInput, { schema: colSchema, prefix, column });
+        return jsxRuntime.jsx(RecordViewer, { schema: colSchema, prefix, column });
     }
     if (type === 'array') {
         if (variant === 'id-picker') {
@@ -7788,7 +7860,7 @@ const ColumnViewer = ({ column, properties, prefix, }) => {
 };
 
 const SubmitButton = () => {
-    const { translate, setValidatedData, setIsError, setIsConfirming, setError, schema, requireConfirmation, onFormSubmit, } = useSchemaContext();
+    const { translate, setValidatedData, setIsError, setIsConfirming, requireConfirmation, onFormSubmit, formButtonLabels, } = useSchemaContext();
     const methods = reactHookForm.useFormContext();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onValid = (data) => {
@@ -7817,11 +7889,11 @@ const SubmitButton = () => {
     };
     return (jsxRuntime.jsx(react.Button, { onClick: () => {
             methods.handleSubmit(onValid)();
-        }, formNoValidate: true, children: translate.t('submit') }));
+        }, formNoValidate: true, children: formButtonLabels?.submit ?? translate.t('submit') }));
 };
 
 const FormBody = () => {
-    const { schema, order, ignore, include, translate, isSuccess, setIsSuccess, isError, setIsError, isSubmiting, setIsSubmiting, isConfirming, setIsConfirming, validatedData, setValidatedData, error, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, onFormSubmit, } = useSchemaContext();
+    const { schema, order, ignore, include, translate, isSuccess, setIsSuccess, isError, setIsError, isSubmiting, setIsSubmiting, isConfirming, setIsConfirming, validatedData, setValidatedData, error, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, onFormSubmit, formButtonLabels, } = useSchemaContext();
     const { showSubmitButton, showResetButton } = displayConfig;
     const methods = reactHookForm.useFormContext();
     const { properties } = schema;
@@ -7851,7 +7923,7 @@ const FormBody = () => {
         if (customSuccessRenderer) {
             return customSuccessRenderer(resetHandler);
         }
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: "2", children: [jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Content, { children: jsxRuntime.jsx(react.Alert.Title, { children: translate.t('submit_success') }) })] }), jsxRuntime.jsx(react.Flex, { justifyContent: 'end', children: jsxRuntime.jsx(react.Button, { onClick: resetHandler, formNoValidate: true, children: translate.t('submit_again') }) })] }));
+        return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: "2", children: [jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Content, { children: jsxRuntime.jsx(react.Alert.Title, { children: translate.t('submit_success') }) })] }), jsxRuntime.jsx(react.Flex, { justifyContent: 'end', children: jsxRuntime.jsx(react.Button, { onClick: resetHandler, formNoValidate: true, children: formButtonLabels?.submitAgain ?? translate.t('submit_again') }) })] }));
     }
     if (isConfirming) {
         return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: 4, gridTemplateColumns: 'repeat(12, 1fr)', gridTemplateRows: 'repeat(12, max-content)', autoFlow: 'row', children: ordered.map((column) => {
@@ -7862,9 +7934,9 @@ const FormBody = () => {
                             properties: properties, prefix: ``, column }, `form-viewer-${column}`));
                     }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: 'end', gap: '2', children: [jsxRuntime.jsx(react.Button, { onClick: () => {
                                 setIsConfirming(false);
-                            }, variant: 'subtle', children: translate.t('cancel') }), jsxRuntime.jsx(react.Button, { onClick: () => {
+                            }, variant: 'subtle', children: formButtonLabels?.cancel ?? translate.t('cancel') }), jsxRuntime.jsx(react.Button, { onClick: () => {
                                 onFormSubmit(validatedData);
-                            }, children: translate.t('confirm') })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && customErrorRenderer && customErrorRenderer(error)] }));
+                            }, children: formButtonLabels?.confirm ?? translate.t('confirm') })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && customErrorRenderer && customErrorRenderer(error)] }));
     }
     return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: ordered.map((column) => {
                     return (jsxRuntime.jsx(ColumnRenderer
@@ -7874,7 +7946,7 @@ const FormBody = () => {
                         properties: properties, prefix: ``, parentRequired: schema.required, column }, `form-input-${column}`));
                 }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: 'end', gap: "2", children: [showResetButton && (jsxRuntime.jsx(react.Button, { onClick: () => {
                             methods.reset();
-                        }, variant: 'subtle', children: translate.t('reset') })), showSubmitButton && jsxRuntime.jsx(SubmitButton, {})] }), isError && customErrorRenderer && customErrorRenderer(error)] }));
+                        }, variant: 'subtle', children: formButtonLabels?.reset ?? translate.t('reset') })), showSubmitButton && jsxRuntime.jsx(SubmitButton, {})] }), isError && customErrorRenderer && customErrorRenderer(error)] }));
 };
 
 const FormTitle = () => {
@@ -8193,7 +8265,6 @@ const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
         return `minmax(${size}px, ${(size / totalWidths) * 100}%)`;
     })
         .join(' ');
-    console.log({ columnWidths }, 'hadfg');
     const cellProps = {
         flex: '1 0 0%',
         overflow: 'auto',
@@ -8210,22 +8281,22 @@ const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
     }
     return (jsxRuntime.jsxs(react.Grid, { templateColumns: `${columnWidths}`, overflow: 'auto', borderWidth: '1px', color: { base: 'colorPalette.900', _dark: 'colorPalette.100' }, borderColor: { base: 'colorPalette.200', _dark: 'colorPalette.800' }, colorPalette, children: [jsxRuntime.jsx(react.Grid, { templateColumns: `${columnWidths}`, column: `1/span ${columns.length}`, bg: { base: 'colorPalette.200', _dark: 'colorPalette.800' }, colorPalette, children: columnHeaders.map((header) => {
                     const columnDef = columnsMap[header];
-                    return (jsxRuntime.jsx(react.Box, { flex: '1 0 0%', paddingX: '2', py: '1', overflow: 'auto', textOverflow: 'ellipsis', children: columnDef?.meta?.displayName ?? header }));
-                }) }), data.map((record) => {
-                return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: columnHeaders.map((header) => {
+                    return (jsxRuntime.jsx(react.Box, { flex: '1 0 0%', paddingX: '2', py: '1', overflow: 'auto', textOverflow: 'ellipsis', children: columnDef?.meta?.displayName ?? header }, `chakra-table-header-${header}`));
+                }) }), data.map((record, recordIndex) => {
+                return (jsxRuntime.jsx(react.Box, { display: "contents", children: columnHeaders.map((header) => {
                         const { cell } = columnsMap[header];
                         const value = record[header];
                         if (!!record === false) {
-                            return (jsxRuntime.jsx(react.Box, { ...cellProps }));
+                            return (jsxRuntime.jsx(react.Box, { ...cellProps }, `chakra-table-cell-${recordIndex}-${header}`));
                         }
                         if (cell) {
-                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: cell({ row: { original: record } }) }));
+                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: cell({ row: { original: record } }) }, `chakra-table-cell-${recordIndex}-${header}`));
                         }
                         if (typeof value === 'object') {
-                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: jsxRuntime.jsx(RecordDisplay, { object: value }) }));
+                            return (jsxRuntime.jsx(react.Box, { ...cellProps, children: jsxRuntime.jsx(RecordDisplay, { object: value }) }, `chakra-table-cell-${recordIndex}-${header}`));
                         }
-                        return jsxRuntime.jsx(react.Box, { ...cellProps, children: value });
-                    }) }));
+                        return (jsxRuntime.jsx(react.Box, { ...cellProps, children: value }, `chakra-table-cell-${recordIndex}-${header}`));
+                    }) }, `chakra-table-record-${recordIndex}`));
             })] }));
 };
 
@@ -8378,19 +8449,19 @@ const DataDisplay = ({ variant = '' }) => {
                             return cell.id === `${rowId}_${column.id}`;
                         });
                         if (column.columns.length > 0) {
-                            return (jsxRuntime.jsxs(react.Card.Root, { margin: '1', gridColumn: 'span 12', children: [jsxRuntime.jsx(react.Card.Header, { color: 'gray.400', children: column.columnDef.meta?.displayName ?? column.id }), jsxRuntime.jsx(react.Card.Body, { display: 'grid', gap: '4', gridTemplateColumns: 'repeat(12, 1fr)', children: column.columns.map((column) => {
-                                            if (!column.getIsVisible()) {
-                                                return jsxRuntime.jsx(jsxRuntime.Fragment, {});
+                            return (jsxRuntime.jsxs(react.Card.Root, { margin: '1', gridColumn: 'span 12', children: [jsxRuntime.jsx(react.Card.Header, { color: 'gray.400', children: column.columnDef.meta?.displayName ?? column.id }), jsxRuntime.jsx(react.Card.Body, { display: 'grid', gap: '4', gridTemplateColumns: 'repeat(12, 1fr)', children: column.columns.map((subColumn) => {
+                                            if (!subColumn.getIsVisible()) {
+                                                return null;
                                             }
                                             const foundCell = row
                                                 .getVisibleCells()
                                                 .find((cell) => {
-                                                return cell.id === `${rowId}_${column.id}`;
+                                                return cell.id === `${rowId}_${subColumn.id}`;
                                             });
-                                            return jsxRuntime.jsx(CellRenderer, { cell: foundCell });
-                                        }) })] }, `chakra-table-card-${childCell?.id}`));
+                                            return (jsxRuntime.jsx(CellRenderer, { cell: foundCell }, `chakra-table-cell-${rowId}-${subColumn.id}`));
+                                        }) })] }, `chakra-table-card-${rowId}-${column.id}`));
                         }
-                        return jsxRuntime.jsx(CellRenderer, { cell: childCell });
+                        return (jsxRuntime.jsx(CellRenderer, { cell: childCell }, `chakra-table-cell-${rowId}-${column.id}`));
                     }) }) }, `chakra-table-card-${rowId}`));
         }) }));
 };
@@ -8735,6 +8806,7 @@ exports.buildFieldErrors = buildFieldErrors;
 exports.buildRequiredErrors = buildRequiredErrors;
 exports.convertToAjvErrorsFormat = convertToAjvErrorsFormat;
 exports.createErrorMessage = createErrorMessage;
+exports.defaultRenderDisplay = defaultRenderDisplay;
 exports.getColumns = getColumns;
 exports.getMultiDates = getMultiDates;
 exports.getRangeDates = getRangeDates;

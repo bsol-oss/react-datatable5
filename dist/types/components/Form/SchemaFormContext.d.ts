@@ -3,7 +3,7 @@ import { JSONSchema7 } from 'json-schema';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 import { FieldValues, Resolver } from 'react-hook-form';
 import { UseTranslationResponse } from 'react-i18next';
-import { DateTimePickerLabels, IdPickerLabels, EnumPickerLabels, FilePickerLabels } from './components/types/CustomJSONSchema7';
+import { DateTimePickerLabels, IdPickerLabels, EnumPickerLabels, FilePickerLabels, FormButtonLabels } from './components/types/CustomJSONSchema7';
 export interface SchemaFormContext<TData extends FieldValues> {
     schema: JSONSchema7;
     serverUrl: string;
@@ -44,6 +44,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
     idPickerLabels?: IdPickerLabels;
     enumPickerLabels?: EnumPickerLabels;
     filePickerLabels?: FilePickerLabels;
+    formButtonLabels?: FormButtonLabels;
     ajvResolver: Resolver<FieldValues>;
     insideDialog?: boolean;
 }

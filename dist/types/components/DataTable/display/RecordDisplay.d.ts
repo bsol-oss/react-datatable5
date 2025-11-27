@@ -1,5 +1,5 @@
-import { BoxProps } from "@chakra-ui/react";
-import { UseTranslationResponse } from "react-i18next";
+import { BoxProps } from '@chakra-ui/react';
+import { UseTranslationResponse } from 'react-i18next';
 export interface RecordDisplayProps {
     object: object | null;
     boxProps?: BoxProps;
