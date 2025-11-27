@@ -78,7 +78,12 @@ export const TextWithCopy = ({
       <Text as="span">{displayText}</Text>
       <Clipboard.Root value={textValue}>
         <Clipboard.Trigger asChild>
-          <IconButton size="xs" variant="ghost" aria-label="Copy">
+          <IconButton
+            size="xs"
+            variant="ghost"
+            aria-label="Copy"
+            fontSize="1em"
+          >
             <Clipboard.Indicator copied={<LuCheck />}>
               <LuCopy />
             </Clipboard.Indicator>
