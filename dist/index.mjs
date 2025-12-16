@@ -3100,7 +3100,7 @@ const Table = ({ children, emptyComponent = EmptyResult, canResize = true, showL
     if (!showLoading && table.getRowModel().rows.length <= 0) {
         return emptyComponent;
     }
-    return (jsx(Box, { ref: containerRef, width: "100%", overflow: "auto", children: jsx(Table$1.Root, { stickyHeader: true, variant: 'outline', width: canResize ? table.getCenterTotalSize() : undefined, display: 'grid', alignContent: 'start', overflowY: 'auto', bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, ...props, children: children }) }));
+    return (jsx(Box, { ref: containerRef, width: "100%", overflow: "auto", children: jsx(Table$1.Root, { stickyHeader: true, variant: 'outline', width: canResize ? table.getCenterTotalSize() : undefined, display: 'grid', alignContent: 'start', bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, ...props, children: children }) }));
 };
 
 const Checkbox = React.forwardRef(function Checkbox(props, ref) {
