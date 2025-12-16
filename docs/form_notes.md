@@ -146,7 +146,7 @@ Supported variants in `string`: `id-picker`, `date_picker`
 
 For string input variant `id-picker`, it will generate a selector that can pop up a search to help the selection. After the user select a options, the input will show the selected record, and save its correspond string value in the form object.
 
-You MUST include the keyword `foreign_key` and a object with keys `display_column`, `table`, `column`. The `display_column` key is the column that show the label for that value to user, and `column` key is the column that its value should set in this input.
+You MUST include the keyword `foreign_key` and a object with keys `table` and `column`. The `column` key is the column that its value should set in this input. Use `renderDisplay` to customize how items are displayed, or the component will use `defaultRenderDisplay` which stringifies the item.
 
 You MUST include a `/api/g` api that could accept the following request in order to search for a record.
 
@@ -179,7 +179,6 @@ const eventsFilesSchema = {
       type: 'string',
       variant: 'id-picker',
       foreign_key: {
-        display_column: 'event_name',
         table: 'core_events',
         column: 'id',
       },

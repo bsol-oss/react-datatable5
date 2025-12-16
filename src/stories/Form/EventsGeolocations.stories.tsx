@@ -304,7 +304,6 @@ const eventsGeolocationsSchema = {
           gridRow: '2/span 1',
           variant: 'id-picker',
           foreign_key: {
-            display_column: 'name',
             table: 'core_activities',
             column: 'id',
           },
@@ -430,7 +429,6 @@ const eventsGeolocationsSchema = {
             gridRow: '2/span 1',
             variant: 'id-picker',
             foreign_key: {
-              display_column: 'name',
               table: 'core_activities',
               column: 'id',
             },
@@ -554,7 +552,6 @@ const eventsGeolocationsSchema = {
                   gridRow: '2/span 1',
                   variant: 'id-picker',
                   foreign_key: {
-                    display_column: 'event_name',
                     table: 'core_events',
                     column: 'id',
                   },
@@ -590,7 +587,6 @@ const eventsGeolocationsSchema = {
       },
       variant: 'id-picker',
       foreign_key: {
-        display_column: 'name',
         table: 'core_activities',
         column: 'id',
       },

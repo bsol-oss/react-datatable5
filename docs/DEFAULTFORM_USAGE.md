@@ -222,8 +222,7 @@ The `DefaultForm` component supports all JSON Schema Draft 7 types with addition
   },
   "foreign_key": {
     "table": "users",
-    "column": "id",
-    "display_column": "name"
+    "column": "id"
   }
 }
 ```
@@ -281,8 +280,7 @@ The `DefaultForm` component supports all JSON Schema Draft 7 types with addition
   "variant": "id-picker",
   "foreign_key": {
     "table": "users",
-    "column": "id",
-    "display_column": "name"
+    "column": "id"
   }
 }
 ```
@@ -485,7 +483,6 @@ const IdPickerForm = () => {
         foreign_key: {
           table: 'users',
           column: 'id',
-          display_column: 'name',
         },
       },
       team_members: {
@@ -497,7 +494,6 @@ const IdPickerForm = () => {
         foreign_key: {
           table: 'users',
           column: 'id',
-          display_column: 'name',
         },
       },
     },

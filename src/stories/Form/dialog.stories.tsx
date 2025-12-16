@@ -79,7 +79,6 @@ const SomeForm = () => {
         type: 'string',
         variant: 'id-picker',
         foreign_key: {
-          display_column: 'name',
           table: 'core_geolocations',
           column: 'id',
         },

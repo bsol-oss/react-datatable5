@@ -248,7 +248,6 @@ const IdPickerInitialValuesForm = () => {
         type: 'string',
         variant: 'id-picker',
         foreign_key: {
-          display_column: 'name',
           table: 'employees',
           column: 'id',
           customQueryFn: customEmployeeQueryFn,
@@ -263,7 +262,6 @@ const IdPickerInitialValuesForm = () => {
           type: 'string',
         },
         foreign_key: {
-          display_column: 'name',
           table: 'employees',
           column: 'id',
           customQueryFn: customEmployeeQueryFn,

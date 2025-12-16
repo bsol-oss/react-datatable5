@@ -236,7 +236,6 @@ const IdPickerForm = () => {
         type: 'string',
         variant: 'id-picker',
         foreign_key: {
-          display_column: 'name',
           table: 'users',
           column: 'id',
           customQueryFn: customUserQueryFn,
@@ -251,7 +250,6 @@ const IdPickerForm = () => {
           type: 'string',
         },
         foreign_key: {
-          display_column: 'name',
           table: 'users',
           column: 'id',
           customQueryFn: customUserQueryFn,

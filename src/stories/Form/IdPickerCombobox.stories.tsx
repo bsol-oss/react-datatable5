@@ -268,7 +268,6 @@ const IdPickerComboboxForm = () => {
         type: 'string',
         variant: 'id-picker',
         foreign_key: {
-          display_column: 'name',
           table: 'users',
           column: 'id',
           customQueryFn: jsonPlaceholderUserQueryFn,
@@ -283,7 +282,6 @@ const IdPickerComboboxForm = () => {
           type: 'string',
         },
         foreign_key: {
-          display_column: 'name',
           table: 'users',
           column: 'id',
           customQueryFn: jsonPlaceholderUserQueryFn,
@@ -562,7 +560,6 @@ const IdPickerComboboxForm = () => {
   "type": "string",        // or "array" for multiple
   "variant": "id-picker",
   "foreign_key": {
-    "display_column": "name",
     "table": "users",
     "column": "id",
     "customQueryFn": jsonPlaceholderUserQueryFn

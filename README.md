@@ -297,6 +297,23 @@ All validation types are fully supported across all languages with culturally ap
 
 For more details of props and examples, please review the stories in storybook platform.
 
+## Documentation
+
+Additional documentation is available in the `docs/` directory:
+
+### General Guides
+
+- **[DataTable Server Usage](./docs/DATATABLE_SERVER_USAGE.md)** - Server-side DataTable integration guide
+- **[DefaultForm Usage](./docs/DEFAULTFORM_USAGE.md)** - Comprehensive form component guide
+- **[Validation & i18n](./docs/VALIDATION_I18N.md)** - Validation and internationalization setup
+- **[Deployment Guide](./docs/deployment.md)** - Deployment instructions
+
+### IdPicker Customization
+
+- **[IdPicker Quick Reference](./docs/IDPICKER_QUICK_REFERENCE.md)** - ⚡ Quick guide to IdPicker customization
+- **[IdPicker Custom Display](./docs/IDPICKER_CUSTOM_DISPLAY.md)** - Customize how items appear in the combobox
+- **[IdPicker Labels](./docs/IDPICKER_LABELS.md)** - Customize UI labels (buttons, placeholders, messages)
+
 ## Development
 
 ```

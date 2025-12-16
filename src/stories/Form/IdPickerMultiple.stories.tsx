@@ -445,7 +445,6 @@ const IdPickerMultipleForm = () => {
           type: 'string',
         },
         foreign_key: {
-          display_column: 'name',
           table: 'team_members',
           column: 'id',
           customQueryFn: customTeamMemberQueryFn,
@@ -460,7 +459,6 @@ const IdPickerMultipleForm = () => {
           type: 'string',
         },
         foreign_key: {
-          display_column: 'name',
           table: 'team_members',
           column: 'id',
           customQueryFn: customTeamMemberQueryFn,
@@ -475,7 +473,6 @@ const IdPickerMultipleForm = () => {
           type: 'string',
         },
         foreign_key: {
-          display_column: 'name',
           table: 'team_members',
           column: 'id',
           customQueryFn: customTeamMemberQueryFn,
@@ -490,7 +487,6 @@ const IdPickerMultipleForm = () => {
           type: 'string',
         },
         foreign_key: {
-          display_column: 'name',
           table: 'team_members',
           column: 'id',
           customQueryFn: customTeamMemberQueryFn,
@@ -649,7 +645,6 @@ const IdPickerMultipleForm = () => {
         "type": "string"
       },
       "foreign_key": {
-        "display_column": "name",
         "table": "team_members",
         "column": "id",
         "customQueryFn": customQueryFn
@@ -711,7 +706,7 @@ const IdPickerMultipleForm = () => {
                     Used in both dropdown options and selected tags
                   </List.Item>
                   <List.Item>
-                    Falls back to <Code>display_column</Code> if not provided
+                    Uses <Code>defaultRenderDisplay</Code> if not provided
                   </List.Item>
                 </List.Root>
               </Alert.Description>
@@ -902,7 +897,6 @@ const IdPickerMultipleForm = () => {
                       type: 'string',
                     },
                     foreign_key: {
-                      display_column: 'name',
                       table: 'team_members',
                       column: 'id',
                       customQueryFn: customTeamMemberQueryFn,

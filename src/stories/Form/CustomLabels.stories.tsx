@@ -206,7 +206,6 @@ const IdPickerForm = () => {
         foreign_key: {
           table: 'categories',
           column: 'id',
-          display_column: 'name',
         },
       },
       tags: {
@@ -216,7 +215,6 @@ const IdPickerForm = () => {
         foreign_key: {
           table: 'tags',
           column: 'id',
-          display_column: 'name',
         },
       },
     },
@@ -270,7 +268,6 @@ const CombinedForm = () => {
         foreign_key: {
           table: 'users',
           column: 'id',
-          display_column: 'name',
         },
       },
       categories: {
@@ -280,7 +277,6 @@ const CombinedForm = () => {
         foreign_key: {
           table: 'categories',
           column: 'id',
-          display_column: 'name',
         },
       },
     },
