@@ -108,7 +108,7 @@ declare const ViewDialog: ({ icon }: EditViewButtonProps) => react_jsx_runtime.J
 interface ReloadButtonProps {
     variant?: string;
 }
-declare const ReloadButton: ({ variant, }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
+declare const ReloadButton: ({ variant }: ReloadButtonProps) => react_jsx_runtime.JSX.Element;
 
 declare const GlobalFilter: () => react_jsx_runtime.JSX.Element;
 

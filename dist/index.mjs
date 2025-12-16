@@ -2828,23 +2828,28 @@ const DataTableServerContext = createContext({
 const useDataTableServerContext = () => {
     const context = useContext(DataTableServerContext);
     const { query } = context;
-    const isEmpty = (query.data?.count ?? 0) <= 0;
+    const isEmpty = query ? (query.data?.count ?? 0) <= 0 : false;
     return { ...context, isEmpty };
 };
 
-const ReloadButton = ({ variant = "icon", }) => {
-    const { url } = useDataTableServerContext();
+const ReloadButton = ({ variant = 'icon' }) => {
+    const serverContext = useDataTableServerContext();
+    const { url, query } = serverContext;
     const queryClient = useQueryClient();
     const { tableLabel } = useDataTableContext();
     const { reloadTooltip, reloadButtonText } = tableLabel;
-    if (variant === "icon") {
-        return (jsx(Tooltip, { showArrow: true, content: reloadTooltip, children: jsx(Button, { variant: "ghost", onClick: () => {
-                    queryClient.invalidateQueries({ queryKey: [url] });
-                }, "aria-label": "refresh", children: jsx(IoReload, {}) }) }));
-    }
-    return (jsxs(Button, { variant: "ghost", onClick: () => {
+    const handleReload = () => {
+        // Only invalidate queries for server-side tables (when query exists)
+        if (query && url) {
             queryClient.invalidateQueries({ queryKey: [url] });
-        }, children: [jsx(IoReload, {}), " ", reloadButtonText] }));
+        }
+        // For client-side tables, reload button doesn't need to do anything
+        // as the data is already in memory
+    };
+    if (variant === 'icon') {
+        return (jsx(Tooltip, { showArrow: true, content: reloadTooltip, children: jsx(Button, { variant: 'ghost', onClick: handleReload, "aria-label": 'refresh', children: jsx(IoReload, {}) }) }));
+    }
+    return (jsxs(Button, { variant: 'ghost', onClick: handleReload, children: [jsx(IoReload, {}), " ", reloadButtonText] }));
 };
 
 const InputGroup = React.forwardRef(function InputGroup(props, ref) {
@@ -5482,6 +5487,69 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         }, 300);
         return () => clearTimeout(timer);
     }, [searchText]);
+    // Find IDs that are in currentValue but missing from idMap
+    const missingIds = useMemo(() => {
+        return currentValue.filter((id) => !idMap[id]);
+    }, [currentValue, idMap]);
+    // Stable key for query based on sorted missing IDs
+    const missingIdsKey = useMemo(() => {
+        return JSON.stringify([...missingIds].sort());
+    }, [missingIds]);
+    // Query to fetch initial values that are missing from idMap
+    // This query runs automatically when missingIds.length > 0 and updates idMap
+    const initialValuesQuery = useQuery({
+        queryKey: [`idpicker-initial`, column, missingIdsKey],
+        queryFn: async () => {
+            if (missingIds.length === 0) {
+                return { data: [], count: 0 };
+            }
+            if (customQueryFn) {
+                const { data, idMap } = await customQueryFn({
+                    searching: '',
+                    limit: missingIds.length,
+                    offset: 0,
+                    where: [
+                        {
+                            id: column_ref,
+                            value: missingIds.length === 1 ? missingIds[0] : missingIds,
+                        },
+                    ],
+                });
+                setIdMap((state) => {
+                    return { ...state, ...idMap };
+                });
+                return data;
+            }
+            const data = await getTableData({
+                serverUrl,
+                searching: '',
+                in_table: table,
+                limit: missingIds.length,
+                offset: 0,
+                where: [
+                    {
+                        id: column_ref,
+                        value: missingIds.length === 1 ? missingIds[0] : missingIds,
+                    },
+                ],
+            });
+            const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
+                return [
+                    item[column_ref],
+                    {
+                        ...item,
+                    },
+                ];
+            }));
+            setIdMap((state) => {
+                return { ...state, ...newMap };
+            });
+            return data;
+        },
+        enabled: missingIds.length > 0, // Only fetch if there are missing IDs
+        staleTime: 300000,
+    });
+    const { isLoading: isLoadingInitialValues, isFetching: isFetchingInitialValues, } = initialValuesQuery;
     // Query for search results (async loading)
     const query = useQuery({
         queryKey: [`idpicker`, { column, searchText: debouncedSearchText, limit }],
@@ -5524,12 +5592,35 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
     const dataList = data?.data ?? [];
     // Check if we're currently searching (user typed but debounce hasn't fired yet)
     const isSearching = searchText !== debouncedSearchText;
+    // Extract items from idMap for currentValue IDs
+    // Use useMemo with a stable dependency to minimize recalculations
+    const currentValueKey = useMemo(() => JSON.stringify([...currentValue].sort()), [currentValue]);
+    // Serialize the relevant part of idMap to detect when items we care about change
+    const idMapKey = useMemo(() => {
+        const relevantItems = currentValue
+            .map((id) => {
+            const item = idMap[id];
+            return item ? JSON.stringify({ id, hasItem: true }) : null;
+        })
+            .filter(Boolean)
+            .sort()
+            .join('|');
+        return relevantItems;
+    }, [currentValue, idMap]);
+    const idMapItems = useMemo(() => {
+        return currentValue
+            .map((id) => idMap[id])
+            .filter((item) => item !== undefined);
+        // Depend on idMapKey which only changes when items we care about change
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentValueKey, idMapKey]);
     // Transform data for combobox collection
     // label is used for filtering/searching (must be a string)
     // raw item is stored for custom rendering
+    // Also include items from idMap that match currentValue (for initial values display)
     const comboboxItems = useMemo(() => {
         const renderFn = renderDisplay || defaultRenderDisplay;
-        return dataList.map((item) => {
+        const itemsFromDataList = dataList.map((item) => {
             const rendered = renderFn(item);
             return {
                 label: typeof rendered === 'string' ? rendered : JSON.stringify(item), // Use string for filtering
@@ -5537,7 +5628,24 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                 raw: item,
             };
         });
-    }, [dataList, column_ref, renderDisplay]);
+        // Add items from idMap that match currentValue but aren't in dataList
+        // This ensures initial values are displayed correctly in the combobox
+        const itemsFromIdMap = idMapItems
+            .map((item) => {
+            // Check if this item is already in itemsFromDataList
+            const alreadyIncluded = itemsFromDataList.some((i) => i.value === String(item[column_ref]));
+            if (alreadyIncluded)
+                return null;
+            const rendered = renderFn(item);
+            return {
+                label: typeof rendered === 'string' ? rendered : JSON.stringify(item),
+                value: String(item[column_ref]),
+                raw: item,
+            };
+        })
+            .filter((item) => item !== null);
+        return [...itemsFromIdMap, ...itemsFromDataList];
+    }, [dataList, column_ref, renderDisplay, idMapItems]);
     // Use filter hook for combobox
     const { contains } = useFilter({ sensitivity: 'base' });
     // Create collection for combobox
@@ -5561,22 +5669,45 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
             setValue(colLabel, details.value[0] || '');
         }
     };
+    // Track previous comboboxItems to avoid unnecessary updates
+    const prevComboboxItemsRef = useRef('');
+    const prevSearchTextRef = useRef('');
     // Update collection and filter when data changes
+    // This includes both search results and initial values from idMap
     useEffect(() => {
-        if (dataList.length > 0 && comboboxItems.length > 0) {
+        // Create a stable string representation to compare (only value and label, not raw)
+        const currentItemsKey = JSON.stringify(comboboxItems.map((item) => ({ value: item.value, label: item.label })));
+        const itemsChanged = prevComboboxItemsRef.current !== currentItemsKey;
+        const searchChanged = prevSearchTextRef.current !== searchText;
+        // Only update if items or search actually changed
+        if (!itemsChanged && !searchChanged) {
+            return;
+        }
+        if (comboboxItems.length > 0 && itemsChanged) {
             set(comboboxItems);
-            // Apply filter to the collection using the immediate searchText for UI responsiveness
+            prevComboboxItemsRef.current = currentItemsKey;
+        }
+        // Apply filter to the collection using the immediate searchText for UI responsiveness
+        if (searchChanged) {
             if (searchText) {
                 filter(searchText);
             }
+            prevSearchTextRef.current = searchText;
         }
-        // Only depend on dataList and searchText, not comboboxItems (which is derived from dataList)
         // set and filter are stable functions from useListCollection
+        // comboboxItems and searchText are the only dependencies we care about
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dataList, searchText]);
+    }, [comboboxItems, searchText]);
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [isMultiple && currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((id) => {
                     const item = idMap[id];
+                    // Show loading skeleton while fetching initial values
+                    if (item === undefined &&
+                        (isLoadingInitialValues || isFetchingInitialValues) &&
+                        missingIds.includes(id)) {
+                        return (jsx(Skeleton, { height: "24px", width: "100px", borderRadius: "md" }, id));
+                    }
+                    // Only show "not found" if we're not loading and item is still missing
                     if (item === undefined) {
                         return (jsx(Text, { fontSize: "sm", children: idPickerLabels?.undefined ?? formI18n.t('undefined') }, id));
                     }

@@ -1,4 +1,4 @@
-import { DataTableServerContext } from "./DataTableServerContext";
+import { DataTableServerContext } from './DataTableServerContext';
 export interface UseDataTableServerContext extends DataTableServerContext {
     isEmpty: boolean;
 }
