@@ -7,6 +7,7 @@ import { TableHeader, TableHeaderProps } from './display/TableHeader';
 
 export interface DefaultTableProps {
   showFooter?: boolean;
+  showHeader?: boolean;
   tableProps?: Omit<TableProps, 'children'>;
   tableHeaderProps?: TableHeaderProps;
   tableBodyProps?: TableBodyProps;
@@ -18,61 +19,32 @@ export interface DefaultTableProps {
 
 export const DefaultTable = ({
   showFooter = false,
+  showHeader = true,
   tableProps = {},
   tableHeaderProps = {},
   tableBodyProps = {},
   tableFooterProps = {},
   controlProps = {},
-  variant = '',
+  variant = 'greedy',
   isLoading = false,
 }: DefaultTableProps) => {
-  if (variant === 'greedy') {
-    const bodyComponent = isLoading ? (
-      <TableBodySkeleton
-        showSelector={tableBodyProps.showSelector}
-        {...{ canResize: false }}
-      />
-    ) : (
-      <TableBody
-        {...tableBodyProps}
-        {...{ canResize: false, ...tableBodyProps }}
-      />
-    );
-    return (
-      <TableControls {...controlProps}>
-        <Table
-          {...{
-            canResize: false,
-            showLoading: isLoading,
-            showSelector:
-              tableHeaderProps.showSelector ??
-              tableBodyProps.showSelector ??
-              false,
-            ...tableProps,
-          }}
-        >
-          <TableHeader {...{ canResize: false, ...tableHeaderProps }} />
-          {bodyComponent}
-          {showFooter && (
-            <TableFooter {...{ canResize: false, ...tableFooterProps }} />
-          )}
-        </Table>
-      </TableControls>
-    );
-  }
+  const isGreedy = variant === 'greedy';
+  const canResize = !isGreedy;
 
   const bodyComponent = isLoading ? (
     <TableBodySkeleton
       showSelector={tableBodyProps.showSelector}
-      canResize={tableBodyProps.canResize}
+      canResize={canResize}
     />
   ) : (
-    <TableBody {...tableBodyProps} />
+    <TableBody {...tableBodyProps} canResize={canResize} />
   );
+
   return (
     <TableControls {...controlProps}>
       <Table
         {...{
+          canResize,
           showLoading: isLoading,
           showSelector:
             tableHeaderProps.showSelector ??
@@ -81,9 +53,9 @@ export const DefaultTable = ({
           ...tableProps,
         }}
       >
-        <TableHeader {...tableHeaderProps} />
+        {showHeader && <TableHeader {...{ canResize, ...tableHeaderProps }} />}
         {bodyComponent}
-        {showFooter && <TableFooter {...tableFooterProps} />}
+        {showFooter && <TableFooter {...{ canResize, ...tableFooterProps }} />}
       </Table>
     </TableControls>
   );

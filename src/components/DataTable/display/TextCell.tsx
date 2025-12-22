@@ -23,6 +23,7 @@ interface RenderValueProps {
   badgeColor?: string;
   colorPalette?: string;
   globalFilter?: string;
+  alignEnd?: boolean;
 }
 
 // Helper function to highlight matching text
@@ -88,6 +89,7 @@ const RenderValue = ({
   badgeColor,
   colorPalette,
   globalFilter,
+  alignEnd = false,
 }: RenderValueProps) => {
   const highlightedText = useMemo(
     () => highlightText(text ?? '', globalFilter),
@@ -107,7 +109,7 @@ const RenderValue = ({
         as="button"
         onClick={onClick}
         cursor="pointer"
-        textAlign="left"
+        textAlign={alignEnd ? 'right' : 'left'}
         _hover={{
           textDecoration: 'underline',
           color: {
@@ -157,6 +159,7 @@ export interface TextCellProps {
   onClick?: () => void;
   isCopyable?: boolean;
   isBadge?: boolean;
+  alignEnd?: boolean;
   badgeColor?:
     | 'gray'
     | 'red'
@@ -195,6 +198,7 @@ export const TextCell = ({
   isBadge,
   badgeColor,
   colorPalette,
+  alignEnd = false,
   // Legacy props
   label,
   containerProps = {},
@@ -217,9 +221,17 @@ export const TextCell = ({
         ? highlightText(displayText, globalFilter)
         : displayText;
 
+    const flexJustifyContent = alignEnd ? 'flex-end' : undefined;
+    const textAlign = alignEnd ? 'right' : undefined;
+
     if (label) {
       return (
-        <Flex alignItems={'center'} height={'100%'} {...containerProps}>
+        <Flex
+          alignItems={'center'}
+          justifyContent={flexJustifyContent}
+          height={'100%'}
+          {...containerProps}
+        >
           <Tooltip
             content={
               <Text as="span" overflow="hidden" textOverflow={'ellipsis'}>
@@ -232,6 +244,7 @@ export const TextCell = ({
               overflow="hidden"
               textOverflow={'ellipsis'}
               wordBreak={'break-all'}
+              textAlign={textAlign}
               {...textProps}
             >
               {highlightedDisplayText}
@@ -241,12 +254,18 @@ export const TextCell = ({
       );
     }
     return (
-      <Flex alignItems={'center'} height={'100%'} {...containerProps}>
+      <Flex
+        alignItems={'center'}
+        justifyContent={flexJustifyContent}
+        height={'100%'}
+        {...containerProps}
+      >
         <Text
           as="span"
           overflow="hidden"
           textOverflow={'ellipsis'}
           wordBreak={'break-all'}
+          textAlign={textAlign}
           {...textProps}
         >
           {highlightedDisplayText}
@@ -260,7 +279,11 @@ export const TextCell = ({
 
   if (Array.isArray(displayValue)) {
     return (
-      <Flex gap={2} flexWrap="wrap">
+      <Flex
+        gap={2}
+        flexWrap="wrap"
+        justifyContent={alignEnd ? 'flex-end' : undefined}
+      >
         {displayValue.map((item, index) => {
           const highlightedItem = highlightText(item, globalFilter);
           return (
@@ -282,7 +305,9 @@ export const TextCell = ({
         wordBreak="break-all"
         display="flex"
         alignItems="center"
+        justifyContent={alignEnd ? 'flex-end' : undefined}
         height="100%"
+        textAlign={alignEnd ? 'right' : undefined}
       >
         -
       </Text>
@@ -297,7 +322,9 @@ export const TextCell = ({
       overflow="auto"
       display="flex"
       alignItems="center"
+      justifyContent={alignEnd ? 'flex-end' : undefined}
       height="100%"
+      textAlign={alignEnd ? 'right' : undefined}
     >
       <RenderValue
         text={displayValue}
@@ -308,6 +335,7 @@ export const TextCell = ({
         badgeColor={badgeColor}
         colorPalette={colorPalette}
         globalFilter={globalFilter}
+        alignEnd={alignEnd}
       />
     </Box>
   );

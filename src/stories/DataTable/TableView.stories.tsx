@@ -5,6 +5,7 @@ import DefaultTableShowcase from './DefaultTableShowcase';
 import DefaultTableShowcase2 from './DefaultTableShowcase2';
 import MinimalShowcase from './MinimalShowcase';
 import MinimalShowcase2 from './MinimalShowcase2';
+import ShowHeaderShowcase from './ShowHeaderShowcase';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -51,5 +52,11 @@ export const Minimal = {
 export const Minimal2 = {
   render: () => {
     return <MinimalShowcase2 />;
+  },
+};
+
+export const ShowHeader = {
+  render: () => {
+    return <ShowHeaderShowcase />;
   },
 };
