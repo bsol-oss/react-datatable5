@@ -3494,14 +3494,14 @@ const highlightText = (text, searchTerm) => {
     }
     return parts.length > 0 ? jsx(Fragment, { children: parts }) : textStr;
 };
-const RenderValue = ({ text, href, onClick, isCopyable, isBadge, badgeColor, colorPalette, globalFilter, }) => {
+const RenderValue = ({ text, href, onClick, isCopyable, isBadge, badgeColor, colorPalette, globalFilter, alignEnd = false, }) => {
     const highlightedText = useMemo(() => highlightText(text ?? '', globalFilter), [text, globalFilter]);
     if (isBadge) {
         return (jsx(Badge, { colorPalette: colorPalette || badgeColor, children: highlightedText }));
     }
     // onClick takes precedence over href
     if (onClick) {
-        return (jsx(Box, { as: "button", onClick: onClick, cursor: "pointer", textAlign: "left", _hover: {
+        return (jsx(Box, { as: "button", onClick: onClick, cursor: "pointer", textAlign: alignEnd ? 'right' : 'left', _hover: {
                 textDecoration: 'underline',
                 color: {
                     base: 'blue.500',
@@ -3519,7 +3519,7 @@ const RenderValue = ({ text, href, onClick, isCopyable, isBadge, badgeColor, col
     }
     return jsx(Fragment, { children: highlightedText });
 };
-const TextCell = ({ text, href, onClick, isCopyable, isBadge, badgeColor, colorPalette, 
+const TextCell = ({ text, href, onClick, isCopyable, isBadge, badgeColor, colorPalette, alignEnd = false, 
 // Legacy props
 label, containerProps = {}, textProps = {}, children, }) => {
     // Get globalFilter from context
@@ -3533,23 +3533,25 @@ label, containerProps = {}, textProps = {}, children, }) => {
         const highlightedDisplayText = typeof displayText === 'string' || typeof displayText === 'number'
             ? highlightText(displayText, globalFilter)
             : displayText;
+        const flexJustifyContent = alignEnd ? 'flex-end' : undefined;
+        const textAlign = alignEnd ? 'right' : undefined;
         if (label) {
-            return (jsx(Flex, { alignItems: 'center', height: '100%', ...containerProps, children: jsx(Tooltip, { content: jsx(Text, { as: "span", overflow: "hidden", textOverflow: 'ellipsis', children: label }), children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: 'ellipsis', wordBreak: 'break-all', ...textProps, children: highlightedDisplayText }) }) }));
+            return (jsx(Flex, { alignItems: 'center', justifyContent: flexJustifyContent, height: '100%', ...containerProps, children: jsx(Tooltip, { content: jsx(Text, { as: "span", overflow: "hidden", textOverflow: 'ellipsis', children: label }), children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: 'ellipsis', wordBreak: 'break-all', textAlign: textAlign, ...textProps, children: highlightedDisplayText }) }) }));
         }
-        return (jsx(Flex, { alignItems: 'center', height: '100%', ...containerProps, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: 'ellipsis', wordBreak: 'break-all', ...textProps, children: highlightedDisplayText }) }));
+        return (jsx(Flex, { alignItems: 'center', justifyContent: flexJustifyContent, height: '100%', ...containerProps, children: jsx(Text, { as: "span", overflow: "hidden", textOverflow: 'ellipsis', wordBreak: 'break-all', textAlign: textAlign, ...textProps, children: highlightedDisplayText }) }));
     }
     // New API: use text prop
     const displayValue = text ?? children;
     if (Array.isArray(displayValue)) {
-        return (jsx(Flex, { gap: 2, flexWrap: "wrap", children: displayValue.map((item, index) => {
+        return (jsx(Flex, { gap: 2, flexWrap: "wrap", justifyContent: alignEnd ? 'flex-end' : undefined, children: displayValue.map((item, index) => {
                 const highlightedItem = highlightText(item, globalFilter);
                 return (jsx(Badge, { colorPalette: colorPalette || badgeColor, children: highlightedItem }, index));
             }) }));
     }
     if (!!displayValue === false) {
-        return (jsx(Text, { textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden", wordBreak: "break-all", display: "flex", alignItems: "center", height: "100%", children: "-" }));
+        return (jsx(Text, { textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden", wordBreak: "break-all", display: "flex", alignItems: "center", justifyContent: alignEnd ? 'flex-end' : undefined, height: "100%", textAlign: alignEnd ? 'right' : undefined, children: "-" }));
     }
-    return (jsx(Box, { textOverflow: "ellipsis", whiteSpace: "nowrap", wordBreak: "break-all", overflow: "auto", display: "flex", alignItems: "center", height: "100%", children: jsx(RenderValue, { text: displayValue, href: href, onClick: onClick, isCopyable: isCopyable, isBadge: isBadge, badgeColor: badgeColor, colorPalette: colorPalette, globalFilter: globalFilter }) }));
+    return (jsx(Box, { textOverflow: "ellipsis", whiteSpace: "nowrap", wordBreak: "break-all", overflow: "auto", display: "flex", alignItems: "center", justifyContent: alignEnd ? 'flex-end' : undefined, height: "100%", textAlign: alignEnd ? 'right' : undefined, children: jsx(RenderValue, { text: displayValue, href: href, onClick: onClick, isCopyable: isCopyable, isBadge: isBadge, badgeColor: badgeColor, colorPalette: colorPalette, globalFilter: globalFilter, alignEnd: alignEnd }) }));
 };
 
 const Tag = React.forwardRef(function Tag(props, ref) {
@@ -8464,22 +8466,16 @@ const TableRowSelectorSkeleton = () => {
         bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, justifyItems: 'center', alignItems: 'center', children: jsx(Skeleton, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }));
 };
 
-const DefaultTable = ({ showFooter = false, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = '', isLoading = false, }) => {
-    if (variant === 'greedy') {
-        const bodyComponent = isLoading ? (jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: false })) : (jsx(TableBody, { ...tableBodyProps, canResize: false, ...tableBodyProps }));
-        return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { canResize: false,
-                showLoading: isLoading,
-                showSelector: tableHeaderProps.showSelector ??
-                    tableBodyProps.showSelector ??
-                    false,
-                ...tableProps, children: [jsx(TableHeader, { canResize: false, ...tableHeaderProps }), bodyComponent, showFooter && (jsx(TableFooter, { canResize: false, ...tableFooterProps }))] }) }));
-    }
-    const bodyComponent = isLoading ? (jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: tableBodyProps.canResize })) : (jsx(TableBody, { ...tableBodyProps }));
-    return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { showLoading: isLoading,
+const DefaultTable = ({ showFooter = false, showHeader = true, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = 'greedy', isLoading = false, }) => {
+    const isGreedy = variant === 'greedy';
+    const canResize = !isGreedy;
+    const bodyComponent = isLoading ? (jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: canResize })) : (jsx(TableBody, { ...tableBodyProps, canResize: canResize }));
+    return (jsx(TableControls, { ...controlProps, children: jsxs(Table, { canResize,
+            showLoading: isLoading,
             showSelector: tableHeaderProps.showSelector ??
                 tableBodyProps.showSelector ??
                 false,
-            ...tableProps, children: [jsx(TableHeader, { ...tableHeaderProps }), bodyComponent, showFooter && jsx(TableFooter, { ...tableFooterProps })] }) }));
+            ...tableProps, children: [showHeader && jsx(TableHeader, { canResize, ...tableHeaderProps }), bodyComponent, showFooter && jsx(TableFooter, { canResize, ...tableFooterProps })] }) }));
 };
 
 /**

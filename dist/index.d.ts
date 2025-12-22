@@ -228,6 +228,7 @@ interface TextCellProps {
     onClick?: () => void;
     isCopyable?: boolean;
     isBadge?: boolean;
+    alignEnd?: boolean;
     badgeColor?: 'gray' | 'red' | 'orange' | 'yellow' | 'green' | 'teal' | 'blue' | 'cyan' | 'purple' | 'pink';
     colorPalette?: 'gray' | 'red' | 'orange' | 'yellow' | 'green' | 'teal' | 'blue' | 'cyan' | 'purple' | 'pink';
     label?: string;
@@ -236,7 +237,7 @@ interface TextCellProps {
     containerProps?: FlexProps;
     textProps?: TextProps;
 }
-declare const TextCell: ({ text, href, onClick, isCopyable, isBadge, badgeColor, colorPalette, label, containerProps, textProps, children, }: TextCellProps) => react_jsx_runtime.JSX.Element;
+declare const TextCell: ({ text, href, onClick, isCopyable, isBadge, badgeColor, colorPalette, alignEnd, label, containerProps, textProps, children, }: TextCellProps) => react_jsx_runtime.JSX.Element;
 
 interface CardHeaderProps<TData> {
     row: Row<TData>;
@@ -1096,6 +1097,7 @@ declare const TableDataDisplay: ({ colorPalette, emptyComponent, }: TableDataDis
 
 interface DefaultTableProps {
     showFooter?: boolean;
+    showHeader?: boolean;
     tableProps?: Omit<TableProps, 'children'>;
     tableHeaderProps?: TableHeaderProps;
     tableBodyProps?: TableBodyProps;
@@ -1104,7 +1106,7 @@ interface DefaultTableProps {
     variant?: '' | 'greedy';
     isLoading?: boolean;
 }
-declare const DefaultTable: ({ showFooter, tableProps, tableHeaderProps, tableBodyProps, tableFooterProps, controlProps, variant, isLoading, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
+declare const DefaultTable: ({ showFooter, showHeader, tableProps, tableHeaderProps, tableBodyProps, tableFooterProps, controlProps, variant, isLoading, }: DefaultTableProps) => react_jsx_runtime.JSX.Element;
 
 interface DefaultTableServerProps extends DefaultTableProps {
     /**

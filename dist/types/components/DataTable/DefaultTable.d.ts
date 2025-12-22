@@ -5,6 +5,7 @@ import { TableFooterProps } from './display/TableFooter';
 import { TableHeaderProps } from './display/TableHeader';
 export interface DefaultTableProps {
     showFooter?: boolean;
+    showHeader?: boolean;
     tableProps?: Omit<TableProps, 'children'>;
     tableHeaderProps?: TableHeaderProps;
     tableBodyProps?: TableBodyProps;
@@ -13,4 +14,4 @@ export interface DefaultTableProps {
     variant?: '' | 'greedy';
     isLoading?: boolean;
 }
-export declare const DefaultTable: ({ showFooter, tableProps, tableHeaderProps, tableBodyProps, tableFooterProps, controlProps, variant, isLoading, }: DefaultTableProps) => import("react/jsx-runtime").JSX.Element;
+export declare const DefaultTable: ({ showFooter, showHeader, tableProps, tableHeaderProps, tableBodyProps, tableFooterProps, controlProps, variant, isLoading, }: DefaultTableProps) => import("react/jsx-runtime").JSX.Element;

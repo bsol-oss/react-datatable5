@@ -6,6 +6,7 @@ export interface TextCellProps {
     onClick?: () => void;
     isCopyable?: boolean;
     isBadge?: boolean;
+    alignEnd?: boolean;
     badgeColor?: 'gray' | 'red' | 'orange' | 'yellow' | 'green' | 'teal' | 'blue' | 'cyan' | 'purple' | 'pink';
     colorPalette?: 'gray' | 'red' | 'orange' | 'yellow' | 'green' | 'teal' | 'blue' | 'cyan' | 'purple' | 'pink';
     label?: string;
@@ -14,4 +15,4 @@ export interface TextCellProps {
     containerProps?: FlexProps;
     textProps?: TextProps;
 }
-export declare const TextCell: ({ text, href, onClick, isCopyable, isBadge, badgeColor, colorPalette, label, containerProps, textProps, children, }: TextCellProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TextCell: ({ text, href, onClick, isCopyable, isBadge, badgeColor, colorPalette, alignEnd, label, containerProps, textProps, children, }: TextCellProps) => import("react/jsx-runtime").JSX.Element;
