@@ -155,10 +155,6 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
                   meridiem={meridiem}
                   setMeridiem={setMeridiem}
                   onChange={handleTimeChange}
-                  meridiemLabel={{
-                    am: translate.t(`common.am`, { defaultValue: 'AM' }),
-                    pm: translate.t(`common.pm`, { defaultValue: 'PM' }),
-                  }}
                 />
               </Popover.Body>
             </Popover.Content>
@@ -176,10 +172,6 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
                     meridiem={meridiem}
                     setMeridiem={setMeridiem}
                     onChange={handleTimeChange}
-                    meridiemLabel={{
-                      am: translate.t(`common.am`, { defaultValue: 'AM' }),
-                      pm: translate.t(`common.pm`, { defaultValue: 'PM' }),
-                    }}
                   />
                 </Popover.Body>
               </Popover.Content>
