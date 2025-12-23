@@ -9,7 +9,7 @@ import { DateRangePicker } from './DateRangePicker';
 import { EnumPicker } from './EnumPicker';
 import { FilePicker } from './FilePicker';
 import { FormMediaLibraryBrowser } from './FormMediaLibraryBrowser';
-import { IdPicker } from './IdPicker';
+import { IdPickerSingle, IdPickerMultiple } from './IdPicker';
 import { NumberInputField } from './NumberInputField';
 import { ObjectInput } from './ObjectInput';
 import { RecordInput } from './RecordInput';
@@ -49,7 +49,7 @@ export const SchemaRenderer = ({
     }
     if (variant === 'id-picker') {
       idPickerSanityCheck(column, foreign_key);
-      return <IdPicker schema={colSchema} {...{ prefix, column }} />;
+      return <IdPickerSingle schema={colSchema} {...{ prefix, column }} />;
     }
     if (format === 'date') {
       return <DatePicker schema={colSchema} {...{ prefix, column }} />;
@@ -85,12 +85,7 @@ export const SchemaRenderer = ({
   if (type === 'array') {
     if (variant === 'id-picker') {
       idPickerSanityCheck(column, foreign_key);
-      return (
-        <IdPicker
-          schema={colSchema}
-          {...{ prefix, column, isMultiple: true }}
-        />
-      );
+      return <IdPickerMultiple schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === 'tag-picker') {
       return <TagPicker schema={colSchema} {...{ prefix, column }} />;

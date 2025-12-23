@@ -779,7 +779,7 @@ const IdPickerMultipleForm = () => {
             </Box>
           </VStack>
 
-          <Box mt={4} p={4} bg="blue.50" borderRadius="md" borderWidth="1px">
+          <Box mt={4} p={4} borderRadius="md" borderWidth="1px">
             <Text fontWeight="bold" mb={2}>
               💡 Pro Tips:
             </Text>
