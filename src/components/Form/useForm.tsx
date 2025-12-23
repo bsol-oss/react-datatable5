@@ -1,13 +1,21 @@
 import { useState } from 'react';
 import { FieldValues, useForm as useReactHookForm } from 'react-hook-form';
 import { JSONSchema7 } from 'json-schema';
+import { useTranslation } from 'react-i18next';
 import { ajvResolver } from './utils/ajvResolver';
 
 export interface UseFormProps {
   preLoadedValues?: FieldValues | undefined;
+  keyPrefix?: string;
+  namespace?: string;
   schema?: JSONSchema7;
 }
-export const useForm = ({ preLoadedValues, schema }: UseFormProps) => {
+export const useForm = ({
+  preLoadedValues,
+  keyPrefix,
+  namespace,
+  schema,
+}: UseFormProps) => {
   const form = useReactHookForm({
     values: preLoadedValues,
     resolver: schema ? ajvResolver(schema) : undefined,
@@ -15,9 +23,11 @@ export const useForm = ({ preLoadedValues, schema }: UseFormProps) => {
     reValidateMode: 'onBlur',
   });
   const [idMap, setIdMap] = useState<Record<string, object>>({});
+  const translate = useTranslation(namespace || '', { keyPrefix });
   return {
     form,
     idMap,
     setIdMap,
+    translate,
   };
 };

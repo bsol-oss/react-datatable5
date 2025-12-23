@@ -3,9 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 import axios from 'axios';
 import {
@@ -56,50 +54,6 @@ type Story = StoryObj<typeof meta>;
 
 export default meta;
 const queryClient = new QueryClient();
-
-// Initialize i18n with resources
-i18n.use(initReactI18next).init({
-  fallbackLng: 'en',
-  debug: false,
-  lng: 'en',
-  resources: {
-    en: {
-      translation: {
-        // Single picker translations
-        'selected_user.field_label': 'Select User',
-        'selected_user.field_required': 'User selection is required',
-        'selected_user.undefined': 'User not found',
-        'selected_user.add_more': 'Add User',
-        'selected_user.type_to_search': 'Type to search users...',
-        'selected_user.total': 'Total',
-        'selected_user.showing': 'Showing',
-        'selected_user.per_page': 'per page',
-        'selected_user.empty_search_result': 'No users found',
-        'selected_user.initial_results': 'Start typing to search for users',
-        'selected_user.loading': 'Loading users...',
-        'selected_user.loading_failed': 'Failed to load users',
-
-        // Multiple picker translations
-        'team_members.field_label': 'Team Members',
-        'team_members.field_required': 'At least one team member is required',
-        'team_members.undefined': 'Member not found',
-        'team_members.add_more': 'Add Team Member',
-        'team_members.type_to_search': 'Type to search team members...',
-        'team_members.total': 'Total',
-        'team_members.showing': 'Showing',
-        'team_members.per_page': 'per page',
-        'team_members.empty_search_result': 'No team members found',
-        'team_members.initial_results':
-          'Start typing to search for team members',
-        'team_members.loading': 'Loading team members...',
-        'team_members.loading_failed': 'Failed to load team members',
-      },
-    },
-  },
-  interpolation: {
-    escapeValue: false,
-  },
-});
 
 // JSONPlaceholder Users API interface
 interface JsonPlaceholderUser {
@@ -242,9 +196,7 @@ export const IdPickerComboboxDemo: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <IdPickerComboboxForm />
-          </I18nextProvider>
+          <IdPickerComboboxForm />
         </QueryClientProvider>
       </Provider>
     );

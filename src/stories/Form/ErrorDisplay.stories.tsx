@@ -3,9 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
 import {
   buildErrorMessages,
   buildRequiredErrors,
@@ -32,24 +30,12 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 const queryClient = new QueryClient();
 
-i18n
-  .use(initReactI18next) // bind react-i18next to the instance
-  .init({
-    fallbackLng: 'en',
-    debug: true,
-    interpolation: {
-      escapeValue: false, // not needed for react!!
-    },
-  });
-
 export const AllFieldTypesWithErrors: Story = {
   render: () => {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <ComprehensiveForm />
-          </I18nextProvider>
+          <ComprehensiveForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -69,9 +55,7 @@ export const RequiredFieldErrors: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <RequiredFieldsForm />
-          </I18nextProvider>
+          <RequiredFieldsForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -91,9 +75,7 @@ export const ValidationErrors: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <ValidationErrorsForm />
-          </I18nextProvider>
+          <ValidationErrorsForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -113,9 +95,7 @@ export const ComplexFormWithErrors: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <ComplexForm />
-          </I18nextProvider>
+          <ComplexForm />
         </QueryClientProvider>
       </Provider>
     );

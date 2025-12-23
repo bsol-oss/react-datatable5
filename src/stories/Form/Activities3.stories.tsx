@@ -7,9 +7,7 @@ import {
   QueryClientProvider,
   useQuery,
 } from '@tanstack/react-query';
-import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { activitiesSchema } from '../schema';
 import { getTableData } from '@/components/Form/utils/getTableData';
 import axios from 'axios';
@@ -28,25 +26,12 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 const queryClient = new QueryClient();
 
-i18n
-  .use(initReactI18next) // bind react-i18next to the instance
-  .init({
-    fallbackLng: 'en',
-    debug: true,
-
-    interpolation: {
-      escapeValue: false, // not needed for react!!
-    },
-  });
-
 export const Activities3: Story = {
   render: () => {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <SomeForm />
-          </I18nextProvider>
+          <SomeForm />
         </QueryClientProvider>
       </Provider>
     );

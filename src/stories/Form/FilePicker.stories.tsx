@@ -3,9 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { FilePickerMediaFile } from '@/components/Form/components/types/CustomJSONSchema7';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -21,83 +19,6 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 
 const queryClient = new QueryClient();
-
-i18n
-  .use(initReactI18next) // bind react-i18next to the instance
-  .init({
-    fallbackLng: 'en',
-    debug: false,
-    interpolation: {
-      escapeValue: false, // not needed for react!!
-    },
-    resources: {
-      en: {
-        translation: {
-          files: {
-            file_upload: {
-              field_label: 'Upload Files',
-              fileDropzone: 'Drop files here or click to upload',
-              browse_library: 'Browse from Library',
-              dialog_title: 'Select File',
-              search_placeholder: 'Search files...',
-              loading: 'Loading files...',
-              cancel: 'Cancel',
-              select: 'Select',
-              no_files_found: 'No files found',
-              error: {
-                loading_failed: 'Failed to load files',
-              },
-            },
-            image_upload: {
-              field_label: 'Upload Images Only',
-              fileDropzone: 'Drop images here or click to upload',
-              browse_library: 'Browse Images',
-              dialog_title: 'Select Image',
-              search_placeholder: 'Search images...',
-              loading: 'Loading images...',
-              cancel: 'Cancel',
-              select: 'Select',
-              no_files_found: 'No images found',
-              error: {
-                loading_failed: 'Failed to load images',
-              },
-            },
-            with_media_library: {
-              field_label: 'Files with Media Library',
-              fileDropzone: 'Drop files here or click to upload',
-              browse_library: 'Browse from Library',
-              dialog_title: 'Select File',
-              search_placeholder: 'Search files...',
-              loading: 'Loading files...',
-              cancel: 'Cancel',
-              select: 'Select',
-              no_files_found: 'No files found',
-              error: {
-                loading_failed: 'Failed to load files',
-              },
-            },
-            basic_files: {
-              field_label: 'Basic File Upload',
-              fileDropzone: 'Drop files here or click to upload',
-            },
-            media_library: {
-              field_label: 'Media Library Browser',
-              browse_library: 'Browse from Library',
-              dialog_title: 'Select File',
-              search_placeholder: 'Search files...',
-              loading: 'Loading files...',
-              cancel: 'Cancel',
-              select: 'Select',
-              no_files_found: 'No files found',
-              error: {
-                loading_failed: 'Failed to load files',
-              },
-            },
-          },
-        },
-      },
-    },
-  });
 
 // Mock function to simulate fetching files from media library
 const mockFetchFiles = async (
@@ -175,9 +96,7 @@ export const BasicFileUpload: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <BasicFileUploadForm />
-          </I18nextProvider>
+          <BasicFileUploadForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -219,9 +138,7 @@ export const WithMediaLibrary: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <WithMediaLibraryForm />
-          </I18nextProvider>
+          <WithMediaLibraryForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -269,9 +186,7 @@ export const ImageOnlyWithLibrary: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <ImageOnlyForm />
-          </I18nextProvider>
+          <ImageOnlyForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -319,9 +234,7 @@ export const RequiredFiles: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <RequiredFilesForm />
-          </I18nextProvider>
+          <RequiredFilesForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -367,9 +280,7 @@ export const MultipleFilePickers: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <MultipleFilePickersForm />
-          </I18nextProvider>
+          <MultipleFilePickersForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -435,9 +346,7 @@ export const WithCustomLabels: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <WithCustomLabelsForm />
-          </I18nextProvider>
+          <WithCustomLabelsForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -512,9 +421,7 @@ export const SingleSelect: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <SingleSelectForm />
-          </I18nextProvider>
+          <SingleSelectForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -562,9 +469,7 @@ export const FilePickerAndMediaLibrary: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <FilePickerAndMediaLibraryForm />
-          </I18nextProvider>
+          <FilePickerAndMediaLibraryForm />
         </QueryClientProvider>
       </Provider>
     );

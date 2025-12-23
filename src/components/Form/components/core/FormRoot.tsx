@@ -9,6 +9,7 @@ import {
   SubmitHandler,
   UseFormReturn,
 } from 'react-hook-form';
+import { UseTranslationResponse } from 'react-i18next';
 import axios from 'axios';
 import { clearEmptyString } from '../../utils/clearEmptyString';
 import { ajvResolver } from '../../utils/ajvResolver';
@@ -29,6 +30,7 @@ export interface FormRootProps<TData extends FieldValues> {
   idMap: Record<string, object>;
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
   form: UseFormReturn;
+  translate: UseTranslationResponse<any, any>;
   children: ReactNode;
   order?: string[];
   ignore?: string[];
@@ -98,6 +100,7 @@ export const FormRoot = <TData extends FieldValues>({
   setIdMap,
   form,
   serverUrl,
+  translate,
   children,
   order = [],
   ignore = [],
@@ -191,6 +194,7 @@ export const FormRoot = <TData extends FieldValues>({
         rowNumber,
         idMap,
         setIdMap,
+        translate,
         requestOptions,
         isSuccess,
         setIsSuccess,

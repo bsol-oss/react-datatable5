@@ -8,9 +8,6 @@ import { Box, Text } from '@chakra-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { data, Product } from '../product_data';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
-import i18n from 'i18next';
-
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
   title: 'react-datatable5/DataTable/Data Display View',
@@ -24,24 +21,9 @@ type Story = StoryObj<typeof meta>;
 
 export default meta;
 
-i18n
-  .use(initReactI18next) // bind react-i18next to the instance
-  .init({
-    fallbackLng: 'en',
-    debug: true,
-
-    interpolation: {
-      escapeValue: false, // not needed for react!!
-    },
-  });
-
 export const DataDisplayStory: Story = {
   render: () => {
-    return (
-      <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-        <DataDisplayView />
-      </I18nextProvider>
-    );
+    return <DataDisplayView />;
   },
 };
 

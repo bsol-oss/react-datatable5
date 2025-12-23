@@ -4,9 +4,7 @@ import { Provider } from '@/components/ui/provider';
 import { Box, Text, VStack } from '@chakra-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { buildErrorMessages } from '@/components/Form/utils/buildErrorMessages';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -29,24 +27,12 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 const queryClient = new QueryClient();
 
-i18n
-  .use(initReactI18next) // bind react-i18next to the instance
-  .init({
-    fallbackLng: 'en',
-    debug: true,
-    interpolation: {
-      escapeValue: false, // not needed for react!!
-    },
-  });
-
 export const ErrorDisplayDemo: Story = {
   render: () => {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <ErrorDisplayDemoForm />
-          </I18nextProvider>
+          <ErrorDisplayDemoForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -66,9 +52,7 @@ export const FieldTypesComparison: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <FieldTypesComparisonForm />
-          </I18nextProvider>
+          <FieldTypesComparisonForm />
         </QueryClientProvider>
       </Provider>
     );

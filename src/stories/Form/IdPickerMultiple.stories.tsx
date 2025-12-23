@@ -3,9 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 import {
   Heading,
@@ -57,74 +55,6 @@ type Story = StoryObj<typeof meta>;
 
 export default meta;
 const queryClient = new QueryClient();
-
-// Initialize i18n with resources
-i18n.use(initReactI18next).init({
-  fallbackLng: 'en',
-  debug: true,
-  lng: 'en',
-  resources: {
-    en: {
-      translation: {
-        // Project team members
-        'team_members.field_label': 'Project Team Members',
-        'team_members.field_required': 'At least one team member is required',
-        'team_members.undefined': 'Member not found',
-        'team_members.add_more': 'Add Team Member',
-        'team_members.type_to_search': 'Search team members...',
-        'team_members.total': 'Total',
-        'team_members.showing': 'Showing',
-        'team_members.per_page': 'per page',
-        'team_members.empty_search_result': 'No team members found',
-        'team_members.initial_results':
-          'Start typing to search for team members',
-
-        // CC recipients
-        'cc_recipients.field_label': 'CC Recipients',
-        'cc_recipients.field_required': 'CC recipients are required',
-        'cc_recipients.undefined': 'Recipient not found',
-        'cc_recipients.add_more': 'Add Recipient',
-        'cc_recipients.type_to_search': 'Search recipients...',
-        'cc_recipients.total': 'Total',
-        'cc_recipients.showing': 'Showing',
-        'cc_recipients.per_page': 'per page',
-        'cc_recipients.empty_search_result': 'No recipients found',
-        'cc_recipients.initial_results':
-          'Start typing to search for recipients',
-
-        // Stakeholders
-        'stakeholders.field_label': 'Project Stakeholders',
-        'stakeholders.field_required': 'Stakeholders are required',
-        'stakeholders.undefined': 'Stakeholder not found',
-        'stakeholders.add_more': 'Add Stakeholder',
-        'stakeholders.type_to_search': 'Search stakeholders...',
-        'stakeholders.total': 'Total',
-        'stakeholders.showing': 'Showing',
-        'stakeholders.per_page': 'per page',
-        'stakeholders.empty_search_result': 'No stakeholders found',
-        'stakeholders.initial_results':
-          'Start typing to search for stakeholders',
-
-        // Custom option examples
-        'custom_team_members.field_label': 'Team Members (Custom Display)',
-        'custom_team_members.field_required':
-          'At least one team member is required',
-        'custom_team_members.undefined': 'Member not found',
-        'custom_team_members.add_more': 'Add Team Member',
-        'custom_team_members.type_to_search': 'Search team members...',
-        'custom_team_members.total': 'Total',
-        'custom_team_members.showing': 'Showing',
-        'custom_team_members.per_page': 'per page',
-        'custom_team_members.empty_search_result': 'No team members found',
-        'custom_team_members.initial_results':
-          'Start typing to search for team members',
-      },
-    },
-  },
-  interpolation: {
-    escapeValue: false,
-  },
-});
 
 // Mock team member data for demonstration
 const mockTeamMembers = [
@@ -416,9 +346,7 @@ export const IdPickerMultipleSelection: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <IdPickerMultipleForm />
-          </I18nextProvider>
+          <IdPickerMultipleForm />
         </QueryClientProvider>
       </Provider>
     );

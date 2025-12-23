@@ -3,9 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
 // Note: The buildErrorMessages utilities are no longer used in the new approach
 // as we now use per-field errorMessages in the schema directly
 
@@ -28,25 +26,12 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 const queryClient = new QueryClient();
 
-i18n
-  .use(initReactI18next) // bind react-i18next to the instance
-  .init({
-    fallbackLng: 'en',
-    debug: true,
-
-    interpolation: {
-      escapeValue: false, // not needed for react!!
-    },
-  });
-
 export const Validation: Story = {
   render: () => {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <SomeForm />
-          </I18nextProvider>
+          <SomeForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -58,9 +43,7 @@ export const ValidationWithHelpers: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <FormWithHelpers />
-          </I18nextProvider>
+          <FormWithHelpers />
         </QueryClientProvider>
       </Provider>
     );
@@ -72,9 +55,7 @@ export const ValidationWithI18n: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <FormWithI18n />
-          </I18nextProvider>
+          <FormWithI18n />
         </QueryClientProvider>
       </Provider>
     );
