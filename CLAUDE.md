@@ -51,7 +51,6 @@ The library is organized into major component categories:
 
 - All table state lives in hooks: `useDataTable()` or `useDataTableServer()`
 - State includes: sorting, columnFilters, pagination, rowSelection, columnOrder, globalFilter, columnVisibility, density
-- i18n integration via `react-i18next` with `keyPrefix` support
 
 **Column customization via ColumnMeta:**
 
@@ -112,22 +111,16 @@ The library is organized into major component categories:
 
 ## Key Conventions
 
-### Translation Integration
+### Component Labels
 
-- All user-facing components support i18n via `react-i18next`
-- DataTable hooks accept `keyPrefix` parameter for scoped translations
-- Form validation messages support: en, zh-HK, zh-TW, zh-CN locales
-- Components use `useFormI18n` hook internally for i18n translation
+**Components use label objects from schema context:**
 
-### Component Labels and i18n
-
-**Prefer labels in schema context over direct i18n calls:**
-
-- Components should use label objects from `SchemaFormContext` rather than calling translation functions directly
+- Components use label objects from `SchemaFormContext` for all user-facing text
 - Label objects available in context: `idPickerLabels`, `dateTimePickerLabels`, `enumPickerLabels`, `filePickerLabels`
-- Pattern: `labels?.labelName ?? formI18n.t(key) ?? fallbackText` (where `formI18n` comes from `useFormI18n` hook)
-- This allows consuming applications to override labels via context without modifying translation files
+- Pattern: `labels?.labelName ?? fallbackText`
+- This allows consuming applications to provide labels without requiring any i18n setup or translation files
 - Label objects are passed via `FormRoot` props and made available through `useSchemaContext()`
+- Components work fully with label objects - no i18n dependency required
 
 **Label object types:**
 
@@ -139,19 +132,12 @@ The library is organized into major component categories:
 **Example usage:**
 
 ```tsx
+// Use labels from context
 const { filePickerLabels } = useSchemaContext();
-const formI18n = useFormI18n(column, prefix);
-
-// Preferred: Use labels from context with fallbacks
-const { filePickerLabels } = useSchemaContext();
-const formI18n = useFormI18n(column, prefix);
 
 <FileDropzone
-  placeholder={filePickerLabels?.fileDropzone ?? formI18n.t('fileDropzone')}
-/>
-
-// Also valid: Direct formI18n calls (components handle i18n internally)
-<FileDropzone placeholder={formI18n.t('fileDropzone')} />
+  placeholder={filePickerLabels?.fileDropzone ?? 'Drop files here'}
+/>;
 ```
 
 ### Form Schema Patterns
@@ -176,7 +162,7 @@ const formI18n = useFormI18n(column, prefix);
     }
   }
   ```
-- **Translation responsibility**: Consuming applications handle i18n translation
+- **Translation responsibility**: Consuming applications provide labels via label objects
 - **Error structure**: Returns `{ type, keyword, params, message? }` for custom handling
 - **Empty value handling**: Automatically strips null, undefined, and empty strings before validation. If all values are stripped, uses empty object for validation to ensure proper schema validation.
 
@@ -195,7 +181,6 @@ This library has extensive peer dependencies that must be installed in consuming
 - @tanstack/react-table 8.21+
 - @tanstack/react-query 5.66+
 - react-hook-form 7.54+
-- react-i18next 15.4+
 - ajv, ajv-formats, ajv-errors for validation
 - dayjs for date handling
 - See package.json `peerDependencies` for complete list

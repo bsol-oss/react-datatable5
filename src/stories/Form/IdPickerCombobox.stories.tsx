@@ -19,6 +19,7 @@ import {
   List,
 } from '@chakra-ui/react';
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * IdPicker Combobox Story
@@ -191,6 +192,44 @@ const jsonPlaceholderUserQueryFn = async ({
   }
 };
 
+// Type for transformed user data
+interface TransformedUser {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  phone: string;
+  website: string;
+  company: string;
+  city: string;
+}
+
+// Custom renderDisplay function for single selection
+const renderUserDisplay = (item: unknown): ReactNode => {
+  const user = item as TransformedUser;
+  return (
+    <HStack gap={3} align="center">
+      <VStack gap={0} align="start" flex={1}>
+        <Text fontWeight="semibold">{user.name}</Text>
+        <HStack gap={2}>
+          <Text fontSize="xs" color="fg.muted">
+            @{user.username}
+          </Text>
+          <Text fontSize="xs" color="fg.muted">
+            •
+          </Text>
+          <Text fontSize="xs" color="fg.muted">
+            {user.email}
+          </Text>
+        </HStack>
+      </VStack>
+      <Badge colorPalette="blue" variant="subtle">
+        {user.company}
+      </Badge>
+    </HStack>
+  );
+};
+
 export const IdPickerComboboxDemo: Story = {
   render: () => {
     return (
@@ -215,7 +254,7 @@ const IdPickerComboboxForm = () => {
     title: 'User Selection with Combobox',
     required: ['selected_user', 'team_members'],
     properties: {
-      // Single selection IdPicker with combobox
+      // Single selection IdPicker with combobox and custom renderDisplay
       selected_user: {
         type: 'string',
         variant: 'id-picker',
@@ -224,6 +263,7 @@ const IdPickerComboboxForm = () => {
           column: 'id',
           customQueryFn: jsonPlaceholderUserQueryFn,
         },
+        renderDisplay: renderUserDisplay, // Custom rendering function
       },
 
       // Multiple selection IdPicker with combobox
@@ -382,13 +422,112 @@ const IdPickerComboboxForm = () => {
         </VStack>
       </Box>
 
+      {/* Custom Display Section */}
+      <Box p={6} borderRadius="lg" borderWidth="1px">
+        <VStack gap={4} align="stretch">
+          <Heading size="md">Custom Option Display with renderDisplay</Heading>
+          <Text>
+            The single selection IdPicker below uses the{' '}
+            <Code>renderDisplay</Code> property to show rich user information
+            including name, username, email, and company badge in both the
+            dropdown options and the selected value.
+          </Text>
+
+          <Alert.Root status="info" borderRadius="md">
+            <Alert.Indicator />
+            <Alert.Content>
+              <Alert.Title>How renderDisplay Works:</Alert.Title>
+              <Alert.Description>
+                <List.Root variant="marker" mt={2}>
+                  <List.Item>
+                    The function receives the item object as a parameter
+                  </List.Item>
+                  <List.Item>
+                    Return any ReactNode (JSX, text, components, etc.)
+                  </List.Item>
+                  <List.Item>
+                    Used in both dropdown options and the selected value display
+                  </List.Item>
+                  <List.Item>
+                    Perfect for showing multiple fields, badges, or custom
+                    layouts
+                  </List.Item>
+                </List.Root>
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
+
+          <Box>
+            <Heading size="sm" mb={2}>
+              Example: Rich User Display
+            </Heading>
+            <Text fontSize="sm" mb={2}>
+              The renderDisplay function shows name, username, email, and
+              company:
+            </Text>
+            <Box
+              p={4}
+              bg="gray.50"
+              borderRadius="md"
+              borderWidth="1px"
+              borderColor="gray.200"
+            >
+              <Code
+                colorScheme="gray"
+                p={4}
+                display="block"
+                whiteSpace="pre-wrap"
+                fontSize="sm"
+              >
+                {`const renderUserDisplay = (item: unknown): ReactNode => {
+  const user = item as TransformedUser;
+  return (
+    <HStack gap={3} align="center">
+      <VStack gap={0} align="start" flex={1}>
+        <Text fontWeight="semibold">{user.name}</Text>
+        <HStack gap={2}>
+          <Text fontSize="xs" color="fg.muted">
+            @{user.username}
+          </Text>
+          <Text fontSize="xs" color="fg.muted">•</Text>
+          <Text fontSize="xs" color="fg.muted">
+            {user.email}
+          </Text>
+        </HStack>
+      </VStack>
+      <Badge colorPalette="blue" variant="subtle">
+        {user.company}
+      </Badge>
+    </HStack>
+  );
+};
+
+// In schema:
+{
+  "type": "string",
+  "variant": "id-picker",
+  "renderDisplay": renderUserDisplay, // ← Reference the function
+  "foreign_key": {
+    "table": "users",
+    "column": "id",
+    "customQueryFn": jsonPlaceholderUserQueryFn
+  }
+}`}
+              </Code>
+            </Box>
+          </Box>
+        </VStack>
+      </Box>
+
       {/* Interactive Demo Form */}
       <Box p={6} borderRadius="lg" borderWidth="1px" boxShadow="sm">
         <VStack gap={4} align="stretch">
           <Heading size="md">Interactive Demo</Heading>
           <Text>
             Try selecting users from the JSONPlaceholder API. Notice the
-            real-time search, loading states, and smooth interactions.
+            real-time search, loading states, smooth interactions, and the
+            custom display format showing name, username, email, and company
+            badge.
           </Text>
           <Alert.Root status="info" borderRadius="md">
             <Alert.Indicator />

@@ -142,17 +142,6 @@ const DefaultTableShowcase2 = () => {
     }),
   ];
 
-  i18n
-    .use(initReactI18next) // bind react-i18next to the instance
-    .init({
-      fallbackLng: 'en',
-      debug: true,
-
-      interpolation: {
-        escapeValue: false, // not needed for react!!
-      },
-    });
-
   return (
     <Provider>
       <DataTable columns={columns} data={staffData} {...datatable}>

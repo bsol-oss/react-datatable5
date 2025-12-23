@@ -6,22 +6,15 @@ This document covers how to customize **UI labels** for the IdPicker component (
 
 > **📝 Note:** If you want to customize how **items/options are displayed** in the combobox dropdown (e.g., showing name + email), see [IdPicker Custom Display Documentation](./IDPICKER_CUSTOM_DISPLAY.md).
 
-The IdPicker component supports two ways to provide UI labels:
-
-1. **i18n translation keys** (via `react-i18next`)
-2. **Label objects** (via `FormRoot` props) - **Preferred when translations don't exist**
-
-This document explains how to set IdPicker UI labels when translation keys are not available in your i18n configuration.
+The IdPicker component uses label objects (via `FormRoot` props) to provide all UI labels. Components work fully with label objects - no i18n dependency required.
 
 ## Label Priority
 
-The IdPicker component follows this priority order for labels:
+The IdPicker component uses label objects with fallback text:
 
 ```
-idPickerLabels prop → i18n translation → fallback text
+idPickerLabels prop → fallback text
 ```
-
-This allows you to override or provide labels without modifying your translation files.
 
 ## Available IdPicker Labels
 
@@ -38,9 +31,9 @@ The `IdPickerLabels` interface includes the following properties:
 | `emptySearchResult` | Message when search returns no results     | "No results found"       |
 | `initialResults`    | Message shown before user starts searching | "Start typing to search" |
 
-## Method 1: Using Label Objects (Recommended)
+## Using Label Objects
 
-When you don't have i18n translations set up, or want to override existing translations, pass the `idPickerLabels` prop to `FormRoot` or `DefaultForm`.
+Pass the `idPickerLabels` prop to `FormRoot` or `DefaultForm` to provide all necessary labels.
 
 ### Example: Basic Usage
 
@@ -148,9 +141,9 @@ const MultipleIdPickersForm = () => {
 };
 ```
 
-### Example: Multilingual Without i18n Setup
+### Example: Multilingual Support
 
-If you want to support multiple languages without setting up i18n, you can switch label objects:
+To support multiple languages, switch label objects:
 
 ```tsx
 import { useState } from 'react';
@@ -214,118 +207,6 @@ const MultilingualForm = () => {
     </>
   );
 };
-```
-
-## Method 2: Using i18n Translation Keys
-
-If you have i18n set up with `react-i18next`, you can provide translations for each field individually.
-
-### Translation Key Pattern
-
-For a field named `user_id`, the IdPicker will look for these translation keys:
-
-```
-{field_name}.undefined
-{field_name}.add_more
-{field_name}.type_to_search
-{field_name}.total
-{field_name}.showing
-{field_name}.per_page
-{field_name}.empty_search_result
-{field_name}.initial_results
-{field_name}.loading
-{field_name}.loading_failed
-```
-
-### Example: i18n Configuration
-
-```tsx
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-
-i18n.use(initReactI18next).init({
-  fallbackLng: 'en',
-  lng: 'en',
-  resources: {
-    en: {
-      translation: {
-        // For field: user_id
-        'user_id.field_label': 'Select User',
-        'user_id.field_required': 'User is required',
-        'user_id.undefined': 'User not found',
-        'user_id.add_more': 'Add user',
-        'user_id.type_to_search': 'Search for users...',
-        'user_id.total': 'Total',
-        'user_id.showing': 'Showing',
-        'user_id.per_page': 'per page',
-        'user_id.empty_search_result': 'No users found',
-        'user_id.initial_results': 'Start typing to search',
-        'user_id.loading': 'Loading users...',
-        'user_id.loading_failed': 'Failed to load users',
-
-        // For field: category_id
-        'category_id.field_label': 'Select Category',
-        'category_id.undefined': 'Category not found',
-        'category_id.type_to_search': 'Search categories...',
-        // ... other keys
-      },
-    },
-    'zh-HK': {
-      translation: {
-        'user_id.field_label': '選擇用戶',
-        'user_id.field_required': '必須選擇用戶',
-        'user_id.undefined': '找不到用戶',
-        'user_id.add_more': '新增用戶',
-        'user_id.type_to_search': '搜尋用戶...',
-        'user_id.total': '總數',
-        'user_id.showing': '顯示',
-        'user_id.per_page': '每頁',
-        'user_id.empty_search_result': '找不到用戶',
-        'user_id.initial_results': '開始輸入以搜尋',
-        // ... other keys
-      },
-    },
-  },
-});
-```
-
-## Comparison: Label Objects vs i18n
-
-### Use Label Objects When:
-
-✅ You don't have i18n set up  
-✅ You want quick prototyping without translation files  
-✅ You have simple language switching needs  
-✅ All IdPicker fields should share the same labels  
-✅ You want to override existing translations globally
-
-### Use i18n When:
-
-✅ You have comprehensive i18n infrastructure  
-✅ Each IdPicker field needs different labels  
-✅ You need to support many languages  
-✅ You want field-specific customization  
-✅ Your app already uses `react-i18next`
-
-## Hybrid Approach
-
-You can combine both methods. Label objects will take priority over i18n translations:
-
-```tsx
-<DefaultForm
-  formConfig={{
-    schema,
-    serverUrl: 'http://localhost:8000',
-    onSubmit: (data) => console.log(data),
-    // Global labels that override i18n
-    idPickerLabels: {
-      typeToSearch: 'Search...', // Overrides all type_to_search i18n keys
-      emptySearchResult: 'No results', // Overrides all empty_search_result keys
-    },
-    // Other labels will fall back to i18n translations
-    ...form,
-  }}
-/>
 ```
 
 ## TypeScript Types
@@ -439,6 +320,6 @@ import { FormRoot, FormBody } from '@bsol-oss/react-datatable5';
 
 - **[IdPicker Custom Display](./IDPICKER_CUSTOM_DISPLAY.md)** - How to customize item/option display in the combobox
 - [Form Usage Documentation](./DEFAULTFORM_USAGE.md) - Complete form component guide
-- [Validation and i18n](./VALIDATION_I18N.md) - Validation and internationalization
+- [Validation Documentation](./VALIDATION_I18N.md) - Validation error messages
 - [IdPicker Combobox Story](../src/stories/Form/IdPickerCombobox.stories.tsx) - Live examples
 - [Custom Labels Story](../src/stories/Form/CustomLabels.stories.tsx) - Examples of overriding labels

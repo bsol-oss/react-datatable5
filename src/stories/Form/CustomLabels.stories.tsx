@@ -3,9 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -15,7 +13,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Demonstrates custom labels overriding Chinese (zhhk) i18n translations for DateTimePicker and IdPicker components.',
+          'Demonstrates custom labels for DateTimePicker and IdPicker components using label objects.',
       },
     },
   },
@@ -27,17 +25,6 @@ type Story = StoryObj<typeof meta>;
 
 export default meta;
 const queryClient = new QueryClient();
-
-i18n
-  .use(initReactI18next) // bind react-i18next to the instance
-  .init({
-    fallbackLng: 'zhhk',
-    debug: true,
-
-    interpolation: {
-      escapeValue: false, // not needed for react!!
-    },
-  });
 
 export const CustomDateTimePickerLabels: Story = {
   args: {
@@ -53,9 +40,7 @@ export const CustomDateTimePickerLabels: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <DateTimePickerForm />
-          </I18nextProvider>
+          <DateTimePickerForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -76,9 +61,7 @@ export const CustomIdPickerLabels: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <IdPickerForm />
-          </I18nextProvider>
+          <IdPickerForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -99,9 +82,7 @@ export const CustomEnumPickerLabels: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <EnumPickerForm />
-          </I18nextProvider>
+          <EnumPickerForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -122,9 +103,7 @@ export const CombinedCustomLabels: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <CombinedForm />
-          </I18nextProvider>
+          <CombinedForm />
         </QueryClientProvider>
       </Provider>
     );

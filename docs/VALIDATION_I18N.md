@@ -1,25 +1,28 @@
-# Validation Messages i18n Guide
+# Validation Messages Guide
 
-This guide provides comprehensive instructions for internationalizing validation messages in the `@bsol-oss/react-datatable5` form system.
+This guide provides comprehensive instructions for providing validation messages in the `@bsol-oss/react-datatable5` form system.
+
+Validation messages are provided directly as strings in the schema's `errorMessages` field - no i18n dependency required.
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Validation Message Types](#validation-message-types)
-- [i18n Solutions](#i18n-solutions)
+- [Providing Validation Messages](#providing-validation-messages)
 - [Complete Examples](#complete-examples)
 - [Best Practices](#best-practices)
 
 ## Overview
 
-The form validation system uses [AJV (Another JSON Schema Validator)](https://ajv.js.org/) with the [ajv-errors](https://github.com/ajv-validator/ajv-errors) plugin to provide custom error messages. All validation messages support internationalization through `react-i18next`.
+The form validation system uses [AJV (Another JSON Schema Validator)](https://ajv.js.org/) with the [ajv-errors](https://github.com/ajv-validator/ajv-errors) plugin to provide custom error messages.
+
+Validation messages are provided as **direct strings** in the schema's `errorMessages` field - no i18n dependency required.
 
 **Key Components:**
 
 - `buildErrorMessages()`: Main utility for building error message configurations
 - `buildRequiredErrors()`: Helper for creating required field error messages
 - `createErrorMessage()`: Convenient wrapper combining required and validation errors
-- `useFormI18n()`: Hook for simplified field-level i18n access
 
 ## Validation Message Types
 
@@ -48,28 +51,15 @@ The form validation system uses [AJV (Another JSON Schema Validator)](https://aj
 }
 ```
 
-**i18n pattern:**
+**Using buildRequiredErrors:**
 
 ```typescript
-// Translation keys
-{
-  "en": {
-    "user.username.field_required": "Username is required",
-    "user.email.field_required": "Email is required"
-  },
-  "zh-HK": {
-    "user.username.field_required": "必須填寫用戶名稱",
-    "user.email.field_required": "必須填寫電郵地址"
-  }
-}
-
-// Using buildRequiredErrors with i18n
+// Using buildRequiredErrors helper
 const errorMessage = buildErrorMessages({
   required: buildRequiredErrors(
-    ["username", "email"],
-    (field) => `${field}.field_required`,
-    "user" // prefix
-  )
+    ['username', 'email'],
+    (field) => `${field} is required`
+  ),
 });
 ```
 
@@ -102,19 +92,6 @@ const errorMessage = buildErrorMessages({
 }
 ```
 
-**i18n pattern:**
-
-```typescript
-{
-  "en": {
-    "user.username.minLength": "Username must be at least {{limit}} characters"
-  },
-  "zh-HK": {
-    "user.username.minLength": "用戶名稱至少需要 {{limit}} 個字元"
-  }
-}
-```
-
 #### maxLength
 
 **When triggered:** String length exceeds the specified maximum.
@@ -142,19 +119,6 @@ const errorMessage = buildErrorMessages({
 }
 ```
 
-**i18n pattern:**
-
-```typescript
-{
-  "en": {
-    "user.username.maxLength": "Username cannot exceed {{limit}} characters"
-  },
-  "zh-HK": {
-    "user.username.maxLength": "用戶名稱不能超過 {{limit}} 個字元"
-  }
-}
-```
-
 #### pattern
 
 **When triggered:** String doesn't match the specified regular expression.
@@ -178,19 +142,6 @@ const errorMessage = buildErrorMessages({
         "pattern": "Username can only contain letters and numbers"
       }
     }
-  }
-}
-```
-
-**i18n pattern:**
-
-```typescript
-{
-  "en": {
-    "user.username.pattern": "Username can only contain letters and numbers"
-  },
-  "zh-HK": {
-    "user.username.pattern": "用戶名稱只能包含字母和數字"
   }
 }
 ```
@@ -224,19 +175,6 @@ const errorMessage = buildErrorMessages({
 }
 ```
 
-**i18n pattern:**
-
-```typescript
-{
-  "en": {
-    "user.age.minimum": "Age must be at least {{limit}}"
-  },
-  "zh-HK": {
-    "user.age.minimum": "年齡必須至少 {{limit}} 歲"
-  }
-}
-```
-
 #### maximum
 
 **When triggered:** Number exceeds the specified maximum value.
@@ -264,19 +202,6 @@ const errorMessage = buildErrorMessages({
 }
 ```
 
-**i18n pattern:**
-
-```typescript
-{
-  "en": {
-    "user.age.maximum": "Age cannot exceed {{limit}}"
-  },
-  "zh-HK": {
-    "user.age.maximum": "年齡不能超過 {{limit}} 歲"
-  }
-}
-```
-
 #### multipleOf
 
 **When triggered:** Number is not a multiple of the specified value.
@@ -300,19 +225,6 @@ const errorMessage = buildErrorMessages({
         "multipleOf": "Quantity must be a multiple of 5"
       }
     }
-  }
-}
-```
-
-**i18n pattern:**
-
-```typescript
-{
-  "en": {
-    "product.quantity.multipleOf": "Quantity must be a multiple of {{multipleOf}}"
-  },
-  "zh-HK": {
-    "product.quantity.multipleOf": "數量必須是 {{multipleOf}} 的倍數"
   }
 }
 ```
@@ -357,23 +269,6 @@ const errorMessage = buildErrorMessages({
 }
 ```
 
-**i18n pattern:**
-
-```typescript
-{
-  "en": {
-    "user.email.format": "Please enter a valid email address",
-    "event.startDate.format": "Invalid date format",
-    "settings.apiUrl.format": "Please enter a valid URL"
-  },
-  "zh-HK": {
-    "user.email.format": "請輸入有效的電郵地址",
-    "event.startDate.format": "日期格式無效",
-    "settings.apiUrl.format": "請輸入有效的網址"
-  }
-}
-```
-
 ### 5. Type Validation Errors
 
 **When triggered:** Value doesn't match the expected JSON Schema type.
@@ -398,21 +293,6 @@ const errorMessage = buildErrorMessages({
         "type": "Age must be a number"
       }
     }
-  }
-}
-```
-
-**i18n pattern:**
-
-```typescript
-{
-  "en": {
-    "user.age.type": "Age must be a number",
-    "settings.enabled.type": "Must be true or false"
-  },
-  "zh-HK": {
-    "user.age.type": "年齡必須是數字",
-    "settings.enabled.type": "必須是真或假"
   }
 }
 ```
@@ -444,19 +324,6 @@ const errorMessage = buildErrorMessages({
 }
 ```
 
-**i18n pattern:**
-
-```typescript
-{
-  "en": {
-    "user.status.enum": "Status must be one of: {{allowedValues}}"
-  },
-  "zh-HK": {
-    "user.status.enum": "狀態必須是以下其中之一：{{allowedValues}}"
-  }
-}
-```
-
 ### 7. Global Fallback Errors
 
 **When triggered:** No field-specific error message is provided.
@@ -478,55 +345,30 @@ const errorMessage = buildErrorMessages({
 }
 ```
 
-**i18n pattern:**
+## Providing Validation Messages
 
-```typescript
-{
-  "en": {
-    "validation.minLength": "This field is too short",
-    "validation.maxLength": "This field is too long",
-    "validation.minimum": "Value is too small",
-    "validation.maximum": "Value is too large",
-    "validation.format": "Invalid format",
-    "validation.type": "Invalid type",
-    "validation.pattern": "Invalid pattern",
-    "validation.enum": "Invalid value"
-  },
-  "zh-HK": {
-    "validation.minLength": "此欄位太短",
-    "validation.maxLength": "此欄位太長",
-    "validation.minimum": "數值太小",
-    "validation.maximum": "數值太大",
-    "validation.format": "格式無效",
-    "validation.type": "類型無效",
-    "validation.pattern": "格式無效",
-    "validation.enum": "數值無效"
-  }
-}
-```
+### Solution 1: Direct Strings in Schema (Recommended - No i18n Required)
 
-## i18n Solutions
+**This is the simplest approach** - provide error messages directly as strings in your schema. No i18n setup needed.
 
-### Solution 1: Direct Translation Keys in Schema
-
-**Best for:** Simple forms with few fields, when you want full control.
+**Best for:** Simple forms, quick prototyping, or when you don't want to set up i18n.
 
 ```typescript
 import { buildErrorMessages } from '@bsol-oss/react-datatable5';
 
-// Define error messages with i18n keys
+// Define error messages as direct strings (no i18n required)
 const errorMessage = buildErrorMessages({
   required: {
-    username: 'user.username.field_required',
-    email: 'user.email.field_required',
+    username: 'Username is required',
+    email: 'Email is required',
   },
   properties: {
     username: {
-      minLength: 'user.username.minLength',
-      pattern: 'user.username.pattern',
+      minLength: 'Username must be at least 3 characters',
+      pattern: 'Username can only contain letters and numbers',
     },
     email: {
-      format: 'user.email.format',
+      format: 'Please enter a valid email address',
     },
   },
 });
@@ -549,42 +391,7 @@ const schema = {
 };
 ```
 
-**Translation file:**
-
-```json
-{
-  "en": {
-    "user": {
-      "username": {
-        "field_required": "Username is required",
-        "minLength": "Username must be at least 3 characters",
-        "pattern": "Username can only contain letters and numbers"
-      },
-      "email": {
-        "field_required": "Email is required",
-        "format": "Please enter a valid email address"
-      }
-    }
-  },
-  "zh-HK": {
-    "user": {
-      "username": {
-        "field_required": "必須填寫用戶名稱",
-        "minLength": "用戶名稱至少需要 3 個字元",
-        "pattern": "用戶名稱只能包含字母和數字"
-      },
-      "email": {
-        "field_required": "必須填寫電郵地址",
-        "format": "請輸入有效的電郵地址"
-      }
-    }
-  }
-}
-```
-
-### Solution 2: Using buildRequiredErrors Helper
-
-**Best for:** Forms with many required fields sharing a common pattern.
+**No translation file needed** - messages are provided directly in the schema. If you need multiple languages, you can switch schemas dynamically.
 
 ```typescript
 import {
@@ -632,9 +439,9 @@ const errorMessage = buildErrorMessages({
 // }
 ```
 
-### Solution 3: Using createErrorMessage Wrapper
+### Solution 2: Using createErrorMessage Wrapper
 
-**Best for:** Clean, readable code when you have both required and validation errors.
+**Best for:** Clean, readable code when you have both required and validation errors. Uses direct strings for all error messages.
 
 ```typescript
 import {
@@ -647,137 +454,41 @@ const errorMessage = createErrorMessage(
   // Required field errors
   buildRequiredErrors(
     ['name', 'price', 'category'],
-    (field) => `${field}.field_required`,
-    'product'
+    (field) => `${field} is required`
   ),
   // Field-specific validation errors
   buildFieldErrors({
     name: {
-      minLength: 'product.name.minLength',
-      maxLength: 'product.name.maxLength',
+      minLength: 'Name must be at least 3 characters',
+      maxLength: 'Name cannot exceed 100 characters',
     },
     price: {
-      minimum: 'product.price.minimum',
-      maximum: 'product.price.maximum',
+      minimum: 'Price must be at least 0.01',
+      maximum: 'Price cannot exceed 999999.99',
     },
     sku: {
-      pattern: 'product.sku.pattern',
+      pattern: 'SKU must match pattern ABC-123456',
     },
   }),
   // Global fallbacks (optional)
   {
-    format: 'validation.format',
-    type: 'validation.type',
+    format: 'Invalid format',
+    type: 'Invalid type',
   }
 );
 ```
 
-### Solution 4: Mixed Approach (i18n + Plain Strings)
-
-**Best for:** Prototyping or when some messages don't need translation.
-
-```typescript
-const errorMessage = buildErrorMessages({
-  required: {
-    username: 'user.username.field_required', // i18n key
-    email: 'Email is required', // plain string
-  },
-  properties: {
-    username: {
-      minLength: 'user.username.minLength', // i18n key
-    },
-    password: {
-      minLength: 'Password must be at least 8 characters', // plain string
-    },
-  },
-  format: 'validation.format', // global i18n fallback
-});
-```
-
-### Solution 5: Dynamic Error Messages with Interpolation
-
-**Best for:** When error messages need to include dynamic values (limits, counts, etc.).
-
-```typescript
-// Translation file with interpolation
-{
-  "en": {
-    "user": {
-      "username": {
-        "minLength": "Username must be at least {{min}} characters",
-        "maxLength": "Username cannot exceed {{max}} characters"
-      },
-      "age": {
-        "minimum": "You must be at least {{min}} years old",
-        "maximum": "Age cannot exceed {{max}}"
-      }
-    }
-  }
-}
-
-// Schema with error messages
-const errorMessage = buildErrorMessages({
-  properties: {
-    username: {
-      minLength: "user.username.minLength", // Will interpolate {{min}}
-      maxLength: "user.username.maxLength"  // Will interpolate {{max}}
-    },
-    age: {
-      minimum: "user.age.minimum",
-      maximum: "user.age.maximum"
-    }
-  }
-});
-```
-
-**Note:** AJV provides the actual constraint values automatically. The i18n system will receive them for interpolation.
-
-### Solution 6: Using useFormI18n Hook (Component-Level)
-
-**Best for:** Custom field components that need to access translations.
-
-```typescript
-import { useFormI18n } from "@bsol-oss/react-datatable5";
-
-const CustomField = ({ column, prefix = "" }) => {
-  const formI18n = useFormI18n(column, prefix);
-
-  return (
-    <div>
-      {/* Field label */}
-      <label>{formI18n.label()}</label>
-
-      {/* Required error */}
-      {error && <span>{formI18n.required()}</span>}
-
-      {/* Custom translation */}
-      <span>{formI18n.t('placeholder')}</span>
-      <button>{formI18n.t('add_more')}</button>
-    </div>
-  );
-};
-
-// Translation keys used:
-// - {prefix}{column}.field_label
-// - {prefix}{column}.field_required
-// - {prefix}{column}.placeholder
-// - {prefix}{column}.add_more
-```
-
 ## Complete Examples
 
-### Example 1: User Registration Form (English + Chinese)
+### Example 1: User Registration Form (Direct Strings - No i18n Required)
 
 ```typescript
 import {
   buildErrorMessages,
   buildRequiredErrors
 } from "@bsol-oss/react-datatable5";
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
 
-// Initialize i18n
-i18n.use(initReactI18next).init({
+// No i18n setup needed - use direct strings
   fallbackLng: "en",
   resources: {
     en: {
@@ -853,35 +564,36 @@ i18n.use(initReactI18next).init({
   }
 });
 
-// Build error messages
+// Build error messages with direct strings (no i18n required)
 const errorMessage = buildErrorMessages({
-  required: buildRequiredErrors(
-    ["username", "email", "password", "age"],
-    (field) => `${field}.field_required`,
-    "user"
-  ),
+  required: {
+    username: "Username is required",
+    email: "Email is required",
+    password: "Password is required",
+    age: "Age is required"
+  },
   properties: {
     username: {
-      minLength: "user.username.minLength",
-      maxLength: "user.username.maxLength",
-      pattern: "user.username.pattern"
+      minLength: "Username must be at least 3 characters",
+      maxLength: "Username cannot exceed 20 characters",
+      pattern: "Username can only contain letters, numbers, and underscores"
     },
     email: {
-      format: "user.email.format"
+      format: "Please enter a valid email address"
     },
     password: {
-      minLength: "user.password.minLength",
-      pattern: "user.password.pattern"
+      minLength: "Password must be at least 8 characters",
+      pattern: "Password must contain letters, numbers, and special characters"
     },
     age: {
-      minimum: "user.age.minimum",
-      maximum: "user.age.maximum",
-      type: "user.age.type"
+      minimum: "You must be at least 18 years old",
+      maximum: "Age cannot exceed 120",
+      type: "Age must be a number"
     }
   },
   // Global fallbacks
-  format: "validation.format",
-  type: "validation.type"
+  format: "Invalid format",
+  type: "Invalid type"
 });
 
 // JSON Schema
@@ -915,7 +627,7 @@ const schema = {
 
 // Usage in form
 const UserRegistrationForm = () => {
-  const form = useForm({ keyPrefix: "user" });
+  const form = useForm();
 
   return (
     <DefaultForm
@@ -1345,19 +1057,17 @@ const schema = {
 9. ✅ `type` - Type validation (string, number, boolean, etc.)
 10. ✅ `enum` - Enum value validation
 
-**Available i18n utilities:**
+**Available utilities:**
 
 - `buildErrorMessages()` - Main builder for error message configuration
 - `buildRequiredErrors()` - Helper for required field errors
 - `buildFieldErrors()` - Helper for field-specific validation errors
 - `createErrorMessage()` - Convenient wrapper combining all error types
-- `useFormI18n()` - Hook for component-level i18n access
 
-**Translation key patterns:**
+**Error message format:**
 
-- Field labels: `{prefix}.{field}.field_label`
-- Required errors: `{prefix}.{field}.field_required`
-- Validation errors: `{prefix}.{field}.{validationType}`
-- Global fallbacks: `validation.{validationType}`
+- **Direct strings**: `"Username is required"`
+- Provide error messages directly in the schema's `errorMessages` field
+- All error messages are provided as strings - no i18n dependency required
 
 For more examples, see the Storybook stories at `src/stories/Form/validation.stories.tsx`.

@@ -3,9 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
 import {
   Heading,
   Text,
@@ -53,106 +51,12 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 const queryClient = new QueryClient();
 
-i18n.use(initReactI18next).init({
-  fallbackLng: 'en',
-  debug: false,
-  lng: 'en',
-  resources: {
-    en: {
-      translation: {
-        // String fields
-        'name.field_label': 'Full Name',
-        'email.field_label': 'Email Address',
-        'bio.field_label': 'Biography',
-        'website.field_label': 'Website URL',
-
-        // Number fields
-        'age.field_label': 'Age',
-        'score.field_label': 'Score',
-        'price.field_label': 'Price',
-
-        // Boolean fields
-        'isActive.field_label': 'Is Active',
-        'subscribe.field_label': 'Subscribe to Newsletter',
-
-        // Date/Time fields
-        'birthDate.field_label': 'Birth Date',
-        'appointmentTime.field_label': 'Appointment Time',
-        'createdAt.field_label': 'Created At',
-
-        // Enum fields
-        'status.field_label': 'Status',
-        'role.field_label': 'Role',
-
-        // Array fields
-        'tags.field_label': 'Tags',
-        'tags.add': 'Add Tag',
-        'hobbies.field_label': 'Hobbies',
-        'hobbies.add': 'Add Hobby',
-
-        // Object fields
-        'address.field_label': 'Address',
-        'address.street.field_label': 'Street',
-        'address.city.field_label': 'City',
-        'address.zipCode.field_label': 'Zip Code',
-        'address.country.field_label': 'Country',
-
-        // Common translations (for DatePicker, TimePicker, DateTimePicker)
-        'common.month_1': 'January',
-        'common.month_2': 'February',
-        'common.month_3': 'March',
-        'common.month_4': 'April',
-        'common.month_5': 'May',
-        'common.month_6': 'June',
-        'common.month_7': 'July',
-        'common.month_8': 'August',
-        'common.month_9': 'September',
-        'common.month_10': 'October',
-        'common.month_11': 'November',
-        'common.month_12': 'December',
-        'common.weekday_1': 'Sun',
-        'common.weekday_2': 'Mon',
-        'common.weekday_3': 'Tue',
-        'common.weekday_4': 'Wed',
-        'common.weekday_5': 'Thu',
-        'common.weekday_6': 'Fri',
-        'common.weekday_7': 'Sat',
-        'common.back_button': 'Back',
-        'common.forward_button': 'Forward',
-        'common.am': 'AM',
-        'common.pm': 'PM',
-
-        // Status enum translations
-        'status.active': 'Active',
-        'status.inactive': 'Inactive',
-        'status.pending': 'Pending',
-        'status.type_to_search': 'Type to search...',
-
-        // Role enum translations
-        'role.admin': 'Administrator',
-        'role.user': 'User',
-        'role.moderator': 'Moderator',
-        'role.guest': 'Guest',
-        'role.type_to_search': 'Type to search...',
-
-        // Form actions
-        reset: 'Reset',
-      },
-    },
-  },
-  interpolation: {
-    escapeValue: false,
-  },
-});
-
 export const PreloadedValues: Story = {
   render: () => {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <PreloadedValuesForm />
-          </I18nextProvider>
+          <PreloadedValuesForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -162,7 +66,6 @@ export const PreloadedValues: Story = {
 const PreloadedValuesForm = () => {
   // Comprehensive preloaded values for all field types
   const form = useForm({
-    keyPrefix: '',
     preLoadedValues: {
       // String fields
       name: 'John Doe',
@@ -486,6 +389,33 @@ const PreloadedValuesForm = () => {
                   `Form submitted successfully!\n\nCheck the console for the full data object.`
                 );
               },
+              dateTimePickerLabels: {
+                monthNamesShort: [
+                  'Jan',
+                  'Feb',
+                  'Mar',
+                  'Apr',
+                  'May',
+                  'Jun',
+                  'Jul',
+                  'Aug',
+                  'Sep',
+                  'Oct',
+                  'Nov',
+                  'Dec',
+                ],
+                weekdayNamesShort: [
+                  'Sun',
+                  'Mon',
+                  'Tue',
+                  'Wed',
+                  'Thu',
+                  'Fri',
+                  'Sat',
+                ],
+                backButtonLabel: 'Back',
+                forwardButtonLabel: 'Forward',
+              },
               ...form,
             }}
           />
@@ -515,8 +445,7 @@ const PreloadedValuesForm = () => {
               fontSize="sm"
             >
               {`const form = useForm({
-  keyPrefix: '',
-  preLoadedValues: {
+    preLoadedValues: {
     name: 'John Doe',
     email: 'john.doe@example.com',
     age: 30,

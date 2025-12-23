@@ -1,6 +1,8 @@
 # DefaultForm with JSON Schema Usage Guide
 
-This guide provides comprehensive instructions for using the `DefaultForm` component with JSON Schema and internationalization (i18n) in the `@bsol-oss/react-datatable5` library.
+This guide provides comprehensive instructions for using the `DefaultForm` component with JSON Schema in the `@bsol-oss/react-datatable5` library.
+
+Components work fully with label objects and direct error message strings - no i18n dependency required.
 
 ## Table of Contents
 
@@ -17,8 +19,8 @@ This guide provides comprehensive instructions for using the `DefaultForm` compo
 The `DefaultForm` component is a powerful form builder that automatically generates forms from JSON Schema definitions. It supports:
 
 - **Automatic Field Generation**: Creates appropriate input fields based on JSON Schema types
-- **Internationalization**: Full i18n support with `react-i18next`
-- **Validation**: Built-in AJV validation with custom error messages
+- **Label Objects**: Provide labels via props (no i18n required)
+- **Validation**: Built-in AJV validation with custom error messages (direct strings)
 - **Flexible Layout**: Grid-based layout with customizable field positioning
 - **Rich Field Types**: Support for strings, numbers, dates, arrays, objects, and custom components
 
@@ -35,7 +37,6 @@ This library requires the following peer dependencies to be installed in your pr
   "@tanstack/react-table": "^8.21.0",
   "@tanstack/react-query": "^5.66.0",
   "react-hook-form": "^7.54.0",
-  "react-i18next": "^15.4.0",
   "ajv": "^8.0.0",
   "ajv-formats": "^2.0.0",
   "ajv-errors": "^2.0.0",
@@ -47,7 +48,7 @@ This library requires the following peer dependencies to be installed in your pr
 
 ```bash
 npm install @bsol-oss/react-datatable5
-npm install react react-hook-form react-i18next ajv ajv-formats ajv-errors dayjs
+npm install react react-hook-form ajv ajv-formats ajv-errors dayjs
 npm install @chakra-ui/react @tanstack/react-table @tanstack/react-query
 ```
 
@@ -57,13 +58,11 @@ npm install @chakra-ui/react @tanstack/react-table @tanstack/react-query
 
 ```tsx
 import { DefaultForm, useForm } from '@bsol-oss/react-datatable5';
-import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
 const MyForm = () => {
   const form = useForm({
-    keyPrefix: 'user', // Optional: scopes translations under "user" namespace
-    preLoadedValues: { name: 'John Doe' }, // Optional: pre-populate form
+    // preLoadedValues: { name: 'John Doe' }, // Optional: pre-populate form
   });
 
   const [idMap, setIdMap] = useState({});
@@ -136,7 +135,7 @@ const form = useForm({
 // - setIdMap: Setter for idMap
 ```
 
-**Note:** i18n translation is handled internally by components using `useFormI18n` hook and label objects from `SchemaFormContext`. Components prefer label objects passed via props (e.g., `idPickerLabels`, `filePickerLabels`) with i18n fallbacks.
+Components use label objects passed via props (e.g., `idPickerLabels`, `filePickerLabels`) for all labels.
 
 ## JSON Schema Reference
 
@@ -295,80 +294,32 @@ The `DefaultForm` component supports all JSON Schema Draft 7 types with addition
 }
 ```
 
-## Translation JSON Structure
+## Labels
 
-The form system uses a structured approach to translations with the `useFormI18n` hook providing simplified access to field-specific translations.
+Components work fully with label objects. Pass labels via props to customize all user-facing text.
 
-### Translation Key Convention
+### Label Objects
 
-Translation keys follow the pattern: `{keyPrefix}.{fieldName}.{key}`
+All components support label objects passed via props:
 
-```json
-{
-  "en": {
-    "user": {
-      "name": {
-        "field_label": "Full Name",
-        "field_required": "Name is required"
-      },
-      "email": {
-        "field_label": "Email Address",
-        "field_required": "Email is required"
-      }
-    }
-  }
-}
-```
+- `idPickerLabels` - Labels for IdPicker components
+- `filePickerLabels` - Labels for FilePicker components
+- `enumPickerLabels` - Labels for EnumPicker components
+- `dateTimePickerLabels` - Labels for date/time pickers
+- `formButtonLabels` - Labels for form buttons
 
-### Standard Translation Keys
-
-All fields support these standard keys:
-
-| Key              | Description                  |
-| ---------------- | ---------------------------- |
-| `field_label`    | Field display label          |
-| `field_required` | Required field error message |
-
-### IdPicker-Specific Keys
-
-IdPicker fields support additional translation keys:
-
-| Key                   | Description             |
-| --------------------- | ----------------------- |
-| `undefined`           | "Not found" message     |
-| `add_more`            | "Add more" button text  |
-| `type_to_search`      | Search placeholder text |
-| `total`               | "Total" label           |
-| `showing`             | "Showing" label         |
-| `per_page`            | "per page" text         |
-| `empty_search_result` | No results message      |
-| `initial_results`     | Initial state message   |
-
-### Using `keyPrefix` for Scoped Translations
-
-```tsx
-// With keyPrefix: "user"
-const form = useForm({ keyPrefix: 'user' });
-
-// Translation keys become:
-// user.name.field_label
-// user.email.field_label
-// etc.
-```
+See [IdPicker Labels Documentation](./IDPICKER_LABELS.md) for complete details.
 
 ## Complete Examples
 
-### Example 1: Simple Form with Translations
+### Example 1: Simple Form
 
-```tsx
+````tsx
 import { DefaultForm, useForm } from '@bsol-oss/react-datatable5';
-import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
 const SimpleForm = () => {
   const form = useForm({
-    keyPrefix: 'user',
-    preLoadedValues: {},
   });
 
   const [idMap, setIdMap] = useState({});
@@ -415,52 +366,9 @@ const SimpleForm = () => {
   );
 };
 
-// Translation JSON
-const translations = {
-  en: {
-    user: {
-      name: {
-        field_label: 'Full Name',
-        field_required: 'Name is required',
-      },
-      email: {
-        field_label: 'Email Address',
-        field_required: 'Email is required',
-      },
-      age: {
-        field_label: 'Age',
-        field_required: 'Age is required',
-      },
-      bio: {
-        field_label: 'Biography',
-        field_required: 'Biography is required',
-      },
-    },
-  },
-  'zh-HK': {
-    user: {
-      name: {
-        field_label: '全名',
-        field_required: '必須填寫姓名',
-      },
-      email: {
-        field_label: '電郵地址',
-        field_required: '必須填寫電郵地址',
-      },
-      age: {
-        field_label: '年齡',
-        field_required: '必須填寫年齡',
-      },
-      bio: {
-        field_label: '個人簡介',
-        field_required: '必須填寫個人簡介',
-      },
-    },
-  },
-};
-```
+// Labels can be provided via schema.title or label objects if needed
 
-### Example 2: IdPicker Form with Complete Translations
+### Example 2: IdPicker Form with Label Objects
 
 ```tsx
 import { DefaultForm, useForm } from '@bsol-oss/react-datatable5';
@@ -468,7 +376,6 @@ import { useState } from 'react';
 
 const IdPickerForm = () => {
   const form = useForm({
-    keyPrefix: 'project',
   });
 
   const [idMap, setIdMap] = useState({});
@@ -507,6 +414,17 @@ const IdPickerForm = () => {
         onSubmit: (data) => {
           console.log('Form submitted:', data);
         },
+        // Provide labels via label objects
+        idPickerLabels: {
+          undefined: 'Item not found',
+          addMore: 'Add more',
+          typeToSearch: 'Type to search...',
+          total: 'Total',
+          showing: 'Showing',
+          perPage: 'per page',
+          emptySearchResult: 'No results found',
+          initialResults: 'Start typing to search',
+        },
         ...form,
         idMap,
         setIdMap,
@@ -515,7 +433,6 @@ const IdPickerForm = () => {
   );
 };
 
-// Complete Translation JSON for IdPicker
 const idPickerTranslations = {
   en: {
     project: {
@@ -574,7 +491,7 @@ const idPickerTranslations = {
     },
   },
 };
-```
+````
 
 ### Example 3: Form with Validation and Custom Error Messages
 
@@ -699,25 +616,40 @@ const customErrorRenderer = (error) => (
 />;
 ```
 
-### Multi-language Support
+### Multi-language Support (Optional - Using Label Objects)
+
+**Recommended approach:** Switch label objects based on language.
 
 ```tsx
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 const MultiLanguageForm = () => {
   const [currentLang, setCurrentLang] = useState('en');
-  const { i18n } = useTranslation();
 
-  const form = useForm({
-    keyPrefix: 'user',
-  });
+  const form = useForm({});
 
   const [idMap, setIdMap] = useState({});
 
+  // Define labels for each language
+  const labels = {
+    en: {
+      idPickerLabels: {
+        typeToSearch: 'Type to search...',
+        emptySearchResult: 'No results found',
+        // ... other labels
+      },
+    },
+    'zh-HK': {
+      idPickerLabels: {
+        typeToSearch: '輸入以搜尋...',
+        emptySearchResult: '找不到結果',
+        // ... other labels
+      },
+    },
+  };
+
   const changeLanguage = (lang) => {
     setCurrentLang(lang);
-    i18n.changeLanguage(lang);
   };
 
   return (
@@ -736,6 +668,7 @@ const MultiLanguageForm = () => {
         formConfig={{
           schema,
           serverUrl: 'https://api.example.com',
+          ...labels[currentLang], // Use labels for current language
           ...form,
           idMap,
           setIdMap,
@@ -746,32 +679,4 @@ const MultiLanguageForm = () => {
 };
 ```
 
-### Integration with i18next
-
-```tsx
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-
-// Initialize i18next
-i18n.use(initReactI18next).init({
-  fallbackLng: 'en',
-  lng: 'en',
-  resources: {
-    en: {
-      translation: {
-        // Your English translations
-      },
-    },
-    'zh-HK': {
-      translation: {
-        // Your Traditional Chinese (Hong Kong) translations
-      },
-    },
-  },
-  interpolation: {
-    escapeValue: false,
-  },
-});
-```
-
-This comprehensive guide covers all aspects of using `DefaultForm` with JSON Schema and internationalization. The component provides a powerful, flexible way to create forms with minimal code while maintaining full control over appearance, validation, and user experience.
+This comprehensive guide covers all aspects of using `DefaultForm` with JSON Schema. Components work fully with label objects and direct error message strings - no i18n dependency required. The component provides a powerful, flexible way to create forms with minimal code while maintaining full control over appearance, validation, and user experience.

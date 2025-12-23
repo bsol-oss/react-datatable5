@@ -2,7 +2,7 @@ import { AxiosRequestConfig } from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import { createContext, Dispatch, ReactNode, SetStateAction } from 'react';
 import { FieldValues, Resolver } from 'react-hook-form';
-import { UseTranslationResponse } from 'react-i18next';
+import { Translate } from './useForm';
 import {
   DateTimePickerLabels,
   IdPickerLabels,
@@ -23,7 +23,8 @@ export interface SchemaFormContext<TData extends FieldValues> {
   rowNumber?: number | string;
   idMap: Record<string, object>;
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
-  translate: UseTranslationResponse<any, any>;
+  /** Translate object for fallback text (components prefer label objects) */
+  translate: Translate;
   requestOptions: AxiosRequestConfig;
   isSuccess: boolean;
   setIsSuccess: Dispatch<SetStateAction<boolean>>;
@@ -70,11 +71,11 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   include: [],
   onSubmit: async () => {},
   rowNumber: 0,
+  /** Default translate fallback - returns key as-is */
   translate: {
     t: (key: string) => key,
-    i18n: {} as any,
     ready: true,
-  } as UseTranslationResponse<any, any>,
+  } as Translate,
   requestOptions: {},
   timezone: 'Asia/Hong_Kong',
   displayConfig: {

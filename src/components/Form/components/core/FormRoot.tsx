@@ -9,7 +9,7 @@ import {
   SubmitHandler,
   UseFormReturn,
 } from 'react-hook-form';
-import { UseTranslationResponse } from 'react-i18next';
+import { Translate } from '../../useForm';
 import axios from 'axios';
 import { clearEmptyString } from '../../utils/clearEmptyString';
 import { ajvResolver } from '../../utils/ajvResolver';
@@ -30,7 +30,8 @@ export interface FormRootProps<TData extends FieldValues> {
   idMap: Record<string, object>;
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
   form: UseFormReturn;
-  translate: UseTranslationResponse<any, any>;
+  /** Translate object for fallback text (components prefer label objects) */
+  translate: Translate;
   children: ReactNode;
   order?: string[];
   ignore?: string[];

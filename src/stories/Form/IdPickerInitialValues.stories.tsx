@@ -3,9 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import i18n from 'i18next';
 import { JSONSchema7 } from 'json-schema';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 import {
   Heading,
@@ -51,46 +49,6 @@ type Story = StoryObj<typeof meta>;
 
 export default meta;
 const queryClient = new QueryClient();
-
-// Initialize i18n
-i18n.use(initReactI18next).init({
-  fallbackLng: 'en',
-  debug: false,
-  lng: 'en',
-  resources: {
-    en: {
-      translation: {
-        // Single picker translations
-        'manager.field_label': 'Manager',
-        'manager.field_required': 'Manager is required',
-        'manager.undefined': 'Manager not found',
-        'manager.add_more': 'Select Manager',
-        'manager.type_to_search': 'Type to search managers...',
-        'manager.total': 'Total',
-        'manager.showing': 'Showing',
-        'manager.per_page': 'per page',
-        'manager.empty_search_result': 'No managers found',
-        'manager.initial_results': 'Start typing to search for managers',
-
-        // Multiple picker translations
-        'team_members.field_label': 'Team Members',
-        'team_members.field_required': 'At least one team member is required',
-        'team_members.undefined': 'Member not found',
-        'team_members.add_more': 'Add Team Member',
-        'team_members.type_to_search': 'Type to search team members...',
-        'team_members.total': 'Total',
-        'team_members.showing': 'Showing',
-        'team_members.per_page': 'per page',
-        'team_members.empty_search_result': 'No team members found',
-        'team_members.initial_results':
-          'Start typing to search for team members',
-      },
-    },
-  },
-  interpolation: {
-    escapeValue: false,
-  },
-});
 
 // Mock user/employee data
 const mockEmployees = [
@@ -216,9 +174,7 @@ export const IdPickerWithInitialValues: Story = {
     return (
       <Provider>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-            <IdPickerInitialValuesForm />
-          </I18nextProvider>
+          <IdPickerInitialValuesForm />
         </QueryClientProvider>
       </Provider>
     );
@@ -229,7 +185,6 @@ const IdPickerInitialValuesForm = () => {
   // Pre-load form with initial values
   // These should trigger the query on mount and display correctly
   const form = useForm({
-    keyPrefix: '',
     preLoadedValues: {
       // Single IdPicker with initial value
       manager: 'emp-2', // Bob Wong
