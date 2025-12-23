@@ -9,6 +9,7 @@ import {
   EnumPickerLabels,
   FilePickerLabels,
   FormButtonLabels,
+  TimePickerLabels,
 } from './components/types/CustomJSONSchema7';
 
 export interface SchemaFormContext<TData extends FieldValues> {
@@ -54,6 +55,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
   enumPickerLabels?: EnumPickerLabels;
   filePickerLabels?: FilePickerLabels;
   formButtonLabels?: FormButtonLabels;
+  timePickerLabels?: TimePickerLabels;
   ajvResolver: Resolver<FieldValues>;
   insideDialog?: boolean;
 }

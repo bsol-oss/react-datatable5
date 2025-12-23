@@ -26,7 +26,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { timezone, insideDialog } = useSchemaContext();
+  const { timezone, insideDialog, timePickerLabels } = useSchemaContext();
 
   const {
     required,
@@ -155,6 +155,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
                   meridiem={meridiem}
                   setMeridiem={setMeridiem}
                   onChange={handleTimeChange}
+                  labels={timePickerLabels}
                 />
               </Popover.Body>
             </Popover.Content>
@@ -172,6 +173,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
                     meridiem={meridiem}
                     setMeridiem={setMeridiem}
                     onChange={handleTimeChange}
+                    labels={timePickerLabels}
                   />
                 </Popover.Body>
               </Popover.Content>

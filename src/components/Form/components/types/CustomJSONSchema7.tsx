@@ -57,6 +57,11 @@ export interface FormButtonLabels {
   submitAgain?: string;
 }
 
+export interface TimePickerLabels {
+  placeholder?: string;
+  emptyMessage?: string;
+}
+
 export interface CustomJSONSchema7 extends JSONSchema7 {
   gridColumn?: string;
   gridRow?: string;

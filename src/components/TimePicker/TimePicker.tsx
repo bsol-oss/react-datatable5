@@ -40,6 +40,10 @@ interface TimePickerProps {
   startTime?: string;
   selectedDate?: string;
   portalled?: boolean;
+  labels?: {
+    placeholder?: string;
+    emptyMessage?: string;
+  };
 }
 
 interface TimeOption {
@@ -70,6 +74,10 @@ export function TimePicker({
   startTime,
   selectedDate,
   portalled = true,
+  labels = {
+    placeholder: 'hh:mm a',
+    emptyMessage: 'No time found',
+  },
 }: TimePickerProps) {
   // Generate time options (every 15 minutes)
   const timeOptions = useMemo<TimeOption[]>(() => {
@@ -440,7 +448,7 @@ export function TimePicker({
           <Combobox.Control>
             <InputGroup startElement={<BsClock />}>
               <Combobox.Input
-                placeholder="hh:mm a"
+                placeholder={labels.placeholder}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
@@ -455,7 +463,7 @@ export function TimePicker({
           <Portal disabled={!portalled}>
             <Combobox.Positioner>
               <Combobox.Content>
-                <Combobox.Empty>No time found</Combobox.Empty>
+                <Combobox.Empty>{labels.emptyMessage}</Combobox.Empty>
                 {collection.items.map((item) => (
                   <Combobox.Item item={item} key={item.value}>
                     <Flex alignItems="center" gap={2} width="100%">

@@ -36,6 +36,10 @@ interface IsoTimePickerProps {
   selectedDate?: string;
   timezone?: string;
   portalled?: boolean;
+  labels?: {
+    placeholder?: string;
+    emptyMessage?: string;
+  };
 }
 
 interface TimeOption {
@@ -61,6 +65,10 @@ export function IsoTimePicker({
   selectedDate,
   timezone = 'Asia/Hong_Kong',
   portalled = true,
+  labels = {
+    placeholder: 'HH:mm:ss',
+    emptyMessage: 'No time found',
+  },
 }: IsoTimePickerProps) {
   // Generate time options (every 15 minutes, seconds always 0)
   const timeOptions = useMemo<TimeOption[]>(() => {
@@ -388,7 +396,7 @@ export function IsoTimePicker({
           <Combobox.Control>
             <InputGroup startElement={<BsClock />}>
               <Combobox.Input
-                placeholder="HH:mm:ss"
+                placeholder={labels.placeholder}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
@@ -403,7 +411,7 @@ export function IsoTimePicker({
           <Portal disabled={!portalled}>
             <Combobox.Positioner>
               <Combobox.Content>
-                <Combobox.Empty>No time found</Combobox.Empty>
+                <Combobox.Empty>{labels.emptyMessage}</Combobox.Empty>
                 {collection.items.map((item) => (
                   <Combobox.Item item={item} key={item.value}>
                     <Flex alignItems="center" gap={2} width="100%">

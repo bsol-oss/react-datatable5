@@ -4,6 +4,7 @@ import { DatePickerInput } from './DatePickerInput';
 import { DatePickerLabels } from './DatePicker';
 import { TimePicker } from '../TimePicker/TimePicker';
 import { IsoTimePicker } from './IsoTimePicker';
+import { TimePickerLabels } from '../Form/components/types/CustomJSONSchema7';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -18,6 +19,7 @@ interface DateTimePickerProps {
   format?: 'date-time' | 'iso-date-time';
   showSeconds?: boolean;
   labels?: DatePickerLabels;
+  timePickerLabels?: TimePickerLabels;
   timezone?: string;
   startTime?: string;
   minDate?: Date;
@@ -63,6 +65,7 @@ export function DateTimePicker({
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Next',
   },
+  timePickerLabels,
   timezone = 'Asia/Hong_Kong',
   startTime,
   minDate,
@@ -614,6 +617,7 @@ export function DateTimePicker({
             selectedDate={selectedDate}
             timezone={timezone}
             portalled={portalled}
+            labels={timePickerLabels}
           />
         ) : (
           <TimePicker
@@ -628,6 +632,7 @@ export function DateTimePicker({
             selectedDate={selectedDate}
             timezone={timezone}
             portalled={portalled}
+            labels={timePickerLabels}
           />
         )}
 

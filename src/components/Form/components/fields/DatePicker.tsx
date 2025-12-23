@@ -65,76 +65,30 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
 
   const datePickerLabels = {
     monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
-      formI18n.translate.t(`common.month_1`, {
-        defaultValue: 'January',
-      }),
-      formI18n.translate.t(`common.month_2`, {
-        defaultValue: 'February',
-      }),
-      formI18n.translate.t(`common.month_3`, {
-        defaultValue: 'March',
-      }),
-      formI18n.translate.t(`common.month_4`, {
-        defaultValue: 'April',
-      }),
-      formI18n.translate.t(`common.month_5`, {
-        defaultValue: 'May',
-      }),
-      formI18n.translate.t(`common.month_6`, {
-        defaultValue: 'June',
-      }),
-      formI18n.translate.t(`common.month_7`, {
-        defaultValue: 'July',
-      }),
-      formI18n.translate.t(`common.month_8`, {
-        defaultValue: 'August',
-      }),
-      formI18n.translate.t(`common.month_9`, {
-        defaultValue: 'September',
-      }),
-      formI18n.translate.t(`common.month_10`, {
-        defaultValue: 'October',
-      }),
-      formI18n.translate.t(`common.month_11`, {
-        defaultValue: 'November',
-      }),
-      formI18n.translate.t(`common.month_12`, {
-        defaultValue: 'December',
-      }),
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ],
     weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
-      formI18n.translate.t(`common.weekday_1`, {
-        defaultValue: 'Sun',
-      }),
-      formI18n.translate.t(`common.weekday_2`, {
-        defaultValue: 'Mon',
-      }),
-      formI18n.translate.t(`common.weekday_3`, {
-        defaultValue: 'Tue',
-      }),
-      formI18n.translate.t(`common.weekday_4`, {
-        defaultValue: 'Wed',
-      }),
-      formI18n.translate.t(`common.weekday_5`, {
-        defaultValue: 'Thu',
-      }),
-      formI18n.translate.t(`common.weekday_6`, {
-        defaultValue: 'Fri',
-      }),
-      formI18n.translate.t(`common.weekday_7`, {
-        defaultValue: 'Sat',
-      }),
+      'Sun',
+      'Mon',
+      'Tue',
+      'Wed',
+      'Thu',
+      'Fri',
+      'Sat',
     ],
-    backButtonLabel:
-      dateTimePickerLabels?.backButtonLabel ??
-      formI18n.translate.t(`common.back_button`, {
-        defaultValue: 'Back',
-      }),
-    forwardButtonLabel:
-      dateTimePickerLabels?.forwardButtonLabel ??
-      formI18n.translate.t(`common.forward_button`, {
-        defaultValue: 'Forward',
-      }),
+    backButtonLabel: dateTimePickerLabels?.backButtonLabel ?? 'Back',
+    forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ?? 'Forward',
   };
 
   const datePickerContent = (
