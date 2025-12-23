@@ -1,38 +1,23 @@
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Grid,
-  Spinner,
-  Alert,
-} from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Grid, Spinner } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 import { ColumnRenderer } from '../fields/ColumnRenderer';
 import { ColumnViewer } from '../viewers/ColumnViewer';
 import { SubmitButton } from './SubmitButton';
 
-export const FormBody = <TData extends object>() => {
+export const FormBody = () => {
   const {
     schema,
     order,
     ignore,
     include,
-    isSuccess,
-    setIsSuccess,
     isError,
-    setIsError,
     isSubmiting,
-    setIsSubmiting,
     isConfirming,
     setIsConfirming,
     validatedData,
-    setValidatedData,
     error,
-    getUpdatedData,
     customErrorRenderer,
-    customSuccessRenderer,
     displayConfig,
     onFormSubmit,
     formButtonLabels,
@@ -73,39 +58,6 @@ export const FormBody = <TData extends object>() => {
     include,
   });
 
-  if (isSuccess) {
-    const resetHandler = async () => {
-      setIsError(false);
-      setIsSubmiting(false);
-      setIsSuccess(false);
-      setIsConfirming(false);
-      setValidatedData(undefined);
-      const data = await getUpdatedData();
-      methods.reset(data as TData);
-    };
-
-    if (customSuccessRenderer) {
-      return customSuccessRenderer(resetHandler);
-    }
-
-    return (
-      <Flex flexFlow={'column'} gap="2">
-        <Alert.Root status="success">
-          <Alert.Indicator />
-          <Alert.Content>
-            <Alert.Title>
-              {formButtonLabels?.submitSuccess ?? 'Submit Success'}
-            </Alert.Title>
-          </Alert.Content>
-        </Alert.Root>
-        <Flex justifyContent={'end'}>
-          <Button onClick={resetHandler} formNoValidate>
-            {formButtonLabels?.submitAgain ?? 'Submit Again'}
-          </Button>
-        </Flex>
-      </Flex>
-    );
-  }
   if (isConfirming) {
     return (
       <Flex flexFlow={'column'} gap="2">
