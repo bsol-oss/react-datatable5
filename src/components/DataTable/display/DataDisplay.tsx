@@ -3,11 +3,9 @@ import { flexRender } from '@tanstack/react-table';
 import { snakeToLabel } from '../../Form/utils/snakeToLabel';
 import { RecordDisplay } from './RecordDisplay';
 import { useDataTableContext } from '../context/useDataTableContext';
-import { UseTranslationResponse } from 'react-i18next';
 
 export interface DataDisplayProps {
   variant?: 'horizontal' | 'stats' | '';
-  translate?: UseTranslationResponse<any, any>;
 }
 
 const CellRenderer = ({ cell }) => {

@@ -20,7 +20,6 @@ import { ReactNode } from 'react';
 import { RankingInfo, rankItem } from '@tanstack/match-sorter-utils';
 import { DensityFeature, DensityState } from './controls/DensityFeature';
 import { DataTableContext, DataTableLabel } from './context/DataTableContext';
-import { UseTranslationResponse } from 'react-i18next';
 
 declare module '@tanstack/react-table' {
   //add fuzzy filter to the filterFns
@@ -87,7 +86,6 @@ export interface DataTableProps<TData = unknown> {
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
-  translate: UseTranslationResponse<any, any>;
   tableLabel?: DataTableLabel;
 }
 
@@ -123,7 +121,6 @@ export function DataTable<TData = unknown>({
   setColumnOrder,
   setDensity,
   setColumnVisibility,
-  translate,
   children,
   tableLabel = {
     view: 'View',
@@ -197,7 +194,6 @@ export function DataTable<TData = unknown>({
         globalFilter,
         setGlobalFilter,
         type: 'client',
-        translate,
         columns: columns as ColumnDef<unknown, unknown>[],
         sorting,
         setSorting,

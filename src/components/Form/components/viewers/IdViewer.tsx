@@ -3,7 +3,7 @@ import { Flex, Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
-import { removeIndex } from '../../utils/removeIndex';
+import { useFormI18n } from '../../utils/useFormI18n';
 import {
   CustomJSONSchema7,
   defaultRenderDisplay,
@@ -26,7 +26,7 @@ export const IdViewer = ({
     watch,
     formState: { errors },
   } = useFormContext();
-  const { idMap, translate } = useSchemaContext();
+  const { idMap, idPickerLabels, formButtonLabels } = useSchemaContext();
   const {
     required,
     gridColumn = 'span 12',
@@ -71,9 +71,7 @@ export const IdViewer = ({
             const item = idMap[id];
             if (item === undefined) {
               return (
-                <Text key={id}>
-                  {translate.t(removeIndex(`${colLabel}.undefined`))}
-                </Text>
+                <Text key={id}>{idPickerLabels?.undefined ?? 'Undefined'}</Text>
               );
             }
             return (
@@ -90,7 +88,7 @@ export const IdViewer = ({
 
       {errors[`${colLabel}`] && (
         <Text color={'red.400'}>
-          {translate.t(removeIndex(`${colLabel}.field_required`))}
+          {formButtonLabels?.fieldRequired ?? formI18n.required()}
         </Text>
       )}
     </Field>

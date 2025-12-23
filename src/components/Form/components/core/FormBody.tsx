@@ -19,7 +19,6 @@ export const FormBody = <TData extends object>() => {
     order,
     ignore,
     include,
-    translate,
     isSuccess,
     setIsSuccess,
     isError,
@@ -94,12 +93,14 @@ export const FormBody = <TData extends object>() => {
         <Alert.Root status="success">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>{translate.t('submit_success')}</Alert.Title>
+            <Alert.Title>
+              {formButtonLabels?.submitSuccess ?? 'Submit Success'}
+            </Alert.Title>
           </Alert.Content>
         </Alert.Root>
         <Flex justifyContent={'end'}>
           <Button onClick={resetHandler} formNoValidate>
-            {formButtonLabels?.submitAgain ?? translate.t('submit_again')}
+            {formButtonLabels?.submitAgain ?? 'Submit Again'}
           </Button>
         </Flex>
       </Flex>
@@ -133,14 +134,14 @@ export const FormBody = <TData extends object>() => {
             }}
             variant={'subtle'}
           >
-            {formButtonLabels?.cancel ?? translate.t('cancel')}
+            {formButtonLabels?.cancel ?? 'Cancel'}
           </Button>
           <Button
             onClick={() => {
               onFormSubmit(validatedData);
             }}
           >
-            {formButtonLabels?.confirm ?? translate.t('confirm')}
+            {formButtonLabels?.confirm ?? 'Confirm'}
           </Button>
         </Flex>
 
@@ -179,7 +180,7 @@ export const FormBody = <TData extends object>() => {
             }}
             variant={'subtle'}
           >
-            {formButtonLabels?.reset ?? translate.t('reset')}
+            {formButtonLabels?.reset ?? 'Reset'}
           </Button>
         )}
         {showSubmitButton && <SubmitButton />}

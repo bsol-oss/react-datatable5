@@ -10,11 +10,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 import { peopleSchema } from '../schema';
-import {
-  I18nextProvider,
-  initReactI18next,
-  useTranslation,
-} from 'react-i18next';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -64,13 +60,11 @@ const AddressApp = () => {
     url: 'http://localhost:8081/api/g/core_people',
     default: { sorting: [{ id: 'id', desc: false }] },
   });
-  const translate = useTranslation('', { keyPrefix: 'excell' });
 
   const columns = getColumns<string>({
     schema: peopleSchema as JSONSchema7,
     width: [400, 80, 100],
     meta: {},
-    translate,
   });
 
   const columnsInclude = getColumns<string>({
@@ -88,7 +82,6 @@ const AddressApp = () => {
         ],
       },
     },
-    translate,
   });
 
   return (

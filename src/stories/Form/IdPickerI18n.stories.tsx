@@ -15,18 +15,11 @@ import { useState } from 'react';
  *
  * This story demonstrates the simpler i18n handling in IdPicker using the useFormI18n hook.
  *
- * Old pattern (verbose):
- *   translate.t(removeIndex(`${colLabel}.field_label`))
- *   translate.t(removeIndex(`${colLabel}.add_more`))
- *
- * New pattern (clean):
- *   formI18n.label()
- *   formI18n.t('add_more')
- *
  * The story includes:
  * - Single and multiple IdPicker instances
  * - Language switcher (English & Traditional Chinese HK)
  * - All IdPicker translation keys demonstrated
+ * - Uses label objects from SchemaFormContext for i18n
  */
 
 const meta = {
@@ -218,7 +211,7 @@ export const IdPickerI18n: Story = {
 
 const IdPickerForm = () => {
   const [currentLang, setCurrentLang] = useState('en');
-  const form = useForm({ keyPrefix: '' });
+  const form = useForm({});
 
   // Language switcher
   const switchLanguage = (lang: string) => {
@@ -306,16 +299,17 @@ const IdPickerForm = () => {
           borderRadius="md"
         >
           <Text fontSize="xs" fontWeight="bold">
-            Old Pattern (Verbose):
-          </Text>
-          <Text fontSize="xs" fontFamily="mono" color="red.600">
-            {`translate.t(removeIndex(removeIndex(\`\${column}.field_label\`)))`}
-          </Text>
-          <Text fontSize="xs" fontWeight="bold" mt={2}>
-            New Pattern (Clean):
+            i18n Pattern:
           </Text>
           <Text fontSize="xs" fontFamily="mono" color="green.600">
             {`formI18n.label()`}
+          </Text>
+          <Text fontSize="xs" fontFamily="mono" color="green.600">
+            {`formI18n.t('add_more')`}
+          </Text>
+          <Text fontSize="xs" mt={2} color="text.subtle">
+            Components use label objects from SchemaFormContext with i18n
+            fallbacks
           </Text>
         </Flex>
       </Flex>

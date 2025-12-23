@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 
-import { UseQueryResult } from "@tanstack/react-query";
+import { UseQueryResult } from '@tanstack/react-query';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,12 +13,11 @@ import {
   Table,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table";
-import { DensityFeature, DensityState } from "./controls/DensityFeature";
-import { DataTableContext, DataTableLabel } from "./context/DataTableContext";
-import { DataTableServerContext } from "./context/DataTableServerContext";
-import { DataResponse } from "./useDataTableServer";
-import { UseTranslationResponse } from "react-i18next";
+} from '@tanstack/react-table';
+import { DensityFeature, DensityState } from './controls/DensityFeature';
+import { DataTableContext, DataTableLabel } from './context/DataTableContext';
+import { DataTableServerContext } from './context/DataTableServerContext';
+import { DataResponse } from './useDataTableServer';
 
 export interface DataTableServerProps<TData = unknown> {
   children: ReactNode | ReactNode[];
@@ -52,7 +51,6 @@ export interface DataTableServerProps<TData = unknown> {
   setColumnVisibility: OnChangeFn<VisibilityState>;
   query: UseQueryResult<DataResponse<TData>>;
   url?: string;
-  translate: UseTranslationResponse<any, any>;
   tableLabel?: DataTableLabel;
 }
 
@@ -90,24 +88,23 @@ export function DataTableServer<TData = unknown>({
   setColumnVisibility,
   query,
   url,
-  translate,
   children,
   tableLabel = {
-    view: "View",
-    edit: "Edit",
-    filterButtonText: "Filter",
-    filterTitle: "Filter",
-    filterReset: "Reset",
-    filterClose: "Close",
-    reloadTooltip: "Reload",
-    reloadButtonText: "Reload",
-    resetSelection: "Reset Selection",
-    resetSorting: "Reset Sorting",
-    rowCountText: "Row Count",
-    hasErrorText: "Has Error",
-    globalFilterPlaceholder: "Search",
-    trueLabel: "True",
-    falseLabel: "False",
+    view: 'View',
+    edit: 'Edit',
+    filterButtonText: 'Filter',
+    filterTitle: 'Filter',
+    filterReset: 'Reset',
+    filterClose: 'Close',
+    reloadTooltip: 'Reload',
+    reloadButtonText: 'Reload',
+    resetSelection: 'Reset Selection',
+    resetSorting: 'Reset Sorting',
+    rowCountText: 'Row Count',
+    hasErrorText: 'Has Error',
+    globalFilterPlaceholder: 'Search',
+    trueLabel: 'True',
+    falseLabel: 'False',
   },
 }: DataTableServerProps<TData>) {
   const table = useReactTable({
@@ -118,7 +115,7 @@ export function DataTableServer<TData = unknown>({
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     manualSorting: true,
-    columnResizeMode: "onChange",
+    columnResizeMode: 'onChange',
     defaultColumn: {
       size: 150, //starting column size
       minSize: 10, //enforced during column resizing
@@ -164,8 +161,7 @@ export function DataTableServer<TData = unknown>({
         table: table as Table<unknown>,
         globalFilter,
         setGlobalFilter,
-        type: "server",
-        translate,
+        type: 'server',
         columns: columns as ColumnDef<unknown, unknown>[],
         sorting,
         setSorting,
@@ -185,7 +181,7 @@ export function DataTableServer<TData = unknown>({
         tableLabel,
       }}
     >
-      <DataTableServerContext.Provider value={{ url, query }}>
+      <DataTableServerContext.Provider value={{ url: url ?? '', query }}>
         {children}
       </DataTableServerContext.Provider>
     </DataTableContext.Provider>

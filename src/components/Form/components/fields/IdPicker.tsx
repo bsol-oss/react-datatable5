@@ -403,7 +403,7 @@ export const IdPicker = ({
             if (item === undefined) {
               return (
                 <Text key={id} fontSize="sm">
-                  {idPickerLabels?.undefined ?? formI18n.t('undefined')}
+                  {idPickerLabels?.undefined ?? 'Undefined'}
                 </Text>
               );
             }
@@ -427,6 +427,39 @@ export const IdPicker = ({
         </Flex>
       )}
 
+      {/* Single Picker - Show selected value using renderDisplay */}
+      {!isMultiple && currentValue.length > 0 && (
+        <Flex mb={2}>
+          {(() => {
+            const id = currentValue[0];
+            const item = idMap[id] as RecordType | undefined;
+            // Show loading skeleton while fetching initial values
+            if (
+              item === undefined &&
+              (isLoadingInitialValues || isFetchingInitialValues) &&
+              missingIds.includes(id)
+            ) {
+              return <Skeleton height="24px" width="100px" borderRadius="md" />;
+            }
+            // Only show "not found" if we're not loading and item is still missing
+            if (item === undefined) {
+              return (
+                <Text fontSize="sm">
+                  {idPickerLabels?.undefined ?? 'Undefined'}
+                </Text>
+              );
+            }
+            return (
+              <Text fontSize="sm">
+                {renderDisplay
+                  ? renderDisplay(item)
+                  : defaultRenderDisplay(item)}
+              </Text>
+            );
+          })()}
+        </Flex>
+      )}
+
       <Combobox.Root
         collection={collection}
         value={currentValue}
@@ -445,9 +478,7 @@ export const IdPicker = ({
       >
         <Combobox.Control>
           <Combobox.Input
-            placeholder={
-              idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search')
-            }
+            placeholder={idPickerLabels?.typeToSearch ?? 'Type to search'}
           />
           <Combobox.IndicatorGroup>
             {(isFetching || isLoading || isPending) && <Spinner size="xs" />}
@@ -472,7 +503,7 @@ export const IdPicker = ({
             <Combobox.Content>
               {isError ? (
                 <Text p={2} color="fg.error" fontSize="sm">
-                  {formI18n.t('loading_failed')}
+                  {idPickerLabels?.emptySearchResult ?? 'Loading failed'}
                 </Text>
               ) : isFetching || isLoading || isPending || isSearching ? (
                 // Show skeleton items to prevent UI shift
@@ -491,10 +522,9 @@ export const IdPicker = ({
               ) : collection.items.length === 0 ? (
                 <Combobox.Empty>
                   {searchText
-                    ? idPickerLabels?.emptySearchResult ??
-                      formI18n.t('empty_search_result')
+                    ? idPickerLabels?.emptySearchResult ?? 'No results found'
                     : idPickerLabels?.initialResults ??
-                      formI18n.t('initial_results')}
+                      'Start typing to search'}
                 </Combobox.Empty>
               ) : (
                 <>
@@ -526,7 +556,7 @@ export const IdPicker = ({
               <Combobox.Content>
                 {isError ? (
                   <Text p={2} color="fg.error" fontSize="sm">
-                    {formI18n.t('loading_failed')}
+                    {idPickerLabels?.emptySearchResult ?? 'Loading failed'}
                   </Text>
                 ) : isFetching || isLoading || isPending || isSearching ? (
                   // Show skeleton items to prevent UI shift
@@ -545,10 +575,9 @@ export const IdPicker = ({
                 ) : collection.items.length === 0 ? (
                   <Combobox.Empty>
                     {searchText
-                      ? idPickerLabels?.emptySearchResult ??
-                        formI18n.t('empty_search_result')
+                      ? idPickerLabels?.emptySearchResult ?? 'No results found'
                       : idPickerLabels?.initialResults ??
-                        formI18n.t('initial_results')}
+                        'Start typing to search'}
                   </Combobox.Empty>
                 ) : (
                   <>

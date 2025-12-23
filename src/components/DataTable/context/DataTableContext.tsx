@@ -1,7 +1,6 @@
-import { OnChangeFn, Table } from "@tanstack/react-table";
-import { createContext } from "react";
-import { UseTranslationResponse } from "react-i18next";
-import { DataTableProps } from "../DataTable";
+import { OnChangeFn, Table } from '@tanstack/react-table';
+import { createContext } from 'react';
+import { DataTableProps } from '../DataTable';
 
 export interface DataTableLabel {
   view: string;
@@ -21,47 +20,46 @@ export interface DataTableLabel {
   falseLabel: string;
 }
 
-export interface DataTableContextProps<TData = unknown> extends DataTableProps {
+export interface DataTableContextProps<TData = unknown>
+  extends Omit<DataTableProps, 'translate'> {
   table: Table<TData>;
   globalFilter: string;
   setGlobalFilter: OnChangeFn<string>;
-  type: "client" | "server";
-  translate: UseTranslationResponse<any, unknown>;
+  type: 'client' | 'server';
   tableLabel: DataTableLabel;
 }
 
 export const DataTableContext = createContext<DataTableContextProps>({
   table: {} as Table<unknown>,
-  globalFilter: "",
+  globalFilter: '',
   setGlobalFilter: () => {},
-  type: "client",
-  translate: {} as UseTranslationResponse<any, unknown>,
+  type: 'client',
   data: [],
   columns: [],
   columnOrder: [],
   columnFilters: [],
-  density: "sm",
+  density: 'sm',
   sorting: [],
   setPagination: function (): void {
-    throw new Error("Function not implemented.");
+    throw new Error('Function not implemented.');
   },
   setSorting: function (): void {
-    throw new Error("Function not implemented.");
+    throw new Error('Function not implemented.');
   },
   setColumnFilters: function (): void {
-    throw new Error("Function not implemented.");
+    throw new Error('Function not implemented.');
   },
   setRowSelection: function (): void {
-    throw new Error("Function not implemented.");
+    throw new Error('Function not implemented.');
   },
   setColumnOrder: function (): void {
-    throw new Error("Function not implemented.");
+    throw new Error('Function not implemented.');
   },
   setDensity: function (): void {
-    throw new Error("Function not implemented.");
+    throw new Error('Function not implemented.');
   },
   setColumnVisibility: function (): void {
-    throw new Error("Function not implemented.");
+    throw new Error('Function not implemented.');
   },
   pagination: {
     pageIndex: 0,
@@ -70,20 +68,20 @@ export const DataTableContext = createContext<DataTableContextProps>({
   rowSelection: {},
   columnVisibility: {},
   tableLabel: {
-    view: "View",
-    edit: "Edit",
-    filterButtonText: "Filter",
-    filterTitle: "Filter",
-    filterReset: "Reset",
-    filterClose: "Close",
-    reloadTooltip: "Reload",
-    reloadButtonText: "Reload",
-    resetSelection: "Reset Selection",
-    resetSorting: "Reset Sorting",
-    rowCountText: "Row Count",
-    hasErrorText: "Has Error",
-    globalFilterPlaceholder: "Search",
-    trueLabel: "True",
-    falseLabel: "False",
+    view: 'View',
+    edit: 'Edit',
+    filterButtonText: 'Filter',
+    filterTitle: 'Filter',
+    filterReset: 'Reset',
+    filterClose: 'Close',
+    reloadTooltip: 'Reload',
+    reloadButtonText: 'Reload',
+    resetSelection: 'Reset Selection',
+    resetSorting: 'Reset Sorting',
+    rowCountText: 'Row Count',
+    hasErrorText: 'Has Error',
+    globalFilterPlaceholder: 'Search',
+    trueLabel: 'True',
+    falseLabel: 'False',
   },
 });

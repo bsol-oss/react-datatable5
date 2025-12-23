@@ -3,11 +3,7 @@ import { DataDisplay } from '@/components/DataTable/display/DataDisplay';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  I18nextProvider,
-  initReactI18next,
-  useTranslation,
-} from 'react-i18next';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -77,11 +73,8 @@ export const ObjectDisplay2: Story = {
 };
 
 const SomeRecord = () => {
-  const translate = useTranslation('', { keyPrefix: 'goood' });
-
   return (
     <RecordDisplay
-      translate={translate}
       object={{
         nice: 'job',
         good: 'good good good',

@@ -47,7 +47,6 @@ export const CustomDateTimePickerLabels: Story = {
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
-      translate: {} as any,
     },
   },
   render: () => {
@@ -71,7 +70,6 @@ export const CustomIdPickerLabels: Story = {
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
-      translate: {} as any,
     },
   },
   render: () => {
@@ -95,7 +93,6 @@ export const CustomEnumPickerLabels: Story = {
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
-      translate: {} as any,
     },
   },
   render: () => {
@@ -119,7 +116,6 @@ export const CombinedCustomLabels: Story = {
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
-      translate: {} as any,
     },
   },
   render: () => {

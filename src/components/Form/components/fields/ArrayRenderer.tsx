@@ -2,7 +2,6 @@ import { Box, Button, Flex, Grid, Icon, Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { CgTrash } from 'react-icons/cg';
 import { useSchemaContext } from '../../useSchemaContext';
-import { removeIndex } from '../../utils/removeIndex';
 import { useFormI18n } from '../../utils/useFormI18n';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { SchemaRenderer } from './SchemaRenderer';
@@ -30,6 +29,7 @@ export const ArrayRenderer = ({
     setValue,
     watch,
   } = useFormContext();
+  const { formButtonLabels } = useSchemaContext();
   const fields = (watch(colLabel) ?? []) as any[];
   return (
     <Flex {...{ gridRow, gridColumn }} flexFlow={'column'} gap={2}>
@@ -100,7 +100,7 @@ export const ArrayRenderer = ({
             setValue(colLabel, [...fields, {}]);
           }}
         >
-          {translate.t(removeIndex(`${colLabel}.add`))}
+          {formButtonLabels?.add ?? 'Add'}
         </Button>
       </Flex>
 

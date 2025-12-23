@@ -20,7 +20,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
     setValue,
     getValues,
   } = useFormContext();
-  const { translate } = useSchemaContext();
+  const { formButtonLabels } = useSchemaContext();
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const entries = Object.entries(getValues(column) ?? {});
@@ -126,7 +126,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
                 setNewValue(undefined);
               }}
             >
-              {translate.t(`${column}.save`)}
+              {formButtonLabels?.save ?? 'Save'}
             </Button>
           </Card.Footer>
         </Card.Root>
@@ -138,7 +138,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
           setNewValue(undefined);
         }}
       >
-        {translate.t(`${column}.addNew`)}
+        {formButtonLabels?.addNew ?? 'Add New'}
       </Button>
     </Field>
   );

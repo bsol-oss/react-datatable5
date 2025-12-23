@@ -117,15 +117,15 @@ The library is organized into major component categories:
 - All user-facing components support i18n via `react-i18next`
 - DataTable hooks accept `keyPrefix` parameter for scoped translations
 - Form validation messages support: en, zh-HK, zh-TW, zh-CN locales
-- Use `translate` from hook return values for consistent i18n
+- Components use `useFormI18n` hook internally for i18n translation
 
 ### Component Labels and i18n
 
-**Prefer labels in schema context over direct translate calls:**
+**Prefer labels in schema context over direct i18n calls:**
 
-- Components should use label objects from `SchemaFormContext` rather than calling `translate()` directly
+- Components should use label objects from `SchemaFormContext` rather than calling translation functions directly
 - Label objects available in context: `idPickerLabels`, `dateTimePickerLabels`, `enumPickerLabels`, `filePickerLabels`
-- Pattern: `labels?.labelName ?? translate(key) ?? fallbackText`
+- Pattern: `labels?.labelName ?? formI18n.t(key) ?? fallbackText` (where `formI18n` comes from `useFormI18n` hook)
 - This allows consuming applications to override labels via context without modifying translation files
 - Label objects are passed via `FormRoot` props and made available through `useSchemaContext()`
 
@@ -143,11 +143,14 @@ const { filePickerLabels } = useSchemaContext();
 const formI18n = useFormI18n(column, prefix);
 
 // Preferred: Use labels from context with fallbacks
+const { filePickerLabels } = useSchemaContext();
+const formI18n = useFormI18n(column, prefix);
+
 <FileDropzone
   placeholder={filePickerLabels?.fileDropzone ?? formI18n.t('fileDropzone')}
 />
 
-// Avoid: Direct translate calls without label context
+// Also valid: Direct formI18n calls (components handle i18n internally)
 <FileDropzone placeholder={formI18n.t('fileDropzone')} />
 ```
 

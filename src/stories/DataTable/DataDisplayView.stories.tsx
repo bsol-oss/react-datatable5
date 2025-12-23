@@ -8,11 +8,7 @@ import { Box, Text } from '@chakra-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { data, Product } from '../product_data';
-import {
-  I18nextProvider,
-  initReactI18next,
-  useTranslation,
-} from 'react-i18next';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -57,7 +53,6 @@ const DataDisplayView = () => {
   const datatable = useDataTable({
     default: { sorting: [{ id: 'title', desc: false }] },
   });
-  const translate = useTranslation('', { keyPrefix: 'goood' });
   const columnHelper = createColumnHelper<Product>();
   const columns: ColumnDef<Product>[] = [
     // Display Column
@@ -188,7 +183,7 @@ const DataDisplayView = () => {
     <Provider>
       <DataTable columns={columns} data={data} {...datatable}>
         <DataDisplay />
-        <DataDisplay variant="stats" translate={translate} />
+        <DataDisplay variant="stats" />
         <Box width={'20rem'}>
           <DataDisplay variant="horizontal" />
         </Box>

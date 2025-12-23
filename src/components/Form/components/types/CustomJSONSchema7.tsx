@@ -55,6 +55,11 @@ export interface FormButtonLabels {
   cancel?: string;
   confirm?: string;
   submitAgain?: string;
+  submitSuccess?: string;
+  add?: string;
+  save?: string;
+  addNew?: string;
+  fieldRequired?: string;
 }
 
 export interface TimePickerLabels {

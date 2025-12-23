@@ -51,7 +51,6 @@ interface MediaBrowserDialogProps {
   onUploadFile?: (file: File) => Promise<string>;
   enableUpload?: boolean;
   labels?: FilePickerLabels;
-  translate: (key: string) => string;
   colLabel: string;
 }
 
@@ -65,7 +64,6 @@ export function MediaBrowserDialog({
   onUploadFile,
   enableUpload = false,
   labels,
-  translate,
   colLabel,
 }: MediaBrowserDialogProps) {
   const [selectedFile, setSelectedFile] = useState<
@@ -165,14 +163,10 @@ export function MediaBrowserDialog({
             >
               <Tabs.List>
                 <Tabs.Trigger value="browse">
-                  {labels?.browseTab ??
-                    translate(removeIndex(`${colLabel}.browse_tab`)) ??
-                    'Browse Library'}
+                  {labels?.browseTab ?? 'Browse Library'}
                 </Tabs.Trigger>
                 <Tabs.Trigger value="upload">
-                  {labels?.uploadTab ??
-                    translate(removeIndex(`${colLabel}.upload_tab`)) ??
-                    'Upload Files'}
+                  {labels?.uploadTab ?? 'Upload Files'}
                 </Tabs.Trigger>
               </Tabs.List>
               <Tabs.Content value="browse">
@@ -193,7 +187,6 @@ export function MediaBrowserDialog({
                     onDrop={({ files }) => handleFileUpload(files)}
                     placeholder={
                       labels?.fileDropzone ??
-                      translate(removeIndex(`${colLabel}.fileDropzone`)) ??
                       'Drop files here or click to upload'
                     }
                   />
@@ -204,11 +197,7 @@ export function MediaBrowserDialog({
                           <HStack gap={2}>
                             <Spinner size="sm" colorPalette="blue" />
                             <Text fontSize="sm" color="fg.muted">
-                              {labels?.uploading ??
-                                translate(
-                                  removeIndex(`${colLabel}.uploading`)
-                                ) ??
-                                'Uploading...'}{' '}
+                              {labels?.uploading ?? 'Uploading...'}{' '}
                               {fileKey.split('-')[0]}
                             </Text>
                           </HStack>
@@ -243,11 +232,7 @@ export function MediaBrowserDialog({
                               }}
                             >
                               {fileKey.split('-')[0]}:{' '}
-                              {labels?.uploadFailed ??
-                                translate(
-                                  removeIndex(`${colLabel}.upload_failed`)
-                                ) ??
-                                'Upload failed'}
+                              {labels?.uploadFailed ?? 'Upload failed'}
                               {error && ` - ${error}`}
                             </Text>
                           </Box>
@@ -278,18 +263,14 @@ export function MediaBrowserDialog({
               bg="bg.panel"
               _hover={{ bg: 'bg.muted' }}
             >
-              {labels?.cancel ??
-                translate(removeIndex(`${colLabel}.cancel`)) ??
-                'Cancel'}
+              {labels?.cancel ?? 'Cancel'}
             </Button>
             <Button
               colorPalette="blue"
               onClick={handleSelect}
               disabled={!selectedFile}
             >
-              {labels?.select ??
-                translate(removeIndex(`${colLabel}.select`)) ??
-                'Select'}
+              {labels?.select ?? 'Select'}
             </Button>
           </HStack>
         </DialogFooter>

@@ -1,11 +1,10 @@
-import { idListSanityCheck } from "@/components/Form/utils/idListSanityCheck";
-import { snakeToLabel } from "@/components/Form/utils/snakeToLabel";
-import { ColumnDef, createColumnHelper, RowData } from "@tanstack/react-table";
-import { JSONSchema7 } from "json-schema";
-import { TextCell } from "../display/TextCell";
-import { RecordDisplay } from "../display/RecordDisplay";
-import { Grid } from "@chakra-ui/react";
-import { UseTranslationResponse } from "react-i18next";
+import { idListSanityCheck } from '@/components/Form/utils/idListSanityCheck';
+import { snakeToLabel } from '@/components/Form/utils/snakeToLabel';
+import { ColumnDef, createColumnHelper, RowData } from '@tanstack/react-table';
+import { JSONSchema7 } from 'json-schema';
+import { TextCell } from '../display/TextCell';
+import { RecordDisplay } from '../display/RecordDisplay';
+import { Grid } from '@chakra-ui/react';
 
 export interface GetColumnsConfigs<K extends RowData> {
   schema: JSONSchema7;
@@ -16,7 +15,6 @@ export interface GetColumnsConfigs<K extends RowData> {
     [key in K as string]?: object;
   };
   defaultWidth?: number;
-  translate?: UseTranslationResponse<any, any>;
 }
 
 export const widthSanityCheck = <K extends RowData>(
@@ -51,37 +49,33 @@ export const getColumns = <TData extends RowData>({
   width = [],
   meta = {},
   defaultWidth = 400,
-  translate,
 }: GetColumnsConfigs<TData>): ColumnDef<TData>[] => {
   const { properties } = schema;
-  idListSanityCheck("ignore", ignore as string[], properties as object);
+  idListSanityCheck('ignore', ignore as string[], properties as object);
   widthSanityCheck(width, ignore, properties as object);
-  idListSanityCheck("meta", Object.keys(meta), properties as object);
+  idListSanityCheck('meta', Object.keys(meta), properties as object);
 
-  const getColumn = ({ column }) => {
-    if (translate !== undefined) {
-      return translate.t(`${column}`);
-    }
+  const getColumn = ({ column }: { column: string }) => {
     return snakeToLabel(column);
   };
-  const keys = Object.keys(properties as object);
-  const included = include.length > 0 ? include : keys;
+  const keys = Object.keys(properties as object) as string[];
+  const included = include.length > 0 ? (include as string[]) : keys;
   const ignored = included.filter((key) => {
     return !ignore.some((shouldIgnoreKey) => key === shouldIgnoreKey);
   });
 
-  const columnHelper = createColumnHelper();
-  // @ts-expect-error find type for unknown
+  const columnHelper = createColumnHelper<TData>();
   const columns: ColumnDef<TData>[] = [
-    ...ignored.map((column, index) => {
-      return columnHelper.accessor(column, {
+    ...ignored.map((column: string, index) => {
+      // @ts-expect-error column accessor type issue with generic TData
+      return columnHelper.accessor(column as keyof TData, {
         cell: (props) => {
           // @ts-expect-error find type for unknown
           const value = props.row.original[column];
-          if (typeof value === "object") {
+          if (typeof value === 'object') {
             return (
-              <Grid overflow={"auto"}>
-                <RecordDisplay object={value} {...{ translate }} />
+              <Grid overflow={'auto'}>
+                <RecordDisplay object={value} />
               </Grid>
             );
           }
@@ -102,7 +96,8 @@ export const getColumns = <TData extends RowData>({
           return <span>{displayName}</span>;
         },
         size: width[index] ?? defaultWidth,
-        meta: Object.keys(meta).length > 0 ? meta[column] : {},
+        meta:
+          Object.keys(meta).length > 0 ? meta[column as keyof typeof meta] : {},
       });
     }),
   ];

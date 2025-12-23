@@ -1,4 +1,4 @@
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import {
   ColumnFiltersState,
   ColumnOrderState,
@@ -6,14 +6,14 @@ import {
   RowSelectionState,
   SortingState,
   VisibilityState,
-} from "@tanstack/react-table";
-import axios from "axios";
-import { useState } from "react";
-import { DensityState } from "./controls/DensityFeature";
-import { UseDataTableProps, UseDataTableReturn } from "./useDataTable";
-import { useTranslation } from "react-i18next";
+} from '@tanstack/react-table';
+import axios from 'axios';
+import { useState } from 'react';
+import { DensityState } from './controls/DensityFeature';
+import { UseDataTableProps, UseDataTableReturn } from './useDataTable';
 
-export interface UseDataTableServerProps<TData> extends UseDataTableProps {
+export interface UseDataTableServerProps<TData>
+  extends Omit<UseDataTableProps, 'keyPrefix'> {
   /**
    * Delay to send the request if the `refreshData` called multiple times
    *
@@ -102,7 +102,6 @@ export const useDataTableServer = <TData,>(
   const {
     url,
     default: defaultProps,
-    keyPrefix,
     placeholderData,
     queryFn: customQueryFn,
   } = props;
@@ -134,9 +133,9 @@ export const useDataTableServer = <TData,>(
     defaultColumnOrder || []
   );
   const [globalFilter, setGlobalFilter] = useState<string>(
-    defaultGlobalFilter || ""
+    defaultGlobalFilter || ''
   );
-  const [density, setDensity] = useState<DensityState>(defaultDensity || "sm");
+  const [density, setDensity] = useState<DensityState>(defaultDensity || 'sm');
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     defaultColumnVisibility || {}
   );
@@ -151,7 +150,7 @@ export const useDataTableServer = <TData,>(
 
   const defaultQueryFn = async () => {
     if (!url) {
-      throw new Error("url is required");
+      throw new Error('url is required');
     }
     const response = await axios.get<DataResponse<TData>>(url, {
       params,
@@ -167,7 +166,6 @@ export const useDataTableServer = <TData,>(
         : defaultQueryFn,
     placeholderData,
   });
-  const translate = useTranslation("", { keyPrefix });
 
   return {
     sorting,
@@ -187,6 +185,5 @@ export const useDataTableServer = <TData,>(
     columnVisibility,
     setColumnVisibility,
     query,
-    translate,
   };
 };

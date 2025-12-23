@@ -6,10 +6,9 @@ import {
   RowSelectionState,
   SortingState,
   VisibilityState,
-} from "@tanstack/react-table";
-import { useState } from "react";
-import { DensityState } from "./controls/DensityFeature";
-import { useTranslation, UseTranslationResponse } from "react-i18next";
+} from '@tanstack/react-table';
+import { useState } from 'react';
+import { DensityState } from './controls/DensityFeature';
 
 export interface DataTableDefaultState {
   sorting?: SortingState;
@@ -24,7 +23,6 @@ export interface DataTableDefaultState {
 
 export interface UseDataTableProps {
   default?: DataTableDefaultState;
-  keyPrefix?: string;
 }
 
 export interface UseDataTableReturn {
@@ -44,7 +42,6 @@ export interface UseDataTableReturn {
   setColumnOrder: OnChangeFn<ColumnOrderState>;
   setDensity: OnChangeFn<DensityState>;
   setColumnVisibility: OnChangeFn<VisibilityState>;
-  translate: UseTranslationResponse<any, any>;
 }
 
 export const useDataTable = (
@@ -59,8 +56,8 @@ export const useDataTable = (
       columnFilters: defaultColumnFilters = [],
       columnOrder: defaultColumnOrder = [],
       columnVisibility: defaultColumnVisibility = {},
-      globalFilter: defaultGlobalFilter = "",
-      density: defaultDensity = "sm",
+      globalFilter: defaultGlobalFilter = '',
+      density: defaultDensity = 'sm',
     } = {
       sorting: [],
       pagination: {
@@ -71,10 +68,9 @@ export const useDataTable = (
       columnFilters: [],
       columnOrder: [],
       columnVisibility: {},
-      globalFilter: "",
-      density: "sm",
+      globalFilter: '',
+      density: 'sm',
     },
-    keyPrefix = "",
   }: UseDataTableProps = {
     default: {
       sorting: [],
@@ -86,8 +82,8 @@ export const useDataTable = (
       columnFilters: [],
       columnOrder: [],
       columnVisibility: {},
-      globalFilter: "",
-      density: "sm",
+      globalFilter: '',
+      density: 'sm',
     },
   }
 ): UseDataTableReturn => {
@@ -105,7 +101,6 @@ export const useDataTable = (
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     defaultColumnVisibility
   );
-  const translate = useTranslation("", { keyPrefix });
   return {
     sorting,
     setSorting,
@@ -123,6 +118,5 @@ export const useDataTable = (
     setDensity,
     columnVisibility,
     setColumnVisibility,
-    translate,
   };
 };

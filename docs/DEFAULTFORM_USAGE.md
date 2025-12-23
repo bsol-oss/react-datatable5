@@ -115,28 +115,28 @@ The `DefaultForm` component requires the following props through `formConfig`:
 | `schema`    | `CustomJSONSchema7`                                | JSON Schema definition for the form                 |
 | `serverUrl` | `string`                                           | Base URL for API requests (used by IdPicker fields) |
 | `form`      | `UseFormReturn`                                    | React Hook Form instance from `useForm()`           |
-| `translate` | `UseTranslationResponse`                           | i18next translation function                        |
 | `idMap`     | `Record<string, object>`                           | Map of IDs to objects (for IdPicker fields)         |
 | `setIdMap`  | `Dispatch<SetStateAction<Record<string, object>>>` | Setter for idMap                                    |
 
 ### Using the `useForm` Hook
 
-The `useForm` hook provides the necessary form state and translation setup:
+The `useForm` hook provides the necessary form state:
 
 ```tsx
 const form = useForm({
-  keyPrefix: 'myForm', // Optional: scopes all translations under this prefix
   preLoadedValues: {
     /* initial values */
   }, // Optional: pre-populate form
+  schema: jsonSchema, // Optional: schema for validation
 });
 
 // Returns:
 // - form: React Hook Form instance
-// - translate: i18next translation function
 // - idMap: Map for IdPicker fields
 // - setIdMap: Setter for idMap
 ```
+
+**Note:** i18n translation is handled internally by components using `useFormI18n` hook and label objects from `SchemaFormContext`. Components prefer label objects passed via props (e.g., `idPickerLabels`, `filePickerLabels`) with i18n fallbacks.
 
 ## JSON Schema Reference
 

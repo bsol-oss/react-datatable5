@@ -3,7 +3,6 @@ import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 export const SubmitButton = () => {
   const {
-    translate,
     setValidatedData,
     setIsError,
     setIsConfirming,
@@ -47,7 +46,7 @@ export const SubmitButton = () => {
       }}
       formNoValidate
     >
-      {formButtonLabels?.submit ?? translate.t('submit')}
+      {formButtonLabels?.submit ?? 'Submit'}
     </Button>
   );
 };

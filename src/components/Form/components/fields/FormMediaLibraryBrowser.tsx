@@ -197,7 +197,7 @@ export const FormMediaLibraryBrowser = ({
         onSelect={handleMediaLibrarySelect}
         title={
           filePickerLabels?.dialogTitle ??
-          formI18n.t('dialog_title') ??
+          filePickerLabels?.dialogTitle ??
           'Select File'
         }
         filterImageOnly={filterImageOnly}
@@ -205,7 +205,6 @@ export const FormMediaLibraryBrowser = ({
         onUploadFile={onUploadFile}
         enableUpload={enableUpload}
         labels={filePickerLabels}
-        translate={formI18n.t}
         colLabel={colLabel}
       />
 
