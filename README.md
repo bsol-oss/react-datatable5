@@ -306,6 +306,7 @@ Additional documentation is available in the `docs/` directory:
 - **[DataTable Server Usage](./docs/DATATABLE_SERVER_USAGE.md)** - Server-side DataTable integration guide
 - **[DefaultForm Usage](./docs/DEFAULTFORM_USAGE.md)** - Comprehensive form component guide
 - **[Validation & i18n](./docs/VALIDATION_I18N.md)** - Validation and internationalization setup
+- **[i18n Migration Guide](./docs/I18N_MIGRATION_GUIDE.md)** - Migrate from react-i18next to label objects
 - **[Deployment Guide](./docs/deployment.md)** - Deployment instructions
 
 ### IdPicker Customization
