@@ -1,6 +1,7 @@
-import { Box, Flex } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
 import {
   DataTable,
   DataTableServer,
@@ -159,18 +160,52 @@ export const ServerSideCalendar = (args: any) => {
 
 const ServerSideCalendarContent = (args: any) => {
   const datatable = useDataTableServer<Event>({
-    url: 'https://jsonplaceholder.typicode.com/posts',
+    url: 'https://date.nager.at/api/v3/PublicHolidays',
     default: { pageSize: 100 },
     queryFn: async (params) => {
-      // Simulate server-side filtering by date
-      // In a real scenario, you would send params to your API
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
+      try {
+        // Get current year and next year for holiday data
+        const currentYear = new Date().getFullYear();
+        const nextYear = currentYear + 1;
 
-      // For demo purposes, return our mock events
-      return {
-        data: eventsData,
-        count: eventsData.length,
-      };
+        // Fetch holidays for US (you can change country code as needed)
+        // Available country codes: US, GB, CA, AU, DE, FR, etc.
+        const countryCode = 'US';
+
+        const [currentYearHolidays, nextYearHolidays] = await Promise.all([
+          fetch(
+            `https://date.nager.at/api/v3/PublicHolidays/${currentYear}/${countryCode}`
+          ).then((res) => res.json()),
+          fetch(
+            `https://date.nager.at/api/v3/PublicHolidays/${nextYear}/${countryCode}`
+          ).then((res) => res.json()),
+        ]);
+
+        // Combine and transform holidays into Event format
+        const allHolidays = [...currentYearHolidays, ...nextYearHolidays];
+        const transformedEvents: Event[] = allHolidays.map(
+          (holiday: any, index: number) => ({
+            id: index + 1,
+            title: holiday.name,
+            date: holiday.date, // ISO date string (YYYY-MM-DD)
+            description: holiday.localName || holiday.name,
+            category: 'event' as const,
+            color: ['blue', 'green', 'orange', 'purple', 'red'][index % 5],
+          })
+        );
+
+        return {
+          data: transformedEvents,
+          count: transformedEvents.length,
+        };
+      } catch (error) {
+        console.error('Error fetching holidays:', error);
+        // Fallback to mock data on error
+        return {
+          data: eventsData,
+          count: eventsData.length,
+        };
+      }
     },
   });
 
@@ -180,19 +215,8 @@ const ServerSideCalendarContent = (args: any) => {
         <DataTableServer columns={columns} {...datatable}>
           <CalendarDisplay
             dateColumn="date"
-            getDate={(row) => {
-              // Since we're using mock data, extract date from our events
-              const event = eventsData.find((e) => e.id === (row as any).id);
-              return event?.date;
-            }}
-            getEventTitle={(row) => {
-              const event = eventsData.find((e) => e.id === (row as any).id);
-              return event?.title || 'Event';
-            }}
-            getEventColor={(row) => {
-              const event = eventsData.find((e) => e.id === (row as any).id);
-              return event?.color;
-            }}
+            getEventTitle={(row) => (row as Event).title}
+            getEventColor={(row) => (row as Event).color}
             {...args}
           />
         </DataTableServer>
@@ -294,5 +318,206 @@ MultipleMonths.args = {
   showOutsideDays: true,
   monthsToDisplay: 3,
   maxEventsPerDay: 2,
+  colorPalette: 'blue',
+};
+
+// Server-side Calendar with Multiple Activities Story
+export const ServerSideCalendarActivities = (args: any) => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ServerSideCalendarActivitiesContent {...args} />
+    </QueryClientProvider>
+  );
+};
+
+const ServerSideCalendarActivitiesContent = (args: any) => {
+  const datatable = useDataTableServer<Event>({
+    url: 'https://date.nager.at/api/v3/PublicHolidays',
+    default: { pageSize: 200 },
+    queryFn: async (params) => {
+      try {
+        // Get current year and next year for holiday data
+        const currentYear = new Date().getFullYear();
+        const nextYear = currentYear + 1;
+
+        // Fetch holidays from multiple countries to show more activities
+        const countries = [
+          { code: 'US', name: 'United States', color: 'blue' },
+          { code: 'GB', name: 'United Kingdom', color: 'red' },
+          { code: 'CA', name: 'Canada', color: 'green' },
+          { code: 'AU', name: 'Australia', color: 'orange' },
+          { code: 'DE', name: 'Germany', color: 'purple' },
+          { code: 'FR', name: 'France', color: 'cyan' },
+          { code: 'JP', name: 'Japan', color: 'pink' },
+          { code: 'BR', name: 'Brazil', color: 'yellow' },
+        ];
+
+        // Fetch holidays for all countries in parallel
+        const holidayPromises = countries.flatMap((country) => [
+          fetch(
+            `https://date.nager.at/api/v3/PublicHolidays/${currentYear}/${country.code}`
+          )
+            .then((res) => res.json())
+            .then((holidays) =>
+              holidays.map((h: any) => ({
+                ...h,
+                country: country.name,
+                countryCode: country.code,
+                color: country.color,
+              }))
+            ),
+          fetch(
+            `https://date.nager.at/api/v3/PublicHolidays/${nextYear}/${country.code}`
+          )
+            .then((res) => res.json())
+            .then((holidays) =>
+              holidays.map((h: any) => ({
+                ...h,
+                country: country.name,
+                countryCode: country.code,
+                color: country.color,
+              }))
+            ),
+        ]);
+
+        const allHolidayArrays = await Promise.all(holidayPromises);
+        const allHolidays = allHolidayArrays.flat();
+
+        // Transform holidays into Event format with more details
+        const transformedEvents: Event[] = allHolidays.map(
+          (holiday: any, index: number) => {
+            // Map holiday types to categories
+            const getCategory = (holidayType: string): Event['category'] => {
+              if (holidayType?.toLowerCase().includes('national'))
+                return 'event';
+              if (holidayType?.toLowerCase().includes('religious'))
+                return 'meeting';
+              if (holidayType?.toLowerCase().includes('observance'))
+                return 'reminder';
+              return 'event';
+            };
+
+            return {
+              id: index + 1,
+              title: `${holiday.name} (${holiday.country})`,
+              date: holiday.date, // ISO date string (YYYY-MM-DD)
+              description: `${holiday.localName || holiday.name} - ${holiday.country}`,
+              category: getCategory(holiday.types?.[0] || 'event'),
+              color:
+                holiday.color ||
+                ['blue', 'green', 'orange', 'purple', 'red'][index % 5],
+            };
+          }
+        );
+
+        // Sort by date
+        transformedEvents.sort((a, b) => a.date.localeCompare(b.date));
+
+        return {
+          data: transformedEvents,
+          count: transformedEvents.length,
+        };
+      } catch (error) {
+        console.error('Error fetching holidays:', error);
+        // Fallback to mock data on error
+        return {
+          data: eventsData,
+          count: eventsData.length,
+        };
+      }
+    },
+  });
+
+  return (
+    <Provider>
+      <Box padding={4}>
+        <DataTableServer columns={columns} {...datatable}>
+          <CalendarDisplay
+            dateColumn="date"
+            getEventTitle={(row) => (row as Event).title}
+            getEventColor={(row) => (row as Event).color}
+            maxEventsPerDay={5}
+            onEventClick={(event) => {
+              console.log('Event clicked:', event);
+              // You can add custom handling here, e.g., open a modal, navigate, etc.
+            }}
+            onDateClick={(date, events) => {
+              console.log('Date clicked:', date, events);
+            }}
+            {...args}
+          />
+        </DataTableServer>
+      </Box>
+    </Provider>
+  );
+};
+
+ServerSideCalendarActivities.args = {
+  dateColumn: 'date',
+  firstDayOfWeek: 0,
+  showOutsideDays: true,
+  monthsToDisplay: 2,
+  maxEventsPerDay: 5,
+  colorPalette: 'blue',
+};
+
+// Responsive Calendar Story
+export const ResponsiveCalendar = (args: any) => {
+  const datatable = useDataTable({
+    default: { pageSize: 100 },
+  });
+
+  // Determine months to display based on window width
+  const [monthsToDisplay, setMonthsToDisplay] = React.useState(1);
+
+  React.useEffect(() => {
+    const updateMonths = () => {
+      const width = window.innerWidth;
+      if (width < 640) {
+        // Mobile: 1 month
+        setMonthsToDisplay(1);
+      } else if (width < 1024) {
+        // Tablet: 2 months
+        setMonthsToDisplay(2);
+      } else {
+        // Desktop: 3 months
+        setMonthsToDisplay(3);
+      }
+    };
+
+    updateMonths();
+    window.addEventListener('resize', updateMonths);
+    return () => window.removeEventListener('resize', updateMonths);
+  }, []);
+
+  return (
+    <Provider>
+      <Box padding={4}>
+        <DataTable columns={columns} data={eventsData} {...datatable}>
+          <CalendarDisplay
+            dateColumn="date"
+            getEventTitle={(row) => row.title}
+            getEventColor={(row) => row.color}
+            monthsToDisplay={monthsToDisplay}
+            onDateClick={(date, events) => {
+              console.log('Date clicked:', date, events);
+            }}
+            onEventClick={(event) => {
+              console.log('Event clicked:', event);
+            }}
+            {...args}
+          />
+        </DataTable>
+      </Box>
+    </Provider>
+  );
+};
+
+ResponsiveCalendar.args = {
+  dateColumn: 'date',
+  firstDayOfWeek: 0,
+  showOutsideDays: true,
+  monthsToDisplay: 1, // Will be overridden by responsive logic
+  maxEventsPerDay: 3,
   colorPalette: 'blue',
 };

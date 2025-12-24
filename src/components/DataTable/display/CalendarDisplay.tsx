@@ -1,5 +1,5 @@
 import { Button, Grid, Text, Box, VStack, HStack } from '@chakra-ui/react';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { useDataTableContext } from '../context/useDataTableContext';
 import { useCalendar, type CalendarDate } from '../../DatePicker/useCalendar';
 import dayjs from 'dayjs';
@@ -93,6 +93,24 @@ export interface CalendarDisplayProps<TData = unknown> {
     | 'cyan'
     | 'purple'
     | 'pink';
+
+  /**
+   * Fixed placeholder text to show when width is too narrow
+   * @default "..."
+   */
+  eventPlaceholder?: string;
+
+  /**
+   * Minimum width (in pixels) before showing placeholder instead of title
+   * @default 80
+   */
+  minEventWidth?: number;
+
+  /**
+   * Minimum number of characters to show before ellipsis
+   * @default 2
+   */
+  minCharsBeforeEllipsis?: number;
 }
 
 // Helper function to normalize date
@@ -106,6 +124,120 @@ function normalizeDate(
     return isNaN(date.getTime()) ? null : date;
   }
   return null;
+}
+
+// Component to conditionally render event title based on available width
+function ResponsiveEventTitle({
+  title,
+  placeholder,
+  minWidth,
+  minChars,
+  cellRef,
+}: {
+  title?: string;
+  placeholder: string;
+  minWidth: number;
+  minChars: number;
+  cellRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const [truncatedText, setTruncatedText] = useState<string>('');
+  const measureRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const calculateTruncatedText = () => {
+      if (!cellRef.current || !measureRef.current || !title) {
+        setTruncatedText(title || 'Event');
+        return;
+      }
+
+      const cellWidth = cellRef.current.clientWidth;
+      // Account for padding (approximately 8px on each side)
+      const availableWidth = cellWidth - 16;
+
+      // If cell is too narrow, calculate how many characters can fit
+      if (availableWidth < minWidth) {
+        // Measure text width using canvas
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) {
+          setTruncatedText(placeholder);
+          return;
+        }
+
+        // Get computed font style from the element
+        const computedStyle = window.getComputedStyle(measureRef.current);
+        context.font = `${computedStyle.fontWeight} ${computedStyle.fontSize} ${computedStyle.fontFamily}`;
+
+        const ellipsisWidth = context.measureText('...').width;
+        const maxWidth = availableWidth - ellipsisWidth;
+
+        // Try to show at least minChars characters before ellipsis
+        let truncated = '';
+        let charCount = 0;
+
+        // Calculate how many characters can fit
+        for (let i = 0; i < Math.min(title.length, 50); i++) {
+          const testText = title.substring(0, i + 1);
+          const textWidth = context.measureText(testText).width;
+
+          if (textWidth <= maxWidth) {
+            truncated = testText;
+            charCount = i + 1;
+          } else {
+            break;
+          }
+        }
+
+        // Ensure we show at least minChars characters if possible
+        if (charCount < minChars && title.length >= minChars) {
+          truncated = title.substring(0, minChars);
+        } else if (charCount === 0 && title.length >= 1) {
+          truncated = title.substring(0, 1);
+        }
+
+        // Only show ellipsis if we have at least minChars characters
+        if (truncated && truncated.length >= minChars) {
+          setTruncatedText(`${truncated}...`);
+        } else {
+          setTruncatedText(placeholder);
+        }
+      } else {
+        // Full width available, show full title
+        setTruncatedText(title);
+      }
+    };
+
+    calculateTruncatedText();
+
+    const resizeObserver = new ResizeObserver(calculateTruncatedText);
+    if (cellRef.current) {
+      resizeObserver.observe(cellRef.current);
+    }
+
+    // Also check on window resize
+    window.addEventListener('resize', calculateTruncatedText);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', calculateTruncatedText);
+    };
+  }, [cellRef, minWidth, title, placeholder]);
+
+  return (
+    <>
+      <span
+        ref={measureRef}
+        style={{
+          visibility: 'hidden',
+          position: 'absolute',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {title || 'Event'}
+      </span>
+      {truncatedText || title || 'Event'}
+    </>
+  );
 }
 
 export function CalendarDisplay<TData = unknown>({
@@ -140,6 +272,9 @@ export function CalendarDisplay<TData = unknown>({
   onEventClick,
   maxEventsPerDay = 3,
   colorPalette = 'blue',
+  eventPlaceholder = '...',
+  minEventWidth = 80,
+  minCharsBeforeEllipsis = 2,
 }: CalendarDisplayProps<TData>) {
   const { data, table } = useDataTableContext<TData>();
 
@@ -296,8 +431,18 @@ export function CalendarDisplay<TData = unknown>({
 
       {/* Calendar Grid */}
       <Grid
-        templateColumns={`repeat(${monthsToDisplay}, 1fr)`}
-        gap={6}
+        templateColumns={{
+          base: '1fr',
+          md: monthsToDisplay >= 2 ? 'repeat(2, 1fr)' : '1fr',
+          lg:
+            monthsToDisplay >= 3
+              ? 'repeat(3, 1fr)'
+              : monthsToDisplay === 2
+                ? 'repeat(2, 1fr)'
+                : '1fr',
+          xl: `repeat(${Math.min(monthsToDisplay, 4)}, 1fr)`,
+        }}
+        gap={{ base: 4, md: 6 }}
         width="100%"
         justifyContent="center"
       >
@@ -308,19 +453,23 @@ export function CalendarDisplay<TData = unknown>({
             alignItems="stretch"
           >
             {/* Month Header */}
-            <Text textAlign="center" fontSize="lg" fontWeight="semibold">
+            <Text
+              textAlign="center"
+              fontSize={{ base: 'md', md: 'lg' }}
+              fontWeight="semibold"
+            >
               {monthNamesShort[calendar.month]} {calendar.year}
             </Text>
 
             {/* Weekday Headers */}
-            <Grid templateColumns="repeat(7, 1fr)" gap={1}>
+            <Grid templateColumns="repeat(7, 1fr)" gap={{ base: 0.5, md: 1 }}>
               {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
                 const weekday = (weekdayNum + firstDayOfWeek) % 7;
                 return (
                   <Text
                     textAlign="center"
                     key={`${calendar.month}${calendar.year}${weekday}`}
-                    fontSize="sm"
+                    fontSize={{ base: 'xs', md: 'sm' }}
                     fontWeight="medium"
                     color={{ base: 'gray.600', _dark: 'gray.400' }}
                   >
@@ -331,7 +480,7 @@ export function CalendarDisplay<TData = unknown>({
             </Grid>
 
             {/* Calendar Days */}
-            <Grid templateColumns="repeat(7, 1fr)" gap={1}>
+            <Grid templateColumns="repeat(7, 1fr)" gap={{ base: 0.5, md: 1 }}>
               {calendar.weeks.map((week, weekIndex) =>
                 week.map((dateObj, index) => {
                   const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
@@ -341,20 +490,22 @@ export function CalendarDisplay<TData = unknown>({
 
                   const { date, today, isCurrentMonth } = dateObj;
                   const dateEvents = getEventsForDate(date);
+                  const cellRef = useRef<HTMLDivElement>(null);
 
                   return (
                     <VStack
+                      ref={cellRef}
                       key={key}
-                      gap={0.5}
+                      gap={{ base: 0.25, md: 0.5 }}
                       alignItems="stretch"
-                      minHeight="100px"
+                      minHeight={{ base: '60px', md: '80px', lg: '100px' }}
                       borderWidth="1px"
                       borderColor={{
                         base: today ? `${colorPalette}.300` : 'gray.200',
                         _dark: today ? `${colorPalette}.700` : 'gray.700',
                       }}
-                      borderRadius="md"
-                      padding={1}
+                      borderRadius={{ base: 'sm', md: 'md' }}
+                      padding={{ base: 0.5, md: 1 }}
                       bgColor={{
                         base: today ? `${colorPalette}.50` : 'white',
                         _dark: today ? `${colorPalette}.950` : 'gray.900',
@@ -375,21 +526,21 @@ export function CalendarDisplay<TData = unknown>({
                     >
                       {/* Date Number */}
                       <Text
-                        fontSize="sm"
+                        fontSize={{ base: 'xs', md: 'sm' }}
                         fontWeight={today ? 'bold' : 'normal'}
                         color={{
                           base: today ? `${colorPalette}.700` : 'gray.700',
                           _dark: today ? `${colorPalette}.300` : 'gray.300',
                         }}
                         textAlign="right"
-                        paddingRight={1}
+                        paddingRight={{ base: 0.5, md: 1 }}
                       >
                         {date.getDate()}
                       </Text>
 
                       {/* Events */}
                       <VStack
-                        gap={0.5}
+                        gap={{ base: 0.25, md: 0.5 }}
                         alignItems="stretch"
                         flex={1}
                         overflow="hidden"
@@ -402,10 +553,10 @@ export function CalendarDisplay<TData = unknown>({
                             ) : (
                               <Box
                                 key={eventIndex}
-                                fontSize="xs"
-                                paddingX={1}
-                                paddingY={0.5}
-                                borderRadius="sm"
+                                fontSize={{ base: '2xs', md: 'xs' }}
+                                paddingX={{ base: 0.5, md: 1 }}
+                                paddingY={{ base: 0.25, md: 0.5 }}
+                                borderRadius={{ base: 'xs', md: 'sm' }}
                                 bgColor={{
                                   base: event.color
                                     ? `${event.color}.100`
@@ -437,7 +588,13 @@ export function CalendarDisplay<TData = unknown>({
                                     : {}
                                 }
                               >
-                                {event.title || 'Event'}
+                                <ResponsiveEventTitle
+                                  title={event.title}
+                                  placeholder={eventPlaceholder}
+                                  minWidth={minEventWidth}
+                                  minChars={minCharsBeforeEllipsis}
+                                  cellRef={cellRef}
+                                />
                               </Box>
                             );
 
