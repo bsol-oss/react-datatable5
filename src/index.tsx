@@ -161,6 +161,7 @@ export * from './components/DataTable/display/TableDataDisplay';
 export * from './components/DataTable/DefaultTable';
 export * from './components/DataTable/DefaultTableServer';
 export * from './components/DataTable/display/DataDisplay';
+export * from './components/DataTable/display/CalendarDisplay';
 
 // Core DataTable Components
 export * from './components/DataTable/DataTable';

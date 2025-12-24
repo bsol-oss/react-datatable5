@@ -88,7 +88,13 @@ const Calendar = ({
                     if (!dateObj) {
                       return <Grid key={key} />;
                     }
-                    const { date, selected, selectable, today } = dateObj;
+                    const {
+                      date,
+                      selected,
+                      selectable,
+                      today,
+                      isCurrentMonth,
+                    } = dateObj;
                     const getDateColor = ({
                       today,
                       selected,
@@ -130,6 +136,7 @@ const Calendar = ({
                         variant={variant}
                         key={key}
                         colorPalette={color}
+                        opacity={isCurrentMonth ? 1 : 0.4}
                         {...getDateProps({ dateObj })}
                       >
                         {selectable ? date.getDate() : 'X'}

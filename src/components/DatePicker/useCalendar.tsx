@@ -5,6 +5,7 @@ export interface CalendarDate {
   selected: boolean;
   selectable: boolean;
   today: boolean;
+  isCurrentMonth: boolean;
 }
 
 export interface Calendar {
@@ -132,6 +133,7 @@ function generateCalendarWeeks(
             isSelectable(date, minDate, maxDate) &&
             (showOutsideDays || isCurrentMonth),
           today: isToday(date),
+          isCurrentMonth,
         };
         week.push(calendarDate);
       }
@@ -186,7 +188,7 @@ function generateCalendars(
 export function useCalendar({
   selected,
   firstDayOfWeek = 0,
-  showOutsideDays = false,
+  showOutsideDays = true,
   date,
   minDate,
   maxDate,

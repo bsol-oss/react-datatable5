@@ -1,0 +1,483 @@
+import { Button, Grid, Text, Box, VStack, HStack } from '@chakra-ui/react';
+import { useMemo, useCallback } from 'react';
+import { useDataTableContext } from '../context/useDataTableContext';
+import { useCalendar, type CalendarDate } from '../../DatePicker/useCalendar';
+import dayjs from 'dayjs';
+
+export interface CalendarEvent<TData = unknown> {
+  data: TData;
+  date: Date;
+  title?: string;
+  color?: string;
+}
+
+export interface CalendarDisplayProps<TData = unknown> {
+  /**
+   * Column ID or accessor key that contains the date for each event
+   */
+  dateColumn: string;
+
+  /**
+   * Optional function to extract date from row data
+   * If not provided, will use the dateColumn to get the date
+   */
+  getDate?: (row: TData) => Date | string | number | null | undefined;
+
+  /**
+   * Optional function to get event title from row data
+   * If not provided, will use the first column's value
+   */
+  getEventTitle?: (row: TData) => string;
+
+  /**
+   * Optional function to get event color from row data
+   */
+  getEventColor?: (row: TData) => string;
+
+  /**
+   * Optional function to render event content
+   */
+  renderEvent?: (event: CalendarEvent<TData>) => React.ReactNode;
+
+  /**
+   * First day of week (0 = Sunday, 1 = Monday, etc.)
+   */
+  firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+  /**
+   * Show days outside the current month
+   */
+  showOutsideDays?: boolean;
+
+  /**
+   * Number of months to display
+   */
+  monthsToDisplay?: number;
+
+  /**
+   * Calendar labels
+   */
+  labels?: {
+    monthNamesShort: string[];
+    weekdayNamesShort: string[];
+    backButtonLabel?: string;
+    forwardButtonLabel?: string;
+  };
+
+  /**
+   * Callback when a date is clicked
+   */
+  onDateClick?: (date: Date, events: CalendarEvent<TData>[]) => void;
+
+  /**
+   * Callback when an event is clicked
+   */
+  onEventClick?: (event: CalendarEvent<TData>) => void;
+
+  /**
+   * Maximum number of events to show per day before showing "+N more"
+   */
+  maxEventsPerDay?: number;
+
+  /**
+   * Color palette for the calendar
+   */
+  colorPalette?:
+    | 'gray'
+    | 'red'
+    | 'orange'
+    | 'yellow'
+    | 'green'
+    | 'teal'
+    | 'blue'
+    | 'cyan'
+    | 'purple'
+    | 'pink';
+}
+
+// Helper function to normalize date
+function normalizeDate(
+  value: Date | string | number | null | undefined
+): Date | null {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (typeof value === 'string' || typeof value === 'number') {
+    const date = dayjs(value).toDate();
+    return isNaN(date.getTime()) ? null : date;
+  }
+  return null;
+}
+
+export function CalendarDisplay<TData = unknown>({
+  dateColumn,
+  getDate,
+  getEventTitle,
+  getEventColor,
+  renderEvent,
+  firstDayOfWeek = 0,
+  showOutsideDays = true,
+  monthsToDisplay = 1,
+  labels = {
+    monthNamesShort: [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ],
+    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    backButtonLabel: 'Back',
+    forwardButtonLabel: 'Next',
+  },
+  onDateClick,
+  onEventClick,
+  maxEventsPerDay = 3,
+  colorPalette = 'blue',
+}: CalendarDisplayProps<TData>) {
+  const { data, table } = useDataTableContext<TData>();
+
+  // Map table data to events
+  const events = useMemo<CalendarEvent<TData>[]>(() => {
+    return (data as TData[])
+      .map((row) => {
+        let dateValue: Date | string | number | null | undefined;
+
+        if (getDate) {
+          dateValue = getDate(row);
+        } else {
+          // Try to get date from column
+          const rowData = table
+            .getRowModel()
+            .rows.find((r) => r.original === row);
+          if (rowData) {
+            const cell = rowData.getAllCells().find((c) => {
+              const colId = c.column.id;
+              const accessorKey = (c.column.columnDef as any).accessorKey;
+              return colId === dateColumn || accessorKey === dateColumn;
+            });
+            dateValue = cell?.getValue() as
+              | Date
+              | string
+              | number
+              | null
+              | undefined;
+          }
+        }
+
+        const date = normalizeDate(dateValue);
+        if (!date) return null;
+
+        let title: string | undefined;
+        if (getEventTitle) {
+          title = getEventTitle(row);
+        } else {
+          // Use first column's value as title
+          const rowData = table
+            .getRowModel()
+            .rows.find((r) => r.original === row);
+          if (rowData) {
+            const firstCell = rowData.getAllCells()[0];
+            title = String(firstCell?.getValue() ?? '');
+          }
+        }
+
+        const color = getEventColor?.(row);
+
+        return {
+          data: row,
+          date,
+          title,
+          color,
+        } as CalendarEvent<TData>;
+      })
+      .filter((event): event is CalendarEvent<TData> => event !== null);
+  }, [data, table, dateColumn, getDate, getEventTitle, getEventColor]);
+
+  // Group events by date
+  const eventsByDate = useMemo(() => {
+    const map = new Map<string, CalendarEvent<TData>[]>();
+    events.forEach((event) => {
+      const dateKey = `${event.date.getFullYear()}-${event.date.getMonth()}-${event.date.getDate()}`;
+      if (!map.has(dateKey)) {
+        map.set(dateKey, []);
+      }
+      map.get(dateKey)!.push(event);
+    });
+    return map;
+  }, [events]);
+
+  // Get events for a specific date
+  const getEventsForDate = useCallback(
+    (date: Date): CalendarEvent<TData>[] => {
+      const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      return eventsByDate.get(dateKey) ?? [];
+    },
+    [eventsByDate]
+  );
+
+  const calendarData = useCalendar({
+    firstDayOfWeek,
+    showOutsideDays,
+    monthsToDisplay,
+  });
+
+  const getDateProps = useCallback(
+    (props: { dateObj: CalendarDate }) => {
+      const dateEvents = getEventsForDate(props.dateObj.date);
+      const baseProps = calendarData.getDateProps({ dateObj: props.dateObj });
+      return {
+        ...baseProps,
+        onClick: () => {
+          baseProps.onClick?.();
+          if (onDateClick) {
+            onDateClick(props.dateObj.date, dateEvents);
+          }
+        },
+      };
+    },
+    [calendarData, getEventsForDate, onDateClick]
+  );
+
+  const {
+    monthNamesShort,
+    weekdayNamesShort,
+    backButtonLabel,
+    forwardButtonLabel,
+  } = labels;
+
+  if (!calendarData.calendars.length) {
+    return null;
+  }
+
+  return (
+    <VStack gap={4} width="100%">
+      {/* Navigation */}
+      <HStack gap={2} justifyContent="center">
+        <Button
+          variant="ghost"
+          {...calendarData.getBackProps({
+            calendars: calendarData.calendars,
+            offset: 12,
+          })}
+        >
+          {'<<'}
+        </Button>
+        <Button
+          variant="ghost"
+          {...calendarData.getBackProps({ calendars: calendarData.calendars })}
+        >
+          {backButtonLabel}
+        </Button>
+        <Button
+          variant="ghost"
+          {...calendarData.getForwardProps({
+            calendars: calendarData.calendars,
+          })}
+        >
+          {forwardButtonLabel}
+        </Button>
+        <Button
+          variant="ghost"
+          {...calendarData.getForwardProps({
+            calendars: calendarData.calendars,
+            offset: 12,
+          })}
+        >
+          {'>>'}
+        </Button>
+      </HStack>
+
+      {/* Calendar Grid */}
+      <Grid
+        templateColumns={`repeat(${monthsToDisplay}, 1fr)`}
+        gap={6}
+        width="100%"
+        justifyContent="center"
+      >
+        {calendarData.calendars.map((calendar) => (
+          <VStack
+            key={`${calendar.month}${calendar.year}`}
+            gap={2}
+            alignItems="stretch"
+          >
+            {/* Month Header */}
+            <Text textAlign="center" fontSize="lg" fontWeight="semibold">
+              {monthNamesShort[calendar.month]} {calendar.year}
+            </Text>
+
+            {/* Weekday Headers */}
+            <Grid templateColumns="repeat(7, 1fr)" gap={1}>
+              {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                const weekday = (weekdayNum + firstDayOfWeek) % 7;
+                return (
+                  <Text
+                    textAlign="center"
+                    key={`${calendar.month}${calendar.year}${weekday}`}
+                    fontSize="sm"
+                    fontWeight="medium"
+                    color={{ base: 'gray.600', _dark: 'gray.400' }}
+                  >
+                    {weekdayNamesShort[weekday]}
+                  </Text>
+                );
+              })}
+            </Grid>
+
+            {/* Calendar Days */}
+            <Grid templateColumns="repeat(7, 1fr)" gap={1}>
+              {calendar.weeks.map((week, weekIndex) =>
+                week.map((dateObj, index) => {
+                  const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
+                  if (!dateObj) {
+                    return <Box key={key} />;
+                  }
+
+                  const { date, today, isCurrentMonth } = dateObj;
+                  const dateEvents = getEventsForDate(date);
+
+                  return (
+                    <VStack
+                      key={key}
+                      gap={0.5}
+                      alignItems="stretch"
+                      minHeight="100px"
+                      borderWidth="1px"
+                      borderColor={{
+                        base: today ? `${colorPalette}.300` : 'gray.200',
+                        _dark: today ? `${colorPalette}.700` : 'gray.700',
+                      }}
+                      borderRadius="md"
+                      padding={1}
+                      bgColor={{
+                        base: today ? `${colorPalette}.50` : 'white',
+                        _dark: today ? `${colorPalette}.950` : 'gray.900',
+                      }}
+                      opacity={isCurrentMonth ? 1 : 0.5}
+                      {...getDateProps({ dateObj })}
+                      cursor={onDateClick ? 'pointer' : 'default'}
+                      _hover={
+                        onDateClick
+                          ? {
+                              bgColor: {
+                                base: `${colorPalette}.100`,
+                                _dark: `${colorPalette}.900`,
+                              },
+                            }
+                          : {}
+                      }
+                    >
+                      {/* Date Number */}
+                      <Text
+                        fontSize="sm"
+                        fontWeight={today ? 'bold' : 'normal'}
+                        color={{
+                          base: today ? `${colorPalette}.700` : 'gray.700',
+                          _dark: today ? `${colorPalette}.300` : 'gray.300',
+                        }}
+                        textAlign="right"
+                        paddingRight={1}
+                      >
+                        {date.getDate()}
+                      </Text>
+
+                      {/* Events */}
+                      <VStack
+                        gap={0.5}
+                        alignItems="stretch"
+                        flex={1}
+                        overflow="hidden"
+                      >
+                        {dateEvents
+                          .slice(0, maxEventsPerDay)
+                          .map((event, eventIndex) => {
+                            const eventContent = renderEvent ? (
+                              renderEvent(event)
+                            ) : (
+                              <Box
+                                key={eventIndex}
+                                fontSize="xs"
+                                paddingX={1}
+                                paddingY={0.5}
+                                borderRadius="sm"
+                                bgColor={{
+                                  base: event.color
+                                    ? `${event.color}.100`
+                                    : `${colorPalette}.100`,
+                                  _dark: event.color
+                                    ? `${event.color}.900`
+                                    : `${colorPalette}.900`,
+                                }}
+                                color={{
+                                  base: event.color
+                                    ? `${event.color}.800`
+                                    : `${colorPalette}.800`,
+                                  _dark: event.color
+                                    ? `${event.color}.200`
+                                    : `${colorPalette}.200`,
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (onEventClick) {
+                                    onEventClick(event);
+                                  }
+                                }}
+                                cursor={onEventClick ? 'pointer' : 'default'}
+                                _hover={
+                                  onEventClick
+                                    ? {
+                                        opacity: 0.8,
+                                      }
+                                    : {}
+                                }
+                              >
+                                {event.title || 'Event'}
+                              </Box>
+                            );
+
+                            return (
+                              <Box
+                                key={eventIndex}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {eventContent}
+                              </Box>
+                            );
+                          })}
+                        {dateEvents.length > maxEventsPerDay && (
+                          <Text
+                            fontSize="xs"
+                            color={{
+                              base: `${colorPalette}.600`,
+                              _dark: `${colorPalette}.400`,
+                            }}
+                            paddingX={1}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (onDateClick) {
+                                onDateClick(date, dateEvents);
+                              }
+                            }}
+                            cursor={onDateClick ? 'pointer' : 'default'}
+                          >
+                            +{dateEvents.length - maxEventsPerDay} more
+                          </Text>
+                        )}
+                      </VStack>
+                    </VStack>
+                  );
+                })
+              )}
+            </Grid>
+          </VStack>
+        ))}
+      </Grid>
+    </VStack>
+  );
+}

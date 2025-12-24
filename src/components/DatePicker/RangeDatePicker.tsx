@@ -167,7 +167,13 @@ function Calendar({
                       if (!dateObj) {
                         return <Box key={key} />;
                       }
-                      const { date, selected, selectable, today } = dateObj;
+                      const {
+                        date,
+                        selected,
+                        selectable,
+                        today,
+                        isCurrentMonth,
+                      } = dateObj;
                       const getStyle = ({
                         selected,
                         unavailable,
@@ -218,6 +224,7 @@ function Calendar({
                             today,
                             isInRange: isInRange(date),
                           })}
+                          opacity={isCurrentMonth ? 1 : 0.4}
                         >
                           {selectable ? date.getDate() : 'X'}
                         </Button>
