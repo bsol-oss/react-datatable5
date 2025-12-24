@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
@@ -8,6 +8,9 @@ import {
   CalendarDisplay,
   useDataTable,
   useDataTableServer,
+  FilterDialog,
+  TableFilterTags,
+  useDataTableContext,
 } from '../../index';
 import { Provider } from '@/components/ui/provider';
 import dayjs from 'dayjs';
@@ -63,6 +66,10 @@ const columns: ColumnDef<Event>[] = [
   columnHelper.accessor('title', {
     header: 'Title',
     size: 200,
+    meta: {
+      displayName: 'Title',
+      filterVariant: 'text',
+    },
   }),
   columnHelper.accessor('date', {
     header: 'Date',
@@ -71,10 +78,24 @@ const columns: ColumnDef<Event>[] = [
   columnHelper.accessor('category', {
     header: 'Category',
     size: 120,
+    meta: {
+      displayName: 'Category',
+      filterVariant: 'select',
+      filterOptions: [
+        { label: 'Meeting', value: 'meeting' },
+        { label: 'Deadline', value: 'deadline' },
+        { label: 'Event', value: 'event' },
+        { label: 'Reminder', value: 'reminder' },
+      ],
+    },
   }),
   columnHelper.accessor('description', {
     header: 'Description',
     size: 300,
+    meta: {
+      displayName: 'Description',
+      filterVariant: 'text',
+    },
   }),
 ];
 
@@ -112,7 +133,7 @@ export default {
 // Client-side Calendar Story
 export const ClientSideCalendar = (args: any) => {
   const datatable = useDataTable({
-    default: { pageSize: 100 },
+    default: { pagination: { pageSize: 100, pageIndex: 0 } },
   });
 
   return (
@@ -121,8 +142,8 @@ export const ClientSideCalendar = (args: any) => {
         <DataTable columns={columns} data={eventsData} {...datatable}>
           <CalendarDisplay
             dateColumn="date"
-            getEventTitle={(row) => row.title}
-            getEventColor={(row) => row.color}
+            getEventTitle={(row: Event) => row.title}
+            getEventColor={(row: Event) => row.color}
             onDateClick={(date, events) => {
               console.log('Date clicked:', date, events);
             }}
@@ -161,8 +182,8 @@ export const ServerSideCalendar = (args: any) => {
 const ServerSideCalendarContent = (args: any) => {
   const datatable = useDataTableServer<Event>({
     url: 'https://date.nager.at/api/v3/PublicHolidays',
-    default: { pageSize: 100 },
-    queryFn: async (params) => {
+    default: { pagination: { pageSize: 100, pageIndex: 0 } },
+    queryFn: async () => {
       try {
         // Get current year and next year for holiday data
         const currentYear = new Date().getFullYear();
@@ -237,7 +258,7 @@ ServerSideCalendar.args = {
 // Custom Event Renderer Story
 export const CustomEventRenderer = (args: any) => {
   const datatable = useDataTable({
-    default: { pageSize: 100 },
+    default: { pagination: { pageSize: 100, pageIndex: 0 } },
   });
 
   return (
@@ -246,8 +267,8 @@ export const CustomEventRenderer = (args: any) => {
         <DataTable columns={columns} data={eventsData} {...datatable}>
           <CalendarDisplay
             dateColumn="date"
-            getEventTitle={(row) => row.title}
-            getEventColor={(row) => row.color}
+            getEventTitle={(row: Event) => row.title}
+            getEventColor={(row: Event) => row.color}
             renderEvent={(event) => (
               <Box
                 fontSize="xs"
@@ -269,7 +290,7 @@ export const CustomEventRenderer = (args: any) => {
                   _dark: `${event.color || 'blue'}.400`,
                 }}
               >
-                {event.title} ({event.data.category})
+                {event.title} ({(event.data as Event).category})
               </Box>
             )}
             {...args}
@@ -292,7 +313,7 @@ CustomEventRenderer.args = {
 // Multiple Months Story
 export const MultipleMonths = (args: any) => {
   const datatable = useDataTable({
-    default: { pageSize: 100 },
+    default: { pagination: { pageSize: 100, pageIndex: 0 } },
   });
 
   return (
@@ -301,8 +322,8 @@ export const MultipleMonths = (args: any) => {
         <DataTable columns={columns} data={eventsData} {...datatable}>
           <CalendarDisplay
             dateColumn="date"
-            getEventTitle={(row) => row.title}
-            getEventColor={(row) => row.color}
+            getEventTitle={(row: Event) => row.title}
+            getEventColor={(row: Event) => row.color}
             monthsToDisplay={3}
             {...args}
           />
@@ -333,8 +354,8 @@ export const ServerSideCalendarActivities = (args: any) => {
 const ServerSideCalendarActivitiesContent = (args: any) => {
   const datatable = useDataTableServer<Event>({
     url: 'https://date.nager.at/api/v3/PublicHolidays',
-    default: { pageSize: 200 },
-    queryFn: async (params) => {
+    default: { pagination: { pageSize: 200, pageIndex: 0 } },
+    queryFn: async () => {
       try {
         // Get current year and next year for holiday data
         const currentYear = new Date().getFullYear();
@@ -464,7 +485,7 @@ ServerSideCalendarActivities.args = {
 // Responsive Calendar Story
 export const ResponsiveCalendar = (args: any) => {
   const datatable = useDataTable({
-    default: { pageSize: 100 },
+    default: { pagination: { pageSize: 100, pageIndex: 0 } },
   });
 
   // Determine months to display based on window width
@@ -496,8 +517,8 @@ export const ResponsiveCalendar = (args: any) => {
         <DataTable columns={columns} data={eventsData} {...datatable}>
           <CalendarDisplay
             dateColumn="date"
-            getEventTitle={(row) => row.title}
-            getEventColor={(row) => row.color}
+            getEventTitle={(row: Event) => row.title}
+            getEventColor={(row: Event) => row.color}
             monthsToDisplay={monthsToDisplay}
             onDateClick={(date, events) => {
               console.log('Date clicked:', date, events);
@@ -518,6 +539,116 @@ ResponsiveCalendar.args = {
   firstDayOfWeek: 0,
   showOutsideDays: true,
   monthsToDisplay: 1, // Will be overridden by responsive logic
+  maxEventsPerDay: 3,
+  colorPalette: 'blue',
+};
+
+// Helper component to display filtered row count
+const FilteredRowCount = () => {
+  const { table } = useDataTableContext<Event>();
+  const filteredCount = table.getFilteredRowModel().rows.length;
+  const totalCount = table.getRowModel().rows.length;
+  return (
+    <Text fontSize="sm" color="fg.muted">
+      Showing {filteredCount} of {totalCount} events
+    </Text>
+  );
+};
+
+// Calendar with Filters Story
+export const CalendarWithFilters = (args: any) => {
+  const datatable = useDataTable({
+    default: { pagination: { pageSize: 100, pageIndex: 0 } },
+  });
+
+  return (
+    <Provider>
+      <Box padding={4}>
+        <DataTable columns={columns} data={eventsData} {...datatable}>
+          <Flex direction="column" gap={4}>
+            <Flex gap={2} alignItems="center" flexWrap="wrap">
+              <FilterDialog />
+              <FilteredRowCount />
+            </Flex>
+            <TableFilterTags />
+            <CalendarDisplay<Event>
+              dateColumn="date"
+              getEventTitle={(row: Event) => row.title}
+              getEventColor={(row: Event) => row.color}
+              onDateClick={(date, events) => {
+                console.log('Date clicked:', date, events);
+              }}
+              onEventClick={(event) => {
+                console.log('Event clicked:', event);
+              }}
+              {...args}
+            />
+          </Flex>
+        </DataTable>
+      </Box>
+    </Provider>
+  );
+};
+
+CalendarWithFilters.args = {
+  dateColumn: 'date',
+  firstDayOfWeek: 0,
+  showOutsideDays: true,
+  monthsToDisplay: 1,
+  maxEventsPerDay: 3,
+  colorPalette: 'blue',
+};
+
+// Calendar with Pre-applied Filters Story
+export const CalendarWithPreAppliedFilters = (args: any) => {
+  const datatable = useDataTable({
+    default: {
+      pagination: { pageSize: 100, pageIndex: 0 },
+      columnFilters: [
+        { id: 'category', value: 'meeting' },
+        { id: 'title', value: 'Event' },
+      ],
+    },
+  });
+
+  return (
+    <Provider>
+      <Box padding={4}>
+        <DataTable columns={columns} data={eventsData} {...datatable}>
+          <Flex direction="column" gap={4}>
+            <Flex gap={2} alignItems="center" flexWrap="wrap">
+              <FilterDialog />
+              <FilteredRowCount />
+            </Flex>
+            <TableFilterTags />
+            <Text fontSize="sm" color="fg.muted">
+              This calendar shows only events filtered by category "meeting" and
+              title containing "Event"
+            </Text>
+            <CalendarDisplay<Event>
+              dateColumn="date"
+              getEventTitle={(row: Event) => row.title}
+              getEventColor={(row: Event) => row.color}
+              onDateClick={(date, events) => {
+                console.log('Date clicked:', date, events);
+              }}
+              onEventClick={(event) => {
+                console.log('Event clicked:', event);
+              }}
+              {...args}
+            />
+          </Flex>
+        </DataTable>
+      </Box>
+    </Provider>
+  );
+};
+
+CalendarWithPreAppliedFilters.args = {
+  dateColumn: 'date',
+  firstDayOfWeek: 0,
+  showOutsideDays: true,
+  monthsToDisplay: 1,
   maxEventsPerDay: 3,
   colorPalette: 'blue',
 };
