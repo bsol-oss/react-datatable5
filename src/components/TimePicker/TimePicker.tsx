@@ -10,12 +10,13 @@ import {
   useFilter,
   useListCollection,
 } from '@chakra-ui/react';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
 import { Dispatch, SetStateAction, useMemo } from 'react';
 import { BsClock } from 'react-icons/bs';
 import { MdCancel } from 'react-icons/md';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import { TimePickerLabels } from '../Form/components/types/CustomJSONSchema7';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -32,18 +33,11 @@ interface TimePickerProps {
     minute: number | null;
     meridiem: 'am' | 'pm' | null;
   }) => void;
-  meridiemLabel?: {
-    am: string;
-    pm: string;
-  };
-  timezone?: string;
   startTime?: string;
   selectedDate?: string;
+  timezone?: string;
   portalled?: boolean;
-  labels?: {
-    placeholder?: string;
-    emptyMessage?: string;
-  };
+  labels?: TimePickerLabels;
 }
 
 interface TimeOption {
@@ -56,33 +50,26 @@ interface TimeOption {
   durationText?: string; // Duration difference text (e.g., "+2h 30m")
 }
 
-export function TimePicker({
+export const TimePicker = ({
   hour,
   setHour,
   minute,
   setMinute,
   meridiem,
   setMeridiem,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  meridiemLabel: _meridiemLabel = {
-    am: 'am',
-    pm: 'pm',
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onChange = (_newValue) => {},
-  timezone = 'Asia/Hong_Kong',
+  onChange = () => {},
   startTime,
   selectedDate,
+  timezone = 'Asia/Hong_Kong',
   portalled = true,
   labels = {
-    placeholder: 'hh:mm a',
+    placeholder: 'hh:mm AM/PM',
     emptyMessage: 'No time found',
   },
-}: TimePickerProps) {
-  // Generate time options (every 15 minutes)
+}: TimePickerProps) => {
+  // Generate time options (every 15 minutes in 12-hour format)
   const timeOptions = useMemo<TimeOption[]>(() => {
     const options: TimeOption[] = [];
-    const meridiemOptions: ('am' | 'pm')[] = ['am', 'pm'];
 
     // Get start time for comparison if provided
     let startDateTime: dayjs.Dayjs | null = null;
@@ -100,16 +87,14 @@ export function TimePicker({
       }
     }
 
-    for (const mer of meridiemOptions) {
-      for (let h = 1; h <= 12; h++) {
-        for (let m = 0; m < 60; m += 15) {
-          const hour24 =
-            mer === 'am' ? (h === 12 ? 0 : h) : h === 12 ? 12 : h + 12;
-
-          // Format time directly without using dayjs with dummy dates
-          const formattedHour = h.toString().padStart(2, '0');
-          const formattedMinute = m.toString().padStart(2, '0');
-          const displayTime = `${formattedHour}:${formattedMinute} ${mer}`;
+    // Generate 12-hour format options (1-12 for hours, AM/PM)
+    for (let h = 1; h <= 12; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        for (const mer of ['am', 'pm'] as const) {
+          // Convert 12-hour to 24-hour for comparison
+          let hour24 = h;
+          if (mer === 'am' && h === 12) hour24 = 0;
+          else if (mer === 'pm' && h < 12) hour24 = h + 12;
 
           // Filter out times that would result in negative duration (only when dates are the same)
           if (startDateTime && selectedDate && shouldFilterByDate) {
@@ -160,20 +145,24 @@ export function TimePicker({
             }
           }
 
+          const hourDisplay = h.toString();
+          const minuteDisplay = m.toString().padStart(2, '0');
+          const timeDisplay = `${hourDisplay}:${minuteDisplay} ${mer.toUpperCase()}`;
+
           options.push({
-            label: displayTime,
-            value: `${h}:${m.toString().padStart(2, '0')}:${mer}`,
+            label: timeDisplay,
+            value: `${h}:${m}:${mer}`,
             hour: h,
             minute: m,
             meridiem: mer,
-            searchText: displayTime, // Use base time without duration for searching
+            searchText: timeDisplay, // Use base time without duration for searching
             durationText,
           });
         }
       }
     }
     return options;
-  }, [timezone, startTime, selectedDate]);
+  }, [startTime, selectedDate, timezone]);
 
   const { contains } = useFilter({ sensitivity: 'base' });
 
@@ -189,7 +178,7 @@ export function TimePicker({
     if (hour === null || minute === null || meridiem === null) {
       return '';
     }
-    return `${hour}:${minute.toString().padStart(2, '0')}:${meridiem}`;
+    return `${hour}:${minute}:${meridiem}`;
   }, [hour, minute, meridiem]);
 
   // Calculate duration difference
@@ -204,17 +193,14 @@ export function TimePicker({
       return null;
     }
 
-    const hour24 =
-      meridiem === 'am'
-        ? hour === 12
-          ? 0
-          : hour
-        : hour === 12
-          ? 12
-          : hour + 12;
-
     const startDateObj = dayjs(startTime).tz(timezone);
     const selectedDateObj = dayjs(selectedDate).tz(timezone);
+
+    // Convert 12-hour to 24-hour format
+    let hour24 = hour;
+    if (meridiem === 'am' && hour === 12) hour24 = 0;
+    else if (meridiem === 'pm' && hour < 12) hour24 = hour + 12;
+
     const currentDateTime = selectedDateObj
       .hour(hour24)
       .minute(minute)
@@ -292,91 +278,64 @@ export function TimePicker({
       return;
     }
 
-    // Try to parse custom input using explicit regex patterns
-    const normalized = trimmedValue.toLowerCase().replace(/\s+/g, '');
-
-    // Pattern 1: 12-hour format with meridiem (e.g., "930pm", "1230am", "9:30pm", "12:30am")
-    // Matches: 1-2 digits hour, optional colon, 2 digits minute, am/pm
-    const pattern12HourWithMeridiem = /^(\d{1,2}):?(\d{2})(am|pm)$/;
-    const match12Hour = normalized.match(pattern12HourWithMeridiem);
+    // Parse formats like "1:30 PM", "1:30PM", "1:30 pm", "1:30pm"
+    const timePattern12Hour = /^(\d{1,2}):(\d{1,2})\s*(am|pm|AM|PM)$/i;
+    const match12Hour = trimmedValue.match(timePattern12Hour);
 
     if (match12Hour) {
       const parsedHour = parseInt(match12Hour[1], 10);
       const parsedMinute = parseInt(match12Hour[2], 10);
-      const parsedMeridiem = match12Hour[3] as 'am' | 'pm';
+      const parsedMeridiem = match12Hour[3].toLowerCase() as 'am' | 'pm';
 
-      // Validate hour (1-12)
-      if (parsedHour < 1 || parsedHour > 12) {
-        // Parse failed, select first result
-        selectFirstResult();
+      // Validate ranges
+      if (
+        parsedHour >= 1 &&
+        parsedHour <= 12 &&
+        parsedMinute >= 0 &&
+        parsedMinute <= 59
+      ) {
+        setHour(parsedHour);
+        setMinute(parsedMinute);
+        setMeridiem(parsedMeridiem);
+        onChange({
+          hour: parsedHour,
+          minute: parsedMinute,
+          meridiem: parsedMeridiem,
+        });
         return;
       }
-
-      // Validate minute (0-59)
-      if (parsedMinute < 0 || parsedMinute > 59) {
-        // Parse failed, select first result
-        selectFirstResult();
-        return;
-      }
-
-      setHour(parsedHour);
-      setMinute(parsedMinute);
-      setMeridiem(parsedMeridiem);
-      onChange({
-        hour: parsedHour,
-        minute: parsedMinute,
-        meridiem: parsedMeridiem,
-      });
-      return;
     }
 
-    // Pattern 2: 24-hour format (e.g., "2130", "09:30", "21:30")
-    // Matches: 1-2 digits hour, optional colon, 2 digits minute
-    const pattern24Hour = /^(\d{1,2}):?(\d{2})$/;
-    const match24Hour = normalized.match(pattern24Hour);
+    // Try to parse formats like "130pm" or "130 pm" (without colon)
+    const timePatternNoColon = /^(\d{1,4})\s*(am|pm|AM|PM)$/i;
+    const matchNoColon = trimmedValue.match(timePatternNoColon);
 
-    if (match24Hour) {
-      let parsedHour = parseInt(match24Hour[1], 10);
-      const parsedMinute = parseInt(match24Hour[2], 10);
+    if (matchNoColon) {
+      const numbersOnly = matchNoColon[1];
+      const parsedMeridiem = matchNoColon[2].toLowerCase() as 'am' | 'pm';
 
-      // Validate hour (0-23)
-      if (parsedHour < 0 || parsedHour > 23) {
-        // Parse failed, select first result
-        selectFirstResult();
-        return;
+      if (numbersOnly.length >= 3) {
+        const parsedHour = parseInt(numbersOnly.slice(0, -2), 10);
+        const parsedMinute = parseInt(numbersOnly.slice(-2), 10);
+
+        // Validate ranges
+        if (
+          parsedHour >= 1 &&
+          parsedHour <= 12 &&
+          parsedMinute >= 0 &&
+          parsedMinute <= 59
+        ) {
+          setHour(parsedHour);
+          setMinute(parsedMinute);
+          setMeridiem(parsedMeridiem);
+          onChange({
+            hour: parsedHour,
+            minute: parsedMinute,
+            meridiem: parsedMeridiem,
+          });
+          return;
+        }
       }
-
-      // Validate minute (0-59)
-      if (parsedMinute < 0 || parsedMinute > 59) {
-        // Parse failed, select first result
-        selectFirstResult();
-        return;
-      }
-
-      // Convert 24-hour to 12-hour format
-      let parsedMeridiem: 'am' | 'pm';
-      if (parsedHour === 0) {
-        parsedHour = 12;
-        parsedMeridiem = 'am';
-      } else if (parsedHour === 12) {
-        parsedHour = 12;
-        parsedMeridiem = 'pm';
-      } else if (parsedHour > 12) {
-        parsedHour = parsedHour - 12;
-        parsedMeridiem = 'pm';
-      } else {
-        parsedMeridiem = 'am';
-      }
-
-      setHour(parsedHour);
-      setMinute(parsedMinute);
-      setMeridiem(parsedMeridiem);
-      onChange({
-        hour: parsedHour,
-        minute: parsedMinute,
-        meridiem: parsedMeridiem,
-      });
-      return;
     }
 
     // Parse failed, select first result
@@ -448,14 +407,13 @@ export function TimePicker({
           <Combobox.Control>
             <InputGroup startElement={<BsClock />}>
               <Combobox.Input
-                placeholder={labels.placeholder}
+                placeholder={labels?.placeholder ?? 'hh:mm AM/PM'}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
               />
             </InputGroup>
             <Combobox.IndicatorGroup>
-              {/* <Combobox.ClearTrigger /> */}
               <Combobox.Trigger />
             </Combobox.IndicatorGroup>
           </Combobox.Control>
@@ -463,13 +421,15 @@ export function TimePicker({
           <Portal disabled={!portalled}>
             <Combobox.Positioner>
               <Combobox.Content>
-                <Combobox.Empty>{labels.emptyMessage}</Combobox.Empty>
+                <Combobox.Empty>
+                  {labels?.emptyMessage ?? 'No time found'}
+                </Combobox.Empty>
                 {collection.items.map((item) => (
                   <Combobox.Item item={item} key={item.value}>
                     <Flex alignItems="center" gap={2} width="100%">
                       <Text flex={1}>{item.label}</Text>
                       {item.durationText && (
-                        <Tag.Root size="sm" colorPalette="blue">
+                        <Tag.Root size="sm">
                           <Tag.Label>{item.durationText}</Tag.Label>
                         </Tag.Root>
                       )}
@@ -496,4 +456,4 @@ export function TimePicker({
       </Flex>
     </Flex>
   );
-}
+};
