@@ -1,8 +1,13 @@
-import Dayzed, { Props, RenderProps } from '@bsol-oss/dayzed-react19';
 import { Box, Button, Grid } from '@chakra-ui/react';
 import React, { createContext, useContext, useState } from 'react';
+import {
+  useCalendar,
+  CalendarRenderProps,
+  Calendar,
+  CalendarDate,
+} from './useCalendar';
 
-export interface RangeCalendarProps extends RenderProps {
+export interface RangeCalendarProps extends CalendarRenderProps {
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   selected?: Date[];
 }
@@ -123,136 +128,105 @@ function Calendar({
           justifyContent={'center'}
           gap={4}
         >
-          {calendars.map(
-            (calendar: {
-              month: number;
-              year: number;
-              weeks: Array<
-                Array<{
-                  date: Date;
-                  selected: boolean;
-                  selectable: boolean;
-                  today: boolean;
-                } | null>
-              >;
-            }) => (
-              // month and year
-              <Grid
-                key={`${calendar.month}${calendar.year}`}
-                gap={4}
-                alignContent="start"
-              >
-                <Grid justifyContent={'center'}>
-                  {monthNamesFull[calendar.month]} {calendar.year}
-                </Grid>
-                <Grid
-                  templateColumns={'repeat(7, auto)'}
-                  justifyContent={'center'}
-                >
-                  {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-                    const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                    return (
-                      <Box
-                        key={`${calendar.month}${calendar.year}${weekday}`}
-                        minWidth={'48px'}
-                        textAlign={'center'}
-                      >
-                        {weekdayNamesShort[weekday]}
-                      </Box>
-                    );
-                  })}
-                </Grid>
-                <Grid
-                  templateColumns={'repeat(7, auto)'}
-                  justifyContent={'center'}
-                >
-                  {calendar.weeks.map(
-                    (
-                      week: Array<{
-                        date: Date;
-                        selected: boolean;
-                        selectable: boolean;
-                        today: boolean;
-                      } | null>,
-                      windex: number
-                    ) =>
-                      week.map(
-                        (
-                          dateObj: {
-                            date: Date;
-                            selected: boolean;
-                            selectable: boolean;
-                            today: boolean;
-                          } | null,
-                          index: number
-                        ) => {
-                          const key = `${calendar.month}${calendar.year}${windex}${index}`;
-
-                          if (!dateObj) {
-                            return <Box key={key} />;
-                          }
-                          const { date, selected, selectable, today } = dateObj;
-                          const getStyle = ({
-                            selected,
-                            unavailable,
-                            today,
-                            isInRange,
-                          }: GetStyleProps): {
-                            colorPalette?: 'gray' | 'blue' | 'green' | 'cyan';
-                            variant: 'solid' | 'ghost' | 'subtle';
-                          } => {
-                            if (unavailable) {
-                              return {
-                                colorPalette: 'gray',
-                                variant: 'solid',
-                              };
-                            }
-                            if (selected) {
-                              return {
-                                colorPalette: 'blue',
-                                variant: 'solid',
-                              };
-                            }
-                            if (isInRange) {
-                              return {
-                                colorPalette: 'blue',
-                                variant: 'subtle',
-                              };
-                            }
-                            if (today) {
-                              return {
-                                colorPalette: 'green',
-                                variant: 'solid',
-                              };
-                            }
-                            return { variant: 'ghost' };
-                          };
-                          return (
-                            <Button
-                              key={key}
-                              {...getDateProps({
-                                dateObj,
-                                onMouseEnter: () => {
-                                  onMouseEnter(date);
-                                },
-                              })}
-                              {...getStyle({
-                                selected,
-                                unavailable: !selectable,
-                                today,
-                                isInRange: isInRange(date),
-                              })}
-                            >
-                              {selectable ? date.getDate() : 'X'}
-                            </Button>
-                          );
-                        }
-                      )
-                  )}
-                </Grid>
+          {calendars.map((calendar: Calendar) => (
+            // month and year
+            <Grid
+              key={`${calendar.month}${calendar.year}`}
+              gap={4}
+              alignContent="start"
+            >
+              <Grid justifyContent={'center'}>
+                {monthNamesFull[calendar.month]} {calendar.year}
               </Grid>
-            )
-          )}
+              <Grid
+                templateColumns={'repeat(7, auto)'}
+                justifyContent={'center'}
+              >
+                {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                  const weekday = (weekdayNum + firstDayOfWeek) % 7;
+                  return (
+                    <Box
+                      key={`${calendar.month}${calendar.year}${weekday}`}
+                      minWidth={'48px'}
+                      textAlign={'center'}
+                    >
+                      {weekdayNamesShort[weekday]}
+                    </Box>
+                  );
+                })}
+              </Grid>
+              <Grid
+                templateColumns={'repeat(7, auto)'}
+                justifyContent={'center'}
+              >
+                {calendar.weeks.map(
+                  (week: Array<CalendarDate | null>, windex: number) =>
+                    week.map((dateObj: CalendarDate | null, index: number) => {
+                      const key = `${calendar.month}${calendar.year}${windex}${index}`;
+
+                      if (!dateObj) {
+                        return <Box key={key} />;
+                      }
+                      const { date, selected, selectable, today } = dateObj;
+                      const getStyle = ({
+                        selected,
+                        unavailable,
+                        today,
+                        isInRange,
+                      }: GetStyleProps): {
+                        colorPalette?: 'gray' | 'blue' | 'green' | 'cyan';
+                        variant: 'solid' | 'ghost' | 'subtle';
+                      } => {
+                        if (unavailable) {
+                          return {
+                            colorPalette: 'gray',
+                            variant: 'solid',
+                          };
+                        }
+                        if (selected) {
+                          return {
+                            colorPalette: 'blue',
+                            variant: 'solid',
+                          };
+                        }
+                        if (isInRange) {
+                          return {
+                            colorPalette: 'blue',
+                            variant: 'subtle',
+                          };
+                        }
+                        if (today) {
+                          return {
+                            colorPalette: 'green',
+                            variant: 'solid',
+                          };
+                        }
+                        return { variant: 'ghost' };
+                      };
+                      return (
+                        <Button
+                          key={key}
+                          {...getDateProps({
+                            dateObj,
+                            onMouseEnter: () => {
+                              onMouseEnter(date);
+                            },
+                          })}
+                          {...getStyle({
+                            selected,
+                            unavailable: !selectable,
+                            today,
+                            isInRange: isInRange(date),
+                          })}
+                        >
+                          {selectable ? date.getDate() : 'X'}
+                        </Button>
+                      );
+                    })
+                )}
+              </Grid>
+            </Grid>
+          ))}
         </Grid>
       </Grid>
     );
@@ -260,7 +234,7 @@ function Calendar({
   return null;
 }
 
-export interface RangeDatePickerProps extends Props {
+export interface RangeDatePickerProps {
   onDateSelected?: (obj: {
     selected: Date[];
     selectable: boolean;
@@ -310,7 +284,7 @@ export interface RangeDatePickerProps extends Props {
    * @default true
    */
   portalled?: boolean;
-  render?: (dayzedData: RenderProps) => React.ReactNode;
+  render?: (calendarData: CalendarRenderProps) => React.ReactNode;
 }
 
 const RangeDatePicker: React.FC<RangeDatePickerProps> = ({
@@ -341,30 +315,70 @@ const RangeDatePicker: React.FC<RangeDatePickerProps> = ({
   minDate,
   maxDate,
   monthsToDisplay,
+  render,
   ...rest
 }) => {
+  const handleDateSelected = (obj: { date: Date; selected: Date | Date[] }) => {
+    if (onDateSelected) {
+      const dateObj = obj.date;
+      const currentSelected = Array.isArray(obj.selected)
+        ? obj.selected
+        : [obj.selected];
+
+      // Range selection logic: if one date selected, add second; if two selected, replace with new date
+      let newSelected: Date[];
+      if (currentSelected.length === 0) {
+        newSelected = [dateObj];
+      } else if (currentSelected.length === 1) {
+        const firstDate = currentSelected[0];
+        if (dateObj < firstDate) {
+          newSelected = [dateObj, firstDate];
+        } else {
+          newSelected = [firstDate, dateObj];
+        }
+      } else {
+        newSelected = [dateObj];
+      }
+
+      // Check if date is selectable
+      const selectable = !minDate || dateObj >= minDate;
+      if (maxDate) {
+        const isSelectable = dateObj <= maxDate;
+        if (!isSelectable) return;
+      }
+
+      onDateSelected({
+        selected: newSelected,
+        selectable,
+        date: dateObj,
+      });
+    }
+  };
+
+  const calendarData = useCalendar({
+    onDateSelected: handleDateSelected,
+    selected,
+    firstDayOfWeek,
+    showOutsideDays,
+    date,
+    minDate,
+    maxDate,
+    monthsToDisplay,
+  });
+
   return (
     <RangeDatePickerContext.Provider value={{ labels }}>
-      <Dayzed
-        onDateSelected={onDateSelected}
-        selected={selected}
-        firstDayOfWeek={firstDayOfWeek}
-        showOutsideDays={showOutsideDays}
-        date={date}
-        minDate={minDate}
-        maxDate={maxDate}
-        monthsToDisplay={monthsToDisplay}
-        {...rest}
-        render={(dayzedData: RenderProps) => (
-          <Calendar
-            {...{
-              ...dayzedData,
-              firstDayOfWeek,
-              selected: selected as Date[],
-            }}
-          />
-        )}
-      />
+      {render ? (
+        render(calendarData)
+      ) : (
+        <Calendar
+          {...{
+            ...calendarData,
+            firstDayOfWeek,
+            selected: selected as Date[],
+          }}
+        />
+      )}
     </RangeDatePickerContext.Provider>
   );
 };

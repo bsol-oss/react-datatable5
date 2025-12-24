@@ -1,8 +1,8 @@
-import { Button, Grid, Text } from "@chakra-ui/react";
-import Dayzed, { Props, RenderProps } from "@bsol-oss/dayzed-react19";
-import React, { createContext, useContext } from "react";
+import { Button, Grid, Text } from '@chakra-ui/react';
+import React, { createContext, useContext } from 'react';
+import { useCalendar, type CalendarRenderProps } from './useCalendar';
 
-export interface CalendarProps extends RenderProps {
+export interface CalendarProps extends CalendarRenderProps {
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 }
 
@@ -26,51 +26,56 @@ const Calendar = ({
   firstDayOfWeek = 0,
 }: CalendarProps) => {
   const { labels } = useContext(DatePickerContext);
-  const { monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel } = labels;
+  const {
+    monthNamesShort,
+    weekdayNamesShort,
+    backButtonLabel,
+    forwardButtonLabel,
+  } = labels;
   if (calendars.length) {
     return (
       <Grid>
-        <Grid templateColumns={"repeat(4, auto)"} justifyContent={"center"}>
+        <Grid templateColumns={'repeat(4, auto)'} justifyContent={'center'}>
           <Button
-            variant={"ghost"}
+            variant={'ghost'}
             {...getBackProps({
               calendars,
               offset: 12,
             })}
           >
-            {"<<"}
+            {'<<'}
           </Button>
-          <Button variant={"ghost"} {...getBackProps({ calendars })}>
+          <Button variant={'ghost'} {...getBackProps({ calendars })}>
             {backButtonLabel}
           </Button>
-          <Button variant={"ghost"} {...getForwardProps({ calendars })}>
+          <Button variant={'ghost'} {...getForwardProps({ calendars })}>
             {forwardButtonLabel}
           </Button>
           <Button
-            variant={"ghost"}
+            variant={'ghost'}
             {...getForwardProps({
               calendars,
               offset: 12,
             })}
           >
-            {">>"}
+            {'>>'}
           </Button>
         </Grid>
-        <Grid templateColumns={"repeat(2, auto)"} justifyContent={"center"}>
+        <Grid templateColumns={'repeat(2, auto)'} justifyContent={'center'}>
           {calendars.map((calendar) => (
             <Grid key={`${calendar.month}${calendar.year}`} gap={4}>
-              <Grid justifyContent={"center"}>
+              <Grid justifyContent={'center'}>
                 {monthNamesShort[calendar.month]} {calendar.year}
               </Grid>
               <Grid
-                templateColumns={"repeat(7, auto)"}
-                justifyContent={"center"}
+                templateColumns={'repeat(7, auto)'}
+                justifyContent={'center'}
               >
                 {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
                   const weekday = (weekdayNum + firstDayOfWeek) % 7;
                   return (
                     <Text
-                      textAlign={"center"}
+                      textAlign={'center'}
                       key={`${calendar.month}${calendar.year}${weekday}`}
                     >
                       {weekdayNamesShort[weekday]}
@@ -90,15 +95,15 @@ const Calendar = ({
                       selectable,
                     }: GetDateColorProps) => {
                       if (!selectable) {
-                        return "gray";
+                        return 'gray';
                       }
                       if (selected) {
-                        return "blue";
+                        return 'blue';
                       }
                       if (today) {
-                        return "green";
+                        return 'green';
                       }
-                      return "";
+                      return '';
                     };
 
                     const getVariant = ({
@@ -107,15 +112,15 @@ const Calendar = ({
                       selectable,
                     }: GetVariantProps) => {
                       if (!selectable) {
-                        return "surface";
+                        return 'surface';
                       }
                       if (selected) {
-                        return "solid";
+                        return 'solid';
                       }
                       if (today) {
-                        return "surface";
+                        return 'surface';
                       }
-                      return "ghost";
+                      return 'ghost';
                     };
 
                     const color = getDateColor({ today, selected, selectable });
@@ -127,7 +132,7 @@ const Calendar = ({
                         colorPalette={color}
                         {...getDateProps({ dateObj })}
                       >
-                        {selectable ? date.getDate() : "X"}
+                        {selectable ? date.getDate() : 'X'}
                       </Button>
                     );
                   })
@@ -142,8 +147,8 @@ const Calendar = ({
   return null;
 };
 
-export interface DatePickerProps extends Props {
-  onDateSelected?: (obj: { date: Date }) => void;
+export interface DatePickerProps {
+  onDateSelected?: (obj: { date: Date; selected: Date | Date[] }) => void;
   selected: Date | Date[];
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   showOutsideDays?: boolean;
@@ -157,7 +162,7 @@ export interface DatePickerProps extends Props {
     backButtonLabel?: string;
     forwardButtonLabel?: string;
   };
-  render?: (dayzedData: any) => React.ReactNode;
+  render?: (calendarData: CalendarRenderProps) => React.ReactNode;
 }
 
 export interface DatePickerLabels {
@@ -172,76 +177,80 @@ const DatePickerContext = createContext<{
 }>({
   labels: {
     monthNamesShort: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ],
-    weekdayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    backButtonLabel: "Back",
-    forwardButtonLabel: "Next",
+    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    backButtonLabel: 'Back',
+    forwardButtonLabel: 'Next',
   },
 });
 
-class DatePicker extends React.Component<DatePickerProps> {
-  render() {
-    const {
-      labels = {
-        monthNamesShort: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-        ],
-        weekdayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        backButtonLabel: "Back",
-        forwardButtonLabel: "Next",
-      },
-    } = this.props;
-    return (
-      <DatePickerContext.Provider
-        value={{ labels }}
-      >
-        <Dayzed
-          onDateSelected={this.props.onDateSelected}
-          selected={this.props.selected}
-          firstDayOfWeek={this.props.firstDayOfWeek}
-          showOutsideDays={this.props.showOutsideDays}
-          date={this.props.date}
-          minDate={this.props.minDate}
-          maxDate={this.props.maxDate}
-          monthsToDisplay={this.props.monthsToDisplay}
-          render={
-            // @ts-expect-error - Dayzed types need to be fixed
-            (dayzedData) => (
-              <Calendar
-                {...{
-                  ...dayzedData,
-                  firstDayOfWeek: this.props.firstDayOfWeek,
-                }}
-              />
-            )
-          }
+const DatePicker: React.FC<DatePickerProps> = ({
+  labels = {
+    monthNamesShort: [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ],
+    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    backButtonLabel: 'Back',
+    forwardButtonLabel: 'Next',
+  },
+  onDateSelected,
+  selected,
+  firstDayOfWeek,
+  showOutsideDays,
+  date,
+  minDate,
+  maxDate,
+  monthsToDisplay,
+  render,
+}) => {
+  const calendarData = useCalendar({
+    onDateSelected,
+    selected,
+    firstDayOfWeek,
+    showOutsideDays,
+    date,
+    minDate,
+    maxDate,
+    monthsToDisplay,
+  });
+
+  return (
+    <DatePickerContext.Provider value={{ labels }}>
+      {render ? (
+        render(calendarData)
+      ) : (
+        <Calendar
+          {...{
+            ...calendarData,
+            firstDayOfWeek,
+          }}
         />
-      </DatePickerContext.Provider>
-    );
-  }
-}
+      )}
+    </DatePickerContext.Provider>
+  );
+};
 
 export default DatePicker;

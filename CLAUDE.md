@@ -25,7 +25,8 @@ The library is organized into major component categories:
 3. **DatePicker/TimePicker** (`src/components/DatePicker/`, `src/components/TimePicker/`)
 
    - Custom date/time picker components
-   - Uses `@bsol-oss/dayzed-react19` and `dayjs`
+   - Built-in calendar implementation (no external dependencies)
+   - Uses `dayjs` for date formatting and manipulation
 
 4. **UI Utilities** (`src/components/ui/`)
    - Shared UI components and utilities
