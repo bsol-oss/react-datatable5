@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState } from 'react';
 import {
   useCalendar,
   CalendarRenderProps,
-  Calendar,
+  type Calendar as CalendarType,
   CalendarDate,
 } from './useCalendar';
 
@@ -57,7 +57,7 @@ function Calendar({
   getDateProps,
   selected = [],
   firstDayOfWeek = 0,
-}: RangeCalendarProps & RenderProps) {
+}: RangeCalendarProps) {
   const { labels } = useContext(RangeDatePickerContext);
   const {
     monthNamesFull,
@@ -128,7 +128,7 @@ function Calendar({
           justifyContent={'center'}
           gap={4}
         >
-          {calendars.map((calendar: Calendar) => (
+          {calendars.map((calendar: CalendarType) => (
             // month and year
             <Grid
               key={`${calendar.month}${calendar.year}`}
@@ -316,7 +316,6 @@ const RangeDatePicker: React.FC<RangeDatePickerProps> = ({
   maxDate,
   monthsToDisplay,
   render,
-  ...rest
 }) => {
   const handleDateSelected = (obj: { date: Date; selected: Date | Date[] }) => {
     if (onDateSelected) {

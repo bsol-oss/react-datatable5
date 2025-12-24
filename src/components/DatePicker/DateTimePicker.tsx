@@ -574,14 +574,7 @@ export function DateTimePicker({
   }, [selectedDate, timezone]);
 
   return (
-    <Flex
-      direction="column"
-      gap={4}
-      p={4}
-      border="1px solid"
-      borderColor="gray.200"
-      borderRadius="md"
-    >
+    <Flex direction="column" gap={4}>
       <DatePickerInput
         value={selectedDate || undefined}
         onChange={(date) => {
