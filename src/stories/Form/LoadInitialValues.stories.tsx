@@ -3,7 +3,6 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
 import {
   CustomQueryFnParams,
   ForeignKeyProps,
@@ -23,7 +22,6 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import {
-  loadInitialValues,
   LoadInitialValuesParams,
   LoadInitialValuesResult,
 } from '@/components/Form/components/fields/useIdPickerData';
@@ -32,15 +30,15 @@ import { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSON
 /**
  * Load Initial Values Function Story
  *
- * This story demonstrates the `loadInitialValues` function which can be used
- * to manually load initial values into the idMap for IdPicker fields.
+ * This story demonstrates the `loadInitialValues` function which is only
+ * meaningful for id-picker fields. It loads records by their IDs so they can
+ * be displayed in a human-readable format.
  *
  * Key features demonstrated:
- * - Using loadInitialValues at schema level (like renderDisplay)
- * - Using loadInitialValues with customQueryFn
- * - Using loadInitialValues with default getTableData (fallback)
- * - Programmatically loading values into idMap
- * - Manual control over when to fetch initial values
+ * - loadInitialValues is at the same level as renderDisplay in schema
+ * - Only meaningful when variant === 'id-picker'
+ * - Loads records by ID for human-readable display
+ * - Uses customQueryFn from foreign_key to fetch data
  * - Custom loadInitialValues implementation in schema
  */
 
@@ -168,7 +166,10 @@ export const LoadInitialValuesDemo: Story = {
   },
   args: {
     formConfig: {
-      schema: {} as JSONSchema7,
+      schema: {
+        type: 'object',
+        properties: {},
+      } as CustomJSONSchema7,
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -189,7 +190,10 @@ export const SchemaLevelLoadInitialValues: Story = {
   },
   args: {
     formConfig: {
-      schema: {} as JSONSchema7,
+      schema: {
+        type: 'object',
+        properties: {},
+      } as CustomJSONSchema7,
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -203,7 +207,44 @@ const LoadInitialValuesDemoForm = () => {
   const [loadingStatus, setLoadingStatus] = useState<string>('');
   const [loadedIds, setLoadedIds] = useState<string[]>([]);
 
-  const schema = {
+  // Default loadInitialValues implementation
+  const defaultLoadInitialValues = async (
+    params: LoadInitialValuesParams
+  ): Promise<LoadInitialValuesResult> => {
+    if (!params.ids || params.ids.length === 0) {
+      return { data: { data: [], count: 0 }, idMap: {} };
+    }
+
+    const { column: column_ref, customQueryFn } = params.foreign_key;
+
+    if (!customQueryFn) {
+      throw new Error(
+        'customQueryFn is required in foreign_key. serverUrl has been removed.'
+      );
+    }
+
+    const { data, idMap: returnedIdMap } = await customQueryFn({
+      searching: '',
+      limit: params.ids.length,
+      offset: 0,
+      where: [
+        {
+          id: column_ref,
+          value: params.ids.length === 1 ? params.ids[0] : params.ids,
+        },
+      ],
+    });
+
+    if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
+      params.setIdMap((state) => {
+        return { ...state, ...returnedIdMap };
+      });
+    }
+
+    return { data, idMap: returnedIdMap || {} };
+  };
+
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'Product Selection Form',
     properties: {
@@ -215,7 +256,8 @@ const LoadInitialValuesDemoForm = () => {
           column: 'id',
           customQueryFn: customProductQueryFn,
         },
-      },
+        loadInitialValues: defaultLoadInitialValues, // Required for id-picker: loads records for human-readable display
+      } as CustomJSONSchema7,
       related_products: {
         type: 'array',
         variant: 'id-picker',
@@ -227,21 +269,19 @@ const LoadInitialValuesDemoForm = () => {
           column: 'id',
           customQueryFn: customProductQueryFn,
         },
-      },
+        loadInitialValues: defaultLoadInitialValues, // Required for id-picker: loads records for human-readable display
+      } as CustomJSONSchema7,
     },
-  } as JSONSchema7;
+  };
 
-  // Function to manually load initial values
-  const handleLoadInitialValues = async (
-    ids: string[],
-    useCustomFn: boolean = true
-  ) => {
+  // Function to manually load initial values using schema's loadInitialValues
+  const handleLoadInitialValues = async (ids: string[]) => {
     setLoadingStatus('Loading...');
     try {
       const foreign_key: ForeignKeyProps = {
         table: 'products',
         column: 'id',
-        ...(useCustomFn && { customQueryFn: customProductQueryFn }),
+        customQueryFn: customProductQueryFn, // Required
       };
 
       const params: LoadInitialValuesParams = {
@@ -250,7 +290,13 @@ const LoadInitialValuesDemoForm = () => {
         setIdMap: form.setIdMap,
       };
 
-      const result = await loadInitialValues(params);
+      // Use schema's loadInitialValues (required)
+      const featuredProductSchema = schema.properties
+        ?.featured_product as CustomJSONSchema7;
+      if (!featuredProductSchema?.loadInitialValues) {
+        throw new Error('loadInitialValues is required in schema');
+      }
+      const result = await featuredProductSchema.loadInitialValues(params);
 
       setLoadingStatus(
         `Successfully loaded ${result.data.data.length} items into idMap`
@@ -274,9 +320,10 @@ const LoadInitialValuesDemoForm = () => {
           <Heading size="lg">loadInitialValues Function Demo</Heading>
           <Text>
             This story demonstrates the <Code>loadInitialValues</Code> function,
-            which allows you to manually load initial values into the idMap for
-            IdPicker fields. This is useful when you need to programmatically
-            pre-populate the idMap before the form renders.
+            which is only meaningful for id-picker fields. It loads records by
+            their IDs so they can be displayed in a human-readable format. The
+            function is defined at the same level as <Code>renderDisplay</Code>{' '}
+            in the schema.
           </Text>
 
           <Alert.Root status="info" borderRadius="md">
@@ -290,8 +337,12 @@ const LoadInitialValuesDemoForm = () => {
                     <Code>renderDisplay</Code>)
                   </Text>
                   <Text>
-                    ✓ Uses <Code>customQueryFn</Code> if available, otherwise
-                    falls back to <Code>getTableData</Code>
+                    ✓ Required for id-picker fields: loads records by id for
+                    human-readable display
+                  </Text>
+                  <Text>
+                    ✓ Uses <Code>customQueryFn</Code> from{' '}
+                    <Code>foreign_key</Code> to fetch data
                   </Text>
                   <Text>
                     ✓ Automatically updates the idMap with fetched data
@@ -337,36 +388,29 @@ const LoadInitialValuesDemoForm = () => {
 
           <Flex gap={2} wrap="wrap">
             <Button
-              onClick={() => handleLoadInitialValues(['prod-1'], true)}
+              onClick={() => handleLoadInitialValues(['prod-1'])}
               colorPalette="blue"
               size="sm"
             >
-              Load Single (Custom Query)
+              Load Single
             </Button>
             <Button
-              onClick={() =>
-                handleLoadInitialValues(['prod-2', 'prod-3'], true)
-              }
+              onClick={() => handleLoadInitialValues(['prod-2', 'prod-3'])}
               colorPalette="green"
               size="sm"
             >
-              Load Multiple (Custom Query)
+              Load Multiple
             </Button>
             <Button
-              onClick={() =>
-                handleLoadInitialValues(['prod-4', 'prod-5'], false)
-              }
+              onClick={() => handleLoadInitialValues(['prod-4', 'prod-5'])}
               colorPalette="orange"
               size="sm"
             >
-              Load Multiple (Default Query)
+              Load Multiple (Different IDs)
             </Button>
             <Button
               onClick={() =>
-                handleLoadInitialValues(
-                  mockProducts.map((p) => p.id),
-                  true
-                )
+                handleLoadInitialValues(mockProducts.map((p) => p.id))
               }
               colorPalette="purple"
               size="sm"
@@ -409,18 +453,21 @@ const LoadInitialValuesDemoForm = () => {
         <VStack gap={4} align="stretch">
           <Heading size="md">Function Usage</Heading>
           <Text>
-            The <Code>loadInitialValues</Code> function can be used in two ways:
+            The <Code>loadInitialValues</Code> function must be provided in the
+            schema for IdPicker fields. It works just like{' '}
+            <Code>renderDisplay</Code>:
           </Text>
 
           <Separator />
 
           <Box>
             <Heading size="sm" mb={2}>
-              1. At Schema Level (Recommended)
+              Schema-Level (Required for id-picker)
             </Heading>
             <Text mb={2}>
-              Provide <Code>loadInitialValues</Code> in the schema, just like{' '}
-              <Code>renderDisplay</Code>:
+              Provide <Code>loadInitialValues</Code> in the schema at the same
+              level as <Code>renderDisplay</Code>. It is required for id-picker
+              fields to load records by id for human-readable display:
             </Text>
             <Box
               p={4}
@@ -476,10 +523,11 @@ const LoadInitialValuesDemoForm = () => {
 
           <Box>
             <Heading size="sm" mb={2}>
-              2. Direct Function Call
+              Calling Schema's loadInitialValues
             </Heading>
             <Text mb={2}>
-              Call <Code>loadInitialValues</Code> directly programmatically:
+              You can call the schema's <Code>loadInitialValues</Code> function
+              programmatically:
             </Text>
             <Box
               p={4}
@@ -495,26 +543,16 @@ const LoadInitialValuesDemoForm = () => {
                 whiteSpace="pre-wrap"
                 fontSize="sm"
               >
-                {`import { loadInitialValues } from '@/components/Form/components/fields/useIdPickerData';
+                {`// Get loadInitialValues from schema
+const loadInitialValuesFn = schema.properties.featured_product.loadInitialValues;
 
-// With customQueryFn
-const result = await loadInitialValues({
+// Call it programmatically
+const result = await loadInitialValuesFn({
   ids: ['prod-1', 'prod-2'],
   foreign_key: {
     table: 'products',
     column: 'id',
-    customQueryFn: customProductQueryFn,
-  },
-  setIdMap: form.setIdMap,
-});
-
-// Without customQueryFn (uses getTableData)
-const result = await loadInitialValues({
-  ids: ['prod-3', 'prod-4'],
-  foreign_key: {
-    table: 'products',
-    column: 'id',
-    customQueryFn: customProductQueryFn, // customQueryFn is now required
+    customQueryFn: customProductQueryFn, // Required
   },
   setIdMap: form.setIdMap,
 });
@@ -541,7 +579,7 @@ const result = await loadInitialValues({
 
           <DefaultForm
             formConfig={{
-              schema: schema as JSONSchema7,
+              schema: schema,
               onSubmit: async (data) => {
                 console.log('Form submitted with data:', data);
                 alert(
@@ -559,7 +597,9 @@ const result = await loadInitialValues({
         <VStack gap={4} align="stretch">
           <Heading size="md">How It Works</Heading>
           <Text>
-            The <Code>loadInitialValues</Code> function:
+            The <Code>loadInitialValues</Code> function is only meaningful for
+            id-picker fields. It loads records by their IDs so they can be
+            displayed in a human-readable format:
           </Text>
 
           <VStack gap={3} align="stretch" mt={2}>
@@ -568,8 +608,8 @@ const result = await loadInitialValues({
                 1
               </Badge>
               <Text>
-                Checks if <Code>customQueryFn</Code> is provided in{' '}
-                <Code>foreign_key</Code>
+                Required in schema for fields with{' '}
+                <Code>variant: 'id-picker'</Code>
               </Text>
             </HStack>
             <HStack gap={4}>
@@ -577,22 +617,13 @@ const result = await loadInitialValues({
                 2
               </Badge>
               <Text>
-                If customQueryFn exists, uses it with a where clause to fetch
-                specific IDs
+                Uses <Code>customQueryFn</Code> from <Code>foreign_key</Code>{' '}
+                with a where clause to fetch records by their IDs
               </Text>
             </HStack>
             <HStack gap={4}>
               <Badge colorPalette="green" px={2} py={1}>
                 3
-              </Badge>
-              <Text>
-                Otherwise, falls back to <Code>getTableData</Code> with the same
-                where clause
-              </Text>
-            </HStack>
-            <HStack gap={4}>
-              <Badge colorPalette="green" px={2} py={1}>
-                4
               </Badge>
               <Text>
                 Builds an idMap from the fetched data and updates it via{' '}
@@ -601,10 +632,11 @@ const result = await loadInitialValues({
             </HStack>
             <HStack gap={4}>
               <Badge colorPalette="green" px={2} py={1}>
-                5
+                4
               </Badge>
               <Text>
-                Returns both the data and idMap for further use if needed
+                The idMap is used by <Code>renderDisplay</Code> to show
+                human-readable labels instead of just IDs
               </Text>
             </HStack>
           </VStack>
@@ -652,40 +684,82 @@ const SchemaLevelLoadInitialValuesForm = () => {
     // Add custom logic (e.g., logging, caching, etc.)
     const startTime = Date.now();
 
-    // Use the default implementation logic but with custom behavior
-    if (params.foreign_key.customQueryFn) {
-      const { data, idMap: returnedIdMap } =
-        await params.foreign_key.customQueryFn({
-          searching: '',
-          limit: params.ids.length,
-          offset: 0,
-          where: [
-            {
-              id: params.foreign_key.column,
-              value: params.ids.length === 1 ? params.ids[0] : params.ids,
-            },
-          ],
-        });
-
-      if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-        params.setIdMap((state) => {
-          return { ...state, ...returnedIdMap };
-        });
-      }
-
-      const duration = Date.now() - startTime;
-      console.log(`Loaded ${params.ids.length} items in ${duration}ms`);
-
-      return { data, idMap: returnedIdMap || {} };
+    // customQueryFn is required
+    if (!params.foreign_key.customQueryFn) {
+      throw new Error(
+        'customQueryFn is required in foreign_key. serverUrl has been removed.'
+      );
     }
 
-    // Fallback to default behavior
-    return loadInitialValues(params);
+    const { data, idMap: returnedIdMap } =
+      await params.foreign_key.customQueryFn({
+        searching: '',
+        limit: params.ids.length,
+        offset: 0,
+        where: [
+          {
+            id: params.foreign_key.column,
+            value: params.ids.length === 1 ? params.ids[0] : params.ids,
+          },
+        ],
+      });
+
+    if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
+      params.setIdMap((state) => {
+        return { ...state, ...returnedIdMap };
+      });
+    }
+
+    const duration = Date.now() - startTime;
+    console.log(`Loaded ${params.ids.length} items in ${duration}ms`);
+
+    return { data, idMap: returnedIdMap || {} };
   };
 
-  const schema = {
+  // Default loadInitialValues for related_products
+  const defaultLoadInitialValuesForRelated = async (
+    params: LoadInitialValuesParams
+  ): Promise<LoadInitialValuesResult> => {
+    if (!params.ids || params.ids.length === 0) {
+      return { data: { data: [], count: 0 }, idMap: {} };
+    }
+
+    const { column: column_ref, customQueryFn } = params.foreign_key;
+
+    if (!customQueryFn) {
+      throw new Error(
+        'customQueryFn is required in foreign_key. serverUrl has been removed.'
+      );
+    }
+
+    const { data, idMap: returnedIdMap } = await customQueryFn({
+      searching: '',
+      limit: params.ids.length,
+      offset: 0,
+      where: [
+        {
+          id: column_ref,
+          value: params.ids.length === 1 ? params.ids[0] : params.ids,
+        },
+      ],
+    });
+
+    if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
+      params.setIdMap((state) => {
+        return { ...state, ...returnedIdMap };
+      });
+    }
+
+    return { data, idMap: returnedIdMap || {} };
+  };
+
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'Product Selection with Custom loadInitialValues',
+    loadInitialValues: async () => ({
+      data: { data: [], count: 0 },
+      idMap: {},
+    }), // Dummy for root schema
     properties: {
       featured_product: {
         type: 'string',
@@ -696,8 +770,8 @@ const SchemaLevelLoadInitialValuesForm = () => {
           customQueryFn: customProductQueryFn,
         },
         renderDisplay: (item: any) => `${item.name} ($${item.price})`,
-        loadInitialValues: customLoadInitialValues, // Custom implementation
-      },
+        loadInitialValues: customLoadInitialValues, // Custom implementation for id-picker: loads records for human-readable display
+      } as CustomJSONSchema7,
       related_products: {
         type: 'array',
         variant: 'id-picker',
@@ -710,10 +784,10 @@ const SchemaLevelLoadInitialValuesForm = () => {
           customQueryFn: customProductQueryFn,
         },
         renderDisplay: (item: any) => `${item.name} - ${item.category}`,
-        // Uses default loadInitialValues (not provided in schema)
-      },
+        loadInitialValues: defaultLoadInitialValuesForRelated, // Required for id-picker: loads records for human-readable display
+      } as CustomJSONSchema7,
     },
-  } as CustomJSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch" p={4}>
@@ -743,12 +817,12 @@ const SchemaLevelLoadInitialValuesForm = () => {
                     custom logic
                   </Text>
                   <Text>
-                    ✓ If not provided in schema, uses the default implementation
-                    automatically
+                    ✓ Required in schema for IdPicker fields (throws error if
+                    missing)
                   </Text>
                   <Text>
                     ✓ The hook automatically uses schema's{' '}
-                    <Code>loadInitialValues</Code> if available
+                    <Code>loadInitialValues</Code>
                   </Text>
                 </VStack>
               </Alert.Description>
@@ -771,7 +845,7 @@ const SchemaLevelLoadInitialValuesForm = () => {
                 <Badge colorPalette="blue">related_products</Badge>
                 <Code>['prod-1', 'prod-3']</Code>
                 <Text>
-                  (Laptop Pro 15, Mechanical Keyboard - uses default
+                  (Laptop Pro 15, Mechanical Keyboard - uses schema's
                   loadInitialValues)
                 </Text>
               </HStack>
@@ -818,7 +892,7 @@ const SchemaLevelLoadInitialValuesForm = () => {
       variant: 'id-picker',
       foreign_key: { ... },
       renderDisplay: (item) => \`\${item.name} - \${item.category}\`,
-      // No loadInitialValues - uses default implementation
+      loadInitialValues: defaultLoadInitialValues, // Required
     },
   },
 };`}
@@ -833,15 +907,15 @@ const SchemaLevelLoadInitialValuesForm = () => {
           <Heading size="md">Form with Schema-Level loadInitialValues</Heading>
           <Text>
             The form below has pre-loaded values. The{' '}
-            <Code>featured_product</Code> field uses the custom{' '}
+            <Code>featured_product</Code> field uses a custom{' '}
             <Code>loadInitialValues</Code> implementation (check console for
             logs), while <Code>related_products</Code> uses the default
-            implementation.
+            implementation from the schema.
           </Text>
 
           <DefaultForm
             formConfig={{
-              schema: schema as JSONSchema7,
+              schema: schema,
               onSubmit: async (data) => {
                 console.log('Form submitted with data:', data);
                 alert(
@@ -857,36 +931,24 @@ const SchemaLevelLoadInitialValuesForm = () => {
       {/* Comparison */}
       <Box p={6} borderRadius="lg" borderWidth="1px">
         <VStack gap={4} align="stretch">
-          <Heading size="md">Schema-Level vs Direct Call</Heading>
+          <Heading size="md">Schema-Level Implementation</Heading>
           <Text>
-            Comparison between using <Code>loadInitialValues</Code> in schema vs
-            calling it directly:
+            <Code>loadInitialValues</Code> must be defined in the schema for
+            IdPicker fields. It follows the same pattern as{' '}
+            <Code>renderDisplay</Code>:
           </Text>
 
           <VStack gap={4} align="stretch" mt={2}>
             <Box p={4} bg="bg.subtle" borderRadius="md">
               <Heading size="sm" mb={2} color="green.600">
-                Schema-Level (Recommended)
+                Schema-Level (Required)
               </Heading>
               <VStack gap={2} align="stretch" fontSize="sm">
-                <Text>✓ Defined once in schema, used automatically</Text>
+                <Text>✓ Required in schema for IdPicker fields</Text>
                 <Text>✓ Same pattern as renderDisplay</Text>
                 <Text>✓ Automatically used by the hook</Text>
                 <Text>✓ Consistent with other schema-level customizations</Text>
-              </VStack>
-            </Box>
-
-            <Box p={4} bg="bg.subtle" borderRadius="md">
-              <Heading size="sm" mb={2} color="blue.600">
-                Direct Function Call
-              </Heading>
-              <VStack gap={2} align="stretch" fontSize="sm">
-                <Text>✓ Useful for programmatic loading</Text>
-                <Text>✓ Can be called at any time</Text>
-                <Text>✓ Good for one-off operations</Text>
-                <Text>
-                  ✓ Useful when schema doesn't have custom implementation
-                </Text>
+                <Text>✓ Can be called programmatically from schema</Text>
               </VStack>
             </Box>
           </VStack>

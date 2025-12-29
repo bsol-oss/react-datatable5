@@ -22,56 +22,6 @@ export type {
   LoadInitialValuesResult,
 } from '../types/CustomJSONSchema7';
 
-/**
- * Load initial values for IdPicker fields into idMap
- * Uses customQueryFn if available, otherwise falls back to getTableData
- *
- * @param params - Configuration for loading initial values
- * @returns Promise with fetched data and idMap
- */
-export const loadInitialValues = async ({
-  ids,
-  foreign_key,
-  setIdMap,
-}: LoadInitialValuesParams): Promise<LoadInitialValuesResult> => {
-  if (!ids || ids.length === 0) {
-    return { data: { data: [], count: 0 }, idMap: {} };
-  }
-
-  const { table, column: column_ref, customQueryFn } = foreign_key;
-
-  // Filter out IDs that are already in idMap (optional optimization)
-  // For now, we'll fetch all requested IDs to ensure consistency
-
-  if (customQueryFn) {
-    const { data, idMap: returnedIdMap } = await customQueryFn({
-      searching: '',
-      limit: ids.length,
-      offset: 0,
-      where: [
-        {
-          id: column_ref,
-          value: ids.length === 1 ? ids[0] : ids, // CustomQueryFn accepts string | string[]
-        },
-      ],
-    });
-
-    // Update idMap with returned values
-    if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-      setIdMap((state) => {
-        return { ...state, ...returnedIdMap };
-      });
-    }
-
-    return { data, idMap: returnedIdMap || {} };
-  }
-
-  // customQueryFn is required when serverUrl is not available
-  throw new Error(
-    `customQueryFn is required in foreign_key for table ${table}. serverUrl has been removed.`
-  );
-};
-
 export interface UseIdPickerDataProps {
   column: string;
   schema: CustomJSONSchema7;
@@ -132,7 +82,16 @@ export const useIdPickerData = ({
     renderDisplay,
     loadInitialValues: schemaLoadInitialValues,
     foreign_key,
+    variant,
   } = schema;
+
+  // loadInitialValues must be provided in schema for id-picker fields
+  // It's used to load the record of the id so the display is human-readable
+  if (variant === 'id-picker' && !schemaLoadInitialValues) {
+    throw new Error(
+      `loadInitialValues is required in schema for IdPicker field '${column}'. Please provide loadInitialValues function in the schema to load records for human-readable display.`
+    );
+  }
   const {
     table,
     column: column_ref,
@@ -202,9 +161,13 @@ export const useIdPickerData = ({
         return { data: [], count: 0 };
       }
 
-      // Use schema's loadInitialValues if provided, otherwise use default
-      const loadFn = schemaLoadInitialValues || loadInitialValues;
-      const result = await loadFn({
+      // Use schema's loadInitialValues (required for id-picker)
+      if (!schemaLoadInitialValues) {
+        throw new Error(
+          `loadInitialValues is required in schema for IdPicker field '${column}'.`
+        );
+      }
+      const result = await schemaLoadInitialValues({
         ids: missingIds,
         foreign_key: foreign_key as ForeignKeyProps,
         setIdMap,
@@ -372,9 +335,6 @@ export const useIdPickerData = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [comboboxItems, searchText]);
 
-  // Use schema's loadInitialValues if provided, otherwise use default
-  const loadInitialValuesFn = schemaLoadInitialValues || loadInitialValues;
-
   return {
     colLabel,
     currentValue,
@@ -397,7 +357,7 @@ export const useIdPickerData = ({
     idPickerLabels,
     insideDialog: insideDialog ?? false,
     renderDisplay,
-    loadInitialValues: loadInitialValuesFn,
+    loadInitialValues: schemaLoadInitialValues!, // Required for id-picker, checked above
     column_ref,
     errors,
     setValue,
