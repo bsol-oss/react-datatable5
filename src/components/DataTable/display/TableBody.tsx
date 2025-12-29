@@ -99,13 +99,6 @@ export const TableBody = ({
                   flex={`${canResize ? '0' : '1'} 0 ${cell.column.getSize()}px`}
                   // this is to avoid the cell from being too wide
                   minWidth={`0`}
-                  {...{
-                    color: {
-                      base: 'colorPalette.900',
-                      _dark: 'colorPalette.100',
-                    },
-                    bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' },
-                  }}
                   {...getTdProps(cell)}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -134,13 +127,6 @@ const TableRowSelector = <TData,>({ row }: TableRowSelectorProps<TData>) => {
     <Table.Cell
       padding={`${table.getDensityValue()}px`}
       display={'grid'}
-      {...{
-        color: {
-          base: 'colorPalette.900',
-          _dark: 'colorPalette.100',
-        },
-        bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' },
-      }}
       justifyItems={'center'}
       alignItems={'center'}
     >

@@ -188,29 +188,17 @@ export const TableHeader = ({
   };
 
   return (
-    <Table.Header
-      {...(isSticky ? stickyProps : {})}
-      {...{ bgColor: 'transparent' }}
-      {...tableHeaderProps}
-    >
+    <Table.Header {...(isSticky ? stickyProps : {})} {...tableHeaderProps}>
       {table.getHeaderGroups().map((headerGroup) => (
         <Table.Row
           display={'flex'}
           key={`chakra-table-headergroup-${headerGroup.id}`}
-          {...{ bgColor: 'transparent' }}
           {...tableRowProps}
         >
           {showSelector && (
             <Table.ColumnHeader
               padding={`${table.getDensityValue()}px`}
               display={'grid'}
-              {...{
-                color: {
-                  base: 'colorPalette.900',
-                  _dark: 'colorPalette.100',
-                },
-                bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' },
-              }}
               justifyItems={'center'}
               alignItems={'center'}
             >
@@ -247,14 +235,6 @@ export const TableHeader = ({
                 display={'grid'}
                 gridTemplateColumns={'1fr auto'}
                 zIndex={1500 + header.index}
-                {...{
-                  color: {
-                    base: 'colorPalette.800',
-                    _dark: 'colorPalette.200',
-                  },
-                  bg: { base: 'colorPalette.100', _dark: 'colorPalette.900' },
-                }}
-                {...getThProps(header)}
               >
                 <MenuRoot>
                   <MenuTrigger asChild>
@@ -264,24 +244,6 @@ export const TableHeader = ({
                       justifyContent={'start'}
                       borderRadius={'0rem'}
                       overflow={'auto'}
-                      {...{
-                        color: {
-                          base: 'colorPalette.800',
-                          _dark: 'colorPalette.200',
-                          _hover: {
-                            base: 'colorPalette.700',
-                            _dark: 'colorPalette.300',
-                          },
-                        },
-                        bg: {
-                          base: 'colorPalette.100',
-                          _dark: 'colorPalette.900',
-                          _hover: {
-                            base: 'colorPalette.200',
-                            _dark: 'colorPalette.800',
-                          },
-                        },
-                      }}
                     >
                       <Flex gap="0.5rem" alignItems={'center'}>
                         {header.isPlaceholder
@@ -318,6 +280,7 @@ export const TableHeader = ({
                           onClick={() => {
                             header.column.pin('left');
                           }}
+                          p={1}
                         >
                           <MdPushPin />
                           {getHeaderText(header, 'pinColumn')}

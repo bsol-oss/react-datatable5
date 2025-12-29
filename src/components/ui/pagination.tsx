@@ -77,6 +77,81 @@ export const PaginationRoot = React.forwardRef<
 
     const container = containerRef.current;
     let rafId: number | null = null;
+    let timeoutId: number | null = null;
+
+    const measureButtonWidth = (): number => {
+      // Try to measure actual rendered buttons for accuracy
+      // Look for page number buttons (they contain numeric text)
+      const allButtons = container.querySelectorAll('button');
+      const pageButtons: HTMLElement[] = [];
+
+      allButtons.forEach((button) => {
+        const text = button.textContent?.trim();
+        // Page buttons contain numbers, prev/next buttons contain icons
+        if (text && /^\d+$/.test(text)) {
+          pageButtons.push(button as HTMLElement);
+        }
+      });
+
+      if (pageButtons.length > 0) {
+        // Measure multiple buttons and take the average for accuracy
+        let totalWidth = 0;
+        let count = 0;
+        pageButtons.forEach((button) => {
+          const width = button.offsetWidth;
+          if (width > 0) {
+            totalWidth += width;
+            count++;
+          }
+        });
+
+        if (count > 0) {
+          return Math.ceil(totalWidth / count);
+        }
+      }
+
+      // Fallback to estimated widths based on size
+      const buttonWidthMap: Record<string, number> = {
+        xs: 28,
+        sm: 36,
+        md: 40,
+        lg: 44,
+      };
+      return buttonWidthMap[size as string] || 36;
+    };
+
+    const measurePrevNextWidth = (): number => {
+      const allButtons = container.querySelectorAll('button');
+      let prevWidth = 0;
+      let nextWidth = 0;
+
+      allButtons.forEach((button) => {
+        const html = button.innerHTML;
+        // Check if it's a prev/next button by looking for chevron icons or SVG
+        if (
+          html.includes('chevron') ||
+          html.includes('Chevron') ||
+          button.querySelector('svg')
+        ) {
+          const width = (button as HTMLElement).offsetWidth;
+          if (width > 0) {
+            // First icon button is likely prev, last is next
+            if (prevWidth === 0) {
+              prevWidth = width;
+            } else {
+              nextWidth = width;
+            }
+          }
+        }
+      });
+
+      if (prevWidth > 0 && nextWidth > 0) {
+        return prevWidth + nextWidth;
+      }
+
+      // Fallback: use page button width estimate
+      return measureButtonWidth() * 2;
+    };
 
     const calculateSiblingCount = () => {
       if (!container) return;
@@ -84,55 +159,40 @@ export const PaginationRoot = React.forwardRef<
       const width = container.offsetWidth;
       if (width === 0) return;
 
-      // Estimate button width based on size
-      // These are approximate widths including padding for different button sizes
-      const buttonWidthMap: Record<string, number> = {
-        xs: 28,
-        sm: 36,
-        md: 40,
-        lg: 44,
-      };
-      let buttonWidth = buttonWidthMap[size as string] || 36;
+      // Measure actual button widths
+      const pageButtonWidth = measureButtonWidth();
+      const prevNextWidth = measurePrevNextWidth();
 
-      // Try to measure actual button if available (for more accuracy)
-      const buttons = container.querySelectorAll('button');
-      if (buttons.length > 0) {
-        const firstButton = buttons[0] as HTMLElement;
-        if (firstButton.offsetWidth > 0) {
-          // Use measured width, but account for text content variation
-          const measuredWidth = firstButton.offsetWidth;
-          // Page number buttons might be slightly wider due to text, use measured width
-          buttonWidth = Math.max(buttonWidth, measuredWidth);
-        }
-      }
+      // Get computed gap from container (HStack gap)
+      const containerStyles = window.getComputedStyle(container);
+      const gap = parseFloat(containerStyles.gap) || 8;
 
-      // Account for prev/next buttons and gaps
-      // HStack gap is typically 8px in Chakra UI
-      const gap = 8;
-      const prevNextWidth = buttonWidth * 2 + gap;
-      const availableWidth = Math.max(0, width - prevNextWidth);
+      // Account for gaps: prev button + gap + page buttons + gap + next button
+      // We need at least 2 gaps (before and after page buttons)
+      const availableWidth = Math.max(0, width - prevNextWidth - gap * 2);
 
       // Each page button takes buttonWidth + gap
-      const buttonWithGap = buttonWidth + gap;
-      const maxButtons = Math.floor(availableWidth / buttonWithGap);
+      const buttonWithGap = pageButtonWidth + gap;
+      const maxPageButtons = Math.floor(availableWidth / buttonWithGap);
 
-      // Calculate sibling count
-      // Minimum structure: [prev] [1] [current] [last] [next] = 5 buttons
-      // With siblings: [prev] [1] [...] [current-N] ... [current] ... [current+N] [...] [last] [next]
-      // We need: prev(1) + first(1) + ellipsis(1) + siblings*2 + current(1) + ellipsis(1) + last(1) + next(1)
-      // Minimum: 5 buttons (prev, first, current, last, next)
-      // With siblings: 5 + siblings*2 + ellipsis*2 (if needed)
-      const minRequired = 5;
-      const extraButtons = Math.max(0, maxButtons - minRequired);
+      // Calculate sibling count based on pagination structure
+      // Structure: [prev] [first] [ellipsis?] [siblings] [current] [siblings] [ellipsis?] [last] [next]
+      // Minimum: prev(1) + first(1) + current(1) + last(1) + next(1) = 5 buttons
+      // With siblings and ellipsis: 5 + siblings*2 + ellipsis*2
 
-      // Calculate sibling count
-      // If we have enough space for ellipsis (2 buttons), account for that
+      const minRequired = 5; // prev, first, current, last, next
+      const extraButtons = Math.max(0, maxPageButtons - minRequired);
+
       let calculated = minSiblingCount;
+
       if (extraButtons >= 4) {
-        // Space for ellipsis (2) + siblings
+        // Enough space for ellipsis (2 buttons) + siblings on both sides
+        // Structure: [prev] [1] [...] [siblings] [current] [siblings] [...] [last] [next]
+        // Extra buttons = ellipsis(2) + siblings*2
         calculated = Math.floor((extraButtons - 2) / 2);
       } else if (extraButtons >= 2) {
         // Space for some siblings but not ellipsis
+        // Structure: [prev] [1] [siblings] [current] [siblings] [last] [next]
         calculated = Math.floor(extraButtons / 2);
       }
 
@@ -141,28 +201,51 @@ export const PaginationRoot = React.forwardRef<
         calculated = Math.min(calculated, maxSiblingCount);
       }
 
-      setCalculatedSiblingCount(Math.max(minSiblingCount, calculated));
+      const finalSiblingCount = Math.max(minSiblingCount, calculated);
+
+      // Only update if value changed to avoid unnecessary re-renders
+      setCalculatedSiblingCount((prev) => {
+        if (prev !== finalSiblingCount) {
+          return finalSiblingCount;
+        }
+        return prev;
+      });
     };
 
-    const resizeObserver = new ResizeObserver(() => {
-      // Use requestAnimationFrame to debounce and ensure DOM is updated
+    const scheduleCalculation = () => {
+      // Cancel any pending calculations
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
       }
-      rafId = requestAnimationFrame(calculateSiblingCount);
-    });
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+      }
 
+      // Use requestAnimationFrame for smooth updates
+      rafId = requestAnimationFrame(() => {
+        // Small delay to ensure DOM is fully rendered
+        timeoutId = setTimeout(calculateSiblingCount, 50);
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(scheduleCalculation);
     resizeObserver.observe(container);
 
-    // Initial calculation after a short delay to ensure buttons are rendered
-    const timeoutId = setTimeout(calculateSiblingCount, 100);
+    // Initial calculation - try multiple times to ensure buttons are rendered
+    scheduleCalculation();
+
+    // Also try after a longer delay as fallback
+    const fallbackTimeout = setTimeout(calculateSiblingCount, 200);
 
     return () => {
       resizeObserver.disconnect();
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
       }
-      clearTimeout(timeoutId);
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+      }
+      clearTimeout(fallbackTimeout);
     };
   }, [size, siblingCount, minSiblingCount, maxSiblingCount]);
 

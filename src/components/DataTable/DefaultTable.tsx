@@ -1,9 +1,12 @@
 import { TableControls, TableControlsProps } from './controls/TableControls';
+import { MobileTableControls } from './controls/MobileTableControls';
 import { Table, TableProps } from './display/Table';
 import { TableBody, TableBodyProps } from './display/TableBody';
 import { TableBodySkeleton } from './display/TableBodySkeleton';
 import { TableFooter, TableFooterProps } from './display/TableFooter';
 import { TableHeader, TableHeaderProps } from './display/TableHeader';
+import { MobileTableDisplay } from './display/MobileTableDisplay';
+import { useIsMobile } from './hooks/useIsMobile';
 
 export interface DefaultTableProps {
   showFooter?: boolean;
@@ -28,6 +31,24 @@ export const DefaultTable = ({
   variant = 'greedy',
   isLoading = false,
 }: DefaultTableProps) => {
+  const isMobile = useIsMobile();
+
+  // Early return for mobile display
+  if (isMobile) {
+    return (
+      <MobileTableControls {...controlProps}>
+        <MobileTableDisplay
+          showSelector={
+            tableHeaderProps.showSelector ??
+            tableBodyProps.showSelector ??
+            false
+          }
+          isLoading={isLoading}
+        />
+      </MobileTableControls>
+    );
+  }
+
   const isGreedy = variant === 'greedy';
   const canResize = !isGreedy;
 

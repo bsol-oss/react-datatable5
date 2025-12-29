@@ -6,6 +6,7 @@ import {
   GridProps,
   Icon,
   Spinner,
+  Stack,
   Text,
 } from '@chakra-ui/react';
 import { ReactNode } from 'react';
@@ -22,7 +23,7 @@ import { RowCountText } from './RowCountText';
 import { TableFilterTags } from './TableFilterTags';
 import { ViewDialog } from './ViewDialog';
 
-export interface TableControlsProps {
+export interface MobileTableControlsProps {
   totalText?: string;
   fitTableWidth?: boolean;
   fitTableHeight?: boolean;
@@ -49,7 +50,7 @@ export interface TableControlsProps {
   gridProps?: GridProps;
 }
 
-export const TableControls = ({
+export const MobileTableControls = ({
   fitTableWidth = false,
   fitTableHeight = false,
   children = <></>,
@@ -67,48 +68,52 @@ export const TableControls = ({
   loading = false,
   hasError = false,
   gridProps = {},
-}: TableControlsProps) => {
+}: MobileTableControlsProps) => {
   const { tableLabel, table } = useDataTableContext();
   const { hasErrorText } = tableLabel;
+
   return (
     <Grid
-      templateRows={'auto 1fr'}
+      templateRows={'auto 1fr auto'}
       width={fitTableWidth ? 'fit-content' : '100%'}
       height={fitTableHeight ? 'fit-content' : '100%'}
-      gap={'0.5rem'}
-      p={1}
+      gap={2}
+      padding={2}
       {...gridProps}
     >
-      <Flex flexFlow={'column'} gap={2}>
-        <Flex justifyContent={'space-between'}>
-          <Box>{showView && <ViewDialog icon={<MdOutlineViewColumn />} />}</Box>
-          <Flex gap={'0.5rem'} alignItems={'center'} justifySelf={'end'}>
+      {/* Top Controls - Stacked vertically for mobile */}
+      <Stack gap={2}>
+        {/* First row: View, Status, Actions */}
+        <Flex justifyContent={'space-between'} alignItems={'center'} gap={2}>
+          <Flex gap={1} alignItems={'center'}>
+            {showView && <ViewDialog icon={<MdOutlineViewColumn />} />}
             {loading && <Spinner size={'sm'} />}
             {hasError && (
               <Tooltip content={hasErrorText}>
                 <Icon as={BsExclamationCircleFill} color={'red.400'} />
               </Tooltip>
             )}
+          </Flex>
+          <Flex gap={1} alignItems={'center'}>
             {showGlobalFilter && <GlobalFilter />}
             {showFilter && <FilterDialog />}
             {showReload && <ReloadButton />}
             {extraItems}
           </Flex>
         </Flex>
+
+        {/* Filter Tags Options - Full width on mobile */}
         {filterTagsOptions.length > 0 && (
-          <Flex flexFlow={'column'} gap={'0.5rem'}>
+          <Stack gap={2}>
             {filterTagsOptions.map((option) => {
               const { column, options } = option;
               const tableColumn = table.getColumn(column);
               return (
-                <Flex
-                  key={column}
-                  alignItems={'center'}
-                  flexFlow={'wrap'}
-                  gap={'0.5rem'}
-                >
+                <Flex key={column} flexFlow={'column'} gap={1} width={'100%'}>
                   {tableColumn?.columnDef.meta?.displayName && (
-                    <Text>{tableColumn?.columnDef.meta?.displayName}</Text>
+                    <Text fontSize={'sm'} fontWeight={'medium'}>
+                      {tableColumn?.columnDef.meta?.displayName}
+                    </Text>
                   )}
                   <TagFilter
                     availableTags={options}
@@ -126,24 +131,51 @@ export const TableControls = ({
                 </Flex>
               );
             })}
-          </Flex>
+          </Stack>
         )}
-        {showFilterTags && (
-          <Flex>
-            <TableFilterTags />
-          </Flex>
-        )}
-      </Flex>
 
-      <Grid>{children}</Grid>
+        {/* Filter Tags - Full width on mobile */}
+        {showFilterTags && (
+          <Box width={'100%'}>
+            <TableFilterTags />
+          </Box>
+        )}
+      </Stack>
+
+      {/* Content Area */}
+      <Box
+        overflow={'auto'}
+        width={'100%'}
+        bg={{ base: 'colorPalette.50', _dark: 'colorPalette.950' }}
+        borderRadius={'md'}
+        padding={1}
+      >
+        {children}
+      </Box>
+
+      {/* Bottom Controls - Stacked for mobile */}
       {(showPageSizeControl || showPageCountText || showPagination) && (
-        <Flex justifyContent={'space-between'}>
-          <Flex gap={'1rem'} alignItems={'center'}>
-            {showPageSizeControl && <PageSizeControl />}
-            {showPageCountText && <RowCountText />}
-          </Flex>
-          <Box justifySelf={'end'}>{showPagination && <Pagination />}</Box>
-        </Flex>
+        <Stack gap={2} width={'100%'}>
+          {/* Page Size and Count - Horizontal on mobile */}
+          {(showPageSizeControl || showPageCountText) && (
+            <Flex
+              justifyContent={'space-between'}
+              alignItems={'center'}
+              gap={2}
+              flexWrap={'wrap'}
+            >
+              {showPageSizeControl && <PageSizeControl />}
+              {showPageCountText && <RowCountText />}
+            </Flex>
+          )}
+
+          {/* Pagination - Centered on mobile */}
+          {showPagination && (
+            <Flex justifyContent={'center'} width={'100%'}>
+              <Pagination />
+            </Flex>
+          )}
+        </Stack>
       )}
     </Grid>
   );

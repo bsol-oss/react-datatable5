@@ -3,10 +3,9 @@ import {
   MenuItem,
   MenuRoot,
   MenuTrigger,
-} from "@/components/ui/menu";
-import { Button } from "@chakra-ui/react";
-import { BiDownArrow } from "react-icons/bi";
-import { useDataTableContext } from "../context/useDataTableContext";
+} from '@/components/ui/menu';
+import { Button } from '@chakra-ui/react';
+import { useDataTableContext } from '../context/useDataTableContext';
 export interface PageSizeControlProps {
   pageSizes?: number[];
 }
@@ -18,8 +17,8 @@ export const PageSizeControl = ({
   return (
     <MenuRoot>
       <MenuTrigger asChild>
-        <Button variant={"ghost"} gap={"0.5rem"}>
-          {table.getState().pagination.pageSize} <BiDownArrow />
+        <Button variant={'ghost'} gap={'0.5rem'}>
+          {table.getState().pagination.pageSize}
         </Button>
       </MenuTrigger>
       <MenuContent>

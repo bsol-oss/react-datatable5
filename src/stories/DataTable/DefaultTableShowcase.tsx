@@ -1,20 +1,15 @@
 import { Provider } from '@/components/ui/provider';
-import { Box, Button, Text } from '@chakra-ui/react';
+import { Box, Button, ButtonGroup, HStack, Text } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { LuDelete } from 'react-icons/lu';
 import { useDataTable } from '../../components/DataTable/useDataTable';
 import { DataTable, DefaultTable, TableComponent, TextCell } from '../../index';
 import { data, Product } from '../product_data';
+import { BiPencil } from 'react-icons/bi';
+import { BsEye, BsViewList } from 'react-icons/bs';
 // Uncomment the following imports when using DataTableServer
 // import { DataTableServer } from "../../components/DataTable/DataTableServer";
 // import { useDataTableServer } from "../../components/DataTable/useDataTableServer";
-
-interface RowActionsProps {
-  row: Product;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
-  return <>has no actions</>;
-};
 
 const DefaultTableShowcase = () => {
   const datatable = useDataTable({
@@ -23,13 +18,6 @@ const DefaultTableShowcase = () => {
 
   const columnHelper = createColumnHelper<Product>();
   const columns: ColumnDef<Product>[] = [
-    // Display Column
-    columnHelper.display({
-      id: 'actions',
-      header: () => <span>Actions</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
-    }),
-
     // Grouping Column
     columnHelper.group({
       header: 'Information',
@@ -46,11 +34,9 @@ const DefaultTableShowcase = () => {
         columnHelper.accessor('title', {
           cell: (props) => {
             return (
-              <Box padding={'0rem'}>
-                <TextCell label={props.row.original.title}>
-                  {props.row.original.title}
-                </TextCell>
-              </Box>
+              <TextCell label={props.row.original.title}>
+                {props.row.original.title}
+              </TextCell>
             );
           },
           header: () => <Box>Title</Box>,
@@ -147,6 +133,26 @@ const DefaultTableShowcase = () => {
           },
         }),
       ],
+    }),
+    // Display Column
+    columnHelper.display({
+      id: 'actions',
+      header: () => <span></span>,
+      cell: (props) => (
+        <HStack h={'100%'} alignItems={'center'} justifyContent={'end'}>
+          <ButtonGroup size="sm" variant="outline" attached>
+            <Button>
+              <BsEye />
+            </Button>
+            <Button>
+              <BiPencil />
+            </Button>
+            <Button>
+              <LuDelete />
+            </Button>
+          </ButtonGroup>
+        </HStack>
+      ),
     }),
   ];
 

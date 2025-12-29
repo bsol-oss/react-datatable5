@@ -59,11 +59,9 @@ export const Table = ({
     <Box ref={containerRef} width="100%" overflow="auto">
       <ChakraTable.Root
         stickyHeader
-        variant={'outline'}
         width={canResize ? table.getCenterTotalSize() : undefined}
         display={'grid'}
         alignContent={'start'}
-        {...{ bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' } }}
         {...props}
       >
         {children}

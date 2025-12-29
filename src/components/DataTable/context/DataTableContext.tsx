@@ -78,7 +78,7 @@ export const DataTableContext = createContext<DataTableContextProps>({
     reloadButtonText: 'Reload',
     resetSelection: 'Reset Selection',
     resetSorting: 'Reset Sorting',
-    rowCountText: 'Row Count',
+    rowCountText: '',
     hasErrorText: 'Has Error',
     globalFilterPlaceholder: 'Search',
     trueLabel: 'True',
