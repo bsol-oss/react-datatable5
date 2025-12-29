@@ -10,7 +10,7 @@ Components work fully with label objects and direct error message strings - no i
 - [Prerequisites](#prerequisites)
 - [Basic Usage](#basic-usage)
 - [JSON Schema Reference](#json-schema-reference)
-- [Translation JSON Structure](#translation-json-structure)
+- [Labels](#labels)
 - [Complete Examples](#complete-examples)
 - [Advanced Topics](#advanced-topics)
 
@@ -58,14 +58,11 @@ npm install @chakra-ui/react @tanstack/react-table @tanstack/react-query
 
 ```tsx
 import { DefaultForm, useForm } from '@bsol-oss/react-datatable5';
-import { useState } from 'react';
 
 const MyForm = () => {
   const form = useForm({
     // preLoadedValues: { name: 'John Doe' }, // Optional: pre-populate form
   });
-
-  const [idMap, setIdMap] = useState({});
 
   const schema = {
     type: 'object',
@@ -96,9 +93,7 @@ const MyForm = () => {
         onSubmit: (data) => {
           console.log('Form submitted:', data);
         },
-        ...form,
-        idMap,
-        setIdMap,
+        ...form, // Spreads: { form, idMap, setIdMap, translate }
       }}
     />
   );
@@ -113,13 +108,15 @@ The `DefaultForm` component requires the following props through `formConfig`:
 | ----------- | -------------------------------------------------- | --------------------------------------------------- |
 | `schema`    | `CustomJSONSchema7`                                | JSON Schema definition for the form                 |
 | `serverUrl` | `string`                                           | Base URL for API requests (used by IdPicker fields) |
-| `form`      | `UseFormReturn`                                    | React Hook Form instance from `useForm()`           |
+| `form`      | `UseFormReturn`                                    | React Hook Form instance (from `useForm()` hook)    |
 | `idMap`     | `Record<string, object>`                           | Map of IDs to objects (for IdPicker fields)         |
 | `setIdMap`  | `Dispatch<SetStateAction<Record<string, object>>>` | Setter for idMap                                    |
 
+**Note:** The `form`, `idMap`, `setIdMap`, and `translate` values are all provided by spreading the return value of `useForm()` using `...form`.
+
 ### Using the `useForm` Hook
 
-The `useForm` hook provides the necessary form state:
+The `useForm` hook provides all necessary form state:
 
 ```tsx
 const form = useForm({
@@ -127,12 +124,23 @@ const form = useForm({
     /* initial values */
   }, // Optional: pre-populate form
   schema: jsonSchema, // Optional: schema for validation
+  keyPrefix: 'myForm', // Optional: deprecated, kept for backward compatibility
 });
 
-// Returns:
+// Returns an object with:
 // - form: React Hook Form instance
 // - idMap: Map for IdPicker fields
 // - setIdMap: Setter for idMap
+// - translate: Translate object (fallback, components prefer label objects)
+
+// Spread it into formConfig:
+<DefaultForm
+  formConfig={{
+    schema,
+    serverUrl: 'https://api.example.com',
+    ...form, // Spreads all four values
+  }}
+/>;
 ```
 
 Components use label objects passed via props (e.g., `idPickerLabels`, `filePickerLabels`) for all labels.
@@ -226,6 +234,19 @@ The `DefaultForm` component supports all JSON Schema Draft 7 types with addition
 }
 ```
 
+**Array with Date Range:**
+
+```json
+{
+  "type": "array",
+  "variant": "date-range",
+  "items": {
+    "type": "string",
+    "format": "date"
+  }
+}
+```
+
 #### Object Fields
 
 ```json
@@ -306,23 +327,53 @@ All components support label objects passed via props:
 - `filePickerLabels` - Labels for FilePicker components
 - `enumPickerLabels` - Labels for EnumPicker components
 - `dateTimePickerLabels` - Labels for date/time pickers
+- `timePickerLabels` - Labels for time picker components
 - `formButtonLabels` - Labels for form buttons
 
 See [IdPicker Labels Documentation](./IDPICKER_LABELS.md) for complete details.
+
+### Date/Time Picker Labels
+
+Provide labels for date and time pickers:
+
+```tsx
+<DefaultForm
+  formConfig={{
+    schema,
+    serverUrl: 'https://api.example.com',
+    dateTimePickerLabels: {
+      monthNamesShort: [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ],
+      weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      backButtonLabel: 'Back',
+      forwardButtonLabel: 'Forward',
+    },
+    ...form,
+  }}
+/>
+```
 
 ## Complete Examples
 
 ### Example 1: Simple Form
 
-````tsx
+```tsx
 import { DefaultForm, useForm } from '@bsol-oss/react-datatable5';
-import { useState } from 'react';
 
 const SimpleForm = () => {
-  const form = useForm({
-  });
-
-  const [idMap, setIdMap] = useState({});
+  const form = useForm({});
 
   const schema = {
     type: 'object',
@@ -359,26 +410,19 @@ const SimpleForm = () => {
           console.log('Form submitted:', data);
         },
         ...form,
-        idMap,
-        setIdMap,
       }}
     />
   );
 };
-
-// Labels can be provided via schema.title or label objects if needed
+```
 
 ### Example 2: IdPicker Form with Label Objects
 
 ```tsx
 import { DefaultForm, useForm } from '@bsol-oss/react-datatable5';
-import { useState } from 'react';
 
 const IdPickerForm = () => {
-  const form = useForm({
-  });
-
-  const [idMap, setIdMap] = useState({});
+  const form = useForm({});
 
   const schema = {
     type: 'object',
@@ -426,109 +470,22 @@ const IdPickerForm = () => {
           initialResults: 'Start typing to search',
         },
         ...form,
-        idMap,
-        setIdMap,
       }}
     />
   );
 };
+```
 
-const idPickerTranslations = {
-  en: {
-    project: {
-      manager: {
-        field_label: 'Project Manager',
-        field_required: 'Please select a project manager',
-        undefined: 'Manager not found',
-        add_more: 'Add more managers',
-        type_to_search: 'Type to search managers...',
-        total: 'Total',
-        showing: 'Showing',
-        per_page: 'per page',
-        empty_search_result: 'No managers found',
-        initial_results: 'Start typing to search for managers',
-      },
-      team_members: {
-        field_label: 'Team Members',
-        field_required: 'Please select at least one team member',
-        undefined: 'Member not found',
-        add_more: 'Add more members',
-        type_to_search: 'Search team members...',
-        total: 'Total',
-        showing: 'Showing',
-        per_page: 'per page',
-        empty_search_result: 'No team members found',
-        initial_results: 'Click to search and select team members',
-      },
-    },
-  },
-  'zh-HK': {
-    project: {
-      manager: {
-        field_label: '項目經理',
-        field_required: '請選擇項目經理',
-        undefined: '找不到經理',
-        add_more: '新增更多經理',
-        type_to_search: '輸入以搜尋經理...',
-        total: '總數',
-        showing: '顯示',
-        per_page: '每頁',
-        empty_search_result: '找不到符合的經理',
-        initial_results: '開始輸入以搜尋經理',
-      },
-      team_members: {
-        field_label: '團隊成員',
-        field_required: '請至少選擇一個團隊成員',
-        undefined: '找不到成員',
-        add_more: '新增更多成員',
-        type_to_search: '搜尋團隊成員...',
-        total: '總數',
-        showing: '顯示',
-        per_page: '每頁',
-        empty_search_result: '找不到團隊成員',
-        initial_results: '點擊以搜尋及選擇團隊成員',
-      },
-    },
-  },
-};
-````
+### Example 3: Form with Validation and Custom Error Messages (Per-Field)
 
-### Example 3: Form with Validation and Custom Error Messages
+**Recommended approach:** Use `errorMessages` field in each property.
 
 ```tsx
-import {
-  DefaultForm,
-  useForm,
-  buildErrorMessages,
-} from '@bsol-oss/react-datatable5';
+import { DefaultForm, useForm } from '@bsol-oss/react-datatable5';
 
 const ValidationForm = () => {
   const form = useForm({
-    keyPrefix: 'registration',
-  });
-
-  const [idMap, setIdMap] = useState({});
-
-  // Custom error messages
-  const errorMessage = buildErrorMessages({
-    required: {
-      username: 'Username is required',
-      email: 'Email address is required',
-      password: 'Password is required',
-    },
-    properties: {
-      username: {
-        minLength: 'Username must be at least 3 characters',
-        maxLength: 'Username cannot exceed 20 characters',
-        pattern: 'Username can only contain letters and numbers',
-      },
-      email: {
-        format: 'Please enter a valid email address',
-      },
-      password: {
-        minLength: 'Password must be at least 8 characters',
-      },
-    },
+    keyPrefix: 'user', // Optional: deprecated, kept for backward compatibility
   });
 
   const schema = {
@@ -540,17 +497,30 @@ const ValidationForm = () => {
         minLength: 3,
         maxLength: 20,
         pattern: '^[a-zA-Z0-9]+$',
+        errorMessages: {
+          required: 'user.username.field_required',
+          minLength: 'user.username.minLength_error',
+          maxLength: 'user.username.maxLength_error',
+          pattern: 'user.username.pattern_error',
+        },
       },
       email: {
         type: 'string',
         format: 'email',
+        errorMessages: {
+          required: 'user.email.field_required',
+          format: 'user.email.format_error',
+        },
       },
       password: {
         type: 'string',
         minLength: 8,
+        errorMessages: {
+          required: 'user.password.field_required',
+          minLength: 'user.password.minLength_error',
+        },
       },
     },
-    errorMessage,
   };
 
   return (
@@ -562,8 +532,60 @@ const ValidationForm = () => {
           console.log('Registration data:', data);
         },
         ...form,
-        idMap,
-        setIdMap,
+      }}
+    />
+  );
+};
+```
+
+### Example 4: Form with Root-Level Error Messages (Legacy)
+
+**Alternative approach:** Use `errorMessage` at the root level (still supported but less flexible).
+
+```tsx
+import { DefaultForm, useForm } from '@bsol-oss/react-datatable5';
+
+const LegacyValidationForm = () => {
+  const form = useForm({});
+
+  const schema = {
+    type: 'object',
+    required: ['name', 'email', 'message'],
+    properties: {
+      name: {
+        type: 'string',
+        minLength: 2,
+      },
+      email: {
+        type: 'string',
+        format: 'email',
+      },
+      message: {
+        type: 'string',
+        variant: 'text-area',
+        minLength: 10,
+      },
+    },
+    errorMessage: {
+      required: {
+        name: 'Name is required',
+        email: 'Email is required',
+        message: 'Message is required',
+      },
+      minLength: 'Please provide more details',
+      format: 'Please enter a valid email address',
+    },
+  };
+
+  return (
+    <DefaultForm
+      formConfig={{
+        schema,
+        serverUrl: 'https://api.example.com',
+        onSubmit: (data) => {
+          console.log('Form submitted:', data);
+        },
+        ...form,
       }}
     />
   );
@@ -587,8 +609,6 @@ Control form appearance with `displayConfig`:
       showResetButton: true, // Show reset button
     },
     ...form,
-    idMap,
-    setIdMap,
   }}
 />
 ```
@@ -596,12 +616,16 @@ Control form appearance with `displayConfig`:
 ### Custom Error Rendering
 
 ```tsx
+import { Alert } from '@chakra-ui/react';
+
 const customErrorRenderer = (error) => (
-  <Alert status="error">
-    <AlertIcon />
-    <AlertTitle>Validation Error!</AlertTitle>
-    <AlertDescription>{error.message}</AlertDescription>
-  </Alert>
+  <Alert.Root status="error">
+    <Alert.Indicator />
+    <Alert.Content>
+      <Alert.Title>Validation Error!</Alert.Title>
+      <Alert.Description>{error.message}</Alert.Description>
+    </Alert.Content>
+  </Alert.Root>
 );
 
 <DefaultForm
@@ -610,59 +634,207 @@ const customErrorRenderer = (error) => (
     serverUrl: 'https://api.example.com',
     customErrorRenderer,
     ...form,
-    idMap,
-    setIdMap,
   }}
 />;
 ```
 
-### Multi-language Support (Optional - Using Label Objects)
+### Custom Success Rendering
+
+Customize the success message displayed after form submission:
+
+```tsx
+import { Box, VStack, Text, Button, HStack } from '@chakra-ui/react';
+
+<DefaultForm
+  formConfig={{
+    schema,
+    serverUrl: 'https://api.example.com',
+    onSubmit: async (data) => {
+      console.log('Form submitted:', data);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    },
+    customSuccessRenderer: (resetHandler) => (
+      <Box
+        bg="green.50"
+        border="2px solid"
+        borderColor="green.200"
+        borderRadius="lg"
+        p={8}
+        textAlign="center"
+      >
+        <VStack gap={6}>
+          <Text fontSize="2xl" fontWeight="bold" color="green.700">
+            Success!
+          </Text>
+          <Text color="green.600">
+            Your form has been submitted successfully.
+          </Text>
+          <HStack gap={4}>
+            <Button onClick={resetHandler} colorPalette="green">
+              Submit Another Form
+            </Button>
+          </HStack>
+        </VStack>
+      </Box>
+    ),
+    ...form,
+  }}
+/>;
+```
+
+### Forms Inside Dialogs
+
+When using `DefaultForm` inside a Chakra UI Dialog, set `insideDialog: true`:
+
+```tsx
+import { Dialog, Button } from '@chakra-ui/react';
+import { useState } from 'react';
+
+const FormInDialog = () => {
+  const [open, setOpen] = useState(false);
+  const form = useForm({});
+
+  const schema = {
+    type: 'object',
+    properties: {
+      name: {
+        type: 'string',
+        minLength: 2,
+      },
+      email: {
+        type: 'string',
+        format: 'email',
+      },
+    },
+    required: ['name', 'email'],
+  };
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>Open Form Dialog</Button>
+      <Dialog.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
+        <Dialog.Content>
+          <DefaultForm
+            formConfig={{
+              schema,
+              serverUrl: 'https://api.example.com',
+              onSubmit: (data) => {
+                console.log('Form submitted:', data);
+                setOpen(false);
+              },
+              insideDialog: true, // Important for proper dialog behavior
+              ...form,
+            }}
+          />
+        </Dialog.Content>
+      </Dialog.Root>
+    </>
+  );
+};
+```
+
+### Preloaded Values
+
+Populate form fields with initial values:
+
+```tsx
+const form = useForm({
+  preLoadedValues: {
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    age: 30,
+    isActive: true,
+    status: 'active',
+    tags: ['react', 'typescript'],
+    address: {
+      street: '123 Main Street',
+      city: 'Hong Kong',
+    },
+  },
+});
+
+<DefaultForm
+  formConfig={{
+    schema,
+    serverUrl: 'https://api.example.com',
+    onSubmit: (data) => {
+      console.log('Submitted:', data);
+    },
+    ...form,
+  }}
+/>;
+```
+
+### Multi-language Support (Using Label Objects)
 
 **Recommended approach:** Switch label objects based on language.
 
 ```tsx
 import { useState } from 'react';
+import { Button, Flex } from '@chakra-ui/react';
 
 const MultiLanguageForm = () => {
-  const [currentLang, setCurrentLang] = useState('en');
-
+  const [currentLang, setCurrentLang] = useState<'en' | 'zh-HK'>('en');
   const form = useForm({});
-
-  const [idMap, setIdMap] = useState({});
 
   // Define labels for each language
   const labels = {
     en: {
       idPickerLabels: {
-        typeToSearch: 'Type to search...',
-        emptySearchResult: 'No results found',
-        // ... other labels
+        undefined: 'User not found',
+        addMore: 'Add more users',
+        typeToSearch: 'Type to search users...',
+        total: 'Total',
+        showing: 'Showing',
+        perPage: 'per page',
+        emptySearchResult: 'No users found matching your search',
+        initialResults: 'Start typing to search for users',
       },
     },
     'zh-HK': {
       idPickerLabels: {
-        typeToSearch: '輸入以搜尋...',
-        emptySearchResult: '找不到結果',
-        // ... other labels
+        undefined: '找不到用戶',
+        addMore: '新增更多用戶',
+        typeToSearch: '輸入以搜尋用戶...',
+        total: '總數',
+        showing: '顯示',
+        perPage: '每頁',
+        emptySearchResult: '找不到符合的用戶',
+        initialResults: '開始輸入以搜尋用戶',
       },
     },
   };
 
-  const changeLanguage = (lang) => {
-    setCurrentLang(lang);
+  const schema = {
+    type: 'object',
+    properties: {
+      user: {
+        type: 'string',
+        variant: 'id-picker',
+        foreign_key: {
+          table: 'users',
+          column: 'id',
+        },
+      },
+    },
   };
 
   return (
-    <div>
-      <select
-        value={currentLang}
-        onChange={(e) => changeLanguage(e.target.value)}
-      >
-        <option value="en">English</option>
-        <option value="zh-HK">繁體中文（香港）</option>
-        <option value="zh-TW">繁體中文（台灣）</option>
-        <option value="zh-CN">简体中文</option>
-      </select>
+    <Flex direction="column" gap={4}>
+      <Flex gap={2}>
+        <Button
+          onClick={() => setCurrentLang('en')}
+          colorPalette={currentLang === 'en' ? 'blue' : 'gray'}
+        >
+          English
+        </Button>
+        <Button
+          onClick={() => setCurrentLang('zh-HK')}
+          colorPalette={currentLang === 'zh-HK' ? 'blue' : 'gray'}
+        >
+          繁體中文 (香港)
+        </Button>
+      </Flex>
 
       <DefaultForm
         formConfig={{
@@ -670,11 +842,9 @@ const MultiLanguageForm = () => {
           serverUrl: 'https://api.example.com',
           ...labels[currentLang], // Use labels for current language
           ...form,
-          idMap,
-          setIdMap,
         }}
       />
-    </div>
+    </Flex>
   );
 };
 ```
