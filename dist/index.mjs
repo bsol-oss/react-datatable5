@@ -5631,6 +5631,69 @@ const defaultRenderDisplay = (item) => {
     return JSON.stringify(item);
 };
 
+/**
+ * Load initial values for IdPicker fields into idMap
+ * Uses customQueryFn if available, otherwise falls back to getTableData
+ *
+ * @param params - Configuration for loading initial values
+ * @returns Promise with fetched data and idMap
+ */
+const loadInitialValues = async ({ ids, foreign_key, serverUrl, setIdMap, }) => {
+    if (!ids || ids.length === 0) {
+        return { data: { data: [], count: 0 }, idMap: {} };
+    }
+    const { table, column: column_ref, customQueryFn } = foreign_key;
+    // Filter out IDs that are already in idMap (optional optimization)
+    // For now, we'll fetch all requested IDs to ensure consistency
+    if (customQueryFn) {
+        const { data, idMap: returnedIdMap } = await customQueryFn({
+            searching: '',
+            limit: ids.length,
+            offset: 0,
+            where: [
+                {
+                    id: column_ref,
+                    value: ids.length === 1 ? ids[0] : ids, // CustomQueryFn accepts string | string[]
+                },
+            ],
+        });
+        // Update idMap with returned values
+        if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
+            setIdMap((state) => {
+                return { ...state, ...returnedIdMap };
+            });
+        }
+        return { data, idMap: returnedIdMap || {} };
+    }
+    // Fallback to default getTableData
+    const data = await getTableData({
+        serverUrl,
+        searching: '',
+        in_table: table,
+        limit: ids.length,
+        offset: 0,
+        where: [
+            {
+                id: column_ref,
+                value: ids, // Always pass as array
+            },
+        ],
+    });
+    // Build idMap from fetched data
+    const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
+        return [
+            item[column_ref],
+            {
+                ...item,
+            },
+        ];
+    }));
+    // Update idMap state
+    setIdMap((state) => {
+        return { ...state, ...newMap };
+    });
+    return { data: data, idMap: newMap };
+};
 const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     const { watch, getValues, formState: { errors }, setValue, } = useFormContext();
     const { serverUrl, idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
@@ -5687,48 +5750,14 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
             if (missingIds.length === 0) {
                 return { data: [], count: 0 };
             }
-            if (customQueryFn) {
-                const { data, idMap } = await customQueryFn({
-                    searching: '',
-                    limit: missingIds.length,
-                    offset: 0,
-                    where: [
-                        {
-                            id: column_ref,
-                            value: missingIds.length === 1 ? missingIds[0] : missingIds,
-                        },
-                    ],
-                });
-                setIdMap((state) => {
-                    return { ...state, ...idMap };
-                });
-                return data;
-            }
-            const data = await getTableData({
+            // Use the reusable loadInitialValues function
+            const result = await loadInitialValues({
+                ids: missingIds,
+                foreign_key: foreign_key,
                 serverUrl,
-                searching: '',
-                in_table: table,
-                limit: missingIds.length,
-                offset: 0,
-                where: [
-                    {
-                        id: column_ref,
-                        value: missingIds.length === 1 ? missingIds[0] : missingIds,
-                    },
-                ],
+                setIdMap,
             });
-            const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
-                return [
-                    item[column_ref],
-                    {
-                        ...item,
-                    },
-                ];
-            }));
-            setIdMap((state) => {
-                return { ...state, ...newMap };
-            });
-            return data;
+            return result.data;
         },
         enabled: missingIds.length > 0, // Only fetch if there are missing IDs
         staleTime: 300000,
