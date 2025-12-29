@@ -1,6 +1,6 @@
-import { Props, RenderProps } from "@bsol-oss/dayzed-react19";
-import React from "react";
-export interface CalendarProps extends RenderProps {
+import React from 'react';
+import { type CalendarRenderProps } from './useCalendar';
+export interface CalendarProps extends CalendarRenderProps {
     firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 }
 export interface GetDateColorProps {
@@ -13,9 +13,10 @@ export interface GetVariantProps {
     selected: boolean;
     selectable: boolean;
 }
-export interface DatePickerProps extends Props {
+export interface DatePickerProps {
     onDateSelected?: (obj: {
         date: Date;
+        selected: Date | Date[];
     }) => void;
     selected: Date | Date[];
     firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -30,7 +31,7 @@ export interface DatePickerProps extends Props {
         backButtonLabel?: string;
         forwardButtonLabel?: string;
     };
-    render?: (dayzedData: any) => React.ReactNode;
+    render?: (calendarData: CalendarRenderProps) => React.ReactNode;
 }
 export interface DatePickerLabels {
     monthNamesShort: string[];
@@ -38,7 +39,5 @@ export interface DatePickerLabels {
     backButtonLabel?: string;
     forwardButtonLabel?: string;
 }
-declare class DatePicker extends React.Component<DatePickerProps> {
-    render(): import("react/jsx-runtime").JSX.Element;
-}
+declare const DatePicker: React.FC<DatePickerProps>;
 export default DatePicker;

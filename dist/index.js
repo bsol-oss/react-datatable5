@@ -9,7 +9,6 @@ var md = require('react-icons/md');
 var fa6 = require('react-icons/fa6');
 var bi = require('react-icons/bi');
 var cg = require('react-icons/cg');
-var Dayzed = require('@bsol-oss/dayzed-react19');
 var hi2 = require('react-icons/hi2');
 var io = require('react-icons/io');
 var _slicedToArray = require('@babel/runtime/helpers/slicedToArray');
@@ -25,7 +24,6 @@ var bs = require('react-icons/bs');
 var hi = require('react-icons/hi');
 var reactTable = require('@tanstack/react-table');
 var gr = require('react-icons/gr');
-var reactI18next = require('react-i18next');
 var axios = require('axios');
 var reactHookForm = require('react-hook-form');
 var Ajv = require('ajv');
@@ -58,36 +56,35 @@ var React__namespace = /*#__PURE__*/_interopNamespaceDefault(React);
 
 const DataTableContext = React.createContext({
     table: {},
-    globalFilter: "",
+    globalFilter: '',
     setGlobalFilter: () => { },
-    type: "client",
-    translate: {},
+    type: 'client',
     data: [],
     columns: [],
     columnOrder: [],
     columnFilters: [],
-    density: "sm",
+    density: 'sm',
     sorting: [],
     setPagination: function () {
-        throw new Error("Function not implemented.");
+        throw new Error('Function not implemented.');
     },
     setSorting: function () {
-        throw new Error("Function not implemented.");
+        throw new Error('Function not implemented.');
     },
     setColumnFilters: function () {
-        throw new Error("Function not implemented.");
+        throw new Error('Function not implemented.');
     },
     setRowSelection: function () {
-        throw new Error("Function not implemented.");
+        throw new Error('Function not implemented.');
     },
     setColumnOrder: function () {
-        throw new Error("Function not implemented.");
+        throw new Error('Function not implemented.');
     },
     setDensity: function () {
-        throw new Error("Function not implemented.");
+        throw new Error('Function not implemented.');
     },
     setColumnVisibility: function () {
-        throw new Error("Function not implemented.");
+        throw new Error('Function not implemented.');
     },
     pagination: {
         pageIndex: 0,
@@ -96,21 +93,21 @@ const DataTableContext = React.createContext({
     rowSelection: {},
     columnVisibility: {},
     tableLabel: {
-        view: "View",
-        edit: "Edit",
-        filterButtonText: "Filter",
-        filterTitle: "Filter",
-        filterReset: "Reset",
-        filterClose: "Close",
-        reloadTooltip: "Reload",
-        reloadButtonText: "Reload",
-        resetSelection: "Reset Selection",
-        resetSorting: "Reset Sorting",
-        rowCountText: "Row Count",
-        hasErrorText: "Has Error",
-        globalFilterPlaceholder: "Search",
-        trueLabel: "True",
-        falseLabel: "False",
+        view: 'View',
+        edit: 'Edit',
+        filterButtonText: 'Filter',
+        filterTitle: 'Filter',
+        filterReset: 'Reset',
+        filterClose: 'Close',
+        reloadTooltip: 'Reload',
+        reloadButtonText: 'Reload',
+        resetSelection: 'Reset Selection',
+        resetSorting: 'Reset Sorting',
+        rowCountText: '',
+        hasErrorText: 'Has Error',
+        globalFilterPlaceholder: 'Search',
+        trueLabel: 'True',
+        falseLabel: 'False',
     },
 });
 
@@ -187,6 +184,166 @@ const Radio = React__namespace.forwardRef(function Radio(props, ref) {
 });
 const RadioGroup = react.RadioGroup.Root;
 
+// Helper function to check if two dates are the same day
+function isSameDay(date1, date2) {
+    return (date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate());
+}
+// Helper function to check if a date is today
+function isToday(date) {
+    const today = new Date();
+    return isSameDay(date, today);
+}
+// Helper function to check if a date is selected
+function isSelected(date, selected) {
+    if (!selected)
+        return false;
+    if (Array.isArray(selected)) {
+        return selected.some((d) => isSameDay(d, date));
+    }
+    return isSameDay(selected, date);
+}
+// Helper function to check if a date is selectable
+function isSelectable(date, minDate, maxDate) {
+    if (minDate) {
+        // Normalize to start of day for comparison
+        const minDateStart = new Date(minDate);
+        minDateStart.setHours(0, 0, 0, 0);
+        const dateStart = new Date(date);
+        dateStart.setHours(0, 0, 0, 0);
+        if (dateStart < minDateStart)
+            return false;
+    }
+    if (maxDate) {
+        // Normalize to start of day for comparison
+        const maxDateStart = new Date(maxDate);
+        maxDateStart.setHours(0, 0, 0, 0);
+        const dateStart = new Date(date);
+        dateStart.setHours(0, 0, 0, 0);
+        if (dateStart > maxDateStart)
+            return false;
+    }
+    return true;
+}
+// Generate calendar weeks for a given month
+function generateCalendarWeeks(year, month, firstDayOfWeek, showOutsideDays, selected, minDate, maxDate) {
+    const weeks = [];
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    // Get the first day of the week for the first day of the month
+    let firstDayWeekday = firstDay.getDay();
+    // Adjust for firstDayOfWeek
+    firstDayWeekday = (firstDayWeekday - firstDayOfWeek + 7) % 7;
+    // Start from the first day of the week that contains the first day of the month
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDayWeekday);
+    let currentDate = new Date(startDate);
+    const endDate = new Date(lastDay);
+    // Find the last day of the week that contains the last day of the month
+    let lastDayWeekday = lastDay.getDay();
+    lastDayWeekday = (lastDayWeekday - firstDayOfWeek + 7) % 7;
+    endDate.setDate(endDate.getDate() + (6 - lastDayWeekday));
+    while (currentDate <= endDate) {
+        const week = [];
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(currentDate);
+            const isCurrentMonth = date.getMonth() === month;
+            if (!showOutsideDays && !isCurrentMonth) {
+                week.push(null);
+            }
+            else {
+                const calendarDate = {
+                    date,
+                    selected: isSelected(date, selected),
+                    selectable: isSelectable(date, minDate, maxDate) &&
+                        (showOutsideDays || isCurrentMonth),
+                    today: isToday(date),
+                    isCurrentMonth,
+                };
+                week.push(calendarDate);
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        weeks.push(week);
+    }
+    return weeks;
+}
+// Generate calendars for the given months
+function generateCalendars(startDate, monthsToDisplay, firstDayOfWeek, showOutsideDays, selected, minDate, maxDate) {
+    const calendars = [];
+    const currentDate = new Date(startDate);
+    for (let i = 0; i < monthsToDisplay; i++) {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const weeks = generateCalendarWeeks(year, month, firstDayOfWeek, showOutsideDays, selected, minDate, maxDate);
+        calendars.push({
+            month,
+            year,
+            weeks,
+        });
+        // Move to next month
+        currentDate.setMonth(month + 1);
+    }
+    return calendars;
+}
+function useCalendar({ selected, firstDayOfWeek = 0, showOutsideDays = true, date, minDate, maxDate, monthsToDisplay = 1, onDateSelected, }) {
+    const [currentDate, setCurrentDate] = React.useState(() => {
+        return date ? new Date(date) : new Date();
+    });
+    const calendars = React.useMemo(() => {
+        return generateCalendars(currentDate, monthsToDisplay, firstDayOfWeek, showOutsideDays, selected, minDate, maxDate);
+    }, [
+        currentDate,
+        monthsToDisplay,
+        firstDayOfWeek,
+        showOutsideDays,
+        selected,
+        minDate,
+        maxDate,
+    ]);
+    const navigate = React.useCallback((offset) => {
+        setCurrentDate((prev) => {
+            const newDate = new Date(prev);
+            newDate.setMonth(prev.getMonth() + offset);
+            return newDate;
+        });
+    }, []);
+    const getBackProps = React.useCallback((props) => {
+        return {
+            onClick: () => {
+                navigate(-(props?.offset || 1));
+            },
+        };
+    }, [navigate]);
+    const getForwardProps = React.useCallback((props) => {
+        return {
+            onClick: () => {
+                navigate(props?.offset || 1);
+            },
+        };
+    }, [navigate]);
+    const getDateProps = React.useCallback((props) => {
+        return {
+            onClick: () => {
+                if (props.dateObj.selectable && onDateSelected) {
+                    onDateSelected({
+                        date: props.dateObj.date,
+                        selected: selected || props.dateObj.date,
+                    });
+                }
+            },
+            onMouseEnter: props.onMouseEnter,
+        };
+    }, [onDateSelected, selected]);
+    return {
+        calendars,
+        getBackProps,
+        getForwardProps,
+        getDateProps,
+    };
+}
+
 const RangeDatePickerContext = React.createContext({
     labels: {
         monthNamesFull: [
@@ -252,7 +409,7 @@ function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, se
                                     if (!dateObj) {
                                         return jsxRuntime.jsx(react.Box, {}, key);
                                     }
-                                    const { date, selected, selectable, today } = dateObj;
+                                    const { date, selected, selectable, today, isCurrentMonth, } = dateObj;
                                     const getStyle = ({ selected, unavailable, today, isInRange, }) => {
                                         if (unavailable) {
                                             return {
@@ -290,7 +447,7 @@ function Calendar$1({ calendars, getBackProps, getForwardProps, getDateProps, se
                                             unavailable: !selectable,
                                             today,
                                             isInRange: isInRange(date),
-                                        }), children: selectable ? date.getDate() : 'X' }, key));
+                                        }), opacity: isCurrentMonth ? 1 : 0.4, children: selectable ? date.getDate() : 'X' }, key));
                                 })) })] }, `${calendar.month}${calendar.year}`))) })] }));
     }
     return null;
@@ -313,10 +470,57 @@ const RangeDatePicker = ({ labels = {
     weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Next',
-}, selected = [], onDateSelected, firstDayOfWeek, showOutsideDays, date, minDate, maxDate, monthsToDisplay, ...rest }) => {
-    return (jsxRuntime.jsx(RangeDatePickerContext.Provider, { value: { labels }, children: jsxRuntime.jsx(Dayzed, { onDateSelected: onDateSelected, selected: selected, firstDayOfWeek: firstDayOfWeek, showOutsideDays: showOutsideDays, date: date, minDate: minDate, maxDate: maxDate, monthsToDisplay: monthsToDisplay, ...rest, render: (dayzedData) => (jsxRuntime.jsx(Calendar$1, { ...dayzedData,
-                firstDayOfWeek,
-                selected: selected })) }) }));
+}, selected = [], onDateSelected, firstDayOfWeek, showOutsideDays, date, minDate, maxDate, monthsToDisplay, render, }) => {
+    const handleDateSelected = (obj) => {
+        if (onDateSelected) {
+            const dateObj = obj.date;
+            const currentSelected = Array.isArray(obj.selected)
+                ? obj.selected
+                : [obj.selected];
+            // Range selection logic: if one date selected, add second; if two selected, replace with new date
+            let newSelected;
+            if (currentSelected.length === 0) {
+                newSelected = [dateObj];
+            }
+            else if (currentSelected.length === 1) {
+                const firstDate = currentSelected[0];
+                if (dateObj < firstDate) {
+                    newSelected = [dateObj, firstDate];
+                }
+                else {
+                    newSelected = [firstDate, dateObj];
+                }
+            }
+            else {
+                newSelected = [dateObj];
+            }
+            // Check if date is selectable
+            const selectable = !minDate || dateObj >= minDate;
+            if (maxDate) {
+                const isSelectable = dateObj <= maxDate;
+                if (!isSelectable)
+                    return;
+            }
+            onDateSelected({
+                selected: newSelected,
+                selectable,
+                date: dateObj,
+            });
+        }
+    };
+    const calendarData = useCalendar({
+        onDateSelected: handleDateSelected,
+        selected,
+        firstDayOfWeek,
+        showOutsideDays,
+        date,
+        minDate,
+        maxDate,
+        monthsToDisplay,
+    });
+    return (jsxRuntime.jsx(RangeDatePickerContext.Provider, { value: { labels }, children: render ? (render(calendarData)) : (jsxRuntime.jsx(Calendar$1, { ...calendarData,
+            firstDayOfWeek,
+            selected: selected })) }));
 };
 
 const getRangeDates = ({ selectable, date, selectedDates, }) => {
@@ -552,7 +756,7 @@ const MenuTrigger = react.Menu.Trigger;
 
 const PageSizeControl = ({ pageSizes = [10, 20, 30, 40, 50], }) => {
     const { table } = useDataTableContext();
-    return (jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "ghost", gap: "0.5rem", children: [table.getState().pagination.pageSize, " ", jsxRuntime.jsx(bi.BiDownArrow, {})] }) }), jsxRuntime.jsx(MenuContent, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(MenuItem, { value: `chakra-table-pageSize-${pageSize}`, onClick: () => {
+    return (jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { variant: 'ghost', gap: '0.5rem', children: table.getState().pagination.pageSize }) }), jsxRuntime.jsx(MenuContent, { children: pageSizes.map((pageSize) => (jsxRuntime.jsx(MenuItem, { value: `chakra-table-pageSize-${pageSize}`, onClick: () => {
                         table.setPageSize(Number(pageSize));
                     }, children: pageSize }, `chakra-table-pageSize-${pageSize}`))) })] }));
 };
@@ -580,81 +784,149 @@ const PaginationRoot = React__namespace.forwardRef(function PaginationRoot(props
         }
         const container = containerRef.current;
         let rafId = null;
-        const calculateSiblingCount = () => {
-            if (!container)
-                return;
-            const width = container.offsetWidth;
-            if (width === 0)
-                return;
-            // Estimate button width based on size
-            // These are approximate widths including padding for different button sizes
+        let timeoutId = null;
+        const measureButtonWidth = () => {
+            // Try to measure actual rendered buttons for accuracy
+            // Look for page number buttons (they contain numeric text)
+            const allButtons = container.querySelectorAll('button');
+            const pageButtons = [];
+            allButtons.forEach((button) => {
+                const text = button.textContent?.trim();
+                // Page buttons contain numbers, prev/next buttons contain icons
+                if (text && /^\d+$/.test(text)) {
+                    pageButtons.push(button);
+                }
+            });
+            if (pageButtons.length > 0) {
+                // Measure multiple buttons and take the average for accuracy
+                let totalWidth = 0;
+                let count = 0;
+                pageButtons.forEach((button) => {
+                    const width = button.offsetWidth;
+                    if (width > 0) {
+                        totalWidth += width;
+                        count++;
+                    }
+                });
+                if (count > 0) {
+                    return Math.ceil(totalWidth / count);
+                }
+            }
+            // Fallback to estimated widths based on size
             const buttonWidthMap = {
                 xs: 28,
                 sm: 36,
                 md: 40,
                 lg: 44,
             };
-            let buttonWidth = buttonWidthMap[size] || 36;
-            // Try to measure actual button if available (for more accuracy)
-            const buttons = container.querySelectorAll('button');
-            if (buttons.length > 0) {
-                const firstButton = buttons[0];
-                if (firstButton.offsetWidth > 0) {
-                    // Use measured width, but account for text content variation
-                    const measuredWidth = firstButton.offsetWidth;
-                    // Page number buttons might be slightly wider due to text, use measured width
-                    buttonWidth = Math.max(buttonWidth, measuredWidth);
+            return buttonWidthMap[size] || 36;
+        };
+        const measurePrevNextWidth = () => {
+            const allButtons = container.querySelectorAll('button');
+            let prevWidth = 0;
+            let nextWidth = 0;
+            allButtons.forEach((button) => {
+                const html = button.innerHTML;
+                // Check if it's a prev/next button by looking for chevron icons or SVG
+                if (html.includes('chevron') ||
+                    html.includes('Chevron') ||
+                    button.querySelector('svg')) {
+                    const width = button.offsetWidth;
+                    if (width > 0) {
+                        // First icon button is likely prev, last is next
+                        if (prevWidth === 0) {
+                            prevWidth = width;
+                        }
+                        else {
+                            nextWidth = width;
+                        }
+                    }
                 }
+            });
+            if (prevWidth > 0 && nextWidth > 0) {
+                return prevWidth + nextWidth;
             }
-            // Account for prev/next buttons and gaps
-            // HStack gap is typically 8px in Chakra UI
-            const gap = 8;
-            const prevNextWidth = buttonWidth * 2 + gap;
-            const availableWidth = Math.max(0, width - prevNextWidth);
+            // Fallback: use page button width estimate
+            return measureButtonWidth() * 2;
+        };
+        const calculateSiblingCount = () => {
+            if (!container)
+                return;
+            const width = container.offsetWidth;
+            if (width === 0)
+                return;
+            // Measure actual button widths
+            const pageButtonWidth = measureButtonWidth();
+            const prevNextWidth = measurePrevNextWidth();
+            // Get computed gap from container (HStack gap)
+            const containerStyles = window.getComputedStyle(container);
+            const gap = parseFloat(containerStyles.gap) || 8;
+            // Account for gaps: prev button + gap + page buttons + gap + next button
+            // We need at least 2 gaps (before and after page buttons)
+            const availableWidth = Math.max(0, width - prevNextWidth - gap * 2);
             // Each page button takes buttonWidth + gap
-            const buttonWithGap = buttonWidth + gap;
-            const maxButtons = Math.floor(availableWidth / buttonWithGap);
-            // Calculate sibling count
-            // Minimum structure: [prev] [1] [current] [last] [next] = 5 buttons
-            // With siblings: [prev] [1] [...] [current-N] ... [current] ... [current+N] [...] [last] [next]
-            // We need: prev(1) + first(1) + ellipsis(1) + siblings*2 + current(1) + ellipsis(1) + last(1) + next(1)
-            // Minimum: 5 buttons (prev, first, current, last, next)
-            // With siblings: 5 + siblings*2 + ellipsis*2 (if needed)
-            const minRequired = 5;
-            const extraButtons = Math.max(0, maxButtons - minRequired);
-            // Calculate sibling count
-            // If we have enough space for ellipsis (2 buttons), account for that
+            const buttonWithGap = pageButtonWidth + gap;
+            const maxPageButtons = Math.floor(availableWidth / buttonWithGap);
+            // Calculate sibling count based on pagination structure
+            // Structure: [prev] [first] [ellipsis?] [siblings] [current] [siblings] [ellipsis?] [last] [next]
+            // Minimum: prev(1) + first(1) + current(1) + last(1) + next(1) = 5 buttons
+            // With siblings and ellipsis: 5 + siblings*2 + ellipsis*2
+            const minRequired = 5; // prev, first, current, last, next
+            const extraButtons = Math.max(0, maxPageButtons - minRequired);
             let calculated = minSiblingCount;
             if (extraButtons >= 4) {
-                // Space for ellipsis (2) + siblings
+                // Enough space for ellipsis (2 buttons) + siblings on both sides
+                // Structure: [prev] [1] [...] [siblings] [current] [siblings] [...] [last] [next]
+                // Extra buttons = ellipsis(2) + siblings*2
                 calculated = Math.floor((extraButtons - 2) / 2);
             }
             else if (extraButtons >= 2) {
                 // Space for some siblings but not ellipsis
+                // Structure: [prev] [1] [siblings] [current] [siblings] [last] [next]
                 calculated = Math.floor(extraButtons / 2);
             }
             // Apply max limit if provided
             if (maxSiblingCount !== undefined) {
                 calculated = Math.min(calculated, maxSiblingCount);
             }
-            setCalculatedSiblingCount(Math.max(minSiblingCount, calculated));
+            const finalSiblingCount = Math.max(minSiblingCount, calculated);
+            // Only update if value changed to avoid unnecessary re-renders
+            setCalculatedSiblingCount((prev) => {
+                if (prev !== finalSiblingCount) {
+                    return finalSiblingCount;
+                }
+                return prev;
+            });
         };
-        const resizeObserver = new ResizeObserver(() => {
-            // Use requestAnimationFrame to debounce and ensure DOM is updated
+        const scheduleCalculation = () => {
+            // Cancel any pending calculations
             if (rafId !== null) {
                 cancelAnimationFrame(rafId);
             }
-            rafId = requestAnimationFrame(calculateSiblingCount);
-        });
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+            }
+            // Use requestAnimationFrame for smooth updates
+            rafId = requestAnimationFrame(() => {
+                // Small delay to ensure DOM is fully rendered
+                timeoutId = setTimeout(calculateSiblingCount, 50);
+            });
+        };
+        const resizeObserver = new ResizeObserver(scheduleCalculation);
         resizeObserver.observe(container);
-        // Initial calculation after a short delay to ensure buttons are rendered
-        const timeoutId = setTimeout(calculateSiblingCount, 100);
+        // Initial calculation - try multiple times to ensure buttons are rendered
+        scheduleCalculation();
+        // Also try after a longer delay as fallback
+        const fallbackTimeout = setTimeout(calculateSiblingCount, 200);
         return () => {
             resizeObserver.disconnect();
             if (rafId !== null) {
                 cancelAnimationFrame(rafId);
             }
-            clearTimeout(timeoutId);
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+            }
+            clearTimeout(fallbackTimeout);
         };
     }, [size, siblingCount, minSiblingCount, maxSiblingCount]);
     const mergedRef = React__namespace.useCallback((node) => {
@@ -834,12 +1106,19 @@ const ResetSelectionButton = () => {
 const RowCountText = () => {
     const { table, type } = useDataTableContext();
     const getCount = () => {
-        if (type === "client") {
+        if (type === 'client') {
             return table.getFilteredRowModel().flatRows.length ?? 0;
         }
         return table.getRowCount();
     };
-    return jsxRuntime.jsx(react.Text, { children: getCount() });
+    const totalCount = getCount();
+    const { pageIndex, pageSize } = table.getState().pagination;
+    if (totalCount === 0) {
+        return jsxRuntime.jsx(react.Text, { children: "0 of 0" });
+    }
+    const start = pageIndex * pageSize + 1;
+    const end = Math.min((pageIndex + 1) * pageSize, totalCount);
+    return jsxRuntime.jsx(react.Text, { children: `${start}-${end} / ${totalCount}` });
 };
 
 // pulling this into a separate file so adapter(s) that don't
@@ -2948,17 +3227,17 @@ const TableFilterTags = () => {
 
 const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
     const { tableLabel, table } = useDataTableContext();
-    const { rowCountText, hasErrorText } = tableLabel;
-    return (jsxRuntime.jsxs(react.Grid, { templateRows: "auto 1fr", width: fitTableWidth ? "fit-content" : "100%", height: fitTableHeight ? "fit-content" : "100%", gap: "0.5rem", ...gridProps, children: [jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsx(react.Box, { children: showView && jsxRuntime.jsx(ViewDialog, { icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: "center", justifySelf: "end", children: [loading && jsxRuntime.jsx(react.Spinner, { size: "sm" }), hasError && (jsxRuntime.jsx(Tooltip, { content: hasErrorText, children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: "red.400" }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && jsxRuntime.jsx(FilterDialog, {}), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), filterTagsOptions.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: "column", gap: "0.5rem", children: filterTagsOptions.map((option) => {
+    const { hasErrorText } = tableLabel;
+    return (jsxRuntime.jsxs(react.Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsx(react.Box, { children: showView && jsxRuntime.jsx(ViewDialog, { icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsxRuntime.jsx(react.Spinner, { size: 'sm' }), hasError && (jsxRuntime.jsx(Tooltip, { content: hasErrorText, children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && jsxRuntime.jsx(FilterDialog, {}), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), filterTagsOptions.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: '0.5rem', children: filterTagsOptions.map((option) => {
                             const { column, options } = option;
                             const tableColumn = table.getColumn(column);
-                            return (jsxRuntime.jsxs(react.Flex, { alignItems: "center", flexFlow: "wrap", gap: "0.5rem", children: [tableColumn?.columnDef.meta?.displayName && (jsxRuntime.jsx(react.Text, { children: tableColumn?.columnDef.meta?.displayName })), jsxRuntime.jsx(TagFilter, { availableTags: options, selectedTags: tableColumn?.getFilterValue() ?? [], selectOne: true, onTagChange: (tags) => {
+                            return (jsxRuntime.jsxs(react.Flex, { alignItems: 'center', flexFlow: 'wrap', gap: '0.5rem', children: [tableColumn?.columnDef.meta?.displayName && (jsxRuntime.jsx(react.Text, { children: tableColumn?.columnDef.meta?.displayName })), jsxRuntime.jsx(TagFilter, { availableTags: options, selectedTags: tableColumn?.getFilterValue() ?? [], selectOne: true, onTagChange: (tags) => {
                                             if (tags.length === 0) {
                                                 return tableColumn?.setFilterValue(undefined);
                                             }
                                             tableColumn?.setFilterValue(tags);
                                         } })] }, column));
-                        }) })), showFilterTags && (jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(TableFilterTags, {}) }))] }), jsxRuntime.jsx(react.Grid, { overflow: "auto", bg: { base: "colorPalette.50", _dark: "colorPalette.950" }, children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxRuntime.jsxs(react.Flex, { justifyContent: "space-between", children: [jsxRuntime.jsxs(react.Flex, { gap: "1rem", alignItems: "center", children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && (jsxRuntime.jsxs(react.Flex, { children: [jsxRuntime.jsx(react.Text, { paddingRight: "0.5rem", children: rowCountText }), jsxRuntime.jsx(RowCountText, {})] }))] }), jsxRuntime.jsx(react.Box, { justifySelf: "end", children: showPagination && jsxRuntime.jsx(Pagination, {}) })] }))] }));
+                        }) })), showFilterTags && (jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(TableFilterTags, {}) }))] }), jsxRuntime.jsx(react.Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsxs(react.Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && jsxRuntime.jsx(RowCountText, {})] }), jsxRuntime.jsx(react.Box, { justifySelf: 'end', children: showPagination && jsxRuntime.jsx(Pagination, {}) })] }))] }));
 };
 
 const EmptyState$1 = React__namespace.forwardRef(function EmptyState(props, ref) {
@@ -3120,7 +3399,7 @@ const Table = ({ children, emptyComponent = EmptyResult, canResize = true, showL
     if (!showLoading && table.getRowModel().rows.length <= 0) {
         return emptyComponent;
     }
-    return (jsxRuntime.jsx(react.Box, { ref: containerRef, width: "100%", overflow: "auto", children: jsxRuntime.jsx(react.Table.Root, { stickyHeader: true, variant: 'outline', width: canResize ? table.getCenterTotalSize() : undefined, display: 'grid', alignContent: 'start', bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, ...props, children: children }) }));
+    return (jsxRuntime.jsx(react.Box, { ref: containerRef, width: "100%", overflow: "auto", children: jsxRuntime.jsx(react.Table.Root, { stickyHeader: true, width: canResize ? table.getCenterTotalSize() : undefined, display: 'grid', alignContent: 'start', ...props, children: children }) }));
 };
 
 const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
@@ -3166,11 +3445,7 @@ const TableBody = ({ showSelector = false, canResize = true, }) => {
                             // styling resize and pinning start
                             flex: `${canResize ? '0' : '1'} 0 ${cell.column.getSize()}px`, 
                             // this is to avoid the cell from being too wide
-                            minWidth: `0`, color: {
-                                base: 'colorPalette.900',
-                                _dark: 'colorPalette.100',
-                            },
-                            bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, ...getTdProps(cell), children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
+                            minWidth: `0`, ...getTdProps(cell), children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) }, `chakra-table-rowcell-${cell.id}-${index}`));
                     })] }, `chakra-table-row-${row.id}`));
         }) }));
 };
@@ -3180,11 +3455,7 @@ const TableRowSelector = ({ row }) => {
     const isSelected = isRowSelected(row.id, rowSelection);
     const canSelect = canRowSelect(row);
     const toggleHandler = createRowToggleHandler(row, rowSelection, setRowSelection);
-    return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, display: 'grid', color: {
-            base: 'colorPalette.900',
-            _dark: 'colorPalette.100',
-        },
-        bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, justifyItems: 'center', alignItems: 'center', children: jsxRuntime.jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, checked: isSelected,
+    return (jsxRuntime.jsx(react.Table.Cell, { padding: `${table.getDensityValue()}px`, display: 'grid', justifyItems: 'center', alignItems: 'center', children: jsxRuntime.jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, checked: isSelected,
             disabled: !canSelect,
             onCheckedChange: toggleHandler }) }));
 };
@@ -3301,18 +3572,6 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
         const columnMeta = header.column.columnDef.meta;
         return columnMeta?.headerTexts?.[key] || mergedDefaultTexts[key];
     };
-    const getThProps = (header) => {
-        const thProps = header.column.getIsPinned()
-            ? {
-                left: showSelector
-                    ? `${header.getStart('left') + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-                    : `${header.getStart('left')}px`,
-                position: 'sticky',
-                zIndex: 100 + 1,
-            }
-            : {};
-        return thProps;
-    };
     const stickyProps = {
         position: 'sticky',
         top: 0,
@@ -3364,11 +3623,7 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
             [header.id]: finalWidth,
         }));
     };
-    return (jsxRuntime.jsx(react.Table.Header, { ...(isSticky ? stickyProps : {}), bgColor: 'transparent', ...tableHeaderProps, children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsxs(react.Table.Row, { display: 'flex', bgColor: 'transparent', ...tableRowProps, children: [showSelector && (jsxRuntime.jsx(react.Table.ColumnHeader, { padding: `${table.getDensityValue()}px`, display: 'grid', color: {
-                        base: 'colorPalette.900',
-                        _dark: 'colorPalette.100',
-                    },
-                    bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, justifyItems: 'center', alignItems: 'center', children: jsxRuntime.jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, checked: areAllRowsSelected(table, rowSelection),
+    return (jsxRuntime.jsx(react.Table.Header, { ...(isSticky ? stickyProps : {}), ...tableHeaderProps, children: table.getHeaderGroups().map((headerGroup) => (jsxRuntime.jsxs(react.Table.Row, { display: 'flex', ...tableRowProps, children: [showSelector && (jsxRuntime.jsx(react.Table.ColumnHeader, { padding: `${table.getDensityValue()}px`, display: 'grid', justifyItems: 'center', alignItems: 'center', children: jsxRuntime.jsx(Checkbox, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px`, checked: areAllRowsSelected(table, rowSelection),
                         // indeterminate: areSomeRowsSelected(table, rowSelection),
                         onChange: createToggleAllRowsHandler(table, rowSelection, setRowSelection) }) })), headerGroup.headers.map((header) => {
                     const resizeProps = {
@@ -3378,30 +3633,11 @@ const TableHeader = ({ canResize = true, showSelector = false, isSticky = true, 
                     };
                     return (jsxRuntime.jsxs(react.Table.ColumnHeader, { padding: 0, columnSpan: `${header.colSpan}`, 
                         // styling resize and pinning start
-                        flex: `${canResize ? '0' : '1'} 0 ${header.column.getSize()}px`, display: 'grid', gridTemplateColumns: '1fr auto', zIndex: 1500 + header.index, color: {
-                            base: 'colorPalette.800',
-                            _dark: 'colorPalette.200',
-                        },
-                        bg: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, ...getThProps(header), children: [jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsx(react.Flex, { padding: `${table.getDensityValue()}px`, alignItems: 'center', justifyContent: 'start', borderRadius: '0rem', overflow: 'auto', color: {
-                                                base: 'colorPalette.800',
-                                                _dark: 'colorPalette.200',
-                                                _hover: {
-                                                    base: 'colorPalette.700',
-                                                    _dark: 'colorPalette.300',
-                                                },
-                                            },
-                                            bg: {
-                                                base: 'colorPalette.100',
-                                                _dark: 'colorPalette.900',
-                                                _hover: {
-                                                    base: 'colorPalette.200',
-                                                    _dark: 'colorPalette.800',
-                                                },
-                                            }, children: jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: 'center', children: [header.isPlaceholder
+                        flex: `${canResize ? '0' : '1'} 0 ${header.column.getSize()}px`, display: 'grid', gridTemplateColumns: '1fr auto', zIndex: 1500 + header.index, children: [jsxRuntime.jsxs(MenuRoot, { children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsx(react.Flex, { padding: `${table.getDensityValue()}px`, alignItems: 'center', justifyContent: 'start', borderRadius: '0rem', overflow: 'auto', children: jsxRuntime.jsxs(react.Flex, { gap: "0.5rem", alignItems: 'center', children: [header.isPlaceholder
                                                         ? null
                                                         : reactTable.flexRender(header.column.columnDef.header, header.getContext()), jsxRuntime.jsx(react.Box, { children: header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [header.column.getIsSorted() === false && jsxRuntime.jsx(jsxRuntime.Fragment, {}), header.column.getIsSorted() === 'asc' && (jsxRuntime.jsx(bi.BiUpArrow, {})), header.column.getIsSorted() === 'desc' && (jsxRuntime.jsx(bi.BiDownArrow, {}))] })) }), jsxRuntime.jsx(react.Box, { children: header.column.getIsFiltered() && jsxRuntime.jsx(md.MdFilterListAlt, {}) })] }) }) }), jsxRuntime.jsxs(MenuContent, { children: [!header.column.getIsPinned() && (jsxRuntime.jsx(MenuItem, { asChild: true, value: "pin-column", children: jsxRuntime.jsxs(Button, { variant: 'ghost', onClick: () => {
                                                         header.column.pin('left');
-                                                    }, children: [jsxRuntime.jsx(md.MdPushPin, {}), getHeaderText(header, 'pinColumn')] }) })), header.column.getIsPinned() && (jsxRuntime.jsx(MenuItem, { asChild: true, value: "cancel-pin", children: jsxRuntime.jsxs(Button, { variant: 'ghost', onClick: () => {
+                                                    }, p: 1, children: [jsxRuntime.jsx(md.MdPushPin, {}), getHeaderText(header, 'pinColumn')] }) })), header.column.getIsPinned() && (jsxRuntime.jsx(MenuItem, { asChild: true, value: "cancel-pin", children: jsxRuntime.jsxs(Button, { variant: 'ghost', onClick: () => {
                                                         header.column.pin(false);
                                                     }, children: [jsxRuntime.jsx(md.MdCancel, {}), getHeaderText(header, 'cancelPin')] }) })), header.column.getCanSort() && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(MenuItem, { asChild: true, value: "sort-ascend", children: jsxRuntime.jsxs(Button, { variant: 'ghost', onClick: () => {
                                                                 table.setSorting((state) => {
@@ -3601,7 +3837,7 @@ const ErrorAlert = ({ showMessage = true }) => {
 const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: defaultPagination = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
-}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = "", density: defaultDensity = "sm", } = {
+}, rowSelection: defaultRowSelection = {}, columnFilters: defaultColumnFilters = [], columnOrder: defaultColumnOrder = [], columnVisibility: defaultColumnVisibility = {}, globalFilter: defaultGlobalFilter = '', density: defaultDensity = 'sm', } = {
     sorting: [],
     pagination: {
         pageIndex: 0, //initial page index
@@ -3611,9 +3847,9 @@ const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: def
     columnFilters: [],
     columnOrder: [],
     columnVisibility: {},
-    globalFilter: "",
-    density: "sm",
-}, keyPrefix = "", } = {
+    globalFilter: '',
+    density: 'sm',
+}, } = {
     default: {
         sorting: [],
         pagination: {
@@ -3624,8 +3860,8 @@ const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: def
         columnFilters: [],
         columnOrder: [],
         columnVisibility: {},
-        globalFilter: "",
-        density: "sm",
+        globalFilter: '',
+        density: 'sm',
     },
 }) => {
     const [sorting, setSorting] = React.useState(defaultSorting);
@@ -3636,7 +3872,6 @@ const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: def
     const [globalFilter, setGlobalFilter] = React.useState(defaultGlobalFilter);
     const [density, setDensity] = React.useState(defaultDensity);
     const [columnVisibility, setColumnVisibility] = React.useState(defaultColumnVisibility);
-    const translate = reactI18next.useTranslation("", { keyPrefix });
     return {
         sorting,
         setSorting,
@@ -3654,12 +3889,11 @@ const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: def
         setDensity,
         columnVisibility,
         setColumnVisibility,
-        translate,
     };
 };
 
 const useDataTableServer = (props) => {
-    const { url, default: defaultProps, keyPrefix, placeholderData, queryFn: customQueryFn, } = props;
+    const { url, default: defaultProps, placeholderData, queryFn: customQueryFn, } = props;
     const { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, } = defaultProps || {};
     const [sorting, setSorting] = React.useState(defaultSorting || []);
     const [columnFilters, setColumnFilters] = React.useState(defaultColumnFilters || []); // can set initial column filter state here
@@ -3669,8 +3903,8 @@ const useDataTableServer = (props) => {
     });
     const [rowSelection, setRowSelection] = React.useState(defaultRowSelection || {});
     const [columnOrder, setColumnOrder] = React.useState(defaultColumnOrder || []);
-    const [globalFilter, setGlobalFilter] = React.useState(defaultGlobalFilter || "");
-    const [density, setDensity] = React.useState(defaultDensity || "sm");
+    const [globalFilter, setGlobalFilter] = React.useState(defaultGlobalFilter || '');
+    const [density, setDensity] = React.useState(defaultDensity || 'sm');
     const [columnVisibility, setColumnVisibility] = React.useState(defaultColumnVisibility || {});
     const { pageSize, pageIndex } = pagination;
     const params = {
@@ -3682,7 +3916,7 @@ const useDataTableServer = (props) => {
     };
     const defaultQueryFn = async () => {
         if (!url) {
-            throw new Error("url is required");
+            throw new Error('url is required');
         }
         const response = await axios.get(url, {
             params,
@@ -3696,7 +3930,6 @@ const useDataTableServer = (props) => {
             : defaultQueryFn,
         placeholderData,
     });
-    const translate = reactI18next.useTranslation("", { keyPrefix });
     return {
         sorting,
         setSorting,
@@ -3715,7 +3948,6 @@ const useDataTableServer = (props) => {
         columnVisibility,
         setColumnVisibility,
         query,
-        translate,
     };
 };
 
@@ -3734,11 +3966,8 @@ const snakeToLabel = (str) => {
         .join(" "); // Join with space
 };
 
-const RecordDisplay = ({ object, boxProps, translate, prefix = '', }) => {
+const RecordDisplay = ({ object, boxProps, prefix = '', }) => {
     const getColumn = ({ field }) => {
-        if (translate !== undefined) {
-            return translate.t(`${prefix}${field}`);
-        }
         return snakeToLabel(field);
     };
     if (object === null) {
@@ -3746,7 +3975,7 @@ const RecordDisplay = ({ object, boxProps, translate, prefix = '', }) => {
     }
     return (jsxRuntime.jsx(react.Grid, { rowGap: 1, padding: 1, overflow: 'auto', ...boxProps, children: Object.entries(object).map(([field, value], index) => {
             const uniqueKey = `${prefix}${field}-${index}`;
-            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: 'auto 1fr', children: [jsxRuntime.jsx(react.Text, { color: 'colorPalette.400', children: getColumn({ field }) }), typeof value === 'object' && value !== null ? (jsxRuntime.jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.`, translate: translate })) : (jsxRuntime.jsx(react.Text, { children: JSON.stringify(value) }))] }, uniqueKey));
+            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: 'auto 1fr', children: [jsxRuntime.jsx(react.Text, { color: 'colorPalette.400', children: getColumn({ field }) }), typeof value === 'object' && value !== null ? (jsxRuntime.jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.` })) : (jsxRuntime.jsx(react.Text, { children: JSON.stringify(value) }))] }, uniqueKey));
         }) }));
 };
 
@@ -3760,15 +3989,12 @@ const widthSanityCheck = (widthList, ignoreList, properties) => {
         throw new Error(`The width list is too long given from the number of remaining properties after ignore some.`);
     }
 };
-const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, defaultWidth = 400, translate, }) => {
+const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, defaultWidth = 400, }) => {
     const { properties } = schema;
-    idListSanityCheck("ignore", ignore, properties);
+    idListSanityCheck('ignore', ignore, properties);
     widthSanityCheck(width, ignore, properties);
-    idListSanityCheck("meta", Object.keys(meta), properties);
+    idListSanityCheck('meta', Object.keys(meta), properties);
     const getColumn = ({ column }) => {
-        if (translate !== undefined) {
-            return translate.t(`${column}`);
-        }
         return snakeToLabel(column);
     };
     const keys = Object.keys(properties);
@@ -3777,15 +4003,15 @@ const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, 
         return !ignore.some((shouldIgnoreKey) => key === shouldIgnoreKey);
     });
     const columnHelper = reactTable.createColumnHelper();
-    // @ts-expect-error find type for unknown
     const columns = [
         ...ignored.map((column, index) => {
+            // @ts-expect-error column accessor type issue with generic TData
             return columnHelper.accessor(column, {
                 cell: (props) => {
                     // @ts-expect-error find type for unknown
                     const value = props.row.original[column];
-                    if (typeof value === "object") {
-                        return (jsxRuntime.jsx(react.Grid, { overflow: "auto", children: jsxRuntime.jsx(RecordDisplay, { object: value, translate }) }));
+                    if (typeof value === 'object') {
+                        return (jsxRuntime.jsx(react.Grid, { overflow: 'auto', children: jsxRuntime.jsx(RecordDisplay, { object: value }) }));
                     }
                     return jsxRuntime.jsx(TextCell, { children: value });
                 },
@@ -3817,6 +4043,11 @@ const SchemaFormContext = React.createContext({
     include: [],
     onSubmit: async () => { },
     rowNumber: 0,
+    /** Default translate fallback - returns key as-is */
+    translate: {
+        t: (key) => key,
+        ready: true,
+    },
     requestOptions: {},
     timezone: 'Asia/Hong_Kong',
     displayConfig: {
@@ -4049,7 +4280,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
     showSubmitButton: true,
     showResetButton: true,
     showTitle: true,
-}, requireConfirmation = false, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, insideDialog = false, }) => {
+}, requireConfirmation = false, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog = false, }) => {
     const [isSuccess, setIsSuccess] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
     const [isSubmiting, setIsSubmiting] = React.useState(false);
@@ -4140,6 +4371,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
             enumPickerLabels,
             filePickerLabels,
             formButtonLabels,
+            timePickerLabels,
             ajvResolver: ajvResolver(schema),
             insideDialog,
         }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: children }) }));
@@ -4150,31 +4382,33 @@ function removeIndex(str) {
 }
 
 /**
- * Custom hook to simplify i18n translation for form fields.
+ * Custom hook for form field labels and fallback text.
  * Automatically handles colLabel construction and removeIndex logic.
+ * Uses schema.title when available, otherwise falls back to translate function.
  *
  * @param column - The column name
  * @param prefix - The prefix for the field (usually empty string or parent path)
- * @returns Object with translation helper functions
+ * @param schema - Optional schema object with title property
+ * @returns Object with label helper functions
  *
  * @example
  * ```tsx
- * const formI18n = useFormI18n(column, prefix);
+ * const formI18n = useFormI18n(column, prefix, schema);
  *
- * // Get field label
+ * // Get field label (prefers schema.title)
  * <Field label={formI18n.label()} />
  *
- * // Get error message
+ * // Get required error message
  * <Text>{formI18n.required()}</Text>
  *
- * // Get custom translation key
+ * // Get custom text
  * <Text>{formI18n.t('add_more')}</Text>
  *
  * // Access the raw colLabel
  * const colLabel = formI18n.colLabel;
  * ```
  */
-const useFormI18n$1 = (column, prefix = '', schema) => {
+const useFormI18n = (column, prefix = '', schema) => {
     const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     return {
@@ -4183,7 +4417,7 @@ const useFormI18n$1 = (column, prefix = '', schema) => {
          */
         colLabel,
         /**
-         * Get the field label from schema title prop, or fall back to translation
+         * Get the field label from schema title prop, or fall back to translate function
          * Uses schema.title if available, otherwise: translate.t(removeIndex(`${colLabel}.field_label`))
          */
         label: (options) => {
@@ -4193,18 +4427,18 @@ const useFormI18n$1 = (column, prefix = '', schema) => {
             return translate.t(removeIndex(`${colLabel}.field_label`), options);
         },
         /**
-         * Get the required error message translation
+         * Get the required error message
          * Equivalent to: translate.t(removeIndex(`${colLabel}.field_required`))
          */
         required: (options) => {
             return translate.t(removeIndex(`${colLabel}.field_required`), options);
         },
         /**
-         * Get a translation for any custom key relative to the field
+         * Get text for any custom key relative to the field
          * Equivalent to: translate.t(removeIndex(`${colLabel}.${key}`))
          *
-         * @param key - The translation key suffix (e.g., 'add_more', 'total', etc.)
-         * @param options - Optional translation options (e.g., defaultValue, interpolation variables)
+         * @param key - The key suffix (e.g., 'add_more', 'total', etc.)
+         * @param options - Optional options (e.g., defaultValue, interpolation variables)
          */
         t: (key, options) => {
             return translate.t(removeIndex(`${colLabel}.${key}`), options);
@@ -4222,8 +4456,9 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
     const { type } = items;
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const { formState: { errors }, setValue, watch, } = reactHookForm.useFormContext();
+    const { formButtonLabels } = useSchemaContext();
     const fields = (watch(colLabel) ?? []);
     return (jsxRuntime.jsxs(react.Flex, { gridRow, gridColumn, flexFlow: 'column', gap: 2, children: [jsxRuntime.jsxs(react.Box, { as: "label", children: [formI18n.label(), isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 2, children: fields.map((field, index) => (jsxRuntime.jsxs(react.Grid, { gridTemplateColumns: '1fr auto', gap: 2, bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
                         base: 'colorPalette.200',
@@ -4249,7 +4484,7 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
                             return;
                         }
                         setValue(colLabel, [...fields, {}]);
-                    }, children: translate.t(removeIndex(`${colLabel}.add`)) }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
+                    }, children: formButtonLabels?.add ?? 'Add' }) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const Field = React__namespace.forwardRef(function Field(props, ref) {
@@ -4263,7 +4498,7 @@ const BooleanPicker = ({ schema, column, prefix }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsx(CheckboxCard, { checked: value, variant: 'surface', onChange: () => {
                 setValue(colLabel, !value);
@@ -4284,50 +4519,50 @@ const CustomInput = ({ column, schema, prefix }) => {
 
 const Calendar = ({ calendars, getBackProps, getForwardProps, getDateProps, firstDayOfWeek = 0, }) => {
     const { labels } = React.useContext(DatePickerContext);
-    const { monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel } = labels;
+    const { monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel, } = labels;
     if (calendars.length) {
-        return (jsxRuntime.jsxs(react.Grid, { children: [jsxRuntime.jsxs(react.Grid, { templateColumns: "repeat(4, auto)", justifyContent: "center", children: [jsxRuntime.jsx(react.Button, { variant: "ghost", ...getBackProps({
+        return (jsxRuntime.jsxs(react.Grid, { children: [jsxRuntime.jsxs(react.Grid, { templateColumns: 'repeat(4, auto)', justifyContent: 'center', children: [jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getBackProps({
                                 calendars,
                                 offset: 12,
-                            }), children: "<<" }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...getBackProps({ calendars }), children: backButtonLabel }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...getForwardProps({ calendars }), children: forwardButtonLabel }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...getForwardProps({
+                            }), children: '<<' }), jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getBackProps({ calendars }), children: backButtonLabel }), jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getForwardProps({ calendars }), children: forwardButtonLabel }), jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getForwardProps({
                                 calendars,
                                 offset: 12,
-                            }), children: ">>" })] }), jsxRuntime.jsx(react.Grid, { templateColumns: "repeat(2, auto)", justifyContent: "center", children: calendars.map((calendar) => (jsxRuntime.jsxs(react.Grid, { gap: 4, children: [jsxRuntime.jsxs(react.Grid, { justifyContent: "center", children: [monthNamesShort[calendar.month], " ", calendar.year] }), jsxRuntime.jsxs(react.Grid, { templateColumns: "repeat(7, auto)", justifyContent: "center", children: [[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                            }), children: '>>' })] }), jsxRuntime.jsx(react.Grid, { templateColumns: 'repeat(2, auto)', justifyContent: 'center', children: calendars.map((calendar) => (jsxRuntime.jsxs(react.Grid, { gap: 4, children: [jsxRuntime.jsxs(react.Grid, { justifyContent: 'center', children: [monthNamesShort[calendar.month], " ", calendar.year] }), jsxRuntime.jsxs(react.Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: [[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
                                         const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                                        return (jsxRuntime.jsx(react.Text, { textAlign: "center", children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
+                                        return (jsxRuntime.jsx(react.Text, { textAlign: 'center', children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
                                     }), calendar.weeks.map((week, weekIndex) => week.map((dateObj, index) => {
                                         const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
                                         if (!dateObj) {
                                             return jsxRuntime.jsx(react.Grid, {}, key);
                                         }
-                                        const { date, selected, selectable, today } = dateObj;
+                                        const { date, selected, selectable, today, isCurrentMonth, } = dateObj;
                                         const getDateColor = ({ today, selected, selectable, }) => {
                                             if (!selectable) {
-                                                return "gray";
+                                                return 'gray';
                                             }
                                             if (selected) {
-                                                return "blue";
+                                                return 'blue';
                                             }
                                             if (today) {
-                                                return "green";
+                                                return 'green';
                                             }
-                                            return "";
+                                            return '';
                                         };
                                         const getVariant = ({ today, selected, selectable, }) => {
                                             if (!selectable) {
-                                                return "surface";
+                                                return 'surface';
                                             }
                                             if (selected) {
-                                                return "solid";
+                                                return 'solid';
                                             }
                                             if (today) {
-                                                return "surface";
+                                                return 'surface';
                                             }
-                                            return "ghost";
+                                            return 'ghost';
                                         };
                                         const color = getDateColor({ today, selected, selectable });
                                         const variant = getVariant({ today, selected, selectable });
-                                        return (jsxRuntime.jsx(react.Button, { variant: variant, colorPalette: color, ...getDateProps({ dateObj }), children: selectable ? date.getDate() : "X" }, key));
+                                        return (jsxRuntime.jsx(react.Button, { variant: variant, colorPalette: color, opacity: isCurrentMonth ? 1 : 0.4, ...getDateProps({ dateObj }), children: selectable ? date.getDate() : 'X' }, key));
                                     }))] })] }, `${calendar.month}${calendar.year}`))) })] }));
     }
     return null;
@@ -4335,50 +4570,55 @@ const Calendar = ({ calendars, getBackProps, getForwardProps, getDateProps, firs
 const DatePickerContext = React.createContext({
     labels: {
         monthNamesShort: [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
         ],
-        weekdayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        backButtonLabel: "Back",
-        forwardButtonLabel: "Next",
+        weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        backButtonLabel: 'Back',
+        forwardButtonLabel: 'Next',
     },
 });
-let DatePicker$1 = class DatePicker extends React.Component {
-    render() {
-        const { labels = {
-            monthNamesShort: [
-                "Jan",
-                "Feb",
-                "Mar",
-                "Apr",
-                "May",
-                "Jun",
-                "Jul",
-                "Aug",
-                "Sep",
-                "Oct",
-                "Nov",
-                "Dec",
-            ],
-            weekdayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-            backButtonLabel: "Back",
-            forwardButtonLabel: "Next",
-        }, } = this.props;
-        return (jsxRuntime.jsx(DatePickerContext.Provider, { value: { labels }, children: jsxRuntime.jsx(Dayzed, { onDateSelected: this.props.onDateSelected, selected: this.props.selected, firstDayOfWeek: this.props.firstDayOfWeek, showOutsideDays: this.props.showOutsideDays, date: this.props.date, minDate: this.props.minDate, maxDate: this.props.maxDate, monthsToDisplay: this.props.monthsToDisplay, render: 
-                // @ts-expect-error - Dayzed types need to be fixed
-                (dayzedData) => (jsxRuntime.jsx(Calendar, { ...dayzedData,
-                    firstDayOfWeek: this.props.firstDayOfWeek })) }) }));
-    }
+const DatePicker$1 = ({ labels = {
+    monthNamesShort: [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+    ],
+    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    backButtonLabel: 'Back',
+    forwardButtonLabel: 'Next',
+}, onDateSelected, selected, firstDayOfWeek, showOutsideDays, date, minDate, maxDate, monthsToDisplay, render, }) => {
+    const calendarData = useCalendar({
+        onDateSelected,
+        selected,
+        firstDayOfWeek,
+        showOutsideDays,
+        date,
+        minDate,
+        maxDate,
+        monthsToDisplay,
+    });
+    return (jsxRuntime.jsx(DatePickerContext.Provider, { value: { labels }, children: render ? (render(calendarData)) : (jsxRuntime.jsx(Calendar, { ...calendarData,
+            firstDayOfWeek })) }));
 };
 
 dayjs.extend(utc);
@@ -4386,7 +4626,7 @@ dayjs.extend(timezone);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
@@ -4420,74 +4660,30 @@ const DatePicker = ({ column, schema, prefix }) => {
     }, [selectedDate, dateFormat, colLabel, setValue]);
     const datePickerLabels = {
         monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
-            formI18n.translate.t(`common.month_1`, {
-                defaultValue: 'January',
-            }),
-            formI18n.translate.t(`common.month_2`, {
-                defaultValue: 'February',
-            }),
-            formI18n.translate.t(`common.month_3`, {
-                defaultValue: 'March',
-            }),
-            formI18n.translate.t(`common.month_4`, {
-                defaultValue: 'April',
-            }),
-            formI18n.translate.t(`common.month_5`, {
-                defaultValue: 'May',
-            }),
-            formI18n.translate.t(`common.month_6`, {
-                defaultValue: 'June',
-            }),
-            formI18n.translate.t(`common.month_7`, {
-                defaultValue: 'July',
-            }),
-            formI18n.translate.t(`common.month_8`, {
-                defaultValue: 'August',
-            }),
-            formI18n.translate.t(`common.month_9`, {
-                defaultValue: 'September',
-            }),
-            formI18n.translate.t(`common.month_10`, {
-                defaultValue: 'October',
-            }),
-            formI18n.translate.t(`common.month_11`, {
-                defaultValue: 'November',
-            }),
-            formI18n.translate.t(`common.month_12`, {
-                defaultValue: 'December',
-            }),
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
         ],
         weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
-            formI18n.translate.t(`common.weekday_1`, {
-                defaultValue: 'Sun',
-            }),
-            formI18n.translate.t(`common.weekday_2`, {
-                defaultValue: 'Mon',
-            }),
-            formI18n.translate.t(`common.weekday_3`, {
-                defaultValue: 'Tue',
-            }),
-            formI18n.translate.t(`common.weekday_4`, {
-                defaultValue: 'Wed',
-            }),
-            formI18n.translate.t(`common.weekday_5`, {
-                defaultValue: 'Thu',
-            }),
-            formI18n.translate.t(`common.weekday_6`, {
-                defaultValue: 'Fri',
-            }),
-            formI18n.translate.t(`common.weekday_7`, {
-                defaultValue: 'Sat',
-            }),
+            'Sun',
+            'Mon',
+            'Tue',
+            'Wed',
+            'Thu',
+            'Fri',
+            'Sat',
         ],
-        backButtonLabel: dateTimePickerLabels?.backButtonLabel ??
-            formI18n.translate.t(`common.back_button`, {
-                defaultValue: 'Back',
-            }),
-        forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ??
-            formI18n.translate.t(`common.forward_button`, {
-                defaultValue: 'Forward',
-            }),
+        backButtonLabel: dateTimePickerLabels?.backButtonLabel ?? 'Back',
+        forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ?? 'Forward',
     };
     const datePickerContent = (jsxRuntime.jsx(DatePicker$1, { selected: new Date(selectedDate), onDateSelected: ({ date }) => {
             setValue(colLabel, dayjs(date).format(dateFormat));
@@ -4504,7 +4700,7 @@ dayjs.extend(timezone);
 const DateRangePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { timezone, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n$1(column, prefix);
+    const formI18n = useFormI18n(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
@@ -4602,7 +4798,7 @@ const DateRangePicker = ({ column, schema, prefix, }) => {
 const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLimit = false, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { enumPickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
@@ -5149,7 +5345,7 @@ const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, en
                     }) })) }))] }));
 };
 
-function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, onUploadFile, enableUpload = false, labels, translate, colLabel, }) {
+function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, onUploadFile, enableUpload = false, labels, colLabel, }) {
     const [selectedFile, setSelectedFile] = React.useState(undefined);
     const [activeTab, setActiveTab] = React.useState('browse');
     const [uploadingFiles, setUploadingFiles] = React.useState(new Set());
@@ -5218,15 +5414,8 @@ function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = 
     const showTabs = enableUpload && !!onUploadFile && !!onFetchFiles;
     if (!onFetchFiles && !onUploadFile)
         return null;
-    return (jsxRuntime.jsx(DialogRoot, { open: open, onOpenChange: (e) => !e.open && handleClose(), children: jsxRuntime.jsxs(DialogContent, { maxWidth: "800px", maxHeight: "90vh", children: [jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, { fontSize: "lg", fontWeight: "bold", children: title }), jsxRuntime.jsx(DialogCloseTrigger, {})] }), jsxRuntime.jsx(DialogBody, { children: showTabs ? (jsxRuntime.jsxs(react.Tabs.Root, { value: activeTab, onValueChange: (e) => setActiveTab(e.value ?? 'browse'), children: [jsxRuntime.jsxs(react.Tabs.List, { children: [jsxRuntime.jsx(react.Tabs.Trigger, { value: "browse", children: labels?.browseTab ??
-                                            translate(removeIndex(`${colLabel}.browse_tab`)) ??
-                                            'Browse Library' }), jsxRuntime.jsx(react.Tabs.Trigger, { value: "upload", children: labels?.uploadTab ??
-                                            translate(removeIndex(`${colLabel}.upload_tab`)) ??
-                                            'Upload Files' })] }), jsxRuntime.jsx(react.Tabs.Content, { value: "browse", children: onFetchFiles && (jsxRuntime.jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open && activeTab === 'browse', selectedFile: selectedFile, onFileSelect: setSelectedFile })) }), jsxRuntime.jsx(react.Tabs.Content, { value: "upload", children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 4, children: [jsxRuntime.jsx(FileDropzone, { onDrop: ({ files }) => handleFileUpload(files), placeholder: labels?.fileDropzone ??
-                                                translate(removeIndex(`${colLabel}.fileDropzone`)) ??
-                                                'Drop files here or click to upload' }), uploadingFiles.size > 0 && (jsxRuntime.jsx(react.Box, { children: Array.from(uploadingFiles).map((fileKey) => (jsxRuntime.jsx(react.Box, { py: 2, children: jsxRuntime.jsxs(react.HStack, { gap: 2, children: [jsxRuntime.jsx(react.Spinner, { size: "sm", colorPalette: "blue" }), jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: "fg.muted", children: [labels?.uploading ??
-                                                                    translate(removeIndex(`${colLabel}.uploading`)) ??
-                                                                    'Uploading...', ' ', fileKey.split('-')[0]] })] }) }, fileKey))) })), uploadErrors.size > 0 && (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: Array.from(uploadErrors.entries()).map(([fileKey, error]) => (jsxRuntime.jsx(react.Box, { bg: {
+    return (jsxRuntime.jsx(DialogRoot, { open: open, onOpenChange: (e) => !e.open && handleClose(), children: jsxRuntime.jsxs(DialogContent, { maxWidth: "800px", maxHeight: "90vh", children: [jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, { fontSize: "lg", fontWeight: "bold", children: title }), jsxRuntime.jsx(DialogCloseTrigger, {})] }), jsxRuntime.jsx(DialogBody, { children: showTabs ? (jsxRuntime.jsxs(react.Tabs.Root, { value: activeTab, onValueChange: (e) => setActiveTab(e.value ?? 'browse'), children: [jsxRuntime.jsxs(react.Tabs.List, { children: [jsxRuntime.jsx(react.Tabs.Trigger, { value: "browse", children: labels?.browseTab ?? 'Browse Library' }), jsxRuntime.jsx(react.Tabs.Trigger, { value: "upload", children: labels?.uploadTab ?? 'Upload Files' })] }), jsxRuntime.jsx(react.Tabs.Content, { value: "browse", children: onFetchFiles && (jsxRuntime.jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open && activeTab === 'browse', selectedFile: selectedFile, onFileSelect: setSelectedFile })) }), jsxRuntime.jsx(react.Tabs.Content, { value: "upload", children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 4, children: [jsxRuntime.jsx(FileDropzone, { onDrop: ({ files }) => handleFileUpload(files), placeholder: labels?.fileDropzone ??
+                                                'Drop files here or click to upload' }), uploadingFiles.size > 0 && (jsxRuntime.jsx(react.Box, { children: Array.from(uploadingFiles).map((fileKey) => (jsxRuntime.jsx(react.Box, { py: 2, children: jsxRuntime.jsxs(react.HStack, { gap: 2, children: [jsxRuntime.jsx(react.Spinner, { size: "sm", colorPalette: "blue" }), jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: "fg.muted", children: [labels?.uploading ?? 'Uploading...', ' ', fileKey.split('-')[0]] })] }) }, fileKey))) })), uploadErrors.size > 0 && (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: Array.from(uploadErrors.entries()).map(([fileKey, error]) => (jsxRuntime.jsx(react.Box, { bg: {
                                                     base: 'colorPalette.50',
                                                     _dark: 'colorPalette.900/20',
                                                 }, border: "1px solid", borderColor: {
@@ -5235,18 +5424,12 @@ function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = 
                                                 }, colorPalette: "red", borderRadius: "md", p: 3, children: jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: {
                                                         base: 'colorPalette.600',
                                                         _dark: 'colorPalette.300',
-                                                    }, children: [fileKey.split('-')[0], ":", ' ', labels?.uploadFailed ??
-                                                            translate(removeIndex(`${colLabel}.upload_failed`)) ??
-                                                            'Upload failed', error && ` - ${error}`] }) }, fileKey))) }))] }) })] })) : onFetchFiles ? (jsxRuntime.jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open, selectedFile: selectedFile, onFileSelect: setSelectedFile })) : null }), jsxRuntime.jsx(DialogFooter, { children: jsxRuntime.jsxs(react.HStack, { gap: 3, justify: "end", children: [jsxRuntime.jsx(react.Button, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ??
-                                    translate(removeIndex(`${colLabel}.cancel`)) ??
-                                    'Cancel' }), jsxRuntime.jsx(react.Button, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFile, children: labels?.select ??
-                                    translate(removeIndex(`${colLabel}.select`)) ??
-                                    'Select' })] }) })] }) }));
+                                                    }, children: [fileKey.split('-')[0], ":", ' ', labels?.uploadFailed ?? 'Upload failed', error && ` - ${error}`] }) }, fileKey))) }))] }) })] })) : onFetchFiles ? (jsxRuntime.jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open, selectedFile: selectedFile, onFileSelect: setSelectedFile })) : null }), jsxRuntime.jsx(DialogFooter, { children: jsxRuntime.jsxs(react.HStack, { gap: 3, justify: "end", children: [jsxRuntime.jsx(react.Button, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ?? 'Cancel' }), jsxRuntime.jsx(react.Button, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFile, children: labels?.select ?? 'Select' })] }) })] }) }));
 }
 const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { filePickerLabels } = useSchemaContext();
-    const formI18n = useFormI18n$1(column, prefix);
+    const formI18n = useFormI18n(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', type, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const isSingleSelect = type === 'string';
@@ -5322,7 +5505,7 @@ const FilePicker = ({ column, schema, prefix }) => {
 const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { filePickerLabels } = useSchemaContext();
-    const formI18n = useFormI18n$1(column, prefix);
+    const formI18n = useFormI18n(column, prefix);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', filePicker, type, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const isSingleSelect = type === 'string';
@@ -5418,8 +5601,8 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: jsxRuntime.jsx(react.Button, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ??
                         formI18n.t('browse_library') ??
                         'Browse from Library' }) }), jsxRuntime.jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ??
-                    formI18n.t('dialog_title') ??
-                    'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, translate: formI18n.t, colLabel: colLabel }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
+                    filePickerLabels?.dialogTitle ??
+                    'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
                     const file = fileMap.get(fileId);
                     const isImage = file
                         ? /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name)
@@ -5468,17 +5651,16 @@ const defaultRenderDisplay = (item) => {
     return JSON.stringify(item);
 };
 
-const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
+const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     const { watch, getValues, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { serverUrl, idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n$1(column, prefix, schema);
-    const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, foreign_key, } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
+    const { renderDisplay, foreign_key } = schema;
     const { table, column: column_ref, customQueryFn, } = foreign_key;
     const [searchText, setSearchText] = React.useState('');
     const [debouncedSearchText, setDebouncedSearchText] = React.useState('');
     const [limit] = React.useState(50); // Increased limit for combobox
-    const colLabel = formI18n.colLabel;
+    // Get colLabel from schema context (we'll compute it here)
+    const colLabel = `${prefix}${column}`;
     const watchedValue = watch(colLabel);
     const watchId = !isMultiple ? watchedValue : undefined;
     const watchIds = isMultiple
@@ -5677,20 +5859,6 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         itemToValue: (item) => item.value,
         filter: contains,
     });
-    // Handle input value change (search)
-    const handleInputValueChange = (details) => {
-        setSearchText(details.inputValue);
-        // Filter will be applied after data is fetched
-    };
-    // Handle value change
-    const handleValueChange = (details) => {
-        if (isMultiple) {
-            setValue(colLabel, details.value);
-        }
-        else {
-            setValue(colLabel, details.value[0] || '');
-        }
-    };
     // Track previous comboboxItems to avoid unnecessary updates
     const prevComboboxItemsRef = React.useRef('');
     const prevSearchTextRef = React.useRef('');
@@ -5720,8 +5888,106 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
         // comboboxItems and searchText are the only dependencies we care about
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [comboboxItems, searchText]);
+    return {
+        colLabel,
+        currentValue,
+        searchText,
+        setSearchText,
+        debouncedSearchText,
+        isLoading,
+        isFetching,
+        isPending,
+        isError,
+        isSearching,
+        isLoadingInitialValues,
+        isFetchingInitialValues,
+        missingIds,
+        comboboxItems,
+        collection,
+        filter,
+        set,
+        idMap,
+        idPickerLabels,
+        insideDialog: insideDialog ?? false,
+        renderDisplay,
+        column_ref,
+        errors,
+        setValue,
+    };
+};
+
+const IdPickerSingle = ({ column, schema, prefix, }) => {
+    const formI18n = useFormI18n(column, prefix, schema);
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const { colLabel, currentValue, searchText, setSearchText, isLoading, isFetching, isPending, isError, isSearching, isLoadingInitialValues, isFetchingInitialValues, missingIds, collection, idMap, idPickerLabels, insideDialog, renderDisplay: renderDisplayFn, errors, setValue, } = useIdPickerData({
+        column,
+        schema,
+        prefix,
+        isMultiple: false,
+    });
+    const handleInputValueChange = (details) => {
+        setSearchText(details.inputValue);
+    };
+    const handleValueChange = (details) => {
+        setValue(colLabel, details.value[0] || '');
+    };
+    const renderDisplayFunction = renderDisplayFn || renderDisplay || defaultRenderDisplay;
     return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((id) => {
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [currentValue.length > 0 && (jsxRuntime.jsx(react.Flex, { mb: 2, children: (() => {
+                    const id = currentValue[0];
+                    const item = idMap[id];
+                    // Show loading skeleton while fetching initial values
+                    if (item === undefined &&
+                        (isLoadingInitialValues || isFetchingInitialValues) &&
+                        missingIds.includes(id)) {
+                        return jsxRuntime.jsx(react.Skeleton, { height: "24px", width: "100px", borderRadius: "md" });
+                    }
+                    // Only show "not found" if we're not loading and item is still missing
+                    if (item === undefined) {
+                        return (jsxRuntime.jsx(react.Text, { fontSize: "sm", children: idPickerLabels?.undefined ?? 'Undefined' }));
+                    }
+                    return jsxRuntime.jsx(react.Text, { fontSize: "sm", children: renderDisplayFunction(item) });
+                })() })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: false, closeOnSelect: true, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: insideDialog
+                    ? { strategy: 'fixed', hideWhenDetached: true }
+                    : undefined, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? 'Type to search' }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, { size: "xs" }), isError && (jsxRuntime.jsx(react.Icon, { color: "fg.error", children: jsxRuntime.jsx(bi.BiError, {}) })), currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
+                                            setValue(colLabel, '');
+                                        } })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), insideDialog ? (jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
+                            // Show skeleton items to prevent UI shift
+                            jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
+                                    ? idPickerLabels?.emptySearchResult ?? 'No results found'
+                                    : idPickerLabels?.initialResults ??
+                                        'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplayFunction === true
+                                                ? renderDisplayFunction(item.raw)
+                                                : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
+                                // Show skeleton items to prevent UI shift
+                                jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
+                                        ? idPickerLabels?.emptySearchResult ?? 'No results found'
+                                        : idPickerLabels?.initialResults ??
+                                            'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplayFunction === true
+                                                    ? renderDisplayFunction(item.raw)
+                                                    : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) }))] })] }));
+};
+
+const IdPickerMultiple = ({ column, schema, prefix, }) => {
+    const formI18n = useFormI18n(column, prefix, schema);
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, } = schema;
+    const isRequired = required?.some((columnId) => columnId === column);
+    const { colLabel, currentValue, searchText, setSearchText, isLoading, isFetching, isPending, isError, isSearching, isLoadingInitialValues, isFetchingInitialValues, missingIds, collection, idMap, idPickerLabels, insideDialog, renderDisplay: renderDisplayFn, errors, setValue, } = useIdPickerData({
+        column,
+        schema,
+        prefix,
+        isMultiple: true,
+    });
+    const handleInputValueChange = (details) => {
+        setSearchText(details.inputValue);
+    };
+    const handleValueChange = (details) => {
+        setValue(colLabel, details.value);
+    };
+    const renderDisplayFunction = renderDisplayFn || renderDisplay || defaultRenderDisplay;
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [currentValue.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((id) => {
                     const item = idMap[id];
                     // Show loading skeleton while fetching initial values
                     if (item === undefined &&
@@ -5731,34 +5997,28 @@ const IdPicker = ({ column, schema, prefix, isMultiple = false, }) => {
                     }
                     // Only show "not found" if we're not loading and item is still missing
                     if (item === undefined) {
-                        return (jsxRuntime.jsx(react.Text, { fontSize: "sm", children: idPickerLabels?.undefined ?? formI18n.t('undefined') }, id));
+                        return (jsxRuntime.jsx(react.Text, { fontSize: "sm", children: idPickerLabels?.undefined ?? 'Undefined' }, id));
                     }
                     return (jsxRuntime.jsx(Tag, { closable: true, onClick: () => {
                             const newValue = currentValue.filter((itemId) => itemId !== id);
                             setValue(colLabel, newValue);
-                        }, children: renderDisplay
-                            ? renderDisplay(item)
-                            : defaultRenderDisplay(item) }, id));
-                }) })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: insideDialog
+                        }, children: renderDisplayFunction(item) }, id));
+                }) })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: true, closeOnSelect: false, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: insideDialog
                     ? { strategy: 'fixed', hideWhenDetached: true }
-                    : undefined, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? formI18n.t('type_to_search') }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, { size: "xs" }), isError && (jsxRuntime.jsx(react.Icon, { color: "fg.error", children: jsxRuntime.jsx(bi.BiError, {}) })), !isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
-                                            setValue(colLabel, '');
-                                        } })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), insideDialog ? (jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: formI18n.t('loading_failed') })) : isFetching || isLoading || isPending || isSearching ? (
+                    : undefined, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? 'Type to search' }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, { size: "xs" }), isError && (jsxRuntime.jsx(react.Icon, { color: "fg.error", children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), insideDialog ? (jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
                             // Show skeleton items to prevent UI shift
                             jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
-                                    ? idPickerLabels?.emptySearchResult ??
-                                        formI18n.t('empty_search_result')
+                                    ? idPickerLabels?.emptySearchResult ?? 'No results found'
                                     : idPickerLabels?.initialResults ??
-                                        formI18n.t('initial_results') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplay === true
-                                                ? renderDisplay(item.raw)
-                                                : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: formI18n.t('loading_failed') })) : isFetching || isLoading || isPending || isSearching ? (
+                                        'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplayFunction === true
+                                                ? renderDisplayFunction(item.raw)
+                                                : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
                                 // Show skeleton items to prevent UI shift
                                 jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
-                                        ? idPickerLabels?.emptySearchResult ??
-                                            formI18n.t('empty_search_result')
+                                        ? idPickerLabels?.emptySearchResult ?? 'No results found'
                                         : idPickerLabels?.initialResults ??
-                                            formI18n.t('initial_results') })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplay === true
-                                                    ? renderDisplay(item.raw)
+                                            'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplayFunction === true
+                                                    ? renderDisplayFunction(item.raw)
                                                     : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) }))] })] }));
 };
 
@@ -5832,7 +6092,7 @@ const NumberInputField = ({ schema, column, prefix, }) => {
     const colLabel = `${prefix}${column}`;
     const value = watch(`${colLabel}`);
     const fieldError = getFieldError(errors, colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn, gridRow, errorText: fieldError
             ? fieldError.includes('required')
                 ? formI18n.required()
@@ -5850,7 +6110,7 @@ const ObjectInput = ({ schema, column, prefix }) => {
     const { properties, gridColumn = 'span 12', gridRow = 'span 1', required, showLabel = true, } = schema;
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const { formState: { errors }, } = reactHookForm.useFormContext();
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
@@ -5870,14 +6130,14 @@ const ObjectInput = ({ schema, column, prefix }) => {
 
 const RecordInput = ({ column, schema, prefix }) => {
     const { formState: { errors }, setValue, getValues, } = reactHookForm.useFormContext();
-    const { translate } = useSchemaContext();
+    const { formButtonLabels } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const entries = Object.entries(getValues(column) ?? {});
     const [showNewEntries, setShowNewEntries] = React.useState(false);
     const [newKey, setNewKey] = React.useState();
     const [newValue, setNewValue] = React.useState();
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn, gridRow, errorText: errors[`${column}`] ? formI18n.required() : undefined, invalid: !!errors[column], children: [entries.map(([key, value]) => {
                 return (jsxRuntime.jsxs(react.Grid, { templateColumns: '1fr 1fr auto', gap: 1, children: [jsxRuntime.jsx(react.Input, { value: key, onChange: (e) => {
                                 const filtered = entries.filter(([target]) => {
@@ -5914,11 +6174,11 @@ const RecordInput = ({ column, schema, prefix }) => {
                                         setShowNewEntries(false);
                                         setNewKey(undefined);
                                         setNewValue(undefined);
-                                    }, children: translate.t(`${column}.save`) })] })] }) }), jsxRuntime.jsx(Button, { onClick: () => {
+                                    }, children: formButtonLabels?.save ?? 'Save' })] })] }) }), jsxRuntime.jsx(Button, { onClick: () => {
                     setShowNewEntries(true);
                     setNewKey(undefined);
                     setNewValue(undefined);
-                }, children: translate.t(`${column}.addNew`) })] }));
+                }, children: formButtonLabels?.addNew ?? 'Add New' })] }));
 };
 
 const StringInputField = ({ column, schema, prefix, }) => {
@@ -5927,7 +6187,7 @@ const StringInputField = ({ column, schema, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const fieldError = getFieldError(errors, colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: fieldError, invalid: !!fieldError, children: jsxRuntime.jsx(react.Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
 };
 
@@ -6119,7 +6379,7 @@ const TextAreaInput = ({ column, schema, prefix, }) => {
     const form = reactHookForm.useFormContext();
     const { setValue, watch } = form;
     const fieldError = getFieldError(errors, colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const watchValue = watch(colLabel);
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: "grid", errorText: fieldError
                 ? fieldError.includes('required')
@@ -6130,18 +6390,13 @@ const TextAreaInput = ({ column, schema, prefix, }) => {
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-function TimePicker$1({ hour, setHour, minute, setMinute, meridiem, setMeridiem, 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-meridiemLabel: _meridiemLabel = {
-    am: 'am',
-    pm: 'pm',
-}, 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedDate, portalled = true, }) {
-    // Generate time options (every 15 minutes)
+const TimePicker$1 = ({ hour, setHour, minute, setMinute, meridiem, setMeridiem, onChange = () => { }, startTime, selectedDate, timezone = 'Asia/Hong_Kong', portalled = true, labels = {
+    placeholder: 'hh:mm AM/PM',
+    emptyMessage: 'No time found',
+}, }) => {
+    // Generate time options (every 15 minutes in 12-hour format)
     const timeOptions = React.useMemo(() => {
         const options = [];
-        const meridiemOptions = ['am', 'pm'];
         // Get start time for comparison if provided
         let startDateTime = null;
         let shouldFilterByDate = false;
@@ -6156,14 +6411,16 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
                         selectedDateObj.format('YYYY-MM-DD');
             }
         }
-        for (const mer of meridiemOptions) {
-            for (let h = 1; h <= 12; h++) {
-                for (let m = 0; m < 60; m += 15) {
-                    const hour24 = mer === 'am' ? (h === 12 ? 0 : h) : h === 12 ? 12 : h + 12;
-                    // Format time directly without using dayjs with dummy dates
-                    const formattedHour = h.toString().padStart(2, '0');
-                    const formattedMinute = m.toString().padStart(2, '0');
-                    const displayTime = `${formattedHour}:${formattedMinute} ${mer}`;
+        // Generate 12-hour format options (1-12 for hours, AM/PM)
+        for (let h = 1; h <= 12; h++) {
+            for (let m = 0; m < 60; m += 15) {
+                for (const mer of ['am', 'pm']) {
+                    // Convert 12-hour to 24-hour for comparison
+                    let hour24 = h;
+                    if (mer === 'am' && h === 12)
+                        hour24 = 0;
+                    else if (mer === 'pm' && h < 12)
+                        hour24 = h + 12;
                     // Filter out times that would result in negative duration (only when dates are the same)
                     if (startDateTime && selectedDate && shouldFilterByDate) {
                         const selectedDateObj = dayjs(selectedDate).tz(timezone);
@@ -6206,20 +6463,23 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
                             }
                         }
                     }
+                    const hourDisplay = h.toString();
+                    const minuteDisplay = m.toString().padStart(2, '0');
+                    const timeDisplay = `${hourDisplay}:${minuteDisplay} ${mer.toUpperCase()}`;
                     options.push({
-                        label: displayTime,
-                        value: `${h}:${m.toString().padStart(2, '0')}:${mer}`,
+                        label: timeDisplay,
+                        value: `${h}:${m}:${mer}`,
                         hour: h,
                         minute: m,
                         meridiem: mer,
-                        searchText: displayTime, // Use base time without duration for searching
+                        searchText: timeDisplay, // Use base time without duration for searching
                         durationText,
                     });
                 }
             }
         }
         return options;
-    }, [timezone, startTime, selectedDate]);
+    }, [startTime, selectedDate, timezone]);
     const { contains } = react.useFilter({ sensitivity: 'base' });
     const { collection, filter } = react.useListCollection({
         initialItems: timeOptions,
@@ -6232,7 +6492,7 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
         if (hour === null || minute === null || meridiem === null) {
             return '';
         }
-        return `${hour}:${minute.toString().padStart(2, '0')}:${meridiem}`;
+        return `${hour}:${minute}:${meridiem}`;
     }, [hour, minute, meridiem]);
     // Calculate duration difference
     const durationDiff = React.useMemo(() => {
@@ -6243,15 +6503,14 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
             meridiem === null) {
             return null;
         }
-        const hour24 = meridiem === 'am'
-            ? hour === 12
-                ? 0
-                : hour
-            : hour === 12
-                ? 12
-                : hour + 12;
         const startDateObj = dayjs(startTime).tz(timezone);
         const selectedDateObj = dayjs(selectedDate).tz(timezone);
+        // Convert 12-hour to 24-hour format
+        let hour24 = hour;
+        if (meridiem === 'am' && hour === 12)
+            hour24 = 0;
+        else if (meridiem === 'pm' && hour < 12)
+            hour24 = hour + 12;
         const currentDateTime = selectedDateObj
             .hour(hour24)
             .minute(minute)
@@ -6316,83 +6575,54 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
         if (!trimmedValue) {
             return;
         }
-        // Try to parse custom input using explicit regex patterns
-        const normalized = trimmedValue.toLowerCase().replace(/\s+/g, '');
-        // Pattern 1: 12-hour format with meridiem (e.g., "930pm", "1230am", "9:30pm", "12:30am")
-        // Matches: 1-2 digits hour, optional colon, 2 digits minute, am/pm
-        const pattern12HourWithMeridiem = /^(\d{1,2}):?(\d{2})(am|pm)$/;
-        const match12Hour = normalized.match(pattern12HourWithMeridiem);
+        // Parse formats like "1:30 PM", "1:30PM", "1:30 pm", "1:30pm"
+        const timePattern12Hour = /^(\d{1,2}):(\d{1,2})\s*(am|pm|AM|PM)$/i;
+        const match12Hour = trimmedValue.match(timePattern12Hour);
         if (match12Hour) {
             const parsedHour = parseInt(match12Hour[1], 10);
             const parsedMinute = parseInt(match12Hour[2], 10);
-            const parsedMeridiem = match12Hour[3];
-            // Validate hour (1-12)
-            if (parsedHour < 1 || parsedHour > 12) {
-                // Parse failed, select first result
-                selectFirstResult();
+            const parsedMeridiem = match12Hour[3].toLowerCase();
+            // Validate ranges
+            if (parsedHour >= 1 &&
+                parsedHour <= 12 &&
+                parsedMinute >= 0 &&
+                parsedMinute <= 59) {
+                setHour(parsedHour);
+                setMinute(parsedMinute);
+                setMeridiem(parsedMeridiem);
+                onChange({
+                    hour: parsedHour,
+                    minute: parsedMinute,
+                    meridiem: parsedMeridiem,
+                });
                 return;
             }
-            // Validate minute (0-59)
-            if (parsedMinute < 0 || parsedMinute > 59) {
-                // Parse failed, select first result
-                selectFirstResult();
-                return;
-            }
-            setHour(parsedHour);
-            setMinute(parsedMinute);
-            setMeridiem(parsedMeridiem);
-            onChange({
-                hour: parsedHour,
-                minute: parsedMinute,
-                meridiem: parsedMeridiem,
-            });
-            return;
         }
-        // Pattern 2: 24-hour format (e.g., "2130", "09:30", "21:30")
-        // Matches: 1-2 digits hour, optional colon, 2 digits minute
-        const pattern24Hour = /^(\d{1,2}):?(\d{2})$/;
-        const match24Hour = normalized.match(pattern24Hour);
-        if (match24Hour) {
-            let parsedHour = parseInt(match24Hour[1], 10);
-            const parsedMinute = parseInt(match24Hour[2], 10);
-            // Validate hour (0-23)
-            if (parsedHour < 0 || parsedHour > 23) {
-                // Parse failed, select first result
-                selectFirstResult();
-                return;
+        // Try to parse formats like "130pm" or "130 pm" (without colon)
+        const timePatternNoColon = /^(\d{1,4})\s*(am|pm|AM|PM)$/i;
+        const matchNoColon = trimmedValue.match(timePatternNoColon);
+        if (matchNoColon) {
+            const numbersOnly = matchNoColon[1];
+            const parsedMeridiem = matchNoColon[2].toLowerCase();
+            if (numbersOnly.length >= 3) {
+                const parsedHour = parseInt(numbersOnly.slice(0, -2), 10);
+                const parsedMinute = parseInt(numbersOnly.slice(-2), 10);
+                // Validate ranges
+                if (parsedHour >= 1 &&
+                    parsedHour <= 12 &&
+                    parsedMinute >= 0 &&
+                    parsedMinute <= 59) {
+                    setHour(parsedHour);
+                    setMinute(parsedMinute);
+                    setMeridiem(parsedMeridiem);
+                    onChange({
+                        hour: parsedHour,
+                        minute: parsedMinute,
+                        meridiem: parsedMeridiem,
+                    });
+                    return;
+                }
             }
-            // Validate minute (0-59)
-            if (parsedMinute < 0 || parsedMinute > 59) {
-                // Parse failed, select first result
-                selectFirstResult();
-                return;
-            }
-            // Convert 24-hour to 12-hour format
-            let parsedMeridiem;
-            if (parsedHour === 0) {
-                parsedHour = 12;
-                parsedMeridiem = 'am';
-            }
-            else if (parsedHour === 12) {
-                parsedHour = 12;
-                parsedMeridiem = 'pm';
-            }
-            else if (parsedHour > 12) {
-                parsedHour = parsedHour - 12;
-                parsedMeridiem = 'pm';
-            }
-            else {
-                parsedMeridiem = 'am';
-            }
-            setHour(parsedHour);
-            setMinute(parsedMinute);
-            setMeridiem(parsedMeridiem);
-            onChange({
-                hour: parsedHour,
-                minute: parsedMinute,
-                meridiem: parsedMeridiem,
-            });
-            return;
         }
         // Parse failed, select first result
         selectFirstResult();
@@ -6439,17 +6669,17 @@ onChange = (_newValue) => { }, timezone = 'Asia/Hong_Kong', startTime, selectedD
             e.currentTarget?.blur();
         }
     };
-    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", width: "auto", minWidth: "300px", children: [jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, flex: 1, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { placeholder: "hh:mm a", onFocus: handleFocus, onBlur: handleBlur, onKeyDown: handleKeyDown }) }), jsxRuntime.jsx(react.Combobox.IndicatorGroup, { children: jsxRuntime.jsx(react.Combobox.Trigger, {}) })] }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: "No time found" }), collection.items.map((item) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: 2, width: "100%", children: [jsxRuntime.jsx(react.Text, { flex: 1, children: item.label }), item.durationText && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", colorPalette: "blue", children: jsxRuntime.jsx(react.Tag.Label, { children: item.durationText }) }))] }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), durationDiff && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: durationDiff }) })), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(md.MdCancel, {}) }) })] }) }));
-}
+    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", width: "auto", minWidth: "300px", children: [jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, flex: 1, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { placeholder: labels?.placeholder ?? 'hh:mm AM/PM', onFocus: handleFocus, onBlur: handleBlur, onKeyDown: handleKeyDown }) }), jsxRuntime.jsx(react.Combobox.IndicatorGroup, { children: jsxRuntime.jsx(react.Combobox.Trigger, {}) })] }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: labels?.emptyMessage ?? 'No time found' }), collection.items.map((item) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: 2, width: "100%", children: [jsxRuntime.jsx(react.Text, { flex: 1, children: item.label }), item.durationText && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: item.durationText }) }))] }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), durationDiff && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: durationDiff }) })), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(md.MdCancel, {}) }) })] }) }));
+};
 
 dayjs.extend(timezone);
 const TimePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { timezone, insideDialog } = useSchemaContext();
+    const { timezone, insideDialog, timePickerLabels } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1', timeFormat = 'HH:mm:ssZ', displayTimeFormat = 'hh:mm A', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const [open, setOpen] = React.useState(false);
     const value = watch(colLabel);
     const displayedTime = dayjs(`1970-01-01T${value}`).tz(timezone).isValid()
@@ -6507,7 +6737,7 @@ const TimePicker = ({ column, schema, prefix }) => {
     return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
-                        }, justifyContent: 'start', children: [jsxRuntime.jsx(io.IoMdClock, {}), !!value ? `${displayedTime}` : ''] }) }), insideDialog ? (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsxRuntime.jsx(react.Popover.Body, { overflow: "visible", children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange }) }) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange }) }) }) }) }))] }) }));
+                        }, justifyContent: 'start', children: [jsxRuntime.jsx(io.IoMdClock, {}), !!value ? `${displayedTime}` : ''] }) }), insideDialog ? (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsxRuntime.jsx(react.Popover.Body, { overflow: "visible", children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, labels: timePickerLabels }) }) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, labels: timePickerLabels }) }) }) }) }))] }) }));
 };
 
 dayjs.extend(utc);
@@ -6641,7 +6871,10 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 function IsoTimePicker({ hour, setHour, minute, setMinute, second, setSecond, 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Kong', portalled = true, }) {
+onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Kong', portalled = true, labels = {
+    placeholder: 'HH:mm:ss',
+    emptyMessage: 'No time found',
+}, }) {
     // Generate time options (every 15 minutes, seconds always 0)
     const timeOptions = React.useMemo(() => {
         const options = [];
@@ -6904,7 +7137,7 @@ onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Ko
             e.currentTarget?.blur();
         }
     };
-    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", width: "auto", minWidth: "300px", children: [jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, flex: 1, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { placeholder: "HH:mm:ss", onFocus: handleFocus, onBlur: handleBlur, onKeyDown: handleKeyDown }) }), jsxRuntime.jsx(react.Combobox.IndicatorGroup, { children: jsxRuntime.jsx(react.Combobox.Trigger, {}) })] }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: "No time found" }), collection.items.map((item) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: 2, width: "100%", children: [jsxRuntime.jsx(react.Text, { flex: 1, children: item.label }), item.durationText && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: item.durationText }) }))] }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), durationDiff && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: durationDiff }) })), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(md.MdCancel, {}) }) })] }) }));
+    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", width: "auto", minWidth: "300px", children: [jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, flex: 1, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { placeholder: labels.placeholder, onFocus: handleFocus, onBlur: handleBlur, onKeyDown: handleKeyDown }) }), jsxRuntime.jsx(react.Combobox.IndicatorGroup, { children: jsxRuntime.jsx(react.Combobox.Trigger, {}) })] }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: labels.emptyMessage }), collection.items.map((item) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: 2, width: "100%", children: [jsxRuntime.jsx(react.Text, { flex: 1, children: item.label }), item.durationText && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: item.durationText }) }))] }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), durationDiff && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: durationDiff }) })), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "ghost", children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(md.MdCancel, {}) }) })] }) }));
 }
 
 dayjs.extend(utc);
@@ -6927,7 +7160,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Next',
-}, timezone = 'Asia/Hong_Kong', startTime, minDate, maxDate, portalled = false, }) {
+}, timePickerLabels, timezone = 'Asia/Hong_Kong', startTime, minDate, maxDate, portalled = false, }) {
     console.log('[DateTimePicker] Component initialized with props:', {
         value,
         format,
@@ -7373,7 +7606,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         const dateObj = dayjs.tz(selectedDate, timezone);
         return dateObj.isValid() ? dateObj.format('Z') : null;
     }, [selectedDate, timezone]);
-    return (jsxRuntime.jsxs(react.Flex, { direction: "column", gap: 4, p: 4, border: "1px solid", borderColor: "gray.200", borderRadius: "md", children: [jsxRuntime.jsx(DatePickerInput, { value: selectedDate || undefined, onChange: (date) => {
+    return (jsxRuntime.jsxs(react.Flex, { direction: "column", gap: 4, children: [jsxRuntime.jsx(DatePickerInput, { value: selectedDate || undefined, onChange: (date) => {
                     if (date) {
                         handleDateChange(date);
                     }
@@ -7381,15 +7614,15 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                         setSelectedDate('');
                         onChange?.(undefined);
                     }
-                }, placeholder: "Select a date", dateFormat: "YYYY-MM-DD", displayFormat: "YYYY-MM-DD", labels: labels, timezone: timezone, minDate: effectiveMinDate, maxDate: maxDate, monthsToDisplay: 1, readOnly: true }), jsxRuntime.jsxs(react.Grid, { templateColumns: "1fr auto", alignItems: "center", gap: 4, children: [isISO ? (jsxRuntime.jsx(IsoTimePicker, { hour: hour24, setHour: setHour24, minute: minute, setMinute: setMinute, second: showSeconds ? second : null, setSecond: showSeconds ? setSecond : () => { }, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone, portalled: portalled })) : (jsxRuntime.jsx(TimePicker$1, { hour: hour12, setHour: setHour12, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone, portalled: portalled })), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "outline", colorScheme: "red", children: jsxRuntime.jsx(react.Icon, { as: fa6.FaTrash }) })] }), displayText && (jsxRuntime.jsxs(react.Flex, { gap: 2, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: displayText }), timezoneOffset && (jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezoneOffset })), jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezone })] }))] }));
+                }, placeholder: "Select a date", dateFormat: "YYYY-MM-DD", displayFormat: "YYYY-MM-DD", labels: labels, timezone: timezone, minDate: effectiveMinDate, maxDate: maxDate, monthsToDisplay: 1, readOnly: true }), jsxRuntime.jsxs(react.Grid, { templateColumns: "1fr auto", alignItems: "center", gap: 4, children: [isISO ? (jsxRuntime.jsx(IsoTimePicker, { hour: hour24, setHour: setHour24, minute: minute, setMinute: setMinute, second: showSeconds ? second : null, setSecond: showSeconds ? setSecond : () => { }, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone, portalled: portalled, labels: timePickerLabels })) : (jsxRuntime.jsx(TimePicker$1, { hour: hour12, setHour: setHour12, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone, portalled: portalled, labels: timePickerLabels })), jsxRuntime.jsx(react.Button, { onClick: handleClear, size: "sm", variant: "outline", colorScheme: "red", children: jsxRuntime.jsx(react.Icon, { as: fa6.FaTrash }) })] }), displayText && (jsxRuntime.jsxs(react.Flex, { gap: 2, children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: displayText }), timezoneOffset && (jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezoneOffset })), jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezone })] }))] }));
 }
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const DateTimePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const { timezone, dateTimePickerLabels, timePickerLabels, insideDialog } = useSchemaContext();
+    const formI18n = useFormI18n(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD HH:mm:ss', 
     // with timezone
     dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ', } = schema;
@@ -7402,74 +7635,30 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
         : '';
     const dateTimePickerLabelsConfig = {
         monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
-            formI18n.translate.t(`common.month_1`, {
-                defaultValue: 'January',
-            }),
-            formI18n.translate.t(`common.month_2`, {
-                defaultValue: 'February',
-            }),
-            formI18n.translate.t(`common.month_3`, {
-                defaultValue: 'March',
-            }),
-            formI18n.translate.t(`common.month_4`, {
-                defaultValue: 'April',
-            }),
-            formI18n.translate.t(`common.month_5`, {
-                defaultValue: 'May',
-            }),
-            formI18n.translate.t(`common.month_6`, {
-                defaultValue: 'June',
-            }),
-            formI18n.translate.t(`common.month_7`, {
-                defaultValue: 'July',
-            }),
-            formI18n.translate.t(`common.month_8`, {
-                defaultValue: 'August',
-            }),
-            formI18n.translate.t(`common.month_9`, {
-                defaultValue: 'September',
-            }),
-            formI18n.translate.t(`common.month_10`, {
-                defaultValue: 'October',
-            }),
-            formI18n.translate.t(`common.month_11`, {
-                defaultValue: 'November',
-            }),
-            formI18n.translate.t(`common.month_12`, {
-                defaultValue: 'December',
-            }),
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
         ],
         weekdayNamesShort: dateTimePickerLabels?.weekdayNamesShort ?? [
-            formI18n.translate.t(`common.weekday_1`, {
-                defaultValue: 'Sun',
-            }),
-            formI18n.translate.t(`common.weekday_2`, {
-                defaultValue: 'Mon',
-            }),
-            formI18n.translate.t(`common.weekday_3`, {
-                defaultValue: 'Tue',
-            }),
-            formI18n.translate.t(`common.weekday_4`, {
-                defaultValue: 'Wed',
-            }),
-            formI18n.translate.t(`common.weekday_5`, {
-                defaultValue: 'Thu',
-            }),
-            formI18n.translate.t(`common.weekday_6`, {
-                defaultValue: 'Fri',
-            }),
-            formI18n.translate.t(`common.weekday_7`, {
-                defaultValue: 'Sat',
-            }),
+            'Sun',
+            'Mon',
+            'Tue',
+            'Wed',
+            'Thu',
+            'Fri',
+            'Sat',
         ],
-        backButtonLabel: dateTimePickerLabels?.backButtonLabel ??
-            formI18n.translate.t(`common.back_button`, {
-                defaultValue: 'Back',
-            }),
-        forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ??
-            formI18n.translate.t(`common.forward_button`, {
-                defaultValue: 'Forward',
-            }),
+        backButtonLabel: dateTimePickerLabels?.backButtonLabel ?? 'Back',
+        forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ?? 'Forward',
     };
     const dateTimePickerContent = (jsxRuntime.jsx(DateTimePicker$1, { value: selectedDate, onChange: (date) => {
             if (!date || date === null || date === undefined) {
@@ -7483,7 +7672,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             else {
                 setValue(colLabel, undefined);
             }
-        }, timezone: timezone, labels: dateTimePickerLabelsConfig }));
+        }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels }));
     return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
@@ -7502,7 +7691,7 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         }
         if (variant === 'id-picker') {
             idPickerSanityCheck(column, foreign_key);
-            return jsxRuntime.jsx(IdPicker, { schema: colSchema, prefix, column });
+            return jsxRuntime.jsx(IdPickerSingle, { schema: colSchema, prefix, column });
         }
         if (format === 'date') {
             return jsxRuntime.jsx(DatePicker, { schema: colSchema, prefix, column });
@@ -7536,7 +7725,7 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
     if (type === 'array') {
         if (variant === 'id-picker') {
             idPickerSanityCheck(column, foreign_key);
-            return (jsxRuntime.jsx(IdPicker, { schema: colSchema, prefix, column, isMultiple: true }));
+            return jsxRuntime.jsx(IdPickerMultiple, { schema: colSchema, prefix, column });
         }
         if (variant === 'tag-picker') {
             return jsxRuntime.jsx(TagPicker, { schema: colSchema, prefix, column });
@@ -7588,7 +7777,7 @@ const ArrayViewer = ({ schema, column, prefix }) => {
     const { gridColumn = 'span 12', gridRow = 'span 1', required, items, } = schema;
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
     const values = watch(colLabel) ?? [];
     return (jsxRuntime.jsxs(react.Box, { gridRow, gridColumn, children: [jsxRuntime.jsxs(react.Box, { as: "label", gridColumn: '1/span12', children: [formI18n.label(), isRequired && jsxRuntime.jsx("span", { children: "*" })] }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: values.map((field, index) => (jsxRuntime.jsx(react.Flex, { flexFlow: 'column', bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: '2', borderRadius: 'md', borderWidth: 'thin', borderColor: {
@@ -7606,7 +7795,7 @@ const BooleanViewer = ({ schema, column, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, children: [jsxRuntime.jsx(react.Text, { children: value ? formI18n.t('true') : formI18n.t('false') }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
@@ -7630,7 +7819,7 @@ const DateViewer = ({ column, schema, prefix }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const displayDate = dayjs(selectedDate)
         .tz(timezone)
         .format(displayDateFormat);
@@ -7640,7 +7829,7 @@ const DateViewer = ({ column, schema, prefix }) => {
 
 const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const formI18n = useFormI18n$1(column, prefix);
+    const formI18n = useFormI18n(column, prefix);
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
@@ -7664,7 +7853,7 @@ const FileViewer = ({ column, schema, prefix }) => {
     const { required, gridColumn = 'span 12', gridRow = 'span 1', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const currentFiles = (watch(column) ?? []);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, display: 'grid', gridTemplateRows: 'auto 1fr auto', alignItems: 'stretch', children: jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: currentFiles.map((file) => {
                 return (jsxRuntime.jsx(react.Card.Root, { variant: 'subtle', children: jsxRuntime.jsxs(react.Card.Body, { gap: "2", display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', children: [file.type.startsWith('image/') && (jsxRuntime.jsx(react.Image, { src: URL.createObjectURL(file), alt: file.name, boxSize: "50px", objectFit: "cover", borderRadius: "md", marginRight: "2" })), jsxRuntime.jsx(react.Box, { children: file.name })] }) }, file.name));
             }) }) }));
@@ -7672,7 +7861,7 @@ const FileViewer = ({ column, schema, prefix }) => {
 
 const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const { idMap, translate } = useSchemaContext();
+    const { idMap, idPickerLabels, formButtonLabels } = useSchemaContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, foreign_key, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const formI18n = useFormI18n(column, prefix, schema);
@@ -7696,12 +7885,12 @@ const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
         gridRow, children: [isMultiple && (jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 1, children: watchIds.map((id) => {
                     const item = idMap[id];
                     if (item === undefined) {
-                        return (jsxRuntime.jsx(react.Text, { children: translate.t(removeIndex(`${colLabel}.undefined`)) }, id));
+                        return (jsxRuntime.jsx(react.Text, { children: idPickerLabels?.undefined ?? 'Undefined' }, id));
                     }
                     return (jsxRuntime.jsx(Tag, { closable: true, children: renderDisplay
                             ? renderDisplay(item)
                             : defaultRenderDisplay(item) }, id));
-                }) })), !isMultiple && jsxRuntime.jsx(react.Text, { children: getPickedValue() }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: translate.t(removeIndex(`${colLabel}.field_required`)) }))] }));
+                }) })), !isMultiple && jsxRuntime.jsx(react.Text, { children: getPickedValue() }), errors[`${colLabel}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formButtonLabels?.fieldRequired ?? formI18n.required() }))] }));
 };
 
 const NumberViewer = ({ schema, column, prefix, }) => {
@@ -7710,7 +7899,7 @@ const NumberViewer = ({ schema, column, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     // Format the value for display if formatOptions are provided
     const formatValue = (val) => {
         if (val === undefined || val === null || val === '')
@@ -7736,7 +7925,7 @@ const ObjectViewer = ({ schema, column, prefix }) => {
     const { properties, gridColumn = 'span 12', gridRow = 'span 1', required, showLabel = true, } = schema;
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const { formState: { errors }, } = reactHookForm.useFormContext();
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
@@ -7758,7 +7947,7 @@ const RecordViewer = ({ column, schema, prefix }) => {
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const entries = Object.entries(getValues(column) ?? {});
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn, gridRow, children: [entries.length === 0 ? (jsxRuntime.jsx(react.Text, { color: "gray.500", children: "No entries" })) : (jsxRuntime.jsx(react.Grid, { templateColumns: '1fr 1fr', gap: 2, children: entries.map(([key, value]) => {
                     return (jsxRuntime.jsxs(react.Grid, { templateColumns: '1fr 1fr', gap: 2, children: [jsxRuntime.jsxs(react.Text, { fontWeight: "medium", children: [key, ":"] }), jsxRuntime.jsx(react.Text, { children: String(value ?? '') })] }, key));
                 }) })), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
@@ -7770,7 +7959,7 @@ const StringViewer = ({ column, schema, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', children: [jsxRuntime.jsx(react.Text, { children: value }), errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }) }));
 };
 
@@ -7865,7 +8054,7 @@ const TextAreaViewer = ({ column, schema, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, children: [jsxRuntime.jsx(react.Text, { whiteSpace: "pre-wrap", children: value }), ' ', errors[colLabel] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }) }));
 };
 
@@ -7876,7 +8065,7 @@ const TimeViewer = ({ column, schema, prefix }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const displayedTime = dayjs(`1970-01-01T${selectedDate}`)
         .tz(timezone)
         .isValid()
@@ -7893,7 +8082,7 @@ const DateTimeViewer = ({ column, schema, prefix }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const selectedDate = watch(colLabel);
-    const formI18n = useFormI18n$1(column, prefix, schema);
+    const formI18n = useFormI18n(column, prefix, schema);
     const displayDate = dayjs(selectedDate)
         .tz(timezone)
         .format(displayDateFormat);
@@ -7987,7 +8176,7 @@ const ColumnViewer = ({ column, properties, prefix, }) => {
 };
 
 const SubmitButton = () => {
-    const { translate, setValidatedData, setIsError, setIsConfirming, requireConfirmation, onFormSubmit, formButtonLabels, } = useSchemaContext();
+    const { setValidatedData, setIsError, setIsConfirming, requireConfirmation, onFormSubmit, formButtonLabels, } = useSchemaContext();
     const methods = reactHookForm.useFormContext();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onValid = (data) => {
@@ -8016,11 +8205,11 @@ const SubmitButton = () => {
     };
     return (jsxRuntime.jsx(react.Button, { onClick: () => {
             methods.handleSubmit(onValid)();
-        }, formNoValidate: true, children: formButtonLabels?.submit ?? translate.t('submit') }));
+        }, formNoValidate: true, children: formButtonLabels?.submit ?? 'Submit' }));
 };
 
 const FormBody = () => {
-    const { schema, order, ignore, include, translate, isSuccess, setIsSuccess, isError, setIsError, isSubmiting, setIsSubmiting, isConfirming, setIsConfirming, validatedData, setValidatedData, error, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, onFormSubmit, formButtonLabels, } = useSchemaContext();
+    const { schema, order, ignore, include, isError, isSubmiting, isConfirming, setIsConfirming, validatedData, error, customErrorRenderer, displayConfig, onFormSubmit, formButtonLabels, } = useSchemaContext();
     const { showSubmitButton, showResetButton } = displayConfig;
     const methods = reactHookForm.useFormContext();
     const { properties } = schema;
@@ -8037,21 +8226,6 @@ const FormBody = () => {
         ignore,
         include,
     });
-    if (isSuccess) {
-        const resetHandler = async () => {
-            setIsError(false);
-            setIsSubmiting(false);
-            setIsSuccess(false);
-            setIsConfirming(false);
-            setValidatedData(undefined);
-            const data = await getUpdatedData();
-            methods.reset(data);
-        };
-        if (customSuccessRenderer) {
-            return customSuccessRenderer(resetHandler);
-        }
-        return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: "2", children: [jsxRuntime.jsxs(react.Alert.Root, { status: "success", children: [jsxRuntime.jsx(react.Alert.Indicator, {}), jsxRuntime.jsx(react.Alert.Content, { children: jsxRuntime.jsx(react.Alert.Title, { children: translate.t('submit_success') }) })] }), jsxRuntime.jsx(react.Flex, { justifyContent: 'end', children: jsxRuntime.jsx(react.Button, { onClick: resetHandler, formNoValidate: true, children: formButtonLabels?.submitAgain ?? translate.t('submit_again') }) })] }));
-    }
     if (isConfirming) {
         return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: 4, gridTemplateColumns: 'repeat(12, 1fr)', gridTemplateRows: 'repeat(12, max-content)', autoFlow: 'row', children: ordered.map((column) => {
                         return (jsxRuntime.jsx(ColumnViewer
@@ -8061,9 +8235,9 @@ const FormBody = () => {
                             properties: properties, prefix: ``, column }, `form-viewer-${column}`));
                     }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: 'end', gap: '2', children: [jsxRuntime.jsx(react.Button, { onClick: () => {
                                 setIsConfirming(false);
-                            }, variant: 'subtle', children: formButtonLabels?.cancel ?? translate.t('cancel') }), jsxRuntime.jsx(react.Button, { onClick: () => {
+                            }, variant: 'subtle', children: formButtonLabels?.cancel ?? 'Cancel' }), jsxRuntime.jsx(react.Button, { onClick: () => {
                                 onFormSubmit(validatedData);
-                            }, children: formButtonLabels?.confirm ?? translate.t('confirm') })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && customErrorRenderer && customErrorRenderer(error)] }));
+                            }, children: formButtonLabels?.confirm ?? 'Confirm' })] }), isSubmiting && (jsxRuntime.jsx(react.Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsxRuntime.jsx(react.Center, { h: "full", children: jsxRuntime.jsx(react.Spinner, { color: "teal.500" }) }) })), isError && customErrorRenderer && customErrorRenderer(error)] }));
     }
     return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: ordered.map((column) => {
                     return (jsxRuntime.jsx(ColumnRenderer
@@ -8073,12 +8247,12 @@ const FormBody = () => {
                         properties: properties, prefix: ``, parentRequired: schema.required, column }, `form-input-${column}`));
                 }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: 'end', gap: "2", children: [showResetButton && (jsxRuntime.jsx(react.Button, { onClick: () => {
                             methods.reset();
-                        }, variant: 'subtle', children: formButtonLabels?.reset ?? translate.t('reset') })), showSubmitButton && jsxRuntime.jsx(SubmitButton, {})] }), isError && customErrorRenderer && customErrorRenderer(error)] }));
+                        }, variant: 'subtle', children: formButtonLabels?.reset ?? 'Reset' })), showSubmitButton && jsxRuntime.jsx(SubmitButton, {})] }), isError && customErrorRenderer && customErrorRenderer(error)] }));
 };
 
 const FormTitle = () => {
-    const { translate } = useSchemaContext();
-    return jsxRuntime.jsx(react.Heading, { children: translate.t("title") });
+    const { schema } = useSchemaContext();
+    return jsxRuntime.jsx(react.Heading, { children: schema.title ?? 'Form' });
 };
 
 const DefaultForm = ({ formConfig, }) => {
@@ -8086,7 +8260,9 @@ const DefaultForm = ({ formConfig, }) => {
     return (jsxRuntime.jsx(FormRoot, { ...formConfig, children: jsxRuntime.jsxs(react.Grid, { gap: "2", children: [showTitle && jsxRuntime.jsx(FormTitle, {}), jsxRuntime.jsx(FormBody, {})] }) }));
 };
 
-const useForm = ({ preLoadedValues, keyPrefix, namespace, schema, }) => {
+const useForm = ({ preLoadedValues, keyPrefix: _keyPrefix, // Deprecated: kept for backward compatibility
+namespace: _namespace, // Deprecated: kept for backward compatibility
+schema, }) => {
     const form = reactHookForm.useForm({
         values: preLoadedValues,
         resolver: schema ? ajvResolver(schema) : undefined,
@@ -8094,12 +8270,16 @@ const useForm = ({ preLoadedValues, keyPrefix, namespace, schema, }) => {
         reValidateMode: 'onBlur',
     });
     const [idMap, setIdMap] = React.useState({});
-    const translate = reactI18next.useTranslation(namespace || '', { keyPrefix });
+    // Fallback translate object - returns key as-is (no i18n required)
+    const translate = {
+        t: (key) => key,
+        ready: true,
+    };
     return {
         form,
         idMap,
         setIdMap,
-        translate,
+        translate, // Components prefer label objects over translate
     };
 };
 
@@ -8427,6 +8607,21 @@ const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
             })] }));
 };
 
+const MobileTableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
+    const { tableLabel, table } = useDataTableContext();
+    const { hasErrorText } = tableLabel;
+    return (jsxRuntime.jsxs(react.Grid, { templateRows: 'auto 1fr auto', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: 2, padding: 2, ...gridProps, children: [jsxRuntime.jsxs(react.Stack, { gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', alignItems: 'center', gap: 2, children: [jsxRuntime.jsxs(react.Flex, { gap: 1, alignItems: 'center', children: [showView && jsxRuntime.jsx(ViewDialog, { icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }), loading && jsxRuntime.jsx(react.Spinner, { size: 'sm' }), hasError && (jsxRuntime.jsx(Tooltip, { content: hasErrorText, children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: 'red.400' }) }))] }), jsxRuntime.jsxs(react.Flex, { gap: 1, alignItems: 'center', children: [showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && jsxRuntime.jsx(FilterDialog, {}), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), filterTagsOptions.length > 0 && (jsxRuntime.jsx(react.Stack, { gap: 2, children: filterTagsOptions.map((option) => {
+                            const { column, options } = option;
+                            const tableColumn = table.getColumn(column);
+                            return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 1, width: '100%', children: [tableColumn?.columnDef.meta?.displayName && (jsxRuntime.jsx(react.Text, { fontSize: 'sm', fontWeight: 'medium', children: tableColumn?.columnDef.meta?.displayName })), jsxRuntime.jsx(TagFilter, { availableTags: options, selectedTags: tableColumn?.getFilterValue() ?? [], selectOne: true, onTagChange: (tags) => {
+                                            if (tags.length === 0) {
+                                                return tableColumn?.setFilterValue(undefined);
+                                            }
+                                            tableColumn?.setFilterValue(tags);
+                                        } })] }, column));
+                        }) })), showFilterTags && (jsxRuntime.jsx(react.Box, { width: '100%', children: jsxRuntime.jsx(TableFilterTags, {}) }))] }), jsxRuntime.jsx(react.Box, { overflow: 'auto', width: '100%', bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, borderRadius: 'md', padding: 1, children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxRuntime.jsxs(react.Stack, { gap: 2, width: '100%', children: [(showPageSizeControl || showPageCountText) && (jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', alignItems: 'center', gap: 2, flexWrap: 'wrap', children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && jsxRuntime.jsx(RowCountText, {})] })), showPagination && (jsxRuntime.jsx(react.Flex, { justifyContent: 'center', width: '100%', children: jsxRuntime.jsx(Pagination, {}) }))] }))] }));
+};
+
 const TableBodySkeleton = ({ showSelector = false, canResize = true, }) => {
     'use no memo';
     const { table } = useDataTableContext();
@@ -8486,7 +8681,68 @@ const TableRowSelectorSkeleton = () => {
         bg: { base: 'colorPalette.50', _dark: 'colorPalette.950' }, justifyItems: 'center', alignItems: 'center', children: jsxRuntime.jsx(react.Skeleton, { width: `${SELECTION_BOX_WIDTH}px`, height: `${SELECTION_BOX_WIDTH}px` }) }));
 };
 
+const MobileTableDisplay = ({ showSelector = false, isLoading = false, }) => {
+    const { table, rowSelection, setRowSelection } = useDataTableContext();
+    if (isLoading) {
+        return jsxRuntime.jsx(MobileTableSkeleton, { showSelector: showSelector });
+    }
+    return (jsxRuntime.jsx(react.Stack, { gap: 4, padding: 2, children: table.getRowModel().rows.map((row) => {
+            return (jsxRuntime.jsx(react.Card.Root, { width: "100%", children: jsxRuntime.jsxs(react.Card.Body, { padding: 4, children: [showSelector && (jsxRuntime.jsx(react.Flex, { marginBottom: 3, children: jsxRuntime.jsx(Checkbox, { checked: isRowSelected(row.id, rowSelection),
+                                disabled: !canRowSelect(row),
+                                onCheckedChange: createRowToggleHandler(row, rowSelection, setRowSelection) }) })), jsxRuntime.jsx(react.Stack, { gap: 3, children: row.getVisibleCells().map((cell) => {
+                                const displayName = cell.column.columnDef.meta?.displayName ?? cell.column.id;
+                                return (jsxRuntime.jsxs(react.Box, { children: [jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "bold", color: { base: 'gray.600', _dark: 'gray.400' }, marginBottom: 1, children: displayName }), jsxRuntime.jsx(react.Box, { color: { base: 'gray.900', _dark: 'gray.100' }, fontSize: "sm", children: reactTable.flexRender(cell.column.columnDef.cell, cell.getContext()) })] }, `mobile-table-cell-${cell.id}`));
+                            }) })] }) }, `mobile-table-card-${row.id}`));
+        }) }));
+};
+const MobileTableSkeleton = ({ showSelector = false, }) => {
+    const { table } = useDataTableContext();
+    const pageSize = table.getState().pagination.pageSize;
+    const visibleColumns = table.getVisibleLeafColumns();
+    return (jsxRuntime.jsx(react.Stack, { gap: 4, padding: 2, children: Array.from({ length: pageSize }).map((_, rowIndex) => {
+            return (jsxRuntime.jsx(react.Card.Root, { width: "100%", children: jsxRuntime.jsxs(react.Card.Body, { padding: 4, children: [showSelector && (jsxRuntime.jsx(react.Flex, { marginBottom: 3, children: jsxRuntime.jsx(react.Box, { width: "20px", height: "20px", bg: { base: 'gray.200', _dark: 'gray.700' }, borderRadius: "md" }) })), jsxRuntime.jsx(react.Stack, { gap: 3, children: visibleColumns.map((column) => {
+                                return (jsxRuntime.jsxs(react.Box, { children: [jsxRuntime.jsx(react.Box, { width: "40%", height: "16px", bg: { base: 'gray.200', _dark: 'gray.700' }, borderRadius: "sm", marginBottom: 2 }), jsxRuntime.jsx(react.Box, { width: "80%", height: "20px", bg: { base: 'gray.200', _dark: 'gray.700' }, borderRadius: "sm" })] }, `mobile-skeleton-cell-${column.id}`));
+                            }) })] }) }, `mobile-skeleton-${rowIndex}`));
+        }) }));
+};
+
+/**
+ * Hook to detect if the current window width is mobile (< 768px)
+ * @param breakpoint - The breakpoint in pixels to consider as mobile (default: 768)
+ * @returns boolean indicating if the window is mobile
+ */
+const useIsMobile = (breakpoint = 768) => {
+    const [isMobile, setIsMobile] = React.useState(() => {
+        if (typeof window === 'undefined')
+            return false;
+        return window.innerWidth < breakpoint;
+    });
+    React.useEffect(() => {
+        if (typeof window === 'undefined')
+            return;
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < breakpoint);
+        };
+        // Set initial value
+        handleResize();
+        // Add event listener
+        window.addEventListener('resize', handleResize);
+        // Cleanup
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [breakpoint]);
+    return isMobile;
+};
+
 const DefaultTable = ({ showFooter = false, showHeader = true, tableProps = {}, tableHeaderProps = {}, tableBodyProps = {}, tableFooterProps = {}, controlProps = {}, variant = 'greedy', isLoading = false, }) => {
+    const isMobile = useIsMobile();
+    // Early return for mobile display
+    if (isMobile) {
+        return (jsxRuntime.jsx(MobileTableControls, { ...controlProps, children: jsxRuntime.jsx(MobileTableDisplay, { showSelector: tableHeaderProps.showSelector ??
+                    tableBodyProps.showSelector ??
+                    false, isLoading: isLoading }) }));
+    }
     const isGreedy = variant === 'greedy';
     const canResize = !isGreedy;
     const bodyComponent = isLoading ? (jsxRuntime.jsx(TableBodySkeleton, { showSelector: tableBodyProps.showSelector, canResize: canResize })) : (jsxRuntime.jsx(TableBody, { ...tableBodyProps, canResize: canResize }));
@@ -8586,6 +8842,290 @@ const DataDisplay = ({ variant = '' }) => {
                     }) }) }, `chakra-table-card-${rowId}`));
         }) }));
 };
+
+// Helper function to normalize date
+function normalizeDate(value) {
+    if (!value)
+        return null;
+    if (value instanceof Date)
+        return value;
+    if (typeof value === 'string' || typeof value === 'number') {
+        const date = dayjs(value).toDate();
+        return isNaN(date.getTime()) ? null : date;
+    }
+    return null;
+}
+// Component to conditionally render event title based on available width
+function ResponsiveEventTitle({ title, placeholder, minWidth, minChars, cellRef, }) {
+    const [truncatedText, setTruncatedText] = React.useState('');
+    const measureRef = React.useRef(null);
+    React.useEffect(() => {
+        const calculateTruncatedText = () => {
+            if (!cellRef.current || !measureRef.current || !title) {
+                setTruncatedText(title || 'Event');
+                return;
+            }
+            const cellWidth = cellRef.current.clientWidth;
+            // Account for padding (approximately 8px on each side)
+            const availableWidth = cellWidth - 16;
+            // If cell is too narrow, calculate how many characters can fit
+            if (availableWidth < minWidth) {
+                // Measure text width using canvas
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                if (!context) {
+                    setTruncatedText(placeholder);
+                    return;
+                }
+                // Get computed font style from the element
+                const computedStyle = window.getComputedStyle(measureRef.current);
+                context.font = `${computedStyle.fontWeight} ${computedStyle.fontSize} ${computedStyle.fontFamily}`;
+                const ellipsisWidth = context.measureText('...').width;
+                const maxWidth = availableWidth - ellipsisWidth;
+                // Try to show at least minChars characters before ellipsis
+                let truncated = '';
+                let charCount = 0;
+                // Calculate how many characters can fit
+                for (let i = 0; i < Math.min(title.length, 50); i++) {
+                    const testText = title.substring(0, i + 1);
+                    const textWidth = context.measureText(testText).width;
+                    if (textWidth <= maxWidth) {
+                        truncated = testText;
+                        charCount = i + 1;
+                    }
+                    else {
+                        break;
+                    }
+                }
+                // Ensure we show at least minChars characters if possible
+                if (charCount < minChars && title.length >= minChars) {
+                    truncated = title.substring(0, minChars);
+                }
+                else if (charCount === 0 && title.length >= 1) {
+                    truncated = title.substring(0, 1);
+                }
+                // Only show ellipsis if we have at least minChars characters
+                if (truncated && truncated.length >= minChars) {
+                    setTruncatedText(`${truncated}...`);
+                }
+                else {
+                    setTruncatedText(placeholder);
+                }
+            }
+            else {
+                // Full width available, show full title
+                setTruncatedText(title);
+            }
+        };
+        calculateTruncatedText();
+        const resizeObserver = new ResizeObserver(calculateTruncatedText);
+        if (cellRef.current) {
+            resizeObserver.observe(cellRef.current);
+        }
+        // Also check on window resize
+        window.addEventListener('resize', calculateTruncatedText);
+        return () => {
+            resizeObserver.disconnect();
+            window.removeEventListener('resize', calculateTruncatedText);
+        };
+    }, [cellRef, minWidth, title, placeholder]);
+    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx("span", { ref: measureRef, style: {
+                    visibility: 'hidden',
+                    position: 'absolute',
+                    whiteSpace: 'nowrap',
+                }, children: title || 'Event' }), truncatedText || title || 'Event'] }));
+}
+function CalendarDisplay({ dateColumn, getDate, getEventTitle, getEventColor, renderEvent, firstDayOfWeek = 0, showOutsideDays = true, monthsToDisplay = 1, labels = {
+    monthNamesShort: [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+    ],
+    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    backButtonLabel: 'Back',
+    forwardButtonLabel: 'Next',
+}, onDateClick, onEventClick, maxEventsPerDay = 3, colorPalette = 'blue', eventPlaceholder = '...', minEventWidth = 80, minCharsBeforeEllipsis = 2, }) {
+    const { data, table } = useDataTableContext();
+    // Map table data to events
+    const events = React.useMemo(() => {
+        return data
+            .map((row) => {
+            let dateValue;
+            if (getDate) {
+                dateValue = getDate(row);
+            }
+            else {
+                // Try to get date from column
+                const rowData = table
+                    .getRowModel()
+                    .rows.find((r) => r.original === row);
+                if (rowData) {
+                    const cell = rowData.getAllCells().find((c) => {
+                        const colId = c.column.id;
+                        const accessorKey = c.column.columnDef.accessorKey;
+                        return colId === dateColumn || accessorKey === dateColumn;
+                    });
+                    dateValue = cell?.getValue();
+                }
+            }
+            const date = normalizeDate(dateValue);
+            if (!date)
+                return null;
+            let title;
+            if (getEventTitle) {
+                title = getEventTitle(row);
+            }
+            else {
+                // Use first column's value as title
+                const rowData = table
+                    .getRowModel()
+                    .rows.find((r) => r.original === row);
+                if (rowData) {
+                    const firstCell = rowData.getAllCells()[0];
+                    title = String(firstCell?.getValue() ?? '');
+                }
+            }
+            const color = getEventColor?.(row);
+            return {
+                data: row,
+                date,
+                title,
+                color,
+            };
+        })
+            .filter((event) => event !== null);
+    }, [data, table, dateColumn, getDate, getEventTitle, getEventColor]);
+    // Group events by date
+    const eventsByDate = React.useMemo(() => {
+        const map = new Map();
+        events.forEach((event) => {
+            const dateKey = `${event.date.getFullYear()}-${event.date.getMonth()}-${event.date.getDate()}`;
+            if (!map.has(dateKey)) {
+                map.set(dateKey, []);
+            }
+            map.get(dateKey).push(event);
+        });
+        return map;
+    }, [events]);
+    // Get events for a specific date
+    const getEventsForDate = React.useCallback((date) => {
+        const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+        return eventsByDate.get(dateKey) ?? [];
+    }, [eventsByDate]);
+    const calendarData = useCalendar({
+        firstDayOfWeek,
+        showOutsideDays,
+        monthsToDisplay,
+    });
+    const getDateProps = React.useCallback((props) => {
+        const dateEvents = getEventsForDate(props.dateObj.date);
+        const baseProps = calendarData.getDateProps({ dateObj: props.dateObj });
+        return {
+            ...baseProps,
+            onClick: () => {
+                baseProps.onClick?.();
+                if (onDateClick) {
+                    onDateClick(props.dateObj.date, dateEvents);
+                }
+            },
+        };
+    }, [calendarData, getEventsForDate, onDateClick]);
+    const { monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel, } = labels;
+    if (!calendarData.calendars.length) {
+        return null;
+    }
+    return (jsxRuntime.jsxs(react.VStack, { gap: 4, width: "100%", children: [jsxRuntime.jsxs(react.HStack, { gap: 2, justifyContent: "center", children: [jsxRuntime.jsx(react.Button, { variant: "ghost", ...calendarData.getBackProps({
+                            calendars: calendarData.calendars,
+                            offset: 12,
+                        }), children: '<<' }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...calendarData.getBackProps({ calendars: calendarData.calendars }), children: backButtonLabel }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...calendarData.getForwardProps({
+                            calendars: calendarData.calendars,
+                        }), children: forwardButtonLabel }), jsxRuntime.jsx(react.Button, { variant: "ghost", ...calendarData.getForwardProps({
+                            calendars: calendarData.calendars,
+                            offset: 12,
+                        }), children: '>>' })] }), jsxRuntime.jsx(react.Grid, { templateColumns: {
+                    base: '1fr',
+                    md: monthsToDisplay >= 2 ? 'repeat(2, 1fr)' : '1fr',
+                    lg: monthsToDisplay >= 3
+                        ? 'repeat(3, 1fr)'
+                        : monthsToDisplay === 2
+                            ? 'repeat(2, 1fr)'
+                            : '1fr',
+                    xl: `repeat(${Math.min(monthsToDisplay, 4)}, 1fr)`,
+                }, gap: { base: 4, md: 6 }, width: "100%", justifyContent: "center", children: calendarData.calendars.map((calendar) => (jsxRuntime.jsxs(react.VStack, { gap: 2, alignItems: "stretch", children: [jsxRuntime.jsxs(react.Text, { textAlign: "center", fontSize: { base: 'md', md: 'lg' }, fontWeight: "semibold", children: [monthNamesShort[calendar.month], " ", calendar.year] }), jsxRuntime.jsx(react.Grid, { templateColumns: "repeat(7, 1fr)", gap: { base: 0.5, md: 1 }, children: [0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                                const weekday = (weekdayNum + firstDayOfWeek) % 7;
+                                return (jsxRuntime.jsx(react.Text, { textAlign: "center", fontSize: { base: 'xs', md: 'sm' }, fontWeight: "medium", color: { base: 'gray.600', _dark: 'gray.400' }, children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
+                            }) }), jsxRuntime.jsx(react.Grid, { templateColumns: "repeat(7, 1fr)", gap: { base: 0.5, md: 1 }, children: calendar.weeks.map((week, weekIndex) => week.map((dateObj, index) => {
+                                const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
+                                if (!dateObj) {
+                                    return jsxRuntime.jsx(react.Box, {}, key);
+                                }
+                                const { date, today, isCurrentMonth } = dateObj;
+                                const dateEvents = getEventsForDate(date);
+                                const cellRef = React.useRef(null);
+                                return (jsxRuntime.jsxs(react.VStack, { ref: cellRef, gap: { base: 0.25, md: 0.5 }, alignItems: "stretch", minHeight: { base: '60px', md: '80px', lg: '100px' }, borderWidth: "1px", borderColor: {
+                                        base: today ? `${colorPalette}.300` : 'gray.200',
+                                        _dark: today ? `${colorPalette}.700` : 'gray.700',
+                                    }, borderRadius: { base: 'sm', md: 'md' }, padding: { base: 0.5, md: 1 }, bgColor: {
+                                        base: today ? `${colorPalette}.50` : 'white',
+                                        _dark: today ? `${colorPalette}.950` : 'gray.900',
+                                    }, opacity: isCurrentMonth ? 1 : 0.5, ...getDateProps({ dateObj }), cursor: onDateClick ? 'pointer' : 'default', _hover: onDateClick
+                                        ? {
+                                            bgColor: {
+                                                base: `${colorPalette}.100`,
+                                                _dark: `${colorPalette}.900`,
+                                            },
+                                        }
+                                        : {}, children: [jsxRuntime.jsx(react.Text, { fontSize: { base: 'xs', md: 'sm' }, fontWeight: today ? 'bold' : 'normal', color: {
+                                                base: today ? `${colorPalette}.700` : 'gray.700',
+                                                _dark: today ? `${colorPalette}.300` : 'gray.300',
+                                            }, textAlign: "right", paddingRight: { base: 0.5, md: 1 }, children: date.getDate() }), jsxRuntime.jsxs(react.VStack, { gap: { base: 0.25, md: 0.5 }, alignItems: "stretch", flex: 1, overflow: "hidden", children: [dateEvents
+                                                    .slice(0, maxEventsPerDay)
+                                                    .map((event, eventIndex) => {
+                                                    const eventContent = renderEvent ? (renderEvent(event)) : (jsxRuntime.jsx(react.Box, { fontSize: { base: '2xs', md: 'xs' }, paddingX: { base: 0.5, md: 1 }, paddingY: { base: 0.25, md: 0.5 }, borderRadius: { base: 'xs', md: 'sm' }, bgColor: {
+                                                            base: event.color
+                                                                ? `${event.color}.100`
+                                                                : `${colorPalette}.100`,
+                                                            _dark: event.color
+                                                                ? `${event.color}.900`
+                                                                : `${colorPalette}.900`,
+                                                        }, color: {
+                                                            base: event.color
+                                                                ? `${event.color}.800`
+                                                                : `${colorPalette}.800`,
+                                                            _dark: event.color
+                                                                ? `${event.color}.200`
+                                                                : `${colorPalette}.200`,
+                                                        }, onClick: (e) => {
+                                                            e.stopPropagation();
+                                                            if (onEventClick) {
+                                                                onEventClick(event);
+                                                            }
+                                                        }, cursor: onEventClick ? 'pointer' : 'default', _hover: onEventClick
+                                                            ? {
+                                                                opacity: 0.8,
+                                                            }
+                                                            : {}, children: jsxRuntime.jsx(ResponsiveEventTitle, { title: event.title, placeholder: eventPlaceholder, minWidth: minEventWidth, minChars: minCharsBeforeEllipsis, cellRef: cellRef }) }, eventIndex));
+                                                    return (jsxRuntime.jsx(react.Box, { onClick: (e) => e.stopPropagation(), children: eventContent }, eventIndex));
+                                                }), dateEvents.length > maxEventsPerDay && (jsxRuntime.jsxs(react.Text, { fontSize: "xs", color: {
+                                                        base: `${colorPalette}.600`,
+                                                        _dark: `${colorPalette}.400`,
+                                                    }, paddingX: 1, onClick: (e) => {
+                                                        e.stopPropagation();
+                                                        if (onDateClick) {
+                                                            onDateClick(date, dateEvents);
+                                                        }
+                                                    }, cursor: onDateClick ? 'pointer' : 'default', children: ["+", dateEvents.length - maxEventsPerDay, " more"] }))] })] }, key));
+                            })) })] }, `${calendar.month}${calendar.year}`))) })] }));
+}
 
 // Reference: https://tanstack.com/table/latest/docs/framework/react/examples/custom-features
 // TypeScript setup for our new feature with all of the same type-safety as stock TanStack Table features
@@ -8687,7 +9227,7 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, tableLabel = {
+function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, tableLabel = {
     view: 'View',
     edit: 'Edit',
     filterButtonText: 'Filter',
@@ -8698,7 +9238,7 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
     reloadButtonText: 'Reload',
     resetSelection: 'Reset Selection',
     resetSorting: 'Reset Sorting',
-    rowCountText: 'Row Count',
+    rowCountText: '',
     hasErrorText: 'Has Error',
     globalFilterPlaceholder: 'Search',
     trueLabel: 'True',
@@ -8755,7 +9295,6 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
             globalFilter,
             setGlobalFilter,
             type: 'client',
-            translate,
             columns: columns,
             sorting,
             setSorting,
@@ -8787,22 +9326,22 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, translate, children, tableLabel = {
-    view: "View",
-    edit: "Edit",
-    filterButtonText: "Filter",
-    filterTitle: "Filter",
-    filterReset: "Reset",
-    filterClose: "Close",
-    reloadTooltip: "Reload",
-    reloadButtonText: "Reload",
-    resetSelection: "Reset Selection",
-    resetSorting: "Reset Sorting",
-    rowCountText: "Row Count",
-    hasErrorText: "Has Error",
-    globalFilterPlaceholder: "Search",
-    trueLabel: "True",
-    falseLabel: "False",
+function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSelection = true, enableSubRowSelection = true, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, query, url, children, tableLabel = {
+    view: 'View',
+    edit: 'Edit',
+    filterButtonText: 'Filter',
+    filterTitle: 'Filter',
+    filterReset: 'Reset',
+    filterClose: 'Close',
+    reloadTooltip: 'Reload',
+    reloadButtonText: 'Reload',
+    resetSelection: 'Reset Selection',
+    resetSorting: 'Reset Sorting',
+    rowCountText: '',
+    hasErrorText: 'Has Error',
+    globalFilterPlaceholder: 'Search',
+    trueLabel: 'True',
+    falseLabel: 'False',
 }, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
@@ -8812,7 +9351,7 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
         getCoreRowModel: reactTable.getCoreRowModel(),
         manualPagination: true,
         manualSorting: true,
-        columnResizeMode: "onChange",
+        columnResizeMode: 'onChange',
         defaultColumn: {
             size: 150, //starting column size
             minSize: 10, //enforced during column resizing
@@ -8855,8 +9394,7 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
             table: table,
             globalFilter,
             setGlobalFilter,
-            type: "server",
-            translate,
+            type: 'server',
             columns: columns,
             sorting,
             setSorting,
@@ -8874,9 +9412,10 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
             setColumnVisibility,
             data: query.data?.data ?? [],
             tableLabel,
-        }, children: jsxRuntime.jsx(DataTableServerContext.Provider, { value: { url, query }, children: children }) }));
+        }, children: jsxRuntime.jsx(DataTableServerContext.Provider, { value: { url: url ?? '', query }, children: children }) }));
 }
 
+exports.CalendarDisplay = CalendarDisplay;
 exports.CardHeader = CardHeader;
 exports.DataDisplay = DataDisplay;
 exports.DataTable = DataTable;

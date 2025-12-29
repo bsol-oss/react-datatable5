@@ -2,8 +2,8 @@ import { AxiosRequestConfig } from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 import { FieldValues, Resolver } from 'react-hook-form';
-import { UseTranslationResponse } from 'react-i18next';
-import { DateTimePickerLabels, IdPickerLabels, EnumPickerLabels, FilePickerLabels, FormButtonLabels } from './components/types/CustomJSONSchema7';
+import { Translate } from './useForm';
+import { DateTimePickerLabels, IdPickerLabels, EnumPickerLabels, FilePickerLabels, FormButtonLabels, TimePickerLabels } from './components/types/CustomJSONSchema7';
 export interface SchemaFormContext<TData extends FieldValues> {
     schema: JSONSchema7;
     serverUrl: string;
@@ -15,7 +15,8 @@ export interface SchemaFormContext<TData extends FieldValues> {
     rowNumber?: number | string;
     idMap: Record<string, object>;
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
-    translate: UseTranslationResponse<string, string>;
+    /** Translate object for fallback text (components prefer label objects) */
+    translate: Translate;
     requestOptions: AxiosRequestConfig;
     isSuccess: boolean;
     setIsSuccess: Dispatch<SetStateAction<boolean>>;
@@ -45,6 +46,7 @@ export interface SchemaFormContext<TData extends FieldValues> {
     enumPickerLabels?: EnumPickerLabels;
     filePickerLabels?: FilePickerLabels;
     formButtonLabels?: FormButtonLabels;
+    timePickerLabels?: TimePickerLabels;
     ajvResolver: Resolver<FieldValues>;
     insideDialog?: boolean;
 }

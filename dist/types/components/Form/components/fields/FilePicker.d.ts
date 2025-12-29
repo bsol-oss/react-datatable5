@@ -10,9 +10,8 @@ interface MediaBrowserDialogProps {
     onUploadFile?: (file: File) => Promise<string>;
     enableUpload?: boolean;
     labels?: FilePickerLabels;
-    translate: (key: string) => string;
     colLabel: string;
 }
-export declare function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly, onFetchFiles, onUploadFile, enableUpload, labels, translate, colLabel, }: MediaBrowserDialogProps): import("react/jsx-runtime").JSX.Element | null;
+export declare function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly, onFetchFiles, onUploadFile, enableUpload, labels, colLabel, }: MediaBrowserDialogProps): import("react/jsx-runtime").JSX.Element | null;
 export declare const FilePicker: ({ column, schema, prefix }: InputDefaultProps) => import("react/jsx-runtime").JSX.Element;
 export {};

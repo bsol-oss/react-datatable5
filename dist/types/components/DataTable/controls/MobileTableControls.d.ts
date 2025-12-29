@@ -1,6 +1,6 @@
 import { GridProps } from '@chakra-ui/react';
 import { ReactNode } from 'react';
-export interface TableControlsProps {
+export interface MobileTableControlsProps {
     totalText?: string;
     fitTableWidth?: boolean;
     fitTableHeight?: boolean;
@@ -26,4 +26,4 @@ export interface TableControlsProps {
     hasError?: boolean;
     gridProps?: GridProps;
 }
-export declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterTagsOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;
+export declare const MobileTableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterTagsOptions, extraItems, loading, hasError, gridProps, }: MobileTableControlsProps) => import("react/jsx-runtime").JSX.Element;

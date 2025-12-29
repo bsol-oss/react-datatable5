@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
+import { TimePickerLabels } from '../Form/components/types/CustomJSONSchema7';
 interface TimePickerProps {
     hour: number | null;
     setHour: Dispatch<SetStateAction<number | null>>;
@@ -11,14 +12,11 @@ interface TimePickerProps {
         minute: number | null;
         meridiem: 'am' | 'pm' | null;
     }) => void;
-    meridiemLabel?: {
-        am: string;
-        pm: string;
-    };
-    timezone?: string;
     startTime?: string;
     selectedDate?: string;
+    timezone?: string;
     portalled?: boolean;
+    labels?: TimePickerLabels;
 }
-export declare function TimePicker({ hour, setHour, minute, setMinute, meridiem, setMeridiem, meridiemLabel: _meridiemLabel, onChange, timezone, startTime, selectedDate, portalled, }: TimePickerProps): import("react/jsx-runtime").JSX.Element;
+export declare const TimePicker: ({ hour, setHour, minute, setMinute, meridiem, setMeridiem, onChange, startTime, selectedDate, timezone, portalled, labels, }: TimePickerProps) => import("react/jsx-runtime").JSX.Element;
 export {};

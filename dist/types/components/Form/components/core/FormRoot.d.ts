@@ -3,8 +3,8 @@ import { AxiosRequestConfig } from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 import { FieldValues, SubmitHandler, UseFormReturn } from 'react-hook-form';
-import { UseTranslationResponse } from 'react-i18next';
-import { CustomJSONSchema7, DateTimePickerLabels, IdPickerLabels, EnumPickerLabels, FilePickerLabels, FormButtonLabels } from '../types/CustomJSONSchema7';
+import { Translate } from '../../useForm';
+import { CustomJSONSchema7, DateTimePickerLabels, IdPickerLabels, EnumPickerLabels, FilePickerLabels, FormButtonLabels, TimePickerLabels } from '../types/CustomJSONSchema7';
 export interface FormRootProps<TData extends FieldValues> {
     schema: CustomJSONSchema7;
     serverUrl: string;
@@ -12,7 +12,8 @@ export interface FormRootProps<TData extends FieldValues> {
     idMap: Record<string, object>;
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
     form: UseFormReturn;
-    translate: UseTranslationResponse<any, any>;
+    /** Translate object for fallback text (components prefer label objects) */
+    translate: Translate;
     children: ReactNode;
     order?: string[];
     ignore?: string[];
@@ -34,6 +35,7 @@ export interface FormRootProps<TData extends FieldValues> {
     enumPickerLabels?: EnumPickerLabels;
     filePickerLabels?: FilePickerLabels;
     formButtonLabels?: FormButtonLabels;
+    timePickerLabels?: TimePickerLabels;
     insideDialog?: boolean;
 }
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
@@ -49,4 +51,4 @@ export declare const idPickerSanityCheck: (column: string, foreign_key?: {
     table?: string | undefined;
     column?: string | undefined;
 } | undefined) => void;
-export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;

@@ -1,6 +1,6 @@
-import { Props, RenderProps } from '@bsol-oss/dayzed-react19';
 import React from 'react';
-export interface RangeCalendarProps extends RenderProps {
+import { CalendarRenderProps } from './useCalendar';
+export interface RangeCalendarProps extends CalendarRenderProps {
     firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
     selected?: Date[];
 }
@@ -16,7 +16,7 @@ export interface RangeDatePickerLabels {
     backButtonLabel?: string;
     forwardButtonLabel?: string;
 }
-export interface RangeDatePickerProps extends Props {
+export interface RangeDatePickerProps {
     onDateSelected?: (obj: {
         selected: Date[];
         selectable: boolean;
@@ -68,7 +68,7 @@ export interface RangeDatePickerProps extends Props {
      * @default true
      */
     portalled?: boolean;
-    render?: (dayzedData: RenderProps) => React.ReactNode;
+    render?: (calendarData: CalendarRenderProps) => React.ReactNode;
 }
 declare const RangeDatePicker: React.FC<RangeDatePickerProps>;
 export default RangeDatePicker;

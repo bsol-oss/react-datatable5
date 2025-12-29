@@ -3,7 +3,6 @@ import { ReactNode } from 'react';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { DensityState } from './controls/DensityFeature';
 import { DataTableLabel } from './context/DataTableContext';
-import { UseTranslationResponse } from 'react-i18next';
 declare module '@tanstack/react-table' {
     interface FilterFns {
         fuzzy: FilterFn<unknown>;
@@ -52,7 +51,6 @@ export interface DataTableProps<TData = unknown> {
     setColumnOrder: OnChangeFn<ColumnOrderState>;
     setDensity: OnChangeFn<DensityState>;
     setColumnVisibility: OnChangeFn<VisibilityState>;
-    translate: UseTranslationResponse<any, any>;
     tableLabel?: DataTableLabel;
 }
 /**
@@ -65,4 +63,4 @@ export interface DataTableProps<TData = unknown> {
  *
  * @link https://tanstack.com/table/latest/docs/guide/column-defs
  */
-export declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, translate, children, tableLabel, }: DataTableProps<TData>): import("react/jsx-runtime").JSX.Element;
+export declare function DataTable<TData = unknown>({ columns, data, enableRowSelection, enableMultiRowSelection, enableSubRowSelection, columnOrder, columnFilters, columnVisibility, density, globalFilter, pagination, sorting, rowSelection, setPagination, setSorting, setColumnFilters, setRowSelection, setGlobalFilter, setColumnOrder, setDensity, setColumnVisibility, children, tableLabel, }: DataTableProps<TData>): import("react/jsx-runtime").JSX.Element;

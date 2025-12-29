@@ -15,6 +15,10 @@ interface IsoTimePickerProps {
     selectedDate?: string;
     timezone?: string;
     portalled?: boolean;
+    labels?: {
+        placeholder?: string;
+        emptyMessage?: string;
+    };
 }
-export declare function IsoTimePicker({ hour, setHour, minute, setMinute, second, setSecond, onChange, startTime, selectedDate, timezone, portalled, }: IsoTimePickerProps): import("react/jsx-runtime").JSX.Element;
+export declare function IsoTimePicker({ hour, setHour, minute, setMinute, second, setSecond, onChange, startTime, selectedDate, timezone, portalled, labels, }: IsoTimePickerProps): import("react/jsx-runtime").JSX.Element;
 export {};
