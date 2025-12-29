@@ -94,7 +94,6 @@ const DefaultSuccessForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema as JSONSchema7,
-        serverUrl: 'http://localhost:8123',
         onSubmit: async (data) => {
           console.log('Form submitted with data:', data);
           // Simulate API call
@@ -148,7 +147,6 @@ const CustomSuccessForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema as JSONSchema7,
-        serverUrl: 'http://localhost:8123',
         onSubmit: async (data) => {
           console.log('Form submitted with data:', data);
           // Simulate API call

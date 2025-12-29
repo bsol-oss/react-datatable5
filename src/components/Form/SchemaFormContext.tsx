@@ -14,7 +14,6 @@ import {
 
 export interface SchemaFormContext<TData extends FieldValues> {
   schema: JSONSchema7;
-  serverUrl: string;
   requestUrl: string;
   order: string[];
   ignore: string[];
@@ -64,7 +63,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
 //@ts-expect-error TODO: find appropriate type
 export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   schema: {} as JSONSchema7,
-  serverUrl: '',
   requestUrl: '',
   order: [],
   ignore: [],

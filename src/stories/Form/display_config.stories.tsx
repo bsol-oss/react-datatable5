@@ -70,7 +70,6 @@ const SomeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('nice', data, 'onSubmit-gkrp');
           },
@@ -85,7 +84,6 @@ const SomeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('nice', data, 'onSubmit-gkrp');
           },

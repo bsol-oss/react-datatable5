@@ -3,11 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
-import { getTableData } from '../../utils/getTableData';
 import { ForeignKeyProps } from './StringInputField';
 import {
   CustomJSONSchema7,
   defaultRenderDisplay,
+  LoadInitialValuesParams,
+  LoadInitialValuesResult,
 } from '../types/CustomJSONSchema7';
 
 // Define record type to fix TypeScript errors
@@ -15,17 +16,11 @@ export interface RecordType {
   [key: string]: any;
 }
 
-export interface LoadInitialValuesParams {
-  ids: string[];
-  foreign_key: ForeignKeyProps;
-  serverUrl: string;
-  setIdMap: React.Dispatch<React.SetStateAction<Record<string, object>>>;
-}
-
-export interface LoadInitialValuesResult {
-  data: { data: RecordType[]; count: number };
-  idMap: Record<string, object>;
-}
+// Re-export types from CustomJSONSchema7 for convenience
+export type {
+  LoadInitialValuesParams,
+  LoadInitialValuesResult,
+} from '../types/CustomJSONSchema7';
 
 /**
  * Load initial values for IdPicker fields into idMap
@@ -37,7 +32,6 @@ export interface LoadInitialValuesResult {
 export const loadInitialValues = async ({
   ids,
   foreign_key,
-  serverUrl,
   setIdMap,
 }: LoadInitialValuesParams): Promise<LoadInitialValuesResult> => {
   if (!ids || ids.length === 0) {
@@ -72,41 +66,10 @@ export const loadInitialValues = async ({
     return { data, idMap: returnedIdMap || {} };
   }
 
-  // Fallback to default getTableData
-  const data = await getTableData({
-    serverUrl,
-    searching: '',
-    in_table: table,
-    limit: ids.length,
-    offset: 0,
-    where: [
-      {
-        id: column_ref,
-        value: ids, // Always pass as array
-      },
-    ],
-  });
-
-  // Build idMap from fetched data
-  const newMap = Object.fromEntries(
-    ((data ?? { data: [] }) as { data: RecordType[] }).data.map(
-      (item: RecordType) => {
-        return [
-          item[column_ref],
-          {
-            ...item,
-          },
-        ];
-      }
-    )
+  // customQueryFn is required when serverUrl is not available
+  throw new Error(
+    `customQueryFn is required in foreign_key for table ${table}. serverUrl has been removed.`
   );
-
-  // Update idMap state
-  setIdMap((state) => {
-    return { ...state, ...newMap };
-  });
-
-  return { data: data as { data: RecordType[]; count: number }, idMap: newMap };
 };
 
 export interface UseIdPickerDataProps {
@@ -144,6 +107,9 @@ export interface UseIdPickerDataReturn {
   idPickerLabels: any;
   insideDialog: boolean;
   renderDisplay: ((item: RecordType) => React.ReactNode) | undefined;
+  loadInitialValues: (
+    params: LoadInitialValuesParams
+  ) => Promise<LoadInitialValuesResult>;
   column_ref: string;
   errors: any;
   setValue: (name: string, value: any) => void;
@@ -161,9 +127,12 @@ export const useIdPickerData = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { serverUrl, idMap, setIdMap, idPickerLabels, insideDialog } =
-    useSchemaContext();
-  const { renderDisplay, foreign_key } = schema;
+  const { idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
+  const {
+    renderDisplay,
+    loadInitialValues: schemaLoadInitialValues,
+    foreign_key,
+  } = schema;
   const {
     table,
     column: column_ref,
@@ -233,11 +202,11 @@ export const useIdPickerData = ({
         return { data: [], count: 0 };
       }
 
-      // Use the reusable loadInitialValues function
-      const result = await loadInitialValues({
+      // Use schema's loadInitialValues if provided, otherwise use default
+      const loadFn = schemaLoadInitialValues || loadInitialValues;
+      const result = await loadFn({
         ids: missingIds,
         foreign_key: foreign_key as ForeignKeyProps,
-        serverUrl,
         setIdMap,
       });
 
@@ -256,39 +225,24 @@ export const useIdPickerData = ({
   const query = useQuery({
     queryKey: [`idpicker`, { column, searchText: debouncedSearchText, limit }],
     queryFn: async () => {
-      if (customQueryFn) {
-        const { data, idMap } = await customQueryFn({
-          searching: debouncedSearchText ?? '',
-          limit: limit,
-          offset: 0,
-        });
-
-        setIdMap((state) => {
-          return { ...state, ...idMap };
-        });
-
-        return data;
+      // customQueryFn is required when serverUrl is not available
+      if (!customQueryFn) {
+        throw new Error(
+          `customQueryFn is required in foreign_key for table ${table}. serverUrl has been removed.`
+        );
       }
-      const data = await getTableData({
-        serverUrl,
+      const { data, idMap } = await customQueryFn({
         searching: debouncedSearchText ?? '',
-        in_table: table,
         limit: limit,
         offset: 0,
       });
-      const newMap = Object.fromEntries(
-        (data ?? { data: [] }).data.map((item: RecordType) => {
-          return [
-            item[column_ref],
-            {
-              ...item,
-            },
-          ];
-        })
-      );
-      setIdMap((state) => {
-        return { ...state, ...newMap };
-      });
+
+      // Update idMap with returned values
+      if (idMap && Object.keys(idMap).length > 0) {
+        setIdMap((state) => {
+          return { ...state, ...idMap };
+        });
+      }
       return data;
     },
     enabled: true, // Always enabled for combobox
@@ -418,6 +372,9 @@ export const useIdPickerData = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [comboboxItems, searchText]);
 
+  // Use schema's loadInitialValues if provided, otherwise use default
+  const loadInitialValuesFn = schemaLoadInitialValues || loadInitialValues;
+
   return {
     colLabel,
     currentValue,
@@ -440,6 +397,7 @@ export const useIdPickerData = ({
     idPickerLabels,
     insideDialog: insideDialog ?? false,
     renderDisplay,
+    loadInitialValues: loadInitialValuesFn,
     column_ref,
     errors,
     setValue,

@@ -590,7 +590,6 @@ const SomeForm = () => {
       <DefaultForm
         formConfig={{
           schema: eventsGeolocationsSchema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('nice', data, 'onSubmit-gkrp');
           },

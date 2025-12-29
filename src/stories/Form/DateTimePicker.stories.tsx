@@ -180,7 +180,6 @@ const BasicDateTimeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -228,7 +227,6 @@ const PreFilledDateTimeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -286,7 +284,6 @@ const ValidationDateTimeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -335,7 +332,6 @@ const CustomDateFormatForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -384,7 +380,6 @@ const CustomLabelsForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -475,7 +470,6 @@ const MultipleDateTimeFieldsForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(`Form data: ${JSON.stringify(data, null, 2)}`);

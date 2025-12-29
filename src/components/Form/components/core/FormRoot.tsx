@@ -25,7 +25,6 @@ import {
 
 export interface FormRootProps<TData extends FieldValues> {
   schema: CustomJSONSchema7;
-  serverUrl: string;
   requestUrl?: string;
   idMap: Record<string, object>;
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
@@ -100,7 +99,6 @@ export const FormRoot = <TData extends FieldValues>({
   idMap,
   setIdMap,
   form,
-  serverUrl,
   translate,
   children,
   order = [],
@@ -162,9 +160,13 @@ export const FormRoot = <TData extends FieldValues>({
     }
   };
   const defaultSubmitPromise = (data: TData) => {
+    if (!requestOptions.url) {
+      throw new Error(
+        'requestOptions.url is required when onSubmit is not provided'
+      );
+    }
     const options = {
       method: 'POST',
-      url: `${serverUrl}`,
       data: clearEmptyString(data),
       ...requestOptions,
     };
@@ -186,7 +188,6 @@ export const FormRoot = <TData extends FieldValues>({
     <SchemaFormContext.Provider
       value={{
         schema,
-        serverUrl,
         order,
         ignore,
         include,

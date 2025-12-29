@@ -544,7 +544,6 @@ const IdPickerComboboxForm = () => {
           <DefaultForm
             formConfig={{
               schema: schema as JSONSchema7,
-              serverUrl: 'http://localhost:8081',
               onSubmit: async (data) => {
                 console.log('Form submitted with data:', data);
                 setSubmittedData(data);

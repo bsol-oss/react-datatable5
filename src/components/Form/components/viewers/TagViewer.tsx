@@ -1,11 +1,10 @@
-import { CheckboxCard } from "@/components/ui/checkbox-card";
-import { RadioCardItem, RadioCardRoot } from "@/components/ui/radio-card";
-import { CheckboxGroup, Flex, Text } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
-import { useFormContext } from "react-hook-form";
-import { useSchemaContext } from "../../useSchemaContext";
-import { getTableData } from "../../utils/getTableData";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
+import { CheckboxCard } from '@/components/ui/checkbox-card';
+import { RadioCardItem, RadioCardRoot } from '@/components/ui/radio-card';
+import { CheckboxGroup, Flex, Text } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
+import { useFormContext } from 'react-hook-form';
+import { useSchemaContext } from '../../useSchemaContext';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 export interface Tag {
   id: string;
   name: string;
@@ -46,32 +45,38 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
     setValue,
   } = useFormContext();
 
-  const { serverUrl } = useSchemaContext();
   if (schema.properties == undefined) {
-    throw new Error("schema properties undefined when using DatePicker");
+    throw new Error('schema properties undefined when using DatePicker');
   }
-  const { gridColumn, gridRow, in_table, object_id_column } = schema;
+  const { gridColumn, gridRow, in_table, object_id_column, tagPicker } = schema;
   if (in_table === undefined) {
-    throw new Error("in_table is undefined when using TagPicker");
+    throw new Error('in_table is undefined when using TagPicker');
   }
   if (object_id_column === undefined) {
-    throw new Error("object_id_column is undefined when using TagPicker");
+    throw new Error('object_id_column is undefined when using TagPicker');
+  }
+  if (!tagPicker?.queryFn) {
+    throw new Error(
+      'tagPicker.queryFn is required in schema. serverUrl has been removed.'
+    );
   }
 
   const query = useQuery<TagResponse>({
     queryKey: [`tagpicker`, in_table],
     queryFn: async () => {
-      return await getTableData({
-        serverUrl,
-        in_table: "tables_tags_view",
+      const result = await tagPicker.queryFn!({
+        in_table: 'tables_tags_view',
         where: [
           {
-            id: "table_name",
+            id: 'table_name',
             value: [in_table],
           },
         ],
         limit: 100,
+        offset: 0,
+        searching: '',
       });
+      return result.data || { data: [] };
     },
     staleTime: 10000,
   });
@@ -79,17 +84,19 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
   const existingTagsQuery = useQuery({
     queryKey: [`existing`, { in_table, object_id_column }, object_id],
     queryFn: async () => {
-      return await getTableData({
-        serverUrl,
+      const result = await tagPicker.queryFn!({
         in_table: in_table,
         where: [
           {
             id: object_id_column,
-            value: object_id[0],
+            value: [object_id[0]],
           },
         ],
         limit: 100,
+        offset: 0,
+        searching: '',
       });
+      return result.data || { data: [] };
     },
     enabled: object_id != undefined,
     staleTime: 10000,
@@ -105,7 +112,7 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
 
   return (
     <Flex
-      flexFlow={"column"}
+      flexFlow={'column'}
       gap={4}
       {...{
         gridColumn,
@@ -118,12 +125,12 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
       {isError && <>isError</>}
       {dataList.map(({ parent_tag_name, all_tags, is_mutually_exclusive }) => {
         return (
-          <Flex key={`tag-${parent_tag_name}`} flexFlow={"column"} gap={2}>
+          <Flex key={`tag-${parent_tag_name}`} flexFlow={'column'} gap={2}>
             <Text>{parent_tag_name}</Text>
             {is_mutually_exclusive && (
               <RadioCardRoot
                 defaultValue="next"
-                variant={"surface"}
+                variant={'surface'}
                 onValueChange={(tagIds) => {
                   const existedTags = Object.values(all_tags)
                     .filter(({ id }) => {
@@ -140,7 +147,7 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
                   setValue(`${column}.${parent_tag_name}.old`, existedTags);
                 }}
               >
-                <Flex flexFlow={"wrap"} gap={2}>
+                <Flex flexFlow={'wrap'} gap={2}>
                   {Object.entries(all_tags).map(([tagName, { id }]) => {
                     if (existingTagList.some(({ tag_id }) => tag_id === id)) {
                       return (
@@ -148,7 +155,7 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
                           label={tagName}
                           key={`${tagName}-${id}`}
                           value={id}
-                          flex={"0 0 0%"}
+                          flex={'0 0 0%'}
                           disabled
                         />
                       );
@@ -158,8 +165,8 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
                         label={tagName}
                         key={`${tagName}-${id}`}
                         value={id}
-                        flex={"0 0 0%"}
-                        colorPalette={"blue"}
+                        flex={'0 0 0%'}
+                        colorPalette={'blue'}
                       />
                     );
                   })}
@@ -172,7 +179,7 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
                   setValue(`${column}.${parent_tag_name}.current`, tagIds);
                 }}
               >
-                <Flex flexFlow={"wrap"} gap={2}>
+                <Flex flexFlow={'wrap'} gap={2}>
                   {Object.entries(all_tags).map(([tagName, { id }]) => {
                     if (existingTagList.some(({ tag_id }) => tag_id === id)) {
                       return (
@@ -180,9 +187,9 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
                           label={tagName}
                           key={`${tagName}-${id}`}
                           value={id}
-                          flex={"0 0 0%"}
+                          flex={'0 0 0%'}
                           disabled
-                          colorPalette={"blue"}
+                          colorPalette={'blue'}
                         />
                       );
                     }
@@ -191,7 +198,7 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
                         label={tagName}
                         key={`${tagName}-${id}`}
                         value={id}
-                        flex={"0 0 0%"}
+                        flex={'0 0 0%'}
                       />
                     );
                   })}
@@ -203,8 +210,8 @@ export const TagViewer = ({ column, schema, prefix }: TagViewerProps) => {
       })}
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>
-          {(errors[`${column}`]?.message ?? "No error message") as string}
+        <Text color={'red.400'}>
+          {(errors[`${column}`]?.message ?? 'No error message') as string}
         </Text>
       )}
     </Flex>

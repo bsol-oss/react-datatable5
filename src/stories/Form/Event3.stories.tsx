@@ -82,7 +82,6 @@ const SomeForm = () => {
         } as JSONSchema7,
         // include: ["name"],
         // ignore: ["id", "created_at", "updated_at"],
-        serverUrl: 'http://localhost:8081',
         ...form,
       }}
     />

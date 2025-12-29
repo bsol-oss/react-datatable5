@@ -123,7 +123,6 @@ const BasicFileUploadForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        serverUrl: 'http://localhost:8081',
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
         },
@@ -170,7 +169,6 @@ const WithMediaLibraryForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        serverUrl: 'http://localhost:8081',
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
           console.log('Files:', data.file_upload);
@@ -218,7 +216,6 @@ const ImageOnlyForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        serverUrl: 'http://localhost:8081',
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
           console.log('Images:', data.file_upload);
@@ -265,7 +262,6 @@ const RequiredFilesForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        serverUrl: 'http://localhost:8081',
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
         },
@@ -328,7 +324,6 @@ const MultipleFilePickersForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        serverUrl: 'http://localhost:8081',
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
           console.log('Basic files:', data.basic_files);
@@ -405,7 +400,6 @@ const WithCustomLabelsForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        serverUrl: 'http://localhost:8081',
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
         },
@@ -453,7 +447,6 @@ const SingleSelectForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        serverUrl: 'http://localhost:8081',
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
           console.log('Single file (ID or File object):', data.single_file);
@@ -534,7 +527,6 @@ const FilePickerAndMediaLibraryForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        serverUrl: 'http://localhost:8081',
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
           console.log('File Picker (File objects):', data.file_picker);

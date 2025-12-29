@@ -1,7 +1,6 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig } from 'axios';
 
 export interface GetTableDataConfig {
-  serverUrl: string;
   in_table: string;
   limit?: number;
   offset?: number;
@@ -15,37 +14,17 @@ export interface GetTableResponse {
 }
 
 export const getTableData = async ({
-  serverUrl,
   in_table,
-  searching = "",
+  searching = '',
   where = [],
   limit = 10,
   offset = 0,
 }: GetTableDataConfig) => {
-  if (serverUrl === undefined || serverUrl.length == 0) {
-    throw new Error("The serverUrl is missing");
-  }
   if (in_table === undefined || in_table.length == 0) {
-    throw new Error("The in_table is missing");
+    throw new Error('The in_table is missing');
   }
 
-  const options: AxiosRequestConfig = {
-    method: "GET",
-    url: `${serverUrl}/api/g/${in_table}`,
-    params: {
-      searching,
-      where,
-      limit,
-      offset
-    },
-  };
-
-  try {
-    const { data } = await axios.request(options);
-    console.log(data);
-    return data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  throw new Error(
+    'getTableData requires customQueryFn to be provided in foreign_key. serverUrl has been removed.'
+  );
 };

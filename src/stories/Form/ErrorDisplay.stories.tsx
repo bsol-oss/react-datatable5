@@ -193,7 +193,6 @@ const ComprehensiveForm = () => {
       formConfig={{
         ...form,
         schema: schema as JSONSchema7,
-        serverUrl: 'http://localhost:8123',
         onSubmit: (data) => {
           console.log('Comprehensive form data:', data);
         },
@@ -248,7 +247,6 @@ const RequiredFieldsForm = () => {
       formConfig={{
         ...form,
         schema: schema as JSONSchema7,
-        serverUrl: 'http://localhost:8123',
         onSubmit: (data) => {
           console.log('Required fields form data:', data);
         },
@@ -317,7 +315,6 @@ const ValidationErrorsForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema as JSONSchema7,
-        serverUrl: 'http://localhost:8123',
         onSubmit: (data) => {
           console.log('Validation form data:', data);
         },
@@ -413,7 +410,6 @@ const ComplexForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema as JSONSchema7,
-        serverUrl: 'http://localhost:8123',
         onSubmit: (data) => {
           console.log('Complex form data:', data);
         },

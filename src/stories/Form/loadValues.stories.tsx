@@ -382,7 +382,6 @@ const PreloadedValuesForm = () => {
           <DefaultForm
             formConfig={{
               schema: schema as JSONSchema7,
-              serverUrl: 'http://localhost:8123',
               onSubmit: async (data) => {
                 console.log('Form submitted with data:', data);
                 alert(
@@ -463,7 +462,6 @@ return (
   <DefaultForm
     formConfig={{
       schema: schema,
-      serverUrl: 'http://localhost:8123',
       onSubmit: (data) => {
         console.log('Submitted:', data);
       },

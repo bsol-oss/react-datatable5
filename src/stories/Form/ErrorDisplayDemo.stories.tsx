@@ -171,7 +171,6 @@ const ErrorDisplayDemoForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Demo form data:', data);
             alert('Form submitted successfully!');
@@ -291,7 +290,6 @@ const FieldTypesComparisonForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Comparison form data:', data);
             alert('Form submitted successfully!');

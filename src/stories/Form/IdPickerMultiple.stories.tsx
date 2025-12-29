@@ -526,7 +526,6 @@ const IdPickerMultipleForm = () => {
           <DefaultForm
             formConfig={{
               schema: schema as JSONSchema7,
-              serverUrl: 'http://localhost:8081',
               onSubmit: async (data) => {
                 console.log('Form submitted with data:', data);
                 setSubmittedData(data);
@@ -833,7 +832,6 @@ const IdPickerMultipleForm = () => {
                   },
                 },
               } as JSONSchema7,
-              serverUrl: 'http://localhost:8081',
               onSubmit: async (data) => {
                 console.log('Custom display form submitted:', data);
                 alert(

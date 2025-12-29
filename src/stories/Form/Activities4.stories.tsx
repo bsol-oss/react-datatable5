@@ -66,7 +66,6 @@ const SomeForm = () => {
             },
           },
         },
-        serverUrl: 'http://localhost:8081',
         ...form,
         onSubmit: async (data) => {
           console.log('Form submitted with data:', data);

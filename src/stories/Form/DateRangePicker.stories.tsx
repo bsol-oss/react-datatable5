@@ -144,7 +144,6 @@ const BasicDateRangeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -196,7 +195,6 @@ const PreFilledDateRangeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -256,7 +254,6 @@ const ValidationDateRangeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -309,7 +306,6 @@ const CustomDateFormatForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema as JSONSchema7,
-          serverUrl: 'http://localhost:8123',
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(

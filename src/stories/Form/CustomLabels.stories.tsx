@@ -30,7 +30,6 @@ export const CustomDateTimePickerLabels: Story = {
   args: {
     formConfig: {
       schema: {} as JSONSchema7,
-      serverUrl: 'http://localhost:8123',
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -51,7 +50,6 @@ export const CustomIdPickerLabels: Story = {
   args: {
     formConfig: {
       schema: {} as JSONSchema7,
-      serverUrl: 'http://localhost:8123',
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -72,7 +70,6 @@ export const CustomEnumPickerLabels: Story = {
   args: {
     formConfig: {
       schema: {} as JSONSchema7,
-      serverUrl: 'http://localhost:8123',
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -93,7 +90,6 @@ export const CombinedCustomLabels: Story = {
   args: {
     formConfig: {
       schema: {} as JSONSchema7,
-      serverUrl: 'http://localhost:8123',
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -136,7 +132,6 @@ const DateTimePickerForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema as JSONSchema7,
-        serverUrl: 'http://localhost:8123',
         onSubmit: (data) => {
           console.log('DateTimePicker form submitted:', data);
         },
@@ -199,7 +194,6 @@ const IdPickerForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema as JSONSchema7,
-        serverUrl: 'http://localhost:8123',
         onSubmit: (data) => {
           console.log('IdPicker form submitted:', data);
         },
@@ -261,7 +255,6 @@ const CombinedForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema as JSONSchema7,
-        serverUrl: 'http://localhost:8123',
         onSubmit: (data) => {
           console.log('Combined form submitted:', data);
         },
@@ -331,7 +324,6 @@ const EnumPickerForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema as JSONSchema7,
-        serverUrl: 'http://localhost:8123',
         onSubmit: (data) => {
           console.log('EnumPicker form submitted:', data);
         },
