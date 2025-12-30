@@ -134,12 +134,17 @@ const schema: JSONSchema7 = {
 
 Every IdPicker field must have these properties:
 
-| Property            | Type                    | Description                                            |
-| ------------------- | ----------------------- | ------------------------------------------------------ |
-| `type`              | `'string'` or `'array'` | Single or multiple selection                           |
-| `variant`           | `'id-picker'`           | Identifies this as an IdPicker field                   |
-| `foreign_key`       | `object`                | Defines the table/column and query function            |
-| `loadInitialValues` | `function`              | Loads records for display when form has initial values |
+| Property      | Type                    | Description                                 |
+| ------------- | ----------------------- | ------------------------------------------- |
+| `type`        | `'string'` or `'array'` | Single or multiple selection                |
+| `variant`     | `'id-picker'`           | Identifies this as an IdPicker field        |
+| `foreign_key` | `object`                | Defines the table/column and query function |
+
+### Recommended Properties
+
+| Property            | Type       | Description                                                                           |
+| ------------------- | ---------- | ------------------------------------------------------------------------------------- |
+| `loadInitialValues` | `function` | Loads records for display when form has initial values (recommended but not required) |
 
 ### Optional Properties
 
@@ -192,44 +197,7 @@ const schema: JSONSchema7 = {
 
 ## Required Properties
 
-### 1. `loadInitialValues` Function
-
-**Purpose:** Loads full record data for IDs that are already selected (e.g., when editing an existing form).
-
-**When it's called:**
-
-- On component mount if the form has initial values
-- When IDs are selected but not yet in the `idMap` cache
-
-**Function signature:**
-
-```typescript
-loadInitialValues: (params: { ids: string[] }) =>
-  Promise<{
-    data: Array<Record<string, any>>;
-  }>;
-```
-
-**Example:**
-
-```tsx
-loadInitialValues: async ({ ids }) => {
-  if (ids.length === 0) {
-    return { data: [] };
-  }
-
-  // Fetch records from your API
-  const response = await fetch(`/api/users?ids=${ids.join(',')}`);
-  const users = await response.json();
-
-  // Return in expected format
-  return { data: users };
-};
-```
-
-**Important:** This function is **required** and will throw an error if missing.
-
-### 2. `foreign_key` Object
+### 1. `foreign_key` Object
 
 Defines the data source for the IdPicker:
 
@@ -639,11 +607,52 @@ const schema: JSONSchema7 = {
 };
 ```
 
+## Recommended Properties
+
+### 1. `loadInitialValues` Function
+
+**Purpose:** Loads full record data for IDs that are already selected (e.g., when editing an existing form).
+
+**When it's called:**
+
+- On component mount if the form has initial values
+- When IDs are selected but not yet in the `idMap` cache
+
+**Function signature:**
+
+```typescript
+loadInitialValues: (params: { ids: string[] }) =>
+  Promise<{
+    data: Array<Record<string, any>>;
+  }>;
+```
+
+**Example:**
+
+```tsx
+loadInitialValues: async ({ ids }) => {
+  if (ids.length === 0) {
+    return { data: [] };
+  }
+
+  // Fetch records from your API
+  const response = await fetch(`/api/users?ids=${ids.join(',')}`);
+  const users = await response.json();
+
+  // Return in expected format
+  return { data: users };
+};
+```
+
+**Important:** This function is **recommended** for proper display of initial values. If missing, a warning will be logged to the console and the component will continue to work, but initial values may not display correctly.
+
 ## Troubleshooting
 
-### Error: "loadInitialValues is required"
+### Warning: "loadInitialValues is recommended"
 
 **Problem:** The schema is missing the `loadInitialValues` function.
+
+**Impact:** Initial values may not display correctly (showing IDs instead of human-readable text).
 
 **Solution:** Add `loadInitialValues` to your schema:
 
@@ -665,9 +674,10 @@ const schema: JSONSchema7 = {
 
 **Solutions:**
 
-1. Check that `loadInitialValues` is correctly implemented
-2. Verify the API returns data in the expected format: `{ data: [...] }`
-3. Ensure IDs match between the form value and the API response
+1. Ensure `loadInitialValues` is provided in the schema (check console for warnings)
+2. Check that `loadInitialValues` is correctly implemented
+3. Verify the API returns data in the expected format: `{ data: [...] }`
+4. Ensure IDs match between the form value and the API response
 
 ### Search Not Working
 
@@ -685,9 +695,10 @@ const schema: JSONSchema7 = {
 
 **Solutions:**
 
-1. Ensure `loadInitialValues` is provided and working
-2. Check that form initial values are set correctly
-3. Verify the query function handles the `where` clause for loading specific IDs
+1. Ensure `loadInitialValues` is provided in the schema (check console for warnings)
+2. Check that `loadInitialValues` is correctly implemented and working
+3. Check that form initial values are set correctly
+4. Verify the query function handles the `where` clause for loading specific IDs
 
 ### TypeScript Errors
 

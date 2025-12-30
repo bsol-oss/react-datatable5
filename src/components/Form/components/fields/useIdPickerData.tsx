@@ -80,11 +80,11 @@ export const useIdPickerData = ({
   const { idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
   const { renderDisplay, loadInitialValues, foreign_key, variant } = schema;
 
-  // loadInitialValues must be provided in schema for id-picker fields
+  // loadInitialValues should be provided in schema for id-picker fields
   // It's used to load the record of the id so the display is human-readable
   if (variant === 'id-picker' && !loadInitialValues) {
-    throw new Error(
-      `loadInitialValues is required in schema for IdPicker field '${column}'. Please provide loadInitialValues function in the schema to load records for human-readable display.`
+    console.warn(
+      `loadInitialValues is recommended in schema for IdPicker field '${column}'. Please provide loadInitialValues function in the schema to load records for human-readable display.`
     );
   }
   const {
@@ -364,7 +364,9 @@ export const useIdPickerData = ({
     idPickerLabels,
     insideDialog: insideDialog ?? false,
     renderDisplay,
-    loadInitialValues: loadInitialValues!, // Required for id-picker, checked above
+    loadInitialValues:
+      loadInitialValues ??
+      (async () => ({ data: { data: [], count: 0 }, idMap: {} })), // Fallback if not provided
     column_ref,
     errors,
     setValue,
