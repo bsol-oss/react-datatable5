@@ -7,7 +7,6 @@ import {
   Portal,
   Tag,
   Text,
-  useFilter,
   useListCollection,
 } from '@chakra-ui/react';
 import { Dispatch, SetStateAction, useMemo } from 'react';
@@ -161,16 +160,86 @@ export const TimePicker = ({
         }
       }
     }
-    return options;
+    // Sort options by time (convert to 24-hour for proper chronological sorting)
+    return options.sort((a, b) => {
+      // Convert 12-hour to 24-hour for comparison
+      let hour24A = a.hour;
+      if (a.meridiem === 'am' && a.hour === 12) hour24A = 0;
+      else if (a.meridiem === 'pm' && a.hour < 12) hour24A = a.hour + 12;
+
+      let hour24B = b.hour;
+      if (b.meridiem === 'am' && b.hour === 12) hour24B = 0;
+      else if (b.meridiem === 'pm' && b.hour < 12) hour24B = b.hour + 12;
+
+      // Compare by hour first, then minute
+      if (hour24A !== hour24B) {
+        return hour24A - hour24B;
+      }
+      return a.minute - b.minute;
+    });
   }, [startTime, selectedDate, timezone]);
 
-  const { contains } = useFilter({ sensitivity: 'base' });
+  // itemToString returns only the clean display text (no metadata)
+  const itemToString = useMemo(() => {
+    return (item: TimeOption): string => {
+      return item.searchText; // Clean display text only
+    };
+  }, []);
+
+  // Custom filter function that filters by time and supports 24-hour format input
+  const customTimeFilter = useMemo(() => {
+    return (itemText: string, filterText: string): boolean => {
+      if (!filterText) {
+        return true; // Show all items when no filter
+      }
+
+      const lowerItemText = itemText.toLowerCase();
+      const lowerFilterText = filterText.toLowerCase();
+
+      // First, try matching against the display text (12-hour format)
+      if (lowerItemText.includes(lowerFilterText)) {
+        return true;
+      }
+
+      // Find the corresponding item to check 24-hour format matches
+      const item = timeOptions.find(
+        (opt) => opt.searchText.toLowerCase() === lowerItemText
+      );
+      if (!item) {
+        return false;
+      }
+
+      // Convert item to 24-hour format for matching
+      let hour24 = item.hour;
+      if (item.meridiem === 'am' && item.hour === 12) hour24 = 0;
+      else if (item.meridiem === 'pm' && item.hour < 12)
+        hour24 = item.hour + 12;
+
+      const hour24Str = hour24.toString().padStart(2, '0');
+      const minuteStr = item.minute.toString().padStart(2, '0');
+
+      // Check if filterText matches 24-hour format variations
+      const formats = [
+        `${hour24Str}:${minuteStr}`, // "13:30"
+        `${hour24Str}${minuteStr}`, // "1330"
+        hour24Str, // "13"
+        `${hour24}:${minuteStr}`, // "13:30" (without padding)
+        hour24.toString(), // "13" (without padding)
+      ];
+
+      return formats.some(
+        (format) =>
+          format.toLowerCase().includes(lowerFilterText) ||
+          lowerFilterText.includes(format.toLowerCase())
+      );
+    };
+  }, [timeOptions]);
 
   const { collection, filter } = useListCollection({
     initialItems: timeOptions,
-    itemToString: (item) => item.searchText, // Use searchText (without duration) for filtering
+    itemToString: itemToString,
     itemToValue: (item) => item.value,
-    filter: contains,
+    filter: customTimeFilter,
   });
 
   // Get current value string for combobox
@@ -276,6 +345,51 @@ export const TimePicker = ({
 
     if (!trimmedValue) {
       return;
+    }
+
+    // Parse 24-hour format first (e.g., "13:30", "14:00", "1330", "1400", "9:05", "905")
+    const timePattern24Hour = /^(\d{1,2}):?(\d{2})$/;
+    const match24Hour = trimmedValue.match(timePattern24Hour);
+
+    if (match24Hour) {
+      const parsedHour24 = parseInt(match24Hour[1], 10);
+      const parsedMinute = parseInt(match24Hour[2], 10);
+
+      // Validate 24-hour format ranges
+      if (
+        parsedHour24 >= 0 &&
+        parsedHour24 <= 23 &&
+        parsedMinute >= 0 &&
+        parsedMinute <= 59
+      ) {
+        // Convert 24-hour to 12-hour format
+        let hour12: number;
+        let meridiem: 'am' | 'pm';
+
+        if (parsedHour24 === 0) {
+          hour12 = 12;
+          meridiem = 'am';
+        } else if (parsedHour24 === 12) {
+          hour12 = 12;
+          meridiem = 'pm';
+        } else if (parsedHour24 > 12) {
+          hour12 = parsedHour24 - 12;
+          meridiem = 'pm';
+        } else {
+          hour12 = parsedHour24;
+          meridiem = 'am';
+        }
+
+        setHour(hour12);
+        setMinute(parsedMinute);
+        setMeridiem(meridiem);
+        onChange({
+          hour: hour12,
+          minute: parsedMinute,
+          meridiem: meridiem,
+        });
+        return;
+      }
     }
 
     // Parse formats like "1:30 PM", "1:30PM", "1:30 pm", "1:30pm"

@@ -10,7 +10,7 @@ import {
   useFilter,
   useListCollection,
 } from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useMemo } from 'react';
+import { Dispatch, SetStateAction, useMemo, useState, useEffect } from 'react';
 import { BsClock } from 'react-icons/bs';
 import { MdCancel } from 'react-icons/md';
 import dayjs from 'dayjs';
@@ -347,9 +347,23 @@ export function IsoTimePicker({
     }
   };
 
+  const [inputValue, setInputValue] = useState<string>('');
+
+  // Sync inputValue with currentValue when time changes externally
+  useEffect(() => {
+    if (hour !== null && minute !== null && second !== null) {
+      const formattedValue = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+      setInputValue(formattedValue);
+    } else {
+      setInputValue('');
+    }
+  }, [hour, minute, second]);
+
   const handleInputValueChange = (
     details: Combobox.InputValueChangeDetails
   ) => {
+    // Update local input value state
+    setInputValue(details.inputValue);
     // Filter the collection based on input, but don't parse yet
     filter(details.inputValue);
   };
@@ -361,9 +375,10 @@ export function IsoTimePicker({
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     // Parse and commit the input value when losing focus
-    const inputValue = e.target.value;
-    if (inputValue) {
-      parseAndCommitInput(inputValue);
+    const inputVal = e.target.value;
+    setInputValue(inputVal);
+    if (inputVal) {
+      parseAndCommitInput(inputVal);
     }
   };
 
@@ -371,9 +386,10 @@ export function IsoTimePicker({
     // Commit input on Enter key
     if (e.key === 'Enter') {
       e.preventDefault();
-      const inputValue = e.currentTarget.value;
-      if (inputValue) {
-        parseAndCommitInput(inputValue);
+      const inputVal = e.currentTarget.value;
+      setInputValue(inputVal);
+      if (inputVal) {
+        parseAndCommitInput(inputVal);
       }
       // Blur the input
       (e.currentTarget as HTMLInputElement)?.blur();
@@ -396,6 +412,7 @@ export function IsoTimePicker({
           <Combobox.Control>
             <InputGroup startElement={<BsClock />}>
               <Combobox.Input
+                value={inputValue}
                 placeholder={labels.placeholder}
                 onFocus={handleFocus}
                 onBlur={handleBlur}

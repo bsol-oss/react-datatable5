@@ -1,7 +1,6 @@
 import { Button, Flex, Grid, Icon, Text } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { DatePickerInput } from './DatePickerInput';
-import { DatePickerLabels } from './DatePicker';
+import { DatePickerInput, DatePickerLabels } from './DatePicker';
 import { TimePicker } from '../TimePicker/TimePicker';
 import { IsoTimePicker } from './IsoTimePicker';
 import { TimePickerLabels } from '../Form/components/types/CustomJSONSchema7';
@@ -25,6 +24,8 @@ interface DateTimePickerProps {
   minDate?: Date;
   maxDate?: Date;
   portalled?: boolean;
+  defaultDate?: string; // YYYY-MM-DD format
+  defaultTime?: TimeData; // Default time to use when date is entered
 }
 
 interface TimeData12Hour {
@@ -71,6 +72,8 @@ export function DateTimePicker({
   minDate,
   maxDate,
   portalled = false,
+  defaultDate,
+  defaultTime,
 }: DateTimePickerProps) {
   console.log('[DateTimePicker] Component initialized with props:', {
     value,
@@ -219,6 +222,25 @@ export function DateTimePicker({
     setSecond(timeData.second);
   }, [value, getTimeFromValue, getDateString, timezone]);
 
+  // Normalize startTime to ignore milliseconds (needed for effectiveDefaultDate calculation)
+  const normalizedStartTime = startTime
+    ? dayjs(startTime).tz(timezone).millisecond(0).toISOString()
+    : undefined;
+
+  // Calculate effective defaultDate: use prop if provided, otherwise use startTime date, otherwise use today
+  const effectiveDefaultDate = useMemo(() => {
+    if (defaultDate) {
+      return defaultDate;
+    }
+    if (
+      normalizedStartTime &&
+      dayjs(normalizedStartTime).tz(timezone).isValid()
+    ) {
+      return dayjs(normalizedStartTime).tz(timezone).format('YYYY-MM-DD');
+    }
+    return dayjs().tz(timezone).format('YYYY-MM-DD');
+  }, [defaultDate, normalizedStartTime, timezone]);
+
   const handleDateChange = (date: string) => {
     console.log('[DateTimePicker] handleDateChange called:', {
       date,
@@ -263,6 +285,67 @@ export function DateTimePicker({
       onChange?.(undefined);
       return;
     }
+
+    // Check if time values are null - if so, use defaultTime or set to 00:00
+    const hasTimeValues =
+      format === 'iso-date-time'
+        ? hour24 !== null || minute !== null
+        : hour12 !== null || minute !== null || meridiem !== null;
+
+    let timeDataToUse: TimeData | undefined = undefined;
+    if (!hasTimeValues) {
+      // Use defaultTime if provided, otherwise default to 00:00
+      if (defaultTime) {
+        console.log('[DateTimePicker] No time values set, using defaultTime');
+        if (format === 'iso-date-time') {
+          const defaultTime24 = defaultTime as TimeData24Hour;
+          setHour24(defaultTime24.hour ?? 0);
+          setMinute(defaultTime24.minute ?? 0);
+          if (showSeconds) {
+            setSecond(defaultTime24.second ?? 0);
+          }
+          timeDataToUse = {
+            hour: defaultTime24.hour ?? 0,
+            minute: defaultTime24.minute ?? 0,
+            second: showSeconds ? defaultTime24.second ?? 0 : undefined,
+          };
+        } else {
+          const defaultTime12 = defaultTime as TimeData12Hour;
+          setHour12(defaultTime12.hour ?? 12);
+          setMinute(defaultTime12.minute ?? 0);
+          setMeridiem(defaultTime12.meridiem ?? 'am');
+          timeDataToUse = {
+            hour: defaultTime12.hour ?? 12,
+            minute: defaultTime12.minute ?? 0,
+            meridiem: defaultTime12.meridiem ?? 'am',
+          };
+        }
+      } else {
+        console.log('[DateTimePicker] No time values set, defaulting to 00:00');
+        if (format === 'iso-date-time') {
+          setHour24(0);
+          setMinute(0);
+          if (showSeconds) {
+            setSecond(0);
+          }
+          timeDataToUse = {
+            hour: 0,
+            minute: 0,
+            second: showSeconds ? 0 : undefined,
+          };
+        } else {
+          setHour12(12);
+          setMinute(0);
+          setMeridiem('am');
+          timeDataToUse = {
+            hour: 12,
+            minute: 0,
+            meridiem: 'am',
+          };
+        }
+      }
+    }
+
     // When showSeconds is false, ignore seconds from the date
     if (!showSeconds) {
       const dateWithoutSeconds = dateObj.second(0).millisecond(0).toISOString();
@@ -270,14 +353,14 @@ export function DateTimePicker({
         '[DateTimePicker] Updating date without seconds:',
         dateWithoutSeconds
       );
-      updateDateTime(dateWithoutSeconds);
+      updateDateTime(dateWithoutSeconds, timeDataToUse);
     } else {
       const dateWithSeconds = dateObj.toISOString();
       console.log(
         '[DateTimePicker] Updating date with seconds:',
         dateWithSeconds
       );
-      updateDateTime(dateWithSeconds);
+      updateDateTime(dateWithSeconds, timeDataToUse);
     }
   };
 
@@ -307,19 +390,44 @@ export function DateTimePicker({
       setMeridiem(data.meridiem);
     }
 
-    // Use selectedDate if valid, otherwise clear all fields
+    // Use selectedDate if valid, otherwise use effectiveDefaultDate or clear all fields
     if (!selectedDate || !dayjs(selectedDate).isValid()) {
-      console.log(
-        '[DateTimePicker] No valid selectedDate, clearing all fields'
-      );
-      setSelectedDate('');
-      setHour12(null);
-      setMinute(null);
-      setMeridiem(null);
-      setHour24(null);
-      setSecond(null);
-      onChange?.(undefined);
-      return;
+      // If effectiveDefaultDate is available, use it instead of clearing
+      if (effectiveDefaultDate && dayjs(effectiveDefaultDate).isValid()) {
+        console.log(
+          '[DateTimePicker] No valid selectedDate, using effectiveDefaultDate:',
+          effectiveDefaultDate
+        );
+        setSelectedDate(effectiveDefaultDate);
+        const dateObj = dayjs(effectiveDefaultDate).tz(timezone);
+        if (dateObj.isValid()) {
+          updateDateTime(dateObj.toISOString(), timeData);
+        } else {
+          console.warn(
+            '[DateTimePicker] Invalid effectiveDefaultDate, clearing fields'
+          );
+          setSelectedDate('');
+          setHour12(null);
+          setMinute(null);
+          setMeridiem(null);
+          setHour24(null);
+          setSecond(null);
+          onChange?.(undefined);
+        }
+        return;
+      } else {
+        console.log(
+          '[DateTimePicker] No valid selectedDate and no effectiveDefaultDate, clearing all fields'
+        );
+        setSelectedDate('');
+        setHour12(null);
+        setMinute(null);
+        setMeridiem(null);
+        setHour24(null);
+        setSecond(null);
+        onChange?.(undefined);
+        return;
+      }
     }
 
     const dateObj = dayjs(selectedDate).tz(timezone);
@@ -491,11 +599,6 @@ export function DateTimePicker({
 
   const isISO = format === 'iso-date-time';
 
-  // Normalize startTime to ignore milliseconds
-  const normalizedStartTime = startTime
-    ? dayjs(startTime).tz(timezone).millisecond(0).toISOString()
-    : undefined;
-
   // Determine minDate: prioritize explicit minDate prop, then fall back to startTime
   const effectiveMinDate = minDate
     ? minDate
@@ -574,7 +677,7 @@ export function DateTimePicker({
   }, [selectedDate, timezone]);
 
   return (
-    <Flex direction="column" gap={4}>
+    <Flex direction="column" gap={2}>
       <DatePickerInput
         value={selectedDate || undefined}
         onChange={(date) => {
@@ -593,10 +696,10 @@ export function DateTimePicker({
         minDate={effectiveMinDate}
         maxDate={maxDate}
         monthsToDisplay={1}
-        readOnly={true}
+        readOnly={false}
       />
 
-      <Grid templateColumns="1fr auto" alignItems="center" gap={4}>
+      <Grid templateColumns="1fr auto" alignItems="center" gap={2}>
         {isISO ? (
           <IsoTimePicker
             hour={hour24}

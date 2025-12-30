@@ -153,7 +153,7 @@ export * from './components/DatePicker/DatePicker';
 export * from './components/DatePicker/getMultiDates';
 export * from './components/DatePicker/getRangeDates';
 export * from './components/DatePicker/RangeDatePicker';
-export * from './components/DatePicker/DatePickerInput';
+// DatePickerInput is now exported from DatePicker.tsx
 
 // DataTable Display Wrapper Components
 export * from './components/DataTable/display/RecordDisplay';

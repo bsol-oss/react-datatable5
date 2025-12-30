@@ -127,14 +127,14 @@ export const DateTimePicker = ({
         </Popover.Trigger>
         {insideDialog ? (
           <Popover.Positioner>
-            <Popover.Content width="fit-content" minW="450px" minH="25rem">
+            <Popover.Content width="fit-content" minW="350px" minH="10rem">
               <Popover.Body>{dateTimePickerContent}</Popover.Body>
             </Popover.Content>
           </Popover.Positioner>
         ) : (
           <Portal>
             <Popover.Positioner>
-              <Popover.Content width="fit-content" minW="450px" minH="25rem">
+              <Popover.Content width="fit-content" minW="350px" minH="10rem">
                 <Popover.Body>{dateTimePickerContent}</Popover.Body>
               </Popover.Content>
             </Popover.Positioner>

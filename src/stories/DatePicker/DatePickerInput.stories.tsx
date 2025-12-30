@@ -1,10 +1,10 @@
-import { DatePickerInput } from '@/components/DatePicker/DatePickerInput';
+import { DatePickerInput } from '@/components/DatePicker/DatePicker';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
 const meta = {
-  title: 'react-datatable5/DatePicker/DatePickerInput',
+  title: 'react-datatable5/DatePicker/DatePicker',
   component: DatePickerInput,
   parameters: {},
   argTypes: {},
