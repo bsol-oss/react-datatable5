@@ -46,6 +46,29 @@ export const EnumPicker = ({
   const watchEnums = (watch(colLabel) ?? []) as string[];
   const dataList = schema.enum ?? [];
 
+  // Helper function to render enum value
+  // If renderDisplay is provided, use it; otherwise show the enum string value directly
+  const renderEnumValue = (value: string) => {
+    if (renderDisplay) {
+      return renderDisplay(value);
+    }
+    // If no renderDisplay provided, show the enum string value directly
+    return value;
+  };
+
+  // Debug log when renderDisplay is missing
+  if (!renderDisplay) {
+    console.debug(
+      `[EnumPicker] Missing renderDisplay for field '${colLabel}'. Add renderDisplay function to schema for field '${colLabel}' to provide custom UI rendering. Currently showing enum string values directly.`,
+      {
+        fieldName: column,
+        colLabel,
+        prefix,
+        enumValues: dataList,
+      }
+    );
+  }
+
   // Current value for combobox (array format)
   const currentValue = isMultiple
     ? watchEnums.filter((val) => val != null && val !== '')
@@ -54,15 +77,21 @@ export const EnumPicker = ({
       : [];
 
   // Transform enum data for combobox collection
-  const comboboxItems = useMemo(() => {
+  // Note: label is used internally for search/filtering only
+  // All UI display relies on renderEnumValue (see Combobox.ItemText below)
+  type ComboboxItem = {
+    label: string; // Used for combobox search/filtering (not displayed)
+    value: string;
+    raw: string; // Raw enum value passed to renderEnumValue for UI rendering
+  };
+
+  const comboboxItems = useMemo<ComboboxItem[]>(() => {
     return (dataList as string[]).map((item: string) => ({
-      label:
-        !!renderDisplay === true
-          ? String(renderDisplay(item))
-          : formI18n.t(item),
+      label: item, // Internal: used for search/filtering only
       value: item,
+      raw: item, // Passed to renderEnumValue for UI rendering
     }));
-  }, [dataList, renderDisplay, formI18n]);
+  }, [dataList]);
 
   // Use filter hook for combobox
   const { contains } = useFilter({ sensitivity: 'base' });
@@ -119,9 +148,7 @@ export const EnumPicker = ({
                   <RadioGroup.ItemHiddenInput />
                   <RadioGroup.ItemIndicator />
                   <RadioGroup.ItemText>
-                    {!!renderDisplay === true
-                      ? renderDisplay(item)
-                      : formI18n.t(item)}
+                    {renderEnumValue(item)}
                   </RadioGroup.ItemText>
                 </RadioGroup.Item>
               );
@@ -163,9 +190,7 @@ export const EnumPicker = ({
                   setValue(colLabel, newValue);
                 }}
               >
-                {!!renderDisplay === true
-                  ? renderDisplay(enumValue)
-                  : formI18n.t(enumValue)}
+                {renderEnumValue(enumValue)}
               </Tag>
             );
           })}
@@ -190,9 +215,7 @@ export const EnumPicker = ({
       >
         <Combobox.Control>
           <Combobox.Input
-            placeholder={
-              enumPickerLabels?.typeToSearch ?? formI18n.t('type_to_search')
-            }
+            placeholder={enumPickerLabels?.typeToSearch ?? 'Type to search'}
           />
           <Combobox.IndicatorGroup>
             {!isMultiple && currentValue.length > 0 && (
@@ -211,24 +234,25 @@ export const EnumPicker = ({
             <Combobox.Content>
               {showTotalAndLimit && (
                 <Text p={2} fontSize="sm" color="fg.muted">
-                  {`${enumPickerLabels?.total ?? formI18n.t('total')}: ${
+                  {`${enumPickerLabels?.total ?? 'Total'}: ${
                     collection.items.length
                   }`}
                 </Text>
               )}
               {collection.items.length === 0 ? (
                 <Combobox.Empty>
-                  {enumPickerLabels?.emptySearchResult ??
-                    formI18n.t('empty_search_result')}
+                  {enumPickerLabels?.emptySearchResult ?? 'No results found'}
                 </Combobox.Empty>
               ) : (
                 <>
-                  {collection.items.map((item, index) => (
+                  {collection.items.map((item: ComboboxItem, index) => (
                     <Combobox.Item
                       key={item.value ?? `item-${index}`}
                       item={item}
                     >
-                      <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                      <Combobox.ItemText>
+                        {renderEnumValue(item.raw)}
+                      </Combobox.ItemText>
                       <Combobox.ItemIndicator />
                     </Combobox.Item>
                   ))}
@@ -242,24 +266,25 @@ export const EnumPicker = ({
               <Combobox.Content>
                 {showTotalAndLimit && (
                   <Text p={2} fontSize="sm" color="fg.muted">
-                    {`${enumPickerLabels?.total ?? formI18n.t('total')}: ${
+                    {`${enumPickerLabels?.total ?? 'Total'}: ${
                       collection.items.length
                     }`}
                   </Text>
                 )}
                 {collection.items.length === 0 ? (
                   <Combobox.Empty>
-                    {enumPickerLabels?.emptySearchResult ??
-                      formI18n.t('empty_search_result')}
+                    {enumPickerLabels?.emptySearchResult ?? 'No results found'}
                   </Combobox.Empty>
                 ) : (
                   <>
-                    {collection.items.map((item, index) => (
+                    {collection.items.map((item: ComboboxItem, index) => (
                       <Combobox.Item
                         key={item.value ?? `item-${index}`}
                         item={item}
                       >
-                        <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                        <Combobox.ItemText>
+                          {renderEnumValue(item.raw)}
+                        </Combobox.ItemText>
                         <Combobox.ItemIndicator />
                       </Combobox.Item>
                     ))}

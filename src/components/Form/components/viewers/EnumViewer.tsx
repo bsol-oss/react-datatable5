@@ -2,7 +2,10 @@ import { Tag } from '@/components/ui/tag';
 import { Flex, Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
-import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import {
+  CustomJSONSchema7,
+  defaultRenderDisplay,
+} from '../types/CustomJSONSchema7';
 import { useFormI18n } from '../../utils/useFormI18n';
 
 export interface EnumViewerProps {
@@ -29,6 +32,7 @@ export const EnumViewer = ({
   const colLabel = formI18n.colLabel;
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];
+  const renderDisplayFunction = renderDisplay || defaultRenderDisplay;
 
   return (
     <Field
@@ -49,15 +53,13 @@ export const EnumViewer = ({
             }
             return (
               <Tag key={item} size="lg">
-                {!!renderDisplay === true
-                  ? renderDisplay(item)
-                  : formI18n.t(item)}
+                {renderDisplayFunction(item)}
               </Tag>
             );
           })}
         </Flex>
       )}
-      {!isMultiple && <Text>{formI18n.t(watchEnum)}</Text>}
+      {!isMultiple && <Text>{renderDisplayFunction(watchEnum)}</Text>}
 
       {errors[`${column}`] && (
         <Text color={'red.400'}>{formI18n.required()}</Text>

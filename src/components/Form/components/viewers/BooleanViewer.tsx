@@ -1,9 +1,7 @@
 import { Field } from '@/components/ui/field';
 import { Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
-import { useSchemaContext } from '../../useSchemaContext';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
-import { removeIndex } from '../../utils/removeIndex';
 import { useFormI18n } from '../../utils/useFormI18n';
 
 export interface BooleanViewerProps {
@@ -36,7 +34,7 @@ export const BooleanViewer = ({
         gridRow,
       }}
     >
-      <Text>{value ? formI18n.t('true') : formI18n.t('false')}</Text>
+      <Text>{value ? 'True' : 'False'}</Text>
       {errors[`${column}`] && (
         <Text color={'red.400'}>{formI18n.required()}</Text>
       )}

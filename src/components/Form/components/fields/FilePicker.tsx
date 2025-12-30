@@ -374,9 +374,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
               setValue(colLabel, [...currentFiles, ...newFiles]);
             }
           }}
-          placeholder={
-            filePickerLabels?.fileDropzone ?? formI18n.t('fileDropzone')
-          }
+          placeholder={filePickerLabels?.fileDropzone ?? 'Drop files here'}
         />
       </VStack>
 

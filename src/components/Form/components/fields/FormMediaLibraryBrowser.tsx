@@ -185,9 +185,7 @@ export const FormMediaLibraryBrowser = ({
           bg="bg.panel"
           _hover={{ bg: 'bg.muted' }}
         >
-          {filePickerLabels?.browseLibrary ??
-            formI18n.t('browse_library') ??
-            'Browse from Library'}
+          {filePickerLabels?.browseLibrary ?? 'Browse from Library'}
         </Button>
       </VStack>
 
