@@ -22,6 +22,7 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 
 export const DataDisplayStory: Story = {
+  name: 'Data Display Story',
   render: () => {
     return <DataDisplayView />;
   },

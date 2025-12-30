@@ -18,6 +18,7 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 
 export const ObjectDisplay1: Story = {
+  name: 'Object Display 1',
   render: () => {
     return <DataDisplayView />;
   },
@@ -48,6 +49,7 @@ const DataDisplayView = () => {
 };
 
 export const ObjectDisplay2: Story = {
+  name: 'Object Display 2',
   render: () => {
     return (
       <QueryClientProvider client={queryClient}>

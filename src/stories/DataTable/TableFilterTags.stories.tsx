@@ -93,6 +93,7 @@ const TotalRowCount = () => {
 };
 
 export const WithActiveFilters: Story = {
+  name: 'With Active Filters',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -132,6 +133,7 @@ export const WithActiveFilters: Story = {
 };
 
 export const WithMultipleFilters: Story = {
+  name: 'With Multiple Filters',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -171,6 +173,7 @@ export const WithMultipleFilters: Story = {
 };
 
 export const EmptyState: Story = {
+  name: 'Empty State',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -265,6 +268,7 @@ const InteractiveFilterControls = () => {
 };
 
 export const InteractiveExample: Story = {
+  name: 'Interactive Example',
   render: () => {
     const datatable = useDataTable({
       default: {

@@ -22,6 +22,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const Activities4: Story = {
+  name: 'Activities 4',
   render: () => {
     return (
       <Provider>

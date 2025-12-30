@@ -27,6 +27,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const CustomDateTimePickerLabels: Story = {
+  name: 'Custom Date Time Picker Labels',
   args: {
     formConfig: {
       schema: {} as JSONSchema7,
@@ -47,6 +48,7 @@ export const CustomDateTimePickerLabels: Story = {
 };
 
 export const CustomIdPickerLabels: Story = {
+  name: 'Custom Id Picker Labels',
   args: {
     formConfig: {
       schema: {} as JSONSchema7,
@@ -67,6 +69,7 @@ export const CustomIdPickerLabels: Story = {
 };
 
 export const CustomEnumPickerLabels: Story = {
+  name: 'Custom Enum Picker Labels',
   args: {
     formConfig: {
       schema: {} as JSONSchema7,
@@ -87,6 +90,7 @@ export const CustomEnumPickerLabels: Story = {
 };
 
 export const CombinedCustomLabels: Story = {
+  name: 'Combined Custom Labels',
   args: {
     formConfig: {
       schema: {} as JSONSchema7,

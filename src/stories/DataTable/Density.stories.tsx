@@ -94,6 +94,7 @@ const columns: ColumnDef<Product>[] = [
 ];
 
 export const DensityToggle: Story = {
+  name: 'Density Toggle',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -126,6 +127,7 @@ export const DensityToggle: Story = {
 };
 
 export const ExtraSmallDensity: Story = {
+  name: 'Extra Small Density',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -153,6 +155,7 @@ export const ExtraSmallDensity: Story = {
 };
 
 export const SmallDensity: Story = {
+  name: 'Small Density',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -180,6 +183,7 @@ export const SmallDensity: Story = {
 };
 
 export const MediumDensity: Story = {
+  name: 'Medium Density',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -207,6 +211,7 @@ export const MediumDensity: Story = {
 };
 
 export const LargeDensity: Story = {
+  name: 'Large Density',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -234,6 +239,7 @@ export const LargeDensity: Story = {
 };
 
 export const DensityComparison: Story = {
+  name: 'Density Comparison',
   render: () => {
     const datatableXs = useDataTable({
       default: {

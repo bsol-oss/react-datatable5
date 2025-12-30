@@ -28,6 +28,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const ErrorDisplayDemo: Story = {
+  name: 'Error Display Demo',
   render: () => {
     return (
       <Provider>
@@ -48,6 +49,7 @@ export const ErrorDisplayDemo: Story = {
 };
 
 export const FieldTypesComparison: Story = {
+  name: 'Field Types Comparison',
   render: () => {
     return (
       <Provider>

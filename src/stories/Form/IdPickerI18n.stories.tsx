@@ -175,6 +175,7 @@ const customUserQueryFn = async ({
 };
 
 export const IdPickerI18n: Story = {
+  name: 'Id Picker I18n',
   render: () => {
     return (
       <Provider>

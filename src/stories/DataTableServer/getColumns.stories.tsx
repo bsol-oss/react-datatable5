@@ -25,6 +25,7 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 
 export const GetColumnsStory: Story = {
+  name: 'Get Columns Story',
   render: () => {
     return <DataDisplayView />;
   },

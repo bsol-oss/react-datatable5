@@ -239,17 +239,21 @@ const AsyncLoadingExample = () => {
 };
 
 export const ClientSideManualControl: Story = {
+  name: 'Client Side Manual Control',
   render: () => <ClientSideSkeletonExample />,
 };
 
 export const DifferentPageSizes: Story = {
+  name: 'Different Page Sizes',
   render: () => <DifferentPageSizeExample />,
 };
 
 export const GreedyVariant: Story = {
+  name: 'Greedy Variant',
   render: () => <GreedyVariantExample />,
 };
 
 export const AsyncLoadingSimulation: Story = {
+  name: 'Async Loading Simulation',
   render: () => <AsyncLoadingExample />,
 };

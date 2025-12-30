@@ -57,6 +57,7 @@ const columns: ColumnDef<Product, unknown>[] = [
 ] as ColumnDef<Product, unknown>[];
 
 export const WithFilterTagsOptions: Story = {
+  name: 'With Filter Tags Options',
   render: () => {
     const datatable = useDataTable({
       default: { sorting: [{ id: 'title', desc: false }] },
@@ -99,6 +100,7 @@ export const WithFilterTagsOptions: Story = {
 };
 
 export const MultipleFilterTagsOptions: Story = {
+  name: 'Multiple Filter Tags Options',
   render: () => {
     const datatable = useDataTable({
       default: { sorting: [{ id: 'title', desc: false }] },
@@ -156,6 +158,7 @@ export const MultipleFilterTagsOptions: Story = {
 };
 
 export const WithOtherControls: Story = {
+  name: 'With Other Controls',
   render: () => {
     const datatable = useDataTable({
       default: { sorting: [{ id: 'title', desc: false }] },
@@ -200,6 +203,7 @@ export const WithOtherControls: Story = {
 };
 
 export const EmptyFilterTagsOptions: Story = {
+  name: 'Empty Filter Tags Options',
   render: () => {
     const datatable = useDataTable({
       default: { sorting: [{ id: 'title', desc: false }] },

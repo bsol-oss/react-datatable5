@@ -299,6 +299,7 @@ const ResponsivePriorityDemo = () => {
 };
 
 export const WithPriority: Story = {
+  name: 'With Priority',
   render: () => (
     <Provider>
       <ResponsivePriorityDemo />

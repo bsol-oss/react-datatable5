@@ -124,6 +124,7 @@ const columns: ColumnDef<Product>[] = [
 ];
 
 export const Playground = Template.bind({});
+Playground.storyName = 'Playground';
 
 Playground.args = {
   data: data,

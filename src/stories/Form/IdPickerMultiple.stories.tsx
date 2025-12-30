@@ -342,6 +342,7 @@ const renderCompactTag = (item: unknown): ReactNode => {
 };
 
 export const IdPickerMultipleSelection: Story = {
+  name: 'Id Picker Multiple Selection',
   render: () => {
     return (
       <Provider>

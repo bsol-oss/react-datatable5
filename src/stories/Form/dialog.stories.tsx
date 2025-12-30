@@ -22,6 +22,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const InsideDialog: Story = {
+  name: 'Inside Dialog',
   render: () => {
     return (
       <Provider>

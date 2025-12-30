@@ -136,6 +136,7 @@ const customLabels: DataTableLabel = {
 };
 
 export const DefaultLabels: Story = {
+  name: 'Default Labels',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -238,6 +239,7 @@ export const DefaultLabels: Story = {
 };
 
 export const CustomLabels: Story = {
+  name: 'Custom Labels',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -290,6 +292,7 @@ export const CustomLabels: Story = {
 };
 
 export const IndividualComponents: Story = {
+  name: 'Individual Components',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -423,6 +426,7 @@ export const IndividualComponents: Story = {
 };
 
 export const BooleanFilterLabels: Story = {
+  name: 'Boolean Filter Labels',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -484,6 +488,7 @@ export const BooleanFilterLabels: Story = {
 };
 
 export const Comparison: Story = {
+  name: 'Comparison',
   render: () => {
     const datatable1 = useDataTable({
       default: {

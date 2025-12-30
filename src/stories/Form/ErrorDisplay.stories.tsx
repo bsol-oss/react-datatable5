@@ -31,6 +31,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const AllFieldTypesWithErrors: Story = {
+  name: 'All Field Types With Errors',
   render: () => {
     return (
       <Provider>
@@ -51,6 +52,7 @@ export const AllFieldTypesWithErrors: Story = {
 };
 
 export const RequiredFieldErrors: Story = {
+  name: 'Required Field Errors',
   render: () => {
     return (
       <Provider>
@@ -71,6 +73,7 @@ export const RequiredFieldErrors: Story = {
 };
 
 export const ValidationErrors: Story = {
+  name: 'Validation Errors',
   render: () => {
     return (
       <Provider>
@@ -91,6 +94,7 @@ export const ValidationErrors: Story = {
 };
 
 export const ComplexFormWithErrors: Story = {
+  name: 'Complex Form With Errors',
   render: () => {
     return (
       <Provider>

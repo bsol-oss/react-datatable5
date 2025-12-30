@@ -27,6 +27,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const Validation: Story = {
+  name: 'Validation',
   render: () => {
     return (
       <Provider>
@@ -39,6 +40,7 @@ export const Validation: Story = {
 };
 
 export const ValidationWithHelpers: Story = {
+  name: 'Validation With Helpers',
   render: () => {
     return (
       <Provider>
@@ -51,6 +53,7 @@ export const ValidationWithHelpers: Story = {
 };
 
 export const ValidationWithI18n: Story = {
+  name: 'Validation With I18n',
   render: () => {
     return (
       <Provider>

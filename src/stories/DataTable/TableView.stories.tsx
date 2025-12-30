@@ -20,42 +20,49 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const DefaultTableView2: Story = {
+  name: 'Default Table View 2',
   render: () => {
     return <DefaultTableShowcase2 />;
   },
 };
 
 export const DefaultTableView: Story = {
+  name: 'Default Table View',
   render: () => {
     return <DefaultTableShowcase />;
   },
 };
 
 export const TableView: Story = {
+  name: 'Table View',
   render: () => {
     return <TableViewShowcase />;
   },
 };
 
 export const CardView = {
+  name: 'Card View',
   render: () => {
     return <CardViewShowcase />;
   },
 };
 
 export const Minimal = {
+  name: 'Minimal',
   render: () => {
     return <MinimalShowcase />;
   },
 };
 
 export const Minimal2 = {
+  name: 'Minimal 2',
   render: () => {
     return <MinimalShowcase2 />;
   },
 };
 
 export const ShowHeader = {
+  name: 'Show Header',
   render: () => {
     return <ShowHeaderShowcase />;
   },

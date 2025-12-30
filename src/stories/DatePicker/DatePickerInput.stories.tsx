@@ -15,6 +15,7 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 
 export const Basic: Story = {
+  name: 'Basic',
   render: () => {
     return <BasicView />;
   },
@@ -45,6 +46,7 @@ const BasicView = () => {
 };
 
 export const WithCustomFormat: Story = {
+  name: 'With Custom Format',
   render: () => {
     return <CustomFormatView />;
   },
@@ -76,6 +78,7 @@ const CustomFormatView = () => {
 };
 
 export const WithMinMaxDate: Story = {
+  name: 'With Min Max Date',
   render: () => {
     return <MinMaxDateView />;
   },
@@ -116,6 +119,7 @@ const MinMaxDateView = () => {
 };
 
 export const WithCustomLabels: Story = {
+  name: 'With Custom Labels',
   render: () => {
     return <CustomLabelsView />;
   },
@@ -164,6 +168,7 @@ const CustomLabelsView = () => {
 };
 
 export const MultipleMonths: Story = {
+  name: 'Multiple Months',
   render: () => {
     return <MultipleMonthsView />;
   },

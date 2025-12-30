@@ -20,6 +20,7 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 
 export const MultipleMonths: Story = {
+  name: 'Multiple Months',
   render: () => {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [firstDayOfWeek, setFirstDayOfWeek] = useState<
@@ -107,6 +108,7 @@ export const MultipleMonths: Story = {
 };
 
 export const ChineseLabels: Story = {
+  name: 'Chinese Labels',
   render: () => {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [firstDayOfWeek, setFirstDayOfWeek] = useState<

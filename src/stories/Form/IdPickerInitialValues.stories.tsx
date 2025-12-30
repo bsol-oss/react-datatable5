@@ -170,6 +170,7 @@ const customEmployeeQueryFn = async ({
 };
 
 export const IdPickerWithInitialValues: Story = {
+  name: 'Id Picker With Initial Values',
   render: () => {
     return (
       <Provider>

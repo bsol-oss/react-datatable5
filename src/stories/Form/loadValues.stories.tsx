@@ -52,6 +52,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const PreloadedValues: Story = {
+  name: 'Preloaded Values',
   render: () => {
     return (
       <Provider>

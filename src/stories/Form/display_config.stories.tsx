@@ -20,6 +20,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const displayConfig: Story = {
+  name: 'Display Config',
   render: () => {
     return (
       <Provider>

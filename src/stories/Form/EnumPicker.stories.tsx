@@ -20,6 +20,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const EnumPicker: Story = {
+  name: 'Enum Picker',
   render: () => {
     return (
       <Provider>

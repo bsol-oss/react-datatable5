@@ -29,6 +29,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const DefaultSuccess: Story = {
+  name: 'Default Success',
   render: () => {
     return (
       <Provider>
@@ -41,6 +42,7 @@ export const DefaultSuccess: Story = {
 };
 
 export const CustomSuccess: Story = {
+  name: 'Custom Success',
   render: () => {
     return (
       <Provider>

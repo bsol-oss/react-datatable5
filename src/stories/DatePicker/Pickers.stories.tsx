@@ -17,6 +17,7 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 
 export const Single: Story = {
+  name: 'Single',
   render: () => {
     return (
       <Provider>

@@ -92,6 +92,7 @@ const mockFetchFiles = async (
 };
 
 export const BasicFileUpload: Story = {
+  name: 'Basic File Upload',
   render: () => {
     return (
       <Provider>
@@ -133,6 +134,7 @@ const BasicFileUploadForm = () => {
 };
 
 export const WithMediaLibrary: Story = {
+  name: 'With Media Library',
   render: () => {
     return (
       <Provider>
@@ -181,6 +183,7 @@ const WithMediaLibraryForm = () => {
 };
 
 export const ImageOnlyWithLibrary: Story = {
+  name: 'Image Only With Library',
   render: () => {
     return (
       <Provider>
@@ -228,6 +231,7 @@ const ImageOnlyForm = () => {
 };
 
 export const RequiredFiles: Story = {
+  name: 'Required Files',
   render: () => {
     return (
       <Provider>
@@ -273,6 +277,7 @@ const RequiredFilesForm = () => {
 };
 
 export const MultipleFilePickers: Story = {
+  name: 'Multiple File Pickers',
   render: () => {
     return (
       <Provider>
@@ -338,6 +343,7 @@ const MultipleFilePickersForm = () => {
 };
 
 export const WithCustomLabels: Story = {
+  name: 'With Custom Labels',
   render: () => {
     return (
       <Provider>
@@ -412,6 +418,7 @@ const WithCustomLabelsForm = () => {
 };
 
 export const SingleSelect: Story = {
+  name: 'Single Select',
   render: () => {
     return (
       <Provider>
@@ -459,6 +466,7 @@ const SingleSelectForm = () => {
 };
 
 export const FilePickerAndMediaLibrary: Story = {
+  name: 'File Picker And Media Library',
   render: () => {
     return (
       <Provider>

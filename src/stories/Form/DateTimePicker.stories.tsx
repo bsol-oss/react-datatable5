@@ -28,6 +28,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const BasicUsage: Story = {
+  name: 'Basic Usage',
   render: () => {
     return (
       <Provider>
@@ -48,6 +49,7 @@ export const BasicUsage: Story = {
 };
 
 export const WithPreFilledValues: Story = {
+  name: 'With Pre Filled Values',
   render: () => {
     return (
       <Provider>
@@ -68,6 +70,7 @@ export const WithPreFilledValues: Story = {
 };
 
 export const WithValidation: Story = {
+  name: 'With Validation',
   render: () => {
     return (
       <Provider>
@@ -88,6 +91,7 @@ export const WithValidation: Story = {
 };
 
 export const CustomDateFormat: Story = {
+  name: 'Custom Date Format',
   render: () => {
     return (
       <Provider>
@@ -108,6 +112,7 @@ export const CustomDateFormat: Story = {
 };
 
 export const CustomLabels: Story = {
+  name: 'Custom Labels',
   render: () => {
     return (
       <Provider>
@@ -128,6 +133,7 @@ export const CustomLabels: Story = {
 };
 
 export const MultipleDateTimeFields: Story = {
+  name: 'Multiple Date Time Fields',
   render: () => {
     return (
       <Provider>

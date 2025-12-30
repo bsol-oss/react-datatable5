@@ -24,6 +24,7 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 
 export const Basic: Story = {
+  name: 'Basic',
   render: () => {
     const [value, setValue] = useState<string>();
     return (
@@ -45,6 +46,7 @@ export const Basic: Story = {
 };
 
 export const WithStartTime: Story = {
+  name: 'With Start Time',
   render: () => {
     const [value, setValue] = useState<string>();
     // Set start time to 2 hours from now
@@ -84,6 +86,7 @@ export const WithStartTime: Story = {
 };
 
 export const WithStartTimeISO: Story = {
+  name: 'With Start Time ISO',
   render: () => {
     const [value, setValue] = useState<string>();
     // Set start time to 1 hour 30 minutes from now
@@ -125,6 +128,7 @@ export const WithStartTimeISO: Story = {
 };
 
 export const WithStartTimeSameDay: Story = {
+  name: 'With Start Time Same Day',
   render: () => {
     const [value, setValue] = useState<string>();
     // Set start time to 9:00 AM today
@@ -164,6 +168,7 @@ export const WithStartTimeSameDay: Story = {
 };
 
 export const WithStartTimeDifferentDay: Story = {
+  name: 'With Start Time Different Day',
   render: () => {
     const [value, setValue] = useState<string>();
     // Set start time to yesterday at 3:00 PM

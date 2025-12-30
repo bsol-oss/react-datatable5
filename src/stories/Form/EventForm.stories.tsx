@@ -21,6 +21,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const Event: Story = {
+  name: 'Event',
   render: () => {
     return (
       <Provider>

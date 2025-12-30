@@ -155,6 +155,7 @@ const customProductQueryFn = async ({
 };
 
 export const LoadInitialValuesDemo: Story = {
+  name: 'Load Initial Values Demo',
   render: () => {
     return (
       <Provider>
@@ -179,6 +180,7 @@ export const LoadInitialValuesDemo: Story = {
 };
 
 export const SchemaLevelLoadInitialValues: Story = {
+  name: 'Schema Level Load Initial Values',
   render: () => {
     return (
       <Provider>

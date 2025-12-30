@@ -231,6 +231,7 @@ const renderUserDisplay = (item: unknown): ReactNode => {
 };
 
 export const IdPickerComboboxDemo: Story = {
+  name: 'Id Picker Combobox Demo',
   render: () => {
     return (
       <Provider>

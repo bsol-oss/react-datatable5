@@ -19,6 +19,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const DefaultTableView: Story = {
+  name: 'Default Table View',
   render: () => {
     return <DefaultTableShowcase />;
   },
@@ -26,6 +27,7 @@ export const DefaultTableView: Story = {
 const queryClient = new QueryClient();
 
 export const DefaultTableView2: Story = {
+  name: 'Default Table View 2',
   render: () => {
     return (
       <QueryClientProvider client={queryClient}>
@@ -35,6 +37,7 @@ export const DefaultTableView2: Story = {
   },
 };
 export const DefaultTableView3: Story = {
+  name: 'Default Table View 3',
   render: () => {
     return (
       <QueryClientProvider client={queryClient}>
@@ -45,6 +48,7 @@ export const DefaultTableView3: Story = {
 };
 
 export const TableView: Story = {
+  name: 'Table View',
   render: () => {
     return (
       <QueryClientProvider client={queryClient}>
@@ -55,6 +59,7 @@ export const TableView: Story = {
 };
 
 export const CardView: Story = {
+  name: 'Card View',
   render: () => {
     return (
       <QueryClientProvider client={queryClient}>

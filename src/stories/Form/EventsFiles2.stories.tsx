@@ -23,6 +23,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const EventsFiles2: Story = {
+  name: 'Events Files 2',
   render: () => {
     return (
       <Provider>

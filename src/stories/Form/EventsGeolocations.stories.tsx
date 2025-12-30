@@ -21,6 +21,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const EventsGeolocations: Story = {
+  name: 'Events Geolocations',
   render: () => {
     return (
       <Provider>

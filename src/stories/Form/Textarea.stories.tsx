@@ -20,6 +20,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const Textarea: Story = {
+  name: 'Textarea',
   render: () => {
     return (
       <Provider>

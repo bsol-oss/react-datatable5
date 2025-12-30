@@ -20,6 +20,7 @@ export default meta;
 const queryClient = new QueryClient();
 
 export const Timepickers: Story = {
+  name: 'Timepickers',
   render: () => {
     return (
       <Provider>

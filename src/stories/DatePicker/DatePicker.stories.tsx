@@ -19,6 +19,7 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 
 export const Single: Story = {
+  name: 'Single',
   render: () => {
     return <DataDisplayView />;
   },
@@ -99,6 +100,7 @@ const DataDisplayView = () => {
 };
 
 export const Multi: Story = {
+  name: 'Multi',
   render: () => {
     return <DataDisplayMultiView />;
   },
@@ -164,6 +166,7 @@ const DataDisplayMultiView = () => {
 };
 
 export const MinMax: Story = {
+  name: 'Min Max',
   render: () => {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [firstDayOfWeek, setFirstDayOfWeek] = useState<
@@ -230,6 +233,7 @@ export const MinMax: Story = {
 };
 
 export const MultipleMonths: Story = {
+  name: 'Multiple Months',
   render: () => {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [firstDayOfWeek, setFirstDayOfWeek] = useState<

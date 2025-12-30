@@ -73,6 +73,7 @@ const BasicTextColumns: ColumnDef<ExtendedProduct>[] = [
 ];
 
 export const BasicTextDisplay: Story = {
+  name: 'Basic Text Display',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -133,6 +134,7 @@ const LinkColumns: ColumnDef<ExtendedProduct>[] = [
 ];
 
 export const LinksWithHref: Story = {
+  name: 'Links With Href',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -194,6 +196,7 @@ const ClickableColumns: ColumnDef<ExtendedProduct>[] = [
 ];
 
 export const ClickableText: Story = {
+  name: 'Clickable Text',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -246,6 +249,7 @@ const CopyableColumns: ColumnDef<ExtendedProduct>[] = [
 ];
 
 export const CopyableText: Story = {
+  name: 'Copyable Text',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -320,6 +324,7 @@ const BadgeColumns: ColumnDef<ExtendedProduct>[] = [
 ];
 
 export const BadgeDisplay: Story = {
+  name: 'Badge Display',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -370,6 +375,7 @@ const ArrayBadgeColumns: ColumnDef<ExtendedProduct>[] = [
 ];
 
 export const ArrayOfBadges: Story = {
+  name: 'Array Of Badges',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -454,6 +460,7 @@ const NullHandlingColumns: ColumnDef<ExtendedProduct>[] = [
 ];
 
 export const NullUndefinedHandling: Story = {
+  name: 'Null Undefined Handling',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -535,6 +542,7 @@ const AllFeaturesColumns: ColumnDef<ExtendedProduct>[] = [
 ];
 
 export const AllFeaturesCombined: Story = {
+  name: 'All Features Combined',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -615,6 +623,7 @@ const ColorPaletteColumns: ColumnDef<ExtendedProduct>[] = [
 ];
 
 export const ColorPaletteVariations: Story = {
+  name: 'Color Palette Variations',
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -702,6 +711,7 @@ const HighlightingColumns: ColumnDef<ExtendedProduct>[] = [
 ];
 
 export const TextHighlightingWithGlobalFilter: Story = {
+  name: 'Text Highlighting With Global Filter',
   render: () => {
     const datatable = useDataTable({
       default: {

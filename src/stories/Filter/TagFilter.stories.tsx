@@ -26,6 +26,7 @@ const availableTags = [
 ];
 
 export const MultipleSelection: Story = {
+  name: 'Multiple Selection',
   render: () => {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -65,6 +66,7 @@ export const MultipleSelection: Story = {
 };
 
 export const SingleSelection: Story = {
+  name: 'Single Selection',
   render: () => {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -103,6 +105,7 @@ export const SingleSelection: Story = {
 };
 
 export const WithInitialSelection: Story = {
+  name: 'With Initial Selection',
   render: () => {
     const [selectedTags, setSelectedTags] = useState<string[]>([
       'apple',
@@ -144,6 +147,7 @@ export const WithInitialSelection: Story = {
 };
 
 export const CustomLabels: Story = {
+  name: 'Custom Labels',
   render: () => {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -191,6 +195,7 @@ export const CustomLabels: Story = {
 };
 
 export const WithoutLabels: Story = {
+  name: 'Without Labels',
   render: () => {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
 

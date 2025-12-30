@@ -23,6 +23,7 @@ type Story = StoryObj<typeof meta>;
 export default meta;
 
 export const GetColumns4Story: Story = {
+  name: 'Get Columns 4 Story',
   render: () => {
     return (
       <QueryClientProvider client={queryClient}>
