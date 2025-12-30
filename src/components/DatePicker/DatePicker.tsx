@@ -187,6 +187,9 @@ export interface DatePickerProps {
     weekdayNamesShort: string[];
     backButtonLabel?: string;
     forwardButtonLabel?: string;
+    todayLabel?: string;
+    yesterdayLabel?: string;
+    tomorrowLabel?: string;
   };
   render?: (calendarData: CalendarRenderProps) => React.ReactNode;
 }
@@ -196,6 +199,9 @@ export interface DatePickerLabels {
   weekdayNamesShort: string[];
   backButtonLabel?: string;
   forwardButtonLabel?: string;
+  todayLabel?: string;
+  yesterdayLabel?: string;
+  tomorrowLabel?: string;
 }
 
 const DatePickerContext = createContext<{
@@ -219,6 +225,9 @@ const DatePickerContext = createContext<{
     weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Next',
+    todayLabel: 'Today',
+    yesterdayLabel: 'Yesterday',
+    tomorrowLabel: 'Tomorrow',
   },
 });
 
@@ -241,6 +250,9 @@ const DatePicker: React.FC<DatePickerProps> = ({
     weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Next',
+    todayLabel: 'Today',
+    yesterdayLabel: 'Yesterday',
+    tomorrowLabel: 'Tomorrow',
   },
   onDateSelected,
   selected,
@@ -296,6 +308,7 @@ export interface DatePickerInputProps {
   monthsToDisplay?: number;
   insideDialog?: boolean;
   readOnly?: boolean;
+  showHelperButtons?: boolean;
 }
 
 export function DatePickerInput({
@@ -322,6 +335,9 @@ export function DatePickerInput({
     weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Next',
+    todayLabel: 'Today',
+    yesterdayLabel: 'Yesterday',
+    tomorrowLabel: 'Tomorrow',
   },
   timezone = 'Asia/Hong_Kong',
   minDate,
@@ -331,6 +347,7 @@ export function DatePickerInput({
   monthsToDisplay = 1,
   insideDialog = false,
   readOnly = false,
+  showHelperButtons = true,
 }: DatePickerInputProps) {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -447,17 +464,79 @@ export function DatePickerInput({
     setOpen(false);
   };
 
+  // Helper function to get dates in the correct timezone
+  const getToday = () => dayjs().tz(timezone).startOf('day').toDate();
+  const getYesterday = () =>
+    dayjs().tz(timezone).subtract(1, 'day').startOf('day').toDate();
+  const getTomorrow = () =>
+    dayjs().tz(timezone).add(1, 'day').startOf('day').toDate();
+
+  // Check if a date is within min/max constraints
+  const isDateValid = (date: Date) => {
+    if (minDate) {
+      const minDateStart = dayjs(minDate).tz(timezone).startOf('day').toDate();
+      const dateStart = dayjs(date).tz(timezone).startOf('day').toDate();
+      if (dateStart < minDateStart) return false;
+    }
+    if (maxDate) {
+      const maxDateStart = dayjs(maxDate).tz(timezone).startOf('day').toDate();
+      const dateStart = dayjs(date).tz(timezone).startOf('day').toDate();
+      if (dateStart > maxDateStart) return false;
+    }
+    return true;
+  };
+
+  const handleHelperButtonClick = (date: Date) => {
+    if (isDateValid(date)) {
+      handleDateSelected({ date });
+    }
+  };
+
+  const today = getToday();
+  const yesterday = getYesterday();
+  const tomorrow = getTomorrow();
+
   const datePickerContent = (
-    <DatePicker
-      selected={selectedDate}
-      onDateSelected={handleDateSelected}
-      labels={labels}
-      minDate={minDate}
-      maxDate={maxDate}
-      firstDayOfWeek={firstDayOfWeek}
-      showOutsideDays={showOutsideDays}
-      monthsToDisplay={monthsToDisplay}
-    />
+    <Grid gap={2}>
+      {showHelperButtons && (
+        <Grid templateColumns="repeat(3, 1fr)" gap={2}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleHelperButtonClick(yesterday)}
+            disabled={!isDateValid(yesterday)}
+          >
+            {labels.yesterdayLabel ?? 'Yesterday'}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleHelperButtonClick(today)}
+            disabled={!isDateValid(today)}
+          >
+            {labels.todayLabel ?? 'Today'}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleHelperButtonClick(tomorrow)}
+            disabled={!isDateValid(tomorrow)}
+          >
+            {labels.tomorrowLabel ?? 'Tomorrow'}
+          </Button>
+        </Grid>
+      )}
+      <DatePicker
+        selected={selectedDate}
+        onDateSelected={handleDateSelected}
+        labels={labels}
+        minDate={minDate}
+        maxDate={maxDate}
+        firstDayOfWeek={firstDayOfWeek}
+        showOutsideDays={showOutsideDays}
+        monthsToDisplay={monthsToDisplay}
+      />
+    </Grid>
   );
 
   return (

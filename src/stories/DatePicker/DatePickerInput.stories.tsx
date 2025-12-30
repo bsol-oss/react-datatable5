@@ -155,6 +155,9 @@ const CustomLabelsView = () => {
             weekdayNamesShort: ['日', '一', '二', '三', '四', '五', '六'],
             backButtonLabel: '上月',
             forwardButtonLabel: '下月',
+            todayLabel: '今天',
+            yesterdayLabel: '昨天',
+            tomorrowLabel: '明天',
           }}
         />
         {selectedDate && (
@@ -187,6 +190,69 @@ const MultipleMonthsView = () => {
           }}
           placeholder="Select a date"
           monthsToDisplay={2}
+        />
+        {selectedDate && (
+          <div style={{ marginTop: '20px', padding: '10px' }}>
+            <p>Selected date: {selectedDate}</p>
+          </div>
+        )}
+      </div>
+    </Provider>
+  );
+};
+
+export const WithHelperButtons: Story = {
+  name: 'With Helper Buttons',
+  render: () => {
+    return <HelperButtonsView />;
+  },
+};
+
+const HelperButtonsView = () => {
+  const [selectedDate, setSelectedDate] = useState<string>();
+
+  return (
+    <Provider>
+      <div style={{ padding: '20px', maxWidth: '300px' }}>
+        <DatePickerInput
+          value={selectedDate}
+          onChange={(date) => {
+            setSelectedDate(date);
+            console.log('Selected date:', date);
+          }}
+          placeholder="Select a date"
+          showHelperButtons={true}
+        />
+        {selectedDate && (
+          <div style={{ marginTop: '20px', padding: '10px' }}>
+            <p>Selected date: {selectedDate}</p>
+          </div>
+        )}
+      </div>
+    </Provider>
+  );
+};
+
+export const WithoutHelperButtons: Story = {
+  name: 'Without Helper Buttons',
+  render: () => {
+    return <NoHelperButtonsView />;
+  },
+};
+
+const NoHelperButtonsView = () => {
+  const [selectedDate, setSelectedDate] = useState<string>();
+
+  return (
+    <Provider>
+      <div style={{ padding: '20px', maxWidth: '300px' }}>
+        <DatePickerInput
+          value={selectedDate}
+          onChange={(date) => {
+            setSelectedDate(date);
+          }}
+          placeholder="Select a date"
+          showHelperButtons={false}
         />
         {selectedDate && (
           <div style={{ marginTop: '20px', padding: '10px' }}>
