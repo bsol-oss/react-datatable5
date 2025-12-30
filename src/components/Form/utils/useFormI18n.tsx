@@ -84,6 +84,15 @@ export const useFormI18n = (
           fieldName: column,
           colLabel,
           prefix,
+          schema: {
+            type: schema.type,
+            title: schema.title,
+            required: schema.required,
+            hasErrorMessages: !!schema.errorMessages,
+            errorMessageKeys: schema.errorMessages
+              ? Object.keys(schema.errorMessages)
+              : undefined,
+          },
         }
       );
 
