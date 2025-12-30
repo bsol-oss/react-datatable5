@@ -5,7 +5,7 @@
  *
  * @param column - The column name
  * @param prefix - The prefix for the field (usually empty string or parent path)
- * @param schema - Optional schema object with title property
+ * @param schema - Required schema object with title property
  * @returns Object with label helper functions
  *
  * @example
@@ -25,7 +25,7 @@
  * const colLabel = formI18n.colLabel;
  * ```
  */
-export declare const useFormI18n: (column: string, prefix?: string, schema?: {
+export declare const useFormI18n: (column: string, prefix: string | undefined, schema: {
     title?: string;
 }) => {
     /**

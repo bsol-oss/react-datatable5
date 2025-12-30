@@ -4146,6 +4146,22 @@ const convertAjvErrorsToFieldErrors = (errors, schema) => {
             // Get the schema node for this field to check for custom error messages
             const fieldSchema = getSchemaNodeForField(schema, fieldName);
             const customMessage = fieldSchema?.errorMessages?.[error.keyword];
+            // Debug log when error message is missing
+            if (!customMessage) {
+                console.debug(`[Form Validation] Missing error message for field '${fieldName}' with keyword '${error.keyword}'. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`, {
+                    fieldName,
+                    keyword: error.keyword,
+                    instancePath: error.instancePath,
+                    schemaPath: error.schemaPath,
+                    params: error.params,
+                    fieldSchema: fieldSchema
+                        ? {
+                            type: fieldSchema.type,
+                            errorMessages: fieldSchema.errorMessages,
+                        }
+                        : undefined,
+                });
+            }
             // Provide helpful fallback message if no custom message is provided
             const fallbackMessage = customMessage ||
                 `Missing error message for ${error.keyword}. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`;
@@ -4388,7 +4404,7 @@ function removeIndex(str) {
  *
  * @param column - The column name
  * @param prefix - The prefix for the field (usually empty string or parent path)
- * @param schema - Optional schema object with title property
+ * @param schema - Required schema object with title property
  * @returns Object with label helper functions
  *
  * @example
@@ -4421,9 +4437,21 @@ const useFormI18n = (column, prefix = '', schema) => {
          * Uses schema.title if available, otherwise: translate.t(removeIndex(`${colLabel}.field_label`))
          */
         label: (options) => {
-            if (schema?.title) {
+            if (schema.title) {
                 return schema.title;
             }
+            // Debug log when field title is missing
+            console.debug(`[Form Field Label] Missing title for field '${colLabel}'. Add title property to schema for field '${colLabel}'.`, {
+                fieldName: column,
+                colLabel,
+                prefix,
+                schema: {
+                    type: schema.type,
+                    errorMessages: schema.errorMessages
+                        ? Object.keys(schema.errorMessages)
+                        : undefined,
+                },
+            });
             return translate.t(removeIndex(`${colLabel}.field_label`), options);
         },
         /**
@@ -4700,7 +4728,7 @@ dayjs.extend(timezone);
 const DateRangePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { timezone, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
@@ -5345,7 +5373,7 @@ const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, en
                     }) })) }))] }));
 };
 
-function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, onUploadFile, enableUpload = false, labels, colLabel, }) {
+function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, onUploadFile, enableUpload = false, labels, }) {
     const [selectedFile, setSelectedFile] = React.useState(undefined);
     const [activeTab, setActiveTab] = React.useState('browse');
     const [uploadingFiles, setUploadingFiles] = React.useState(new Set());
@@ -5429,7 +5457,7 @@ function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = 
 const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { filePickerLabels } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', type, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const isSingleSelect = type === 'string';
@@ -5505,7 +5533,7 @@ const FilePicker = ({ column, schema, prefix }) => {
 const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
     const { filePickerLabels } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', filePicker, type, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const isSingleSelect = type === 'string';
@@ -5600,9 +5628,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
     return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: jsxRuntime.jsx(react.Button, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ??
                         formI18n.t('browse_library') ??
-                        'Browse from Library' }) }), jsxRuntime.jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ??
-                    filePickerLabels?.dialogTitle ??
-                    'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
+                        'Browse from Library' }) }), jsxRuntime.jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ?? formI18n.label() ?? 'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
                     const file = fileMap.get(fileId);
                     const isImage = file
                         ? /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name)
@@ -5693,7 +5719,8 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
             }
             // Use schema's loadInitialValues (required for id-picker)
             if (!loadInitialValues) {
-                throw new Error(`loadInitialValues is required in schema for IdPicker field '${column}'.`);
+                console.warn(`loadInitialValues is required in schema for IdPicker field '${column}'. Returning empty idMap.`);
+                return { data: [], count: 0 };
             }
             const result = await loadInitialValues({
                 ids: missingIds,
@@ -7776,15 +7803,15 @@ const DateViewer = ({ column, schema, prefix }) => {
 
 const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
     const { watch, formState: { errors }, } = reactHookForm.useFormContext();
-    const formI18n = useFormI18n(column, prefix);
+    const formI18n = useFormI18n(column, prefix, schema);
     const { required } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
+    const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
     const colLabel = formI18n.colLabel;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
-    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: "stretch", gridColumn,
-        gridRow, children: [isMultiple && (jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", gap: 1, children: watchEnums.map((enumValue) => {
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, children: [isMultiple && (jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 1, children: watchEnums.map((enumValue) => {
                     const item = enumValue;
                     if (item === undefined) {
                         return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "undefined" });
@@ -7792,7 +7819,7 @@ const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
                     return (jsxRuntime.jsx(Tag, { size: "lg", children: !!renderDisplay === true
                             ? renderDisplay(item)
                             : formI18n.t(item) }, item));
-                }) })), !isMultiple && jsxRuntime.jsx(react.Text, { children: formI18n.t(watchEnum) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: formI18n.required() }))] }));
+                }) })), !isMultiple && jsxRuntime.jsx(react.Text, { children: formI18n.t(watchEnum) }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const FileViewer = ({ column, schema, prefix }) => {
@@ -8205,6 +8232,17 @@ const FormBody = () => {
 
 const FormTitle = () => {
     const { schema } = useSchemaContext();
+    // Debug log when form title is missing
+    if (!schema.title) {
+        console.debug('[Form Title] Missing title in root schema. Add title property to schema.', {
+            schema: {
+                type: schema.type,
+                properties: schema.properties
+                    ? Object.keys(schema.properties)
+                    : undefined,
+            },
+        });
+    }
     return jsxRuntime.jsx(react.Heading, { children: schema.title ?? 'Form' });
 };
 
