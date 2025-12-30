@@ -79,7 +79,7 @@ export const TextWithCopy = ({
       <Clipboard.Root value={textValue}>
         <Clipboard.Trigger asChild>
           <IconButton
-            size="xs"
+            size="2xs"
             variant="ghost"
             aria-label="Copy"
             fontSize="1em"
