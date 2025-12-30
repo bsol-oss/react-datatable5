@@ -3694,7 +3694,7 @@ const TextWithCopy = ({ text, globalFilter, highlightedText, }) => {
     const displayText = highlightedText !== undefined
         ? highlightedText
         : highlightText$1(textValue, globalFilter);
-    return (jsxs(HStack, { gap: 2, alignItems: "center", children: [jsx(Text, { as: "span", children: displayText }), jsx(Clipboard.Root, { value: textValue, children: jsx(Clipboard.Trigger, { asChild: true, children: jsx(IconButton, { size: "xs", variant: "ghost", "aria-label": "Copy", fontSize: "1em", children: jsx(Clipboard.Indicator, { copied: jsx(LuCheck, {}), children: jsx(LuCopy, {}) }) }) }) })] }));
+    return (jsxs(HStack, { gap: 2, alignItems: "center", children: [jsx(Text, { as: "span", children: displayText }), jsx(Clipboard.Root, { value: textValue, children: jsx(Clipboard.Trigger, { asChild: true, children: jsx(IconButton, { size: "2xs", variant: "ghost", "aria-label": "Copy", fontSize: "1em", children: jsx(Clipboard.Indicator, { copied: jsx(LuCheck, {}), children: jsx(LuCopy, {}) }) }) }) })] }));
 };
 
 // Helper function to highlight matching text
@@ -5606,10 +5606,10 @@ const defaultRenderDisplay = (item) => {
 const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     const { watch, getValues, formState: { errors }, setValue, } = useFormContext();
     const { idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
-    const { renderDisplay, loadInitialValues: schemaLoadInitialValues, foreign_key, variant, } = schema;
+    const { renderDisplay, loadInitialValues, foreign_key, variant } = schema;
     // loadInitialValues must be provided in schema for id-picker fields
     // It's used to load the record of the id so the display is human-readable
-    if (variant === 'id-picker' && !schemaLoadInitialValues) {
+    if (variant === 'id-picker' && !loadInitialValues) {
         throw new Error(`loadInitialValues is required in schema for IdPicker field '${column}'. Please provide loadInitialValues function in the schema to load records for human-readable display.`);
     }
     const { table, column: column_ref, customQueryFn, } = foreign_key;
@@ -5656,19 +5656,26 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     const missingIdsKey = useMemo(() => {
         return JSON.stringify([...missingIds].sort());
     }, [missingIds]);
+    // Include idMap state in query key to force refetch when idMap is reset (e.g., on remount from another page)
+    // This ensures the query runs even if React Query has cached data for the same missing IDs
+    const idMapStateKey = useMemo(() => {
+        // Create a key based on whether the required IDs are in idMap
+        const hasRequiredIds = currentValue.every((id) => idMap[id]);
+        return hasRequiredIds ? 'complete' : 'incomplete';
+    }, [currentValue, idMap]);
     // Query to fetch initial values that are missing from idMap
     // This query runs automatically when missingIds.length > 0 and updates idMap
     const initialValuesQuery = useQuery({
-        queryKey: [`idpicker-initial`, column, missingIdsKey],
+        queryKey: [`idpicker-initial`, column, missingIdsKey, idMapStateKey],
         queryFn: async () => {
             if (missingIds.length === 0) {
                 return { data: [], count: 0 };
             }
             // Use schema's loadInitialValues (required for id-picker)
-            if (!schemaLoadInitialValues) {
+            if (!loadInitialValues) {
                 throw new Error(`loadInitialValues is required in schema for IdPicker field '${column}'.`);
             }
-            const result = await schemaLoadInitialValues({
+            const result = await loadInitialValues({
                 ids: missingIds,
                 foreign_key: foreign_key,
                 setIdMap,
@@ -5676,7 +5683,9 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
             return result.data;
         },
         enabled: missingIds.length > 0, // Only fetch if there are missing IDs
-        staleTime: 300000,
+        staleTime: 0, // Always consider data stale to refetch on remount
+        refetchOnMount: true, // Always refetch when component remounts (e.g., from another page)
+        refetchOnWindowFocus: false, // Don't refetch on window focus
     });
     const { isLoading: isLoadingInitialValues, isFetching: isFetchingInitialValues, } = initialValuesQuery;
     // Query for search results (async loading)
@@ -5821,7 +5830,7 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
         idPickerLabels,
         insideDialog: insideDialog ?? false,
         renderDisplay,
-        loadInitialValues: schemaLoadInitialValues, // Required for id-picker, checked above
+        loadInitialValues: loadInitialValues, // Required for id-picker, checked above
         column_ref,
         errors,
         setValue,
