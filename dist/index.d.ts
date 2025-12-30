@@ -1041,6 +1041,9 @@ interface DatePickerProps {
         weekdayNamesShort: string[];
         backButtonLabel?: string;
         forwardButtonLabel?: string;
+        todayLabel?: string;
+        yesterdayLabel?: string;
+        tomorrowLabel?: string;
     };
     render?: (calendarData: CalendarRenderProps) => React__default.ReactNode;
 }
@@ -1049,7 +1052,28 @@ interface DatePickerLabels {
     weekdayNamesShort: string[];
     backButtonLabel?: string;
     forwardButtonLabel?: string;
+    todayLabel?: string;
+    yesterdayLabel?: string;
+    tomorrowLabel?: string;
 }
+interface DatePickerInputProps {
+    value?: string | Date;
+    onChange?: (date?: string) => void;
+    placeholder?: string;
+    dateFormat?: string;
+    displayFormat?: string;
+    labels?: DatePickerLabels;
+    timezone?: string;
+    minDate?: Date;
+    maxDate?: Date;
+    firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    showOutsideDays?: boolean;
+    monthsToDisplay?: number;
+    insideDialog?: boolean;
+    readOnly?: boolean;
+    showHelperButtons?: boolean;
+}
+declare function DatePickerInput({ value, onChange, placeholder, dateFormat, displayFormat, labels, timezone, minDate, maxDate, firstDayOfWeek, showOutsideDays, monthsToDisplay, insideDialog, readOnly, showHelperButtons, }: DatePickerInputProps): react_jsx_runtime.JSX.Element;
 
 interface GetMultiDatesProps {
     selected: boolean;
@@ -1136,24 +1160,6 @@ interface RangeDatePickerProps {
     portalled?: boolean;
     render?: (calendarData: CalendarRenderProps) => React__default.ReactNode;
 }
-
-interface DatePickerInputProps {
-    value?: string | Date;
-    onChange?: (date?: string) => void;
-    placeholder?: string;
-    dateFormat?: string;
-    displayFormat?: string;
-    labels?: DatePickerLabels;
-    timezone?: string;
-    minDate?: Date;
-    maxDate?: Date;
-    firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-    showOutsideDays?: boolean;
-    monthsToDisplay?: number;
-    insideDialog?: boolean;
-    readOnly?: boolean;
-}
-declare function DatePickerInput({ value, onChange, placeholder, dateFormat, displayFormat, labels, timezone, minDate, maxDate, firstDayOfWeek, showOutsideDays, monthsToDisplay, insideDialog, readOnly, }: DatePickerInputProps): react_jsx_runtime.JSX.Element;
 
 interface RecordDisplayProps {
     object: object | null;

@@ -126,7 +126,6 @@ export * from './components/DatePicker/DatePicker';
 export * from './components/DatePicker/getMultiDates';
 export * from './components/DatePicker/getRangeDates';
 export * from './components/DatePicker/RangeDatePicker';
-export * from './components/DatePicker/DatePickerInput';
 export * from './components/DataTable/display/RecordDisplay';
 export * from './components/DataTable/display/TableDataDisplay';
 export * from './components/DataTable/DefaultTable';

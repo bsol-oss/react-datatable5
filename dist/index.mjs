@@ -30,8 +30,8 @@ import addFormats from 'ajv-formats';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { TiDeleteOutline } from 'react-icons/ti';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { TiDeleteOutline } from 'react-icons/ti';
 import { rankItem } from '@tanstack/match-sorter-utils';
 
 const DataTableContext = createContext({
@@ -4525,6 +4525,9 @@ const CustomInput = ({ column, schema, prefix }) => {
         }));
 };
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
 const Calendar = ({ calendars, getBackProps, getForwardProps, getDateProps, firstDayOfWeek = 0, }) => {
     const { labels } = useContext(DatePickerContext);
     const { monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel, } = labels;
@@ -4594,6 +4597,9 @@ const DatePickerContext = createContext({
         weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
         backButtonLabel: 'Back',
         forwardButtonLabel: 'Next',
+        todayLabel: 'Today',
+        yesterdayLabel: 'Yesterday',
+        tomorrowLabel: 'Tomorrow',
     },
 });
 const DatePicker$1 = ({ labels = {
@@ -4614,6 +4620,9 @@ const DatePicker$1 = ({ labels = {
     weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Next',
+    todayLabel: 'Today',
+    yesterdayLabel: 'Yesterday',
+    tomorrowLabel: 'Tomorrow',
 }, onDateSelected, selected, firstDayOfWeek, showOutsideDays, date, minDate, maxDate, monthsToDisplay, render, }) => {
     const calendarData = useCalendar({
         onDateSelected,
@@ -4628,9 +4637,164 @@ const DatePicker$1 = ({ labels = {
     return (jsx(DatePickerContext.Provider, { value: { labels }, children: render ? (render(calendarData)) : (jsx(Calendar, { ...calendarData,
             firstDayOfWeek })) }));
 };
+function DatePickerInput({ value, onChange, placeholder = 'Select a date', dateFormat = 'YYYY-MM-DD', displayFormat = 'YYYY-MM-DD', labels = {
+    monthNamesShort: [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+    ],
+    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    backButtonLabel: 'Back',
+    forwardButtonLabel: 'Next',
+    todayLabel: 'Today',
+    yesterdayLabel: 'Yesterday',
+    tomorrowLabel: 'Tomorrow',
+}, timezone = 'Asia/Hong_Kong', minDate, maxDate, firstDayOfWeek, showOutsideDays, monthsToDisplay = 1, insideDialog = false, readOnly = false, showHelperButtons = true, }) {
+    const [open, setOpen] = useState(false);
+    const [inputValue, setInputValue] = useState('');
+    // Update input value when prop value changes
+    useEffect(() => {
+        if (value) {
+            const formatted = typeof value === 'string'
+                ? dayjs(value).tz(timezone).isValid()
+                    ? dayjs(value).tz(timezone).format(displayFormat)
+                    : ''
+                : dayjs(value).tz(timezone).format(displayFormat);
+            setInputValue(formatted);
+        }
+        else {
+            setInputValue('');
+        }
+    }, [value, displayFormat, timezone]);
+    // Convert value to Date object for DatePicker
+    const selectedDate = value
+        ? typeof value === 'string'
+            ? dayjs(value).tz(timezone).isValid()
+                ? dayjs(value).tz(timezone).toDate()
+                : new Date()
+            : value
+        : new Date();
+    // Shared function to parse and validate input value
+    const parseAndValidateInput = (inputVal) => {
+        // If empty, clear the value
+        if (!inputVal.trim()) {
+            onChange?.(undefined);
+            setInputValue('');
+            return;
+        }
+        // Try parsing with displayFormat first
+        let parsedDate = dayjs(inputVal, displayFormat, true);
+        // If that fails, try common date formats
+        if (!parsedDate.isValid()) {
+            parsedDate = dayjs(inputVal);
+        }
+        // If still invalid, try parsing with dateFormat
+        if (!parsedDate.isValid()) {
+            parsedDate = dayjs(inputVal, dateFormat, true);
+        }
+        // If valid, check constraints and update
+        if (parsedDate.isValid()) {
+            const dateObj = parsedDate.tz(timezone).toDate();
+            // Check min/max constraints
+            if (minDate && dateObj < minDate) {
+                // Invalid: before minDate, reset to prop value
+                resetToPropValue();
+                return;
+            }
+            if (maxDate && dateObj > maxDate) {
+                // Invalid: after maxDate, reset to prop value
+                resetToPropValue();
+                return;
+            }
+            // Valid date - format and update
+            const formattedDate = parsedDate.tz(timezone).format(dateFormat);
+            const formattedDisplay = parsedDate.tz(timezone).format(displayFormat);
+            onChange?.(formattedDate);
+            setInputValue(formattedDisplay);
+        }
+        else {
+            // Invalid date - reset to prop value
+            resetToPropValue();
+        }
+    };
+    // Helper function to reset input to prop value
+    const resetToPropValue = () => {
+        if (value) {
+            const formatted = typeof value === 'string'
+                ? dayjs(value).tz(timezone).isValid()
+                    ? dayjs(value).tz(timezone).format(displayFormat)
+                    : ''
+                : dayjs(value).tz(timezone).format(displayFormat);
+            setInputValue(formatted);
+        }
+        else {
+            setInputValue('');
+        }
+    };
+    const handleInputChange = (e) => {
+        // Only update the input value, don't parse yet
+        setInputValue(e.target.value);
+    };
+    const handleInputBlur = () => {
+        // Parse and validate when input loses focus
+        parseAndValidateInput(inputValue);
+    };
+    const handleKeyDown = (e) => {
+        // Parse and validate when Enter is pressed
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            parseAndValidateInput(inputValue);
+        }
+    };
+    const handleDateSelected = ({ date }) => {
+        const formattedDate = dayjs(date).tz(timezone).format(dateFormat);
+        onChange?.(formattedDate);
+        setOpen(false);
+    };
+    // Helper function to get dates in the correct timezone
+    const getToday = () => dayjs().tz(timezone).startOf('day').toDate();
+    const getYesterday = () => dayjs().tz(timezone).subtract(1, 'day').startOf('day').toDate();
+    const getTomorrow = () => dayjs().tz(timezone).add(1, 'day').startOf('day').toDate();
+    // Check if a date is within min/max constraints
+    const isDateValid = (date) => {
+        if (minDate) {
+            const minDateStart = dayjs(minDate).tz(timezone).startOf('day').toDate();
+            const dateStart = dayjs(date).tz(timezone).startOf('day').toDate();
+            if (dateStart < minDateStart)
+                return false;
+        }
+        if (maxDate) {
+            const maxDateStart = dayjs(maxDate).tz(timezone).startOf('day').toDate();
+            const dateStart = dayjs(date).tz(timezone).startOf('day').toDate();
+            if (dateStart > maxDateStart)
+                return false;
+        }
+        return true;
+    };
+    const handleHelperButtonClick = (date) => {
+        if (isDateValid(date)) {
+            handleDateSelected({ date });
+        }
+    };
+    const today = getToday();
+    const yesterday = getYesterday();
+    const tomorrow = getTomorrow();
+    const datePickerContent = (jsxs(Grid, { gap: 2, children: [showHelperButtons && (jsxs(Grid, { templateColumns: "repeat(3, 1fr)", gap: 2, children: [jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleHelperButtonClick(yesterday), disabled: !isDateValid(yesterday), children: labels.yesterdayLabel ?? 'Yesterday' }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleHelperButtonClick(today), disabled: !isDateValid(today), children: labels.todayLabel ?? 'Today' }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleHelperButtonClick(tomorrow), disabled: !isDateValid(tomorrow), children: labels.tomorrowLabel ?? 'Tomorrow' })] })), jsx(DatePicker$1, { selected: selectedDate, onDateSelected: handleDateSelected, labels: labels, minDate: minDate, maxDate: maxDate, firstDayOfWeek: firstDayOfWeek, showOutsideDays: showOutsideDays, monthsToDisplay: monthsToDisplay })] }));
+    return (jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(InputGroup, { endElement: jsx(Popover.Trigger, { asChild: true, children: jsx(IconButton, { variant: "ghost", size: "2xs", "aria-label": "Open calendar", onClick: () => setOpen(true), children: jsx(Icon, { children: jsx(MdDateRange, {}) }) }) }), children: jsx(Input, { value: inputValue, onChange: handleInputChange, onBlur: handleInputBlur, onKeyDown: handleKeyDown, placeholder: placeholder, readOnly: readOnly }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) }))] }));
+}
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
@@ -4639,15 +4803,29 @@ const DatePicker = ({ column, schema, prefix }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
     const [open, setOpen] = useState(false);
+    const [inputValue, setInputValue] = useState('');
     const selectedDate = watch(colLabel);
-    const displayDate = dayjs(selectedDate)
-        .tz(timezone)
-        .format(displayDateFormat);
+    // Update input value when form value changes
+    useEffect(() => {
+        if (selectedDate) {
+            const parsedDate = dayjs(selectedDate).tz(timezone);
+            if (parsedDate.isValid()) {
+                const formatted = parsedDate.format(displayDateFormat);
+                setInputValue(formatted);
+            }
+            else {
+                setInputValue('');
+            }
+        }
+        else {
+            setInputValue('');
+        }
+    }, [selectedDate, displayDateFormat, timezone]);
+    // Format and validate existing value
     useEffect(() => {
         try {
             if (selectedDate) {
                 // Parse the selectedDate as UTC or in a specific timezone to avoid +8 hour shift
-                // For example, parse as UTC:
                 const parsedDate = dayjs(selectedDate).tz(timezone);
                 if (!parsedDate.isValid())
                     return;
@@ -4665,7 +4843,7 @@ const DatePicker = ({ column, schema, prefix }) => {
         catch (e) {
             console.error(e);
         }
-    }, [selectedDate, dateFormat, colLabel, setValue]);
+    }, [selectedDate, dateFormat, colLabel, setValue, timezone]);
     const datePickerLabels = {
         monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
             'January',
@@ -4693,14 +4871,92 @@ const DatePicker = ({ column, schema, prefix }) => {
         backButtonLabel: dateTimePickerLabels?.backButtonLabel ?? 'Back',
         forwardButtonLabel: dateTimePickerLabels?.forwardButtonLabel ?? 'Forward',
     };
-    const datePickerContent = (jsx(DatePicker$1, { selected: new Date(selectedDate), onDateSelected: ({ date }) => {
-            setValue(colLabel, dayjs(date).format(dateFormat));
-            setOpen(false);
-        }, labels: datePickerLabels }));
+    // Convert value to Date object for DatePicker
+    const selectedDateObj = selectedDate
+        ? dayjs(selectedDate).tz(timezone).isValid()
+            ? dayjs(selectedDate).tz(timezone).toDate()
+            : new Date()
+        : new Date();
+    // Shared function to parse and validate input value
+    const parseAndValidateInput = (inputVal) => {
+        // If empty, clear the value
+        if (!inputVal.trim()) {
+            setValue(colLabel, undefined, {
+                shouldValidate: true,
+                shouldDirty: true,
+            });
+            setInputValue('');
+            return;
+        }
+        // Try parsing with displayDateFormat first
+        let parsedDate = dayjs(inputVal, displayDateFormat, true);
+        // If that fails, try common date formats
+        if (!parsedDate.isValid()) {
+            parsedDate = dayjs(inputVal);
+        }
+        // If still invalid, try parsing with dateFormat
+        if (!parsedDate.isValid()) {
+            parsedDate = dayjs(inputVal, dateFormat, true);
+        }
+        // If valid, format and update
+        if (parsedDate.isValid()) {
+            const formattedDate = parsedDate.tz(timezone).format(dateFormat);
+            const formattedDisplay = parsedDate
+                .tz(timezone)
+                .format(displayDateFormat);
+            setValue(colLabel, formattedDate, {
+                shouldValidate: true,
+                shouldDirty: true,
+            });
+            setInputValue(formattedDisplay);
+        }
+        else {
+            // Invalid date - reset to prop value
+            resetToPropValue();
+        }
+    };
+    // Helper function to reset input to prop value
+    const resetToPropValue = () => {
+        if (selectedDate) {
+            const parsedDate = dayjs(selectedDate).tz(timezone);
+            if (parsedDate.isValid()) {
+                const formatted = parsedDate.format(displayDateFormat);
+                setInputValue(formatted);
+            }
+            else {
+                setInputValue('');
+            }
+        }
+        else {
+            setInputValue('');
+        }
+    };
+    const handleInputChange = (e) => {
+        // Only update the input value, don't parse yet
+        setInputValue(e.target.value);
+    };
+    const handleInputBlur = () => {
+        // Parse and validate when input loses focus
+        parseAndValidateInput(inputValue);
+    };
+    const handleKeyDown = (e) => {
+        // Parse and validate when Enter is pressed
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            parseAndValidateInput(inputValue);
+        }
+    };
+    const handleDateSelected = ({ date }) => {
+        const formattedDate = dayjs(date).tz(timezone).format(dateFormat);
+        setValue(colLabel, formattedDate, {
+            shouldValidate: true,
+            shouldDirty: true,
+        });
+        setOpen(false);
+    };
+    const datePickerContent = (jsx(DatePicker$1, { selected: selectedDateObj, onDateSelected: handleDateSelected, labels: datePickerLabels }));
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
-                            setOpen(true);
-                        }, justifyContent: 'start', children: [jsx(MdDateRange, {}), selectedDate !== undefined ? `${displayDate}` : ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) }))] }) }));
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(InputGroup, { endElement: jsx(Popover.Trigger, { asChild: true, children: jsx(IconButton, { variant: "ghost", size: "2xs", "aria-label": "Open calendar", onClick: () => setOpen(true), children: jsx(Icon, { children: jsx(MdDateRange, {}) }) }) }), children: jsx(Input, { value: inputValue, onChange: handleInputChange, onBlur: handleInputBlur, onKeyDown: handleKeyDown, placeholder: formI18n.label(), size: "sm" }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) }))] }) }));
 };
 
 dayjs.extend(utc);
@@ -6432,14 +6688,74 @@ const TimePicker$1 = ({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
                 }
             }
         }
-        return options;
+        // Sort options by time (convert to 24-hour for proper chronological sorting)
+        return options.sort((a, b) => {
+            // Convert 12-hour to 24-hour for comparison
+            let hour24A = a.hour;
+            if (a.meridiem === 'am' && a.hour === 12)
+                hour24A = 0;
+            else if (a.meridiem === 'pm' && a.hour < 12)
+                hour24A = a.hour + 12;
+            let hour24B = b.hour;
+            if (b.meridiem === 'am' && b.hour === 12)
+                hour24B = 0;
+            else if (b.meridiem === 'pm' && b.hour < 12)
+                hour24B = b.hour + 12;
+            // Compare by hour first, then minute
+            if (hour24A !== hour24B) {
+                return hour24A - hour24B;
+            }
+            return a.minute - b.minute;
+        });
     }, [startTime, selectedDate, timezone]);
-    const { contains } = useFilter({ sensitivity: 'base' });
+    // itemToString returns only the clean display text (no metadata)
+    const itemToString = useMemo(() => {
+        return (item) => {
+            return item.searchText; // Clean display text only
+        };
+    }, []);
+    // Custom filter function that filters by time and supports 24-hour format input
+    const customTimeFilter = useMemo(() => {
+        return (itemText, filterText) => {
+            if (!filterText) {
+                return true; // Show all items when no filter
+            }
+            const lowerItemText = itemText.toLowerCase();
+            const lowerFilterText = filterText.toLowerCase();
+            // First, try matching against the display text (12-hour format)
+            if (lowerItemText.includes(lowerFilterText)) {
+                return true;
+            }
+            // Find the corresponding item to check 24-hour format matches
+            const item = timeOptions.find((opt) => opt.searchText.toLowerCase() === lowerItemText);
+            if (!item) {
+                return false;
+            }
+            // Convert item to 24-hour format for matching
+            let hour24 = item.hour;
+            if (item.meridiem === 'am' && item.hour === 12)
+                hour24 = 0;
+            else if (item.meridiem === 'pm' && item.hour < 12)
+                hour24 = item.hour + 12;
+            const hour24Str = hour24.toString().padStart(2, '0');
+            const minuteStr = item.minute.toString().padStart(2, '0');
+            // Check if filterText matches 24-hour format variations
+            const formats = [
+                `${hour24Str}:${minuteStr}`, // "13:30"
+                `${hour24Str}${minuteStr}`, // "1330"
+                hour24Str, // "13"
+                `${hour24}:${minuteStr}`, // "13:30" (without padding)
+                hour24.toString(), // "13" (without padding)
+            ];
+            return formats.some((format) => format.toLowerCase().includes(lowerFilterText) ||
+                lowerFilterText.includes(format.toLowerCase()));
+        };
+    }, [timeOptions]);
     const { collection, filter } = useListCollection({
         initialItems: timeOptions,
-        itemToString: (item) => item.searchText, // Use searchText (without duration) for filtering
+        itemToString: itemToString,
         itemToValue: (item) => item.value,
-        filter: contains,
+        filter: customTimeFilter,
     });
     // Get current value string for combobox
     const currentValue = useMemo(() => {
@@ -6528,6 +6844,47 @@ const TimePicker$1 = ({ hour, setHour, minute, setMinute, meridiem, setMeridiem,
         filter(trimmedValue);
         if (!trimmedValue) {
             return;
+        }
+        // Parse 24-hour format first (e.g., "13:30", "14:00", "1330", "1400", "9:05", "905")
+        const timePattern24Hour = /^(\d{1,2}):?(\d{2})$/;
+        const match24Hour = trimmedValue.match(timePattern24Hour);
+        if (match24Hour) {
+            const parsedHour24 = parseInt(match24Hour[1], 10);
+            const parsedMinute = parseInt(match24Hour[2], 10);
+            // Validate 24-hour format ranges
+            if (parsedHour24 >= 0 &&
+                parsedHour24 <= 23 &&
+                parsedMinute >= 0 &&
+                parsedMinute <= 59) {
+                // Convert 24-hour to 12-hour format
+                let hour12;
+                let meridiem;
+                if (parsedHour24 === 0) {
+                    hour12 = 12;
+                    meridiem = 'am';
+                }
+                else if (parsedHour24 === 12) {
+                    hour12 = 12;
+                    meridiem = 'pm';
+                }
+                else if (parsedHour24 > 12) {
+                    hour12 = parsedHour24 - 12;
+                    meridiem = 'pm';
+                }
+                else {
+                    hour12 = parsedHour24;
+                    meridiem = 'am';
+                }
+                setHour(hour12);
+                setMinute(parsedMinute);
+                setMeridiem(meridiem);
+                onChange({
+                    hour: hour12,
+                    minute: parsedMinute,
+                    meridiem: meridiem,
+                });
+                return;
+            }
         }
         // Parse formats like "1:30 PM", "1:30PM", "1:30 pm", "1:30pm"
         const timePattern12Hour = /^(\d{1,2}):(\d{1,2})\s*(am|pm|AM|PM)$/i;
@@ -6693,133 +7050,6 @@ const TimePicker = ({ column, schema, prefix }) => {
                             setOpen(true);
                         }, justifyContent: 'start', children: [jsx(IoMdClock, {}), !!value ? `${displayedTime}` : ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsx(Popover.Body, { overflow: "visible", children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, labels: timePickerLabels }) }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { children: jsx(Popover.Body, { children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, labels: timePickerLabels }) }) }) }) }))] }) }));
 };
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(customParseFormat);
-function DatePickerInput({ value, onChange, placeholder = 'Select a date', dateFormat = 'YYYY-MM-DD', displayFormat = 'YYYY-MM-DD', labels = {
-    monthNamesShort: [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-    ],
-    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    backButtonLabel: 'Back',
-    forwardButtonLabel: 'Next',
-}, timezone = 'Asia/Hong_Kong', minDate, maxDate, firstDayOfWeek, showOutsideDays, monthsToDisplay = 1, insideDialog = false, readOnly = false, }) {
-    const [open, setOpen] = useState(false);
-    const [inputValue, setInputValue] = useState('');
-    // Update input value when prop value changes
-    useEffect(() => {
-        if (value) {
-            const formatted = typeof value === 'string'
-                ? dayjs(value).tz(timezone).isValid()
-                    ? dayjs(value).tz(timezone).format(displayFormat)
-                    : ''
-                : dayjs(value).tz(timezone).format(displayFormat);
-            setInputValue(formatted);
-        }
-        else {
-            setInputValue('');
-        }
-    }, [value, displayFormat, timezone]);
-    // Convert value to Date object for DatePicker
-    const selectedDate = value
-        ? typeof value === 'string'
-            ? dayjs(value).tz(timezone).isValid()
-                ? dayjs(value).tz(timezone).toDate()
-                : new Date()
-            : value
-        : new Date();
-    // Shared function to parse and validate input value
-    const parseAndValidateInput = (inputVal) => {
-        // If empty, clear the value
-        if (!inputVal.trim()) {
-            onChange?.(undefined);
-            setInputValue('');
-            return;
-        }
-        // Try parsing with displayFormat first
-        let parsedDate = dayjs(inputVal, displayFormat, true);
-        // If that fails, try common date formats
-        if (!parsedDate.isValid()) {
-            parsedDate = dayjs(inputVal);
-        }
-        // If still invalid, try parsing with dateFormat
-        if (!parsedDate.isValid()) {
-            parsedDate = dayjs(inputVal, dateFormat, true);
-        }
-        // If valid, check constraints and update
-        if (parsedDate.isValid()) {
-            const dateObj = parsedDate.tz(timezone).toDate();
-            // Check min/max constraints
-            if (minDate && dateObj < minDate) {
-                // Invalid: before minDate, reset to prop value
-                resetToPropValue();
-                return;
-            }
-            if (maxDate && dateObj > maxDate) {
-                // Invalid: after maxDate, reset to prop value
-                resetToPropValue();
-                return;
-            }
-            // Valid date - format and update
-            const formattedDate = parsedDate.tz(timezone).format(dateFormat);
-            const formattedDisplay = parsedDate.tz(timezone).format(displayFormat);
-            onChange?.(formattedDate);
-            setInputValue(formattedDisplay);
-        }
-        else {
-            // Invalid date - reset to prop value
-            resetToPropValue();
-        }
-    };
-    // Helper function to reset input to prop value
-    const resetToPropValue = () => {
-        if (value) {
-            const formatted = typeof value === 'string'
-                ? dayjs(value).tz(timezone).isValid()
-                    ? dayjs(value).tz(timezone).format(displayFormat)
-                    : ''
-                : dayjs(value).tz(timezone).format(displayFormat);
-            setInputValue(formatted);
-        }
-        else {
-            setInputValue('');
-        }
-    };
-    const handleInputChange = (e) => {
-        // Only update the input value, don't parse yet
-        setInputValue(e.target.value);
-    };
-    const handleInputBlur = () => {
-        // Parse and validate when input loses focus
-        parseAndValidateInput(inputValue);
-    };
-    const handleKeyDown = (e) => {
-        // Parse and validate when Enter is pressed
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            parseAndValidateInput(inputValue);
-        }
-    };
-    const handleDateSelected = ({ date }) => {
-        const formattedDate = dayjs(date).tz(timezone).format(dateFormat);
-        onChange?.(formattedDate);
-        setOpen(false);
-    };
-    const datePickerContent = (jsx(DatePicker$1, { selected: selectedDate, onDateSelected: handleDateSelected, labels: labels, minDate: minDate, maxDate: maxDate, firstDayOfWeek: firstDayOfWeek, showOutsideDays: showOutsideDays, monthsToDisplay: monthsToDisplay }));
-    return (jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(InputGroup, { endElement: jsx(Popover.Trigger, { asChild: true, children: jsx(IconButton, { variant: "ghost", size: "2xs", "aria-label": "Open calendar", onClick: () => setOpen(true), children: jsx(Icon, { children: jsx(MdDateRange, {}) }) }) }), children: jsx(Input, { value: inputValue, onChange: handleInputChange, onBlur: handleInputBlur, onKeyDown: handleKeyDown, placeholder: placeholder, readOnly: readOnly }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) }))] }));
-}
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -7064,7 +7294,20 @@ onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Ko
             });
         }
     };
+    const [inputValue, setInputValue] = useState('');
+    // Sync inputValue with currentValue when time changes externally
+    useEffect(() => {
+        if (hour !== null && minute !== null && second !== null) {
+            const formattedValue = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+            setInputValue(formattedValue);
+        }
+        else {
+            setInputValue('');
+        }
+    }, [hour, minute, second]);
     const handleInputValueChange = (details) => {
+        // Update local input value state
+        setInputValue(details.inputValue);
         // Filter the collection based on input, but don't parse yet
         filter(details.inputValue);
     };
@@ -7074,24 +7317,26 @@ onChange = (_newValue) => { }, startTime, selectedDate, timezone = 'Asia/Hong_Ko
     };
     const handleBlur = (e) => {
         // Parse and commit the input value when losing focus
-        const inputValue = e.target.value;
-        if (inputValue) {
-            parseAndCommitInput(inputValue);
+        const inputVal = e.target.value;
+        setInputValue(inputVal);
+        if (inputVal) {
+            parseAndCommitInput(inputVal);
         }
     };
     const handleKeyDown = (e) => {
         // Commit input on Enter key
         if (e.key === 'Enter') {
             e.preventDefault();
-            const inputValue = e.currentTarget.value;
-            if (inputValue) {
-                parseAndCommitInput(inputValue);
+            const inputVal = e.currentTarget.value;
+            setInputValue(inputVal);
+            if (inputVal) {
+                parseAndCommitInput(inputVal);
             }
             // Blur the input
             e.currentTarget?.blur();
         }
     };
-    return (jsx(Flex, { direction: "column", gap: 3, children: jsxs(Flex, { alignItems: "center", gap: "2", width: "auto", minWidth: "300px", children: [jsxs(Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, flex: 1, children: [jsxs(Combobox.Control, { children: [jsx(InputGroup$1, { startElement: jsx(BsClock, {}), children: jsx(Combobox.Input, { placeholder: labels.placeholder, onFocus: handleFocus, onBlur: handleBlur, onKeyDown: handleKeyDown }) }), jsx(Combobox.IndicatorGroup, { children: jsx(Combobox.Trigger, {}) })] }), jsx(Portal, { disabled: !portalled, children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [jsx(Combobox.Empty, { children: labels.emptyMessage }), collection.items.map((item) => (jsxs(Combobox.Item, { item: item, children: [jsxs(Flex, { alignItems: "center", gap: 2, width: "100%", children: [jsx(Text, { flex: 1, children: item.label }), item.durationText && (jsx(Tag$1.Root, { size: "sm", children: jsx(Tag$1.Label, { children: item.durationText }) }))] }), jsx(Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), durationDiff && (jsx(Tag$1.Root, { size: "sm", children: jsx(Tag$1.Label, { children: durationDiff }) })), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "ghost", children: jsx(Icon, { children: jsx(MdCancel, {}) }) })] }) }));
+    return (jsx(Flex, { direction: "column", gap: 3, children: jsxs(Flex, { alignItems: "center", gap: "2", width: "auto", minWidth: "300px", children: [jsxs(Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", openOnClick: true, flex: 1, children: [jsxs(Combobox.Control, { children: [jsx(InputGroup$1, { startElement: jsx(BsClock, {}), children: jsx(Combobox.Input, { value: inputValue, placeholder: labels.placeholder, onFocus: handleFocus, onBlur: handleBlur, onKeyDown: handleKeyDown }) }), jsx(Combobox.IndicatorGroup, { children: jsx(Combobox.Trigger, {}) })] }), jsx(Portal, { disabled: !portalled, children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [jsx(Combobox.Empty, { children: labels.emptyMessage }), collection.items.map((item) => (jsxs(Combobox.Item, { item: item, children: [jsxs(Flex, { alignItems: "center", gap: 2, width: "100%", children: [jsx(Text, { flex: 1, children: item.label }), item.durationText && (jsx(Tag$1.Root, { size: "sm", children: jsx(Tag$1.Label, { children: item.durationText }) }))] }), jsx(Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), durationDiff && (jsx(Tag$1.Root, { size: "sm", children: jsx(Tag$1.Label, { children: durationDiff }) })), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "ghost", children: jsx(Icon, { children: jsx(MdCancel, {}) }) })] }) }));
 }
 
 dayjs.extend(utc);
@@ -7114,7 +7359,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Next',
-}, timePickerLabels, timezone = 'Asia/Hong_Kong', startTime, minDate, maxDate, portalled = false, }) {
+}, timePickerLabels, timezone = 'Asia/Hong_Kong', startTime, minDate, maxDate, portalled = false, defaultDate, defaultTime, }) {
     console.log('[DateTimePicker] Component initialized with props:', {
         value,
         format,
@@ -7189,13 +7434,77 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         value,
         initialTime,
     });
+    // Normalize startTime to ignore milliseconds (needed for effectiveDefaultDate calculation)
+    const normalizedStartTime = startTime
+        ? dayjs(startTime).tz(timezone).millisecond(0).toISOString()
+        : undefined;
+    // Calculate effective defaultDate: use prop if provided, otherwise use startTime date, otherwise use today
+    const effectiveDefaultDate = useMemo(() => {
+        if (defaultDate) {
+            return defaultDate;
+        }
+        if (normalizedStartTime &&
+            dayjs(normalizedStartTime).tz(timezone).isValid()) {
+            return dayjs(normalizedStartTime).tz(timezone).format('YYYY-MM-DD');
+        }
+        return dayjs().tz(timezone).format('YYYY-MM-DD');
+    }, [defaultDate, normalizedStartTime, timezone]);
+    // Initialize time with default values if no value is provided
+    const getInitialTimeValues = () => {
+        if (value && initialTime.hour12 !== null) {
+            return initialTime;
+        }
+        // If no value or no time in value, use defaultTime or 00:00
+        if (defaultTime) {
+            if (format === 'iso-date-time') {
+                const defaultTime24 = defaultTime;
+                return {
+                    hour12: null,
+                    minute: defaultTime24.minute ?? 0,
+                    meridiem: null,
+                    hour24: defaultTime24.hour ?? 0,
+                    second: showSeconds ? defaultTime24.second ?? 0 : null,
+                };
+            }
+            else {
+                const defaultTime12 = defaultTime;
+                return {
+                    hour12: defaultTime12.hour ?? 12,
+                    minute: defaultTime12.minute ?? 0,
+                    meridiem: defaultTime12.meridiem ?? 'am',
+                    hour24: null,
+                    second: null,
+                };
+            }
+        }
+        // Default to 00:00
+        if (format === 'iso-date-time') {
+            return {
+                hour12: null,
+                minute: 0,
+                meridiem: null,
+                hour24: 0,
+                second: showSeconds ? 0 : null,
+            };
+        }
+        else {
+            return {
+                hour12: 12,
+                minute: 0,
+                meridiem: 'am',
+                hour24: null,
+                second: null,
+            };
+        }
+    };
+    const initialTimeValues = getInitialTimeValues();
     // Time state for 12-hour format
-    const [hour12, setHour12] = useState(initialTime.hour12);
-    const [minute, setMinute] = useState(initialTime.minute);
-    const [meridiem, setMeridiem] = useState(initialTime.meridiem);
+    const [hour12, setHour12] = useState(initialTimeValues.hour12);
+    const [minute, setMinute] = useState(initialTimeValues.minute);
+    const [meridiem, setMeridiem] = useState(initialTimeValues.meridiem);
     // Time state for 24-hour format
-    const [hour24, setHour24] = useState(initialTime.hour24);
-    const [second, setSecond] = useState(initialTime.second);
+    const [hour24, setHour24] = useState(initialTimeValues.hour24);
+    const [second, setSecond] = useState(initialTimeValues.second);
     // Sync selectedDate and time states when value prop changes
     useEffect(() => {
         console.log('[DateTimePicker] useEffect triggered - value changed:', {
@@ -7203,27 +7512,47 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             timezone,
             format,
         });
-        // If value is null, undefined, or invalid, clear all fields
+        // If value is null, undefined, or invalid, clear date but keep default time values
         if (!value || value === null || value === undefined) {
-            console.log('[DateTimePicker] Value is null/undefined, clearing all fields');
+            console.log('[DateTimePicker] Value is null/undefined, clearing date but keeping default time');
             setSelectedDate('');
-            setHour12(null);
-            setMinute(null);
-            setMeridiem(null);
-            setHour24(null);
-            setSecond(null);
+            // Keep default time values instead of clearing them
+            if (format === 'iso-date-time') {
+                setHour24(defaultTime ? defaultTime.hour ?? 0 : 0);
+                setMinute(defaultTime ? defaultTime.minute ?? 0 : 0);
+                setSecond(showSeconds
+                    ? defaultTime
+                        ? defaultTime.second ?? 0
+                        : 0
+                    : null);
+            }
+            else {
+                setHour12(defaultTime ? defaultTime.hour ?? 12 : 12);
+                setMinute(defaultTime ? defaultTime.minute ?? 0 : 0);
+                setMeridiem(defaultTime ? defaultTime.meridiem ?? 'am' : 'am');
+            }
             return;
         }
         // Check if value is valid
         const dateObj = dayjs(value).tz(timezone);
         if (!dateObj.isValid()) {
-            console.log('[DateTimePicker] Invalid value, clearing all fields');
+            console.log('[DateTimePicker] Invalid value, clearing date but keeping default time');
             setSelectedDate('');
-            setHour12(null);
-            setMinute(null);
-            setMeridiem(null);
-            setHour24(null);
-            setSecond(null);
+            // Keep default time values instead of clearing them
+            if (format === 'iso-date-time') {
+                setHour24(defaultTime ? defaultTime.hour ?? 0 : 0);
+                setMinute(defaultTime ? defaultTime.minute ?? 0 : 0);
+                setSecond(showSeconds
+                    ? defaultTime
+                        ? defaultTime.second ?? 0
+                        : 0
+                    : null);
+            }
+            else {
+                setHour12(defaultTime ? defaultTime.hour ?? 12 : 12);
+                setMinute(defaultTime ? defaultTime.minute ?? 0 : 0);
+                setMeridiem(defaultTime ? defaultTime.meridiem ?? 'am' : 'am');
+            }
             return;
         }
         const dateString = getDateString(value);
@@ -7279,16 +7608,76 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             onChange?.(undefined);
             return;
         }
+        // Check if time values are null - if so, use defaultTime or set to 00:00
+        const hasTimeValues = format === 'iso-date-time'
+            ? hour24 !== null || minute !== null
+            : hour12 !== null || minute !== null || meridiem !== null;
+        let timeDataToUse = undefined;
+        if (!hasTimeValues) {
+            // Use defaultTime if provided, otherwise default to 00:00
+            if (defaultTime) {
+                console.log('[DateTimePicker] No time values set, using defaultTime');
+                if (format === 'iso-date-time') {
+                    const defaultTime24 = defaultTime;
+                    setHour24(defaultTime24.hour ?? 0);
+                    setMinute(defaultTime24.minute ?? 0);
+                    if (showSeconds) {
+                        setSecond(defaultTime24.second ?? 0);
+                    }
+                    timeDataToUse = {
+                        hour: defaultTime24.hour ?? 0,
+                        minute: defaultTime24.minute ?? 0,
+                        second: showSeconds ? defaultTime24.second ?? 0 : undefined,
+                    };
+                }
+                else {
+                    const defaultTime12 = defaultTime;
+                    setHour12(defaultTime12.hour ?? 12);
+                    setMinute(defaultTime12.minute ?? 0);
+                    setMeridiem(defaultTime12.meridiem ?? 'am');
+                    timeDataToUse = {
+                        hour: defaultTime12.hour ?? 12,
+                        minute: defaultTime12.minute ?? 0,
+                        meridiem: defaultTime12.meridiem ?? 'am',
+                    };
+                }
+            }
+            else {
+                console.log('[DateTimePicker] No time values set, defaulting to 00:00');
+                if (format === 'iso-date-time') {
+                    setHour24(0);
+                    setMinute(0);
+                    if (showSeconds) {
+                        setSecond(0);
+                    }
+                    timeDataToUse = {
+                        hour: 0,
+                        minute: 0,
+                        second: showSeconds ? 0 : undefined,
+                    };
+                }
+                else {
+                    setHour12(12);
+                    setMinute(0);
+                    setMeridiem('am');
+                    timeDataToUse = {
+                        hour: 12,
+                        minute: 0,
+                        meridiem: 'am',
+                    };
+                }
+            }
+        }
         // When showSeconds is false, ignore seconds from the date
         if (!showSeconds) {
             const dateWithoutSeconds = dateObj.second(0).millisecond(0).toISOString();
             console.log('[DateTimePicker] Updating date without seconds:', dateWithoutSeconds);
-            updateDateTime(dateWithoutSeconds);
+            updateDateTime(dateWithoutSeconds, timeDataToUse);
         }
         else {
             const dateWithSeconds = dateObj.toISOString();
             console.log('[DateTimePicker] Updating date with seconds:', dateWithSeconds);
-            updateDateTime(dateWithSeconds);
+            updateDateTime(dateWithSeconds, timeDataToUse);
         }
     };
     const handleTimeChange = (timeData) => {
@@ -7318,17 +7707,36 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             setMinute(data.minute);
             setMeridiem(data.meridiem);
         }
-        // Use selectedDate if valid, otherwise clear all fields
+        // Use selectedDate if valid, otherwise use effectiveDefaultDate or clear all fields
         if (!selectedDate || !dayjs(selectedDate).isValid()) {
-            console.log('[DateTimePicker] No valid selectedDate, clearing all fields');
-            setSelectedDate('');
-            setHour12(null);
-            setMinute(null);
-            setMeridiem(null);
-            setHour24(null);
-            setSecond(null);
-            onChange?.(undefined);
-            return;
+            // If effectiveDefaultDate is available, use it instead of clearing
+            if (effectiveDefaultDate && dayjs(effectiveDefaultDate).isValid()) {
+                console.log('[DateTimePicker] No valid selectedDate, using effectiveDefaultDate:', effectiveDefaultDate);
+                setSelectedDate(effectiveDefaultDate);
+                const dateObj = dayjs(effectiveDefaultDate).tz(timezone);
+                if (dateObj.isValid()) {
+                    updateDateTime(dateObj.toISOString(), timeData);
+                }
+                else {
+                    console.warn('[DateTimePicker] Invalid effectiveDefaultDate, clearing fields');
+                    setSelectedDate('');
+                    setHour12(null);
+                    setMinute(null);
+                    setMeridiem(null);
+                    setHour24(null);
+                    setSecond(null);
+                    onChange?.(undefined);
+                }
+                return;
+            }
+            else {
+                console.log('[DateTimePicker] No valid selectedDate and no effectiveDefaultDate, keeping time values but no date');
+                // Keep the time values that were just set, but don't set a date
+                // This should rarely happen as effectiveDefaultDate always defaults to today
+                setSelectedDate('');
+                onChange?.(undefined);
+                return;
+            }
         }
         const dateObj = dayjs(selectedDate).tz(timezone);
         if (dateObj.isValid()) {
@@ -7471,18 +7879,24 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     };
     const handleClear = () => {
         setSelectedDate('');
-        setHour12(null);
-        setHour24(null);
-        setMinute(null);
-        setSecond(null);
-        setMeridiem(null);
+        // Reset to default time values instead of clearing them
+        if (format === 'iso-date-time') {
+            setHour24(defaultTime ? defaultTime.hour ?? 0 : 0);
+            setMinute(defaultTime ? defaultTime.minute ?? 0 : 0);
+            setSecond(showSeconds
+                ? defaultTime
+                    ? defaultTime.second ?? 0
+                    : 0
+                : null);
+        }
+        else {
+            setHour12(defaultTime ? defaultTime.hour ?? 12 : 12);
+            setMinute(defaultTime ? defaultTime.minute ?? 0 : 0);
+            setMeridiem(defaultTime ? defaultTime.meridiem ?? 'am' : 'am');
+        }
         onChange?.(undefined);
     };
     const isISO = format === 'iso-date-time';
-    // Normalize startTime to ignore milliseconds
-    const normalizedStartTime = startTime
-        ? dayjs(startTime).tz(timezone).millisecond(0).toISOString()
-        : undefined;
     // Determine minDate: prioritize explicit minDate prop, then fall back to startTime
     const effectiveMinDate = minDate
         ? minDate
@@ -7560,7 +7974,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         const dateObj = dayjs.tz(selectedDate, timezone);
         return dateObj.isValid() ? dateObj.format('Z') : null;
     }, [selectedDate, timezone]);
-    return (jsxs(Flex, { direction: "column", gap: 4, children: [jsx(DatePickerInput, { value: selectedDate || undefined, onChange: (date) => {
+    return (jsxs(Flex, { direction: "column", gap: 2, children: [jsx(DatePickerInput, { value: selectedDate || undefined, onChange: (date) => {
                     if (date) {
                         handleDateChange(date);
                     }
@@ -7568,7 +7982,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                         setSelectedDate('');
                         onChange?.(undefined);
                     }
-                }, placeholder: "Select a date", dateFormat: "YYYY-MM-DD", displayFormat: "YYYY-MM-DD", labels: labels, timezone: timezone, minDate: effectiveMinDate, maxDate: maxDate, monthsToDisplay: 1, readOnly: true }), jsxs(Grid, { templateColumns: "1fr auto", alignItems: "center", gap: 4, children: [isISO ? (jsx(IsoTimePicker, { hour: hour24, setHour: setHour24, minute: minute, setMinute: setMinute, second: showSeconds ? second : null, setSecond: showSeconds ? setSecond : () => { }, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone, portalled: portalled, labels: timePickerLabels })) : (jsx(TimePicker$1, { hour: hour12, setHour: setHour12, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone, portalled: portalled, labels: timePickerLabels })), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "outline", colorScheme: "red", children: jsx(Icon, { as: FaTrash }) })] }), displayText && (jsxs(Flex, { gap: 2, children: [jsx(Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: displayText }), timezoneOffset && (jsx(Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezoneOffset })), jsx(Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezone })] }))] }));
+                }, placeholder: "Select a date", dateFormat: "YYYY-MM-DD", displayFormat: "YYYY-MM-DD", labels: labels, timezone: timezone, minDate: effectiveMinDate, maxDate: maxDate, monthsToDisplay: 1, readOnly: false }), jsxs(Grid, { templateColumns: "1fr auto", alignItems: "center", gap: 2, children: [isISO ? (jsx(IsoTimePicker, { hour: hour24, setHour: setHour24, minute: minute, setMinute: setMinute, second: showSeconds ? second : null, setSecond: showSeconds ? setSecond : () => { }, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone, portalled: portalled, labels: timePickerLabels })) : (jsx(TimePicker$1, { hour: hour12, setHour: setHour12, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: normalizedStartTime, selectedDate: selectedDate, timezone: timezone, portalled: portalled, labels: timePickerLabels })), jsx(Button$1, { onClick: handleClear, size: "sm", variant: "outline", colorScheme: "red", children: jsx(Icon, { as: FaTrash }) })] }), displayText && (jsxs(Flex, { gap: 2, children: [jsx(Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: displayText }), timezoneOffset && (jsx(Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezoneOffset })), jsx(Text, { fontSize: "sm", color: { base: 'gray.600', _dark: 'gray.600' }, children: timezone })] }))] }));
 }
 
 dayjs.extend(utc);
@@ -7630,7 +8044,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
-                        }, justifyContent: 'start', children: [jsx(MdDateRange, {}), displayDate || ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "450px", minH: "25rem", children: jsx(Popover.Body, { children: dateTimePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "450px", minH: "25rem", children: jsx(Popover.Body, { children: dateTimePickerContent }) }) }) }))] }) }));
+                        }, justifyContent: 'start', children: [jsx(MdDateRange, {}), displayDate || ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "350px", minH: "10rem", children: jsx(Popover.Body, { children: dateTimePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "350px", minH: "10rem", children: jsx(Popover.Body, { children: dateTimePickerContent }) }) }) }))] }) }));
 };
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {
