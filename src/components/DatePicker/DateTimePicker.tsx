@@ -75,7 +75,7 @@ export function DateTimePicker({
   defaultDate,
   defaultTime,
 }: DateTimePickerProps) {
-  console.log('[DateTimePicker] Component initialized with props:', {
+  console.debug('[DateTimePicker] Component initialized with props:', {
     value,
     format,
     showSeconds,
@@ -102,13 +102,13 @@ export function DateTimePicker({
   // Helper to get time values from value prop with timezone
   const getTimeFromValue = useCallback(
     (val?: string | null) => {
-      console.log('[DateTimePicker] getTimeFromValue called:', {
+      console.debug('[DateTimePicker] getTimeFromValue called:', {
         val,
         timezone,
         showSeconds,
       });
       if (!val) {
-        console.log('[DateTimePicker] No value provided, returning nulls');
+        console.debug('[DateTimePicker] No value provided, returning nulls');
         return {
           hour12: null,
           minute: null,
@@ -118,7 +118,7 @@ export function DateTimePicker({
         };
       }
       const dateObj = dayjs(val).tz(timezone);
-      console.log('[DateTimePicker] Parsed date object:', {
+      console.debug('[DateTimePicker] Parsed date object:', {
         original: val,
         timezone,
         isValid: dateObj.isValid(),
@@ -128,7 +128,7 @@ export function DateTimePicker({
         second: dateObj.second(),
       });
       if (!dateObj.isValid()) {
-        console.log('[DateTimePicker] Invalid date object, returning nulls');
+        console.debug('[DateTimePicker] Invalid date object, returning nulls');
         return {
           hour12: null,
           minute: null,
@@ -150,14 +150,14 @@ export function DateTimePicker({
         hour24: hour24Value,
         second: secondValue,
       };
-      console.log('[DateTimePicker] Extracted time values:', result);
+      console.debug('[DateTimePicker] Extracted time values:', result);
       return result;
     },
     [timezone, showSeconds]
   );
 
   const initialTime = getTimeFromValue(value);
-  console.log('[DateTimePicker] Initial time from value:', {
+  console.debug('[DateTimePicker] Initial time from value:', {
     value,
     initialTime,
   });
@@ -243,7 +243,7 @@ export function DateTimePicker({
 
   // Sync selectedDate and time states when value prop changes
   useEffect(() => {
-    console.log('[DateTimePicker] useEffect triggered - value changed:', {
+    console.debug('[DateTimePicker] useEffect triggered - value changed:', {
       value,
       timezone,
       format,
@@ -251,7 +251,7 @@ export function DateTimePicker({
 
     // If value is null, undefined, or invalid, clear date but keep default time values
     if (!value || value === null || value === undefined) {
-      console.log(
+      console.debug(
         '[DateTimePicker] Value is null/undefined, clearing date but keeping default time'
       );
       setSelectedDate('');
@@ -285,7 +285,7 @@ export function DateTimePicker({
     // Check if value is valid
     const dateObj = dayjs(value).tz(timezone);
     if (!dateObj.isValid()) {
-      console.log(
+      console.debug(
         '[DateTimePicker] Invalid value, clearing date but keeping default time'
       );
       setSelectedDate('');
@@ -317,10 +317,10 @@ export function DateTimePicker({
     }
 
     const dateString = getDateString(value);
-    console.log('[DateTimePicker] Setting selectedDate:', dateString);
+    console.debug('[DateTimePicker] Setting selectedDate:', dateString);
     setSelectedDate(dateString);
     const timeData = getTimeFromValue(value);
-    console.log('[DateTimePicker] Updating time states:', {
+    console.debug('[DateTimePicker] Updating time states:', {
       timeData,
     });
     setHour12(timeData.hour12);
@@ -331,7 +331,7 @@ export function DateTimePicker({
   }, [value, getTimeFromValue, getDateString, timezone]);
 
   const handleDateChange = (date: string) => {
-    console.log('[DateTimePicker] handleDateChange called:', {
+    console.debug('[DateTimePicker] handleDateChange called:', {
       date,
       timezone,
       showSeconds,
@@ -340,7 +340,7 @@ export function DateTimePicker({
 
     // If date is empty or invalid, clear all fields
     if (!date || date === '') {
-      console.log('[DateTimePicker] Empty date, clearing all fields');
+      console.debug('[DateTimePicker] Empty date, clearing all fields');
       setSelectedDate('');
       setHour12(null);
       setMinute(null);
@@ -354,7 +354,7 @@ export function DateTimePicker({
     setSelectedDate(date);
     // Parse the date string (YYYY-MM-DD) in the specified timezone
     const dateObj = dayjs.tz(date, timezone);
-    console.log('[DateTimePicker] Parsed date object:', {
+    console.debug('[DateTimePicker] Parsed date object:', {
       date,
       timezone,
       isValid: dateObj.isValid(),
@@ -385,7 +385,7 @@ export function DateTimePicker({
     if (!hasTimeValues) {
       // Use defaultTime if provided, otherwise default to 00:00
       if (defaultTime) {
-        console.log('[DateTimePicker] No time values set, using defaultTime');
+        console.debug('[DateTimePicker] No time values set, using defaultTime');
         if (format === 'iso-date-time') {
           const defaultTime24 = defaultTime as TimeData24Hour;
           setHour24(defaultTime24.hour ?? 0);
@@ -410,7 +410,9 @@ export function DateTimePicker({
           };
         }
       } else {
-        console.log('[DateTimePicker] No time values set, defaulting to 00:00');
+        console.debug(
+          '[DateTimePicker] No time values set, defaulting to 00:00'
+        );
         if (format === 'iso-date-time') {
           setHour24(0);
           setMinute(0);
@@ -438,14 +440,14 @@ export function DateTimePicker({
     // When showSeconds is false, ignore seconds from the date
     if (!showSeconds) {
       const dateWithoutSeconds = dateObj.second(0).millisecond(0).toISOString();
-      console.log(
+      console.debug(
         '[DateTimePicker] Updating date without seconds:',
         dateWithoutSeconds
       );
       updateDateTime(dateWithoutSeconds, timeDataToUse);
     } else {
       const dateWithSeconds = dateObj.toISOString();
-      console.log(
+      console.debug(
         '[DateTimePicker] Updating date with seconds:',
         dateWithSeconds
       );
@@ -454,7 +456,7 @@ export function DateTimePicker({
   };
 
   const handleTimeChange = (timeData: TimeData) => {
-    console.log('[DateTimePicker] handleTimeChange called:', {
+    console.debug('[DateTimePicker] handleTimeChange called:', {
       timeData,
       format,
       selectedDate,
@@ -462,7 +464,10 @@ export function DateTimePicker({
     });
     if (format === 'iso-date-time') {
       const data = timeData as TimeData24Hour;
-      console.log('[DateTimePicker] ISO format - setting 24-hour time:', data);
+      console.debug(
+        '[DateTimePicker] ISO format - setting 24-hour time:',
+        data
+      );
       setHour24(data.hour);
       setMinute(data.minute);
       if (showSeconds) {
@@ -473,7 +478,7 @@ export function DateTimePicker({
       }
     } else {
       const data = timeData as TimeData12Hour;
-      console.log('[DateTimePicker] 12-hour format - setting time:', data);
+      console.debug('[DateTimePicker] 12-hour format - setting time:', data);
       setHour12(data.hour);
       setMinute(data.minute);
       setMeridiem(data.meridiem);
@@ -483,7 +488,7 @@ export function DateTimePicker({
     if (!selectedDate || !dayjs(selectedDate).isValid()) {
       // If effectiveDefaultDate is available, use it instead of clearing
       if (effectiveDefaultDate && dayjs(effectiveDefaultDate).isValid()) {
-        console.log(
+        console.debug(
           '[DateTimePicker] No valid selectedDate, using effectiveDefaultDate:',
           effectiveDefaultDate
         );
@@ -505,7 +510,7 @@ export function DateTimePicker({
         }
         return;
       } else {
-        console.log(
+        console.debug(
           '[DateTimePicker] No valid selectedDate and no effectiveDefaultDate, keeping time values but no date'
         );
         // Keep the time values that were just set, but don't set a date
@@ -534,14 +539,14 @@ export function DateTimePicker({
   };
 
   const updateDateTime = (date?: string | null, timeData?: TimeData) => {
-    console.log('[DateTimePicker] updateDateTime called:', {
+    console.debug('[DateTimePicker] updateDateTime called:', {
       date,
       timeData,
       format,
       currentStates: { hour12, minute, meridiem, hour24, second },
     });
     if (!date || date === null || date === undefined) {
-      console.log(
+      console.debug(
         '[DateTimePicker] No date provided, clearing all fields and calling onChange(undefined)'
       );
       setSelectedDate('');
@@ -587,14 +592,14 @@ export function DateTimePicker({
 
       // If all time values are null, clear the value
       if (h === null && m === null && (showSeconds ? s === null : true)) {
-        console.log(
+        console.debug(
           '[DateTimePicker] All time values are null, clearing value'
         );
         onChange?.(undefined);
         return;
       }
 
-      console.log('[DateTimePicker] ISO format - setting time on date:', {
+      console.debug('[DateTimePicker] ISO format - setting time on date:', {
         h,
         m,
         s,
@@ -606,7 +611,7 @@ export function DateTimePicker({
       newDate.setSeconds(s ?? 0);
     } else {
       const data = timeData as TimeData12Hour | undefined;
-      console.log('[DateTimePicker] Processing 12-hour format:', {
+      console.debug('[DateTimePicker] Processing 12-hour format:', {
         'data !== undefined': data !== undefined,
         'data?.hour': data?.hour,
         'data?.minute': data?.minute,
@@ -620,18 +625,18 @@ export function DateTimePicker({
       const m = data !== undefined ? data.minute : minute;
       const mer = data !== undefined ? data.meridiem : meridiem;
 
-      console.log('[DateTimePicker] Resolved time values:', { h, m, mer });
+      console.debug('[DateTimePicker] Resolved time values:', { h, m, mer });
 
       // If all time values are null, clear the value
       if (h === null && m === null && mer === null) {
-        console.log(
+        console.debug(
           '[DateTimePicker] All time values are null, clearing value'
         );
         onChange?.(undefined);
         return;
       }
 
-      console.log('[DateTimePicker] 12-hour format - converting time:', {
+      console.debug('[DateTimePicker] 12-hour format - converting time:', {
         h,
         m,
         mer,
@@ -641,14 +646,14 @@ export function DateTimePicker({
         let hour24 = h;
         if (mer === 'am' && h === 12) hour24 = 0;
         else if (mer === 'pm' && h < 12) hour24 = h + 12;
-        console.log('[DateTimePicker] Converted to 24-hour:', {
+        console.debug('[DateTimePicker] Converted to 24-hour:', {
           h,
           mer,
           hour24,
         });
         newDate.setHours(hour24);
       } else {
-        console.log(
+        console.debug(
           '[DateTimePicker] Skipping hour update - h or mer is null:',
           {
             h,
@@ -659,13 +664,13 @@ export function DateTimePicker({
       if (m !== null) {
         newDate.setMinutes(m);
       } else {
-        console.log('[DateTimePicker] Skipping minute update - m is null');
+        console.debug('[DateTimePicker] Skipping minute update - m is null');
       }
       newDate.setSeconds(0);
     }
 
     const finalISO = dayjs(newDate).tz(timezone).toISOString();
-    console.log('[DateTimePicker] Final ISO string to emit:', {
+    console.debug('[DateTimePicker] Final ISO string to emit:', {
       newDate: newDate.toISOString(),
       timezone,
       finalISO,
@@ -707,7 +712,7 @@ export function DateTimePicker({
 
   // Log current state before render
   useEffect(() => {
-    console.log('[DateTimePicker] Current state before render:', {
+    console.debug('[DateTimePicker] Current state before render:', {
       isISO,
       hour12,
       minute,

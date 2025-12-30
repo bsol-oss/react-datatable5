@@ -8,8 +8,9 @@ import {
   Text,
   useFilter,
   useListCollection,
+  Box,
 } from '@chakra-ui/react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
@@ -46,13 +47,45 @@ export const EnumPicker = ({
   const watchEnums = (watch(colLabel) ?? []) as string[];
   const dataList = schema.enum ?? [];
 
-  // Helper function to render enum value
+  // Helper function to render enum value (returns ReactNode)
   // If renderDisplay is provided, use it; otherwise show the enum string value directly
   const renderEnumValue = (value: string) => {
     if (renderDisplay) {
       return renderDisplay(value);
     }
     // If no renderDisplay provided, show the enum string value directly
+    return value;
+  };
+
+  // Helper function to get string representation for input display
+  // Converts ReactNode to string for combobox input display
+  const getDisplayString = (value: string): string => {
+    if (renderDisplay) {
+      const rendered = renderDisplay(value);
+      // If renderDisplay returns a string, use it directly
+      if (typeof rendered === 'string') {
+        return rendered;
+      }
+      // If it's a React element, try to extract text content
+      // For now, fallback to the raw value if we can't extract text
+      // In most cases, renderDisplay should return a string or simple element
+      if (
+        typeof rendered === 'object' &&
+        rendered !== null &&
+        'props' in rendered
+      ) {
+        const props = rendered.props as { children?: unknown };
+        // Try to extract text from React element props
+        if (props?.children) {
+          const children = props.children;
+          if (typeof children === 'string') {
+            return children;
+          }
+        }
+      }
+      // Fallback: use raw value if we can't extract string
+      return value;
+    }
     return value;
   };
 
@@ -76,13 +109,25 @@ export const EnumPicker = ({
       ? [watchEnum]
       : [];
 
+  // Track input focus state for single selection
+  const [isInputFocused, setIsInputFocused] = useState(false);
+
+  // Get the selected value for single selection display
+  const selectedSingleValue = !isMultiple && watchEnum ? watchEnum : null;
+  const selectedSingleRendered = selectedSingleValue
+    ? renderEnumValue(selectedSingleValue)
+    : null;
+  const isSelectedSingleValueString =
+    typeof selectedSingleRendered === 'string';
+
   // Transform enum data for combobox collection
-  // Note: label is used internally for search/filtering only
+  // Note: displayLabel is used for input display when value is selected
   // All UI display relies on renderEnumValue (see Combobox.ItemText below)
   type ComboboxItem = {
     label: string; // Used for combobox search/filtering (not displayed)
     value: string;
     raw: string; // Raw enum value passed to renderEnumValue for UI rendering
+    displayLabel: string; // String representation for input display when selected
   };
 
   const comboboxItems = useMemo<ComboboxItem[]>(() => {
@@ -90,16 +135,18 @@ export const EnumPicker = ({
       label: item, // Internal: used for search/filtering only
       value: item,
       raw: item, // Passed to renderEnumValue for UI rendering
+      displayLabel: getDisplayString(item), // Used for input display when selected
     }));
-  }, [dataList]);
+  }, [dataList, renderDisplay]);
 
   // Use filter hook for combobox
   const { contains } = useFilter({ sensitivity: 'base' });
 
   // Create collection for combobox
+  // itemToString uses displayLabel to show rendered display in input when selected
   const { collection, filter } = useListCollection({
     initialItems: comboboxItems,
-    itemToString: (item) => item.label,
+    itemToString: (item) => item.displayLabel, // Use displayLabel for selected value display
     itemToValue: (item) => item.value,
     filter: contains,
   });
@@ -213,9 +260,52 @@ export const EnumPicker = ({
             : undefined
         }
       >
-        <Combobox.Control>
+        <Combobox.Control position="relative">
+          {/* For single selection: render ReactNode directly in input when value is selected and not focused */}
+          {!isMultiple &&
+            selectedSingleValue &&
+            !isInputFocused &&
+            !isSelectedSingleValueString &&
+            selectedSingleRendered && (
+              <Box
+                position="absolute"
+                left={3}
+                top="50%"
+                transform="translateY(-50%)"
+                pointerEvents="none"
+                zIndex={1}
+                maxWidth="calc(100% - 60px)"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+              >
+                {selectedSingleRendered}
+              </Box>
+            )}
           <Combobox.Input
-            placeholder={enumPickerLabels?.typeToSearch ?? 'Type to search'}
+            placeholder={
+              !isMultiple && selectedSingleValue && !isInputFocused
+                ? undefined
+                : enumPickerLabels?.typeToSearch ?? 'Type to search'
+            }
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
+            style={{
+              color:
+                !isMultiple &&
+                selectedSingleValue &&
+                !isInputFocused &&
+                !isSelectedSingleValueString
+                  ? 'transparent'
+                  : undefined,
+              caretColor:
+                !isMultiple &&
+                selectedSingleValue &&
+                !isInputFocused &&
+                !isSelectedSingleValueString
+                  ? 'transparent'
+                  : undefined,
+            }}
           />
           <Combobox.IndicatorGroup>
             {!isMultiple && currentValue.length > 0 && (

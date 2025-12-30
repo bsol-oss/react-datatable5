@@ -54,6 +54,18 @@ const SomeForm = () => {
         },
         variant: 'enum-picker',
       },
+      companion_type_whitelist: {
+        type: 'array',
+        title: 'Companion Type Whitelist',
+        description: 'Companion Type Whitelist',
+        items: {
+          type: 'string',
+          enum: ['family_member', 'companion'],
+        },
+        variant: 'enum-picker' as const,
+        renderDisplay: (enumValue: string) =>
+          `Translated: ${enumValue === 'family_member' ? 'Family Member' : 'Companion'}`,
+      },
     },
   } as JSONSchema7;
 
