@@ -1,9 +1,9 @@
-import { Tag } from "@/components/ui/tag";
-import { Flex, Text } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import { Field } from "../../../ui/field";
-import { CustomJSONSchema7 } from "../types/CustomJSONSchema7";
-import { useFormI18n } from "../../utils/useFormI18n";
+import { Tag } from '@/components/ui/tag';
+import { Flex, Text } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import { Field } from '../../../ui/field';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
+import { useFormI18n } from '../../utils/useFormI18n';
 
 export interface EnumViewerProps {
   column: string;
@@ -22,10 +22,10 @@ export const EnumViewer = ({
     watch,
     formState: { errors },
   } = useFormContext();
-  const formI18n = useFormI18n(column, prefix);
+  const formI18n = useFormI18n(column, prefix, schema);
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const { gridColumn = "span 12", gridRow = "span 1", renderDisplay } = schema;
+  const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
   const colLabel = formI18n.colLabel;
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];
@@ -34,14 +34,14 @@ export const EnumViewer = ({
     <Field
       label={formI18n.label()}
       required={isRequired}
-      alignItems={"stretch"}
+      alignItems={'stretch'}
       {...{
         gridColumn,
         gridRow,
       }}
     >
       {isMultiple && (
-        <Flex flexFlow={"wrap"} gap={1}>
+        <Flex flexFlow={'wrap'} gap={1}>
           {watchEnums.map((enumValue) => {
             const item = enumValue;
             if (item === undefined) {
@@ -60,7 +60,7 @@ export const EnumViewer = ({
       {!isMultiple && <Text>{formI18n.t(watchEnum)}</Text>}
 
       {errors[`${column}`] && (
-        <Text color={"red.400"}>{formI18n.required()}</Text>
+        <Text color={'red.400'}>{formI18n.required()}</Text>
       )}
     </Field>
   );

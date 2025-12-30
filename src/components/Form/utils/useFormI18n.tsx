@@ -8,7 +8,7 @@ import { removeIndex } from './removeIndex';
  *
  * @param column - The column name
  * @param prefix - The prefix for the field (usually empty string or parent path)
- * @param schema - Optional schema object with title property
+ * @param schema - Required schema object with title property
  * @returns Object with label helper functions
  *
  * @example
@@ -31,7 +31,7 @@ import { removeIndex } from './removeIndex';
 export const useFormI18n = (
   column: string,
   prefix: string = '',
-  schema?: { title?: string }
+  schema: { title?: string }
 ) => {
   const { translate } = useSchemaContext();
   const colLabel = `${prefix}${column}`;
@@ -47,7 +47,7 @@ export const useFormI18n = (
      * Uses schema.title if available, otherwise: translate.t(removeIndex(`${colLabel}.field_label`))
      */
     label: (options?: any): string => {
-      if (schema?.title) {
+      if (schema.title) {
         return schema.title;
       }
       return translate.t(removeIndex(`${colLabel}.field_label`), options);

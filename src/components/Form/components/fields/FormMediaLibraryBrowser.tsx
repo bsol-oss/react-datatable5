@@ -33,7 +33,7 @@ export const FormMediaLibraryBrowser = ({
     watch,
   } = useFormContext();
   const { filePickerLabels } = useSchemaContext();
-  const formI18n = useFormI18n(column, prefix);
+  const formI18n = useFormI18n(column, prefix, schema);
   const {
     required,
     gridColumn = 'span 12',
@@ -196,9 +196,7 @@ export const FormMediaLibraryBrowser = ({
         onClose={() => setDialogOpen(false)}
         onSelect={handleMediaLibrarySelect}
         title={
-          filePickerLabels?.dialogTitle ??
-          filePickerLabels?.dialogTitle ??
-          'Select File'
+          filePickerLabels?.dialogTitle ?? formI18n.label() ?? 'Select File'
         }
         filterImageOnly={filterImageOnly}
         onFetchFiles={onFetchFiles}

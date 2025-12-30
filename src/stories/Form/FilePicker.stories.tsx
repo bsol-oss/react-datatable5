@@ -151,6 +151,7 @@ const WithMediaLibraryForm = () => {
     type: 'object',
     properties: {
       file_upload: {
+        title: 'File Upload',
         type: 'array',
         variant: 'file-picker',
         gridColumn: '1/span 12',

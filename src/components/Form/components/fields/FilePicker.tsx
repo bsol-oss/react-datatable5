@@ -22,7 +22,6 @@ import {
   FilePickerMediaFile,
   FilePickerLabels,
 } from '../types/CustomJSONSchema7';
-import { removeIndex } from '../../utils/removeIndex';
 import { formatBytes } from '../../utils/formatBytes';
 import { useFormI18n } from '../../utils/useFormI18n';
 import { useSchemaContext } from '../../useSchemaContext';
@@ -64,7 +63,6 @@ export function MediaBrowserDialog({
   onUploadFile,
   enableUpload = false,
   labels,
-  colLabel,
 }: MediaBrowserDialogProps) {
   const [selectedFile, setSelectedFile] = useState<
     FilePickerMediaFile | undefined
@@ -286,7 +284,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
     watch,
   } = useFormContext();
   const { filePickerLabels } = useSchemaContext();
-  const formI18n = useFormI18n(column, prefix);
+  const formI18n = useFormI18n(column, prefix, schema);
   const {
     required,
     gridColumn = 'span 12',
