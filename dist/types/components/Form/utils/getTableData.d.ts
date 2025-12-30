@@ -1,5 +1,4 @@
 export interface GetTableDataConfig {
-    serverUrl: string;
     in_table: string;
     limit?: number;
     offset?: number;
@@ -13,4 +12,4 @@ export interface GetTableResponse {
     data?: object[];
     count: number;
 }
-export declare const getTableData: ({ serverUrl, in_table, searching, where, limit, offset, }: GetTableDataConfig) => Promise<any>;
+export declare const getTableData: ({ in_table, searching, where, limit, offset, }: GetTableDataConfig) => Promise<never>;

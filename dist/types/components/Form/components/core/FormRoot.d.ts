@@ -7,7 +7,6 @@ import { Translate } from '../../useForm';
 import { CustomJSONSchema7, DateTimePickerLabels, IdPickerLabels, EnumPickerLabels, FilePickerLabels, FormButtonLabels, TimePickerLabels } from '../types/CustomJSONSchema7';
 export interface FormRootProps<TData extends FieldValues> {
     schema: CustomJSONSchema7;
-    serverUrl: string;
     requestUrl?: string;
     idMap: Record<string, object>;
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
@@ -51,4 +50,4 @@ export declare const idPickerSanityCheck: (column: string, foreign_key?: {
     table?: string | undefined;
     column?: string | undefined;
 } | undefined) => void;
-export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;

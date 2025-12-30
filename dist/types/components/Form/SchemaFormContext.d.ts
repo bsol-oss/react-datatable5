@@ -6,7 +6,6 @@ import { Translate } from './useForm';
 import { DateTimePickerLabels, IdPickerLabels, EnumPickerLabels, FilePickerLabels, FormButtonLabels, TimePickerLabels } from './components/types/CustomJSONSchema7';
 export interface SchemaFormContext<TData extends FieldValues> {
     schema: JSONSchema7;
-    serverUrl: string;
     requestUrl: string;
     order: string[];
     ignore: string[];

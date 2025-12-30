@@ -1,4 +1,4 @@
-import { TagPickerProps } from "../types/CustomJSONSchema7";
+import { TagPickerProps } from '../types/CustomJSONSchema7';
 export interface Tag {
     id: string;
     name: string;

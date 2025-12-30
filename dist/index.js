@@ -4036,7 +4036,6 @@ const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, 
 //@ts-expect-error TODO: find appropriate type
 const SchemaFormContext = React.createContext({
     schema: {},
-    serverUrl: '',
     requestUrl: '',
     order: [],
     ignore: [],
@@ -4276,7 +4275,7 @@ const idPickerSanityCheck = (column, foreign_key) => {
         throw new Error(`The key column does not exist in properties of column ${column} when using id-picker.`);
     }
 };
-const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, customSuccessRenderer, displayConfig = {
+const FormRoot = ({ schema, idMap, setIdMap, form, translate, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, customSuccessRenderer, displayConfig = {
     showSubmitButton: true,
     showResetButton: true,
     showTitle: true,
@@ -4317,9 +4316,11 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
         }
     };
     const defaultSubmitPromise = (data) => {
+        if (!requestOptions.url) {
+            throw new Error('requestOptions.url is required when onSubmit is not provided');
+        }
         const options = {
             method: 'POST',
-            url: `${serverUrl}`,
             data: clearEmptyString(data),
             ...requestOptions,
         };
@@ -4337,7 +4338,6 @@ const FormRoot = ({ schema, idMap, setIdMap, form, serverUrl, translate, childre
     };
     return (jsxRuntime.jsx(SchemaFormContext.Provider, { value: {
             schema,
-            serverUrl,
             order,
             ignore,
             include,
@@ -5618,106 +5618,20 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
                 }) })] }));
 };
 
-const getTableData = async ({ serverUrl, in_table, searching = "", where = [], limit = 10, offset = 0, }) => {
-    if (serverUrl === undefined || serverUrl.length == 0) {
-        throw new Error("The serverUrl is missing");
-    }
-    if (in_table === undefined || in_table.length == 0) {
-        throw new Error("The in_table is missing");
-    }
-    const options = {
-        method: "GET",
-        url: `${serverUrl}/api/g/${in_table}`,
-        params: {
-            searching,
-            where,
-            limit,
-            offset
-        },
-    };
-    try {
-        const { data } = await axios.request(options);
-        console.log(data);
-        return data;
-    }
-    catch (error) {
-        console.error(error);
-        throw error;
-    }
-};
-
 // Default renderDisplay function that stringifies JSON
 const defaultRenderDisplay = (item) => {
     return JSON.stringify(item);
 };
 
-/**
- * Load initial values for IdPicker fields into idMap
- * Uses customQueryFn if available, otherwise falls back to getTableData
- *
- * @param params - Configuration for loading initial values
- * @returns Promise with fetched data and idMap
- */
-const loadInitialValues = async ({ ids, foreign_key, serverUrl, setIdMap, }) => {
-    if (!ids || ids.length === 0) {
-        return { data: { data: [], count: 0 }, idMap: {} };
-    }
-    const { table, column: column_ref, customQueryFn } = foreign_key;
-    // Filter out IDs that are already in idMap (optional optimization)
-    // For now, we'll fetch all requested IDs to ensure consistency
-    if (customQueryFn) {
-        const { data, idMap: returnedIdMap } = await customQueryFn({
-            searching: '',
-            limit: ids.length,
-            offset: 0,
-            where: [
-                {
-                    id: column_ref,
-                    value: ids.length === 1 ? ids[0] : ids, // CustomQueryFn accepts string | string[]
-                },
-            ],
-        });
-        // Update idMap with returned values
-        if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            setIdMap((state) => {
-                return { ...state, ...returnedIdMap };
-            });
-        }
-        return { data, idMap: returnedIdMap || {} };
-    }
-    // Fallback to default getTableData
-    const data = await getTableData({
-        serverUrl,
-        searching: '',
-        in_table: table,
-        limit: ids.length,
-        offset: 0,
-        where: [
-            {
-                id: column_ref,
-                value: ids, // Always pass as array
-            },
-        ],
-    });
-    // Build idMap from fetched data
-    const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
-        return [
-            item[column_ref],
-            {
-                ...item,
-            },
-        ];
-    }));
-    // Update idMap state
-    setIdMap((state) => {
-        return { ...state, ...newMap };
-    });
-    return { data: data, idMap: newMap };
-};
 const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     const { watch, getValues, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { serverUrl, idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
-    const { renderDisplay, foreign_key } = schema;
+    const { idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
+    const { renderDisplay, loadInitialValues: schemaLoadInitialValues, foreign_key, variant, } = schema;
+    // loadInitialValues must be provided in schema for id-picker fields
+    // It's used to load the record of the id so the display is human-readable
+    if (variant === 'id-picker' && !schemaLoadInitialValues) {
+        throw new Error(`loadInitialValues is required in schema for IdPicker field '${column}'. Please provide loadInitialValues function in the schema to load records for human-readable display.`);
+    }
     const { table, column: column_ref, customQueryFn, } = foreign_key;
     const [searchText, setSearchText] = React.useState('');
     const [debouncedSearchText, setDebouncedSearchText] = React.useState('');
@@ -5770,11 +5684,13 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
             if (missingIds.length === 0) {
                 return { data: [], count: 0 };
             }
-            // Use the reusable loadInitialValues function
-            const result = await loadInitialValues({
+            // Use schema's loadInitialValues (required for id-picker)
+            if (!schemaLoadInitialValues) {
+                throw new Error(`loadInitialValues is required in schema for IdPicker field '${column}'.`);
+            }
+            const result = await schemaLoadInitialValues({
                 ids: missingIds,
                 foreign_key: foreign_key,
-                serverUrl,
                 setIdMap,
             });
             return result.data;
@@ -5787,35 +5703,21 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     const query = reactQuery.useQuery({
         queryKey: [`idpicker`, { column, searchText: debouncedSearchText, limit }],
         queryFn: async () => {
-            if (customQueryFn) {
-                const { data, idMap } = await customQueryFn({
-                    searching: debouncedSearchText ?? '',
-                    limit: limit,
-                    offset: 0,
-                });
-                setIdMap((state) => {
-                    return { ...state, ...idMap };
-                });
-                return data;
+            // customQueryFn is required when serverUrl is not available
+            if (!customQueryFn) {
+                throw new Error(`customQueryFn is required in foreign_key for table ${table}. serverUrl has been removed.`);
             }
-            const data = await getTableData({
-                serverUrl,
+            const { data, idMap } = await customQueryFn({
                 searching: debouncedSearchText ?? '',
-                in_table: table,
                 limit: limit,
                 offset: 0,
             });
-            const newMap = Object.fromEntries((data ?? { data: [] }).data.map((item) => {
-                return [
-                    item[column_ref],
-                    {
-                        ...item,
-                    },
-                ];
-            }));
-            setIdMap((state) => {
-                return { ...state, ...newMap };
-            });
+            // Update idMap with returned values
+            if (idMap && Object.keys(idMap).length > 0) {
+                setIdMap((state) => {
+                    return { ...state, ...idMap };
+                });
+            }
             return data;
         },
         enabled: true, // Always enabled for combobox
@@ -5939,6 +5841,7 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
         idPickerLabels,
         insideDialog: insideDialog ?? false,
         renderDisplay,
+        loadInitialValues: schemaLoadInitialValues, // Required for id-picker, checked above
         column_ref,
         errors,
         setValue,
@@ -6232,31 +6135,35 @@ react.RadioCard.ItemIndicator;
 
 const TagPicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { serverUrl } = useSchemaContext();
     if (schema.properties == undefined) {
-        throw new Error("schema properties undefined when using DatePicker");
+        throw new Error('schema properties undefined when using DatePicker');
     }
-    const { gridColumn, gridRow, in_table, object_id_column } = schema;
+    const { gridColumn, gridRow, in_table, object_id_column, tagPicker } = schema;
     if (in_table === undefined) {
-        throw new Error("in_table is undefined when using TagPicker");
+        throw new Error('in_table is undefined when using TagPicker');
     }
     if (object_id_column === undefined) {
-        throw new Error("object_id_column is undefined when using TagPicker");
+        throw new Error('object_id_column is undefined when using TagPicker');
+    }
+    if (!tagPicker?.queryFn) {
+        throw new Error('tagPicker.queryFn is required in schema. serverUrl has been removed.');
     }
     const query = reactQuery.useQuery({
         queryKey: [`tagpicker`, in_table],
         queryFn: async () => {
-            return await getTableData({
-                serverUrl,
-                in_table: "tables_tags_view",
+            const result = await tagPicker.queryFn({
+                in_table: 'tables_tags_view',
                 where: [
                     {
-                        id: "table_name",
+                        id: 'table_name',
                         value: [in_table],
                     },
                 ],
                 limit: 100,
+                offset: 0,
+                searching: '',
             });
+            return result.data || { data: [] };
         },
         staleTime: 10000,
     });
@@ -6264,17 +6171,19 @@ const TagPicker = ({ column, schema, prefix }) => {
     const existingTagsQuery = reactQuery.useQuery({
         queryKey: [`existing`, { in_table, object_id_column }, object_id],
         queryFn: async () => {
-            return await getTableData({
-                serverUrl,
+            const result = await tagPicker.queryFn({
                 in_table: in_table,
                 where: [
                     {
                         id: object_id_column,
-                        value: object_id[0],
+                        value: [object_id[0]],
                     },
                 ],
                 limit: 100,
+                offset: 0,
+                searching: '',
             });
+            return result.data || { data: [] };
         },
         enabled: object_id != undefined,
         staleTime: 10000,
@@ -6285,9 +6194,9 @@ const TagPicker = ({ column, schema, prefix }) => {
     if (!!object_id === false) {
         return jsxRuntime.jsx(jsxRuntime.Fragment, {});
     }
-    return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 4, gridColumn,
+    return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 4, gridColumn,
         gridRow, children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), isError && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isError" }), dataList.map(({ parent_tag_name, all_tags, is_mutually_exclusive }) => {
-                return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 2, children: [jsxRuntime.jsx(react.Text, { children: parent_tag_name }), is_mutually_exclusive && (jsxRuntime.jsx(RadioCardRoot, { defaultValue: "next", variant: "surface", onValueChange: (tagIds) => {
+                return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 2, children: [jsxRuntime.jsx(react.Text, { children: parent_tag_name }), is_mutually_exclusive && (jsxRuntime.jsx(RadioCardRoot, { defaultValue: "next", variant: 'surface', onValueChange: (tagIds) => {
                                 const existedTags = Object.values(all_tags)
                                     .filter(({ id }) => {
                                     return existingTagList.some(({ tag_id }) => tag_id === id);
@@ -6299,20 +6208,20 @@ const TagPicker = ({ column, schema, prefix }) => {
                                     tagIds.value,
                                 ]);
                                 setValue(`${column}.${parent_tag_name}.old`, existedTags);
-                            }, children: jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
+                            }, children: jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
                                     if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                                        return (jsxRuntime.jsx(RadioCardItem, { label: tagName, value: id, flex: "0 0 0%", disabled: true }, `${tagName}-${id}`));
+                                        return (jsxRuntime.jsx(RadioCardItem, { label: tagName, value: id, flex: '0 0 0%', disabled: true }, `${tagName}-${id}`));
                                     }
-                                    return (jsxRuntime.jsx(RadioCardItem, { label: tagName, value: id, flex: "0 0 0%", colorPalette: "blue" }, `${tagName}-${id}`));
+                                    return (jsxRuntime.jsx(RadioCardItem, { label: tagName, value: id, flex: '0 0 0%', colorPalette: 'blue' }, `${tagName}-${id}`));
                                 }) }) })), !is_mutually_exclusive && (jsxRuntime.jsx(react.CheckboxGroup, { onValueChange: (tagIds) => {
                                 setValue(`${column}.${parent_tag_name}.current`, tagIds);
-                            }, children: jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
+                            }, children: jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
                                     if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                                        return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%", disabled: true, colorPalette: "blue" }, `${tagName}-${id}`));
+                                        return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: '0 0 0%', disabled: true, colorPalette: 'blue' }, `${tagName}-${id}`));
                                     }
-                                    return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%" }, `${tagName}-${id}`));
+                                    return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: '0 0 0%' }, `${tagName}-${id}`));
                                 }) }) }))] }, `tag-${parent_tag_name}`));
-            }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
+            }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: (errors[`${column}`]?.message ?? 'No error message') }))] }));
 };
 
 const Textarea = React.forwardRef(({ value, defaultValue, placeholder, onChange, onFocus, onBlur, disabled = false, readOnly = false, className, rows = 4, maxLength, autoFocus = false, invalid = false, required = false, label, helperText, errorText, ...props }, ref) => {
@@ -7994,31 +7903,35 @@ const StringViewer = ({ column, schema, prefix, }) => {
 
 const TagViewer = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { serverUrl } = useSchemaContext();
     if (schema.properties == undefined) {
-        throw new Error("schema properties undefined when using DatePicker");
+        throw new Error('schema properties undefined when using DatePicker');
     }
-    const { gridColumn, gridRow, in_table, object_id_column } = schema;
+    const { gridColumn, gridRow, in_table, object_id_column, tagPicker } = schema;
     if (in_table === undefined) {
-        throw new Error("in_table is undefined when using TagPicker");
+        throw new Error('in_table is undefined when using TagPicker');
     }
     if (object_id_column === undefined) {
-        throw new Error("object_id_column is undefined when using TagPicker");
+        throw new Error('object_id_column is undefined when using TagPicker');
+    }
+    if (!tagPicker?.queryFn) {
+        throw new Error('tagPicker.queryFn is required in schema. serverUrl has been removed.');
     }
     const query = reactQuery.useQuery({
         queryKey: [`tagpicker`, in_table],
         queryFn: async () => {
-            return await getTableData({
-                serverUrl,
-                in_table: "tables_tags_view",
+            const result = await tagPicker.queryFn({
+                in_table: 'tables_tags_view',
                 where: [
                     {
-                        id: "table_name",
+                        id: 'table_name',
                         value: [in_table],
                     },
                 ],
                 limit: 100,
+                offset: 0,
+                searching: '',
             });
+            return result.data || { data: [] };
         },
         staleTime: 10000,
     });
@@ -8026,17 +7939,19 @@ const TagViewer = ({ column, schema, prefix }) => {
     const existingTagsQuery = reactQuery.useQuery({
         queryKey: [`existing`, { in_table, object_id_column }, object_id],
         queryFn: async () => {
-            return await getTableData({
-                serverUrl,
+            const result = await tagPicker.queryFn({
                 in_table: in_table,
                 where: [
                     {
                         id: object_id_column,
-                        value: object_id[0],
+                        value: [object_id[0]],
                     },
                 ],
                 limit: 100,
+                offset: 0,
+                searching: '',
             });
+            return result.data || { data: [] };
         },
         enabled: object_id != undefined,
         staleTime: 10000,
@@ -8047,9 +7962,9 @@ const TagViewer = ({ column, schema, prefix }) => {
     if (!!object_id === false) {
         return jsxRuntime.jsx(jsxRuntime.Fragment, {});
     }
-    return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 4, gridColumn,
+    return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 4, gridColumn,
         gridRow, children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), isError && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isError" }), dataList.map(({ parent_tag_name, all_tags, is_mutually_exclusive }) => {
-                return (jsxRuntime.jsxs(react.Flex, { flexFlow: "column", gap: 2, children: [jsxRuntime.jsx(react.Text, { children: parent_tag_name }), is_mutually_exclusive && (jsxRuntime.jsx(RadioCardRoot, { defaultValue: "next", variant: "surface", onValueChange: (tagIds) => {
+                return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 2, children: [jsxRuntime.jsx(react.Text, { children: parent_tag_name }), is_mutually_exclusive && (jsxRuntime.jsx(RadioCardRoot, { defaultValue: "next", variant: 'surface', onValueChange: (tagIds) => {
                                 const existedTags = Object.values(all_tags)
                                     .filter(({ id }) => {
                                     return existingTagList.some(({ tag_id }) => tag_id === id);
@@ -8061,20 +7976,20 @@ const TagViewer = ({ column, schema, prefix }) => {
                                     tagIds.value,
                                 ]);
                                 setValue(`${column}.${parent_tag_name}.old`, existedTags);
-                            }, children: jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
+                            }, children: jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
                                     if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                                        return (jsxRuntime.jsx(RadioCardItem, { label: tagName, value: id, flex: "0 0 0%", disabled: true }, `${tagName}-${id}`));
+                                        return (jsxRuntime.jsx(RadioCardItem, { label: tagName, value: id, flex: '0 0 0%', disabled: true }, `${tagName}-${id}`));
                                     }
-                                    return (jsxRuntime.jsx(RadioCardItem, { label: tagName, value: id, flex: "0 0 0%", colorPalette: "blue" }, `${tagName}-${id}`));
+                                    return (jsxRuntime.jsx(RadioCardItem, { label: tagName, value: id, flex: '0 0 0%', colorPalette: 'blue' }, `${tagName}-${id}`));
                                 }) }) })), !is_mutually_exclusive && (jsxRuntime.jsx(react.CheckboxGroup, { onValueChange: (tagIds) => {
                                 setValue(`${column}.${parent_tag_name}.current`, tagIds);
-                            }, children: jsxRuntime.jsx(react.Flex, { flexFlow: "wrap", gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
+                            }, children: jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
                                     if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                                        return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%", disabled: true, colorPalette: "blue" }, `${tagName}-${id}`));
+                                        return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: '0 0 0%', disabled: true, colorPalette: 'blue' }, `${tagName}-${id}`));
                                     }
-                                    return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: "0 0 0%" }, `${tagName}-${id}`));
+                                    return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: '0 0 0%' }, `${tagName}-${id}`));
                                 }) }) }))] }, `tag-${parent_tag_name}`));
-            }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: "red.400", children: (errors[`${column}`]?.message ?? "No error message") }))] }));
+            }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: (errors[`${column}`]?.message ?? 'No error message') }))] }));
 };
 
 const TextAreaViewer = ({ column, schema, prefix, }) => {

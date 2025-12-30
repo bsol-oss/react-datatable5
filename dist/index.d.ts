@@ -817,12 +817,25 @@ interface TimePickerLabels {
     placeholder?: string;
     emptyMessage?: string;
 }
+interface LoadInitialValuesParams {
+    ids: string[];
+    foreign_key: ForeignKeyProps;
+    setIdMap: React__default.Dispatch<React__default.SetStateAction<Record<string, object>>>;
+}
+interface LoadInitialValuesResult {
+    data: {
+        data: Record<string, any>[];
+        count: number;
+    };
+    idMap: Record<string, object>;
+}
 interface CustomJSONSchema7 extends JSONSchema7 {
     gridColumn?: string;
     gridRow?: string;
     foreign_key?: ForeignKeyProps;
     variant?: string;
     renderDisplay?: (item: unknown) => ReactNode;
+    loadInitialValues?: (params: LoadInitialValuesParams) => Promise<LoadInitialValuesResult>;
     inputRender?: (props: {
         column: string;
         schema: CustomJSONSchema7;
@@ -844,6 +857,24 @@ interface CustomJSONSchema7 extends JSONSchema7 {
     numberStorageType?: 'string' | 'number';
     errorMessages?: Partial<Record<ValidationErrorType | string, string>>;
     filePicker?: FilePickerProps;
+    tagPicker?: {
+        queryFn?: (params: {
+            in_table: string;
+            where?: {
+                id: string;
+                value: string[];
+            }[];
+            limit?: number;
+            offset?: number;
+            searching?: string;
+        }) => Promise<{
+            data: {
+                data: any[];
+                count: number;
+            };
+            idMap?: Record<string, object>;
+        }>;
+    };
 }
 declare const defaultRenderDisplay: (item: unknown) => ReactNode;
 interface TagPickerProps {
@@ -869,7 +900,6 @@ interface FilePickerProps {
 
 interface FormRootProps<TData extends FieldValues> {
     schema: CustomJSONSchema7;
-    serverUrl: string;
     requestUrl?: string;
     idMap: Record<string, object>;
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
@@ -913,7 +943,7 @@ declare const idPickerSanityCheck: (column: string, foreign_key?: {
     table?: string | undefined;
     column?: string | undefined;
 } | undefined) => void;
-declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, serverUrl, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DefaultFormProps<TData extends FieldValues> {
     formConfig: Omit<FormRootProps<TData>, "children">;
@@ -1388,4 +1418,4 @@ declare module '@tanstack/react-table' {
     }
 }
 
-export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type ErrorMessageConfig, type ErrorMessageResult, type FieldErrorConfig, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type TimePickerLabels, type Translate, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, convertToAjvErrorsFormat, createErrorMessage, defaultRenderDisplay, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type ErrorMessageConfig, type ErrorMessageResult, type FieldErrorConfig, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type TimePickerLabels, type Translate, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, convertToAjvErrorsFormat, createErrorMessage, defaultRenderDisplay, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
