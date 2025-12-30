@@ -166,9 +166,10 @@ export const useIdPickerData = ({
 
       // Use schema's loadInitialValues (required for id-picker)
       if (!loadInitialValues) {
-        throw new Error(
-          `loadInitialValues is required in schema for IdPicker field '${column}'.`
+        console.warn(
+          `loadInitialValues is required in schema for IdPicker field '${column}'. Returning empty idMap.`
         );
+        return { data: [], count: 0 };
       }
 
       const result = await loadInitialValues({

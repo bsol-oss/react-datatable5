@@ -100,6 +100,26 @@ export const convertAjvErrorsToFieldErrors = (
       const fieldSchema = getSchemaNodeForField(schema, fieldName);
       const customMessage = fieldSchema?.errorMessages?.[error.keyword];
 
+      // Debug log when error message is missing
+      if (!customMessage) {
+        console.debug(
+          `[Form Validation] Missing error message for field '${fieldName}' with keyword '${error.keyword}'. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`,
+          {
+            fieldName,
+            keyword: error.keyword,
+            instancePath: error.instancePath,
+            schemaPath: error.schemaPath,
+            params: error.params,
+            fieldSchema: fieldSchema
+              ? {
+                  type: fieldSchema.type,
+                  errorMessages: fieldSchema.errorMessages,
+                }
+              : undefined,
+          }
+        );
+      }
+
       // Provide helpful fallback message if no custom message is provided
       const fallbackMessage =
         customMessage ||

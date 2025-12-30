@@ -69,29 +69,30 @@ export const ValidationWithI18n: Story = {
 const SomeForm = () => {
   const schema = {
     type: 'object',
+    title: 'Basic Validation Form',
     properties: {
       someTextarea: {
         type: 'string',
         variant: 'text-area',
         minLength: 10,
         errorMessages: {
-          required: 'nice.someTextarea.field_required',
-          minLength: 'nice.someTextarea.minLength_error',
+          required: 'This field is required',
+          minLength: 'Text must be at least 10 characters long',
         },
       },
       someNumber: {
         type: 'number',
         minimum: 10,
         errorMessages: {
-          required: 'nice.someNumber.field_required',
-          minimum: 'nice.someNumber.minimum_error',
+          required: 'This field is required',
+          minimum: 'Number must be at least 10',
         },
       },
       someTime: {
         type: 'string',
         format: 'time',
         errorMessages: {
-          format: 'nice.someTime.format_error',
+          format: 'Please enter a valid time format',
         },
       },
     },
@@ -121,6 +122,7 @@ const SomeForm = () => {
 const FormWithHelpers = () => {
   const schema = {
     type: 'object',
+    title: 'User Registration Form',
     properties: {
       username: {
         type: 'string',
@@ -128,18 +130,18 @@ const FormWithHelpers = () => {
         maxLength: 20,
         pattern: '^[a-zA-Z0-9]+$',
         errorMessages: {
-          required: 'user.username.field_required',
-          minLength: 'user.username.minLength_error',
-          maxLength: 'user.username.maxLength_error',
-          pattern: 'user.username.pattern_error',
+          required: 'Username is required',
+          minLength: 'Username must be at least 3 characters long',
+          maxLength: 'Username must be no more than 20 characters long',
+          pattern: 'Username can only contain letters and numbers',
         },
       },
       email: {
         type: 'string',
         format: 'email',
         errorMessages: {
-          required: 'user.email.field_required',
-          format: 'user.email.format_error',
+          required: 'Email is required',
+          format: 'Please enter a valid email address',
         },
       },
       password: {
@@ -147,9 +149,10 @@ const FormWithHelpers = () => {
         minLength: 8,
         pattern: '^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]',
         errorMessages: {
-          required: 'user.password.field_required',
-          minLength: 'user.password.minLength_error',
-          pattern: 'user.password.pattern_error',
+          required: 'Password is required',
+          minLength: 'Password must be at least 8 characters long',
+          pattern:
+            'Password must contain at least one letter, one number, and one special character',
         },
       },
       age: {
@@ -157,8 +160,8 @@ const FormWithHelpers = () => {
         minimum: 18,
         maximum: 120,
         errorMessages: {
-          minimum: 'user.age.minimum_error',
-          maximum: 'user.age.maximum_error',
+          minimum: 'Age must be at least 18',
+          maximum: 'Age must be no more than 120',
         },
       },
     },
@@ -188,15 +191,16 @@ const FormWithHelpers = () => {
 const FormWithI18n = () => {
   const schema = {
     type: 'object',
+    title: 'Product Form',
     properties: {
       name: {
         type: 'string',
         minLength: 3,
         maxLength: 100,
         errorMessages: {
-          required: 'product.name.field_required',
-          minLength: 'product.name.minLength_error',
-          maxLength: 'product.name.maxLength_error',
+          required: 'Product name is required',
+          minLength: 'Product name must be at least 3 characters long',
+          maxLength: 'Product name must be no more than 100 characters long',
         },
       },
       price: {
@@ -204,31 +208,31 @@ const FormWithI18n = () => {
         minimum: 0.01,
         maximum: 999999.99,
         errorMessages: {
-          required: 'product.price.field_required',
-          minimum: 'product.price.minimum_error',
-          maximum: 'product.price.maximum_error',
+          required: 'Price is required',
+          minimum: 'Price must be at least 0.01',
+          maximum: 'Price must be no more than 999999.99',
         },
       },
       category: {
         type: 'string',
         enum: ['electronics', 'clothing', 'food', 'books'],
         errorMessages: {
-          required: 'product.category.field_required',
-          enum: 'product.category.enum_error',
+          required: 'Category is required',
+          enum: 'Please select a valid category',
         },
       },
       description: {
         type: 'string',
         maxLength: 500,
         errorMessages: {
-          maxLength: 'product.description.maxLength_error',
+          maxLength: 'Description must be no more than 500 characters long',
         },
       },
       releaseDate: {
         type: 'string',
         format: 'date',
         errorMessages: {
-          format: 'product.releaseDate.format_error',
+          format: 'Please enter a valid date format',
         },
       },
     },

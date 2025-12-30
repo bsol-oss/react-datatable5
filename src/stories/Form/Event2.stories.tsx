@@ -22,6 +22,18 @@ const queryClient = new QueryClient();
 
 export const Event2: Story = {
   name: 'Event 2',
+  args: {
+    formConfig: {
+      schema: {} as JSONSchema7,
+      idMap: {},
+      setIdMap: () => {},
+      form: {} as any,
+      translate: {
+        t: (key: string) => key,
+        ready: true,
+      },
+    },
+  },
   render: () => {
     return (
       <Provider>
@@ -36,10 +48,22 @@ export const Event2: Story = {
 const SomeForm = () => {
   const form = useForm({ keyPrefix: 'nice' });
 
+  // Add title to name property to avoid showing translation key
+  const schemaWithTitle = {
+    ...activitiesSchema,
+    properties: {
+      ...(activitiesSchema.properties || {}),
+      name: {
+        ...(activitiesSchema.properties?.name as JSONSchema7),
+        title: 'Name',
+      },
+    },
+  } as JSONSchema7;
+
   return (
     <DefaultForm
       formConfig={{
-        schema: activitiesSchema as JSONSchema7,
+        schema: schemaWithTitle,
         include: ['name'],
         ignore: ['id', 'created_at', 'updated_at'],
         ...form,

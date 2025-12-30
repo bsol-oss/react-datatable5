@@ -50,6 +50,23 @@ export const useFormI18n = (
       if (schema.title) {
         return schema.title;
       }
+
+      // Debug log when field title is missing
+      console.debug(
+        `[Form Field Label] Missing title for field '${colLabel}'. Add title property to schema for field '${colLabel}'.`,
+        {
+          fieldName: column,
+          colLabel,
+          prefix,
+          schema: {
+            type: (schema as any).type,
+            errorMessages: (schema as any).errorMessages
+              ? Object.keys((schema as any).errorMessages)
+              : undefined,
+          },
+        }
+      );
+
       return translate.t(removeIndex(`${colLabel}.field_label`), options);
     },
 

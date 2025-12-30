@@ -1,3 +1,47 @@
+import {
+  LoadInitialValuesParams,
+  LoadInitialValuesResult,
+} from '@/components/Form/components/types/CustomJSONSchema7';
+
+// Helper function to create default loadInitialValues for id-picker fields
+const createDefaultLoadInitialValues = () => {
+  return async (
+    params: LoadInitialValuesParams
+  ): Promise<LoadInitialValuesResult> => {
+    if (!params.ids || params.ids.length === 0) {
+      return { data: { data: [], count: 0 }, idMap: {} };
+    }
+
+    const { column: column_ref, customQueryFn } = params.foreign_key;
+
+    if (!customQueryFn) {
+      throw new Error(
+        'customQueryFn is required in foreign_key. serverUrl has been removed.'
+      );
+    }
+
+    const { data, idMap: returnedIdMap } = await customQueryFn({
+      searching: '',
+      limit: params.ids.length,
+      offset: 0,
+      where: [
+        {
+          id: column_ref,
+          value: params.ids.length === 1 ? params.ids[0] : params.ids,
+        },
+      ],
+    });
+
+    if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
+      params.setIdMap((state) => {
+        return { ...state, ...returnedIdMap };
+      });
+    }
+
+    return { data, idMap: returnedIdMap || {} };
+  };
+};
+
 export const eventGeolocationsSchema = {
   $id: 'http://api.localhost.com/schema/public/events_geolocations.json',
   type: 'object',
@@ -17,6 +61,7 @@ export const eventGeolocationsSchema = {
       variant: 'id-picker',
       in_table: 'core_events',
       column_ref: 'id',
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
     extra_info: {
       type: 'object',
@@ -32,6 +77,7 @@ export const eventGeolocationsSchema = {
       variant: 'id-picker',
       in_table: 'core_geolocations',
       column_ref: 'id',
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
   },
   description: 'Missing description',

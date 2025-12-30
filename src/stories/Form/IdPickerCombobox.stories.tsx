@@ -265,6 +265,34 @@ const IdPickerComboboxForm = () => {
           customQueryFn: jsonPlaceholderUserQueryFn,
         },
         renderDisplay: renderUserDisplay, // Custom rendering function
+        loadInitialValues: async (params) => {
+          if (!params.ids || params.ids.length === 0) {
+            return { data: { data: [], count: 0 }, idMap: {} };
+          }
+          const { column: column_ref, customQueryFn } = params.foreign_key;
+          if (!customQueryFn) {
+            throw new Error(
+              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+            );
+          }
+          const { data, idMap: returnedIdMap } = await customQueryFn({
+            searching: '',
+            limit: params.ids.length,
+            offset: 0,
+            where: [
+              {
+                id: column_ref,
+                value: params.ids.length === 1 ? params.ids[0] : params.ids,
+              },
+            ],
+          });
+          if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
+            params.setIdMap((state) => {
+              return { ...state, ...returnedIdMap };
+            });
+          }
+          return { data, idMap: returnedIdMap || {} };
+        }, // Required for id-picker: loads records for human-readable display
       },
 
       // Multiple selection IdPicker with combobox
@@ -279,6 +307,34 @@ const IdPickerComboboxForm = () => {
           column: 'id',
           customQueryFn: jsonPlaceholderUserQueryFn,
         },
+        loadInitialValues: async (params) => {
+          if (!params.ids || params.ids.length === 0) {
+            return { data: { data: [], count: 0 }, idMap: {} };
+          }
+          const { column: column_ref, customQueryFn } = params.foreign_key;
+          if (!customQueryFn) {
+            throw new Error(
+              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+            );
+          }
+          const { data, idMap: returnedIdMap } = await customQueryFn({
+            searching: '',
+            limit: params.ids.length,
+            offset: 0,
+            where: [
+              {
+                id: column_ref,
+                value: params.ids.length === 1 ? params.ids[0] : params.ids,
+              },
+            ],
+          });
+          if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
+            params.setIdMap((state) => {
+              return { ...state, ...returnedIdMap };
+            });
+          }
+          return { data, idMap: returnedIdMap || {} };
+        }, // Required for id-picker: loads records for human-readable display
       },
     },
   } as JSONSchema7;

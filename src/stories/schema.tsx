@@ -1,6 +1,49 @@
-import { getTableData } from '@/components/Form/utils/getTableData';
+import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
+import {
+  LoadInitialValuesParams,
+  LoadInitialValuesResult,
+} from '@/components/Form/components/types/CustomJSONSchema7';
 import axios from 'axios';
 import { JSONSchema7 } from 'json-schema';
+
+// Helper function to create default loadInitialValues for id-picker fields
+const createDefaultLoadInitialValues = () => {
+  return async (
+    params: LoadInitialValuesParams
+  ): Promise<LoadInitialValuesResult> => {
+    if (!params.ids || params.ids.length === 0) {
+      return { data: { data: [], count: 0 }, idMap: {} };
+    }
+
+    const { column: column_ref, customQueryFn } = params.foreign_key;
+
+    if (!customQueryFn) {
+      throw new Error(
+        'customQueryFn is required in foreign_key. serverUrl has been removed.'
+      );
+    }
+
+    const { data, idMap: returnedIdMap } = await customQueryFn({
+      searching: '',
+      limit: params.ids.length,
+      offset: 0,
+      where: [
+        {
+          id: column_ref,
+          value: params.ids.length === 1 ? params.ids[0] : params.ids,
+        },
+      ],
+    });
+
+    if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
+      params.setIdMap((state) => {
+        return { ...state, ...returnedIdMap };
+      });
+    }
+
+    return { data, idMap: returnedIdMap || {} };
+  };
+};
 
 export const addressSchema = {
   $id: 'http://api.localhost.com/schema/public/core_addresses.json',
@@ -17,65 +60,76 @@ export const addressSchema = {
     id: {
       type: 'string',
       format: 'uuid',
+      title: 'ID',
       description:
         'Missing description. Database type: uuid. Default value: uuid_generate_v4()',
     },
     region: {
       type: 'string',
+      title: 'Region',
       description:
         'Missing description. Database type: text. Default value: null',
     },
     district: {
       type: 'string',
       maxLength: 255,
+      title: 'District',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Created At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Updated At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     flat_number: {
       type: 'string',
       maxLength: 255,
+      title: 'Flat Number',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     street_name: {
       type: 'string',
       maxLength: 255,
+      title: 'Street Name',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     floor_number: {
       type: 'string',
       maxLength: 255,
+      title: 'Floor Number',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     village_name: {
       type: 'string',
       maxLength: 255,
+      title: 'Village Name',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     building_name: {
       type: 'string',
       maxLength: 255,
+      title: 'Building Name',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     street_number: {
       type: 'string',
       maxLength: 255,
+      title: 'Street Number',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
@@ -100,12 +154,14 @@ export const membershipSchema = {
     id: {
       type: 'string',
       format: 'uuid',
+      title: 'ID',
       description:
         'Missing description. Database type: uuid. Default value: uuid_generate_v4()',
     },
     remarks: {
       type: 'string',
       maxLength: 255,
+      title: 'Remarks',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
@@ -115,53 +171,63 @@ export const membershipSchema = {
       variant: 'id-picker',
       in_table: 'core_people',
       column_ref: 'id',
+      title: 'Person',
       description:
         'Missing description. Database type: uuid. Default value: null',
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
     region_id: {
       type: 'string',
       format: 'uuid',
+      title: 'Region',
       description:
         'Missing description. Database type: uuid. Default value: null',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Created At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     extra_info: {
       type: 'object',
       properties: {},
+      title: 'Extra Info',
       description:
         'Missing description. Database type: jsonb. Default value: null',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Updated At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     expire_date: {
       type: 'string',
       format: 'date-time',
+      title: 'Expire Date',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: null',
     },
     membership_id: {
       type: 'string',
       maxLength: 255,
+      title: 'Membership ID',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     person_in_charge_id: {
       type: 'string',
       format: 'uuid',
+      title: 'Person In Charge',
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'id-picker',
       in_table: 'core_people',
       column_ref: 'id',
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
   },
   description: 'Missing description',
@@ -185,66 +251,78 @@ export const rewardPointsTransactionsSchema = {
     id: {
       type: 'string',
       format: 'uuid',
+      title: 'ID',
       description:
         'Missing description. Database type: uuid. Default value: uuid_generate_v4()',
     },
     item: {
       type: 'string',
       maxLength: 255,
+      title: 'Item',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     points: {
       type: 'integer',
+      title: 'Points',
       description:
         'Missing description. Database type: integer. Default value: null',
     },
     comment: {
       type: 'string',
       maxLength: 255,
+      title: 'Comment',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     item_type: {
       type: 'string',
+      title: 'Item Type',
       description:
         "Missing description. Database type: text. Default value: 'others'",
     },
     created_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Created At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     extra_info: {
       type: 'object',
       properties: {},
+      title: 'Extra Info',
       description:
         'Missing description. Database type: jsonb. Default value: null',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Updated At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     membership_id: {
       type: 'string',
       format: 'uuid',
+      title: 'Membership',
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'id-picker',
       in_table: 'core_memberships',
       column_ref: 'id',
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
     person_in_charge_id: {
       type: 'string',
       format: 'uuid',
+      title: 'Person In Charge',
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'id-picker',
       in_table: 'core_people',
       column_ref: 'id',
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
   },
   description: 'Missing description',
@@ -258,9 +336,11 @@ export const activitiesSchema = {
   properties: {
     id: {
       type: 'string',
+      title: 'ID',
     },
     remarks: {
       type: 'string',
+      title: 'Remarks',
       gridColumn: '1/span 12',
       gridRow: '8/span 1',
     },
@@ -268,12 +348,14 @@ export const activitiesSchema = {
       type: 'string',
       variant: 'date-picker',
       format: 'date',
+      title: 'End Date',
       gridColumn: '7/span 3',
       gridRow: '4/span 1',
     },
     end_time: {
       type: 'string',
       format: 'time',
+      title: 'End Time',
       gridColumn: '10/span 3',
       gridRow: '4/span 1',
       description:
@@ -282,17 +364,19 @@ export const activitiesSchema = {
     created_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Created At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     name: {
       type: 'string',
       maxLength: 255,
+      title: 'Name',
       description:
         'Missing description. Database type: character varying. Default value: null',
       gridColumn: '1/span 12',
       gridRow: '1/span 1',
-      customQueryFn: async (params) => {
+      customQueryFn: async (params: CustomQueryFnParams) => {
         const data = await axios.get(
           `http://localhost:8081/api/g/core_people`,
           {
@@ -309,22 +393,26 @@ export const activitiesSchema = {
     start_date: {
       type: 'string',
       variant: 'date-picker',
+      title: 'Start Date',
       gridColumn: '1/span 3',
       gridRow: '4/span 1',
     },
     start_date2: {
       type: 'string',
       variant: 'date-picker',
+      title: 'Start Date 2',
     },
     start_time: {
       type: 'string',
       variant: 'time-picker',
+      title: 'Start Time',
       gridColumn: '4/span 3',
       gridRow: '4/span 1',
     },
     description: {
       type: 'string',
       variant: 'text-area',
+      title: 'Description',
       description:
         'Missing description. Database type: text. Default value: null',
       gridColumn: '1/span 12',
@@ -332,6 +420,7 @@ export const activitiesSchema = {
     },
     is_recurring: {
       type: 'boolean',
+      title: 'Is Recurring',
       description:
         'Missing description. Database type: boolean. Default value: false',
       gridColumn: '1/span 3',
@@ -339,12 +428,14 @@ export const activitiesSchema = {
     },
     recurring_days: {
       type: 'string',
+      title: 'Recurring Days',
       gridColumn: '7/span 3',
       gridRow: '5/span 1',
       enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
     },
     recurring_type: {
       type: 'string',
+      title: 'Recurring Type',
       gridColumn: '4/span 3',
       gridRow: '5/span 1',
       enum: ['daily', 'weekly', 'biweekly', 'monthly'],
@@ -352,6 +443,7 @@ export const activitiesSchema = {
     parent_event_id: {
       type: 'string',
       format: 'uuid',
+      title: 'Parent Event',
       gridColumn: '1/span 6',
       gridRow: '2/span 1',
       variant: 'id-picker',
@@ -359,6 +451,7 @@ export const activitiesSchema = {
         table: 'core_activities',
         column: 'id',
       },
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
   },
 } as JSONSchema7;
@@ -381,77 +474,90 @@ export const peopleSchema = {
     id: {
       type: 'string',
       format: 'uuid',
+      title: 'ID',
       description:
         'Missing description. Database type: uuid. Default value: uuid_generate_v4()',
     },
     bio: {
       type: 'string',
+      title: 'Bio',
       description:
         'Missing description. Database type: text. Default value: null',
     },
     tags: {
       type: 'object',
       properties: {},
+      title: 'Tags',
       description:
         'Missing description. Database type: json. Default value: null',
     },
     email: {
       type: 'string',
       maxLength: 255,
+      title: 'Email',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     last_name: {
       type: 'string',
       maxLength: 255,
+      title: 'Last Name',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Created At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     deleted_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Deleted At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: null',
     },
     extra_info: {
       type: 'object',
       properties: {},
+      title: 'Extra Info',
       description:
         'Missing description. Database type: jsonb. Default value: null',
     },
     first_name: {
       type: 'string',
       maxLength: 255,
+      title: 'First Name',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Updated At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     date_of_birth: {
       type: 'string',
       format: 'date',
+      title: 'Date of Birth',
       description:
         'Missing description. Database type: date. Default value: null',
     },
     telephone_number: {
       type: 'string',
       maxLength: 255,
+      title: 'Telephone Number',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     profile_picture_url: {
       type: 'string',
       maxLength: 255,
+      title: 'Profile Picture URL',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
@@ -478,6 +584,7 @@ export const eventsTagsSchema = {
     tag_id: {
       type: 'array',
       format: 'uuid',
+      title: 'Tags',
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'tag-picker',
@@ -489,6 +596,7 @@ export const eventsTagsSchema = {
     event_id: {
       type: 'string',
       format: 'uuid',
+      title: 'Event',
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'id-picker',
@@ -496,10 +604,12 @@ export const eventsTagsSchema = {
       column_ref: 'id',
       gridColumn: '1/span 6',
       gridRow: '1/span 1',
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
     extra_info: {
       type: 'object',
       properties: {},
+      title: 'Extra Info',
       description:
         'Missing description. Database type: jsonb. Default value: null',
       gridColumn: '1/span 6',
@@ -524,6 +634,7 @@ export const membershipsSchema = {
     tag_id: {
       type: 'string',
       format: 'uuid',
+      title: 'Tags',
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'tag-picker',
@@ -535,6 +646,7 @@ export const membershipsSchema = {
     extra_info: {
       type: 'object',
       properties: {},
+      title: 'Extra Info',
       description:
         'Missing description. Database type: jsonb. Default value: null',
       gridColumn: '1/span 6',
@@ -543,6 +655,7 @@ export const membershipsSchema = {
     membership_id: {
       type: 'string',
       format: 'uuid',
+      title: 'Membership',
       description:
         'Missing description. Database type: uuid. Default value: null',
       gridColumn: '1/span 6',
@@ -550,6 +663,7 @@ export const membershipsSchema = {
       variant: 'id-picker',
       in_table: 'core_memberships',
       column_ref: 'id',
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
   },
   description: 'Missing description',
@@ -574,24 +688,29 @@ export const eventsFilesSchema = {
     file_id: {
       type: 'array',
       variant: 'file-picker',
+      title: 'Files',
       gridColumn: '1/span 8',
       gridRow: '2/span 8',
     },
     event_id: {
       type: 'string',
       variant: 'id-picker',
+      title: 'Event',
       gridColumn: '1/span 6',
       gridRow: '1/span 1',
       foreign_key: {
         table: 'core_events',
         column: 'id',
       },
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
     good: {
       type: 'string',
+      title: 'Good',
     },
     nice: {
       type: 'string',
+      title: 'Nice',
     },
   },
   description: 'Missing description',
@@ -607,32 +726,38 @@ export const eventsFilesSchema2 = {
       type: 'array',
       format: 'uuid',
       variant: 'id-picker',
+      title: 'Files',
       foreign_key: {
         table: 'core_files',
         column: 'id',
       },
       gridColumn: '1/span 8',
       gridRow: '2/span 8',
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
     event_id: {
       type: 'string',
       format: 'uuid',
       variant: 'id-picker',
+      title: 'Event',
       foreign_key: {
         table: 'core_events',
         column: 'id',
       },
       gridColumn: '1/span 6',
       gridRow: '1/span 1',
+      loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
     good: {
       type: 'array',
       variant: 'file-picker',
+      title: 'Good',
       properties: {},
     },
     some_text_area: {
       type: 'string',
       variant: 'text-area',
+      title: 'Some Text Area',
     },
   },
   description: 'Missing description',
@@ -647,73 +772,87 @@ export const geolocationSchema = {
     id: {
       type: 'string',
       format: 'uuid',
+      title: 'ID',
     },
     city: {
       type: 'string',
       maxLength: 255,
+      title: 'City',
     },
     region: {
       type: 'string',
       maxLength: 255,
+      title: 'Region',
     },
     street: {
       type: 'string',
       maxLength: 255,
+      title: 'Street',
     },
     country: {
       type: 'string',
       maxLength: 255,
+      title: 'Country',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     district: {
       type: 'string',
       maxLength: 255,
+      title: 'District',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },
     latitude: {
       type: 'number',
+      title: 'Latitude',
       description:
         'Missing description. Database type: double precision. Default value: null',
     },
     longitude: {
       type: 'number',
+      title: 'Longitude',
       description:
         'Missing description. Database type: double precision. Default value: null',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Created At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     deleted_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Deleted At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: null',
     },
     extra_info: {
       type: 'object',
       properties: {},
+      title: 'Extra Info',
       description:
         'Missing description. Database type: jsonb. Default value: null',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
+      title: 'Updated At',
       description:
         'Missing description. Database type: timestamp with time zone. Default value: CURRENT_TIMESTAMP',
     },
     description: {
       type: 'string',
+      title: 'Description',
       description:
         'Missing description. Database type: text. Default value: null',
     },
     location_name: {
       type: 'string',
       maxLength: 255,
+      title: 'Location Name',
       description:
         'Missing description. Database type: character varying. Default value: null',
     },

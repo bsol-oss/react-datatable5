@@ -203,11 +203,10 @@ const ImageOnlyForm = () => {
     properties: {
       file_upload: {
         type: 'array',
-        variant: 'file-picker',
+        variant: 'media-library-browser',
         gridColumn: '1/span 12',
         gridRow: '1/span 1',
         filePicker: {
-          enableMediaLibrary: true,
           onFetchFiles: mockFetchFiles,
           filterImageOnly: true,
         },
