@@ -4373,39 +4373,31 @@ const FormRoot = ({ schema, idMap, setIdMap, form, translate, children, order = 
         }, children: jsx(FormProvider, { ...form, children: children }) }));
 };
 
-function removeIndex(str) {
-    return str.replace(/\.\d+\./g, ".");
-}
-
 /**
- * Custom hook for form field labels and fallback text.
- * Automatically handles colLabel construction and removeIndex logic.
- * Uses schema.title when available, otherwise falls back to translate function.
+ * Custom hook for form field labels.
+ * Automatically handles colLabel construction.
+ * Uses schema.title for labels and schema.errorMessages for error messages.
  *
  * @param column - The column name
  * @param prefix - The prefix for the field (usually empty string or parent path)
- * @param schema - Required schema object with title property
+ * @param schema - Required schema object with title and errorMessages properties
  * @returns Object with label helper functions
  *
  * @example
  * ```tsx
  * const formI18n = useFormI18n(column, prefix, schema);
  *
- * // Get field label (prefers schema.title)
+ * // Get field label (from schema.title)
  * <Field label={formI18n.label()} />
  *
- * // Get required error message
+ * // Get required error message (from schema.errorMessages?.required)
  * <Text>{formI18n.required()}</Text>
- *
- * // Get custom text
- * <Text>{formI18n.t('add_more')}</Text>
  *
  * // Access the raw colLabel
  * const colLabel = formI18n.colLabel;
  * ```
  */
 const useFormI18n = (column, prefix = '', schema) => {
-    const { translate } = useSchemaContext();
     const colLabel = `${prefix}${column}`;
     return {
         /**
@@ -4413,10 +4405,10 @@ const useFormI18n = (column, prefix = '', schema) => {
          */
         colLabel,
         /**
-         * Get the field label from schema title prop, or fall back to translate function
-         * Uses schema.title if available, otherwise: translate.t(removeIndex(`${colLabel}.field_label`))
+         * Get the field label from schema title property.
+         * Logs a debug message if title is missing.
          */
-        label: (options) => {
+        label: () => {
             if (schema.title) {
                 return schema.title;
             }
@@ -4432,29 +4424,36 @@ const useFormI18n = (column, prefix = '', schema) => {
                         : undefined,
                 },
             });
-            return translate.t(removeIndex(`${colLabel}.field_label`), options);
+            // Return column name as fallback
+            return column;
         },
         /**
-         * Get the required error message
-         * Equivalent to: translate.t(removeIndex(`${colLabel}.field_required`))
+         * Get the required error message from schema.errorMessages?.required.
+         * Returns a helpful fallback message if not provided.
          */
-        required: (options) => {
-            return translate.t(removeIndex(`${colLabel}.field_required`), options);
+        required: () => {
+            const errorMessage = schema.errorMessages?.required;
+            if (errorMessage) {
+                return errorMessage;
+            }
+            // Debug log when error message is missing
+            console.debug(`[Form Field Required] Missing error message for required field '${colLabel}'. Add errorMessages.required to schema for field '${colLabel}'.`, {
+                fieldName: column,
+                colLabel,
+                prefix,
+                schema: {
+                    type: schema.type,
+                    title: schema.title,
+                    required: schema.required,
+                    hasErrorMessages: !!schema.errorMessages,
+                    errorMessageKeys: schema.errorMessages
+                        ? Object.keys(schema.errorMessages)
+                        : undefined,
+                },
+            });
+            // Return helpful fallback message
+            return `Missing error message for required. Add errorMessages.required to schema for field '${colLabel}'`;
         },
-        /**
-         * Get text for any custom key relative to the field
-         * Equivalent to: translate.t(removeIndex(`${colLabel}.${key}`))
-         *
-         * @param key - The key suffix (e.g., 'add_more', 'total', etc.)
-         * @param options - Optional options (e.g., defaultValue, interpolation variables)
-         */
-        t: (key, options) => {
-            return translate.t(removeIndex(`${colLabel}.${key}`), options);
-        },
-        /**
-         * Access to the original translate object for edge cases
-         */
-        translate,
     };
 };
 
@@ -5070,21 +5069,37 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
     const dataList = schema.enum ?? [];
+    // Helper function to render enum value
+    // If renderDisplay is provided, use it; otherwise show the enum string value directly
+    const renderEnumValue = (value) => {
+        if (renderDisplay) {
+            return renderDisplay(value);
+        }
+        // If no renderDisplay provided, show the enum string value directly
+        return value;
+    };
+    // Debug log when renderDisplay is missing
+    if (!renderDisplay) {
+        console.debug(`[EnumPicker] Missing renderDisplay for field '${colLabel}'. Add renderDisplay function to schema for field '${colLabel}' to provide custom UI rendering. Currently showing enum string values directly.`, {
+            fieldName: column,
+            colLabel,
+            prefix,
+            enumValues: dataList,
+        });
+    }
     // Current value for combobox (array format)
     const currentValue = isMultiple
         ? watchEnums.filter((val) => val != null && val !== '')
         : watchEnum
             ? [watchEnum]
             : [];
-    // Transform enum data for combobox collection
     const comboboxItems = useMemo(() => {
         return dataList.map((item) => ({
-            label: !!renderDisplay === true
-                ? String(renderDisplay(item))
-                : formI18n.t(item),
+            label: item, // Internal: used for search/filtering only
             value: item,
+            raw: item, // Passed to renderEnumValue for UI rendering
         }));
-    }, [dataList, renderDisplay, formI18n]);
+    }, [dataList]);
     // Use filter hook for combobox
     const { contains } = useFilter({ sensitivity: 'base' });
     // Create collection for combobox
@@ -5114,9 +5129,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                         setValue(colLabel, details.value);
                     }
                 }, children: jsx(HStack, { gap: "6", children: dataList.map((item) => {
-                        return (jsxs(RadioGroup$1.Item, { value: item, children: [jsx(RadioGroup$1.ItemHiddenInput, {}), jsx(RadioGroup$1.ItemIndicator, {}), jsx(RadioGroup$1.ItemText, { children: !!renderDisplay === true
-                                        ? renderDisplay(item)
-                                        : formI18n.t(item) })] }, `${colLabel}-${item}`));
+                        return (jsxs(RadioGroup$1.Item, { value: item, children: [jsx(RadioGroup$1.ItemHiddenInput, {}), jsx(RadioGroup$1.ItemIndicator, {}), jsx(RadioGroup$1.ItemText, { children: renderEnumValue(item) })] }, `${colLabel}-${item}`));
                     }) }) }) }));
     }
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
@@ -5127,16 +5140,12 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                     return (jsx(Tag, { size: "lg", closable: true, onClick: () => {
                             const newValue = currentValue.filter((val) => val !== enumValue);
                             setValue(colLabel, newValue);
-                        }, children: !!renderDisplay === true
-                            ? renderDisplay(enumValue)
-                            : formI18n.t(enumValue) }, enumValue));
+                        }, children: renderEnumValue(enumValue) }, enumValue));
                 }) })), jsxs(Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: insideDialog
                     ? { strategy: 'fixed', hideWhenDetached: true }
-                    : undefined, children: [jsxs(Combobox.Control, { children: [jsx(Combobox.Input, { placeholder: enumPickerLabels?.typeToSearch ?? formI18n.t('type_to_search') }), jsxs(Combobox.IndicatorGroup, { children: [!isMultiple && currentValue.length > 0 && (jsx(Combobox.ClearTrigger, { onClick: () => {
+                    : undefined, children: [jsxs(Combobox.Control, { children: [jsx(Combobox.Input, { placeholder: enumPickerLabels?.typeToSearch ?? 'Type to search' }), jsxs(Combobox.IndicatorGroup, { children: [!isMultiple && currentValue.length > 0 && (jsx(Combobox.ClearTrigger, { onClick: () => {
                                             setValue(colLabel, '');
-                                        } })), jsx(Combobox.Trigger, {})] })] }), insideDialog ? (jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [showTotalAndLimit && (jsx(Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? formI18n.t('total')}: ${collection.items.length}` })), collection.items.length === 0 ? (jsx(Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ??
-                                        formI18n.t('empty_search_result') })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: item.label }), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) })) : (jsx(Portal, { children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [showTotalAndLimit && (jsx(Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? formI18n.t('total')}: ${collection.items.length}` })), collection.items.length === 0 ? (jsx(Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ??
-                                            formI18n.t('empty_search_result') })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: item.label }), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) }) }))] })] }));
+                                        } })), jsx(Combobox.Trigger, {})] })] }), insideDialog ? (jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [showTotalAndLimit && (jsx(Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? 'Total'}: ${collection.items.length}` })), collection.items.length === 0 ? (jsx(Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ?? 'No results found' })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: renderEnumValue(item.raw) }), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) })) : (jsx(Portal, { children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [showTotalAndLimit && (jsx(Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? 'Total'}: ${collection.items.length}` })), collection.items.length === 0 ? (jsx(Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ?? 'No results found' })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: renderEnumValue(item.raw) }), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) }) }))] })] }));
 };
 
 function isEnteringWindow(_ref) {
@@ -5751,7 +5760,7 @@ const FilePicker = ({ column, schema, prefix }) => {
                             const newFiles = files.filter(({ name }) => !currentFiles.some((cur) => cur.name === name));
                             setValue(colLabel, [...currentFiles, ...newFiles]);
                         }
-                    }, placeholder: filePickerLabels?.fileDropzone ?? formI18n.t('fileDropzone') }) }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFiles.map((file, index) => {
+                    }, placeholder: filePickerLabels?.fileDropzone ?? 'Drop files here' }) }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFiles.map((file, index) => {
                     const fileIdentifier = getFileIdentifier(file, index);
                     const fileName = getFileName(file);
                     const fileSize = getFileSize(file);
@@ -5862,9 +5871,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
         }
     };
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(Button$1, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ??
-                        formI18n.t('browse_library') ??
-                        'Browse from Library' }) }), jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ?? formI18n.label() ?? 'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(Button$1, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ?? 'Browse from Library' }) }), jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ?? formI18n.label() ?? 'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
                     const file = fileMap.get(fileId);
                     const isImage = file
                         ? /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name)
@@ -8166,7 +8173,7 @@ const BooleanViewer = ({ schema, column, prefix, }) => {
     const value = watch(colLabel);
     const formI18n = useFormI18n(column, prefix, schema);
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, children: [jsx(Text, { children: value ? formI18n.t('true') : formI18n.t('false') }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
+        gridRow, children: [jsx(Text, { children: value ? 'True' : 'False' }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const CustomViewer = ({ column, schema, prefix }) => {
@@ -8205,16 +8212,15 @@ const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
     const colLabel = formI18n.colLabel;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
+    const renderDisplayFunction = renderDisplay || defaultRenderDisplay;
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, children: [isMultiple && (jsx(Flex, { flexFlow: 'wrap', gap: 1, children: watchEnums.map((enumValue) => {
                     const item = enumValue;
                     if (item === undefined) {
                         return jsx(Fragment, { children: "undefined" });
                     }
-                    return (jsx(Tag, { size: "lg", children: !!renderDisplay === true
-                            ? renderDisplay(item)
-                            : formI18n.t(item) }, item));
-                }) })), !isMultiple && jsx(Text, { children: formI18n.t(watchEnum) }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
+                    return (jsx(Tag, { size: "lg", children: renderDisplayFunction(item) }, item));
+                }) })), !isMultiple && jsx(Text, { children: renderDisplayFunction(watchEnum) }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
 };
 
 const FileViewer = ({ column, schema, prefix }) => {
