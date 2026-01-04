@@ -23,6 +23,8 @@ import {
   DateTimePickerLabels,
   TimePickerLabels,
 } from '../Form/components/types/CustomJSONSchema7';
+import { DatePickerContext } from './DatePicker';
+import { Calendar } from './Calendar';
 import { useCalendar } from './useCalendar';
 
 dayjs.extend(utc);
@@ -122,25 +124,7 @@ export function DateTimePicker({
   showTimezoneSelector = false,
 }: DateTimePickerProps) {
   const is24Hour = format === 'iso-date-time' || showSeconds;
-  const {
-    monthNamesShort = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ],
-    weekdayNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    backButtonLabel = 'Back',
-    forwardButtonLabel = 'Forward',
-  } = labels;
+  // Labels are used in calendarLabels useMemo
 
   // Parse value to get date and time
   const parsedValue = useMemo(() => {
@@ -540,6 +524,41 @@ export function DateTimePicker({
     monthsToDisplay: 1,
     onDateSelected: handleDateSelected,
   });
+
+  // Convert DateTimePickerLabels to DatePickerLabels format
+  const calendarLabels = useMemo(
+    () => ({
+      monthNamesShort: labels.monthNamesShort || [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ],
+      weekdayNamesShort: labels.weekdayNamesShort || [
+        'Sun',
+        'Mon',
+        'Tue',
+        'Wed',
+        'Thu',
+        'Fri',
+        'Sat',
+      ],
+      backButtonLabel: labels.backButtonLabel || 'Back',
+      forwardButtonLabel: labels.forwardButtonLabel || 'Forward',
+      todayLabel: quickActionLabels.today || 'Today',
+      yesterdayLabel: quickActionLabels.yesterday || 'Yesterday',
+      tomorrowLabel: quickActionLabels.tomorrow || 'Tomorrow',
+    }),
+    [labels, quickActionLabels]
+  );
 
   // Generate time options
   const timeOptions = useMemo<TimeOption[]>(() => {
@@ -987,97 +1006,6 @@ export function DateTimePicker({
     }
   };
 
-  // Calendar rendering
-  const renderCalendar = () => {
-    const { calendars, getBackProps, getForwardProps, getDateProps } =
-      calendarProps;
-
-    if (calendars.length === 0) return null;
-
-    const calendar = calendars[0];
-
-    return (
-      <Grid gap={4}>
-        {/* Calendar Header */}
-        <Grid templateColumns={'repeat(4, auto)'} justifyContent={'center'}>
-          <Button variant={'ghost'} {...getBackProps({ offset: 12 })}>
-            {'<<'}
-          </Button>
-          <Button variant={'ghost'} {...getBackProps()}>
-            {backButtonLabel}
-          </Button>
-          <Button variant={'ghost'} {...getForwardProps()}>
-            {forwardButtonLabel}
-          </Button>
-          <Button variant={'ghost'} {...getForwardProps({ offset: 12 })}>
-            {'>>'}
-          </Button>
-        </Grid>
-
-        {/* Month/Year Display */}
-        <Grid justifyContent={'center'}>
-          <Text>
-            {monthNamesShort[calendar.month]} {calendar.year}
-          </Text>
-        </Grid>
-
-        {/* Weekday Headers */}
-        <Grid templateColumns={'repeat(7, auto)'} justifyContent={'center'}>
-          {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-            return (
-              <Text
-                textAlign={'center'}
-                key={`header-${weekdayNum}`}
-                fontWeight="semibold"
-                minW="40px"
-              >
-                {weekdayNamesShort[weekdayNum]}
-              </Text>
-            );
-          })}
-        </Grid>
-
-        {/* Calendar Days */}
-        {calendar.weeks.map((week, weekIndex) => (
-          <Grid
-            key={`week-${weekIndex}`}
-            templateColumns={'repeat(7, auto)'}
-            justifyContent={'center'}
-          >
-            {week.map((dateObj, dayIndex) => {
-              if (!dateObj) {
-                return (
-                  <div key={`empty-${dayIndex}`} style={{ minWidth: '40px' }} />
-                );
-              }
-
-              const { date, selected, selectable, isCurrentMonth } = dateObj;
-
-              const dateProps = getDateProps({
-                dateObj,
-              });
-
-              return (
-                <Button
-                  key={`${date.getTime()}`}
-                  variant={selected ? 'solid' : 'ghost'}
-                  colorPalette={selected ? 'blue' : undefined}
-                  size="sm"
-                  minW="40px"
-                  disabled={!selectable}
-                  opacity={isCurrentMonth ? 1 : 0.4}
-                  {...dateProps}
-                >
-                  {date.getDate()}
-                </Button>
-              );
-            })}
-          </Grid>
-        ))}
-      </Grid>
-    );
-  };
-
   return (
     <Flex direction="row" gap={2} align="center">
       {/* Date Selection Popover */}
@@ -1101,7 +1029,7 @@ export function DateTimePicker({
         {portalled ? (
           <Portal>
             <Popover.Positioner>
-              <Popover.Content width="fit-content" minW="350px" minH="25rem">
+              <Popover.Content width="fit-content">
                 <Popover.Body p={4}>
                   <Grid gap={4}>
                     <InputGroup
@@ -1122,17 +1050,25 @@ export function DateTimePicker({
                               <MdDateRange />
                             </Button>
                           </Popover.Trigger>
-                          <Popover.Positioner>
-                            <Popover.Content
-                              width="fit-content"
-                              minW="350px"
-                              minH="25rem"
-                            >
-                              <Popover.Body p={4}>
-                                {renderCalendar()}
-                              </Popover.Body>
-                            </Popover.Content>
-                          </Popover.Positioner>
+                          <Portal>
+                            <Popover.Positioner>
+                              <Popover.Content
+                                width="fit-content"
+                                zIndex={1500}
+                              >
+                                <Popover.Body p={4}>
+                                  <DatePickerContext.Provider
+                                    value={{ labels: calendarLabels }}
+                                  >
+                                    <Calendar
+                                      {...calendarProps}
+                                      firstDayOfWeek={0}
+                                    />
+                                  </DatePickerContext.Provider>
+                                </Popover.Body>
+                              </Popover.Content>
+                            </Popover.Positioner>
+                          </Portal>
                         </Popover.Root>
                       }
                     >
@@ -1208,17 +1144,22 @@ export function DateTimePicker({
                             <MdDateRange />
                           </Button>
                         </Popover.Trigger>
-                        <Popover.Positioner>
-                          <Popover.Content
-                            width="fit-content"
-                            minW="350px"
-                            minH="25rem"
-                          >
-                            <Popover.Body p={4}>
-                              {renderCalendar()}
-                            </Popover.Body>
-                          </Popover.Content>
-                        </Popover.Positioner>
+                        <Portal>
+                          <Popover.Positioner>
+                            <Popover.Content width="fit-content" zIndex={1700}>
+                              <Popover.Body p={4}>
+                                <DatePickerContext.Provider
+                                  value={{ labels: calendarLabels }}
+                                >
+                                  <Calendar
+                                    {...calendarProps}
+                                    firstDayOfWeek={0}
+                                  />
+                                </DatePickerContext.Provider>
+                              </Popover.Body>
+                            </Popover.Content>
+                          </Popover.Positioner>
+                        </Portal>
                       </Popover.Root>
                     }
                   >

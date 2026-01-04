@@ -122,6 +122,16 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
       idMap?: Record<string, object>;
     }>;
   };
+  dateTimePicker?: {
+    showQuickActions?: boolean;
+    quickActionLabels?: {
+      yesterday?: string;
+      today?: string;
+      tomorrow?: string;
+      plus7Days?: string;
+    };
+    showTimezoneSelector?: boolean;
+  };
 }
 
 // Default renderDisplay function that intelligently displays items

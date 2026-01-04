@@ -6,16 +6,16 @@ import {
   Input,
   Popover,
   Portal,
-  Text,
 } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { MdDateRange } from 'react-icons/md';
 import { InputGroup } from '../ui/input-group';
 import { useCalendar, type CalendarRenderProps } from './useCalendar';
+import { Calendar } from './Calendar';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -36,142 +36,6 @@ export interface GetVariantProps {
   selected: boolean;
   selectable: boolean;
 }
-
-const Calendar = ({
-  calendars,
-  getBackProps,
-  getForwardProps,
-  getDateProps,
-  firstDayOfWeek = 0,
-}: CalendarProps) => {
-  const { labels } = useContext(DatePickerContext);
-  const {
-    monthNamesShort,
-    weekdayNamesShort,
-    backButtonLabel,
-    forwardButtonLabel,
-  } = labels;
-  if (calendars.length) {
-    return (
-      <Grid>
-        <Grid templateColumns={'repeat(4, auto)'} justifyContent={'center'}>
-          <Button
-            variant={'ghost'}
-            {...getBackProps({
-              calendars,
-              offset: 12,
-            })}
-          >
-            {'<<'}
-          </Button>
-          <Button variant={'ghost'} {...getBackProps({ calendars })}>
-            {backButtonLabel}
-          </Button>
-          <Button variant={'ghost'} {...getForwardProps({ calendars })}>
-            {forwardButtonLabel}
-          </Button>
-          <Button
-            variant={'ghost'}
-            {...getForwardProps({
-              calendars,
-              offset: 12,
-            })}
-          >
-            {'>>'}
-          </Button>
-        </Grid>
-        <Grid templateColumns={'repeat(2, auto)'} justifyContent={'center'}>
-          {calendars.map((calendar) => (
-            <Grid key={`${calendar.month}${calendar.year}`} gap={4}>
-              <Grid justifyContent={'center'}>
-                {monthNamesShort[calendar.month]} {calendar.year}
-              </Grid>
-              <Grid
-                templateColumns={'repeat(7, auto)'}
-                justifyContent={'center'}
-              >
-                {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-                  const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                  return (
-                    <Text
-                      textAlign={'center'}
-                      key={`${calendar.month}${calendar.year}${weekday}`}
-                    >
-                      {weekdayNamesShort[weekday]}
-                    </Text>
-                  );
-                })}
-                {calendar.weeks.map((week, weekIndex) =>
-                  week.map((dateObj, index) => {
-                    const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
-                    if (!dateObj) {
-                      return <Grid key={key} />;
-                    }
-                    const {
-                      date,
-                      selected,
-                      selectable,
-                      today,
-                      isCurrentMonth,
-                    } = dateObj;
-                    const getDateColor = ({
-                      today,
-                      selected,
-                      selectable,
-                    }: GetDateColorProps) => {
-                      if (!selectable) {
-                        return 'gray';
-                      }
-                      if (selected) {
-                        return 'blue';
-                      }
-                      if (today) {
-                        return 'green';
-                      }
-                      return '';
-                    };
-
-                    const getVariant = ({
-                      today,
-                      selected,
-                      selectable,
-                    }: GetVariantProps) => {
-                      if (!selectable) {
-                        return 'surface';
-                      }
-                      if (selected) {
-                        return 'solid';
-                      }
-                      if (today) {
-                        return 'surface';
-                      }
-                      return 'ghost';
-                    };
-
-                    const color = getDateColor({ today, selected, selectable });
-                    const variant = getVariant({ today, selected, selectable });
-                    return (
-                      <Button
-                        variant={variant}
-                        key={key}
-                        colorPalette={color}
-                        opacity={isCurrentMonth ? 1 : 0.4}
-                        {...getDateProps({ dateObj })}
-                      >
-                        {selectable ? date.getDate() : 'X'}
-                      </Button>
-                    );
-                  })
-                )}
-              </Grid>
-            </Grid>
-          ))}
-        </Grid>
-      </Grid>
-    );
-  }
-  return null;
-};
 
 export interface DatePickerProps {
   onDateSelected?: (obj: { date: Date; selected: Date | Date[] }) => void;
@@ -204,7 +68,7 @@ export interface DatePickerLabels {
   tomorrowLabel?: string;
 }
 
-const DatePickerContext = createContext<{
+export const DatePickerContext = createContext<{
   labels: DatePickerLabels;
 }>({
   labels: {

@@ -35,6 +35,7 @@ export const DateTimePicker = ({
     displayDateFormat = 'YYYY-MM-DD HH:mm:ss',
     // with timezone
     dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ',
+    dateTimePicker,
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = formI18n.colLabel;
@@ -93,6 +94,9 @@ export const DateTimePicker = ({
       timezone={timezone}
       labels={dateTimePickerLabelsConfig}
       timePickerLabels={timePickerLabels}
+      showQuickActions={dateTimePicker?.showQuickActions ?? false}
+      quickActionLabels={dateTimePicker?.quickActionLabels}
+      showTimezoneSelector={dateTimePicker?.showTimezoneSelector ?? false}
     />
   );
 
