@@ -120,6 +120,16 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
             idMap?: Record<string, object>;
         }>;
     };
+    dateTimePicker?: {
+        showQuickActions?: boolean;
+        quickActionLabels?: {
+            yesterday?: string;
+            today?: string;
+            tomorrow?: string;
+            plus7Days?: string;
+        };
+        showTimezoneSelector?: boolean;
+    };
 }
 export declare const defaultRenderDisplay: (item: unknown) => ReactNode;
 export interface TagPickerProps {

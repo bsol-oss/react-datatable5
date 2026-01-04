@@ -45,6 +45,9 @@ export interface DatePickerLabels {
     yesterdayLabel?: string;
     tomorrowLabel?: string;
 }
+export declare const DatePickerContext: React.Context<{
+    labels: DatePickerLabels;
+}>;
 declare const DatePicker: React.FC<DatePickerProps>;
 export default DatePicker;
 export interface DatePickerInputProps {

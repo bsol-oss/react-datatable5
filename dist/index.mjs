@@ -4524,59 +4524,60 @@ const CustomInput = ({ column, schema, prefix }) => {
         }));
 };
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(customParseFormat);
 const Calendar = ({ calendars, getBackProps, getForwardProps, getDateProps, firstDayOfWeek = 0, }) => {
     const { labels } = useContext(DatePickerContext);
     const { monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel, } = labels;
     if (calendars.length) {
-        return (jsxs(Grid, { children: [jsxs(Grid, { templateColumns: 'repeat(4, auto)', justifyContent: 'center', children: [jsx(Button$1, { variant: 'ghost', ...getBackProps({
-                                calendars,
-                                offset: 12,
-                            }), children: '<<' }), jsx(Button$1, { variant: 'ghost', ...getBackProps({ calendars }), children: backButtonLabel }), jsx(Button$1, { variant: 'ghost', ...getForwardProps({ calendars }), children: forwardButtonLabel }), jsx(Button$1, { variant: 'ghost', ...getForwardProps({
-                                calendars,
-                                offset: 12,
-                            }), children: '>>' })] }), jsx(Grid, { templateColumns: 'repeat(2, auto)', justifyContent: 'center', children: calendars.map((calendar) => (jsxs(Grid, { gap: 4, children: [jsxs(Grid, { justifyContent: 'center', children: [monthNamesShort[calendar.month], " ", calendar.year] }), jsxs(Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: [[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-                                        const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                                        return (jsx(Text, { textAlign: 'center', children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
-                                    }), calendar.weeks.map((week, weekIndex) => week.map((dateObj, index) => {
-                                        const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
-                                        if (!dateObj) {
-                                            return jsx(Grid, {}, key);
+        return (jsx(Grid, { children: jsx(Grid, { templateColumns: 'repeat(2, auto)', justifyContent: 'center', children: calendars.map((calendar) => (jsxs(Grid, { gap: 2, children: [jsxs(Grid, { templateColumns: 'repeat(6, auto)', justifyContent: 'center', alignItems: 'center', gap: 2, children: [jsx(Button$1, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getBackProps({ calendars }), children: '<' }), jsx(Text, { textAlign: 'center', children: monthNamesShort[calendar.month] }), jsx(Button$1, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getForwardProps({ calendars }), children: '>' }), jsx(Button$1, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getBackProps({
+                                        calendars,
+                                        offset: 12,
+                                    }), children: '<' }), jsx(Text, { textAlign: 'center', children: calendar.year }), jsx(Button$1, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getForwardProps({
+                                        calendars,
+                                        offset: 12,
+                                    }), children: '>' })] }), jsxs(Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: [[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                                    const weekday = (weekdayNum + firstDayOfWeek) % 7;
+                                    return (jsx(Text, { textAlign: 'center', children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
+                                }), calendar.weeks.map((week, weekIndex) => week.map((dateObj, index) => {
+                                    const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
+                                    if (!dateObj) {
+                                        return jsx(Grid, {}, key);
+                                    }
+                                    const { date, selected, selectable, today, isCurrentMonth, } = dateObj;
+                                    const getDateColor = ({ today, selected, selectable, }) => {
+                                        if (!selectable) {
+                                            return 'gray';
                                         }
-                                        const { date, selected, selectable, today, isCurrentMonth, } = dateObj;
-                                        const getDateColor = ({ today, selected, selectable, }) => {
-                                            if (!selectable) {
-                                                return 'gray';
-                                            }
-                                            if (selected) {
-                                                return 'blue';
-                                            }
-                                            if (today) {
-                                                return 'green';
-                                            }
-                                            return '';
-                                        };
-                                        const getVariant = ({ today, selected, selectable, }) => {
-                                            if (!selectable) {
-                                                return 'surface';
-                                            }
-                                            if (selected) {
-                                                return 'solid';
-                                            }
-                                            if (today) {
-                                                return 'surface';
-                                            }
-                                            return 'ghost';
-                                        };
-                                        const color = getDateColor({ today, selected, selectable });
-                                        const variant = getVariant({ today, selected, selectable });
-                                        return (jsx(Button$1, { variant: variant, colorPalette: color, opacity: isCurrentMonth ? 1 : 0.4, ...getDateProps({ dateObj }), children: selectable ? date.getDate() : 'X' }, key));
-                                    }))] })] }, `${calendar.month}${calendar.year}`))) })] }));
+                                        if (selected) {
+                                            return 'blue';
+                                        }
+                                        if (today) {
+                                            return 'green';
+                                        }
+                                        return '';
+                                    };
+                                    const getVariant = ({ today, selected, selectable, }) => {
+                                        if (!selectable) {
+                                            return 'surface';
+                                        }
+                                        if (selected) {
+                                            return 'surface';
+                                        }
+                                        if (today) {
+                                            return 'outline';
+                                        }
+                                        return 'ghost';
+                                    };
+                                    const color = getDateColor({ today, selected, selectable });
+                                    const variant = getVariant({ today, selected, selectable });
+                                    return (jsx(Button$1, { variant: variant, colorPalette: color, size: 'xs', opacity: isCurrentMonth ? 1 : 0.4, ...getDateProps({ dateObj }), children: selectable ? date.getDate() : 'X' }, key));
+                                }))] })] }, `${calendar.month}${calendar.year}`))) }) }));
     }
     return null;
 };
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
 const DatePickerContext = createContext({
     labels: {
         monthNamesShort: [
@@ -7584,22 +7585,9 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     today: 'Today',
     tomorrow: 'Tomorrow',
     plus7Days: '+7 Days',
-}, showTimezoneSelector = false, }) {
+}, showTimezoneSelector = false, timezoneOffset: controlledTimezoneOffset, onTimezoneOffsetChange, }) {
     const is24Hour = format === 'iso-date-time' || showSeconds;
-    const { monthNamesShort = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-    ], weekdayNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], backButtonLabel = 'Back', forwardButtonLabel = 'Forward', } = labels;
+    // Labels are used in calendarLabels useMemo
     // Parse value to get date and time
     const parsedValue = useMemo(() => {
         if (!value)
@@ -7663,14 +7651,34 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     const [timePopoverOpen, setTimePopoverOpen] = useState(false);
     const [timezonePopoverOpen, setTimezonePopoverOpen] = useState(false);
     const [calendarPopoverOpen, setCalendarPopoverOpen] = useState(false);
-    // Timezone offset state
-    const [timezoneOffset, setTimezoneOffset] = useState(() => {
+    // Timezone offset state (controlled or uncontrolled)
+    const [internalTimezoneOffset, setInternalTimezoneOffset] = useState(() => {
+        if (controlledTimezoneOffset !== undefined) {
+            return controlledTimezoneOffset;
+        }
         if (parsedValue) {
             return parsedValue.format('Z');
         }
         // Default to +08:00
         return '+08:00';
     });
+    // Use controlled prop if provided, otherwise use internal state
+    const timezoneOffset = controlledTimezoneOffset ?? internalTimezoneOffset;
+    // Update internal state when controlled prop changes
+    useEffect(() => {
+        if (controlledTimezoneOffset !== undefined) {
+            setInternalTimezoneOffset(controlledTimezoneOffset);
+        }
+    }, [controlledTimezoneOffset]);
+    // Sync timezone offset when value changes (only if uncontrolled)
+    useEffect(() => {
+        if (controlledTimezoneOffset === undefined && parsedValue) {
+            const offsetFromValue = parsedValue.format('Z');
+            if (offsetFromValue !== timezoneOffset) {
+                setInternalTimezoneOffset(offsetFromValue);
+            }
+        }
+    }, [parsedValue, controlledTimezoneOffset, timezoneOffset]);
     // Sync timezone offset when value changes
     // Generate timezone offset options (UTC-12 to UTC+14)
     const timezoneOffsetOptions = useMemo(() => {
@@ -7690,6 +7698,13 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         itemToString: (item) => item.label,
         itemToValue: (item) => item.value,
     });
+    // Ensure timezoneOffset value is valid (exists in collection)
+    const validTimezoneOffset = useMemo(() => {
+        if (!timezoneOffset)
+            return undefined;
+        const exists = timezoneOffsetOptions.some((opt) => opt.value === timezoneOffset);
+        return exists ? timezoneOffset : undefined;
+    }, [timezoneOffset, timezoneOffsetOptions]);
     // Date input state
     const [dateInputValue, setDateInputValue] = useState('');
     // Sync date input value with selected date
@@ -7958,6 +7973,37 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         monthsToDisplay: 1,
         onDateSelected: handleDateSelected,
     });
+    // Convert DateTimePickerLabels to DatePickerLabels format
+    const calendarLabels = useMemo(() => ({
+        monthNamesShort: labels.monthNamesShort || [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+        ],
+        weekdayNamesShort: labels.weekdayNamesShort || [
+            'Sun',
+            'Mon',
+            'Tue',
+            'Wed',
+            'Thu',
+            'Fri',
+            'Sat',
+        ],
+        backButtonLabel: labels.backButtonLabel || 'Back',
+        forwardButtonLabel: labels.forwardButtonLabel || 'Forward',
+        todayLabel: quickActionLabels.today || 'Today',
+        yesterdayLabel: quickActionLabels.yesterday || 'Yesterday',
+        tomorrowLabel: quickActionLabels.tomorrow || 'Tomorrow',
+    }), [labels, quickActionLabels]);
     // Generate time options
     const timeOptions = useMemo(() => {
         const options = [];
@@ -8354,26 +8400,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             }
         }
     };
-    // Calendar rendering
-    const renderCalendar = () => {
-        const { calendars, getBackProps, getForwardProps, getDateProps } = calendarProps;
-        if (calendars.length === 0)
-            return null;
-        const calendar = calendars[0];
-        return (jsxs(Grid, { gap: 4, children: [jsxs(Grid, { templateColumns: 'repeat(4, auto)', justifyContent: 'center', children: [jsx(Button$1, { variant: 'ghost', ...getBackProps({ offset: 12 }), children: '<<' }), jsx(Button$1, { variant: 'ghost', ...getBackProps(), children: backButtonLabel }), jsx(Button$1, { variant: 'ghost', ...getForwardProps(), children: forwardButtonLabel }), jsx(Button$1, { variant: 'ghost', ...getForwardProps({ offset: 12 }), children: '>>' })] }), jsx(Grid, { justifyContent: 'center', children: jsxs(Text, { children: [monthNamesShort[calendar.month], " ", calendar.year] }) }), jsx(Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: [0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-                        return (jsx(Text, { textAlign: 'center', fontWeight: "semibold", minW: "40px", children: weekdayNamesShort[weekdayNum] }, `header-${weekdayNum}`));
-                    }) }), calendar.weeks.map((week, weekIndex) => (jsx(Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: week.map((dateObj, dayIndex) => {
-                        if (!dateObj) {
-                            return (jsx("div", { style: { minWidth: '40px' } }, `empty-${dayIndex}`));
-                        }
-                        const { date, selected, selectable, isCurrentMonth } = dateObj;
-                        const dateProps = getDateProps({
-                            dateObj,
-                        });
-                        return (jsx(Button$1, { variant: selected ? 'solid' : 'ghost', colorPalette: selected ? 'blue' : undefined, size: "sm", minW: "40px", disabled: !selectable, opacity: isCurrentMonth ? 1 : 0.4, ...dateProps, children: date.getDate() }, `${date.getTime()}`));
-                    }) }, `week-${weekIndex}`)))] }));
-    };
-    return (jsxs(Flex, { direction: "row", gap: 2, align: "center", children: [jsxs(Popover.Root, { open: datePopoverOpen, onOpenChange: (e) => setDatePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button$1, { size: "sm", variant: "outline", onClick: () => setDatePopoverOpen(true), justifyContent: "start", children: [jsx(MdDateRange, {}), dateDisplayText] }) }), portalled ? (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "350px", minH: "25rem", children: jsx(Popover.Body, { p: 4, children: jsxs(Grid, { gap: 4, children: [jsx(InputGroup$1, { endElement: jsxs(Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsx(MdDateRange, {}) }) }), jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "350px", minH: "25rem", children: jsx(Popover.Body, { p: 4, children: renderCalendar() }) }) })] }), children: jsx(Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD" }) }), showQuickActions && (jsxs(Grid, { templateColumns: "repeat(4, 1fr)", gap: 2, children: [jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getYesterday()), disabled: !isDateValid(getYesterday()), children: quickActionLabels.yesterday }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getToday()), disabled: !isDateValid(getToday()), children: quickActionLabels.today }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getTomorrow()), disabled: !isDateValid(getTomorrow()), children: quickActionLabels.tomorrow }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getPlus7Days()), disabled: !isDateValid(getPlus7Days()), children: quickActionLabels.plus7Days })] }))] }) }) }) }) })) : (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", children: jsx(Popover.Body, { p: 4, children: jsxs(Grid, { gap: 4, children: [jsx(InputGroup$1, { endElement: jsxs(Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsx(MdDateRange, {}) }) }), jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "350px", minH: "25rem", children: jsx(Popover.Body, { p: 4, children: renderCalendar() }) }) })] }), children: jsx(Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD" }) }), showQuickActions && (jsxs(Grid, { templateColumns: "repeat(4, 1fr)", gap: 2, children: [jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getYesterday()), disabled: !isDateValid(getYesterday()), children: quickActionLabels.yesterday }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getToday()), disabled: !isDateValid(getToday()), children: quickActionLabels.today }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getTomorrow()), disabled: !isDateValid(getTomorrow()), children: quickActionLabels.tomorrow }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getPlus7Days()), disabled: !isDateValid(getPlus7Days()), children: quickActionLabels.plus7Days })] }))] }) }) }) }))] }), jsxs(Popover.Root, { open: timePopoverOpen, onOpenChange: (e) => setTimePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button$1, { size: "sm", variant: "outline", onClick: () => setTimePopoverOpen(true), justifyContent: "start", children: [jsx(BsClock, {}), timeDisplayText] }) }), portalled ? (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "300px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Combobox.Root, { value: currentTimeValue ? [currentTimeValue] : [], onValueChange: handleTimeValueChange, onInputValueChange: handleTimeInputChange, collection: collection, allowCustomValue: true, children: [jsxs(Combobox.Control, { children: [jsx(InputGroup$1, { startElement: jsx(BsClock, {}), children: jsx(Combobox.Input, { placeholder: timePickerLabels?.placeholder ??
+    return (jsxs(Flex, { direction: "row", gap: 2, align: "center", children: [jsxs(Popover.Root, { open: datePopoverOpen, onOpenChange: (e) => setDatePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button$1, { size: "sm", variant: "outline", onClick: () => setDatePopoverOpen(true), justifyContent: "start", children: [jsx(MdDateRange, {}), dateDisplayText] }) }), portalled ? (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", children: jsx(Popover.Body, { p: 4, children: jsxs(Grid, { gap: 4, children: [jsx(InputGroup$1, { endElement: jsxs(Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsx(MdDateRange, {}) }) }), jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", zIndex: 1500, children: jsx(Popover.Body, { p: 4, children: jsx(DatePickerContext.Provider, { value: { labels: calendarLabels }, children: jsx(Calendar, { ...calendarProps, firstDayOfWeek: 0 }) }) }) }) }) })] }), children: jsx(Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD" }) }), showQuickActions && (jsxs(Grid, { templateColumns: "repeat(4, 1fr)", gap: 2, children: [jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getYesterday()), disabled: !isDateValid(getYesterday()), children: quickActionLabels.yesterday }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getToday()), disabled: !isDateValid(getToday()), children: quickActionLabels.today }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getTomorrow()), disabled: !isDateValid(getTomorrow()), children: quickActionLabels.tomorrow }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getPlus7Days()), disabled: !isDateValid(getPlus7Days()), children: quickActionLabels.plus7Days })] }))] }) }) }) }) })) : (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", children: jsx(Popover.Body, { p: 4, children: jsxs(Grid, { gap: 4, children: [jsx(InputGroup$1, { endElement: jsxs(Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsx(MdDateRange, {}) }) }), jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", zIndex: 1700, children: jsx(Popover.Body, { p: 4, children: jsx(DatePickerContext.Provider, { value: { labels: calendarLabels }, children: jsx(Calendar, { ...calendarProps, firstDayOfWeek: 0 }) }) }) }) }) })] }), children: jsx(Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD" }) }), showQuickActions && (jsxs(Grid, { templateColumns: "repeat(4, 1fr)", gap: 2, children: [jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getYesterday()), disabled: !isDateValid(getYesterday()), children: quickActionLabels.yesterday }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getToday()), disabled: !isDateValid(getToday()), children: quickActionLabels.today }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getTomorrow()), disabled: !isDateValid(getTomorrow()), children: quickActionLabels.tomorrow }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getPlus7Days()), disabled: !isDateValid(getPlus7Days()), children: quickActionLabels.plus7Days })] }))] }) }) }) }))] }), jsxs(Popover.Root, { open: timePopoverOpen, onOpenChange: (e) => setTimePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button$1, { size: "sm", variant: "outline", onClick: () => setTimePopoverOpen(true), justifyContent: "start", children: [jsx(BsClock, {}), timeDisplayText] }) }), portalled ? (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "300px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Combobox.Root, { value: currentTimeValue ? [currentTimeValue] : [], onValueChange: handleTimeValueChange, onInputValueChange: handleTimeInputChange, collection: collection, allowCustomValue: true, children: [jsxs(Combobox.Control, { children: [jsx(InputGroup$1, { startElement: jsx(BsClock, {}), children: jsx(Combobox.Input, { placeholder: timePickerLabels?.placeholder ??
                                                                     (is24Hour ? 'HH:mm' : 'hh:mm AM/PM'), onKeyDown: handleTimeInputKeyDown }) }), jsx(Combobox.IndicatorGroup, { children: jsx(Combobox.Trigger, {}) })] }), jsx(Portal, { disabled: true, children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [jsx(Combobox.Empty, { children: timePickerLabels?.emptyMessage ??
                                                                         'No time found' }), collection.items.map((item) => {
                                                                     const option = item;
@@ -8382,23 +8409,35 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                                                                 (is24Hour ? 'HH:mm' : 'hh:mm AM/PM'), onKeyDown: handleTimeInputKeyDown }) }), jsx(Combobox.IndicatorGroup, { children: jsx(Combobox.Trigger, {}) })] }), jsx(Portal, { disabled: true, children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [jsx(Combobox.Empty, { children: timePickerLabels?.emptyMessage ?? 'No time found' }), collection.items.map((item) => {
                                                                 const option = item;
                                                                 return (jsxs(Combobox.Item, { item: item, children: [jsxs(Flex, { justify: "space-between", align: "center", w: "100%", children: [jsx(Text, { children: option.label }), option.durationText && (jsx(Text, { fontSize: "xs", color: "gray.500", children: option.durationText }))] }), jsx(Combobox.ItemIndicator, {})] }, option.value));
-                                                            })] }) }) })] }) }) }) }) }))] }), showTimezoneSelector && (jsxs(Popover.Root, { open: timezonePopoverOpen, onOpenChange: (e) => setTimezonePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { size: "sm", variant: "outline", onClick: () => setTimezonePopoverOpen(true), justifyContent: "start", children: timezoneDisplayText || 'Select timezone' }) }), portalled ? (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "250px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Select.Root, { size: "sm", collection: timezoneCollection, value: timezoneOffset ? [timezoneOffset] : [], onValueChange: (e) => {
+                                                            })] }) }) })] }) }) }) }) }))] }), showTimezoneSelector && (jsxs(Popover.Root, { open: timezonePopoverOpen, onOpenChange: (e) => setTimezonePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { size: "sm", variant: "outline", onClick: () => setTimezonePopoverOpen(true), justifyContent: "start", children: timezoneDisplayText || 'Select timezone' }) }), portalled ? (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "250px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Select.Root, { size: "sm", collection: timezoneCollection, value: validTimezoneOffset ? [validTimezoneOffset] : [], onValueChange: (e) => {
                                                 const newOffset = e.value[0];
                                                 if (newOffset) {
-                                                    setTimezoneOffset(newOffset);
-                                                    // Update date-time with new offset
+                                                    // Update controlled or internal state
+                                                    if (onTimezoneOffsetChange) {
+                                                        onTimezoneOffsetChange(newOffset);
+                                                    }
+                                                    else {
+                                                        setInternalTimezoneOffset(newOffset);
+                                                    }
+                                                    // Update date-time with new offset (pass it directly to avoid stale state)
                                                     if (selectedDate &&
                                                         hour !== null &&
                                                         minute !== null) {
-                                                        updateDateTime(selectedDate, hour, minute, second, meridiem);
+                                                        updateDateTime(selectedDate, hour, minute, second, meridiem, newOffset);
                                                     }
                                                     // Close popover after selection
                                                     setTimezonePopoverOpen(false);
                                                 }
-                                            }, children: [jsxs(Select.Control, { children: [jsx(Select.Trigger, {}), jsx(Select.IndicatorGroup, { children: jsx(Select.Indicator, {}) })] }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: timezoneCollection.items.map((item) => (jsxs(Select.Item, { item: item, children: [jsx(Select.ItemText, { children: item.label }), jsx(Select.ItemIndicator, {})] }, item.value))) }) })] }) }) }) }) }) })) : (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "250px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Select.Root, { size: "sm", collection: timezoneCollection, value: timezoneOffset ? [timezoneOffset] : [], onValueChange: (e) => {
+                                            }, children: [jsxs(Select.Control, { children: [jsx(Select.Trigger, {}), jsx(Select.IndicatorGroup, { children: jsx(Select.Indicator, {}) })] }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: timezoneCollection.items.map((item) => (jsxs(Select.Item, { item: item, children: [jsx(Select.ItemText, { children: item.label }), jsx(Select.ItemIndicator, {})] }, item.value))) }) })] }) }) }) }) }) })) : (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "250px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Select.Root, { size: "sm", collection: timezoneCollection, value: validTimezoneOffset ? [validTimezoneOffset] : [], onValueChange: (e) => {
                                             const newOffset = e.value[0];
                                             if (newOffset) {
-                                                setTimezoneOffset(newOffset);
+                                                // Update controlled or internal state
+                                                if (onTimezoneOffsetChange) {
+                                                    onTimezoneOffsetChange(newOffset);
+                                                }
+                                                else {
+                                                    setInternalTimezoneOffset(newOffset);
+                                                }
                                                 // Update date-time with new offset (pass it directly to avoid stale state)
                                                 if (selectedDate &&
                                                     hour !== null &&
@@ -8419,7 +8458,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
     const formI18n = useFormI18n(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD HH:mm:ss', 
     // with timezone
-    dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ', } = schema;
+    dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ', dateTimePicker, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
     useState(false);
@@ -8467,7 +8506,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             else {
                 setValue(colLabel, undefined);
             }
-        }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels }));
+        }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels, showQuickActions: dateTimePicker?.showQuickActions ?? false, quickActionLabels: dateTimePicker?.quickActionLabels, showTimezoneSelector: dateTimePicker?.showTimezoneSelector ?? false }));
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: dateTimePickerContent }));
 };
@@ -10224,4 +10263,4 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: jsx(DataTableServerContext.Provider, { value: { url: url ?? '', query }, children: children }) }));
 }
 
-export { CalendarDisplay, CardHeader, DataDisplay, DataTable, DataTableServer, DatePickerInput, DefaultCardTitle, DefaultForm, DefaultTable, DefaultTableServer, DensityToggleButton, EditSortingButton, EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, MediaLibraryBrowser, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, SelectAllRowsToggle, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, convertToAjvErrorsFormat, createErrorMessage, defaultRenderDisplay, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CalendarDisplay, CardHeader, DataDisplay, DataTable, DataTableServer, DatePickerContext, DatePickerInput, DefaultCardTitle, DefaultForm, DefaultTable, DefaultTableServer, DensityToggleButton, EditSortingButton, EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, MediaLibraryBrowser, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, SelectAllRowsToggle, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, convertToAjvErrorsFormat, createErrorMessage, defaultRenderDisplay, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };

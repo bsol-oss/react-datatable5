@@ -4544,59 +4544,60 @@ const CustomInput = ({ column, schema, prefix }) => {
         }));
 };
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(customParseFormat);
 const Calendar = ({ calendars, getBackProps, getForwardProps, getDateProps, firstDayOfWeek = 0, }) => {
     const { labels } = React.useContext(DatePickerContext);
     const { monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel, } = labels;
     if (calendars.length) {
-        return (jsxRuntime.jsxs(react.Grid, { children: [jsxRuntime.jsxs(react.Grid, { templateColumns: 'repeat(4, auto)', justifyContent: 'center', children: [jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getBackProps({
-                                calendars,
-                                offset: 12,
-                            }), children: '<<' }), jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getBackProps({ calendars }), children: backButtonLabel }), jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getForwardProps({ calendars }), children: forwardButtonLabel }), jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getForwardProps({
-                                calendars,
-                                offset: 12,
-                            }), children: '>>' })] }), jsxRuntime.jsx(react.Grid, { templateColumns: 'repeat(2, auto)', justifyContent: 'center', children: calendars.map((calendar) => (jsxRuntime.jsxs(react.Grid, { gap: 4, children: [jsxRuntime.jsxs(react.Grid, { justifyContent: 'center', children: [monthNamesShort[calendar.month], " ", calendar.year] }), jsxRuntime.jsxs(react.Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: [[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-                                        const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                                        return (jsxRuntime.jsx(react.Text, { textAlign: 'center', children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
-                                    }), calendar.weeks.map((week, weekIndex) => week.map((dateObj, index) => {
-                                        const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
-                                        if (!dateObj) {
-                                            return jsxRuntime.jsx(react.Grid, {}, key);
+        return (jsxRuntime.jsx(react.Grid, { children: jsxRuntime.jsx(react.Grid, { templateColumns: 'repeat(2, auto)', justifyContent: 'center', children: calendars.map((calendar) => (jsxRuntime.jsxs(react.Grid, { gap: 2, children: [jsxRuntime.jsxs(react.Grid, { templateColumns: 'repeat(6, auto)', justifyContent: 'center', alignItems: 'center', gap: 2, children: [jsxRuntime.jsx(react.Button, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getBackProps({ calendars }), children: '<' }), jsxRuntime.jsx(react.Text, { textAlign: 'center', children: monthNamesShort[calendar.month] }), jsxRuntime.jsx(react.Button, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getForwardProps({ calendars }), children: '>' }), jsxRuntime.jsx(react.Button, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getBackProps({
+                                        calendars,
+                                        offset: 12,
+                                    }), children: '<' }), jsxRuntime.jsx(react.Text, { textAlign: 'center', children: calendar.year }), jsxRuntime.jsx(react.Button, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getForwardProps({
+                                        calendars,
+                                        offset: 12,
+                                    }), children: '>' })] }), jsxRuntime.jsxs(react.Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: [[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
+                                    const weekday = (weekdayNum + firstDayOfWeek) % 7;
+                                    return (jsxRuntime.jsx(react.Text, { textAlign: 'center', children: weekdayNamesShort[weekday] }, `${calendar.month}${calendar.year}${weekday}`));
+                                }), calendar.weeks.map((week, weekIndex) => week.map((dateObj, index) => {
+                                    const key = `${calendar.month}${calendar.year}${weekIndex}${index}`;
+                                    if (!dateObj) {
+                                        return jsxRuntime.jsx(react.Grid, {}, key);
+                                    }
+                                    const { date, selected, selectable, today, isCurrentMonth, } = dateObj;
+                                    const getDateColor = ({ today, selected, selectable, }) => {
+                                        if (!selectable) {
+                                            return 'gray';
                                         }
-                                        const { date, selected, selectable, today, isCurrentMonth, } = dateObj;
-                                        const getDateColor = ({ today, selected, selectable, }) => {
-                                            if (!selectable) {
-                                                return 'gray';
-                                            }
-                                            if (selected) {
-                                                return 'blue';
-                                            }
-                                            if (today) {
-                                                return 'green';
-                                            }
-                                            return '';
-                                        };
-                                        const getVariant = ({ today, selected, selectable, }) => {
-                                            if (!selectable) {
-                                                return 'surface';
-                                            }
-                                            if (selected) {
-                                                return 'solid';
-                                            }
-                                            if (today) {
-                                                return 'surface';
-                                            }
-                                            return 'ghost';
-                                        };
-                                        const color = getDateColor({ today, selected, selectable });
-                                        const variant = getVariant({ today, selected, selectable });
-                                        return (jsxRuntime.jsx(react.Button, { variant: variant, colorPalette: color, opacity: isCurrentMonth ? 1 : 0.4, ...getDateProps({ dateObj }), children: selectable ? date.getDate() : 'X' }, key));
-                                    }))] })] }, `${calendar.month}${calendar.year}`))) })] }));
+                                        if (selected) {
+                                            return 'blue';
+                                        }
+                                        if (today) {
+                                            return 'green';
+                                        }
+                                        return '';
+                                    };
+                                    const getVariant = ({ today, selected, selectable, }) => {
+                                        if (!selectable) {
+                                            return 'surface';
+                                        }
+                                        if (selected) {
+                                            return 'surface';
+                                        }
+                                        if (today) {
+                                            return 'outline';
+                                        }
+                                        return 'ghost';
+                                    };
+                                    const color = getDateColor({ today, selected, selectable });
+                                    const variant = getVariant({ today, selected, selectable });
+                                    return (jsxRuntime.jsx(react.Button, { variant: variant, colorPalette: color, size: 'xs', opacity: isCurrentMonth ? 1 : 0.4, ...getDateProps({ dateObj }), children: selectable ? date.getDate() : 'X' }, key));
+                                }))] })] }, `${calendar.month}${calendar.year}`))) }) }));
     }
     return null;
 };
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
 const DatePickerContext = React.createContext({
     labels: {
         monthNamesShort: [
@@ -7604,22 +7605,9 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     today: 'Today',
     tomorrow: 'Tomorrow',
     plus7Days: '+7 Days',
-}, showTimezoneSelector = false, }) {
+}, showTimezoneSelector = false, timezoneOffset: controlledTimezoneOffset, onTimezoneOffsetChange, }) {
     const is24Hour = format === 'iso-date-time' || showSeconds;
-    const { monthNamesShort = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-    ], weekdayNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], backButtonLabel = 'Back', forwardButtonLabel = 'Forward', } = labels;
+    // Labels are used in calendarLabels useMemo
     // Parse value to get date and time
     const parsedValue = React.useMemo(() => {
         if (!value)
@@ -7683,14 +7671,34 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     const [timePopoverOpen, setTimePopoverOpen] = React.useState(false);
     const [timezonePopoverOpen, setTimezonePopoverOpen] = React.useState(false);
     const [calendarPopoverOpen, setCalendarPopoverOpen] = React.useState(false);
-    // Timezone offset state
-    const [timezoneOffset, setTimezoneOffset] = React.useState(() => {
+    // Timezone offset state (controlled or uncontrolled)
+    const [internalTimezoneOffset, setInternalTimezoneOffset] = React.useState(() => {
+        if (controlledTimezoneOffset !== undefined) {
+            return controlledTimezoneOffset;
+        }
         if (parsedValue) {
             return parsedValue.format('Z');
         }
         // Default to +08:00
         return '+08:00';
     });
+    // Use controlled prop if provided, otherwise use internal state
+    const timezoneOffset = controlledTimezoneOffset ?? internalTimezoneOffset;
+    // Update internal state when controlled prop changes
+    React.useEffect(() => {
+        if (controlledTimezoneOffset !== undefined) {
+            setInternalTimezoneOffset(controlledTimezoneOffset);
+        }
+    }, [controlledTimezoneOffset]);
+    // Sync timezone offset when value changes (only if uncontrolled)
+    React.useEffect(() => {
+        if (controlledTimezoneOffset === undefined && parsedValue) {
+            const offsetFromValue = parsedValue.format('Z');
+            if (offsetFromValue !== timezoneOffset) {
+                setInternalTimezoneOffset(offsetFromValue);
+            }
+        }
+    }, [parsedValue, controlledTimezoneOffset, timezoneOffset]);
     // Sync timezone offset when value changes
     // Generate timezone offset options (UTC-12 to UTC+14)
     const timezoneOffsetOptions = React.useMemo(() => {
@@ -7710,6 +7718,13 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         itemToString: (item) => item.label,
         itemToValue: (item) => item.value,
     });
+    // Ensure timezoneOffset value is valid (exists in collection)
+    const validTimezoneOffset = React.useMemo(() => {
+        if (!timezoneOffset)
+            return undefined;
+        const exists = timezoneOffsetOptions.some((opt) => opt.value === timezoneOffset);
+        return exists ? timezoneOffset : undefined;
+    }, [timezoneOffset, timezoneOffsetOptions]);
     // Date input state
     const [dateInputValue, setDateInputValue] = React.useState('');
     // Sync date input value with selected date
@@ -7978,6 +7993,37 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         monthsToDisplay: 1,
         onDateSelected: handleDateSelected,
     });
+    // Convert DateTimePickerLabels to DatePickerLabels format
+    const calendarLabels = React.useMemo(() => ({
+        monthNamesShort: labels.monthNamesShort || [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+        ],
+        weekdayNamesShort: labels.weekdayNamesShort || [
+            'Sun',
+            'Mon',
+            'Tue',
+            'Wed',
+            'Thu',
+            'Fri',
+            'Sat',
+        ],
+        backButtonLabel: labels.backButtonLabel || 'Back',
+        forwardButtonLabel: labels.forwardButtonLabel || 'Forward',
+        todayLabel: quickActionLabels.today || 'Today',
+        yesterdayLabel: quickActionLabels.yesterday || 'Yesterday',
+        tomorrowLabel: quickActionLabels.tomorrow || 'Tomorrow',
+    }), [labels, quickActionLabels]);
     // Generate time options
     const timeOptions = React.useMemo(() => {
         const options = [];
@@ -8374,26 +8420,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             }
         }
     };
-    // Calendar rendering
-    const renderCalendar = () => {
-        const { calendars, getBackProps, getForwardProps, getDateProps } = calendarProps;
-        if (calendars.length === 0)
-            return null;
-        const calendar = calendars[0];
-        return (jsxRuntime.jsxs(react.Grid, { gap: 4, children: [jsxRuntime.jsxs(react.Grid, { templateColumns: 'repeat(4, auto)', justifyContent: 'center', children: [jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getBackProps({ offset: 12 }), children: '<<' }), jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getBackProps(), children: backButtonLabel }), jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getForwardProps(), children: forwardButtonLabel }), jsxRuntime.jsx(react.Button, { variant: 'ghost', ...getForwardProps({ offset: 12 }), children: '>>' })] }), jsxRuntime.jsx(react.Grid, { justifyContent: 'center', children: jsxRuntime.jsxs(react.Text, { children: [monthNamesShort[calendar.month], " ", calendar.year] }) }), jsxRuntime.jsx(react.Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: [0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-                        return (jsxRuntime.jsx(react.Text, { textAlign: 'center', fontWeight: "semibold", minW: "40px", children: weekdayNamesShort[weekdayNum] }, `header-${weekdayNum}`));
-                    }) }), calendar.weeks.map((week, weekIndex) => (jsxRuntime.jsx(react.Grid, { templateColumns: 'repeat(7, auto)', justifyContent: 'center', children: week.map((dateObj, dayIndex) => {
-                        if (!dateObj) {
-                            return (jsxRuntime.jsx("div", { style: { minWidth: '40px' } }, `empty-${dayIndex}`));
-                        }
-                        const { date, selected, selectable, isCurrentMonth } = dateObj;
-                        const dateProps = getDateProps({
-                            dateObj,
-                        });
-                        return (jsxRuntime.jsx(react.Button, { variant: selected ? 'solid' : 'ghost', colorPalette: selected ? 'blue' : undefined, size: "sm", minW: "40px", disabled: !selectable, opacity: isCurrentMonth ? 1 : 0.4, ...dateProps, children: date.getDate() }, `${date.getTime()}`));
-                    }) }, `week-${weekIndex}`)))] }));
-    };
-    return (jsxRuntime.jsxs(react.Flex, { direction: "row", gap: 2, align: "center", children: [jsxRuntime.jsxs(react.Popover.Root, { open: datePopoverOpen, onOpenChange: (e) => setDatePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { size: "sm", variant: "outline", onClick: () => setDatePopoverOpen(true), justifyContent: "start", children: [jsxRuntime.jsx(md.MdDateRange, {}), dateDisplayText] }) }), portalled ? (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "350px", minH: "25rem", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsxs(react.Grid, { gap: 4, children: [jsxRuntime.jsx(react.InputGroup, { endElement: jsxRuntime.jsxs(react.Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsxRuntime.jsx(md.MdDateRange, {}) }) }), jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "350px", minH: "25rem", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: renderCalendar() }) }) })] }), children: jsxRuntime.jsx(react.Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD" }) }), showQuickActions && (jsxRuntime.jsxs(react.Grid, { templateColumns: "repeat(4, 1fr)", gap: 2, children: [jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getYesterday()), disabled: !isDateValid(getYesterday()), children: quickActionLabels.yesterday }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getToday()), disabled: !isDateValid(getToday()), children: quickActionLabels.today }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getTomorrow()), disabled: !isDateValid(getTomorrow()), children: quickActionLabels.tomorrow }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getPlus7Days()), disabled: !isDateValid(getPlus7Days()), children: quickActionLabels.plus7Days })] }))] }) }) }) }) })) : (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsxs(react.Grid, { gap: 4, children: [jsxRuntime.jsx(react.InputGroup, { endElement: jsxRuntime.jsxs(react.Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsxRuntime.jsx(md.MdDateRange, {}) }) }), jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "350px", minH: "25rem", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: renderCalendar() }) }) })] }), children: jsxRuntime.jsx(react.Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD" }) }), showQuickActions && (jsxRuntime.jsxs(react.Grid, { templateColumns: "repeat(4, 1fr)", gap: 2, children: [jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getYesterday()), disabled: !isDateValid(getYesterday()), children: quickActionLabels.yesterday }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getToday()), disabled: !isDateValid(getToday()), children: quickActionLabels.today }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getTomorrow()), disabled: !isDateValid(getTomorrow()), children: quickActionLabels.tomorrow }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getPlus7Days()), disabled: !isDateValid(getPlus7Days()), children: quickActionLabels.plus7Days })] }))] }) }) }) }))] }), jsxRuntime.jsxs(react.Popover.Root, { open: timePopoverOpen, onOpenChange: (e) => setTimePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { size: "sm", variant: "outline", onClick: () => setTimePopoverOpen(true), justifyContent: "start", children: [jsxRuntime.jsx(bs.BsClock, {}), timeDisplayText] }) }), portalled ? (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "300px", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsx(react.Grid, { gap: 2, children: jsxRuntime.jsxs(react.Combobox.Root, { value: currentTimeValue ? [currentTimeValue] : [], onValueChange: handleTimeValueChange, onInputValueChange: handleTimeInputChange, collection: collection, allowCustomValue: true, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { placeholder: timePickerLabels?.placeholder ??
+    return (jsxRuntime.jsxs(react.Flex, { direction: "row", gap: 2, align: "center", children: [jsxRuntime.jsxs(react.Popover.Root, { open: datePopoverOpen, onOpenChange: (e) => setDatePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { size: "sm", variant: "outline", onClick: () => setDatePopoverOpen(true), justifyContent: "start", children: [jsxRuntime.jsx(md.MdDateRange, {}), dateDisplayText] }) }), portalled ? (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsxs(react.Grid, { gap: 4, children: [jsxRuntime.jsx(react.InputGroup, { endElement: jsxRuntime.jsxs(react.Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsxRuntime.jsx(md.MdDateRange, {}) }) }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", zIndex: 1500, children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsx(DatePickerContext.Provider, { value: { labels: calendarLabels }, children: jsxRuntime.jsx(Calendar, { ...calendarProps, firstDayOfWeek: 0 }) }) }) }) }) })] }), children: jsxRuntime.jsx(react.Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD" }) }), showQuickActions && (jsxRuntime.jsxs(react.Grid, { templateColumns: "repeat(4, 1fr)", gap: 2, children: [jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getYesterday()), disabled: !isDateValid(getYesterday()), children: quickActionLabels.yesterday }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getToday()), disabled: !isDateValid(getToday()), children: quickActionLabels.today }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getTomorrow()), disabled: !isDateValid(getTomorrow()), children: quickActionLabels.tomorrow }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getPlus7Days()), disabled: !isDateValid(getPlus7Days()), children: quickActionLabels.plus7Days })] }))] }) }) }) }) })) : (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsxs(react.Grid, { gap: 4, children: [jsxRuntime.jsx(react.InputGroup, { endElement: jsxRuntime.jsxs(react.Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsxRuntime.jsx(md.MdDateRange, {}) }) }), jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", zIndex: 1700, children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsx(DatePickerContext.Provider, { value: { labels: calendarLabels }, children: jsxRuntime.jsx(Calendar, { ...calendarProps, firstDayOfWeek: 0 }) }) }) }) }) })] }), children: jsxRuntime.jsx(react.Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD" }) }), showQuickActions && (jsxRuntime.jsxs(react.Grid, { templateColumns: "repeat(4, 1fr)", gap: 2, children: [jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getYesterday()), disabled: !isDateValid(getYesterday()), children: quickActionLabels.yesterday }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getToday()), disabled: !isDateValid(getToday()), children: quickActionLabels.today }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getTomorrow()), disabled: !isDateValid(getTomorrow()), children: quickActionLabels.tomorrow }), jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getPlus7Days()), disabled: !isDateValid(getPlus7Days()), children: quickActionLabels.plus7Days })] }))] }) }) }) }))] }), jsxRuntime.jsxs(react.Popover.Root, { open: timePopoverOpen, onOpenChange: (e) => setTimePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { size: "sm", variant: "outline", onClick: () => setTimePopoverOpen(true), justifyContent: "start", children: [jsxRuntime.jsx(bs.BsClock, {}), timeDisplayText] }) }), portalled ? (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "300px", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsx(react.Grid, { gap: 2, children: jsxRuntime.jsxs(react.Combobox.Root, { value: currentTimeValue ? [currentTimeValue] : [], onValueChange: handleTimeValueChange, onInputValueChange: handleTimeInputChange, collection: collection, allowCustomValue: true, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { placeholder: timePickerLabels?.placeholder ??
                                                                     (is24Hour ? 'HH:mm' : 'hh:mm AM/PM'), onKeyDown: handleTimeInputKeyDown }) }), jsxRuntime.jsx(react.Combobox.IndicatorGroup, { children: jsxRuntime.jsx(react.Combobox.Trigger, {}) })] }), jsxRuntime.jsx(react.Portal, { disabled: true, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: timePickerLabels?.emptyMessage ??
                                                                         'No time found' }), collection.items.map((item) => {
                                                                     const option = item;
@@ -8402,23 +8429,35 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                                                                 (is24Hour ? 'HH:mm' : 'hh:mm AM/PM'), onKeyDown: handleTimeInputKeyDown }) }), jsxRuntime.jsx(react.Combobox.IndicatorGroup, { children: jsxRuntime.jsx(react.Combobox.Trigger, {}) })] }), jsxRuntime.jsx(react.Portal, { disabled: true, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: timePickerLabels?.emptyMessage ?? 'No time found' }), collection.items.map((item) => {
                                                                 const option = item;
                                                                 return (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsxs(react.Flex, { justify: "space-between", align: "center", w: "100%", children: [jsxRuntime.jsx(react.Text, { children: option.label }), option.durationText && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "gray.500", children: option.durationText }))] }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, option.value));
-                                                            })] }) }) })] }) }) }) }) }))] }), showTimezoneSelector && (jsxRuntime.jsxs(react.Popover.Root, { open: timezonePopoverOpen, onOpenChange: (e) => setTimezonePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => setTimezonePopoverOpen(true), justifyContent: "start", children: timezoneDisplayText || 'Select timezone' }) }), portalled ? (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "250px", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsx(react.Grid, { gap: 2, children: jsxRuntime.jsxs(react.Select.Root, { size: "sm", collection: timezoneCollection, value: timezoneOffset ? [timezoneOffset] : [], onValueChange: (e) => {
+                                                            })] }) }) })] }) }) }) }) }))] }), showTimezoneSelector && (jsxRuntime.jsxs(react.Popover.Root, { open: timezonePopoverOpen, onOpenChange: (e) => setTimezonePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsx(react.Button, { size: "sm", variant: "outline", onClick: () => setTimezonePopoverOpen(true), justifyContent: "start", children: timezoneDisplayText || 'Select timezone' }) }), portalled ? (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "250px", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsx(react.Grid, { gap: 2, children: jsxRuntime.jsxs(react.Select.Root, { size: "sm", collection: timezoneCollection, value: validTimezoneOffset ? [validTimezoneOffset] : [], onValueChange: (e) => {
                                                 const newOffset = e.value[0];
                                                 if (newOffset) {
-                                                    setTimezoneOffset(newOffset);
-                                                    // Update date-time with new offset
+                                                    // Update controlled or internal state
+                                                    if (onTimezoneOffsetChange) {
+                                                        onTimezoneOffsetChange(newOffset);
+                                                    }
+                                                    else {
+                                                        setInternalTimezoneOffset(newOffset);
+                                                    }
+                                                    // Update date-time with new offset (pass it directly to avoid stale state)
                                                     if (selectedDate &&
                                                         hour !== null &&
                                                         minute !== null) {
-                                                        updateDateTime(selectedDate, hour, minute, second, meridiem);
+                                                        updateDateTime(selectedDate, hour, minute, second, meridiem, newOffset);
                                                     }
                                                     // Close popover after selection
                                                     setTimezonePopoverOpen(false);
                                                 }
-                                            }, children: [jsxRuntime.jsxs(react.Select.Control, { children: [jsxRuntime.jsx(react.Select.Trigger, {}), jsxRuntime.jsx(react.Select.IndicatorGroup, { children: jsxRuntime.jsx(react.Select.Indicator, {}) })] }), jsxRuntime.jsx(react.Select.Positioner, { children: jsxRuntime.jsx(react.Select.Content, { children: timezoneCollection.items.map((item) => (jsxRuntime.jsxs(react.Select.Item, { item: item, children: [jsxRuntime.jsx(react.Select.ItemText, { children: item.label }), jsxRuntime.jsx(react.Select.ItemIndicator, {})] }, item.value))) }) })] }) }) }) }) }) })) : (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "250px", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsx(react.Grid, { gap: 2, children: jsxRuntime.jsxs(react.Select.Root, { size: "sm", collection: timezoneCollection, value: timezoneOffset ? [timezoneOffset] : [], onValueChange: (e) => {
+                                            }, children: [jsxRuntime.jsxs(react.Select.Control, { children: [jsxRuntime.jsx(react.Select.Trigger, {}), jsxRuntime.jsx(react.Select.IndicatorGroup, { children: jsxRuntime.jsx(react.Select.Indicator, {}) })] }), jsxRuntime.jsx(react.Select.Positioner, { children: jsxRuntime.jsx(react.Select.Content, { children: timezoneCollection.items.map((item) => (jsxRuntime.jsxs(react.Select.Item, { item: item, children: [jsxRuntime.jsx(react.Select.ItemText, { children: item.label }), jsxRuntime.jsx(react.Select.ItemIndicator, {})] }, item.value))) }) })] }) }) }) }) }) })) : (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "250px", children: jsxRuntime.jsx(react.Popover.Body, { p: 4, children: jsxRuntime.jsx(react.Grid, { gap: 2, children: jsxRuntime.jsxs(react.Select.Root, { size: "sm", collection: timezoneCollection, value: validTimezoneOffset ? [validTimezoneOffset] : [], onValueChange: (e) => {
                                             const newOffset = e.value[0];
                                             if (newOffset) {
-                                                setTimezoneOffset(newOffset);
+                                                // Update controlled or internal state
+                                                if (onTimezoneOffsetChange) {
+                                                    onTimezoneOffsetChange(newOffset);
+                                                }
+                                                else {
+                                                    setInternalTimezoneOffset(newOffset);
+                                                }
                                                 // Update date-time with new offset (pass it directly to avoid stale state)
                                                 if (selectedDate &&
                                                     hour !== null &&
@@ -8439,7 +8478,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
     const formI18n = useFormI18n(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD HH:mm:ss', 
     // with timezone
-    dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ', } = schema;
+    dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ', dateTimePicker, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
     React.useState(false);
@@ -8487,7 +8526,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             else {
                 setValue(colLabel, undefined);
             }
-        }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels }));
+        }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels, showQuickActions: dateTimePicker?.showQuickActions ?? false, quickActionLabels: dateTimePicker?.quickActionLabels, showTimezoneSelector: dateTimePicker?.showTimezoneSelector ?? false }));
     return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: dateTimePickerContent }));
 };
@@ -10249,6 +10288,7 @@ exports.CardHeader = CardHeader;
 exports.DataDisplay = DataDisplay;
 exports.DataTable = DataTable;
 exports.DataTableServer = DataTableServer;
+exports.DatePickerContext = DatePickerContext;
 exports.DatePickerInput = DatePickerInput;
 exports.DefaultCardTitle = DefaultCardTitle;
 exports.DefaultForm = DefaultForm;
