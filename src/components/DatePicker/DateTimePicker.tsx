@@ -58,6 +58,8 @@ interface DateTimePickerProps {
     plus7Days?: string;
   };
   showTimezoneSelector?: boolean;
+  timezoneOffset?: string;
+  onTimezoneOffsetChange?: (offset: string) => void;
 }
 
 interface TimeOption12h {
@@ -122,6 +124,8 @@ export function DateTimePicker({
     plus7Days: '+7 Days',
   },
   showTimezoneSelector = false,
+  timezoneOffset: controlledTimezoneOffset,
+  onTimezoneOffsetChange,
 }: DateTimePickerProps) {
   const is24Hour = format === 'iso-date-time' || showSeconds;
   // Labels are used in calendarLabels useMemo
@@ -194,14 +198,39 @@ export function DateTimePicker({
   const [timezonePopoverOpen, setTimezonePopoverOpen] = useState(false);
   const [calendarPopoverOpen, setCalendarPopoverOpen] = useState(false);
 
-  // Timezone offset state
-  const [timezoneOffset, setTimezoneOffset] = useState<string>(() => {
-    if (parsedValue) {
-      return parsedValue.format('Z');
+  // Timezone offset state (controlled or uncontrolled)
+  const [internalTimezoneOffset, setInternalTimezoneOffset] = useState<string>(
+    () => {
+      if (controlledTimezoneOffset !== undefined) {
+        return controlledTimezoneOffset;
+      }
+      if (parsedValue) {
+        return parsedValue.format('Z');
+      }
+      // Default to +08:00
+      return '+08:00';
     }
-    // Default to +08:00
-    return '+08:00';
-  });
+  );
+
+  // Use controlled prop if provided, otherwise use internal state
+  const timezoneOffset = controlledTimezoneOffset ?? internalTimezoneOffset;
+
+  // Update internal state when controlled prop changes
+  useEffect(() => {
+    if (controlledTimezoneOffset !== undefined) {
+      setInternalTimezoneOffset(controlledTimezoneOffset);
+    }
+  }, [controlledTimezoneOffset]);
+
+  // Sync timezone offset when value changes (only if uncontrolled)
+  useEffect(() => {
+    if (controlledTimezoneOffset === undefined && parsedValue) {
+      const offsetFromValue = parsedValue.format('Z');
+      if (offsetFromValue !== timezoneOffset) {
+        setInternalTimezoneOffset(offsetFromValue);
+      }
+    }
+  }, [parsedValue, controlledTimezoneOffset, timezoneOffset]);
 
   // Sync timezone offset when value changes
 
@@ -224,6 +253,15 @@ export function DateTimePicker({
     itemToString: (item) => item.label,
     itemToValue: (item) => item.value,
   });
+
+  // Ensure timezoneOffset value is valid (exists in collection)
+  const validTimezoneOffset = useMemo(() => {
+    if (!timezoneOffset) return undefined;
+    const exists = timezoneOffsetOptions.some(
+      (opt) => opt.value === timezoneOffset
+    );
+    return exists ? timezoneOffset : undefined;
+  }, [timezoneOffset, timezoneOffsetOptions]);
 
   // Date input state
   const [dateInputValue, setDateInputValue] = useState('');
@@ -1385,12 +1423,17 @@ export function DateTimePicker({
                       <Select.Root
                         size="sm"
                         collection={timezoneCollection}
-                        value={timezoneOffset ? [timezoneOffset] : []}
+                        value={validTimezoneOffset ? [validTimezoneOffset] : []}
                         onValueChange={(e) => {
                           const newOffset = e.value[0];
                           if (newOffset) {
-                            setTimezoneOffset(newOffset);
-                            // Update date-time with new offset
+                            // Update controlled or internal state
+                            if (onTimezoneOffsetChange) {
+                              onTimezoneOffsetChange(newOffset);
+                            } else {
+                              setInternalTimezoneOffset(newOffset);
+                            }
+                            // Update date-time with new offset (pass it directly to avoid stale state)
                             if (
                               selectedDate &&
                               hour !== null &&
@@ -1401,7 +1444,8 @@ export function DateTimePicker({
                                 hour,
                                 minute,
                                 second,
-                                meridiem
+                                meridiem,
+                                newOffset
                               );
                             }
                             // Close popover after selection
@@ -1443,11 +1487,16 @@ export function DateTimePicker({
                     <Select.Root
                       size="sm"
                       collection={timezoneCollection}
-                      value={timezoneOffset ? [timezoneOffset] : []}
+                      value={validTimezoneOffset ? [validTimezoneOffset] : []}
                       onValueChange={(e) => {
                         const newOffset = e.value[0];
                         if (newOffset) {
-                          setTimezoneOffset(newOffset);
+                          // Update controlled or internal state
+                          if (onTimezoneOffsetChange) {
+                            onTimezoneOffsetChange(newOffset);
+                          } else {
+                            setInternalTimezoneOffset(newOffset);
+                          }
                           // Update date-time with new offset (pass it directly to avoid stale state)
                           if (
                             selectedDate &&

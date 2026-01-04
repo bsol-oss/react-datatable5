@@ -1,11 +1,13 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
-import { Box, Text, VStack } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, Button } from '@chakra-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 import { buildErrorMessages } from '@/components/Form/utils/buildErrorMessages';
+import { useState } from 'react';
+import { DateTimePicker } from '@/components/DatePicker/DateTimePicker';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -153,6 +155,146 @@ export const MultipleDateTimeFields: Story = {
   },
 };
 
+export const WithSchemaHelperButtons: Story = {
+  name: 'With Schema Helper Buttons',
+  render: () => {
+    return (
+      <Provider>
+        <QueryClientProvider client={queryClient}>
+          <SchemaHelperButtonsForm />
+        </QueryClientProvider>
+      </Provider>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Date-time picker with helper buttons (Yesterday, Today, Tomorrow, +7 Days) configured via schema. Click the date button to see the helper buttons.',
+      },
+    },
+  },
+};
+
+export const WithSchemaHelperButtonsAndTimezone: Story = {
+  name: 'With Schema Helper Buttons and Timezone',
+  render: () => {
+    return (
+      <Provider>
+        <QueryClientProvider client={queryClient}>
+          <SchemaHelperButtonsAndTimezoneForm />
+        </QueryClientProvider>
+      </Provider>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Date-time picker with both helper buttons and timezone selector configured via schema.',
+      },
+    },
+  },
+};
+
+// Date-time picker with controlled timezone offset (standalone example)
+const ControlledTimezoneOffsetForm = () => {
+  const [value, setValue] = useState<string>();
+  const [timezoneOffset, setTimezoneOffset] = useState<string>('+08:00');
+
+  return (
+    <VStack gap={6} align="stretch">
+      <Box>
+        <Text fontSize="lg" fontWeight="bold" mb={2}>
+          DateTimePicker with Controlled Timezone Offset
+        </Text>
+        <Text fontSize="sm" color="gray.600" mb={4}>
+          This example demonstrates controlled timezone offset in a standalone
+          DateTimePicker. The timezone offset is managed externally and can be
+          changed via the buttons below. This is useful when you need to
+          synchronize the timezone offset across multiple components or manage
+          it from a parent component.
+        </Text>
+        <HStack gap={2} flexWrap="wrap" mb={4}>
+          <Button
+            size="sm"
+            onClick={() => setTimezoneOffset('+08:00')}
+            colorPalette={timezoneOffset === '+08:00' ? 'blue' : 'gray'}
+          >
+            UTC+08:00
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setTimezoneOffset('+00:00')}
+            colorPalette={timezoneOffset === '+00:00' ? 'blue' : 'gray'}
+          >
+            UTC+00:00
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setTimezoneOffset('-05:00')}
+            colorPalette={timezoneOffset === '-05:00' ? 'blue' : 'gray'}
+          >
+            UTC-05:00
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setTimezoneOffset('+09:00')}
+            colorPalette={timezoneOffset === '+09:00' ? 'blue' : 'gray'}
+          >
+            UTC+09:00
+          </Button>
+        </HStack>
+        <Box p={3} bg="bg.subtle" borderRadius="md" mb={4}>
+          <Text fontSize="sm" fontWeight="semibold">
+            Current Timezone Offset: {timezoneOffset}
+          </Text>
+        </Box>
+      </Box>
+
+      <DateTimePicker
+        value={value}
+        onChange={setValue}
+        showTimezoneSelector={true}
+        timezoneOffset={timezoneOffset}
+        onTimezoneOffsetChange={setTimezoneOffset}
+      />
+
+      {value && (
+        <Box p={3} bg="bg.subtle" borderRadius="md">
+          <Text fontSize="sm" fontWeight="semibold" mb={2}>
+            Selected Value:
+          </Text>
+          <Text fontSize="sm" fontFamily="mono">
+            {value}
+          </Text>
+        </Box>
+      )}
+    </VStack>
+  );
+};
+
+export const WithControlledTimezoneOffset: Story = {
+  name: 'With Controlled Timezone Offset',
+  render: () => {
+    return (
+      <Provider>
+        <QueryClientProvider client={queryClient}>
+          <ControlledTimezoneOffsetForm />
+        </QueryClientProvider>
+      </Provider>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Date-time picker with controlled timezone offset. The timezone offset is managed externally and can be changed programmatically.',
+      },
+    },
+  },
+};
+
 // Basic date-time picker form
 const BasicDateTimeForm = () => {
   const form = useForm({
@@ -172,7 +314,7 @@ const BasicDateTimeForm = () => {
   } as JSONSchema7;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Box>
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Basic Date-Time Picker
@@ -220,7 +362,7 @@ const PreFilledDateTimeForm = () => {
   } as JSONSchema7;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Box>
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Date-Time Picker with Pre-filled Values
@@ -276,7 +418,7 @@ const ValidationDateTimeForm = () => {
   } as JSONSchema7;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Box>
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Date-Time Picker with Validation
@@ -324,7 +466,7 @@ const CustomDateFormatForm = () => {
   } as JSONSchema7;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Box>
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Date-Time Picker with Custom Date Format
@@ -372,7 +514,7 @@ const CustomLabelsForm = () => {
   } as JSONSchema7;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Box>
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Date-Time Picker with Custom Labels
@@ -462,7 +604,7 @@ const MultipleDateTimeFieldsForm = () => {
   } as JSONSchema7;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Box>
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Multiple Date-Time Picker Fields
@@ -479,6 +621,176 @@ const MultipleDateTimeFieldsForm = () => {
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(`Form data: ${JSON.stringify(data, null, 2)}`);
+          },
+          ...form,
+        }}
+      />
+    </VStack>
+  );
+};
+
+// Date-time picker with schema-based helper buttons
+const SchemaHelperButtonsForm = () => {
+  const form = useForm({
+    keyPrefix: 'datetimeHelper',
+    preLoadedValues: {},
+  });
+
+  const schema = {
+    type: 'object',
+    properties: {
+      eventDateTime: {
+        type: 'string',
+        format: 'date-time',
+        title: 'Event Date & Time',
+        dateTimePicker: {
+          showQuickActions: true,
+          quickActionLabels: {
+            yesterday: 'Yesterday',
+            today: 'Today',
+            tomorrow: 'Tomorrow',
+            plus7Days: '+7 Days',
+          },
+          showTimezoneSelector: false,
+        },
+      },
+    },
+  } as JSONSchema7;
+
+  return (
+    <VStack gap={6} align="stretch">
+      <Box>
+        <Text fontSize="lg" fontWeight="bold" mb={2}>
+          Date-Time Picker with Schema Helper Buttons
+        </Text>
+        <Text fontSize="sm" color="gray.600" mb={4}>
+          This example demonstrates how helper buttons can be configured via
+          schema. The schema includes a `dateTimePicker` property with
+          `showQuickActions` and `quickActionLabels` settings. Click the date
+          button to see the helper buttons (Yesterday, Today, Tomorrow, +7
+          Days).
+        </Text>
+        <Box p={3} bg="bg.subtle" borderRadius="md" mb={4}>
+          <Text fontSize="sm" fontWeight="semibold" mb={2}>
+            Schema Configuration:
+          </Text>
+          <Text fontSize="xs" fontFamily="mono" whiteSpace="pre-wrap">
+            {JSON.stringify(
+              {
+                eventDateTime: {
+                  type: 'string',
+                  format: 'date-time',
+                  dateTimePicker: {
+                    showQuickActions: true,
+                    quickActionLabels: {
+                      yesterday: 'Yesterday',
+                      today: 'Today',
+                      tomorrow: 'Tomorrow',
+                      plus7Days: '+7 Days',
+                    },
+                  },
+                },
+              },
+              null,
+              2
+            )}
+          </Text>
+        </Box>
+      </Box>
+
+      <DefaultForm
+        formConfig={{
+          schema: schema as JSONSchema7,
+          onSubmit: (data) => {
+            console.log('Form submitted with data:', data);
+            alert(
+              `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
+            );
+          },
+          ...form,
+        }}
+      />
+    </VStack>
+  );
+};
+
+// Date-time picker with schema-based helper buttons and timezone selector
+const SchemaHelperButtonsAndTimezoneForm = () => {
+  const form = useForm({
+    keyPrefix: 'datetimeHelperTimezone',
+    preLoadedValues: {},
+  });
+
+  const schema = {
+    type: 'object',
+    properties: {
+      eventDateTime: {
+        type: 'string',
+        format: 'date-time',
+        title: 'Event Date & Time',
+        dateTimePicker: {
+          showQuickActions: true,
+          quickActionLabels: {
+            yesterday: 'Yesterday',
+            today: 'Today',
+            tomorrow: 'Tomorrow',
+            plus7Days: '+7 Days',
+          },
+          showTimezoneSelector: true,
+        },
+      },
+    },
+  } as JSONSchema7;
+
+  return (
+    <VStack gap={6} align="stretch">
+      <Box>
+        <Text fontSize="lg" fontWeight="bold" mb={2}>
+          Date-Time Picker with Schema Helper Buttons and Timezone
+        </Text>
+        <Text fontSize="sm" color="gray.600" mb={4}>
+          This example demonstrates both helper buttons and timezone selector
+          configured via schema. The schema includes a `dateTimePicker` property
+          with `showQuickActions`, `quickActionLabels`, and
+          `showTimezoneSelector` settings.
+        </Text>
+        <Box p={3} bg="bg.subtle" borderRadius="md" mb={4}>
+          <Text fontSize="sm" fontWeight="semibold" mb={2}>
+            Schema Configuration:
+          </Text>
+          <Text fontSize="xs" fontFamily="mono" whiteSpace="pre-wrap">
+            {JSON.stringify(
+              {
+                eventDateTime: {
+                  type: 'string',
+                  format: 'date-time',
+                  dateTimePicker: {
+                    showQuickActions: true,
+                    quickActionLabels: {
+                      yesterday: 'Yesterday',
+                      today: 'Today',
+                      tomorrow: 'Tomorrow',
+                      plus7Days: '+7 Days',
+                    },
+                    showTimezoneSelector: true,
+                  },
+                },
+              },
+              null,
+              2
+            )}
+          </Text>
+        </Box>
+      </Box>
+
+      <DefaultForm
+        formConfig={{
+          schema: schema as JSONSchema7,
+          onSubmit: (data) => {
+            console.log('Form submitted with data:', data);
+            alert(
+              `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
+            );
           },
           ...form,
         }}

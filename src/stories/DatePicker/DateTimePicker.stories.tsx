@@ -471,6 +471,129 @@ export const Controlled: Story = {
   },
 };
 
+export const WithSchemaHelperButtons: Story = {
+  name: 'With Schema Helper Buttons',
+  render: () => {
+    const [value, setValue] = useState<string>();
+
+    // Example schema configuration
+    const schemaConfig = {
+      dateTimePicker: {
+        showQuickActions: true,
+        quickActionLabels: {
+          yesterday: 'Yesterday',
+          today: 'Today',
+          tomorrow: 'Tomorrow',
+          plus7Days: '+7 Days',
+        },
+        showTimezoneSelector: false,
+      },
+    };
+
+    return (
+      <Provider>
+        <VStack gap={4} align="stretch" p={4}>
+          <Text fontSize="lg" fontWeight="bold">
+            DateTimePicker with Schema Helper Buttons
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            This example demonstrates how helper buttons can be configured via
+            schema. The schema configuration is shown below, and the
+            DateTimePicker uses these settings to display the quick action
+            buttons.
+          </Text>
+          <Box p={3} bg="bg.subtle" borderRadius="md">
+            <Text fontSize="sm" fontWeight="semibold" mb={2}>
+              Schema Configuration:
+            </Text>
+            <Text fontSize="xs" fontFamily="mono" whiteSpace="pre-wrap">
+              {JSON.stringify(schemaConfig, null, 2)}
+            </Text>
+          </Box>
+          <DateTimePicker
+            value={value}
+            onChange={setValue}
+            showQuickActions={schemaConfig.dateTimePicker.showQuickActions}
+            quickActionLabels={schemaConfig.dateTimePicker.quickActionLabels}
+            showTimezoneSelector={
+              schemaConfig.dateTimePicker.showTimezoneSelector
+            }
+          />
+          {value && (
+            <Box p={2} bg="bg.subtle" borderRadius="md">
+              <Text fontSize="sm">Selected: {value}</Text>
+              <Text fontSize="sm">
+                Formatted: {dayjs(value).format('YYYY-MM-DD HH:mm:ss Z')}
+              </Text>
+            </Box>
+          )}
+        </VStack>
+      </Provider>
+    );
+  },
+};
+
+export const WithSchemaHelperButtonsAndTimezone: Story = {
+  name: 'With Schema Helper Buttons and Timezone',
+  render: () => {
+    const [value, setValue] = useState<string>();
+
+    // Example schema configuration with both helper buttons and timezone
+    const schemaConfig = {
+      dateTimePicker: {
+        showQuickActions: true,
+        quickActionLabels: {
+          yesterday: 'Yesterday',
+          today: 'Today',
+          tomorrow: 'Tomorrow',
+          plus7Days: '+7 Days',
+        },
+        showTimezoneSelector: true,
+      },
+    };
+
+    return (
+      <Provider>
+        <VStack gap={4} align="stretch" p={4}>
+          <Text fontSize="lg" fontWeight="bold">
+            DateTimePicker with Schema Helper Buttons and Timezone
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            This example shows both helper buttons and timezone selector
+            configured via schema. Click the date button to see the helper
+            buttons, and use the timezone selector to change the offset.
+          </Text>
+          <Box p={3} bg="bg.subtle" borderRadius="md">
+            <Text fontSize="sm" fontWeight="semibold" mb={2}>
+              Schema Configuration:
+            </Text>
+            <Text fontSize="xs" fontFamily="mono" whiteSpace="pre-wrap">
+              {JSON.stringify(schemaConfig, null, 2)}
+            </Text>
+          </Box>
+          <DateTimePicker
+            value={value}
+            onChange={setValue}
+            showQuickActions={schemaConfig.dateTimePicker.showQuickActions}
+            quickActionLabels={schemaConfig.dateTimePicker.quickActionLabels}
+            showTimezoneSelector={
+              schemaConfig.dateTimePicker.showTimezoneSelector
+            }
+          />
+          {value && (
+            <Box p={2} bg="bg.subtle" borderRadius="md">
+              <Text fontSize="sm">Selected: {value}</Text>
+              <Text fontSize="sm">
+                Formatted: {dayjs(value).format('YYYY-MM-DD HH:mm:ss Z')}
+              </Text>
+            </Box>
+          )}
+        </VStack>
+      </Provider>
+    );
+  },
+};
+
 export const WithTimezoneSelector: Story = {
   name: 'With Timezone Selector',
   render: () => {
@@ -497,6 +620,87 @@ export const WithTimezoneSelector: Story = {
               <Text fontSize="sm">Selected: {value}</Text>
               <Text fontSize="sm">
                 Parsed: {dayjs(value).format('YYYY-MM-DD HH:mm:ss Z')}
+              </Text>
+            </Box>
+          )}
+        </VStack>
+      </Provider>
+    );
+  },
+};
+
+export const ControlledTimezoneOffset: Story = {
+  name: 'Controlled Timezone Offset',
+  render: () => {
+    const [value, setValue] = useState<string>();
+    const [timezoneOffset, setTimezoneOffset] = useState<string>('+08:00');
+
+    return (
+      <Provider>
+        <VStack gap={4} align="stretch" p={4}>
+          <Text fontSize="lg" fontWeight="bold">
+            DateTimePicker with Controlled Timezone Offset
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            This example demonstrates controlled timezone offset. The timezone
+            offset is managed externally and can be changed via the buttons
+            below. The DateTimePicker will use the controlled offset value.
+          </Text>
+          <HStack gap={2} flexWrap="wrap">
+            <Button
+              size="sm"
+              onClick={() => setTimezoneOffset('+08:00')}
+              colorPalette={timezoneOffset === '+08:00' ? 'blue' : 'gray'}
+            >
+              UTC+08:00
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setTimezoneOffset('+00:00')}
+              colorPalette={timezoneOffset === '+00:00' ? 'blue' : 'gray'}
+            >
+              UTC+00:00
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setTimezoneOffset('-05:00')}
+              colorPalette={timezoneOffset === '-05:00' ? 'blue' : 'gray'}
+            >
+              UTC-05:00
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setTimezoneOffset('+09:00')}
+              colorPalette={timezoneOffset === '+09:00' ? 'blue' : 'gray'}
+            >
+              UTC+09:00
+            </Button>
+          </HStack>
+          <Box p={2} bg="bg.subtle" borderRadius="md">
+            <Text fontSize="sm" fontWeight="semibold">
+              Current Timezone Offset: {timezoneOffset}
+            </Text>
+          </Box>
+          <DateTimePicker
+            value={value}
+            onChange={setValue}
+            showTimezoneSelector={true}
+            timezoneOffset={timezoneOffset}
+            onTimezoneOffsetChange={setTimezoneOffset}
+          />
+          {value && (
+            <Box p={2} bg="bg.subtle" borderRadius="md">
+              <Text fontSize="sm" fontWeight="semibold">
+                Selected Value:
+              </Text>
+              <Text fontSize="sm" fontFamily="mono">
+                {value}
+              </Text>
+              <Text fontSize="sm" fontWeight="semibold" mt={2}>
+                Parsed:
+              </Text>
+              <Text fontSize="sm" fontFamily="mono">
+                {dayjs(value).format('YYYY-MM-DD HH:mm:ss Z')}
               </Text>
             </Box>
           )}
