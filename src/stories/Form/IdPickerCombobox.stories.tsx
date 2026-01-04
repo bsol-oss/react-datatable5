@@ -5,6 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
+import { LoadInitialValuesParams } from '@/components/Form/components/types/CustomJSONSchema7';
 import axios from 'axios';
 import {
   Heading,
@@ -130,12 +131,17 @@ const jsonPlaceholderUserQueryFn = async ({
           transformedUsers.map((user) => [user.id, user])
         );
 
+        // Also add username-based entries for username-based lookups
+        const usernameIdMap = Object.fromEntries(
+          transformedUsers.map((user) => [user.username, user])
+        );
+
         return {
           data: {
             data: transformedUsers,
             count: transformedUsers.length,
           },
-          idMap,
+          idMap: { ...idMap, ...usernameIdMap }, // Merge both id and username keys
         };
       }
     }
@@ -174,9 +180,15 @@ const jsonPlaceholderUserQueryFn = async ({
     // Paginate results
     const paginatedUsers = transformedUsers.slice(offset, offset + limit);
 
-    // Build idMap for selected items
+    // Build idMap for selected items (using id as key)
     const idMap = Object.fromEntries(
       paginatedUsers.map((user) => [user.id, user])
+    );
+
+    // Also add username-based entries for username-based lookups
+    // This allows itemToValue to use username while still maintaining id-based lookups
+    const usernameIdMap = Object.fromEntries(
+      paginatedUsers.map((user) => [user.username, user])
     );
 
     return {
@@ -184,7 +196,7 @@ const jsonPlaceholderUserQueryFn = async ({
         data: paginatedUsers,
         count: transformedUsers.length,
       },
-      idMap,
+      idMap: { ...idMap, ...usernameIdMap }, // Merge both id and username keys
     };
   } catch (error) {
     console.error('Error fetching users from JSONPlaceholder:', error);
@@ -264,8 +276,8 @@ const IdPickerComboboxForm = () => {
           column: 'id',
           customQueryFn: jsonPlaceholderUserQueryFn,
         },
-        renderDisplay: renderUserDisplay, // Custom rendering function
-        loadInitialValues: async (params) => {
+        renderDisplay: renderUserDisplay, // Custom rendering function - used in both dropdown and selected value
+        loadInitialValues: async (params: LoadInitialValuesParams) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -287,7 +299,7 @@ const IdPickerComboboxForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state) => {
+            params.setIdMap((state: Record<string, object>) => {
               return { ...state, ...returnedIdMap };
             });
           }
@@ -295,7 +307,7 @@ const IdPickerComboboxForm = () => {
         }, // Required for id-picker: loads records for human-readable display
       },
 
-      // Multiple selection IdPicker with combobox
+      // Multiple selection IdPicker with combobox (no renderDisplay - shows default)
       team_members: {
         type: 'array',
         variant: 'id-picker',
@@ -307,7 +319,8 @@ const IdPickerComboboxForm = () => {
           column: 'id',
           customQueryFn: jsonPlaceholderUserQueryFn,
         },
-        loadInitialValues: async (params) => {
+        // Note: No renderDisplay - will use default display
+        loadInitialValues: async (params: LoadInitialValuesParams) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -329,12 +342,77 @@ const IdPickerComboboxForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state) => {
+            params.setIdMap((state: Record<string, object>) => {
               return { ...state, ...returnedIdMap };
             });
           }
           return { data, idMap: returnedIdMap || {} };
         }, // Required for id-picker: loads records for human-readable display
+      },
+
+      // Single selection IdPicker with custom itemToValue function
+      // This demonstrates using a custom value extraction (username instead of id)
+      selected_by_username: {
+        type: 'string',
+        variant: 'id-picker',
+        foreign_key: {
+          table: 'users',
+          column: 'id',
+          customQueryFn: jsonPlaceholderUserQueryFn,
+        },
+        renderDisplay: renderUserDisplay,
+        // Custom itemToValue: extract username instead of id
+        // This allows storing/using username as the value instead of the numeric id
+        itemToValue: (item: unknown) => {
+          const user = item as TransformedUser;
+          return user.username; // Use username as the value instead of id
+        },
+        loadInitialValues: async (params: LoadInitialValuesParams) => {
+          if (!params.ids || params.ids.length === 0) {
+            return { data: { data: [], count: 0 }, idMap: {} };
+          }
+          const { customQueryFn } = params.foreign_key;
+          if (!customQueryFn) {
+            throw new Error(
+              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+            );
+          }
+          // Since we're using username as value, we need to find users by username
+          // Fetch all users and filter by username (since JSONPlaceholder doesn't support username filtering)
+          const { data: allData } = await customQueryFn({
+            searching: '',
+            limit: 100,
+            offset: 0,
+          });
+
+          // Filter users by username (params.ids contains usernames)
+          const usernames = Array.isArray(params.ids)
+            ? params.ids
+            : [params.ids];
+          const matchingUsers = allData.data.filter((user: TransformedUser) =>
+            usernames.includes(user.username)
+          );
+
+          // Create idMap using username as key (since that's what we use as value)
+          const usernameIdMap: Record<string, TransformedUser> = {};
+          matchingUsers.forEach((user: TransformedUser) => {
+            usernameIdMap[user.username] = user;
+          });
+
+          if (Object.keys(usernameIdMap).length > 0) {
+            params.setIdMap((state: Record<string, object>) => {
+              return { ...state, ...usernameIdMap };
+            });
+          }
+
+          return {
+            data: {
+              data: matchingUsers,
+              count: matchingUsers.length,
+            },
+            idMap: usernameIdMap,
+          };
+        },
       },
     },
   } as JSONSchema7;
@@ -482,12 +560,13 @@ const IdPickerComboboxForm = () => {
       {/* Custom Display Section */}
       <Box p={6} borderRadius="lg" borderWidth="1px">
         <VStack gap={4} align="stretch">
-          <Heading size="md">Custom Option Display with renderDisplay</Heading>
+          <Heading size="md">Custom Display with renderDisplay</Heading>
           <Text>
-            The single selection IdPicker below uses the{' '}
-            <Code>renderDisplay</Code> property to show rich user information
-            including name, username, email, and company badge in both the
-            dropdown options and the selected value.
+            The <Code>renderDisplay</Code> property allows you to customize how
+            items are displayed in both the dropdown options and the selected
+            value. The single selection IdPicker below uses a custom{' '}
+            <Code>renderDisplay</Code> function to show rich user information
+            including name, username, email, and company badge.
           </Text>
 
           <Alert.Root status="info" borderRadius="md">
@@ -497,17 +576,20 @@ const IdPickerComboboxForm = () => {
               <Alert.Description>
                 <List.Root variant="marker" mt={2}>
                   <List.Item>
-                    The function receives the item object as a parameter
+                    <strong>Function signature:</strong> Receives the item
+                    object as a parameter and returns a ReactNode
                   </List.Item>
                   <List.Item>
-                    Return any ReactNode (JSX, text, components, etc.)
+                    <strong>Used in two places:</strong> Both dropdown options
+                    and the selected value display above the input
                   </List.Item>
                   <List.Item>
-                    Used in both dropdown options and the selected value display
+                    <strong>Flexible output:</strong> Return any ReactNode (JSX,
+                    text, components, etc.)
                   </List.Item>
                   <List.Item>
-                    Perfect for showing multiple fields, badges, or custom
-                    layouts
+                    <strong>Perfect for:</strong> Showing multiple fields,
+                    badges, custom layouts, or formatted data
                   </List.Item>
                 </List.Root>
               </Alert.Description>
@@ -516,19 +598,15 @@ const IdPickerComboboxForm = () => {
 
           <Box>
             <Heading size="sm" mb={2}>
-              Example: Rich User Display
+              Example: Rich User Display Function
             </Heading>
             <Text fontSize="sm" mb={2}>
-              The renderDisplay function shows name, username, email, and
-              company:
+              The <Code>renderDisplay</Code> function receives the full item
+              object and returns a custom React component. This example shows
+              name, username, email, and company badge. The same function is
+              used for both dropdown items and the selected value display:
             </Text>
-            <Box
-              p={4}
-              bg="gray.50"
-              borderRadius="md"
-              borderWidth="1px"
-              borderColor="gray.200"
-            >
+            <Box p={4}>
               <Code
                 colorScheme="gray"
                 p={4}
@@ -536,7 +614,8 @@ const IdPickerComboboxForm = () => {
                 whiteSpace="pre-wrap"
                 fontSize="sm"
               >
-                {`const renderUserDisplay = (item: unknown): ReactNode => {
+                {`// Define the renderDisplay function
+const renderUserDisplay = (item: unknown): ReactNode => {
   const user = item as TransformedUser;
   return (
     <HStack gap={3} align="center">
@@ -559,11 +638,11 @@ const IdPickerComboboxForm = () => {
   );
 };
 
-// In schema:
+// Use it in your schema:
 {
   "type": "string",
   "variant": "id-picker",
-  "renderDisplay": renderUserDisplay, // ← Reference the function
+  "renderDisplay": renderUserDisplay, // ← Add this property
   "foreign_key": {
     "table": "users",
     "column": "id",
@@ -572,6 +651,371 @@ const IdPickerComboboxForm = () => {
 }`}
               </Code>
             </Box>
+          </Box>
+
+          <Alert.Root status="success" borderRadius="md" mt={2}>
+            <Alert.Indicator />
+            <Alert.Content>
+              <Alert.Title>Try It Out:</Alert.Title>
+              <Alert.Description>
+                <VStack gap={2} align="stretch" mt={2}>
+                  <Text>
+                    • Select a user from the "Selected User" field below (has{' '}
+                    <Code>renderDisplay</Code>)
+                  </Text>
+                  <Text>
+                    • Notice the rich display format appears both in the
+                    dropdown options and above the input field
+                  </Text>
+                  <Text>
+                    • Compare with "Team Members" field which doesn't have{' '}
+                    <Code>renderDisplay</Code> - it automatically shows the{' '}
+                    <Code>name</Code> field thanks to intelligent default
+                    display
+                  </Text>
+                  <Text>
+                    • The <Code>renderDisplay</Code> function is applied
+                    consistently in both the dropdown and selected value display
+                  </Text>
+                </VStack>
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
+
+          <Separator mt={4} />
+
+          <Box mt={4}>
+            <Heading size="sm" mb={2}>
+              Comparison: With vs Without renderDisplay
+            </Heading>
+            <VStack gap={3} align="stretch" mt={2}>
+              <Box p={3} borderRadius="md" borderWidth="1px">
+                <Text fontWeight="bold" mb={1}>
+                  With renderDisplay (Selected User field):
+                </Text>
+                <Text fontSize="sm">
+                  Shows rich format: Name, @username, email, and company badge
+                  in a custom layout
+                </Text>
+              </Box>
+              <Box p={3} borderRadius="md" borderWidth="1px">
+                <Text fontWeight="bold" mb={1}>
+                  Without renderDisplay (Team Members field):
+                </Text>
+                <Text fontSize="sm">
+                  Uses intelligent default display: automatically detects the{' '}
+                  <Code>name</Code> field in user objects and displays it (e.g.,
+                  "Leanne Graham", "Ervin Howell"). For objects without common
+                  display fields, falls back to JSON.stringify.
+                </Text>
+              </Box>
+            </VStack>
+          </Box>
+
+          <Separator mt={4} />
+
+          <Box mt={4}>
+            <Heading size="sm" mb={2}>
+              Custom Value Extraction with itemToValue
+            </Heading>
+            <Text fontSize="sm" mb={3}>
+              The <Code>itemToValue</Code> property allows you to customize how
+              the value is extracted from an item object. By default, it uses
+              the foreign key column (e.g., <Code>id</Code>), but you can
+              provide a custom function to extract any field or compute a custom
+              value.
+            </Text>
+
+            <Alert.Root status="info" borderRadius="md" mt={3}>
+              <Alert.Indicator />
+              <Alert.Content>
+                <Alert.Title>When to Use itemToValue:</Alert.Title>
+                <Alert.Description>
+                  <List.Root variant="marker" mt={2}>
+                    <List.Item>
+                      <strong>Different value field:</strong> Store/use a
+                      different field than the foreign key (e.g., username
+                      instead of id)
+                    </List.Item>
+                    <List.Item>
+                      <strong>Computed values:</strong> Generate a custom value
+                      from multiple fields (e.g., full name from first + last
+                      name)
+                    </List.Item>
+                    <List.Item>
+                      <strong>Formatted values:</strong> Apply formatting or
+                      transformation to the value (e.g., uppercase,
+                      prefix/suffix)
+                    </List.Item>
+                    <List.Item>
+                      <strong>Composite keys:</strong> Create composite
+                      identifiers from multiple fields
+                    </List.Item>
+                  </List.Root>
+                </Alert.Description>
+              </Alert.Content>
+            </Alert.Root>
+
+            <Box p={4} borderRadius="md" borderWidth="1px" mt={3}>
+              <Code
+                colorScheme="gray"
+                p={4}
+                display="block"
+                whiteSpace="pre-wrap"
+                fontSize="xs"
+              >
+                {`// Example: Extract username instead of id
+{
+  "type": "string",
+  "variant": "id-picker",
+  "foreign_key": {
+    "table": "users",
+    "column": "id",
+    "customQueryFn": jsonPlaceholderUserQueryFn
+  },
+  "itemToValue": (item) => {
+    const user = item as TransformedUser;
+    return user.username; // Use username as value instead of id
+  }
+}
+
+// Example: Composite value from multiple fields
+{
+  "itemToValue": (item) => {
+    return \`\${item.firstName}-\${item.lastName}\`;
+  }
+}
+
+// Example: Formatted value
+{
+  "itemToValue": (item) => {
+    return item.email.toUpperCase();
+  }
+}`}
+              </Code>
+            </Box>
+
+            <Alert.Root status="success" borderRadius="md" mt={3}>
+              <Alert.Indicator />
+              <Alert.Content>
+                <Alert.Title>Try It Out:</Alert.Title>
+                <Alert.Description>
+                  <VStack gap={2} align="stretch" mt={2}>
+                    <Text>
+                      • Select a user from the "Selected by Username" field
+                      below
+                    </Text>
+                    <Text>
+                      • Notice that the stored value is the username (e.g.,
+                      "Bret", "Antonette") instead of the numeric id
+                    </Text>
+                    <Text>
+                      • The <Code>itemToValue</Code> function extracts the
+                      username field from the selected item
+                    </Text>
+                    <Text>
+                      • This is useful when you want to store/use a different
+                      identifier than the primary key
+                    </Text>
+                  </VStack>
+                </Alert.Description>
+              </Alert.Content>
+            </Alert.Root>
+          </Box>
+
+          <Separator mt={4} />
+
+          <Box mt={4}>
+            <Heading size="sm" mb={2}>
+              Readable String Display with itemToString
+            </Heading>
+            <Text fontSize="sm" mb={3}>
+              The <Code>itemToString</Code> function is automatically provided
+              by the IdPicker hook and ensures that items can always be
+              converted to readable string representations. This is essential
+              for the Chakra UI v3 combobox to display selected values properly.
+            </Text>
+
+            <Alert.Root status="info" borderRadius="md" mt={3}>
+              <Alert.Indicator />
+              <Alert.Content>
+                <Alert.Title>How itemToString Works:</Alert.Title>
+                <Alert.Description>
+                  <List.Root variant="marker" mt={2}>
+                    <List.Item>
+                      <strong>Automatic conversion:</strong> Uses{' '}
+                      <Code>renderDisplay</Code> function (or{' '}
+                      <Code>defaultRenderDisplay</Code> as fallback) to convert
+                      items to strings
+                    </List.Item>
+                    <List.Item>
+                      <strong>String/Number handling:</strong> Directly returns
+                      string or number values
+                    </List.Item>
+                    <List.Item>
+                      <strong>ReactNode handling:</strong> For ReactNode values,
+                      falls back to
+                      <Code>defaultRenderDisplay</Code> to ensure a string
+                      representation
+                    </List.Item>
+                    <List.Item>
+                      <strong>Combobox integration:</strong> Used internally by
+                      the combobox collection to display selected values in the
+                      input field
+                    </List.Item>
+                  </List.Root>
+                </Alert.Description>
+              </Alert.Content>
+            </Alert.Root>
+
+            <Box p={4} borderRadius="md" borderWidth="1px" mt={3}>
+              <Code
+                colorScheme="gray"
+                p={4}
+                display="block"
+                whiteSpace="pre-wrap"
+                fontSize="xs"
+              >
+                {`// itemToString is automatically provided by useIdPickerData hook
+// It ensures currentValue can always be displayed as a readable string
+
+// Example: Using itemToString in your component
+const { itemToString } = useIdPickerData({ ... });
+
+// Convert any item to a readable string
+const readableString = itemToString(selectedItem);
+// Returns: "Leanne Graham" (if renderDisplay returns string)
+// Returns: "{\\"id\\":1,\\"name\\":\\"Leanne Graham\\"}" (if ReactNode, uses defaultRenderDisplay)
+
+// The combobox automatically uses itemToString via the collection's itemToString:
+const { collection } = useListCollection({
+  itemToString: (item) => item.displayLabel, // Uses itemToString internally
+  // ...
+});`}
+              </Code>
+            </Box>
+
+            <Alert.Root status="success" borderRadius="md" mt={3}>
+              <Alert.Indicator />
+              <Alert.Content>
+                <Alert.Title>Key Benefits:</Alert.Title>
+                <Alert.Description>
+                  <VStack gap={2} align="stretch" mt={2}>
+                    <Text>
+                      • <strong>Always readable:</strong> Ensures selected
+                      values are always displayed as readable strings in the
+                      combobox input
+                    </Text>
+                    <Text>
+                      • <strong>Automatic fallback:</strong> Handles ReactNode
+                      values gracefully by falling back to defaultRenderDisplay
+                    </Text>
+                    <Text>
+                      • <strong>Consistent display:</strong> Works seamlessly
+                      with both custom
+                      <Code>renderDisplay</Code> functions and default display
+                      logic
+                    </Text>
+                    <Text>
+                      • <strong>Chakra v3 compatible:</strong> Required for
+                      proper combobox functionality in Chakra UI v3
+                    </Text>
+                  </VStack>
+                </Alert.Description>
+              </Alert.Content>
+            </Alert.Root>
+          </Box>
+
+          <Separator mt={4} />
+
+          <Box mt={4}>
+            <Heading size="sm" mb={2}>
+              Intelligent Default Display
+            </Heading>
+            <Text fontSize="sm" mb={3}>
+              When no custom <Code>renderDisplay</Code> is provided, the default
+              function intelligently handles objects by checking for common
+              display fields:
+            </Text>
+            <VStack gap={2} align="stretch" mt={2}>
+              <HStack gap={2}>
+                <Badge colorPalette="blue">1.</Badge>
+                <Text fontSize="sm">
+                  Checks if item is an object (not array, not primitive)
+                </Text>
+              </HStack>
+              <HStack gap={2}>
+                <Badge colorPalette="blue">2.</Badge>
+                <Text fontSize="sm">
+                  Looks for display fields in order: <Code>name</Code>,{' '}
+                  <Code>title</Code>, <Code>label</Code>,{' '}
+                  <Code>displayName</Code>, <Code>display_name</Code>,{' '}
+                  <Code>text</Code>, <Code>value</Code>
+                </Text>
+              </HStack>
+              <HStack gap={2}>
+                <Badge colorPalette="blue">3.</Badge>
+                <Text fontSize="sm">
+                  Returns the first found field value (if string or number)
+                </Text>
+              </HStack>
+              <HStack gap={2}>
+                <Badge colorPalette="blue">4.</Badge>
+                <Text fontSize="sm">
+                  Falls back to <Code>JSON.stringify</Code> if no display field
+                  found or item is not an object
+                </Text>
+              </HStack>
+            </VStack>
+
+            <Box p={4} borderRadius="md" borderWidth="1px" mt={3}>
+              <Code
+                colorScheme="gray"
+                p={4}
+                display="block"
+                whiteSpace="pre-wrap"
+                fontSize="xs"
+              >
+                {`// Example: Object with 'name' field
+const user = { id: '1', name: 'John Doe', email: 'john@example.com' };
+// defaultRenderDisplay(user) → "John Doe" ✅
+
+// Example: Object with 'title' field
+const post = { id: '2', title: 'My Blog Post', content: '...' };
+// defaultRenderDisplay(post) → "My Blog Post" ✅
+
+// Example: Object without common fields
+const data = { id: '3', x: 1, y: 2 };
+// defaultRenderDisplay(data) → '{"id":"3","x":1,"y":2}' (JSON.stringify)
+
+// Example: Primitive value
+// defaultRenderDisplay("hello") → '"hello"' (JSON.stringify)`}
+              </Code>
+            </Box>
+
+            <Alert.Root status="info" borderRadius="md" mt={3}>
+              <Alert.Indicator />
+              <Alert.Content>
+                <Alert.Title>Benefits:</Alert.Title>
+                <Alert.Description>
+                  <VStack gap={1} align="stretch" mt={2}>
+                    <Text fontSize="sm">
+                      • Objects with common fields (name, title, label) display
+                      automatically without needing custom{' '}
+                      <Code>renderDisplay</Code>
+                    </Text>
+                    <Text fontSize="sm">
+                      • More readable default display for typical data
+                      structures
+                    </Text>
+                    <Text fontSize="sm">
+                      • Still works for primitives and complex objects via
+                      JSON.stringify fallback
+                    </Text>
+                  </VStack>
+                </Alert.Description>
+              </Alert.Content>
+            </Alert.Root>
           </Box>
         </VStack>
       </Box>
@@ -584,7 +1028,13 @@ const IdPickerComboboxForm = () => {
             Try selecting users from the JSONPlaceholder API. Notice the
             real-time search, loading states, smooth interactions, and the
             custom display format showing name, username, email, and company
-            badge.
+            badge. The <Code>renderDisplay</Code> function is used in both the
+            dropdown options and the selected value display above the input.
+          </Text>
+          <Text fontSize="sm" color="fg.muted" mt={2}>
+            <strong>Note:</strong> The "Selected by Username" field demonstrates
+            the <Code>itemToValue</Code> feature, storing username instead of id
+            as the value.
           </Text>
           <Alert.Root status="info" borderRadius="md">
             <Alert.Indicator />
@@ -605,7 +1055,7 @@ const IdPickerComboboxForm = () => {
                 console.log('Form submitted with data:', data);
                 setSubmittedData(data);
                 alert(
-                  `Form submitted successfully!\n\nSelected User: ${data.selected_user}\nTeam Members: ${JSON.stringify(data.team_members)}`
+                  `Form submitted successfully!\n\nSelected User (ID): ${data.selected_user}\nSelected by Username: ${data.selected_by_username}\nTeam Members: ${JSON.stringify(data.team_members)}`
                 );
               },
               ...form,
@@ -704,13 +1154,18 @@ const IdPickerComboboxForm = () => {
                 fontSize="xs"
               >
                 {`{
-  "type": "string",        // or "array" for multiple
-  "variant": "id-picker",
-  "foreign_key": {
-    "table": "users",
-    "column": "id",
-    "customQueryFn": jsonPlaceholderUserQueryFn
-  }
+    "type": "string",        // or "array" for multiple
+    "variant": "id-picker",
+    "foreign_key": {
+      "table": "users",
+      "column": "id",
+      "customQueryFn": jsonPlaceholderUserQueryFn
+    },
+    "renderDisplay": renderUserDisplay,  // Optional: custom display
+    "itemToValue": (item) => item.username,  // Optional: custom value extraction
+    // itemToString is automatically provided by useIdPickerData hook
+    // It ensures items can always be converted to readable strings
+    "loadInitialValues": async (params) => { /* ... */ }  // Required for id-picker
 }`}
               </Code>
             </Box>
@@ -777,6 +1232,23 @@ const IdPickerComboboxForm = () => {
               <Text fontSize="sm">
                 Uses Chakra UI's <Code>useListCollection</Code> hook for
                 efficient filtering and item management.
+              </Text>
+            </Box>
+
+            <Separator />
+
+            <Box>
+              <Text fontWeight="bold">itemToString Function</Text>
+              <Text fontSize="sm">
+                The <Code>itemToString</Code> function is automatically provided
+                by
+                <Code>useIdPickerData</Code> hook. It ensures that items can
+                always be converted to readable string representations, which is
+                essential for Chakra UI v3 combobox to display selected values
+                properly. It uses
+                <Code>renderDisplay</Code> (or <Code>defaultRenderDisplay</Code>{' '}
+                as fallback) and handles strings, numbers, and ReactNodes
+                gracefully.
               </Text>
             </Box>
           </VStack>

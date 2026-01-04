@@ -27,12 +27,7 @@ export const IdPickerMultiple = ({
   prefix,
 }: IdPickerMultipleProps) => {
   const formI18n = useFormI18n(column, prefix, schema);
-  const {
-    required,
-    gridColumn = 'span 12',
-    gridRow = 'span 1',
-    renderDisplay,
-  } = schema;
+  const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
 
   const {
@@ -72,8 +67,8 @@ export const IdPickerMultiple = ({
     setValue(colLabel, details.value);
   };
 
-  const renderDisplayFunction =
-    renderDisplayFn || renderDisplay || defaultRenderDisplay;
+  // Use renderDisplay from hook (which comes from schema) or fallback to default
+  const renderDisplayFunction = renderDisplayFn || defaultRenderDisplay;
 
   return (
     <Field
@@ -203,11 +198,7 @@ export const IdPickerMultiple = ({
                         key={item.value ?? `item-${index}`}
                         item={item}
                       >
-                        <Combobox.ItemText>
-                          {!!renderDisplayFunction === true
-                            ? renderDisplayFunction(item.raw)
-                            : item.label}
-                        </Combobox.ItemText>
+                        {renderDisplayFunction(item.raw)}
                         <Combobox.ItemIndicator />
                       </Combobox.Item>
                     )
@@ -256,11 +247,7 @@ export const IdPickerMultiple = ({
                           key={item.value ?? `item-${index}`}
                           item={item}
                         >
-                          <Combobox.ItemText>
-                            {!!renderDisplayFunction === true
-                              ? renderDisplayFunction(item.raw)
-                              : item.label}
-                          </Combobox.ItemText>
+                          {renderDisplayFunction(item.raw)}
                           <Combobox.ItemIndicator />
                         </Combobox.Item>
                       )

@@ -1,18 +1,23 @@
 import {
+  Box,
+  Button,
   Combobox,
   Flex,
+  HStack,
   Icon,
   Portal,
+  Show,
   Skeleton,
   Spinner,
   Text,
+  useCombobox,
 } from '@chakra-ui/react';
 import { useFormI18n } from '../../utils/useFormI18n';
 import { Field } from '../../../ui/field';
 import { useIdPickerData, RecordType } from './useIdPickerData';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { defaultRenderDisplay } from '../types/CustomJSONSchema7';
-import { BiError } from 'react-icons/bi';
+import { BiError, BiX } from 'react-icons/bi';
 
 export interface IdPickerSingleProps {
   column: string;
@@ -26,12 +31,7 @@ export const IdPickerSingle = ({
   prefix,
 }: IdPickerSingleProps) => {
   const formI18n = useFormI18n(column, prefix, schema);
-  const {
-    required,
-    gridColumn = 'span 12',
-    gridRow = 'span 1',
-    renderDisplay,
-  } = schema;
+  const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
 
   const {
@@ -44,14 +44,14 @@ export const IdPickerSingle = ({
     isPending,
     isError,
     isSearching,
-    isLoadingInitialValues,
-    isFetchingInitialValues,
-    missingIds,
     collection,
+    filter,
     idMap,
     idPickerLabels,
     insideDialog,
     renderDisplay: renderDisplayFn,
+    itemToValue,
+    itemToString,
     errors,
     setValue,
   } = useIdPickerData({
@@ -61,18 +61,47 @@ export const IdPickerSingle = ({
     isMultiple: false,
   });
 
-  const handleInputValueChange = (
-    details: Combobox.InputValueChangeDetails
-  ) => {
-    setSearchText(details.inputValue);
-  };
+  // Get the selected value for single selection display
+  const selectedId = currentValue.length > 0 ? currentValue[0] : null;
+  const selectedItem = selectedId
+    ? (idMap[selectedId] as RecordType | undefined)
+    : undefined;
 
-  const handleValueChange = (details: Combobox.ValueChangeDetails) => {
-    setValue(colLabel, details.value[0] || '');
-  };
+  // Use itemToValue to get the combobox value from the selected item, or use the ID directly
+  const comboboxValue = selectedItem
+    ? itemToString(selectedItem)
+    : selectedId || '';
 
-  const renderDisplayFunction =
-    renderDisplayFn || renderDisplay || defaultRenderDisplay;
+  // itemToString is available from the hook and can be used to get a readable string
+  // representation of any item. The collection's itemToString is automatically used
+  // by the combobox to display selected values.
+
+  // Use useCombobox hook to control input value
+  const combobox = useCombobox({
+    collection,
+    value: [comboboxValue],
+    onInputValueChange(e) {
+      setSearchText(e.inputValue);
+      filter(e.inputValue);
+    },
+    onValueChange(e) {
+      setValue(colLabel, e.value[0] || '');
+      // Clear the input value after selection
+      setSearchText('');
+    },
+    multiple: false,
+    closeOnSelect: true,
+    openOnClick: true,
+    invalid: !!errors[colLabel],
+  });
+
+  // Use renderDisplay from hook (which comes from schema) or fallback to default
+  const renderDisplayFunction = renderDisplayFn || defaultRenderDisplay;
+
+  // Get the selected value for single selection display (already computed above)
+  const selectedRendered = selectedItem
+    ? renderDisplayFunction(selectedItem)
+    : null;
 
   return (
     <Field
@@ -86,71 +115,43 @@ export const IdPickerSingle = ({
       errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
       invalid={!!errors[colLabel]}
     >
-      {/* Single Picker - Show selected value using renderDisplay */}
-      {currentValue.length > 0 && (
-        <Flex mb={2}>
-          {(() => {
-            const id = currentValue[0];
-            const item = idMap[id] as RecordType | undefined;
-            // Show loading skeleton while fetching initial values
-            if (
-              item === undefined &&
-              (isLoadingInitialValues || isFetchingInitialValues) &&
-              missingIds.includes(id)
-            ) {
-              return <Skeleton height="24px" width="100px" borderRadius="md" />;
-            }
-            // Only show "not found" if we're not loading and item is still missing
-            if (item === undefined) {
-              return (
-                <Text fontSize="sm">
-                  {idPickerLabels?.undefined ?? 'Undefined'}
-                </Text>
-              );
-            }
-            return <Text fontSize="sm">{renderDisplayFunction(item)}</Text>;
-          })()}
-        </Flex>
-      )}
-
-      <Combobox.Root
-        collection={collection}
-        value={currentValue}
-        onValueChange={handleValueChange}
-        onInputValueChange={handleInputValueChange}
-        multiple={false}
-        closeOnSelect={true}
-        openOnClick
-        invalid={!!errors[colLabel]}
-        width="100%"
-        positioning={
-          insideDialog
-            ? { strategy: 'fixed', hideWhenDetached: true }
-            : undefined
-        }
-      >
-        <Combobox.Control>
-          <Combobox.Input
-            placeholder={idPickerLabels?.typeToSearch ?? 'Type to search'}
-          />
-          <Combobox.IndicatorGroup>
-            {(isFetching || isLoading || isPending) && <Spinner size="xs" />}
-            {isError && (
-              <Icon color="fg.error">
-                <BiError />
-              </Icon>
-            )}
+      <Combobox.RootProvider value={combobox} width="100%">
+        <Show when={selectedId && selectedRendered}>
+          <HStack justifyContent={'space-between'}>
+            <Box>{selectedRendered}</Box>
             {currentValue.length > 0 && (
-              <Combobox.ClearTrigger
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => {
                   setValue(colLabel, '');
                 }}
-              />
+              >
+                <Icon>
+                  <BiX />
+                </Icon>
+              </Button>
             )}
-            <Combobox.Trigger />
-          </Combobox.IndicatorGroup>
-        </Combobox.Control>
+          </HStack>
+        </Show>
+        <Show when={!selectedId || !selectedRendered}>
+          <Combobox.Control position="relative">
+            {/* For single selection: render ReactNode directly in input when value is selected */}
 
+            <Combobox.Input
+              placeholder={idPickerLabels?.typeToSearch ?? 'Type to search'}
+            />
+            <Combobox.IndicatorGroup>
+              {(isFetching || isLoading || isPending) && <Spinner size="xs" />}
+              {isError && (
+                <Icon color="fg.error">
+                  <BiError />
+                </Icon>
+              )}
+              <Combobox.Trigger />
+            </Combobox.IndicatorGroup>
+          </Combobox.Control>
+        </Show>
         {insideDialog ? (
           <Combobox.Positioner>
             <Combobox.Content>
@@ -183,18 +184,19 @@ export const IdPickerSingle = ({
                 <>
                   {collection.items.map(
                     (
-                      item: { label: string; value: string; raw: RecordType },
+                      item: {
+                        label: string;
+                        displayLabel: string;
+                        value: string;
+                        raw: RecordType;
+                      },
                       index: number
                     ) => (
                       <Combobox.Item
                         key={item.value ?? `item-${index}`}
                         item={item}
                       >
-                        <Combobox.ItemText>
-                          {!!renderDisplayFunction === true
-                            ? renderDisplayFunction(item.raw)
-                            : item.label}
-                        </Combobox.ItemText>
+                        {renderDisplayFunction(item.raw)}
                         <Combobox.ItemIndicator />
                       </Combobox.Item>
                     )
@@ -243,12 +245,7 @@ export const IdPickerSingle = ({
                           key={item.value ?? `item-${index}`}
                           item={item}
                         >
-                          <Combobox.ItemText>
-                            {!!renderDisplayFunction === true
-                              ? renderDisplayFunction(item.raw)
-                              : item.label}
-                          </Combobox.ItemText>
-                          <Combobox.ItemIndicator />
+                          {renderDisplayFunction(item.raw)}
                         </Combobox.Item>
                       )
                     )}
@@ -258,7 +255,7 @@ export const IdPickerSingle = ({
             </Combobox.Positioner>
           </Portal>
         )}
-      </Combobox.Root>
+      </Combobox.RootProvider>
     </Field>
   );
 };

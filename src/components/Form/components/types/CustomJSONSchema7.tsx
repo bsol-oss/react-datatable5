@@ -85,6 +85,7 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
   foreign_key?: ForeignKeyProps;
   variant?: string;
   renderDisplay?: (item: unknown) => ReactNode;
+  itemToValue?: (item: unknown) => string;
   loadInitialValues?: (
     params: LoadInitialValuesParams
   ) => Promise<LoadInitialValuesResult>;
@@ -123,8 +124,45 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
   };
 }
 
-// Default renderDisplay function that stringifies JSON
+// Default renderDisplay function that intelligently displays items
+// If item is an object, tries to find common display fields (name, title, label, etc.)
+// Otherwise falls back to JSON.stringify
 export const defaultRenderDisplay = (item: unknown): ReactNode => {
+  // Check if item is an object (not null, not array, not primitive)
+  if (
+    item !== null &&
+    typeof item === 'object' &&
+    !Array.isArray(item) &&
+    !(item instanceof Date)
+  ) {
+    const obj = item as Record<string, unknown>;
+
+    // Try common display fields in order of preference
+    const displayFields = [
+      'name',
+      'title',
+      'label',
+      'displayName',
+      'display_name',
+      'text',
+      'value',
+    ];
+
+    for (const field of displayFields) {
+      if (obj[field] !== undefined && obj[field] !== null) {
+        const value = obj[field];
+        // Return the value if it's a string or number, otherwise stringify it
+        if (typeof value === 'string' || typeof value === 'number') {
+          return String(value);
+        }
+      }
+    }
+
+    // If no display field found, fall back to JSON.stringify
+    return JSON.stringify(item);
+  }
+
+  // For non-objects (primitives, arrays, dates), use JSON.stringify
   return JSON.stringify(item);
 };
 export interface TagPickerProps {

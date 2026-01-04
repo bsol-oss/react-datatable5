@@ -1,6 +1,7 @@
 import { useFilter, useListCollection } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 import { ForeignKeyProps } from './StringInputField';
@@ -45,18 +46,26 @@ export interface UseIdPickerDataReturn {
   missingIds: string[];
   comboboxItems: Array<{
     label: string;
+    displayLabel: string;
     value: string;
     raw: RecordType;
   }>;
   collection: any;
   filter: (text: string) => void;
   set: (
-    items: Array<{ label: string; value: string; raw: RecordType }>
+    items: Array<{
+      label: string;
+      displayLabel: string;
+      value: string;
+      raw: RecordType;
+    }>
   ) => void;
   idMap: Record<string, object>;
   idPickerLabels: any;
   insideDialog: boolean;
   renderDisplay: ((item: RecordType) => React.ReactNode) | undefined;
+  itemToValue: (item: RecordType) => string;
+  itemToString: (item: RecordType) => string;
   loadInitialValues: (
     params: LoadInitialValuesParams
   ) => Promise<LoadInitialValuesResult>;
@@ -78,7 +87,13 @@ export const useIdPickerData = ({
     setValue,
   } = useFormContext();
   const { idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
-  const { renderDisplay, loadInitialValues, foreign_key, variant } = schema;
+  const {
+    renderDisplay,
+    itemToValue: schemaItemToValue,
+    loadInitialValues,
+    foreign_key,
+    variant,
+  } = schema;
 
   // loadInitialValues should be provided in schema for id-picker fields
   // It's used to load the record of the id so the display is human-readable
@@ -253,17 +268,56 @@ export const useIdPickerData = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentValueKey, idMapKey]);
 
+  // Default itemToValue function: extract value from item using column_ref
+  const defaultItemToValue = (item: RecordType) => String(item[column_ref]);
+
+  // Use schema's itemToValue if provided, otherwise use default
+  const itemToValueFn = schemaItemToValue
+    ? (item: RecordType) => schemaItemToValue(item)
+    : defaultItemToValue;
+
+  // itemToString function: convert item to readable string using renderDisplay
+  // This ensures items can always be displayed as readable strings in the combobox
+  const renderFn = renderDisplay || defaultRenderDisplay;
+  const itemToStringFn = (item: RecordType): string => {
+    const rendered = renderFn(item);
+    // If already a string or number, return it
+    if (typeof rendered === 'string') return rendered;
+    if (typeof rendered === 'number') return String(rendered);
+    // For ReactNode, fall back to defaultRenderDisplay which converts to string
+    return String(defaultRenderDisplay(item));
+  };
+
   // Transform data for combobox collection
   // label is used for filtering/searching (must be a string)
+  // displayLabel is used for input display when selected (string representation of rendered display)
   // raw item is stored for custom rendering
   // Also include items from idMap that match currentValue (for initial values display)
   const comboboxItems = useMemo(() => {
     const renderFn = renderDisplay || defaultRenderDisplay;
+
+    // Helper to convert rendered display to string for displayLabel
+    // For ReactNodes (non-string/number), we can't safely stringify due to circular refs
+    // So we use the label (which is already a string) as fallback
+    const getDisplayString = (
+      rendered: ReactNode,
+      fallbackLabel: string
+    ): string => {
+      if (typeof rendered === 'string') return rendered;
+      if (typeof rendered === 'number') return String(rendered);
+      // For ReactNode, use the fallback label (which is already a string representation)
+      // The actual ReactNode will be rendered in the overlay, not in the input
+      return fallbackLabel;
+    };
+
     const itemsFromDataList = dataList.map((item: RecordType) => {
       const rendered = renderFn(item);
+      const label =
+        typeof rendered === 'string' ? rendered : JSON.stringify(item); // Use string for filtering
       return {
-        label: typeof rendered === 'string' ? rendered : JSON.stringify(item), // Use string for filtering
-        value: String(item[column_ref]),
+        label, // Use string for filtering
+        displayLabel: getDisplayString(rendered, label), // String representation for input display
+        value: itemToValueFn(item),
         raw: item,
       };
     });
@@ -275,34 +329,52 @@ export const useIdPickerData = ({
         // Check if this item is already in itemsFromDataList
         const alreadyIncluded = itemsFromDataList.some(
           (i: { label: string; value: string; raw: RecordType }) =>
-            i.value === String(item[column_ref])
+            i.value === itemToValueFn(item)
         );
         if (alreadyIncluded) return null;
         const rendered = renderFn(item);
+        const label =
+          typeof rendered === 'string' ? rendered : JSON.stringify(item);
         return {
-          label: typeof rendered === 'string' ? rendered : JSON.stringify(item),
-          value: String(item[column_ref]),
+          label,
+          displayLabel: getDisplayString(rendered, label), // String representation for input display
+          value: itemToValueFn(item),
           raw: item,
         };
       })
       .filter(
-        (item): item is { label: string; value: string; raw: RecordType } =>
-          item !== null
+        (
+          item
+        ): item is {
+          label: string;
+          displayLabel: string;
+          value: string;
+          raw: RecordType;
+        } => item !== null
       );
 
     return [...itemsFromIdMap, ...itemsFromDataList];
-  }, [dataList, column_ref, renderDisplay, idMapItems]);
+  }, [dataList, column_ref, renderDisplay, idMapItems, itemToValueFn]);
 
   // Use filter hook for combobox
   const { contains } = useFilter({ sensitivity: 'base' });
 
   // Create collection for combobox
+  // itemToString uses displayLabel to show rendered display in input when selected
   const { collection, filter, set } = useListCollection({
     initialItems: comboboxItems,
-    itemToString: (item: { label: string; value: string; raw: RecordType }) =>
-      item.label,
-    itemToValue: (item: { label: string; value: string; raw: RecordType }) =>
-      item.value,
+    itemToString: (item: {
+      label: string;
+      displayLabel: string;
+      value: string;
+      raw: RecordType;
+    }) => item.displayLabel, // Use displayLabel for selected value display
+    itemToValue: (item: {
+      label: string;
+      displayLabel: string;
+      value: string;
+      raw: RecordType;
+    }) => item.value,
     filter: contains,
   });
 
@@ -364,6 +436,8 @@ export const useIdPickerData = ({
     idPickerLabels,
     insideDialog: insideDialog ?? false,
     renderDisplay,
+    itemToValue: itemToValueFn,
+    itemToString: itemToStringFn,
     loadInitialValues:
       loadInitialValues ??
       (async () => ({ data: { data: [], count: 0 }, idMap: {} })), // Fallback if not provided
