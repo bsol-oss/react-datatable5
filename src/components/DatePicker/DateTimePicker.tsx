@@ -981,6 +981,8 @@ export function DateTimePicker({
         // Clear the filter and input value after applying
         filter('');
         setTimeInputValue('');
+        // Close the popover if value is valid
+        setTimePopoverOpen(false);
       }
     }
   };
