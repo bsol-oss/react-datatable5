@@ -5089,13 +5089,42 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
     const dataList = schema.enum ?? [];
-    // Helper function to render enum value
+    // Helper function to render enum value (returns ReactNode)
     // If renderDisplay is provided, use it; otherwise show the enum string value directly
     const renderEnumValue = (value) => {
         if (renderDisplay) {
             return renderDisplay(value);
         }
         // If no renderDisplay provided, show the enum string value directly
+        return value;
+    };
+    // Helper function to get string representation for input display
+    // Converts ReactNode to string for combobox input display
+    const getDisplayString = (value) => {
+        if (renderDisplay) {
+            const rendered = renderDisplay(value);
+            // If renderDisplay returns a string, use it directly
+            if (typeof rendered === 'string') {
+                return rendered;
+            }
+            // If it's a React element, try to extract text content
+            // For now, fallback to the raw value if we can't extract text
+            // In most cases, renderDisplay should return a string or simple element
+            if (typeof rendered === 'object' &&
+                rendered !== null &&
+                'props' in rendered) {
+                const props = rendered.props;
+                // Try to extract text from React element props
+                if (props?.children) {
+                    const children = props.children;
+                    if (typeof children === 'string') {
+                        return children;
+                    }
+                }
+            }
+            // Fallback: use raw value if we can't extract string
+            return value;
+        }
         return value;
     };
     // Debug log when renderDisplay is missing
@@ -5113,19 +5142,29 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
         : watchEnum
             ? [watchEnum]
             : [];
+    // Track input focus state for single selection
+    const [isInputFocused, setIsInputFocused] = React.useState(false);
+    // Get the selected value for single selection display
+    const selectedSingleValue = !isMultiple && watchEnum ? watchEnum : null;
+    const selectedSingleRendered = selectedSingleValue
+        ? renderEnumValue(selectedSingleValue)
+        : null;
+    const isSelectedSingleValueString = typeof selectedSingleRendered === 'string';
     const comboboxItems = React.useMemo(() => {
         return dataList.map((item) => ({
             label: item, // Internal: used for search/filtering only
             value: item,
             raw: item, // Passed to renderEnumValue for UI rendering
+            displayLabel: getDisplayString(item), // Used for input display when selected
         }));
-    }, [dataList]);
+    }, [dataList, renderDisplay]);
     // Use filter hook for combobox
     const { contains } = react.useFilter({ sensitivity: 'base' });
     // Create collection for combobox
+    // itemToString uses displayLabel to show rendered display in input when selected
     const { collection, filter } = react.useListCollection({
         initialItems: comboboxItems,
-        itemToString: (item) => item.label,
+        itemToString: (item) => item.displayLabel, // Use displayLabel for selected value display
         itemToValue: (item) => item.value,
         filter: contains,
     });
@@ -5163,7 +5202,26 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                         }, children: renderEnumValue(enumValue) }, enumValue));
                 }) })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: insideDialog
                     ? { strategy: 'fixed', hideWhenDetached: true }
-                    : undefined, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: enumPickerLabels?.typeToSearch ?? 'Type to search' }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [!isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
+                    : undefined, children: [jsxRuntime.jsxs(react.Combobox.Control, { position: "relative", children: [!isMultiple &&
+                                selectedSingleValue &&
+                                !isInputFocused &&
+                                !isSelectedSingleValueString &&
+                                selectedSingleRendered && (jsxRuntime.jsx(react.Box, { position: "absolute", left: 3, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 1, maxWidth: "calc(100% - 60px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: selectedSingleRendered })), jsxRuntime.jsx(react.Combobox.Input, { placeholder: !isMultiple && selectedSingleValue && !isInputFocused
+                                    ? undefined
+                                    : enumPickerLabels?.typeToSearch ?? 'Type to search', onFocus: () => setIsInputFocused(true), onBlur: () => setIsInputFocused(false), style: {
+                                    color: !isMultiple &&
+                                        selectedSingleValue &&
+                                        !isInputFocused &&
+                                        !isSelectedSingleValueString
+                                        ? 'transparent'
+                                        : undefined,
+                                    caretColor: !isMultiple &&
+                                        selectedSingleValue &&
+                                        !isInputFocused &&
+                                        !isSelectedSingleValueString
+                                        ? 'transparent'
+                                        : undefined,
+                                } }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [!isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
                                             setValue(colLabel, '');
                                         } })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), insideDialog ? (jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [showTotalAndLimit && (jsxRuntime.jsx(react.Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? 'Total'}: ${collection.items.length}` })), collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ?? 'No results found' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: renderEnumValue(item.raw) }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [showTotalAndLimit && (jsxRuntime.jsx(react.Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? 'Total'}: ${collection.items.length}` })), collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ?? 'No results found' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: renderEnumValue(item.raw) }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) }) }))] })] }));
 };
@@ -5907,15 +5965,46 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
                 }) })] }));
 };
 
-// Default renderDisplay function that stringifies JSON
+// Default renderDisplay function that intelligently displays items
+// If item is an object, tries to find common display fields (name, title, label, etc.)
+// Otherwise falls back to JSON.stringify
 const defaultRenderDisplay = (item) => {
+    // Check if item is an object (not null, not array, not primitive)
+    if (item !== null &&
+        typeof item === 'object' &&
+        !Array.isArray(item) &&
+        !(item instanceof Date)) {
+        const obj = item;
+        // Try common display fields in order of preference
+        const displayFields = [
+            'name',
+            'title',
+            'label',
+            'displayName',
+            'display_name',
+            'text',
+            'value',
+        ];
+        for (const field of displayFields) {
+            if (obj[field] !== undefined && obj[field] !== null) {
+                const value = obj[field];
+                // Return the value if it's a string or number, otherwise stringify it
+                if (typeof value === 'string' || typeof value === 'number') {
+                    return String(value);
+                }
+            }
+        }
+        // If no display field found, fall back to JSON.stringify
+        return JSON.stringify(item);
+    }
+    // For non-objects (primitives, arrays, dates), use JSON.stringify
     return JSON.stringify(item);
 };
 
 const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     const { watch, getValues, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
-    const { renderDisplay, loadInitialValues, foreign_key, variant } = schema;
+    const { renderDisplay, itemToValue: schemaItemToValue, loadInitialValues, foreign_key, variant, } = schema;
     // loadInitialValues should be provided in schema for id-picker fields
     // It's used to load the record of the id so the display is human-readable
     if (variant === 'id-picker' && !loadInitialValues) {
@@ -6048,17 +6137,51 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
         // Depend on idMapKey which only changes when items we care about change
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentValueKey, idMapKey]);
+    // Default itemToValue function: extract value from item using column_ref
+    const defaultItemToValue = (item) => String(item[column_ref]);
+    // Use schema's itemToValue if provided, otherwise use default
+    const itemToValueFn = schemaItemToValue
+        ? (item) => schemaItemToValue(item)
+        : defaultItemToValue;
+    // itemToString function: convert item to readable string using renderDisplay
+    // This ensures items can always be displayed as readable strings in the combobox
+    const renderFn = renderDisplay || defaultRenderDisplay;
+    const itemToStringFn = (item) => {
+        const rendered = renderFn(item);
+        // If already a string or number, return it
+        if (typeof rendered === 'string')
+            return rendered;
+        if (typeof rendered === 'number')
+            return String(rendered);
+        // For ReactNode, fall back to defaultRenderDisplay which converts to string
+        return String(defaultRenderDisplay(item));
+    };
     // Transform data for combobox collection
     // label is used for filtering/searching (must be a string)
+    // displayLabel is used for input display when selected (string representation of rendered display)
     // raw item is stored for custom rendering
     // Also include items from idMap that match currentValue (for initial values display)
     const comboboxItems = React.useMemo(() => {
         const renderFn = renderDisplay || defaultRenderDisplay;
+        // Helper to convert rendered display to string for displayLabel
+        // For ReactNodes (non-string/number), we can't safely stringify due to circular refs
+        // So we use the label (which is already a string) as fallback
+        const getDisplayString = (rendered, fallbackLabel) => {
+            if (typeof rendered === 'string')
+                return rendered;
+            if (typeof rendered === 'number')
+                return String(rendered);
+            // For ReactNode, use the fallback label (which is already a string representation)
+            // The actual ReactNode will be rendered in the overlay, not in the input
+            return fallbackLabel;
+        };
         const itemsFromDataList = dataList.map((item) => {
             const rendered = renderFn(item);
+            const label = typeof rendered === 'string' ? rendered : JSON.stringify(item); // Use string for filtering
             return {
-                label: typeof rendered === 'string' ? rendered : JSON.stringify(item), // Use string for filtering
-                value: String(item[column_ref]),
+                label, // Use string for filtering
+                displayLabel: getDisplayString(rendered, label), // String representation for input display
+                value: itemToValueFn(item),
                 raw: item,
             };
         });
@@ -6067,25 +6190,28 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
         const itemsFromIdMap = idMapItems
             .map((item) => {
             // Check if this item is already in itemsFromDataList
-            const alreadyIncluded = itemsFromDataList.some((i) => i.value === String(item[column_ref]));
+            const alreadyIncluded = itemsFromDataList.some((i) => i.value === itemToValueFn(item));
             if (alreadyIncluded)
                 return null;
             const rendered = renderFn(item);
+            const label = typeof rendered === 'string' ? rendered : JSON.stringify(item);
             return {
-                label: typeof rendered === 'string' ? rendered : JSON.stringify(item),
-                value: String(item[column_ref]),
+                label,
+                displayLabel: getDisplayString(rendered, label), // String representation for input display
+                value: itemToValueFn(item),
                 raw: item,
             };
         })
             .filter((item) => item !== null);
         return [...itemsFromIdMap, ...itemsFromDataList];
-    }, [dataList, column_ref, renderDisplay, idMapItems]);
+    }, [dataList, column_ref, renderDisplay, idMapItems, itemToValueFn]);
     // Use filter hook for combobox
     const { contains } = react.useFilter({ sensitivity: 'base' });
     // Create collection for combobox
+    // itemToString uses displayLabel to show rendered display in input when selected
     const { collection, filter, set } = react.useListCollection({
         initialItems: comboboxItems,
-        itemToString: (item) => item.label,
+        itemToString: (item) => item.displayLabel, // Use displayLabel for selected value display
         itemToValue: (item) => item.value,
         filter: contains,
     });
@@ -6140,6 +6266,8 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
         idPickerLabels,
         insideDialog: insideDialog ?? false,
         renderDisplay,
+        itemToValue: itemToValueFn,
+        itemToString: itemToStringFn,
         loadInitialValues: loadInitialValues ??
             (async () => ({ data: { data: [], count: 0 }, idMap: {} })), // Fallback if not provided
         column_ref,
@@ -6150,60 +6278,69 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
 
 const IdPickerSingle = ({ column, schema, prefix, }) => {
     const formI18n = useFormI18n(column, prefix, schema);
-    const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, } = schema;
+    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { colLabel, currentValue, searchText, setSearchText, isLoading, isFetching, isPending, isError, isSearching, isLoadingInitialValues, isFetchingInitialValues, missingIds, collection, idMap, idPickerLabels, insideDialog, renderDisplay: renderDisplayFn, errors, setValue, } = useIdPickerData({
+    const { colLabel, currentValue, searchText, setSearchText, isLoading, isFetching, isPending, isError, isSearching, collection, filter, idMap, idPickerLabels, insideDialog, renderDisplay: renderDisplayFn, itemToValue, itemToString, errors, setValue, } = useIdPickerData({
         column,
         schema,
         prefix,
         isMultiple: false,
     });
-    const handleInputValueChange = (details) => {
-        setSearchText(details.inputValue);
-    };
-    const handleValueChange = (details) => {
-        setValue(colLabel, details.value[0] || '');
-    };
-    const renderDisplayFunction = renderDisplayFn || renderDisplay || defaultRenderDisplay;
-    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [currentValue.length > 0 && (jsxRuntime.jsx(react.Flex, { mb: 2, children: (() => {
-                    const id = currentValue[0];
-                    const item = idMap[id];
-                    // Show loading skeleton while fetching initial values
-                    if (item === undefined &&
-                        (isLoadingInitialValues || isFetchingInitialValues) &&
-                        missingIds.includes(id)) {
-                        return jsxRuntime.jsx(react.Skeleton, { height: "24px", width: "100px", borderRadius: "md" });
-                    }
-                    // Only show "not found" if we're not loading and item is still missing
-                    if (item === undefined) {
-                        return (jsxRuntime.jsx(react.Text, { fontSize: "sm", children: idPickerLabels?.undefined ?? 'Undefined' }));
-                    }
-                    return jsxRuntime.jsx(react.Text, { fontSize: "sm", children: renderDisplayFunction(item) });
-                })() })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: false, closeOnSelect: true, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: insideDialog
-                    ? { strategy: 'fixed', hideWhenDetached: true }
-                    : undefined, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? 'Type to search' }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, { size: "xs" }), isError && (jsxRuntime.jsx(react.Icon, { color: "fg.error", children: jsxRuntime.jsx(bi.BiError, {}) })), currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
-                                            setValue(colLabel, '');
-                                        } })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), insideDialog ? (jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
+    // Get the selected value for single selection display
+    const selectedId = currentValue.length > 0 ? currentValue[0] : null;
+    const selectedItem = selectedId
+        ? idMap[selectedId]
+        : undefined;
+    // Use itemToValue to get the combobox value from the selected item, or use the ID directly
+    const comboboxValue = selectedItem
+        ? itemToString(selectedItem)
+        : selectedId || '';
+    // itemToString is available from the hook and can be used to get a readable string
+    // representation of any item. The collection's itemToString is automatically used
+    // by the combobox to display selected values.
+    // Use useCombobox hook to control input value
+    const combobox = react.useCombobox({
+        collection,
+        value: [comboboxValue],
+        onInputValueChange(e) {
+            setSearchText(e.inputValue);
+            filter(e.inputValue);
+        },
+        onValueChange(e) {
+            setValue(colLabel, e.value[0] || '');
+            // Clear the input value after selection
+            setSearchText('');
+        },
+        multiple: false,
+        closeOnSelect: true,
+        openOnClick: true,
+        invalid: !!errors[colLabel],
+    });
+    // Use renderDisplay from hook (which comes from schema) or fallback to default
+    const renderDisplayFunction = renderDisplayFn || defaultRenderDisplay;
+    // Get the selected value for single selection display (already computed above)
+    const selectedRendered = selectedItem
+        ? renderDisplayFunction(selectedItem)
+        : null;
+    return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxRuntime.jsxs(react.Combobox.RootProvider, { value: combobox, width: "100%", children: [jsxRuntime.jsx(react.Show, { when: selectedId && selectedRendered, children: jsxRuntime.jsxs(react.HStack, { justifyContent: 'space-between', children: [jsxRuntime.jsx(react.Box, { children: selectedRendered }), currentValue.length > 0 && (jsxRuntime.jsx(react.Button, { variant: "ghost", size: "sm", onClick: () => {
+                                    setValue(colLabel, '');
+                                }, children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(bi.BiX, {}) }) }))] }) }), jsxRuntime.jsx(react.Show, { when: !selectedId || !selectedRendered, children: jsxRuntime.jsxs(react.Combobox.Control, { position: "relative", children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? 'Type to search' }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, { size: "xs" }), isError && (jsxRuntime.jsx(react.Icon, { color: "fg.error", children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }) }), insideDialog ? (jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
+                        // Show skeleton items to prevent UI shift
+                        jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
+                                ? idPickerLabels?.emptySearchResult ?? 'No results found'
+                                : idPickerLabels?.initialResults ??
+                                    'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [renderDisplayFunction(item.raw), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
                             // Show skeleton items to prevent UI shift
                             jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
                                     ? idPickerLabels?.emptySearchResult ?? 'No results found'
                                     : idPickerLabels?.initialResults ??
-                                        'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplayFunction === true
-                                                ? renderDisplayFunction(item.raw)
-                                                : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
-                                // Show skeleton items to prevent UI shift
-                                jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
-                                        ? idPickerLabels?.emptySearchResult ?? 'No results found'
-                                        : idPickerLabels?.initialResults ??
-                                            'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplayFunction === true
-                                                    ? renderDisplayFunction(item.raw)
-                                                    : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) }))] })] }));
+                                        'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsx(react.Combobox.Item, { item: item, children: renderDisplayFunction(item.raw) }, item.value ?? `item-${index}`))) })) }) }) }))] }) }));
 };
 
 const IdPickerMultiple = ({ column, schema, prefix, }) => {
     const formI18n = useFormI18n(column, prefix, schema);
-    const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, } = schema;
+    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { colLabel, currentValue, searchText, setSearchText, isLoading, isFetching, isPending, isError, isSearching, isLoadingInitialValues, isFetchingInitialValues, missingIds, collection, idMap, idPickerLabels, insideDialog, renderDisplay: renderDisplayFn, errors, setValue, } = useIdPickerData({
         column,
@@ -6217,7 +6354,8 @@ const IdPickerMultiple = ({ column, schema, prefix, }) => {
     const handleValueChange = (details) => {
         setValue(colLabel, details.value);
     };
-    const renderDisplayFunction = renderDisplayFn || renderDisplay || defaultRenderDisplay;
+    // Use renderDisplay from hook (which comes from schema) or fallback to default
+    const renderDisplayFunction = renderDisplayFn || defaultRenderDisplay;
     return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [currentValue.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((id) => {
                     const item = idMap[id];
@@ -6242,16 +6380,12 @@ const IdPickerMultiple = ({ column, schema, prefix, }) => {
                             jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
                                     ? idPickerLabels?.emptySearchResult ?? 'No results found'
                                     : idPickerLabels?.initialResults ??
-                                        'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplayFunction === true
-                                                ? renderDisplayFunction(item.raw)
-                                                : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
+                                        'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [renderDisplayFunction(item.raw), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
                                 // Show skeleton items to prevent UI shift
                                 jsxRuntime.jsx(jsxRuntime.Fragment, { children: Array.from({ length: 5 }).map((_, index) => (jsxRuntime.jsx(react.Flex, { p: 2, align: "center", gap: 2, children: jsxRuntime.jsx(react.Skeleton, { height: "20px", flex: "1" }) }, `skeleton-${index}`))) })) : collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: searchText
                                         ? idPickerLabels?.emptySearchResult ?? 'No results found'
                                         : idPickerLabels?.initialResults ??
-                                            'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: !!renderDisplayFunction === true
-                                                    ? renderDisplayFunction(item.raw)
-                                                    : item.label }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) }))] })] }));
+                                            'Start typing to search' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [renderDisplayFunction(item.raw), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) }))] })] }));
 };
 
 const NumberInputRoot = React__namespace.forwardRef(function NumberInput(props, ref) {
@@ -7388,7 +7522,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Next',
 }, timePickerLabels, timezone = 'Asia/Hong_Kong', startTime, minDate, maxDate, portalled = false, defaultDate, defaultTime, }) {
-    console.log('[DateTimePicker] Component initialized with props:', {
+    console.debug('[DateTimePicker] Component initialized with props:', {
         value,
         format,
         showSeconds,
@@ -7407,13 +7541,13 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     const [selectedDate, setSelectedDate] = React.useState(getDateString(value));
     // Helper to get time values from value prop with timezone
     const getTimeFromValue = React.useCallback((val) => {
-        console.log('[DateTimePicker] getTimeFromValue called:', {
+        console.debug('[DateTimePicker] getTimeFromValue called:', {
             val,
             timezone,
             showSeconds,
         });
         if (!val) {
-            console.log('[DateTimePicker] No value provided, returning nulls');
+            console.debug('[DateTimePicker] No value provided, returning nulls');
             return {
                 hour12: null,
                 minute: null,
@@ -7423,7 +7557,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             };
         }
         const dateObj = dayjs(val).tz(timezone);
-        console.log('[DateTimePicker] Parsed date object:', {
+        console.debug('[DateTimePicker] Parsed date object:', {
             original: val,
             timezone,
             isValid: dateObj.isValid(),
@@ -7433,7 +7567,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             second: dateObj.second(),
         });
         if (!dateObj.isValid()) {
-            console.log('[DateTimePicker] Invalid date object, returning nulls');
+            console.debug('[DateTimePicker] Invalid date object, returning nulls');
             return {
                 hour12: null,
                 minute: null,
@@ -7454,11 +7588,11 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             hour24: hour24Value,
             second: secondValue,
         };
-        console.log('[DateTimePicker] Extracted time values:', result);
+        console.debug('[DateTimePicker] Extracted time values:', result);
         return result;
     }, [timezone, showSeconds]);
     const initialTime = getTimeFromValue(value);
-    console.log('[DateTimePicker] Initial time from value:', {
+    console.debug('[DateTimePicker] Initial time from value:', {
         value,
         initialTime,
     });
@@ -7535,14 +7669,14 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     const [second, setSecond] = React.useState(initialTimeValues.second);
     // Sync selectedDate and time states when value prop changes
     React.useEffect(() => {
-        console.log('[DateTimePicker] useEffect triggered - value changed:', {
+        console.debug('[DateTimePicker] useEffect triggered - value changed:', {
             value,
             timezone,
             format,
         });
         // If value is null, undefined, or invalid, clear date but keep default time values
         if (!value || value === null || value === undefined) {
-            console.log('[DateTimePicker] Value is null/undefined, clearing date but keeping default time');
+            console.debug('[DateTimePicker] Value is null/undefined, clearing date but keeping default time');
             setSelectedDate('');
             // Keep default time values instead of clearing them
             if (format === 'iso-date-time') {
@@ -7564,7 +7698,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         // Check if value is valid
         const dateObj = dayjs(value).tz(timezone);
         if (!dateObj.isValid()) {
-            console.log('[DateTimePicker] Invalid value, clearing date but keeping default time');
+            console.debug('[DateTimePicker] Invalid value, clearing date but keeping default time');
             setSelectedDate('');
             // Keep default time values instead of clearing them
             if (format === 'iso-date-time') {
@@ -7584,10 +7718,10 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             return;
         }
         const dateString = getDateString(value);
-        console.log('[DateTimePicker] Setting selectedDate:', dateString);
+        console.debug('[DateTimePicker] Setting selectedDate:', dateString);
         setSelectedDate(dateString);
         const timeData = getTimeFromValue(value);
-        console.log('[DateTimePicker] Updating time states:', {
+        console.debug('[DateTimePicker] Updating time states:', {
             timeData,
         });
         setHour12(timeData.hour12);
@@ -7597,7 +7731,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         setSecond(timeData.second);
     }, [value, getTimeFromValue, getDateString, timezone]);
     const handleDateChange = (date) => {
-        console.log('[DateTimePicker] handleDateChange called:', {
+        console.debug('[DateTimePicker] handleDateChange called:', {
             date,
             timezone,
             showSeconds,
@@ -7605,7 +7739,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         });
         // If date is empty or invalid, clear all fields
         if (!date || date === '') {
-            console.log('[DateTimePicker] Empty date, clearing all fields');
+            console.debug('[DateTimePicker] Empty date, clearing all fields');
             setSelectedDate('');
             setHour12(null);
             setMinute(null);
@@ -7618,7 +7752,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         setSelectedDate(date);
         // Parse the date string (YYYY-MM-DD) in the specified timezone
         const dateObj = dayjs.tz(date, timezone);
-        console.log('[DateTimePicker] Parsed date object:', {
+        console.debug('[DateTimePicker] Parsed date object:', {
             date,
             timezone,
             isValid: dateObj.isValid(),
@@ -7644,7 +7778,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         if (!hasTimeValues) {
             // Use defaultTime if provided, otherwise default to 00:00
             if (defaultTime) {
-                console.log('[DateTimePicker] No time values set, using defaultTime');
+                console.debug('[DateTimePicker] No time values set, using defaultTime');
                 if (format === 'iso-date-time') {
                     const defaultTime24 = defaultTime;
                     setHour24(defaultTime24.hour ?? 0);
@@ -7671,7 +7805,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                 }
             }
             else {
-                console.log('[DateTimePicker] No time values set, defaulting to 00:00');
+                console.debug('[DateTimePicker] No time values set, defaulting to 00:00');
                 if (format === 'iso-date-time') {
                     setHour24(0);
                     setMinute(0);
@@ -7699,17 +7833,17 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         // When showSeconds is false, ignore seconds from the date
         if (!showSeconds) {
             const dateWithoutSeconds = dateObj.second(0).millisecond(0).toISOString();
-            console.log('[DateTimePicker] Updating date without seconds:', dateWithoutSeconds);
+            console.debug('[DateTimePicker] Updating date without seconds:', dateWithoutSeconds);
             updateDateTime(dateWithoutSeconds, timeDataToUse);
         }
         else {
             const dateWithSeconds = dateObj.toISOString();
-            console.log('[DateTimePicker] Updating date with seconds:', dateWithSeconds);
+            console.debug('[DateTimePicker] Updating date with seconds:', dateWithSeconds);
             updateDateTime(dateWithSeconds, timeDataToUse);
         }
     };
     const handleTimeChange = (timeData) => {
-        console.log('[DateTimePicker] handleTimeChange called:', {
+        console.debug('[DateTimePicker] handleTimeChange called:', {
             timeData,
             format,
             selectedDate,
@@ -7717,7 +7851,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         });
         if (format === 'iso-date-time') {
             const data = timeData;
-            console.log('[DateTimePicker] ISO format - setting 24-hour time:', data);
+            console.debug('[DateTimePicker] ISO format - setting 24-hour time:', data);
             setHour24(data.hour);
             setMinute(data.minute);
             if (showSeconds) {
@@ -7730,7 +7864,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         }
         else {
             const data = timeData;
-            console.log('[DateTimePicker] 12-hour format - setting time:', data);
+            console.debug('[DateTimePicker] 12-hour format - setting time:', data);
             setHour12(data.hour);
             setMinute(data.minute);
             setMeridiem(data.meridiem);
@@ -7739,7 +7873,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         if (!selectedDate || !dayjs(selectedDate).isValid()) {
             // If effectiveDefaultDate is available, use it instead of clearing
             if (effectiveDefaultDate && dayjs(effectiveDefaultDate).isValid()) {
-                console.log('[DateTimePicker] No valid selectedDate, using effectiveDefaultDate:', effectiveDefaultDate);
+                console.debug('[DateTimePicker] No valid selectedDate, using effectiveDefaultDate:', effectiveDefaultDate);
                 setSelectedDate(effectiveDefaultDate);
                 const dateObj = dayjs(effectiveDefaultDate).tz(timezone);
                 if (dateObj.isValid()) {
@@ -7758,7 +7892,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                 return;
             }
             else {
-                console.log('[DateTimePicker] No valid selectedDate and no effectiveDefaultDate, keeping time values but no date');
+                console.debug('[DateTimePicker] No valid selectedDate and no effectiveDefaultDate, keeping time values but no date');
                 // Keep the time values that were just set, but don't set a date
                 // This should rarely happen as effectiveDefaultDate always defaults to today
                 setSelectedDate('');
@@ -7782,14 +7916,14 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         }
     };
     const updateDateTime = (date, timeData) => {
-        console.log('[DateTimePicker] updateDateTime called:', {
+        console.debug('[DateTimePicker] updateDateTime called:', {
             date,
             timeData,
             format,
             currentStates: { hour12, minute, meridiem, hour24, second },
         });
         if (!date || date === null || date === undefined) {
-            console.log('[DateTimePicker] No date provided, clearing all fields and calling onChange(undefined)');
+            console.debug('[DateTimePicker] No date provided, clearing all fields and calling onChange(undefined)');
             setSelectedDate('');
             setHour12(null);
             setMinute(null);
@@ -7827,11 +7961,11 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                 : 0;
             // If all time values are null, clear the value
             if (h === null && m === null && (showSeconds ? s === null : true)) {
-                console.log('[DateTimePicker] All time values are null, clearing value');
+                console.debug('[DateTimePicker] All time values are null, clearing value');
                 onChange?.(undefined);
                 return;
             }
-            console.log('[DateTimePicker] ISO format - setting time on date:', {
+            console.debug('[DateTimePicker] ISO format - setting time on date:', {
                 h,
                 m,
                 s,
@@ -7845,7 +7979,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         }
         else {
             const data = timeData;
-            console.log('[DateTimePicker] Processing 12-hour format:', {
+            console.debug('[DateTimePicker] Processing 12-hour format:', {
                 'data !== undefined': data !== undefined,
                 'data?.hour': data?.hour,
                 'data?.minute': data?.minute,
@@ -7858,14 +7992,14 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             const h = data !== undefined ? data.hour : hour12;
             const m = data !== undefined ? data.minute : minute;
             const mer = data !== undefined ? data.meridiem : meridiem;
-            console.log('[DateTimePicker] Resolved time values:', { h, m, mer });
+            console.debug('[DateTimePicker] Resolved time values:', { h, m, mer });
             // If all time values are null, clear the value
             if (h === null && m === null && mer === null) {
-                console.log('[DateTimePicker] All time values are null, clearing value');
+                console.debug('[DateTimePicker] All time values are null, clearing value');
                 onChange?.(undefined);
                 return;
             }
-            console.log('[DateTimePicker] 12-hour format - converting time:', {
+            console.debug('[DateTimePicker] 12-hour format - converting time:', {
                 h,
                 m,
                 mer,
@@ -7876,7 +8010,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                     hour24 = 0;
                 else if (mer === 'pm' && h < 12)
                     hour24 = h + 12;
-                console.log('[DateTimePicker] Converted to 24-hour:', {
+                console.debug('[DateTimePicker] Converted to 24-hour:', {
                     h,
                     mer,
                     hour24,
@@ -7884,7 +8018,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                 newDate.setHours(hour24);
             }
             else {
-                console.log('[DateTimePicker] Skipping hour update - h or mer is null:', {
+                console.debug('[DateTimePicker] Skipping hour update - h or mer is null:', {
                     h,
                     mer,
                 });
@@ -7893,12 +8027,12 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                 newDate.setMinutes(m);
             }
             else {
-                console.log('[DateTimePicker] Skipping minute update - m is null');
+                console.debug('[DateTimePicker] Skipping minute update - m is null');
             }
             newDate.setSeconds(0);
         }
         const finalISO = dayjs(newDate).tz(timezone).toISOString();
-        console.log('[DateTimePicker] Final ISO string to emit:', {
+        console.debug('[DateTimePicker] Final ISO string to emit:', {
             newDate: newDate.toISOString(),
             timezone,
             finalISO,
@@ -7933,7 +8067,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             : undefined;
     // Log current state before render
     React.useEffect(() => {
-        console.log('[DateTimePicker] Current state before render:', {
+        console.debug('[DateTimePicker] Current state before render:', {
             isISO,
             hour12,
             minute,

@@ -26,6 +26,7 @@ export interface UseIdPickerDataReturn {
     missingIds: string[];
     comboboxItems: Array<{
         label: string;
+        displayLabel: string;
         value: string;
         raw: RecordType;
     }>;
@@ -33,6 +34,7 @@ export interface UseIdPickerDataReturn {
     filter: (text: string) => void;
     set: (items: Array<{
         label: string;
+        displayLabel: string;
         value: string;
         raw: RecordType;
     }>) => void;
@@ -40,6 +42,8 @@ export interface UseIdPickerDataReturn {
     idPickerLabels: any;
     insideDialog: boolean;
     renderDisplay: ((item: RecordType) => React.ReactNode) | undefined;
+    itemToValue: (item: RecordType) => string;
+    itemToString: (item: RecordType) => string;
     loadInitialValues: (params: LoadInitialValuesParams) => Promise<LoadInitialValuesResult>;
     column_ref: string;
     errors: any;

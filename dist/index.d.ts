@@ -835,6 +835,7 @@ interface CustomJSONSchema7 extends JSONSchema7 {
     foreign_key?: ForeignKeyProps;
     variant?: string;
     renderDisplay?: (item: unknown) => ReactNode;
+    itemToValue?: (item: unknown) => string;
     loadInitialValues?: (params: LoadInitialValuesParams) => Promise<LoadInitialValuesResult>;
     inputRender?: (props: {
         column: string;
