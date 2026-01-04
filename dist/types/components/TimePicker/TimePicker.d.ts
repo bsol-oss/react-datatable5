@@ -1,13 +1,18 @@
 import { Dispatch, SetStateAction } from 'react';
 import { TimePickerLabels } from '../Form/components/types/CustomJSONSchema7';
-interface TimePickerProps {
-    hour: number | null;
-    setHour: Dispatch<SetStateAction<number | null>>;
-    minute: number | null;
-    setMinute: Dispatch<SetStateAction<number | null>>;
-    meridiem: 'am' | 'pm' | null;
-    setMeridiem: Dispatch<SetStateAction<'am' | 'pm' | null>>;
-    onChange?: (newValue: {
+type TimePickerProps12h = {
+    format?: '12h';
+    value?: string;
+    onChange?: (value: string | undefined) => void;
+    hour?: number | null;
+    setHour?: Dispatch<SetStateAction<number | null>>;
+    minute?: number | null;
+    setMinute?: Dispatch<SetStateAction<number | null>>;
+    meridiem?: 'am' | 'pm' | null;
+    setMeridiem?: Dispatch<SetStateAction<'am' | 'pm' | null>>;
+    second?: never;
+    setSecond?: never;
+    onTimeChange?: (newValue: {
         hour: number | null;
         minute: number | null;
         meridiem: 'am' | 'pm' | null;
@@ -17,6 +22,30 @@ interface TimePickerProps {
     timezone?: string;
     portalled?: boolean;
     labels?: TimePickerLabels;
-}
-export declare const TimePicker: ({ hour, setHour, minute, setMinute, meridiem, setMeridiem, onChange, startTime, selectedDate, timezone, portalled, labels, }: TimePickerProps) => import("react/jsx-runtime").JSX.Element;
+};
+type TimePickerProps24h = {
+    format: '24h';
+    value?: string;
+    onChange?: (value: string | undefined) => void;
+    hour?: number | null;
+    setHour?: Dispatch<SetStateAction<number | null>>;
+    minute?: number | null;
+    setMinute?: Dispatch<SetStateAction<number | null>>;
+    second?: number | null;
+    setSecond?: Dispatch<SetStateAction<number | null>>;
+    meridiem?: never;
+    setMeridiem?: never;
+    onTimeChange?: (newValue: {
+        hour: number | null;
+        minute: number | null;
+        second: number | null;
+    }) => void;
+    startTime?: string;
+    selectedDate?: string;
+    timezone?: string;
+    portalled?: boolean;
+    labels?: TimePickerLabels;
+};
+export type TimePickerProps = TimePickerProps12h | TimePickerProps24h;
+export declare const TimePicker: (props: TimePickerProps) => import("react/jsx-runtime").JSX.Element;
 export {};

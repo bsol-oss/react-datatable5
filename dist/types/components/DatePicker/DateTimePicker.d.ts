@@ -1,11 +1,10 @@
-import { DatePickerLabels } from './DatePicker';
-import { TimePickerLabels } from '../Form/components/types/CustomJSONSchema7';
+import { DateTimePickerLabels, TimePickerLabels } from '../Form/components/types/CustomJSONSchema7';
 interface DateTimePickerProps {
     value?: string;
     onChange?: (date?: string) => void;
     format?: 'date-time' | 'iso-date-time';
     showSeconds?: boolean;
-    labels?: DatePickerLabels;
+    labels?: DateTimePickerLabels;
     timePickerLabels?: TimePickerLabels;
     timezone?: string;
     startTime?: string;
@@ -13,18 +12,20 @@ interface DateTimePickerProps {
     maxDate?: Date;
     portalled?: boolean;
     defaultDate?: string;
-    defaultTime?: TimeData;
+    defaultTime?: {
+        hour: number | null;
+        minute: number | null;
+        second?: number | null;
+        meridiem?: 'am' | 'pm' | null;
+    };
+    showQuickActions?: boolean;
+    quickActionLabels?: {
+        yesterday?: string;
+        today?: string;
+        tomorrow?: string;
+        plus7Days?: string;
+    };
+    showTimezoneSelector?: boolean;
 }
-interface TimeData12Hour {
-    hour: number | null;
-    minute: number | null;
-    meridiem: 'am' | 'pm' | null;
-}
-interface TimeData24Hour {
-    hour: number | null;
-    minute: number | null;
-    second?: number | null;
-}
-type TimeData = TimeData12Hour | TimeData24Hour;
-export declare function DateTimePicker({ value, onChange, format, showSeconds, labels, timePickerLabels, timezone, startTime, minDate, maxDate, portalled, defaultDate, defaultTime, }: DateTimePickerProps): import("react/jsx-runtime").JSX.Element;
+export declare function DateTimePicker({ value, onChange, format, showSeconds, labels, timePickerLabels, timezone: tz, startTime, minDate, maxDate, portalled, defaultDate, defaultTime, showQuickActions, quickActionLabels, showTimezoneSelector, }: DateTimePickerProps): import("react/jsx-runtime").JSX.Element;
 export {};
