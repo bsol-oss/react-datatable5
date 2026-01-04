@@ -1,8 +1,6 @@
 import {
-  Button,
   Combobox,
   Flex,
-  Icon,
   InputGroup,
   Portal,
   Tag,
@@ -10,9 +8,15 @@ import {
   useFilter,
   useListCollection,
 } from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useMemo, useState, useEffect } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useMemo,
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
 import { BsClock } from 'react-icons/bs';
-import { MdCancel } from 'react-icons/md';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -22,17 +26,23 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 // Union type for time picker props - supports both 12-hour and 24-hour formats
+// Supports both controlled (value/onChange) and uncontrolled (setter functions) modes
 type TimePickerProps12h = {
   format?: '12h';
-  hour: number | null; // 1-12 for 12-hour format
-  setHour: Dispatch<SetStateAction<number | null>>;
-  minute: number | null;
-  setMinute: Dispatch<SetStateAction<number | null>>;
-  meridiem: 'am' | 'pm' | null;
-  setMeridiem: Dispatch<SetStateAction<'am' | 'pm' | null>>;
+  // Controlled mode props
+  value?: string; // Time string in format "HH:mm:ss" or "HH:mm:ssZ"
+  onChange?: (value: string | undefined) => void; // Returns time string
+  // Uncontrolled mode props (required if value is not provided)
+  hour?: number | null; // 1-12 for 12-hour format
+  setHour?: Dispatch<SetStateAction<number | null>>;
+  minute?: number | null;
+  setMinute?: Dispatch<SetStateAction<number | null>>;
+  meridiem?: 'am' | 'pm' | null;
+  setMeridiem?: Dispatch<SetStateAction<'am' | 'pm' | null>>;
   second?: never;
   setSecond?: never;
-  onChange?: (newValue: {
+  // Legacy onChange for uncontrolled mode
+  onTimeChange?: (newValue: {
     hour: number | null;
     minute: number | null;
     meridiem: 'am' | 'pm' | null;
@@ -46,15 +56,20 @@ type TimePickerProps12h = {
 
 type TimePickerProps24h = {
   format: '24h';
-  hour: number | null; // 0-23 for 24-hour format
-  setHour: Dispatch<SetStateAction<number | null>>;
-  minute: number | null;
-  setMinute: Dispatch<SetStateAction<number | null>>;
-  second: number | null;
-  setSecond: Dispatch<SetStateAction<number | null>>;
+  // Controlled mode props
+  value?: string; // Time string in format "HH:mm:ss" or "HH:mm:ssZ"
+  onChange?: (value: string | undefined) => void; // Returns time string
+  // Uncontrolled mode props (required if value is not provided)
+  hour?: number | null; // 0-23 for 24-hour format
+  setHour?: Dispatch<SetStateAction<number | null>>;
+  minute?: number | null;
+  setMinute?: Dispatch<SetStateAction<number | null>>;
+  second?: number | null;
+  setSecond?: Dispatch<SetStateAction<number | null>>;
   meridiem?: never;
   setMeridiem?: never;
-  onChange?: (newValue: {
+  // Legacy onChange for uncontrolled mode
+  onTimeChange?: (newValue: {
     hour: number | null;
     minute: number | null;
     second: number | null;
@@ -66,7 +81,7 @@ type TimePickerProps24h = {
   labels?: TimePickerLabels;
 };
 
-type TimePickerProps = TimePickerProps12h | TimePickerProps24h;
+export type TimePickerProps = TimePickerProps12h | TimePickerProps24h;
 
 interface TimeOption12h {
   label: string;
@@ -93,10 +108,12 @@ type TimeOption = TimeOption12h | TimeOption24h;
 export const TimePicker = (props: TimePickerProps) => {
   const {
     format = '12h',
-    hour,
-    setHour,
-    minute,
-    setMinute,
+    value: controlledValue,
+    onChange: controlledOnChange,
+    hour: uncontrolledHour,
+    setHour: uncontrolledSetHour,
+    minute: uncontrolledMinute,
+    setMinute: uncontrolledSetMinute,
     startTime,
     selectedDate,
     timezone = 'Asia/Hong_Kong',
@@ -105,14 +122,221 @@ export const TimePicker = (props: TimePickerProps) => {
       placeholder: format === '24h' ? 'HH:mm:ss' : 'hh:mm AM/PM',
       emptyMessage: 'No time found',
     },
+    onTimeChange,
   } = props;
 
   const is24Hour = format === '24h';
-  const meridiem = is24Hour ? undefined : props.meridiem;
-  const setMeridiem = is24Hour ? undefined : props.setMeridiem;
-  const second = is24Hour ? props.second : undefined;
-  const setSecond = is24Hour ? props.setSecond : undefined;
-  const onChange = props.onChange || (() => {});
+  const uncontrolledMeridiem = is24Hour ? undefined : props.meridiem;
+  const uncontrolledSetMeridiem = is24Hour ? undefined : props.setMeridiem;
+  const uncontrolledSecond = is24Hour ? props.second : undefined;
+  const uncontrolledSetSecond = is24Hour ? props.setSecond : undefined;
+
+  // Determine if we're in controlled mode
+  const isControlled = controlledValue !== undefined;
+
+  // Parse time string to extract hour, minute, second, meridiem
+  const parseTimeString = (
+    timeStr: string | undefined
+  ): {
+    hour: number | null;
+    minute: number | null;
+    second: number | null;
+    meridiem: 'am' | 'pm' | null;
+  } => {
+    if (!timeStr || !timeStr.trim()) {
+      return { hour: null, minute: null, second: null, meridiem: null };
+    }
+
+    // Remove timezone suffix if present (e.g., "14:30:00Z" -> "14:30:00")
+    const timeWithoutTz = timeStr.replace(/[Z+-]\d{2}:?\d{2}$/, '').trim();
+
+    // Try parsing 24-hour format: "HH:mm:ss" or "HH:mm"
+    const time24Pattern = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/;
+    const match24 = timeWithoutTz.match(time24Pattern);
+
+    if (match24) {
+      const hour24 = parseInt(match24[1], 10);
+      const minute = parseInt(match24[2], 10);
+      const second = match24[3] ? parseInt(match24[3], 10) : 0;
+
+      if (
+        hour24 >= 0 &&
+        hour24 <= 23 &&
+        minute >= 0 &&
+        minute <= 59 &&
+        second >= 0 &&
+        second <= 59
+      ) {
+        if (is24Hour) {
+          return { hour: hour24, minute, second, meridiem: null };
+        } else {
+          // Convert to 12-hour format
+          let hour12 = hour24;
+          let meridiem: 'am' | 'pm';
+          if (hour24 === 0) {
+            hour12 = 12;
+            meridiem = 'am';
+          } else if (hour24 === 12) {
+            hour12 = 12;
+            meridiem = 'pm';
+          } else if (hour24 > 12) {
+            hour12 = hour24 - 12;
+            meridiem = 'pm';
+          } else {
+            hour12 = hour24;
+            meridiem = 'am';
+          }
+          return { hour: hour12, minute, second: null, meridiem };
+        }
+      }
+    }
+
+    // Try parsing 12-hour format: "hh:mm AM/PM" or "hh:mm:ss AM/PM"
+    const time12Pattern =
+      /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?\s*(am|pm|AM|PM)$/i;
+    const match12 = timeWithoutTz.match(time12Pattern);
+
+    if (match12 && !is24Hour) {
+      const hour12 = parseInt(match12[1], 10);
+      const minute = parseInt(match12[2], 10);
+      const second = match12[3] ? parseInt(match12[3], 10) : null;
+      const meridiem = match12[4].toLowerCase() as 'am' | 'pm';
+
+      if (
+        hour12 >= 1 &&
+        hour12 <= 12 &&
+        minute >= 0 &&
+        minute <= 59 &&
+        (second === null || (second >= 0 && second <= 59))
+      ) {
+        return { hour: hour12, minute, second, meridiem };
+      }
+    }
+
+    return { hour: null, minute: null, second: null, meridiem: null };
+  };
+
+  // Format time values to time string
+  const formatTimeString = (
+    hour: number | null,
+    minute: number | null,
+    second: number | null,
+    meridiem: 'am' | 'pm' | null
+  ): string | undefined => {
+    if (hour === null || minute === null) {
+      return undefined;
+    }
+
+    if (is24Hour) {
+      const h = hour.toString().padStart(2, '0');
+      const m = minute.toString().padStart(2, '0');
+      const s = (second ?? 0).toString().padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    } else {
+      if (meridiem === null) {
+        return undefined;
+      }
+      const h = hour.toString();
+      const m = minute.toString().padStart(2, '0');
+      return `${h}:${m} ${meridiem.toUpperCase()}`;
+    }
+  };
+
+  // Internal state for controlled mode
+  const [internalHour, setInternalHour] = useState<number | null>(null);
+  const [internalMinute, setInternalMinute] = useState<number | null>(null);
+  const [internalSecond, setInternalSecond] = useState<number | null>(null);
+  const [internalMeridiem, setInternalMeridiem] = useState<'am' | 'pm' | null>(
+    null
+  );
+
+  // Use controlled or uncontrolled values
+  const hour = isControlled ? internalHour : uncontrolledHour ?? null;
+  const minute = isControlled ? internalMinute : uncontrolledMinute ?? null;
+  const second = isControlled ? internalSecond : uncontrolledSecond ?? null;
+  const meridiem = isControlled
+    ? internalMeridiem
+    : uncontrolledMeridiem ?? null;
+
+  // Setters that work for both modes
+  const setHour = isControlled
+    ? setInternalHour
+    : uncontrolledSetHour || (() => {});
+  const setMinute = isControlled
+    ? setInternalMinute
+    : uncontrolledSetMinute || (() => {});
+  const setSecond = isControlled
+    ? setInternalSecond
+    : uncontrolledSetSecond || (() => {});
+  const setMeridiem = isControlled
+    ? setInternalMeridiem
+    : uncontrolledSetMeridiem || (() => {});
+
+  // Sync internal state with controlled value prop
+  const prevValueRef = useRef<string | undefined>(controlledValue);
+  useEffect(() => {
+    if (!isControlled) return;
+
+    if (prevValueRef.current === controlledValue) {
+      return;
+    }
+
+    prevValueRef.current = controlledValue;
+
+    const parsed = parseTimeString(controlledValue);
+    setInternalHour(parsed.hour);
+    setInternalMinute(parsed.minute);
+    if (is24Hour) {
+      setInternalSecond(parsed.second);
+    } else {
+      setInternalMeridiem(parsed.meridiem);
+    }
+  }, [controlledValue, isControlled, is24Hour]);
+
+  // Wrapper onChange that calls both controlled and uncontrolled onChange
+  const handleTimeChange = (
+    newHour: number | null,
+    newMinute: number | null,
+    newSecond: number | null,
+    newMeridiem: 'am' | 'pm' | null
+  ) => {
+    if (isControlled) {
+      const timeString = formatTimeString(
+        newHour,
+        newMinute,
+        newSecond,
+        newMeridiem
+      );
+      controlledOnChange?.(timeString);
+    } else {
+      // Call legacy onTimeChange if provided
+      if (onTimeChange) {
+        if (is24Hour) {
+          const timeChange24h = onTimeChange as (newValue: {
+            hour: number | null;
+            minute: number | null;
+            second: number | null;
+          }) => void;
+          timeChange24h({
+            hour: newHour,
+            minute: newMinute,
+            second: newSecond,
+          });
+        } else {
+          const timeChange12h = onTimeChange as (newValue: {
+            hour: number | null;
+            minute: number | null;
+            meridiem: 'am' | 'pm' | null;
+          }) => void;
+          timeChange12h({
+            hour: newHour,
+            minute: newMinute,
+            meridiem: newMeridiem,
+          });
+        }
+      }
+    }
+  };
 
   const [inputValue, setInputValue] = useState<string>('');
 
@@ -468,26 +692,10 @@ export const TimePicker = (props: TimePickerProps) => {
     setMinute(null);
     if (is24Hour && setSecond) {
       setSecond(null);
-      if (onChange) {
-        (
-          onChange as (newValue: {
-            hour: number | null;
-            minute: number | null;
-            second: number | null;
-          }) => void
-        )({ hour: null, minute: null, second: null });
-      }
+      handleTimeChange(null, null, null, null);
     } else if (!is24Hour && setMeridiem) {
       setMeridiem(null);
-      if (onChange) {
-        (
-          onChange as (newValue: {
-            hour: number | null;
-            minute: number | null;
-            meridiem: 'am' | 'pm' | null;
-          }) => void
-        )({ hour: null, minute: null, meridiem: null });
-      }
+      handleTimeChange(null, null, null, null);
     }
     filter('');
   };
@@ -511,31 +719,11 @@ export const TimePicker = (props: TimePickerProps) => {
       if (is24Hour) {
         const opt24 = selectedOption as TimeOption24h;
         if (setSecond) setSecond(opt24.second);
-        if (onChange) {
-          (
-            onChange as (newValue: {
-              hour: number | null;
-              minute: number | null;
-              second: number | null;
-            }) => void
-          )({ hour: opt24.hour, minute: opt24.minute, second: opt24.second });
-        }
+        handleTimeChange(opt24.hour, opt24.minute, opt24.second, null);
       } else {
         const opt12 = selectedOption as TimeOption12h;
         if (setMeridiem) setMeridiem(opt12.meridiem);
-        if (onChange) {
-          (
-            onChange as (newValue: {
-              hour: number | null;
-              minute: number | null;
-              meridiem: 'am' | 'pm' | null;
-            }) => void
-          )({
-            hour: opt12.hour,
-            minute: opt12.minute,
-            meridiem: opt12.meridiem,
-          });
-        }
+        handleTimeChange(opt12.hour, opt12.minute, null, opt12.meridiem);
       }
     }
   };
@@ -570,15 +758,7 @@ export const TimePicker = (props: TimePickerProps) => {
           setHour(parsedHour);
           setMinute(parsedMinute);
           if (setSecond) setSecond(parsedSecond);
-          if (onChange) {
-            (
-              onChange as (newValue: {
-                hour: number | null;
-                minute: number | null;
-                second: number | null;
-              }) => void
-            )({ hour: parsedHour, minute: parsedMinute, second: parsedSecond });
-          }
+          handleTimeChange(parsedHour, parsedMinute, parsedSecond, null);
           return;
         }
       }
@@ -602,15 +782,7 @@ export const TimePicker = (props: TimePickerProps) => {
           setHour(parsedHour);
           setMinute(parsedMinute);
           if (setSecond) setSecond(parsedSecond);
-          if (onChange) {
-            (
-              onChange as (newValue: {
-                hour: number | null;
-                minute: number | null;
-                second: number | null;
-              }) => void
-            )({ hour: parsedHour, minute: parsedMinute, second: parsedSecond });
-          }
+          handleTimeChange(parsedHour, parsedMinute, parsedSecond, null);
           return;
         }
       }
@@ -650,15 +822,7 @@ export const TimePicker = (props: TimePickerProps) => {
           setHour(hour12);
           setMinute(parsedMinute);
           if (setMeridiem) setMeridiem(meridiem);
-          if (onChange) {
-            (
-              onChange as (newValue: {
-                hour: number | null;
-                minute: number | null;
-                meridiem: 'am' | 'pm' | null;
-              }) => void
-            )({ hour: hour12, minute: parsedMinute, meridiem });
-          }
+          handleTimeChange(hour12, parsedMinute, null, meridiem);
           return;
         }
       }
@@ -681,19 +845,7 @@ export const TimePicker = (props: TimePickerProps) => {
           setHour(parsedHour);
           setMinute(parsedMinute);
           if (setMeridiem) setMeridiem(parsedMeridiem);
-          if (onChange) {
-            (
-              onChange as (newValue: {
-                hour: number | null;
-                minute: number | null;
-                meridiem: 'am' | 'pm' | null;
-              }) => void
-            )({
-              hour: parsedHour,
-              minute: parsedMinute,
-              meridiem: parsedMeridiem,
-            });
-          }
+          handleTimeChange(parsedHour, parsedMinute, null, parsedMeridiem);
           return;
         }
       }
@@ -710,15 +862,7 @@ export const TimePicker = (props: TimePickerProps) => {
           setHour(parsedHour);
           setMinute(0); // Default to 0 minutes when only hour is provided
           if (setMeridiem) setMeridiem(parsedMeridiem);
-          if (onChange) {
-            (
-              onChange as (newValue: {
-                hour: number | null;
-                minute: number | null;
-                meridiem: 'am' | 'pm' | null;
-              }) => void
-            )({ hour: parsedHour, minute: 0, meridiem: parsedMeridiem });
-          }
+          handleTimeChange(parsedHour, 0, null, parsedMeridiem);
           return;
         }
       }
@@ -744,19 +888,7 @@ export const TimePicker = (props: TimePickerProps) => {
             setHour(parsedHour);
             setMinute(parsedMinute);
             if (setMeridiem) setMeridiem(parsedMeridiem);
-            if (onChange) {
-              (
-                onChange as (newValue: {
-                  hour: number | null;
-                  minute: number | null;
-                  meridiem: 'am' | 'pm' | null;
-                }) => void
-              )({
-                hour: parsedHour,
-                minute: parsedMinute,
-                meridiem: parsedMeridiem,
-              });
-            }
+            handleTimeChange(parsedHour, parsedMinute, null, parsedMeridiem);
             return;
           }
         }
@@ -778,31 +910,11 @@ export const TimePicker = (props: TimePickerProps) => {
       if (is24Hour) {
         const opt24 = firstItem as TimeOption24h;
         if (setSecond) setSecond(opt24.second);
-        if (onChange) {
-          (
-            onChange as (newValue: {
-              hour: number | null;
-              minute: number | null;
-              second: number | null;
-            }) => void
-          )({ hour: opt24.hour, minute: opt24.minute, second: opt24.second });
-        }
+        handleTimeChange(opt24.hour, opt24.minute, opt24.second, null);
       } else {
         const opt12 = firstItem as TimeOption12h;
         if (setMeridiem) setMeridiem(opt12.meridiem);
-        if (onChange) {
-          (
-            onChange as (newValue: {
-              hour: number | null;
-              minute: number | null;
-              meridiem: 'am' | 'pm' | null;
-            }) => void
-          )({
-            hour: opt12.hour,
-            minute: opt12.minute,
-            meridiem: opt12.meridiem,
-          });
-        }
+        handleTimeChange(opt12.hour, opt12.minute, null, opt12.meridiem);
       }
     }
   };

@@ -1,21 +1,21 @@
 import {
   Button,
   Grid,
-  Text,
   Icon,
   IconButton,
   Input,
   Popover,
   Portal,
+  Text,
 } from '@chakra-ui/react';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useCalendar, type CalendarRenderProps } from './useCalendar';
 import { MdDateRange } from 'react-icons/md';
 import { InputGroup } from '../ui/input-group';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { useCalendar, type CalendarRenderProps } from './useCalendar';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -352,7 +352,7 @@ export function DatePickerInput({
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
-  // Update input value when prop value changes
+  // Sync inputValue with value prop changes
   useEffect(() => {
     if (value) {
       const formatted =
@@ -365,7 +365,7 @@ export function DatePickerInput({
     } else {
       setInputValue('');
     }
-  }, [value, displayFormat, timezone]);
+  }, [value, timezone, displayFormat]);
 
   // Convert value to Date object for DatePicker
   const selectedDate = value
@@ -459,7 +459,17 @@ export function DatePickerInput({
   };
 
   const handleDateSelected = ({ date }: { date: Date }) => {
+    console.debug('[DatePickerInput] handleDateSelected called:', {
+      date: date.toISOString(),
+      timezone,
+      dateFormat,
+      formattedDate: dayjs(date).tz(timezone).format(dateFormat),
+    });
     const formattedDate = dayjs(date).tz(timezone).format(dateFormat);
+    console.debug(
+      '[DatePickerInput] Calling onChange with formatted date:',
+      formattedDate
+    );
     onChange?.(formattedDate);
     setOpen(false);
   };

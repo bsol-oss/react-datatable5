@@ -1,16 +1,16 @@
+import { DateTimePicker as ChakraDateTimePicker } from '@/components/DatePicker/DateTimePicker';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Popover, Portal } from '@chakra-ui/react';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { useState } from 'react';
+import utc from 'dayjs/plugin/utc';
+import { useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { MdDateRange } from 'react-icons/md';
 import { useSchemaContext } from '../../useSchemaContext';
 import { useFormI18n } from '../../utils/useFormI18n';
 import { InputDefaultProps } from './types';
-import { DateTimePicker as ChakraDateTimePicker } from '@/components/DatePicker/DateTimePicker';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -44,6 +44,8 @@ export const DateTimePicker = ({
     selectedDate && dayjs(selectedDate).tz(timezone).isValid()
       ? dayjs(selectedDate).tz(timezone).format(displayDateFormat)
       : '';
+
+  // Set default date on mount if no value exists
 
   const dateTimePickerLabelsConfig = {
     monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
@@ -106,41 +108,7 @@ export const DateTimePicker = ({
       errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
       invalid={!!errors[colLabel]}
     >
-      <Popover.Root
-        open={open}
-        onOpenChange={(e) => setOpen(e.open)}
-        closeOnInteractOutside
-        autoFocus={false}
-      >
-        <Popover.Trigger asChild>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              setOpen(true);
-            }}
-            justifyContent={'start'}
-          >
-            <MdDateRange />
-            {displayDate || ''}
-          </Button>
-        </Popover.Trigger>
-        {insideDialog ? (
-          <Popover.Positioner>
-            <Popover.Content width="fit-content" minW="350px" minH="10rem">
-              <Popover.Body>{dateTimePickerContent}</Popover.Body>
-            </Popover.Content>
-          </Popover.Positioner>
-        ) : (
-          <Portal>
-            <Popover.Positioner>
-              <Popover.Content width="fit-content" minW="350px" minH="10rem">
-                <Popover.Body>{dateTimePickerContent}</Popover.Body>
-              </Popover.Content>
-            </Popover.Positioner>
-          </Portal>
-        )}
-      </Popover.Root>
+      {dateTimePickerContent}
     </Field>
   );
 };
