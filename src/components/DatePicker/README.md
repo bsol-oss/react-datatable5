@@ -5,6 +5,7 @@ This directory contains a comprehensive set of date and time picker components t
 ## Available Components
 
 ### 1. DatePicker (Existing)
+
 - **Format**: `date` - YYYY-MM-DD
 - **Example**: `2024-01-15`
 - **File**: `DatePicker.tsx`
@@ -17,10 +18,11 @@ import DatePicker from './DatePicker';
   selected={[selectedDate]}
   onDateSelected={({ date }) => setSelectedDate(date)}
   monthsToDisplay={1}
-/>
+/>;
 ```
 
 ### 2. TimePicker (Existing - Enhanced)
+
 - **Format**: `time` - HH:mm:ss with timezone (12-hour format)
 - **Example**: `14:30:00Z`
 - **File**: `../TimePicker/TimePicker.tsx`
@@ -37,34 +39,15 @@ import { TimePicker } from '../TimePicker/TimePicker';
   meridiem={meridiem}
   setMeridiem={setMeridiem}
   onChange={handleTimeChange}
-/>
+/>;
 ```
 
-### 3. IsoTimePicker (New)
-- **Format**: `iso-time` - HH:mm:ss (24-hour format)
-- **Example**: `14:30:00`
-- **File**: `IsoTimePicker.tsx`
-- **Usage**: 24-hour time selection with seconds
+### 3. DateTimePicker (New)
 
-```tsx
-import { IsoTimePicker } from './IsoTimePicker';
-
-<IsoTimePicker
-  hour={hour}
-  setHour={setHour}
-  minute={minute}
-  setMinute={setMinute}
-  second={second}
-  setSecond={setSecond}
-  onChange={handleTimeChange}
-/>
-```
-
-### 4. DateTimePicker (New)
-- **Formats**: 
+- **Formats**:
   - `date-time` - YYYY-MM-DDTHH:mm:ssZ (with timezone)
   - `iso-date-time` - YYYY-MM-DDTHH:mm:ss (without timezone)
-- **Examples**: 
+- **Examples**:
   - `2024-01-15T14:30:00Z`
   - `2024-01-15T14:30:00`
 - **File**: `DateTimePicker.tsx`
@@ -89,7 +72,8 @@ import { DateTimePicker } from './DateTimePicker';
 />
 ```
 
-### 5. DurationPicker (New)
+### 4. DurationPicker (New)
+
 - **Format**: `duration` - ISO 8601 duration format
 - **Example**: `P1Y2M3DT4H5M6S` (1 year, 2 months, 3 days, 4 hours, 5 minutes, 6 seconds)
 - **File**: `DurationPicker.tsx`
@@ -107,10 +91,11 @@ import { DurationPicker } from './DurationPicker';
   showHours={true}
   showMinutes={true}
   showSeconds={true}
-/>
+/>;
 ```
 
-### 6. UniversalPicker (New)
+### 5. UniversalPicker (New)
+
 - **Formats**: All supported formats
 - **File**: `UniversalPicker.tsx`
 - **Usage**: Single component that can handle any format based on props
@@ -118,27 +103,24 @@ import { DurationPicker } from './DurationPicker';
 ```tsx
 import { UniversalPicker } from './UniversalPicker';
 
-<UniversalPicker
-  format="iso-date-time"
-  value={value}
-  onChange={setValue}
-/>
+<UniversalPicker format="iso-date-time" value={value} onChange={setValue} />;
 ```
 
 ## Format Reference
 
-| Format Name | Description | Example | Component |
-|-------------|-------------|---------|-----------|
-| `date` | Date only | `2024-01-15` | DatePicker |
-| `time` | Time with timezone (12-hour) | `14:30:00Z` | TimePicker |
-| `date-time` | Full datetime with timezone | `2024-01-15T14:30:00Z` | DateTimePicker |
-| `iso-time` | Time without timezone (24-hour) | `14:30:00` | IsoTimePicker |
-| `iso-date-time` | Full datetime without timezone | `2024-01-15T14:30:00` | DateTimePicker |
-| `duration` | ISO 8601 duration | `P1Y2M3DT4H5M6S` | DurationPicker |
+| Format Name     | Description                     | Example                | Component                             |
+| --------------- | ------------------------------- | ---------------------- | ------------------------------------- |
+| `date`          | Date only                       | `2024-01-15`           | DatePicker                            |
+| `time`          | Time with timezone (12-hour)    | `14:30:00Z`            | TimePicker                            |
+| `date-time`     | Full datetime with timezone     | `2024-01-15T14:30:00Z` | DateTimePicker                        |
+| `iso-time`      | Time without timezone (24-hour) | `14:30:00`             | DateTimePicker (iso-date-time format) |
+| `iso-date-time` | Full datetime without timezone  | `2024-01-15T14:30:00`  | DateTimePicker                        |
+| `duration`      | ISO 8601 duration               | `P1Y2M3DT4H5M6S`       | DurationPicker                        |
 
 ## Features
 
 ### Common Features (All Components)
+
 - Built with Chakra UI v3
 - TypeScript support
 - Consistent styling and behavior
@@ -147,24 +129,26 @@ import { UniversalPicker } from './UniversalPicker';
 - Real-time value display
 
 ### TimePicker Features
+
 - 12-hour format with AM/PM
 - Auto-advance between fields
 - Keyboard shortcuts (`:` to advance)
 - Customizable meridiem labels
 
-### IsoTimePicker Features
-- 24-hour format
+### DateTimePicker Features
+
+- 24-hour format support (for iso-date-time)
+- 12-hour format support (for date-time)
 - Seconds support
 - Auto-advance between fields
 - Validation for valid time ranges
-
-### DateTimePicker Features
 - Combines date and time selection
 - Support for both timezone and non-timezone formats
 - Optional seconds display
 - Synchronized date and time updates
 
 ### DurationPicker Features
+
 - Support for all ISO 8601 duration components
 - Configurable component visibility
 - Real-time ISO string generation
@@ -209,4 +193,4 @@ When adding new picker formats or features:
 2. Ensure Chakra UI v3 compatibility
 3. Add TypeScript definitions
 4. Include comprehensive examples
-5. Update this README with new formats/components 
+5. Update this README with new formats/components

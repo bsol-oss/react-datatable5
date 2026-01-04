@@ -1,13 +1,11 @@
-import { Button, Flex, Grid, Icon, Text } from '@chakra-ui/react';
+import { Flex, Grid, Text } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { DatePickerInput, DatePickerLabels } from './DatePicker';
 import { TimePicker } from '../TimePicker/TimePicker';
-import { IsoTimePicker } from './IsoTimePicker';
 import { TimePickerLabels } from '../Form/components/types/CustomJSONSchema7';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { FaTrash } from 'react-icons/fa6';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -678,29 +676,6 @@ export function DateTimePicker({
     onChange?.(finalISO);
   };
 
-  const handleClear = () => {
-    setSelectedDate('');
-    // Reset to default time values instead of clearing them
-    if (format === 'iso-date-time') {
-      setHour24(defaultTime ? (defaultTime as TimeData24Hour).hour ?? 0 : 0);
-      setMinute(defaultTime ? (defaultTime as TimeData24Hour).minute ?? 0 : 0);
-      setSecond(
-        showSeconds
-          ? defaultTime
-            ? (defaultTime as TimeData24Hour).second ?? 0
-            : 0
-          : null
-      );
-    } else {
-      setHour12(defaultTime ? (defaultTime as TimeData12Hour).hour ?? 12 : 12);
-      setMinute(defaultTime ? (defaultTime as TimeData12Hour).minute ?? 0 : 0);
-      setMeridiem(
-        defaultTime ? (defaultTime as TimeData12Hour).meridiem ?? 'am' : 'am'
-      );
-    }
-    onChange?.(undefined);
-  };
-
   const isISO = format === 'iso-date-time';
 
   // Determine minDate: prioritize explicit minDate prop, then fall back to startTime
@@ -805,7 +780,8 @@ export function DateTimePicker({
 
       <Grid templateColumns="1fr auto" alignItems="center" gap={2}>
         {isISO ? (
-          <IsoTimePicker
+          <TimePicker
+            format="24h"
             hour={hour24}
             setHour={setHour24}
             minute={minute}
@@ -821,6 +797,7 @@ export function DateTimePicker({
           />
         ) : (
           <TimePicker
+            format="12h"
             hour={hour12}
             setHour={setHour12}
             minute={minute}
@@ -835,15 +812,6 @@ export function DateTimePicker({
             labels={timePickerLabels}
           />
         )}
-
-        <Button
-          onClick={handleClear}
-          size="sm"
-          variant="outline"
-          colorScheme="red"
-        >
-          <Icon as={FaTrash} />
-        </Button>
       </Grid>
 
       {displayText && (

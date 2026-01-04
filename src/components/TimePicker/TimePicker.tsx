@@ -7,9 +7,10 @@ import {
   Portal,
   Tag,
   Text,
+  useFilter,
   useListCollection,
 } from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useMemo } from 'react';
+import { Dispatch, SetStateAction, useMemo, useState, useEffect } from 'react';
 import { BsClock } from 'react-icons/bs';
 import { MdCancel } from 'react-icons/md';
 import dayjs from 'dayjs';
@@ -20,13 +21,17 @@ import { TimePickerLabels } from '../Form/components/types/CustomJSONSchema7';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-interface TimePickerProps {
-  hour: number | null;
+// Union type for time picker props - supports both 12-hour and 24-hour formats
+type TimePickerProps12h = {
+  format?: '12h';
+  hour: number | null; // 1-12 for 12-hour format
   setHour: Dispatch<SetStateAction<number | null>>;
   minute: number | null;
   setMinute: Dispatch<SetStateAction<number | null>>;
   meridiem: 'am' | 'pm' | null;
   setMeridiem: Dispatch<SetStateAction<'am' | 'pm' | null>>;
+  second?: never;
+  setSecond?: never;
   onChange?: (newValue: {
     hour: number | null;
     minute: number | null;
@@ -37,36 +42,95 @@ interface TimePickerProps {
   timezone?: string;
   portalled?: boolean;
   labels?: TimePickerLabels;
-}
+};
 
-interface TimeOption {
+type TimePickerProps24h = {
+  format: '24h';
+  hour: number | null; // 0-23 for 24-hour format
+  setHour: Dispatch<SetStateAction<number | null>>;
+  minute: number | null;
+  setMinute: Dispatch<SetStateAction<number | null>>;
+  second: number | null;
+  setSecond: Dispatch<SetStateAction<number | null>>;
+  meridiem?: never;
+  setMeridiem?: never;
+  onChange?: (newValue: {
+    hour: number | null;
+    minute: number | null;
+    second: number | null;
+  }) => void;
+  startTime?: string;
+  selectedDate?: string;
+  timezone?: string;
+  portalled?: boolean;
+  labels?: TimePickerLabels;
+};
+
+type TimePickerProps = TimePickerProps12h | TimePickerProps24h;
+
+interface TimeOption12h {
   label: string;
   value: string;
-  hour: number;
+  hour: number; // 1-12
   minute: number;
   meridiem: 'am' | 'pm';
-  searchText: string; // Time without duration for searching
-  durationText?: string; // Duration difference text (e.g., "+2h 30m")
+  searchText: string;
+  durationText?: string;
 }
 
-export const TimePicker = ({
-  hour,
-  setHour,
-  minute,
-  setMinute,
-  meridiem,
-  setMeridiem,
-  onChange = () => {},
-  startTime,
-  selectedDate,
-  timezone = 'Asia/Hong_Kong',
-  portalled = true,
-  labels = {
-    placeholder: 'hh:mm AM/PM',
-    emptyMessage: 'No time found',
-  },
-}: TimePickerProps) => {
-  // Generate time options (every 15 minutes in 12-hour format)
+interface TimeOption24h {
+  label: string;
+  value: string;
+  hour: number; // 0-23
+  minute: number;
+  second: number;
+  searchText: string;
+  durationText?: string;
+}
+
+type TimeOption = TimeOption12h | TimeOption24h;
+
+export const TimePicker = (props: TimePickerProps) => {
+  const {
+    format = '12h',
+    hour,
+    setHour,
+    minute,
+    setMinute,
+    startTime,
+    selectedDate,
+    timezone = 'Asia/Hong_Kong',
+    portalled = true,
+    labels = {
+      placeholder: format === '24h' ? 'HH:mm:ss' : 'hh:mm AM/PM',
+      emptyMessage: 'No time found',
+    },
+  } = props;
+
+  const is24Hour = format === '24h';
+  const meridiem = is24Hour ? undefined : props.meridiem;
+  const setMeridiem = is24Hour ? undefined : props.setMeridiem;
+  const second = is24Hour ? props.second : undefined;
+  const setSecond = is24Hour ? props.setSecond : undefined;
+  const onChange = props.onChange || (() => {});
+
+  const [inputValue, setInputValue] = useState<string>('');
+
+  // Sync inputValue with current time
+  useEffect(() => {
+    if (is24Hour && second !== undefined) {
+      if (hour !== null && minute !== null && second !== null) {
+        const formatted = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+        setInputValue(formatted);
+      } else {
+        setInputValue('');
+      }
+    } else {
+      // 12-hour format - input is managed by combobox
+      setInputValue('');
+    }
+  }, [hour, minute, second, is24Hour]);
+  // Generate time options based on format
   const timeOptions = useMemo<TimeOption[]>(() => {
     const options: TimeOption[] = [];
 
@@ -79,33 +143,27 @@ export const TimePicker = ({
 
       if (startDateObj.isValid() && selectedDateObj.isValid()) {
         startDateTime = startDateObj;
-        // Only filter if dates are the same
         shouldFilterByDate =
           startDateObj.format('YYYY-MM-DD') ===
           selectedDateObj.format('YYYY-MM-DD');
       }
     }
 
-    // Generate 12-hour format options (1-12 for hours, AM/PM)
-    for (let h = 1; h <= 12; h++) {
-      for (let m = 0; m < 60; m += 15) {
-        for (const mer of ['am', 'pm'] as const) {
-          // Convert 12-hour to 24-hour for comparison
-          let hour24 = h;
-          if (mer === 'am' && h === 12) hour24 = 0;
-          else if (mer === 'pm' && h < 12) hour24 = h + 12;
-
-          // Filter out times that would result in negative duration (only when dates are the same)
+    if (is24Hour) {
+      // Generate 24-hour format options (0-23 for hours)
+      for (let h = 0; h < 24; h++) {
+        for (let m = 0; m < 60; m += 15) {
+          // Filter out times that would result in negative duration
           if (startDateTime && selectedDate && shouldFilterByDate) {
             const selectedDateObj = dayjs(selectedDate).tz(timezone);
             const optionDateTime = selectedDateObj
-              .hour(hour24)
+              .hour(h)
               .minute(m)
               .second(0)
               .millisecond(0);
 
             if (optionDateTime.isBefore(startDateTime)) {
-              continue; // Skip this option as it would result in negative duration
+              continue;
             }
           }
 
@@ -114,7 +172,7 @@ export const TimePicker = ({
           if (startDateTime && selectedDate) {
             const selectedDateObj = dayjs(selectedDate).tz(timezone);
             const optionDateTime = selectedDateObj
-              .hour(hour24)
+              .hour(h)
               .minute(m)
               .second(0)
               .millisecond(0);
@@ -144,68 +202,148 @@ export const TimePicker = ({
             }
           }
 
-          const hourDisplay = h.toString();
-          const minuteDisplay = m.toString().padStart(2, '0');
-          const timeDisplay = `${hourDisplay}:${minuteDisplay} ${mer.toUpperCase()}`;
+          const timeDisplay = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:00`;
 
           options.push({
             label: timeDisplay,
-            value: `${h}:${m}:${mer}`,
+            value: `${h}:${m}:0`,
             hour: h,
             minute: m,
-            meridiem: mer,
-            searchText: timeDisplay, // Use base time without duration for searching
+            second: 0,
+            searchText: timeDisplay,
             durationText,
-          });
+          } as TimeOption24h);
         }
       }
-    }
-    // Sort options by time (convert to 24-hour for proper chronological sorting)
-    return options.sort((a, b) => {
-      // Convert 12-hour to 24-hour for comparison
-      let hour24A = a.hour;
-      if (a.meridiem === 'am' && a.hour === 12) hour24A = 0;
-      else if (a.meridiem === 'pm' && a.hour < 12) hour24A = a.hour + 12;
+    } else {
+      // Generate 12-hour format options (1-12 for hours, AM/PM)
+      for (let h = 1; h <= 12; h++) {
+        for (let m = 0; m < 60; m += 15) {
+          for (const mer of ['am', 'pm'] as const) {
+            // Convert 12-hour to 24-hour for comparison
+            let hour24 = h;
+            if (mer === 'am' && h === 12) hour24 = 0;
+            else if (mer === 'pm' && h < 12) hour24 = h + 12;
 
-      let hour24B = b.hour;
-      if (b.meridiem === 'am' && b.hour === 12) hour24B = 0;
-      else if (b.meridiem === 'pm' && b.hour < 12) hour24B = b.hour + 12;
+            // Filter out times that would result in negative duration
+            if (startDateTime && selectedDate && shouldFilterByDate) {
+              const selectedDateObj = dayjs(selectedDate).tz(timezone);
+              const optionDateTime = selectedDateObj
+                .hour(hour24)
+                .minute(m)
+                .second(0)
+                .millisecond(0);
 
-      // Compare by hour first, then minute
-      if (hour24A !== hour24B) {
-        return hour24A - hour24B;
+              if (optionDateTime.isBefore(startDateTime)) {
+                continue;
+              }
+            }
+
+            // Calculate duration if startTime is provided
+            let durationText: string | undefined;
+            if (startDateTime && selectedDate) {
+              const selectedDateObj = dayjs(selectedDate).tz(timezone);
+              const optionDateTime = selectedDateObj
+                .hour(hour24)
+                .minute(m)
+                .second(0)
+                .millisecond(0);
+
+              if (
+                optionDateTime.isValid() &&
+                optionDateTime.isAfter(startDateTime)
+              ) {
+                const diffMs = optionDateTime.diff(startDateTime);
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffMinutes = Math.floor(
+                  (diffMs % (1000 * 60 * 60)) / (1000 * 60)
+                );
+                const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+                if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
+                  let diffText = '';
+                  if (diffHours > 0) {
+                    diffText = `${diffHours}h ${diffMinutes}m`;
+                  } else if (diffMinutes > 0) {
+                    diffText = `${diffMinutes}m ${diffSeconds}s`;
+                  } else {
+                    diffText = `${diffSeconds}s`;
+                  }
+                  durationText = `+${diffText}`;
+                }
+              }
+            }
+
+            const hourDisplay = h.toString();
+            const minuteDisplay = m.toString().padStart(2, '0');
+            const timeDisplay = `${hourDisplay}:${minuteDisplay} ${mer.toUpperCase()}`;
+
+            options.push({
+              label: timeDisplay,
+              value: `${h}:${m}:${mer}`,
+              hour: h,
+              minute: m,
+              meridiem: mer,
+              searchText: timeDisplay,
+              durationText,
+            } as TimeOption12h);
+          }
+        }
       }
-      return a.minute - b.minute;
-    });
-  }, [startTime, selectedDate, timezone]);
+      // Sort 12-hour options by time (convert to 24-hour for proper chronological sorting)
+      return options.sort((a, b) => {
+        const a12 = a as TimeOption12h;
+        const b12 = b as TimeOption12h;
+        let hour24A = a12.hour;
+        if (a12.meridiem === 'am' && a12.hour === 12) hour24A = 0;
+        else if (a12.meridiem === 'pm' && a12.hour < 12)
+          hour24A = a12.hour + 12;
+
+        let hour24B = b12.hour;
+        if (b12.meridiem === 'am' && b12.hour === 12) hour24B = 0;
+        else if (b12.meridiem === 'pm' && b12.hour < 12)
+          hour24B = b12.hour + 12;
+
+        if (hour24A !== hour24B) {
+          return hour24A - hour24B;
+        }
+        return a12.minute - b12.minute;
+      });
+    }
+
+    return options;
+  }, [startTime, selectedDate, timezone, is24Hour]);
 
   // itemToString returns only the clean display text (no metadata)
   const itemToString = useMemo(() => {
     return (item: TimeOption): string => {
-      return item.searchText; // Clean display text only
+      return item.searchText;
     };
   }, []);
 
-  // Custom filter function that filters by time and supports 24-hour format input
+  // Custom filter function
+  const { contains } = useFilter({ sensitivity: 'base' });
   const customTimeFilter = useMemo(() => {
+    if (is24Hour) {
+      return contains; // Simple contains filter for 24-hour format
+    }
+    // For 12-hour format, support both 12-hour and 24-hour input
     return (itemText: string, filterText: string): boolean => {
       if (!filterText) {
-        return true; // Show all items when no filter
+        return true;
       }
 
       const lowerItemText = itemText.toLowerCase();
       const lowerFilterText = filterText.toLowerCase();
 
-      // First, try matching against the display text (12-hour format)
       if (lowerItemText.includes(lowerFilterText)) {
         return true;
       }
 
-      // Find the corresponding item to check 24-hour format matches
       const item = timeOptions.find(
         (opt) => opt.searchText.toLowerCase() === lowerItemText
-      );
-      if (!item) {
+      ) as TimeOption12h | undefined;
+      if (!item || !('meridiem' in item)) {
         return false;
       }
 
@@ -218,13 +356,12 @@ export const TimePicker = ({
       const hour24Str = hour24.toString().padStart(2, '0');
       const minuteStr = item.minute.toString().padStart(2, '0');
 
-      // Check if filterText matches 24-hour format variations
       const formats = [
-        `${hour24Str}:${minuteStr}`, // "13:30"
-        `${hour24Str}${minuteStr}`, // "1330"
-        hour24Str, // "13"
-        `${hour24}:${minuteStr}`, // "13:30" (without padding)
-        hour24.toString(), // "13" (without padding)
+        `${hour24Str}:${minuteStr}`,
+        `${hour24Str}${minuteStr}`,
+        hour24Str,
+        `${hour24}:${minuteStr}`,
+        hour24.toString(),
       ];
 
       return formats.some(
@@ -233,7 +370,7 @@ export const TimePicker = ({
           lowerFilterText.includes(format.toLowerCase())
       );
     };
-  }, [timeOptions]);
+  }, [timeOptions, is24Hour, contains]);
 
   const { collection, filter } = useListCollection({
     initialItems: timeOptions,
@@ -244,36 +381,49 @@ export const TimePicker = ({
 
   // Get current value string for combobox
   const currentValue = useMemo(() => {
-    if (hour === null || minute === null || meridiem === null) {
-      return '';
+    if (is24Hour) {
+      if (hour === null || minute === null || second === null) {
+        return '';
+      }
+      return `${hour}:${minute}:${second}`;
+    } else {
+      if (hour === null || minute === null || meridiem === null) {
+        return '';
+      }
+      return `${hour}:${minute}:${meridiem}`;
     }
-    return `${hour}:${minute}:${meridiem}`;
-  }, [hour, minute, meridiem]);
+  }, [hour, minute, second, meridiem, is24Hour]);
 
   // Calculate duration difference
   const durationDiff = useMemo(() => {
-    if (
-      !startTime ||
-      !selectedDate ||
-      hour === null ||
-      minute === null ||
-      meridiem === null
-    ) {
+    if (!startTime || !selectedDate || hour === null || minute === null) {
       return null;
+    }
+
+    if (is24Hour) {
+      if (second === null) return null;
+    } else {
+      if (meridiem === null) return null;
     }
 
     const startDateObj = dayjs(startTime).tz(timezone);
     const selectedDateObj = dayjs(selectedDate).tz(timezone);
 
-    // Convert 12-hour to 24-hour format
+    // Convert to 24-hour format
     let hour24 = hour;
-    if (meridiem === 'am' && hour === 12) hour24 = 0;
-    else if (meridiem === 'pm' && hour < 12) hour24 = hour + 12;
+    if (!is24Hour && meridiem) {
+      if (meridiem === 'am' && hour === 12) hour24 = 0;
+      else if (meridiem === 'pm' && hour < 12) hour24 = hour + 12;
+    }
 
     const currentDateTime = selectedDateObj
       .hour(hour24)
       .minute(minute)
-      .second(0)
+      .second(
+        is24Hour && second !== null && second !== undefined
+          ? (second as number)
+          : 0
+      )
       .millisecond(0);
 
     if (!startDateObj.isValid() || !currentDateTime.isValid()) {
@@ -302,14 +452,44 @@ export const TimePicker = ({
     }
 
     return null;
-  }, [hour, minute, meridiem, startTime, selectedDate, timezone]);
+  }, [
+    hour,
+    minute,
+    second,
+    meridiem,
+    startTime,
+    selectedDate,
+    timezone,
+    is24Hour,
+  ]);
 
   const handleClear = () => {
     setHour(null);
     setMinute(null);
-    setMeridiem(null);
-    filter(''); // Reset filter to show all options
-    onChange({ hour: null, minute: null, meridiem: null });
+    if (is24Hour && setSecond) {
+      setSecond(null);
+      if (onChange) {
+        (
+          onChange as (newValue: {
+            hour: number | null;
+            minute: number | null;
+            second: number | null;
+          }) => void
+        )({ hour: null, minute: null, second: null });
+      }
+    } else if (!is24Hour && setMeridiem) {
+      setMeridiem(null);
+      if (onChange) {
+        (
+          onChange as (newValue: {
+            hour: number | null;
+            minute: number | null;
+            meridiem: 'am' | 'pm' | null;
+          }) => void
+        )({ hour: null, minute: null, meridiem: null });
+      }
+    }
+    filter('');
   };
 
   const handleValueChange = (details: Combobox.ValueChangeDetails) => {
@@ -326,113 +506,172 @@ export const TimePicker = ({
     if (selectedOption) {
       setHour(selectedOption.hour);
       setMinute(selectedOption.minute);
-      setMeridiem(selectedOption.meridiem);
-      filter(''); // Reset filter after selection
-      onChange({
-        hour: selectedOption.hour,
-        minute: selectedOption.minute,
-        meridiem: selectedOption.meridiem,
-      });
+      filter('');
+
+      if (is24Hour) {
+        const opt24 = selectedOption as TimeOption24h;
+        if (setSecond) setSecond(opt24.second);
+        if (onChange) {
+          (
+            onChange as (newValue: {
+              hour: number | null;
+              minute: number | null;
+              second: number | null;
+            }) => void
+          )({ hour: opt24.hour, minute: opt24.minute, second: opt24.second });
+        }
+      } else {
+        const opt12 = selectedOption as TimeOption12h;
+        if (setMeridiem) setMeridiem(opt12.meridiem);
+        if (onChange) {
+          (
+            onChange as (newValue: {
+              hour: number | null;
+              minute: number | null;
+              meridiem: 'am' | 'pm' | null;
+            }) => void
+          )({
+            hour: opt12.hour,
+            minute: opt12.minute,
+            meridiem: opt12.meridiem,
+          });
+        }
+      }
     }
   };
 
   // Parse input value and update state
   const parseAndCommitInput = (value: string) => {
     const trimmedValue = value.trim();
-
-    // Filter the collection based on input
     filter(trimmedValue);
 
     if (!trimmedValue) {
       return;
     }
 
-    // Parse 24-hour format first (e.g., "13:30", "14:00", "1330", "1400", "9:05", "905")
-    const timePattern24Hour = /^(\d{1,2}):?(\d{2})$/;
-    const match24Hour = trimmedValue.match(timePattern24Hour);
+    if (is24Hour) {
+      // Parse 24-hour format: "HH:mm:ss" or "HH:mm" or "HHmmss" or "HHmm"
+      const timePattern = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/;
+      const match = trimmedValue.match(timePattern);
 
-    if (match24Hour) {
-      const parsedHour24 = parseInt(match24Hour[1], 10);
-      const parsedMinute = parseInt(match24Hour[2], 10);
+      if (match) {
+        const parsedHour = parseInt(match[1], 10);
+        const parsedMinute = parseInt(match[2], 10);
+        const parsedSecond = match[3] ? parseInt(match[3], 10) : 0;
 
-      // Validate 24-hour format ranges
-      if (
-        parsedHour24 >= 0 &&
-        parsedHour24 <= 23 &&
-        parsedMinute >= 0 &&
-        parsedMinute <= 59
-      ) {
-        // Convert 24-hour to 12-hour format
-        let hour12: number;
-        let meridiem: 'am' | 'pm';
-
-        if (parsedHour24 === 0) {
-          hour12 = 12;
-          meridiem = 'am';
-        } else if (parsedHour24 === 12) {
-          hour12 = 12;
-          meridiem = 'pm';
-        } else if (parsedHour24 > 12) {
-          hour12 = parsedHour24 - 12;
-          meridiem = 'pm';
-        } else {
-          hour12 = parsedHour24;
-          meridiem = 'am';
+        if (
+          parsedHour >= 0 &&
+          parsedHour <= 23 &&
+          parsedMinute >= 0 &&
+          parsedMinute <= 59 &&
+          parsedSecond >= 0 &&
+          parsedSecond <= 59
+        ) {
+          setHour(parsedHour);
+          setMinute(parsedMinute);
+          if (setSecond) setSecond(parsedSecond);
+          if (onChange) {
+            (
+              onChange as (newValue: {
+                hour: number | null;
+                minute: number | null;
+                second: number | null;
+              }) => void
+            )({ hour: parsedHour, minute: parsedMinute, second: parsedSecond });
+          }
+          return;
         }
-
-        setHour(hour12);
-        setMinute(parsedMinute);
-        setMeridiem(meridiem);
-        onChange({
-          hour: hour12,
-          minute: parsedMinute,
-          meridiem: meridiem,
-        });
-        return;
       }
-    }
 
-    // Parse formats like "1:30 PM", "1:30PM", "1:30 pm", "1:30pm"
-    const timePattern12Hour = /^(\d{1,2}):(\d{1,2})\s*(am|pm|AM|PM)$/i;
-    const match12Hour = trimmedValue.match(timePattern12Hour);
+      // Try numbers only format: "123045" or "1230"
+      const numbersOnly = trimmedValue.replace(/[^0-9]/g, '');
+      if (numbersOnly.length >= 4) {
+        const parsedHour = parseInt(numbersOnly.slice(0, 2), 10);
+        const parsedMinute = parseInt(numbersOnly.slice(2, 4), 10);
+        const parsedSecond =
+          numbersOnly.length >= 6 ? parseInt(numbersOnly.slice(4, 6), 10) : 0;
 
-    if (match12Hour) {
-      const parsedHour = parseInt(match12Hour[1], 10);
-      const parsedMinute = parseInt(match12Hour[2], 10);
-      const parsedMeridiem = match12Hour[3].toLowerCase() as 'am' | 'pm';
-
-      // Validate ranges
-      if (
-        parsedHour >= 1 &&
-        parsedHour <= 12 &&
-        parsedMinute >= 0 &&
-        parsedMinute <= 59
-      ) {
-        setHour(parsedHour);
-        setMinute(parsedMinute);
-        setMeridiem(parsedMeridiem);
-        onChange({
-          hour: parsedHour,
-          minute: parsedMinute,
-          meridiem: parsedMeridiem,
-        });
-        return;
+        if (
+          parsedHour >= 0 &&
+          parsedHour <= 23 &&
+          parsedMinute >= 0 &&
+          parsedMinute <= 59 &&
+          parsedSecond >= 0 &&
+          parsedSecond <= 59
+        ) {
+          setHour(parsedHour);
+          setMinute(parsedMinute);
+          if (setSecond) setSecond(parsedSecond);
+          if (onChange) {
+            (
+              onChange as (newValue: {
+                hour: number | null;
+                minute: number | null;
+                second: number | null;
+              }) => void
+            )({ hour: parsedHour, minute: parsedMinute, second: parsedSecond });
+          }
+          return;
+        }
       }
-    }
+    } else {
+      // Parse 24-hour format first (e.g., "13:30", "14:00", "1330", "1400")
+      const timePattern24Hour = /^(\d{1,2}):?(\d{2})$/;
+      const match24Hour = trimmedValue.match(timePattern24Hour);
 
-    // Try to parse formats like "130pm" or "130 pm" (without colon)
-    const timePatternNoColon = /^(\d{1,4})\s*(am|pm|AM|PM)$/i;
-    const matchNoColon = trimmedValue.match(timePatternNoColon);
+      if (match24Hour) {
+        const parsedHour24 = parseInt(match24Hour[1], 10);
+        const parsedMinute = parseInt(match24Hour[2], 10);
 
-    if (matchNoColon) {
-      const numbersOnly = matchNoColon[1];
-      const parsedMeridiem = matchNoColon[2].toLowerCase() as 'am' | 'pm';
+        if (
+          parsedHour24 >= 0 &&
+          parsedHour24 <= 23 &&
+          parsedMinute >= 0 &&
+          parsedMinute <= 59
+        ) {
+          // Convert 24-hour to 12-hour format
+          let hour12: number;
+          let meridiem: 'am' | 'pm';
 
-      if (numbersOnly.length >= 3) {
-        const parsedHour = parseInt(numbersOnly.slice(0, -2), 10);
-        const parsedMinute = parseInt(numbersOnly.slice(-2), 10);
+          if (parsedHour24 === 0) {
+            hour12 = 12;
+            meridiem = 'am';
+          } else if (parsedHour24 === 12) {
+            hour12 = 12;
+            meridiem = 'pm';
+          } else if (parsedHour24 > 12) {
+            hour12 = parsedHour24 - 12;
+            meridiem = 'pm';
+          } else {
+            hour12 = parsedHour24;
+            meridiem = 'am';
+          }
 
-        // Validate ranges
+          setHour(hour12);
+          setMinute(parsedMinute);
+          if (setMeridiem) setMeridiem(meridiem);
+          if (onChange) {
+            (
+              onChange as (newValue: {
+                hour: number | null;
+                minute: number | null;
+                meridiem: 'am' | 'pm' | null;
+              }) => void
+            )({ hour: hour12, minute: parsedMinute, meridiem });
+          }
+          return;
+        }
+      }
+
+      // Parse formats like "1:30 PM", "1:30PM", "1:30 pm", "1:30pm"
+      const timePattern12Hour = /^(\d{1,2}):(\d{1,2})\s*(am|pm|AM|PM)$/i;
+      const match12Hour = trimmedValue.match(timePattern12Hour);
+
+      if (match12Hour) {
+        const parsedHour = parseInt(match12Hour[1], 10);
+        const parsedMinute = parseInt(match12Hour[2], 10);
+        const parsedMeridiem = match12Hour[3].toLowerCase() as 'am' | 'pm';
+
         if (
           parsedHour >= 1 &&
           parsedHour <= 12 &&
@@ -441,13 +680,85 @@ export const TimePicker = ({
         ) {
           setHour(parsedHour);
           setMinute(parsedMinute);
-          setMeridiem(parsedMeridiem);
-          onChange({
-            hour: parsedHour,
-            minute: parsedMinute,
-            meridiem: parsedMeridiem,
-          });
+          if (setMeridiem) setMeridiem(parsedMeridiem);
+          if (onChange) {
+            (
+              onChange as (newValue: {
+                hour: number | null;
+                minute: number | null;
+                meridiem: 'am' | 'pm' | null;
+              }) => void
+            )({
+              hour: parsedHour,
+              minute: parsedMinute,
+              meridiem: parsedMeridiem,
+            });
+          }
           return;
+        }
+      }
+
+      // Parse formats like "12am" or "1pm" (hour only with meridiem, no minutes)
+      const timePatternHourOnly = /^(\d{1,2})\s*(am|pm|AM|PM)$/i;
+      const matchHourOnly = trimmedValue.match(timePatternHourOnly);
+
+      if (matchHourOnly) {
+        const parsedHour = parseInt(matchHourOnly[1], 10);
+        const parsedMeridiem = matchHourOnly[2].toLowerCase() as 'am' | 'pm';
+
+        if (parsedHour >= 1 && parsedHour <= 12) {
+          setHour(parsedHour);
+          setMinute(0); // Default to 0 minutes when only hour is provided
+          if (setMeridiem) setMeridiem(parsedMeridiem);
+          if (onChange) {
+            (
+              onChange as (newValue: {
+                hour: number | null;
+                minute: number | null;
+                meridiem: 'am' | 'pm' | null;
+              }) => void
+            )({ hour: parsedHour, minute: 0, meridiem: parsedMeridiem });
+          }
+          return;
+        }
+      }
+
+      // Try to parse formats like "130pm" or "130 pm" (without colon, with minutes)
+      const timePatternNoColon = /^(\d{1,4})\s*(am|pm|AM|PM)$/i;
+      const matchNoColon = trimmedValue.match(timePatternNoColon);
+
+      if (matchNoColon) {
+        const numbersOnly = matchNoColon[1];
+        const parsedMeridiem = matchNoColon[2].toLowerCase() as 'am' | 'pm';
+
+        if (numbersOnly.length >= 3) {
+          const parsedHour = parseInt(numbersOnly.slice(0, -2), 10);
+          const parsedMinute = parseInt(numbersOnly.slice(-2), 10);
+
+          if (
+            parsedHour >= 1 &&
+            parsedHour <= 12 &&
+            parsedMinute >= 0 &&
+            parsedMinute <= 59
+          ) {
+            setHour(parsedHour);
+            setMinute(parsedMinute);
+            if (setMeridiem) setMeridiem(parsedMeridiem);
+            if (onChange) {
+              (
+                onChange as (newValue: {
+                  hour: number | null;
+                  minute: number | null;
+                  meridiem: 'am' | 'pm' | null;
+                }) => void
+              )({
+                hour: parsedHour,
+                minute: parsedMinute,
+                meridiem: parsedMeridiem,
+              });
+            }
+            return;
+          }
         }
       }
     }
@@ -462,45 +773,73 @@ export const TimePicker = ({
       const firstItem = collection.items[0];
       setHour(firstItem.hour);
       setMinute(firstItem.minute);
-      setMeridiem(firstItem.meridiem);
-      filter(''); // Reset filter after selection
-      onChange({
-        hour: firstItem.hour,
-        minute: firstItem.minute,
-        meridiem: firstItem.meridiem,
-      });
+      filter('');
+
+      if (is24Hour) {
+        const opt24 = firstItem as TimeOption24h;
+        if (setSecond) setSecond(opt24.second);
+        if (onChange) {
+          (
+            onChange as (newValue: {
+              hour: number | null;
+              minute: number | null;
+              second: number | null;
+            }) => void
+          )({ hour: opt24.hour, minute: opt24.minute, second: opt24.second });
+        }
+      } else {
+        const opt12 = firstItem as TimeOption12h;
+        if (setMeridiem) setMeridiem(opt12.meridiem);
+        if (onChange) {
+          (
+            onChange as (newValue: {
+              hour: number | null;
+              minute: number | null;
+              meridiem: 'am' | 'pm' | null;
+            }) => void
+          )({
+            hour: opt12.hour,
+            minute: opt12.minute,
+            meridiem: opt12.meridiem,
+          });
+        }
+      }
     }
   };
 
   const handleInputValueChange = (
     details: Combobox.InputValueChangeDetails
   ) => {
-    // Filter the collection based on input, but don't parse yet
+    if (is24Hour) {
+      setInputValue(details.inputValue);
+    }
     filter(details.inputValue);
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Select all text when focusing
     e.target.select();
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Parse and commit the input value when losing focus
-    const inputValue = e.target.value;
-    if (inputValue) {
-      parseAndCommitInput(inputValue);
+    const inputVal = e.target.value;
+    if (is24Hour) {
+      setInputValue(inputVal);
+    }
+    if (inputVal) {
+      parseAndCommitInput(inputVal);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Commit input on Enter key
     if (e.key === 'Enter') {
       e.preventDefault();
-      const inputValue = e.currentTarget.value;
-      if (inputValue) {
-        parseAndCommitInput(inputValue);
+      const inputVal = e.currentTarget.value;
+      if (is24Hour) {
+        setInputValue(inputVal);
       }
-      // Blur the input
+      if (inputVal) {
+        parseAndCommitInput(inputVal);
+      }
       (e.currentTarget as HTMLInputElement)?.blur();
     }
   };
@@ -515,13 +854,15 @@ export const TimePicker = ({
           onInputValueChange={handleInputValueChange}
           allowCustomValue
           selectionBehavior="replace"
-          openOnClick
           flex={1}
         >
           <Combobox.Control>
             <InputGroup startElement={<BsClock />}>
               <Combobox.Input
-                placeholder={labels?.placeholder ?? 'hh:mm AM/PM'}
+                value={is24Hour ? inputValue : undefined}
+                placeholder={
+                  labels?.placeholder ?? (is24Hour ? 'HH:mm:ss' : 'hh:mm AM/PM')
+                }
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
@@ -561,12 +902,6 @@ export const TimePicker = ({
             <Tag.Label>{durationDiff}</Tag.Label>
           </Tag.Root>
         )}
-
-        <Button onClick={handleClear} size="sm" variant="ghost">
-          <Icon>
-            <MdCancel />
-          </Icon>
-        </Button>
       </Flex>
     </Flex>
   );

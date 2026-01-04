@@ -1,12 +1,196 @@
-import { Box, Grid, Text, VStack } from "@chakra-ui/react";
-import { useState } from "react";
-import DatePicker from "./DatePicker";
-import { TimePicker } from "../TimePicker/TimePicker";
-import { IsoTimePicker } from "./IsoTimePicker";
-import { DurationPicker } from "./DurationPicker";
-import dayjs from "dayjs";
-import { DateTimePicker } from "./DateTimePicker";
-import { UniversalPicker } from "./UniversalPicker";
+import {
+  Box,
+  Combobox,
+  Flex,
+  Grid,
+  Icon,
+  InputGroup,
+  Text,
+  useFilter,
+  useListCollection,
+  VStack,
+} from '@chakra-ui/react';
+import { useState, useMemo, useEffect } from 'react';
+import DatePicker from './DatePicker';
+import { TimePicker } from '../TimePicker/TimePicker';
+import { DurationPicker } from './DurationPicker';
+import dayjs from 'dayjs';
+import { DateTimePicker } from './DateTimePicker';
+import { UniversalPicker } from './UniversalPicker';
+import { BsClock } from 'react-icons/bs';
+import { MdCancel } from 'react-icons/md';
+
+// Simple 24-hour time picker for demo
+function Time24PickerDemo({
+  hour,
+  setHour,
+  minute,
+  setMinute,
+  second,
+  setSecond,
+  onChange,
+}: {
+  hour: number | null;
+  setHour: (h: number | null) => void;
+  minute: number | null;
+  setMinute: (m: number | null) => void;
+  second: number | null;
+  setSecond: (s: number | null) => void;
+  onChange: (data: {
+    hour: number | null;
+    minute: number | null;
+    second: number | null;
+  }) => void;
+}) {
+  const timeOptions = useMemo(() => {
+    const options: Array<{
+      label: string;
+      value: string;
+      hour: number;
+      minute: number;
+      second: number;
+    }> = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        options.push({
+          label: `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:00`,
+          value: `${h}:${m}:0`,
+          hour: h,
+          minute: m,
+          second: 0,
+        });
+      }
+    }
+    return options;
+  }, []);
+  const { contains } = useFilter({ sensitivity: 'base' });
+  const { collection, filter } = useListCollection({
+    initialItems: timeOptions,
+    itemToString: (item) => item.label,
+    itemToValue: (item) => item.value,
+    filter: contains,
+  });
+  const currentValue = useMemo(() => {
+    if (hour === null || minute === null || second === null) {
+      return '';
+    }
+    return `${hour}:${minute}:${second}`;
+  }, [hour, minute, second]);
+  const [inputValue, setInputValue] = useState<string>('');
+  useEffect(() => {
+    if (hour !== null && minute !== null && second !== null) {
+      const formatted = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+      setInputValue(formatted);
+    } else {
+      setInputValue('');
+    }
+  }, [hour, minute, second]);
+  return (
+    <Flex direction="column" gap={3}>
+      <Flex alignItems="center" gap="2" width="auto" minWidth="300px">
+        <Combobox.Root
+          collection={collection}
+          value={currentValue ? [currentValue] : []}
+          onValueChange={(details) => {
+            if (details.value.length === 0) {
+              setHour(null);
+              setMinute(null);
+              setSecond(null);
+              filter('');
+              onChange({ hour: null, minute: null, second: null });
+              return;
+            }
+            const selectedValue = details.value[0];
+            const selectedOption = timeOptions.find(
+              (opt) => opt.value === selectedValue
+            );
+            if (selectedOption) {
+              setHour(selectedOption.hour);
+              setMinute(selectedOption.minute);
+              setSecond(selectedOption.second);
+              filter('');
+              onChange({
+                hour: selectedOption.hour,
+                minute: selectedOption.minute,
+                second: selectedOption.second,
+              });
+            }
+          }}
+          onInputValueChange={(details) => {
+            setInputValue(details.inputValue);
+            filter(details.inputValue);
+          }}
+          allowCustomValue
+          selectionBehavior="replace"
+          openOnClick
+          flex={1}
+        >
+          <Combobox.Control>
+            <InputGroup startElement={<BsClock />}>
+              <Combobox.Input
+                value={inputValue}
+                placeholder="HH:mm:ss"
+                onBlur={(e) => {
+                  const val = e.target.value.trim();
+                  const match = val.match(
+                    /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/
+                  );
+                  if (match) {
+                    const h = parseInt(match[1], 10);
+                    const m = parseInt(match[2], 10);
+                    const s = match[3] ? parseInt(match[3], 10) : 0;
+                    if (
+                      h >= 0 &&
+                      h <= 23 &&
+                      m >= 0 &&
+                      m <= 59 &&
+                      s >= 0 &&
+                      s <= 59
+                    ) {
+                      setHour(h);
+                      setMinute(m);
+                      setSecond(s);
+                      onChange({ hour: h, minute: m, second: s });
+                    }
+                  }
+                }}
+              />
+            </InputGroup>
+            <Combobox.IndicatorGroup>
+              <Combobox.Trigger />
+            </Combobox.IndicatorGroup>
+          </Combobox.Control>
+          <Combobox.Positioner>
+            <Combobox.Content>
+              <Combobox.Empty>No time found</Combobox.Empty>
+              {collection.items.map((item) => (
+                <Combobox.Item item={item} key={item.value}>
+                  <Text>{item.label}</Text>
+                  <Combobox.ItemIndicator />
+                </Combobox.Item>
+              ))}
+            </Combobox.Content>
+          </Combobox.Positioner>
+        </Combobox.Root>
+        <Box
+          as="button"
+          onClick={() => {
+            setHour(null);
+            setMinute(null);
+            setSecond(null);
+            filter('');
+            onChange({ hour: null, minute: null, second: null });
+          }}
+          style={{ padding: '4px', cursor: 'pointer' }}
+        >
+          <Icon>
+            <MdCancel />
+          </Icon>
+        </Box>
+      </Flex>
+    </Flex>
+  );
+}
 
 export function PickerDemo() {
   // Date picker state
@@ -15,7 +199,7 @@ export function PickerDemo() {
   // Time picker state (12-hour)
   const [hour12, setHour12] = useState<number | null>(null);
   const [minute, setMinute] = useState<number | null>(null);
-  const [meridiem, setMeridiem] = useState<"am" | "pm" | null>(null);
+  const [meridiem, setMeridiem] = useState<'am' | 'pm' | null>(null);
 
   // ISO Time picker state (24-hour)
   const [hour24, setHour24] = useState<number | null>(null);
@@ -30,31 +214,31 @@ export function PickerDemo() {
   const [dateTimeISO, setDateTimeISO] = useState<Date | null>(null);
 
   const formatValue = (value: any, type: string) => {
-    if (!value) return "No value selected";
+    if (!value) return 'No value selected';
 
     switch (type) {
-      case "date":
-        return dayjs(value).format("YYYY-MM-DD");
-      case "time-12":
+      case 'date':
+        return dayjs(value).format('YYYY-MM-DD');
+      case 'time-12':
         if (hour12 && minute !== null && meridiem) {
           let hour24Format = hour12;
-          if (meridiem === "am" && hour12 === 12) hour24Format = 0;
-          else if (meridiem === "pm" && hour12 < 12) hour24Format = hour12 + 12;
-          return `${hour24Format.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00Z`;
+          if (meridiem === 'am' && hour12 === 12) hour24Format = 0;
+          else if (meridiem === 'pm' && hour12 < 12) hour24Format = hour12 + 12;
+          return `${hour24Format.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00Z`;
         }
-        return "Incomplete time";
-      case "iso-time":
+        return 'Incomplete time';
+      case 'iso-time':
         if (hour24 !== null && minute24 !== null) {
-          const h = hour24.toString().padStart(2, "0");
-          const m = minute24.toString().padStart(2, "0");
-          const s = (second24 || 0).toString().padStart(2, "0");
+          const h = hour24.toString().padStart(2, '0');
+          const m = minute24.toString().padStart(2, '0');
+          const s = (second24 || 0).toString().padStart(2, '0');
           return `${h}:${m}:${s}`;
         }
-        return "Incomplete time";
-      case "duration":
+        return 'Incomplete time';
+      case 'duration':
         return value;
-      case "date-time":
-        return dayjs(value).format("YYYY-MM-DD HH:mm:ss");
+      case 'date-time':
+        return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
       default:
         return JSON.stringify(value);
     }
@@ -92,7 +276,7 @@ export function PickerDemo() {
           <Box>
             <Text fontWeight="medium">Selected Value:</Text>
             <Text fontFamily="mono" fontSize="sm" p={2} borderRadius="md">
-              {formatValue(selectedDate, "date")}
+              {formatValue(selectedDate, 'date')}
             </Text>
           </Box>
         </VStack>
@@ -132,7 +316,7 @@ export function PickerDemo() {
             <Text fontFamily="mono" fontSize="sm" p={2} borderRadius="md">
               {formatValue(
                 { hour: hour12, minute: minute, meridiem: meridiem },
-                "time-12"
+                'time-12'
               )}
             </Text>
           </Box>
@@ -154,7 +338,7 @@ export function PickerDemo() {
             Format: iso-time (HH:mm:ss)
           </Text>
 
-          <IsoTimePicker
+          <Time24PickerDemo
             hour={hour24}
             setHour={setHour24}
             minute={minute24}
@@ -173,7 +357,7 @@ export function PickerDemo() {
             <Text fontFamily="mono" fontSize="sm" p={2} borderRadius="md">
               {formatValue(
                 { hour: hour24, minute: minute24, second: second24 },
-                "iso-time"
+                'iso-time'
               )}
             </Text>
           </Box>
@@ -200,7 +384,7 @@ export function PickerDemo() {
           <Box>
             <Text fontWeight="medium">Selected Value:</Text>
             <Text fontFamily="mono" fontSize="sm" p={2} borderRadius="md">
-              {formatValue(duration, "duration")}
+              {formatValue(duration, 'duration')}
             </Text>
           </Box>
         </VStack>
@@ -234,7 +418,7 @@ export function PickerDemo() {
           <Box>
             <Text fontWeight="medium">Selected Value:</Text>
             <Text fontFamily="mono" fontSize="sm" p={2} borderRadius="md">
-              {formatValue(dateTime, "date-time")}
+              {formatValue(dateTime, 'date-time')}
             </Text>
           </Box>
         </VStack>
@@ -264,7 +448,7 @@ export function PickerDemo() {
           <Box>
             <Text fontWeight="medium">Selected Value:</Text>
             <Text fontFamily="mono" fontSize="sm" p={2} borderRadius="md">
-              {formatValue(dateTimeISO, "iso-date-time")}
+              {formatValue(dateTimeISO, 'iso-date-time')}
             </Text>
           </Box>
         </VStack>

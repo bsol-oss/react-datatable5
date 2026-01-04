@@ -1,13 +1,12 @@
 import { TimePicker as CustomTimePicker } from '@/components/TimePicker/TimePicker';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
-import { Popover, Portal, Text } from '@chakra-ui/react';
+import { Popover, Portal } from '@chakra-ui/react';
 import dayjs from 'dayjs';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { IoMdClock } from 'react-icons/io';
 import { useSchemaContext } from '../../useSchemaContext';
-import { removeIndex } from '../../utils/removeIndex';
 import { useFormI18n } from '../../utils/useFormI18n';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import timezone from 'dayjs/plugin/timezone';
@@ -34,12 +33,39 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     gridRow = 'span 1',
     timeFormat = 'HH:mm:ssZ',
     displayTimeFormat = 'hh:mm A',
-  } = schema;
+    startTimeField,
+    selectedDateField,
+  } = schema as CustomJSONSchema7 & {
+    startTimeField?: string;
+    selectedDateField?: string;
+  };
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const formI18n = useFormI18n(column, prefix, schema);
   const [open, setOpen] = useState(false);
   const value = watch(colLabel);
+
+  // Watch startTime and selectedDate fields for offset calculation
+  const startTimeValue = startTimeField
+    ? watch(`${prefix}${startTimeField}`)
+    : undefined;
+  const selectedDateValue = selectedDateField
+    ? watch(`${prefix}${selectedDateField}`)
+    : undefined;
+
+  // Convert to ISO string format for startTime if it's a date-time string
+  const startTime = startTimeValue
+    ? dayjs(startTimeValue).tz(timezone).isValid()
+      ? dayjs(startTimeValue).tz(timezone).toISOString()
+      : undefined
+    : undefined;
+
+  // Convert selectedDate to YYYY-MM-DD format
+  const selectedDate = selectedDateValue
+    ? dayjs(selectedDateValue).tz(timezone).isValid()
+      ? dayjs(selectedDateValue).tz(timezone).format('YYYY-MM-DD')
+      : undefined
+    : undefined;
   const displayedTime = dayjs(`1970-01-01T${value}`).tz(timezone).isValid()
     ? dayjs(`1970-01-01T${value}`).tz(timezone).format(displayTimeFormat)
     : '';
@@ -155,6 +181,10 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
                   meridiem={meridiem}
                   setMeridiem={setMeridiem}
                   onChange={handleTimeChange}
+                  startTime={startTime}
+                  selectedDate={selectedDate}
+                  timezone={timezone}
+                  portalled={false}
                   labels={timePickerLabels}
                 />
               </Popover.Body>
@@ -166,6 +196,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
               <Popover.Content>
                 <Popover.Body>
                   <CustomTimePicker
+                    format="12h"
                     hour={hour}
                     setHour={setHour}
                     minute={minute}
@@ -173,6 +204,10 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
                     meridiem={meridiem}
                     setMeridiem={setMeridiem}
                     onChange={handleTimeChange}
+                    startTime={startTime}
+                    selectedDate={selectedDate}
+                    timezone={timezone}
+                    portalled={false}
                     labels={timePickerLabels}
                   />
                 </Popover.Body>
