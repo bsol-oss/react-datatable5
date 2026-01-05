@@ -10,6 +10,12 @@ export interface DateTimePickerLabels {
   weekdayNamesShort?: string[]; // Array of 7 weekday names (starting with Sunday)
   backButtonLabel?: string;
   forwardButtonLabel?: string;
+  quickActionLabels?: {
+    yesterday?: string;
+    today?: string;
+    tomorrow?: string;
+    plus7Days?: string;
+  };
 }
 
 export interface IdPickerLabels {

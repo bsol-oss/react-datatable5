@@ -95,7 +95,10 @@ export const DateTimePicker = ({
       labels={dateTimePickerLabelsConfig}
       timePickerLabels={timePickerLabels}
       showQuickActions={dateTimePicker?.showQuickActions ?? false}
-      quickActionLabels={dateTimePicker?.quickActionLabels}
+      quickActionLabels={
+        dateTimePickerLabels?.quickActionLabels ??
+        dateTimePicker?.quickActionLabels
+      }
       showTimezoneSelector={dateTimePicker?.showTimezoneSelector ?? false}
     />
   );

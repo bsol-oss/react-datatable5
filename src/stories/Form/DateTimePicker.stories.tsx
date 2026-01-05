@@ -1,7 +1,7 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
-import { Box, Text, VStack, HStack, Button } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, Button, Dialog } from '@chakra-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
@@ -797,4 +797,111 @@ const SchemaHelperButtonsAndTimezoneForm = () => {
       />
     </VStack>
   );
+};
+
+// Date-time picker form inside a dialog
+const DateTimePickerInDialogForm = () => {
+  const form = useForm({
+    keyPrefix: 'datetimeDialog',
+    preLoadedValues: {},
+  });
+  const [open, setOpen] = useState(false);
+
+  const schema = {
+    type: 'object',
+    properties: {
+      eventDateTime: {
+        type: 'string',
+        format: 'date-time',
+        title: 'Event Date & Time',
+        dateTimePicker: {
+          showQuickActions: true,
+        },
+      },
+      eventEndDateTime: {
+        type: 'string',
+        format: 'date-time',
+        title: 'Event End Date & Time',
+        dateTimePicker: {
+          showQuickActions: true,
+        },
+      },
+      eventName: {
+        type: 'string',
+        title: 'Event Name',
+      },
+      eventDescription: {
+        type: 'string',
+        variant: 'text-area',
+        title: 'Event Description',
+      },
+    },
+    required: ['eventDateTime', 'eventName'],
+  } as JSONSchema7;
+
+  return (
+    <VStack gap={6} align="stretch">
+      <Box>
+        <Text fontSize="lg" fontWeight="bold" mb={2}>
+          Date-Time Picker Form Inside Dialog
+        </Text>
+        <Text fontSize="sm" color="gray.600" mb={4}>
+          This example demonstrates a DefaultForm with a DateTimePicker field
+          inside a Dialog. The form includes multiple fields and the
+          DateTimePicker has quick action buttons enabled. Click the button
+          below to open the dialog.
+        </Text>
+      </Box>
+
+      <Button onClick={() => setOpen(true)}>
+        Open Dialog with DateTimePicker Form
+      </Button>
+
+      <Dialog.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
+        <Dialog.Content>
+          <DefaultForm
+            formConfig={{
+              schema: schema as JSONSchema7,
+              onSubmit: (data) => {
+                console.log('Form submitted with data:', data);
+                alert(`Form submitted:\n${JSON.stringify(data, null, 2)}`);
+                setOpen(false);
+              },
+              insideDialog: true,
+              dateTimePickerLabels: {
+                quickActionLabels: {
+                  yesterday: 'Yesterday',
+                  today: 'Today',
+                  tomorrow: 'Tomorrow',
+                  plus7Days: '+7 Days',
+                },
+              },
+              ...form,
+            }}
+          />
+        </Dialog.Content>
+      </Dialog.Root>
+    </VStack>
+  );
+};
+
+export const InsideDialog: Story = {
+  name: 'Inside Dialog',
+  render: () => {
+    return (
+      <Provider>
+        <QueryClientProvider client={queryClient}>
+          <DateTimePickerInDialogForm />
+        </QueryClientProvider>
+      </Provider>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Date-time picker form inside a Dialog. This demonstrates how to use DefaultForm with DateTimePicker fields within a dialog. The form includes validation and quick action buttons for the date-time picker.',
+      },
+    },
+  },
 };
