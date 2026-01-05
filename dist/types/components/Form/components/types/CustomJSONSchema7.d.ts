@@ -9,6 +9,12 @@ export interface DateTimePickerLabels {
     weekdayNamesShort?: string[];
     backButtonLabel?: string;
     forwardButtonLabel?: string;
+    quickActionLabels?: {
+        yesterday?: string;
+        today?: string;
+        tomorrow?: string;
+        plus7Days?: string;
+    };
 }
 export interface IdPickerLabels {
     undefined?: string;

@@ -7942,7 +7942,9 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             const day = newDate.getDate();
             // Create a date-time string with the exact values from the picker
             const formattedDateTime = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour24).padStart(2, '0')}:${String(newMinute).padStart(2, '0')}:${String(newSecond ?? 0).padStart(2, '0')}`;
-            onChange?.(`${formattedDateTime}${offsetToUse}`);
+            // Ensure offset format is correct (should be +HH:mm or -HH:mm, not ending with Z)
+            const cleanOffset = offsetToUse.replace(/Z$/, '');
+            onChange?.(`${formattedDateTime}${cleanOffset}`);
             return;
         }
         // Normal mode: use timezone conversion
@@ -8526,7 +8528,8 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             else {
                 setValue(colLabel, undefined);
             }
-        }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels, showQuickActions: dateTimePicker?.showQuickActions ?? false, quickActionLabels: dateTimePicker?.quickActionLabels, showTimezoneSelector: dateTimePicker?.showTimezoneSelector ?? false }));
+        }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels, showQuickActions: dateTimePicker?.showQuickActions ?? false, quickActionLabels: dateTimePickerLabels?.quickActionLabels ??
+            dateTimePicker?.quickActionLabels, showTimezoneSelector: dateTimePicker?.showTimezoneSelector ?? false }));
     return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: dateTimePickerContent }));
 };
