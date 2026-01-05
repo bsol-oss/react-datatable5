@@ -497,7 +497,9 @@ export function DateTimePicker({
 
       // Create a date-time string with the exact values from the picker
       const formattedDateTime = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour24).padStart(2, '0')}:${String(newMinute).padStart(2, '0')}:${String(newSecond ?? 0).padStart(2, '0')}`;
-      onChange?.(`${formattedDateTime}${offsetToUse}`);
+      // Ensure offset format is correct (should be +HH:mm or -HH:mm, not ending with Z)
+      const cleanOffset = offsetToUse.replace(/Z$/, '');
+      onChange?.(`${formattedDateTime}${cleanOffset}`);
       return;
     }
 
