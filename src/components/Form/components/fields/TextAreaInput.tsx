@@ -1,8 +1,5 @@
-import { Box, Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
-import { useSchemaContext } from '../../useSchemaContext';
-import { removeIndex } from '../../utils/removeIndex';
 import { getFieldError } from '../../utils/getFieldError';
 import { useFormI18n } from '../../utils/useFormI18n';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
@@ -20,14 +17,13 @@ export const TextAreaInput = ({
   prefix,
 }: TextAreaInputProps) => {
   const {
-    register,
     formState: { errors },
+    setValue,
+    watch,
   } = useFormContext();
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
-  const form = useFormContext();
-  const { setValue, watch } = form;
   const fieldError = getFieldError(errors, colLabel);
   const formI18n = useFormI18n(column, prefix, schema);
 
