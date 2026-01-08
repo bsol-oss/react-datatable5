@@ -1,22 +1,7 @@
-import type React from "react";
-interface CustomTextareaProps {
+import { Textarea as ChakraTextarea } from '@chakra-ui/react';
+import * as React from 'react';
+export interface TextAreaProps extends Omit<React.ComponentProps<typeof ChakraTextarea>, 'onChange' | 'value'> {
     value?: string;
-    defaultValue?: string;
-    placeholder?: string;
     onChange?: (value: string) => void;
-    onFocus?: () => void;
-    onBlur?: () => void;
-    disabled?: boolean;
-    readOnly?: boolean;
-    className?: string;
-    rows?: number;
-    maxLength?: number;
-    autoFocus?: boolean;
-    invalid?: boolean;
-    required?: boolean;
-    label?: string;
-    helperText?: string;
-    errorText?: string;
 }
-declare const Textarea: React.ForwardRefExoticComponent<CustomTextareaProps & React.RefAttributes<HTMLDivElement>>;
-export { Textarea };
+export declare const Textarea: React.ForwardRefExoticComponent<Omit<TextAreaProps, "ref"> & React.RefAttributes<HTMLTextAreaElement>>;

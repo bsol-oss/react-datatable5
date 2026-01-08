@@ -1,8 +1,8 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Checkbox as Checkbox$1, Icon, VStack, Heading, EmptyState as EmptyState$2, List, Table as Table$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Clipboard, Badge, Link, Tag as Tag$1, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, useCombobox, Show, Skeleton, NumberInput, RadioCard, CheckboxGroup, InputGroup as InputGroup$1, Select, Center, Stack } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Checkbox as Checkbox$1, Icon, VStack, Heading, EmptyState as EmptyState$2, List, Table as Table$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Clipboard, Badge, Link, Tag as Tag$1, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, useCombobox, Show, Skeleton, NumberInput, RadioCard, CheckboxGroup, Textarea as Textarea$1, InputGroup as InputGroup$1, Select, Center, Stack } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
-import { createContext, useContext, useState, useMemo, useCallback, useEffect, useRef, forwardRef } from 'react';
+import { createContext, useContext, useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { LuX, LuCheck, LuChevronRight, LuCopy, LuExternalLink, LuSearch, LuImage, LuFile } from 'react-icons/lu';
 import { MdOutlineSort, MdFilterAlt, MdSearch, MdOutlineChecklist, MdClear, MdFilterList, MdOutlineViewColumn, MdFilterListAlt, MdPushPin, MdCancel, MdDateRange } from 'react-icons/md';
 import { FaUpDown, FaGripLinesVertical } from 'react-icons/fa6';
@@ -4213,7 +4213,6 @@ const validateData = (data, schema) => {
     const validate = ajv.compile(schema);
     const validationResult = validate(data);
     const errors = validate.errors;
-    console.log(errors, data);
     return {
         isValid: validationResult,
         validate,
@@ -6526,14 +6525,6 @@ const IdPickerMultiple = ({ column, schema, prefix, }) => {
                                             'Start typing to search' })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [renderDisplayFunction(item.raw), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) }))] })] }));
 };
 
-const NumberInputRoot = React.forwardRef(function NumberInput$1(props, ref) {
-    const { children, ...rest } = props;
-    return (jsx(NumberInput.Root, { ref: ref, variant: "outline", ...rest, children: children }));
-});
-const NumberInputField$1 = NumberInput.Input;
-NumberInput.Scrubber;
-NumberInput.Label;
-
 /**
  * Gets the error message for a specific field from react-hook-form errors
  * Prioritizes required errors (#.required) over field-specific validation errors
@@ -6597,17 +6588,24 @@ const NumberInputField = ({ schema, column, prefix, }) => {
     const value = watch(`${colLabel}`);
     const fieldError = getFieldError(errors, colLabel);
     const formI18n = useFormI18n(column, prefix, schema);
-    return (jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn, gridRow, errorText: fieldError
-            ? fieldError.includes('required')
-                ? formI18n.required()
-                : fieldError
-            : undefined, invalid: !!fieldError, children: jsx(NumberInputRoot, { value: value, onValueChange: (details) => {
+    // Convert value to string for NumberInput (it uses string values internally)
+    // NumberInput expects string values to preserve locale-specific formatting
+    // Do not fill any default value if initial value doesn't exist
+    const stringValue = value !== undefined && value !== null && value !== ''
+        ? String(value)
+        : undefined;
+    return (jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn, gridRow, errorText: fieldError, invalid: !!fieldError, children: jsxs(NumberInput.Root, { value: stringValue, onValueChange: (details) => {
                 // Store as string or number based on configuration, default to number
-                const value = numberStorageType === 'string'
+                // Handle empty values properly - if value is empty string, store undefined
+                if (details.value === '' || details.value === undefined) {
+                    setValue(`${colLabel}`, undefined);
+                    return;
+                }
+                const newValue = numberStorageType === 'string'
                     ? details.value
                     : details.valueAsNumber;
-                setValue(`${colLabel}`, value);
-            }, min: schema.minimum, max: schema.maximum, step: schema.multipleOf || 0.01, allowOverflow: false, clampValueOnBlur: false, inputMode: "decimal", formatOptions: schema.formatOptions, children: jsx(NumberInputField$1, { required: isRequired }) }) }));
+                setValue(`${colLabel}`, newValue);
+            }, step: schema.multipleOf || 0.01, allowOverflow: false, clampValueOnBlur: true, inputMode: "decimal", formatOptions: schema.formatOptions, disabled: schema.readOnly, required: isRequired, variant: "outline", children: [jsx(NumberInput.Control, {}), jsx(NumberInput.Input, {})] }) }));
 };
 
 const ObjectInput = ({ schema, column, prefix }) => {
@@ -6796,98 +6794,20 @@ const TagPicker = ({ column, schema, prefix }) => {
             }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: (errors[`${column}`]?.message ?? 'No error message') }))] }));
 };
 
-const Textarea = forwardRef(({ value, defaultValue, placeholder, onChange, onFocus, onBlur, disabled = false, readOnly = false, className, rows = 4, maxLength, autoFocus = false, invalid = false, required = false, label, helperText, errorText, ...props }, ref) => {
-    const contentEditableRef = useRef(null);
-    const isControlled = value !== undefined;
-    // Handle input changes
-    const handleInput = (e) => {
-        const text = e.currentTarget.textContent || "";
-        // Check maxLength if specified
-        if (maxLength && text.length > maxLength) {
-            e.currentTarget.textContent = text.slice(0, maxLength);
-            // Move cursor to end
-            const selection = window.getSelection();
-            if (selection) {
-                selection.selectAllChildren(e.currentTarget);
-                selection.collapseToEnd();
-            }
-            return;
+const Textarea = React.forwardRef(function Textarea({ value, onChange, ...props }, ref) {
+    const handleChange = React.useCallback((e) => {
+        if (onChange) {
+            onChange(e.target.value);
         }
-        onChange?.(text);
-    };
-    // Handle paste events to strip formatting and respect maxLength
-    const handlePaste = (e) => {
-        e.preventDefault();
-        const text = e.clipboardData.getData('text/plain');
-        const currentText = e.currentTarget.textContent || "";
-        let pasteText = text;
-        if (maxLength) {
-            const remainingLength = maxLength - currentText.length;
-            pasteText = text.slice(0, remainingLength);
-        }
-        document.execCommand('insertText', false, pasteText);
-    };
-    // Set initial content
-    useEffect(() => {
-        if (contentEditableRef.current && !isControlled) {
-            const initialValue = defaultValue || "";
-            if (contentEditableRef.current.textContent !== initialValue) {
-                contentEditableRef.current.textContent = initialValue;
-            }
-        }
-    }, [defaultValue, isControlled]);
-    // Update content when value changes (controlled mode)
-    useEffect(() => {
-        if (contentEditableRef.current && isControlled && value !== undefined) {
-            if (contentEditableRef.current.textContent !== value) {
-                contentEditableRef.current.textContent = value;
-            }
-        }
-    }, [value, isControlled]);
-    // Auto focus
-    useEffect(() => {
-        if (autoFocus && contentEditableRef.current) {
-            contentEditableRef.current.focus();
-        }
-    }, [autoFocus]);
-    // Forward ref
-    useEffect(() => {
-        if (typeof ref === 'function') {
-            ref(contentEditableRef.current);
-        }
-        else if (ref) {
-            ref.current = contentEditableRef.current;
-        }
-    }, [ref]);
-    const textareaElement = (jsx(Box, { ref: contentEditableRef, contentEditable: !disabled && !readOnly, onInput: handleInput, onPaste: handlePaste, onFocus: onFocus, onBlur: onBlur, className: className, minHeight: `${rows * 1.5}em`, padding: "2", border: "1px solid", borderColor: invalid ? "red.500" : "gray.200", borderRadius: "md", outline: "none", _focus: {
-            borderColor: invalid ? "red.500" : "blue.500",
-            boxShadow: `0 0 0 1px ${invalid ? "red.500" : "blue.500"}`,
-        }, _disabled: {
-            opacity: 0.6,
-            cursor: "not-allowed",
-            bg: "gray.50",
-        }, _empty: {
-            _before: {
-                content: placeholder ? `"${placeholder}"` : undefined,
-                color: "gray.400",
-                pointerEvents: "none",
-            }
-        }, whiteSpace: "pre-wrap", overflowWrap: "break-word", overflow: "auto", maxHeight: `${rows * 4}em`, suppressContentEditableWarning: true, ...props }));
-    // If we have additional field props, wrap in Field component
-    if (label || helperText || errorText || required) {
-        return (jsxs(Field$1.Root, { invalid: invalid, required: required, children: [label && (jsxs(Field$1.Label, { children: [label, required && jsx(Field$1.RequiredIndicator, {})] })), textareaElement, helperText && jsx(Field$1.HelperText, { children: helperText }), errorText && jsx(Field$1.ErrorText, { children: errorText })] }));
-    }
-    return textareaElement;
+    }, [onChange]);
+    return (jsx(Textarea$1, { ref: ref, value: value ?? '', onChange: handleChange, ...props }));
 });
-Textarea.displayName = "Textarea";
 
 const TextAreaInput = ({ column, schema, prefix, }) => {
-    const { register, formState: { errors }, } = useFormContext();
+    const { formState: { errors }, setValue, watch, } = useFormContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    const form = useFormContext();
-    const { setValue, watch } = form;
     const fieldError = getFieldError(errors, colLabel);
     const formI18n = useFormI18n(column, prefix, schema);
     const watchValue = watch(colLabel);
@@ -9007,8 +8927,8 @@ schema, }) => {
     const form = useForm$1({
         values: preLoadedValues,
         resolver: schema ? ajvResolver(schema) : undefined,
-        mode: 'onBlur',
-        reValidateMode: 'onBlur',
+        mode: 'onSubmit',
+        reValidateMode: 'onChange',
     });
     const [idMap, setIdMap] = useState({});
     // Fallback translate object - returns key as-is (no i18n required)
