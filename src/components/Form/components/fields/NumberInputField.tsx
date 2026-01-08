@@ -1,5 +1,4 @@
 import { NumberInput } from '@chakra-ui/react';
-import { useEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { getFieldError } from '../../utils/getFieldError';
@@ -34,29 +33,13 @@ export const NumberInputField = ({
   const fieldError = getFieldError(errors, colLabel);
   const formI18n = useFormI18n(column, prefix, schema);
 
-  // Determine default value: use minimum if provided, otherwise use 0
-  const defaultValue = schema.minimum !== undefined ? schema.minimum : 0;
-  const hasInitialized = useRef(false);
-
-  // Initialize with default value if no value is provided (only once on mount)
-  useEffect(() => {
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      if (value === undefined || value === null || value === '') {
-        const initialValue =
-          numberStorageType === 'string' ? String(defaultValue) : defaultValue;
-        setValue(`${colLabel}`, initialValue, { shouldValidate: false });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
-
   // Convert value to string for NumberInput (it uses string values internally)
   // NumberInput expects string values to preserve locale-specific formatting
+  // Do not fill any default value if initial value doesn't exist
   const stringValue =
     value !== undefined && value !== null && value !== ''
       ? String(value)
-      : String(defaultValue);
+      : undefined;
 
   return (
     <Field
@@ -81,8 +64,6 @@ export const NumberInputField = ({
               : details.valueAsNumber;
           setValue(`${colLabel}`, newValue);
         }}
-        min={schema.minimum}
-        max={schema.maximum}
         step={schema.multipleOf || 0.01}
         allowOverflow={false}
         clampValueOnBlur={true}
