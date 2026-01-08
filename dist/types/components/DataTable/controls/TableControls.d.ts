@@ -7,8 +7,6 @@ export interface TableControlsProps {
     children?: ReactNode;
     showGlobalFilter?: boolean;
     showFilter?: boolean;
-    showFilterName?: boolean;
-    showFilterTags?: boolean;
     showReload?: boolean;
     showPagination?: boolean;
     showPageSizeControl?: boolean;
@@ -26,4 +24,4 @@ export interface TableControlsProps {
     hasError?: boolean;
     gridProps?: GridProps;
 }
-export declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterTagsOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterTagsOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => import("react/jsx-runtime").JSX.Element;

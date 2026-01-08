@@ -3198,19 +3198,31 @@ const TableSelector = () => {
                 }, "aria-label": 'reset selection', children: jsxRuntime.jsx(md.MdClear, {}) }))] }));
 };
 
+const Tag = React__namespace.forwardRef(function Tag(props, ref) {
+    const { startElement, endElement, onClose, closable = !!onClose, children, ...rest } = props;
+    return (jsxRuntime.jsxs(react.Tag.Root, { ref: ref, ...rest, children: [startElement && (jsxRuntime.jsx(react.Tag.StartElement, { children: startElement })), jsxRuntime.jsx(react.Tag.Label, { children: children }), endElement && (jsxRuntime.jsx(react.Tag.EndElement, { children: endElement })), closable && (jsxRuntime.jsx(react.Tag.EndElement, { children: jsxRuntime.jsx(react.Tag.CloseTrigger, { onClick: onClose }) }))] }));
+});
+
 const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
     const { icon, children, inputProps, rootRef, ...rest } = props;
     return (jsxRuntime.jsxs(react.Checkbox.Root, { ref: rootRef, ...rest, children: [jsxRuntime.jsx(react.Checkbox.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsx(react.Checkbox.Control, { children: icon || jsxRuntime.jsx(react.Checkbox.Indicator, {}) }), children != null && (jsxRuntime.jsx(react.Checkbox.Label, { children: children }))] }));
 });
 
-const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPalette, value: controlledValue, onChange, labels, }) => {
+const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPalette, value: controlledValue, onChange, labels, open: controlledOpen, onOpenChange, }) => {
     const [searchTerm, setSearchTerm] = React.useState('');
     const debouncedSearchTerm = usehooks.useDebounce(searchTerm, 300);
-    const [isOpen, setIsOpen] = React.useState(false);
+    const [internalOpen, setInternalOpen] = React.useState(false);
+    // Use controlled open state if provided, otherwise use internal state
+    const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+    const handleOpenChange = (details) => {
+        if (onOpenChange) {
+            onOpenChange(details.open);
+        }
+        else {
+            setInternalOpen(details.open);
+        }
+    };
     const [internalValue, setInternalValue] = React.useState(undefined);
-    const [pendingFilterValue, setPendingFilterValue] = React.useState(undefined);
-    const debouncedFilterValue = usehooks.useDebounce(pendingFilterValue, 300);
-    const lastAppliedValueRef = React.useRef('__INITIAL__');
     // Use controlled value if provided, otherwise use internal state
     const currentFilterValue = controlledValue !== undefined ? controlledValue : internalValue;
     const isArrayFilter = filterVariant === 'tag';
@@ -3221,31 +3233,20 @@ const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPale
         noFiltersMatchText: 'No filters match your search',
     };
     const finalLabels = { ...defaultLabels, ...labels };
-    // Apply debounced filter value via onChange callback
+    // Reset search term when menu closes
     React.useEffect(() => {
-        const currentKey = JSON.stringify(debouncedFilterValue);
-        // Only apply if the value has changed from what we last applied
-        if (currentKey !== lastAppliedValueRef.current) {
-            if (onChange) {
-                onChange(debouncedFilterValue);
-            }
-            else {
-                setInternalValue(debouncedFilterValue);
-            }
-            lastAppliedValueRef.current = currentKey;
+        if (!isOpen) {
+            setSearchTerm('');
         }
-    }, [debouncedFilterValue, onChange]);
-    // Sync internal value when controlled value changes
-    React.useEffect(() => {
-        if (controlledValue !== undefined) {
-            setInternalValue(controlledValue);
-            setPendingFilterValue(controlledValue);
-            lastAppliedValueRef.current = JSON.stringify(controlledValue);
+    }, [isOpen]);
+    // Filter update function
+    const setFilterValue = (value) => {
+        if (onChange) {
+            onChange(value);
         }
-    }, [controlledValue]);
-    // Debounced filter update function
-    const debouncedSetFilterValue = (value) => {
-        setPendingFilterValue(value);
+        else {
+            setInternalValue(value);
+        }
     };
     // Get active count for this column
     const activeCount = React.useMemo(() => {
@@ -3264,7 +3265,7 @@ const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPale
         const searchLower = debouncedSearchTerm.toLowerCase();
         return filterOptions.filter((option) => option.label.toLowerCase().includes(searchLower));
     }, [filterOptions, debouncedSearchTerm]);
-    return (jsxRuntime.jsxs(MenuRoot, { open: isOpen, onOpenChange: (details) => setIsOpen(details.open), children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "outline", size: "sm", gap: 2, children: [jsxRuntime.jsx(react.Icon, { as: md.MdFilterList }), jsxRuntime.jsxs(react.Text, { children: [displayName, " ", activeCount > 0 && `(${activeCount})`] })] }) }), jsxRuntime.jsx(MenuContent, { maxW: "20rem", minW: "18rem", children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 2, p: 2, children: [jsxRuntime.jsxs(react.Heading, { size: "sm", px: 2, children: [finalLabels.filterByLabel, " ", displayName] }), jsxRuntime.jsx(InputGroup, { startElement: jsxRuntime.jsx(react.Icon, { as: md.MdSearch }), children: jsxRuntime.jsx(react.Input, { placeholder: finalLabels.filterLabelsPlaceholder, value: searchTerm, onChange: (e) => setSearchTerm(e.target.value) }) }), jsxRuntime.jsx(react.Box, { maxH: "20rem", overflowY: "auto", css: {
+    return (jsxRuntime.jsxs(MenuRoot, { open: isOpen, onOpenChange: handleOpenChange, children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "outline", size: "sm", gap: 2, children: [jsxRuntime.jsx(react.Icon, { as: md.MdFilterList }), jsxRuntime.jsxs(react.Text, { children: [displayName, " ", activeCount > 0 && `(${activeCount})`] })] }) }), jsxRuntime.jsx(MenuContent, { maxW: "20rem", minW: "18rem", children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 2, p: 2, children: [jsxRuntime.jsxs(react.Heading, { size: "sm", px: 2, children: [finalLabels.filterByLabel, " ", displayName] }), jsxRuntime.jsx(InputGroup, { startElement: jsxRuntime.jsx(react.Icon, { as: md.MdSearch }), children: jsxRuntime.jsx(react.Input, { placeholder: finalLabels.filterLabelsPlaceholder, value: searchTerm, onChange: (e) => setSearchTerm(e.target.value) }) }), jsxRuntime.jsx(react.Box, { maxH: "20rem", overflowY: "auto", css: {
                                 '&::-webkit-scrollbar': {
                                     width: '8px',
                                 },
@@ -3290,29 +3291,26 @@ const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPale
                                                 // Remove from filter
                                                 const newArray = currentArray.filter((v) => v !== option.value);
                                                 if (newArray.length === 0) {
-                                                    debouncedSetFilterValue(undefined);
+                                                    setFilterValue(undefined);
                                                 }
                                                 else {
-                                                    debouncedSetFilterValue(newArray);
+                                                    setFilterValue(newArray);
                                                 }
                                             }
                                             else {
                                                 // Add to filter
                                                 if (!currentArray.includes(option.value)) {
-                                                    debouncedSetFilterValue([
-                                                        ...currentArray,
-                                                        option.value,
-                                                    ]);
+                                                    setFilterValue([...currentArray, option.value]);
                                                 }
                                             }
                                         }
                                         else {
                                             // Handle single value filters (select variant)
                                             if (isActive) {
-                                                debouncedSetFilterValue(undefined);
+                                                setFilterValue(undefined);
                                             }
                                             else {
-                                                debouncedSetFilterValue(option.value);
+                                                setFilterValue(option.value);
                                             }
                                         }
                                     };
@@ -3327,7 +3325,7 @@ const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPale
                                                                 if (details.checked) {
                                                                     // Add to filter
                                                                     if (!currentArray.includes(option.value)) {
-                                                                        debouncedSetFilterValue([
+                                                                        setFilterValue([
                                                                             ...currentArray,
                                                                             option.value,
                                                                         ]);
@@ -3337,20 +3335,20 @@ const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPale
                                                                     // Remove from filter
                                                                     const newArray = currentArray.filter((v) => v !== option.value);
                                                                     if (newArray.length === 0) {
-                                                                        debouncedSetFilterValue(undefined);
+                                                                        setFilterValue(undefined);
                                                                     }
                                                                     else {
-                                                                        debouncedSetFilterValue(newArray);
+                                                                        setFilterValue(newArray);
                                                                     }
                                                                 }
                                                             }
                                                             else {
                                                                 // Handle single value filters (select variant)
                                                                 if (details.checked) {
-                                                                    debouncedSetFilterValue(option.value);
+                                                                    setFilterValue(option.value);
                                                                 }
                                                                 else {
-                                                                    debouncedSetFilterValue(undefined);
+                                                                    setFilterValue(undefined);
                                                                 }
                                                             }
                                                         } }) }), jsxRuntime.jsx(react.Box, { flex: 1, minW: 0, children: jsxRuntime.jsxs(react.HStack, { gap: 2, align: "center", children: [jsxRuntime.jsx(react.Box, { w: 3, h: 3, borderRadius: "full", bg: `${colorPalette}.500`, flexShrink: 0 }), jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", truncate: true, children: option.label })] }) })] }) }, option.value));
@@ -3418,10 +3416,64 @@ const TableFilterTags = ({ filterTagsOptions = [], } = {}) => {
         }) }));
 };
 
-const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
-    const { tableLabel, table } = useDataTableContext();
+const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showGlobalFilter = false, showFilter = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
+    const { tableLabel, table, columnFilters, setColumnFilters } = useDataTableContext();
     const { hasErrorText } = tableLabel;
-    return (jsxRuntime.jsxs(react.Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsx(react.Box, { children: showView && jsxRuntime.jsx(ViewDialog, { icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsxRuntime.jsx(react.Spinner, { size: 'sm' }), hasError && (jsxRuntime.jsx(Tooltip, { content: hasErrorText, children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && jsxRuntime.jsx(FilterDialog, {}), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), showFilterTags && (jsxRuntime.jsx(TableFilterTags, { filterTagsOptions: filterTagsOptions }))] }), jsxRuntime.jsx(react.Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsxs(react.Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && jsxRuntime.jsx(RowCountText, {})] }), jsxRuntime.jsx(react.Box, { justifySelf: 'end', children: showPagination && jsxRuntime.jsx(Pagination, {}) })] }))] }));
+    // Get applied filters with display information
+    const appliedFilters = React.useMemo(() => {
+        return columnFilters
+            .map((filter) => {
+            const column = table.getColumn(filter.id);
+            if (!column)
+                return null;
+            const meta = column.columnDef.meta;
+            const displayName = meta?.displayName ?? filter.id;
+            const filterValue = filter.value;
+            // Handle array values (tag filters)
+            if (Array.isArray(filterValue)) {
+                return {
+                    columnId: filter.id,
+                    displayName,
+                    values: filterValue,
+                    isArray: true,
+                };
+            }
+            // Handle single values (select filters)
+            if (filterValue !== undefined &&
+                filterValue !== null &&
+                filterValue !== '') {
+                return {
+                    columnId: filter.id,
+                    displayName,
+                    value: String(filterValue),
+                    isArray: false,
+                };
+            }
+            return null;
+        })
+            .filter((filter) => filter !== null);
+    }, [columnFilters, table]);
+    const handleRemoveFilter = (columnId) => {
+        setColumnFilters(columnFilters.filter((f) => f.id !== columnId));
+    };
+    return (jsxRuntime.jsxs(react.Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 2, children: jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsxs(react.Flex, { gap: 2, alignItems: 'center', flexWrap: 'wrap', children: [showView && jsxRuntime.jsx(ViewDialog, { icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }), appliedFilters.length > 0 && (jsxRuntime.jsx(react.Flex, { gap: 1.5, alignItems: 'center', flexWrap: 'wrap', children: appliedFilters.map((filter) => {
+                                        if (filter.isArray) {
+                                            return filter.values.map((value, index) => (jsxRuntime.jsxs(Tag, { size: "sm", colorPalette: "blue", onClose: () => {
+                                                    const column = table.getColumn(filter.columnId);
+                                                    if (column) {
+                                                        const currentValue = column.getFilterValue() ?? [];
+                                                        const newValue = currentValue.filter((v) => v !== value);
+                                                        if (newValue.length === 0) {
+                                                            handleRemoveFilter(filter.columnId);
+                                                        }
+                                                        else {
+                                                            column.setFilterValue(newValue);
+                                                        }
+                                                    }
+                                                }, children: [filter.displayName, ": ", value] }, `${filter.columnId}-${value}-${index}`)));
+                                        }
+                                        return (jsxRuntime.jsxs(Tag, { size: "sm", colorPalette: "blue", onClose: () => handleRemoveFilter(filter.columnId), children: [filter.displayName, ": ", filter.value] }, filter.columnId));
+                                    }) }))] }), jsxRuntime.jsxs(react.Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsxRuntime.jsx(react.Spinner, { size: 'sm' }), hasError && (jsxRuntime.jsx(Tooltip, { content: hasErrorText, children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), filterTagsOptions.length > 0 && (jsxRuntime.jsx(TableFilterTags, { filterTagsOptions: filterTagsOptions })), showFilter && jsxRuntime.jsx(FilterDialog, {}), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }) }), jsxRuntime.jsx(react.Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsxs(react.Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && jsxRuntime.jsx(RowCountText, {})] }), jsxRuntime.jsx(react.Box, { justifySelf: 'end', children: showPagination && jsxRuntime.jsx(Pagination, {}) })] }))] }));
 };
 
 const EmptyState$1 = React__namespace.forwardRef(function EmptyState(props, ref) {
@@ -3988,11 +4040,6 @@ label, containerProps = {}, textProps = {}, children, }) => {
     }
     return (jsxRuntime.jsx(react.Box, { textOverflow: "ellipsis", whiteSpace: "nowrap", wordBreak: "break-all", overflow: "auto", display: "flex", alignItems: "center", justifyContent: alignEnd ? 'flex-end' : undefined, height: "100%", textAlign: alignEnd ? 'right' : undefined, children: jsxRuntime.jsx(RenderValue, { text: displayValue, href: href, onClick: onClick, isCopyable: isCopyable, isBadge: isBadge, badgeColor: badgeColor, colorPalette: colorPalette, globalFilter: globalFilter, alignEnd: alignEnd }) }));
 };
-
-const Tag = React__namespace.forwardRef(function Tag(props, ref) {
-    const { startElement, endElement, onClose, closable = !!onClose, children, ...rest } = props;
-    return (jsxRuntime.jsxs(react.Tag.Root, { ref: ref, ...rest, children: [startElement && (jsxRuntime.jsx(react.Tag.StartElement, { children: startElement })), jsxRuntime.jsx(react.Tag.Label, { children: children }), endElement && (jsxRuntime.jsx(react.Tag.EndElement, { children: endElement })), closable && (jsxRuntime.jsx(react.Tag.EndElement, { children: jsxRuntime.jsx(react.Tag.CloseTrigger, { onClick: onClose }) }))] }));
-});
 
 const CardHeader = ({ row, imageColumnId = undefined, titleColumnId = undefined, tagColumnId = undefined, tagIcon = undefined, showTag = true, imageProps = {}, }) => {
     if (!!row.original === false) {

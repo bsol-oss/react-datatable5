@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Checkbox as Checkbox$1, Icon, VStack, Heading, EmptyState as EmptyState$2, List, Table as Table$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Clipboard, Badge, Link, Tag as Tag$1, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, useCombobox, Show, Skeleton, NumberInput, RadioCard, CheckboxGroup, Textarea as Textarea$1, InputGroup as InputGroup$1, Select, Center, Stack } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Tag as Tag$1, Checkbox as Checkbox$1, Icon, VStack, Heading, EmptyState as EmptyState$2, List, Table as Table$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Clipboard, Badge, Link, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, useCombobox, Show, Skeleton, NumberInput, RadioCard, CheckboxGroup, Textarea as Textarea$1, InputGroup as InputGroup$1, Select, Center, Stack } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import { createContext, useContext, useState, useMemo, useCallback, useEffect, useRef } from 'react';
@@ -3178,19 +3178,31 @@ const TableSelector = () => {
                 }, "aria-label": 'reset selection', children: jsx(MdClear, {}) }))] }));
 };
 
+const Tag = React.forwardRef(function Tag(props, ref) {
+    const { startElement, endElement, onClose, closable = !!onClose, children, ...rest } = props;
+    return (jsxs(Tag$1.Root, { ref: ref, ...rest, children: [startElement && (jsx(Tag$1.StartElement, { children: startElement })), jsx(Tag$1.Label, { children: children }), endElement && (jsx(Tag$1.EndElement, { children: endElement })), closable && (jsx(Tag$1.EndElement, { children: jsx(Tag$1.CloseTrigger, { onClick: onClose }) }))] }));
+});
+
 const Checkbox = React.forwardRef(function Checkbox(props, ref) {
     const { icon, children, inputProps, rootRef, ...rest } = props;
     return (jsxs(Checkbox$1.Root, { ref: rootRef, ...rest, children: [jsx(Checkbox$1.HiddenInput, { ref: ref, ...inputProps }), jsx(Checkbox$1.Control, { children: icon || jsx(Checkbox$1.Indicator, {}) }), children != null && (jsx(Checkbox$1.Label, { children: children }))] }));
 });
 
-const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPalette, value: controlledValue, onChange, labels, }) => {
+const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPalette, value: controlledValue, onChange, labels, open: controlledOpen, onOpenChange, }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
-    const [isOpen, setIsOpen] = useState(false);
+    const [internalOpen, setInternalOpen] = useState(false);
+    // Use controlled open state if provided, otherwise use internal state
+    const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+    const handleOpenChange = (details) => {
+        if (onOpenChange) {
+            onOpenChange(details.open);
+        }
+        else {
+            setInternalOpen(details.open);
+        }
+    };
     const [internalValue, setInternalValue] = useState(undefined);
-    const [pendingFilterValue, setPendingFilterValue] = useState(undefined);
-    const debouncedFilterValue = useDebounce(pendingFilterValue, 300);
-    const lastAppliedValueRef = useRef('__INITIAL__');
     // Use controlled value if provided, otherwise use internal state
     const currentFilterValue = controlledValue !== undefined ? controlledValue : internalValue;
     const isArrayFilter = filterVariant === 'tag';
@@ -3201,31 +3213,20 @@ const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPale
         noFiltersMatchText: 'No filters match your search',
     };
     const finalLabels = { ...defaultLabels, ...labels };
-    // Apply debounced filter value via onChange callback
+    // Reset search term when menu closes
     useEffect(() => {
-        const currentKey = JSON.stringify(debouncedFilterValue);
-        // Only apply if the value has changed from what we last applied
-        if (currentKey !== lastAppliedValueRef.current) {
-            if (onChange) {
-                onChange(debouncedFilterValue);
-            }
-            else {
-                setInternalValue(debouncedFilterValue);
-            }
-            lastAppliedValueRef.current = currentKey;
+        if (!isOpen) {
+            setSearchTerm('');
         }
-    }, [debouncedFilterValue, onChange]);
-    // Sync internal value when controlled value changes
-    useEffect(() => {
-        if (controlledValue !== undefined) {
-            setInternalValue(controlledValue);
-            setPendingFilterValue(controlledValue);
-            lastAppliedValueRef.current = JSON.stringify(controlledValue);
+    }, [isOpen]);
+    // Filter update function
+    const setFilterValue = (value) => {
+        if (onChange) {
+            onChange(value);
         }
-    }, [controlledValue]);
-    // Debounced filter update function
-    const debouncedSetFilterValue = (value) => {
-        setPendingFilterValue(value);
+        else {
+            setInternalValue(value);
+        }
     };
     // Get active count for this column
     const activeCount = useMemo(() => {
@@ -3244,7 +3245,7 @@ const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPale
         const searchLower = debouncedSearchTerm.toLowerCase();
         return filterOptions.filter((option) => option.label.toLowerCase().includes(searchLower));
     }, [filterOptions, debouncedSearchTerm]);
-    return (jsxs(MenuRoot, { open: isOpen, onOpenChange: (details) => setIsOpen(details.open), children: [jsx(MenuTrigger, { asChild: true, children: jsxs(Button$1, { variant: "outline", size: "sm", gap: 2, children: [jsx(Icon, { as: MdFilterList }), jsxs(Text, { children: [displayName, " ", activeCount > 0 && `(${activeCount})`] })] }) }), jsx(MenuContent, { maxW: "20rem", minW: "18rem", children: jsxs(VStack, { align: "stretch", gap: 2, p: 2, children: [jsxs(Heading, { size: "sm", px: 2, children: [finalLabels.filterByLabel, " ", displayName] }), jsx(InputGroup, { startElement: jsx(Icon, { as: MdSearch }), children: jsx(Input, { placeholder: finalLabels.filterLabelsPlaceholder, value: searchTerm, onChange: (e) => setSearchTerm(e.target.value) }) }), jsx(Box, { maxH: "20rem", overflowY: "auto", css: {
+    return (jsxs(MenuRoot, { open: isOpen, onOpenChange: handleOpenChange, children: [jsx(MenuTrigger, { asChild: true, children: jsxs(Button$1, { variant: "outline", size: "sm", gap: 2, children: [jsx(Icon, { as: MdFilterList }), jsxs(Text, { children: [displayName, " ", activeCount > 0 && `(${activeCount})`] })] }) }), jsx(MenuContent, { maxW: "20rem", minW: "18rem", children: jsxs(VStack, { align: "stretch", gap: 2, p: 2, children: [jsxs(Heading, { size: "sm", px: 2, children: [finalLabels.filterByLabel, " ", displayName] }), jsx(InputGroup, { startElement: jsx(Icon, { as: MdSearch }), children: jsx(Input, { placeholder: finalLabels.filterLabelsPlaceholder, value: searchTerm, onChange: (e) => setSearchTerm(e.target.value) }) }), jsx(Box, { maxH: "20rem", overflowY: "auto", css: {
                                 '&::-webkit-scrollbar': {
                                     width: '8px',
                                 },
@@ -3270,29 +3271,26 @@ const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPale
                                                 // Remove from filter
                                                 const newArray = currentArray.filter((v) => v !== option.value);
                                                 if (newArray.length === 0) {
-                                                    debouncedSetFilterValue(undefined);
+                                                    setFilterValue(undefined);
                                                 }
                                                 else {
-                                                    debouncedSetFilterValue(newArray);
+                                                    setFilterValue(newArray);
                                                 }
                                             }
                                             else {
                                                 // Add to filter
                                                 if (!currentArray.includes(option.value)) {
-                                                    debouncedSetFilterValue([
-                                                        ...currentArray,
-                                                        option.value,
-                                                    ]);
+                                                    setFilterValue([...currentArray, option.value]);
                                                 }
                                             }
                                         }
                                         else {
                                             // Handle single value filters (select variant)
                                             if (isActive) {
-                                                debouncedSetFilterValue(undefined);
+                                                setFilterValue(undefined);
                                             }
                                             else {
-                                                debouncedSetFilterValue(option.value);
+                                                setFilterValue(option.value);
                                             }
                                         }
                                     };
@@ -3307,7 +3305,7 @@ const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPale
                                                                 if (details.checked) {
                                                                     // Add to filter
                                                                     if (!currentArray.includes(option.value)) {
-                                                                        debouncedSetFilterValue([
+                                                                        setFilterValue([
                                                                             ...currentArray,
                                                                             option.value,
                                                                         ]);
@@ -3317,20 +3315,20 @@ const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPale
                                                                     // Remove from filter
                                                                     const newArray = currentArray.filter((v) => v !== option.value);
                                                                     if (newArray.length === 0) {
-                                                                        debouncedSetFilterValue(undefined);
+                                                                        setFilterValue(undefined);
                                                                     }
                                                                     else {
-                                                                        debouncedSetFilterValue(newArray);
+                                                                        setFilterValue(newArray);
                                                                     }
                                                                 }
                                                             }
                                                             else {
                                                                 // Handle single value filters (select variant)
                                                                 if (details.checked) {
-                                                                    debouncedSetFilterValue(option.value);
+                                                                    setFilterValue(option.value);
                                                                 }
                                                                 else {
-                                                                    debouncedSetFilterValue(undefined);
+                                                                    setFilterValue(undefined);
                                                                 }
                                                             }
                                                         } }) }), jsx(Box, { flex: 1, minW: 0, children: jsxs(HStack, { gap: 2, align: "center", children: [jsx(Box, { w: 3, h: 3, borderRadius: "full", bg: `${colorPalette}.500`, flexShrink: 0 }), jsx(Text, { fontSize: "sm", fontWeight: "medium", truncate: true, children: option.label })] }) })] }) }, option.value));
@@ -3398,10 +3396,64 @@ const TableFilterTags = ({ filterTagsOptions = [], } = {}) => {
         }) }));
 };
 
-const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsx(Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
-    const { tableLabel, table } = useDataTableContext();
+const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsx(Fragment, {}), showGlobalFilter = false, showFilter = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
+    const { tableLabel, table, columnFilters, setColumnFilters } = useDataTableContext();
     const { hasErrorText } = tableLabel;
-    return (jsxs(Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsxs(Flex, { flexFlow: 'column', gap: 2, children: [jsxs(Flex, { justifyContent: 'space-between', children: [jsx(Box, { children: showView && jsx(ViewDialog, { icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsx(Spinner, { size: 'sm' }), hasError && (jsx(Tooltip, { content: hasErrorText, children: jsx(Icon, { as: BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsx(GlobalFilter, {}), showFilter && jsx(FilterDialog, {}), showReload && jsx(ReloadButton, {}), extraItems] })] }), showFilterTags && (jsx(TableFilterTags, { filterTagsOptions: filterTagsOptions }))] }), jsx(Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxs(Flex, { justifyContent: 'space-between', children: [jsxs(Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsx(PageSizeControl, {}), showPageCountText && jsx(RowCountText, {})] }), jsx(Box, { justifySelf: 'end', children: showPagination && jsx(Pagination, {}) })] }))] }));
+    // Get applied filters with display information
+    const appliedFilters = useMemo(() => {
+        return columnFilters
+            .map((filter) => {
+            const column = table.getColumn(filter.id);
+            if (!column)
+                return null;
+            const meta = column.columnDef.meta;
+            const displayName = meta?.displayName ?? filter.id;
+            const filterValue = filter.value;
+            // Handle array values (tag filters)
+            if (Array.isArray(filterValue)) {
+                return {
+                    columnId: filter.id,
+                    displayName,
+                    values: filterValue,
+                    isArray: true,
+                };
+            }
+            // Handle single values (select filters)
+            if (filterValue !== undefined &&
+                filterValue !== null &&
+                filterValue !== '') {
+                return {
+                    columnId: filter.id,
+                    displayName,
+                    value: String(filterValue),
+                    isArray: false,
+                };
+            }
+            return null;
+        })
+            .filter((filter) => filter !== null);
+    }, [columnFilters, table]);
+    const handleRemoveFilter = (columnId) => {
+        setColumnFilters(columnFilters.filter((f) => f.id !== columnId));
+    };
+    return (jsxs(Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsx(Flex, { flexFlow: 'column', gap: 2, children: jsxs(Flex, { justifyContent: 'space-between', children: [jsxs(Flex, { gap: 2, alignItems: 'center', flexWrap: 'wrap', children: [showView && jsx(ViewDialog, { icon: jsx(MdOutlineViewColumn, {}) }), appliedFilters.length > 0 && (jsx(Flex, { gap: 1.5, alignItems: 'center', flexWrap: 'wrap', children: appliedFilters.map((filter) => {
+                                        if (filter.isArray) {
+                                            return filter.values.map((value, index) => (jsxs(Tag, { size: "sm", colorPalette: "blue", onClose: () => {
+                                                    const column = table.getColumn(filter.columnId);
+                                                    if (column) {
+                                                        const currentValue = column.getFilterValue() ?? [];
+                                                        const newValue = currentValue.filter((v) => v !== value);
+                                                        if (newValue.length === 0) {
+                                                            handleRemoveFilter(filter.columnId);
+                                                        }
+                                                        else {
+                                                            column.setFilterValue(newValue);
+                                                        }
+                                                    }
+                                                }, children: [filter.displayName, ": ", value] }, `${filter.columnId}-${value}-${index}`)));
+                                        }
+                                        return (jsxs(Tag, { size: "sm", colorPalette: "blue", onClose: () => handleRemoveFilter(filter.columnId), children: [filter.displayName, ": ", filter.value] }, filter.columnId));
+                                    }) }))] }), jsxs(Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsx(Spinner, { size: 'sm' }), hasError && (jsx(Tooltip, { content: hasErrorText, children: jsx(Icon, { as: BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsx(GlobalFilter, {}), filterTagsOptions.length > 0 && (jsx(TableFilterTags, { filterTagsOptions: filterTagsOptions })), showFilter && jsx(FilterDialog, {}), showReload && jsx(ReloadButton, {}), extraItems] })] }) }), jsx(Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxs(Flex, { justifyContent: 'space-between', children: [jsxs(Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsx(PageSizeControl, {}), showPageCountText && jsx(RowCountText, {})] }), jsx(Box, { justifySelf: 'end', children: showPagination && jsx(Pagination, {}) })] }))] }));
 };
 
 const EmptyState$1 = React.forwardRef(function EmptyState(props, ref) {
@@ -3968,11 +4020,6 @@ label, containerProps = {}, textProps = {}, children, }) => {
     }
     return (jsx(Box, { textOverflow: "ellipsis", whiteSpace: "nowrap", wordBreak: "break-all", overflow: "auto", display: "flex", alignItems: "center", justifyContent: alignEnd ? 'flex-end' : undefined, height: "100%", textAlign: alignEnd ? 'right' : undefined, children: jsx(RenderValue, { text: displayValue, href: href, onClick: onClick, isCopyable: isCopyable, isBadge: isBadge, badgeColor: badgeColor, colorPalette: colorPalette, globalFilter: globalFilter, alignEnd: alignEnd }) }));
 };
-
-const Tag = React.forwardRef(function Tag(props, ref) {
-    const { startElement, endElement, onClose, closable = !!onClose, children, ...rest } = props;
-    return (jsxs(Tag$1.Root, { ref: ref, ...rest, children: [startElement && (jsx(Tag$1.StartElement, { children: startElement })), jsx(Tag$1.Label, { children: children }), endElement && (jsx(Tag$1.EndElement, { children: endElement })), closable && (jsx(Tag$1.EndElement, { children: jsx(Tag$1.CloseTrigger, { onClick: onClose }) }))] }));
-});
 
 const CardHeader = ({ row, imageColumnId = undefined, titleColumnId = undefined, tagColumnId = undefined, tagIcon = undefined, showTag = true, imageProps = {}, }) => {
     if (!!row.original === false) {

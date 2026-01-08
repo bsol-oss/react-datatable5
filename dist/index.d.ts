@@ -130,8 +130,6 @@ interface TableControlsProps {
     children?: ReactNode;
     showGlobalFilter?: boolean;
     showFilter?: boolean;
-    showFilterName?: boolean;
-    showFilterTags?: boolean;
     showReload?: boolean;
     showPagination?: boolean;
     showPageSizeControl?: boolean;
@@ -149,7 +147,7 @@ interface TableControlsProps {
     hasError?: boolean;
     gridProps?: GridProps;
 }
-declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showFilterName, showFilterTags, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterTagsOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
+declare const TableControls: ({ fitTableWidth, fitTableHeight, children, showGlobalFilter, showFilter, showReload, showPagination, showPageSizeControl, showPageCountText, showView, filterTagsOptions, extraItems, loading, hasError, gridProps, }: TableControlsProps) => react_jsx_runtime.JSX.Element;
 
 declare const TableFilter: () => react_jsx_runtime.JSX.Element;
 
