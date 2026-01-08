@@ -25,8 +25,8 @@ export const useForm = ({
   const form = useReactHookForm({
     values: preLoadedValues,
     resolver: schema ? ajvResolver(schema) : undefined,
-    mode: 'onBlur',
-    reValidateMode: 'onBlur',
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
   });
   const [idMap, setIdMap] = useState<Record<string, object>>({});
   // Fallback translate object - returns key as-is (no i18n required)

@@ -23,7 +23,6 @@ export const validateData = (
   const validate = ajv.compile(schema);
   const validationResult = validate(data);
   const errors = validate.errors;
-  console.log(errors, data);
   return {
     isValid: validationResult,
     validate,

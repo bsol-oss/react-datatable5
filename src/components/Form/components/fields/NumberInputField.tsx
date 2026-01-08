@@ -4,11 +4,9 @@ import {
 } from '@/components/ui/number-input';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
-import { useSchemaContext } from '../../useSchemaContext';
-import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
-import { removeIndex } from '../../utils/removeIndex';
 import { getFieldError } from '../../utils/getFieldError';
 import { useFormI18n } from '../../utils/useFormI18n';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 export interface NumberInputFieldProps {
   column: string;
   schema: CustomJSONSchema7;
@@ -41,13 +39,7 @@ export const NumberInputField = ({
       label={formI18n.label()}
       required={isRequired}
       {...{ gridColumn, gridRow }}
-      errorText={
-        fieldError
-          ? fieldError.includes('required')
-            ? formI18n.required()
-            : fieldError
-          : undefined
-      }
+      errorText={fieldError}
       invalid={!!fieldError}
     >
       <NumberInputRoot
@@ -60,8 +52,6 @@ export const NumberInputField = ({
               : details.valueAsNumber;
           setValue(`${colLabel}`, value);
         }}
-        min={schema.minimum}
-        max={schema.maximum}
         step={schema.multipleOf || 0.01} // Default to 0.01 for cents/decimals
         allowOverflow={false}
         clampValueOnBlur={false}
