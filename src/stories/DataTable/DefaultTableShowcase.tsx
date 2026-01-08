@@ -162,7 +162,15 @@ const DefaultTableShowcase = () => {
       <DataTable columns={columns} data={data} {...datatable}>
         <DefaultTable
           controlProps={{
+            showFilterTags: true,
             filterTagsOptions: [
+              {
+                column: 'brand',
+                options: [
+                  { label: '苹果', value: 'Apple' },
+                  { label: '华为', value: 'Huawei' },
+                ],
+              },
               {
                 column: 'category',
                 options: [

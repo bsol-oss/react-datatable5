@@ -105,6 +105,9 @@ export function DataTableServer<TData = unknown>({
     globalFilterPlaceholder: 'Search',
     trueLabel: 'True',
     falseLabel: 'False',
+    noFiltersMatchText: 'No filters match your search',
+    filterByLabel: 'Filter by',
+    filterLabelsPlaceholder: 'Filter labels',
   },
 }: DataTableServerProps<TData>) {
   const table = useReactTable({

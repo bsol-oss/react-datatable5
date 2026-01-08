@@ -95,42 +95,9 @@ export const TableControls = ({
             {extraItems}
           </Flex>
         </Flex>
-        {filterTagsOptions.length > 0 && (
-          <Flex flexFlow={'column'} gap={'0.5rem'}>
-            {filterTagsOptions.map((option) => {
-              const { column, options } = option;
-              const tableColumn = table.getColumn(column);
-              return (
-                <Flex
-                  key={column}
-                  alignItems={'center'}
-                  flexFlow={'wrap'}
-                  gap={'0.5rem'}
-                >
-                  {tableColumn?.columnDef.meta?.displayName && (
-                    <Text>{tableColumn?.columnDef.meta?.displayName}</Text>
-                  )}
-                  <TagFilter
-                    availableTags={options}
-                    selectedTags={
-                      (tableColumn?.getFilterValue() as string[]) ?? []
-                    }
-                    selectOne={true}
-                    onTagChange={(tags) => {
-                      if (tags.length === 0) {
-                        return tableColumn?.setFilterValue(undefined);
-                      }
-                      tableColumn?.setFilterValue(tags);
-                    }}
-                  />
-                </Flex>
-              );
-            })}
-          </Flex>
-        )}
         {showFilterTags && (
           <Flex>
-            <TableFilterTags />
+            <TableFilterTags filterTagsOptions={filterTagsOptions} />
           </Flex>
         )}
       </Flex>

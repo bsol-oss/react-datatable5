@@ -108,18 +108,6 @@ export const TableHeader = ({
     return columnMeta?.headerTexts?.[key] || mergedDefaultTexts[key];
   };
 
-  const getThProps = (header: Header<unknown, unknown>) => {
-    const thProps = header.column.getIsPinned()
-      ? {
-          left: showSelector
-            ? `${header.getStart('left') + SELECTION_BOX_WIDTH + table.getDensityValue() * 2}px`
-            : `${header.getStart('left')}px`,
-          position: 'sticky',
-          zIndex: 100 + 1,
-        }
-      : {};
-    return thProps;
-  };
   const stickyProps = {
     position: 'sticky',
     top: 0,

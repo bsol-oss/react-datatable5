@@ -18,6 +18,9 @@ export interface DataTableLabel {
   globalFilterPlaceholder: string;
   trueLabel: string;
   falseLabel: string;
+  noFiltersMatchText: string;
+  filterByLabel: string;
+  filterLabelsPlaceholder: string;
 }
 
 export interface DataTableContextProps<TData = unknown>
@@ -83,5 +86,8 @@ export const DataTableContext = createContext<DataTableContextProps>({
     globalFilterPlaceholder: 'Search',
     trueLabel: 'True',
     falseLabel: 'False',
+    noFiltersMatchText: 'No filters match your search',
+    filterByLabel: 'Filter by',
+    filterLabelsPlaceholder: 'Filter labels',
   },
 });
