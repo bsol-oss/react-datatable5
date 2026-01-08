@@ -911,6 +911,32 @@ export function DateTimePicker({
       }
     }
 
+    // Try parsing 3-digit or 4-digit format with meridiem: "215pm", "1124pm"
+    // 3 digits: first digit is hour (1-9), last 2 digits are minutes
+    // 4 digits: first 2 digits are hour (10-12), last 2 digits are minutes
+    const timeNoColonMeridiemMatch = trimmed.match(/^(\d{3,4})(am|pm)$/);
+    if (timeNoColonMeridiemMatch && !is24Hour) {
+      const digits = timeNoColonMeridiemMatch[1];
+      const meridiem = timeNoColonMeridiemMatch[2] as 'am' | 'pm';
+
+      let hour12: number;
+      let minute: number;
+
+      if (digits.length === 3) {
+        // 3 digits: "215" -> hour=2, minute=15
+        hour12 = parseInt(digits.substring(0, 1), 10);
+        minute = parseInt(digits.substring(1, 3), 10);
+      } else {
+        // 4 digits: "1124" -> hour=11, minute=24
+        hour12 = parseInt(digits.substring(0, 2), 10);
+        minute = parseInt(digits.substring(2, 4), 10);
+      }
+
+      if (hour12 >= 1 && hour12 <= 12 && minute >= 0 && minute <= 59) {
+        return { hour: hour12, minute, second: null, meridiem };
+      }
+    }
+
     // Try parsing hour with meridiem: "2pm", "14pm", "2am"
     const hourMeridiemMatch = trimmed.match(/^(\d{1,2})\s*(am|pm)$/);
     if (hourMeridiemMatch && !is24Hour) {
