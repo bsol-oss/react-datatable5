@@ -96,9 +96,7 @@ export const TableControls = ({
           </Flex>
         </Flex>
         {showFilterTags && (
-          <Flex>
-            <TableFilterTags filterTagsOptions={filterTagsOptions} />
-          </Flex>
+          <TableFilterTags filterTagsOptions={filterTagsOptions} />
         )}
       </Flex>
 
