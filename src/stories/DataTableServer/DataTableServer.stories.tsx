@@ -5,6 +5,7 @@ import DefaultTableShowcaseTwo from './DefaultTableShowcase2';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import TableViewShowcase from '../DataTable/TableViewShowcase';
 import DefaultTableShowcase3 from './DefaultTableShowcase3';
+import TraditionalChineseShowcase from './TraditionalChineseShowcase';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -66,5 +67,12 @@ export const CardView: Story = {
         <CardViewShowcase />
       </QueryClientProvider>
     );
+  },
+};
+
+export const TraditionalChinese: Story = {
+  name: 'Traditional Chinese (繁體中文)',
+  render: () => {
+    return <TraditionalChineseShowcase />;
   },
 };

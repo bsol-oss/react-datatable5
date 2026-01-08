@@ -152,8 +152,6 @@ const DefaultTableShowcase2 = () => {
         <DefaultTable
           controlProps={{
             showFilter: true,
-            showFilterName: true,
-            showFilterTags: true,
             filterTagsOptions: [
               {
                 column: 'university',

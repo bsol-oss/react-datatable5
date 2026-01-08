@@ -29,6 +29,8 @@ export interface ColumnFilterMenuProps {
   value?: string[] | string | undefined;
   onChange?: (value: string[] | string | undefined) => void;
   labels?: ColumnFilterMenuLabels;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export const ColumnFilterMenu = ({
@@ -39,18 +41,26 @@ export const ColumnFilterMenu = ({
   value: controlledValue,
   onChange,
   labels,
+  open: controlledOpen,
+  onOpenChange,
 }: ColumnFilterMenuProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  // Use controlled open state if provided, otherwise use internal state
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+
+  const handleOpenChange = (details: { open: boolean }) => {
+    if (onOpenChange) {
+      onOpenChange(details.open);
+    } else {
+      setInternalOpen(details.open);
+    }
+  };
   const [internalValue, setInternalValue] = useState<
     string[] | string | undefined
   >(undefined);
-  const [pendingFilterValue, setPendingFilterValue] = useState<
-    string[] | string | undefined
-  >(undefined);
-  const debouncedFilterValue = useDebounce(pendingFilterValue, 300);
-  const lastAppliedValueRef = useRef<string>('__INITIAL__');
 
   // Use controlled value if provided, otherwise use internal state
   const currentFilterValue =
@@ -65,32 +75,20 @@ export const ColumnFilterMenu = ({
   };
   const finalLabels = { ...defaultLabels, ...labels };
 
-  // Apply debounced filter value via onChange callback
+  // Reset search term when menu closes
   useEffect(() => {
-    const currentKey = JSON.stringify(debouncedFilterValue);
-    // Only apply if the value has changed from what we last applied
-    if (currentKey !== lastAppliedValueRef.current) {
-      if (onChange) {
-        onChange(debouncedFilterValue);
-      } else {
-        setInternalValue(debouncedFilterValue);
-      }
-      lastAppliedValueRef.current = currentKey;
+    if (!isOpen) {
+      setSearchTerm('');
     }
-  }, [debouncedFilterValue, onChange]);
+  }, [isOpen]);
 
-  // Sync internal value when controlled value changes
-  useEffect(() => {
-    if (controlledValue !== undefined) {
-      setInternalValue(controlledValue);
-      setPendingFilterValue(controlledValue);
-      lastAppliedValueRef.current = JSON.stringify(controlledValue);
+  // Filter update function
+  const setFilterValue = (value: string[] | string | undefined) => {
+    if (onChange) {
+      onChange(value);
+    } else {
+      setInternalValue(value);
     }
-  }, [controlledValue]);
-
-  // Debounced filter update function
-  const debouncedSetFilterValue = (value: string[] | string | undefined) => {
-    setPendingFilterValue(value);
   };
 
   // Get active count for this column
@@ -114,7 +112,7 @@ export const ColumnFilterMenu = ({
   }, [filterOptions, debouncedSearchTerm]);
 
   return (
-    <MenuRoot open={isOpen} onOpenChange={(details) => setIsOpen(details.open)}>
+    <MenuRoot open={isOpen} onOpenChange={handleOpenChange}>
       <MenuTrigger asChild>
         <Button variant="outline" size="sm" gap={2}>
           <Icon as={MdFilterList} />
@@ -183,25 +181,22 @@ export const ColumnFilterMenu = ({
                           (v) => v !== option.value
                         );
                         if (newArray.length === 0) {
-                          debouncedSetFilterValue(undefined);
+                          setFilterValue(undefined);
                         } else {
-                          debouncedSetFilterValue(newArray);
+                          setFilterValue(newArray);
                         }
                       } else {
                         // Add to filter
                         if (!currentArray.includes(option.value)) {
-                          debouncedSetFilterValue([
-                            ...currentArray,
-                            option.value,
-                          ]);
+                          setFilterValue([...currentArray, option.value]);
                         }
                       }
                     } else {
                       // Handle single value filters (select variant)
                       if (isActive) {
-                        debouncedSetFilterValue(undefined);
+                        setFilterValue(undefined);
                       } else {
-                        debouncedSetFilterValue(option.value);
+                        setFilterValue(option.value);
                       }
                     }
                   };
@@ -235,7 +230,7 @@ export const ColumnFilterMenu = ({
                                 if (details.checked) {
                                   // Add to filter
                                   if (!currentArray.includes(option.value)) {
-                                    debouncedSetFilterValue([
+                                    setFilterValue([
                                       ...currentArray,
                                       option.value,
                                     ]);
@@ -246,17 +241,17 @@ export const ColumnFilterMenu = ({
                                     (v) => v !== option.value
                                   );
                                   if (newArray.length === 0) {
-                                    debouncedSetFilterValue(undefined);
+                                    setFilterValue(undefined);
                                   } else {
-                                    debouncedSetFilterValue(newArray);
+                                    setFilterValue(newArray);
                                   }
                                 }
                               } else {
                                 // Handle single value filters (select variant)
                                 if (details.checked) {
-                                  debouncedSetFilterValue(option.value);
+                                  setFilterValue(option.value);
                                 } else {
-                                  debouncedSetFilterValue(undefined);
+                                  setFilterValue(undefined);
                                 }
                               }
                             }}
