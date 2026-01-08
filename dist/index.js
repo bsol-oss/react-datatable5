@@ -3203,44 +3203,46 @@ const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
     return (jsxRuntime.jsxs(react.Checkbox.Root, { ref: rootRef, ...rest, children: [jsxRuntime.jsx(react.Checkbox.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsx(react.Checkbox.Control, { children: icon || jsxRuntime.jsx(react.Checkbox.Indicator, {}) }), children != null && (jsxRuntime.jsx(react.Checkbox.Label, { children: children }))] }));
 });
 
-// Generate a color based on column id for visual distinction
-const getColorForColumn = (id) => {
-    const colors = [
-        'blue',
-        'green',
-        'purple',
-        'orange',
-        'pink',
-        'cyan',
-        'teal',
-        'red',
-    ];
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-        hash = id.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
-};
-const ColumnFilterMenu = ({ columnId, displayName, filterOptions, filterVariant, colorPalette, }) => {
-    const { table, tableLabel } = useDataTableContext();
+const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPalette, value: controlledValue, onChange, labels, }) => {
     const [searchTerm, setSearchTerm] = React.useState('');
     const debouncedSearchTerm = usehooks.useDebounce(searchTerm, 300);
     const [isOpen, setIsOpen] = React.useState(false);
+    const [internalValue, setInternalValue] = React.useState(undefined);
     const [pendingFilterValue, setPendingFilterValue] = React.useState(undefined);
     const debouncedFilterValue = usehooks.useDebounce(pendingFilterValue, 300);
     const lastAppliedValueRef = React.useRef('__INITIAL__');
-    const column = table.getColumn(columnId);
-    const currentFilterValue = column?.getFilterValue();
+    // Use controlled value if provided, otherwise use internal state
+    const currentFilterValue = controlledValue !== undefined ? controlledValue : internalValue;
     const isArrayFilter = filterVariant === 'tag';
-    // Apply debounced filter value to column
+    // Default labels
+    const defaultLabels = {
+        filterByLabel: 'Filter by',
+        filterLabelsPlaceholder: 'Filter labels',
+        noFiltersMatchText: 'No filters match your search',
+    };
+    const finalLabels = { ...defaultLabels, ...labels };
+    // Apply debounced filter value via onChange callback
     React.useEffect(() => {
         const currentKey = JSON.stringify(debouncedFilterValue);
         // Only apply if the value has changed from what we last applied
         if (currentKey !== lastAppliedValueRef.current) {
-            column?.setFilterValue(debouncedFilterValue);
+            if (onChange) {
+                onChange(debouncedFilterValue);
+            }
+            else {
+                setInternalValue(debouncedFilterValue);
+            }
             lastAppliedValueRef.current = currentKey;
         }
-    }, [debouncedFilterValue, column]);
+    }, [debouncedFilterValue, onChange]);
+    // Sync internal value when controlled value changes
+    React.useEffect(() => {
+        if (controlledValue !== undefined) {
+            setInternalValue(controlledValue);
+            setPendingFilterValue(controlledValue);
+            lastAppliedValueRef.current = JSON.stringify(controlledValue);
+        }
+    }, [controlledValue]);
     // Debounced filter update function
     const debouncedSetFilterValue = (value) => {
         setPendingFilterValue(value);
@@ -3262,9 +3264,7 @@ const ColumnFilterMenu = ({ columnId, displayName, filterOptions, filterVariant,
         const searchLower = debouncedSearchTerm.toLowerCase();
         return filterOptions.filter((option) => option.label.toLowerCase().includes(searchLower));
     }, [filterOptions, debouncedSearchTerm]);
-    if (!column)
-        return null;
-    return (jsxRuntime.jsxs(MenuRoot, { open: isOpen, onOpenChange: (details) => setIsOpen(details.open), children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "outline", size: "sm", gap: 2, children: [jsxRuntime.jsx(react.Icon, { as: md.MdFilterList }), jsxRuntime.jsxs(react.Text, { children: [displayName, " ", activeCount > 0 && `(${activeCount})`] })] }) }), jsxRuntime.jsx(MenuContent, { maxW: "20rem", minW: "18rem", children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 2, p: 2, children: [jsxRuntime.jsxs(react.Heading, { size: "sm", px: 2, children: [tableLabel.filterByLabel, " ", displayName] }), jsxRuntime.jsx(InputGroup, { startElement: jsxRuntime.jsx(react.Icon, { as: md.MdSearch }), children: jsxRuntime.jsx(react.Input, { placeholder: tableLabel.filterLabelsPlaceholder, value: searchTerm, onChange: (e) => setSearchTerm(e.target.value) }) }), jsxRuntime.jsx(react.Box, { maxH: "20rem", overflowY: "auto", css: {
+    return (jsxRuntime.jsxs(MenuRoot, { open: isOpen, onOpenChange: (details) => setIsOpen(details.open), children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "outline", size: "sm", gap: 2, children: [jsxRuntime.jsx(react.Icon, { as: md.MdFilterList }), jsxRuntime.jsxs(react.Text, { children: [displayName, " ", activeCount > 0 && `(${activeCount})`] })] }) }), jsxRuntime.jsx(MenuContent, { maxW: "20rem", minW: "18rem", children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 2, p: 2, children: [jsxRuntime.jsxs(react.Heading, { size: "sm", px: 2, children: [finalLabels.filterByLabel, " ", displayName] }), jsxRuntime.jsx(InputGroup, { startElement: jsxRuntime.jsx(react.Icon, { as: md.MdSearch }), children: jsxRuntime.jsx(react.Input, { placeholder: finalLabels.filterLabelsPlaceholder, value: searchTerm, onChange: (e) => setSearchTerm(e.target.value) }) }), jsxRuntime.jsx(react.Box, { maxH: "20rem", overflowY: "auto", css: {
                                 '&::-webkit-scrollbar': {
                                     width: '8px',
                                 },
@@ -3278,7 +3278,7 @@ const ColumnFilterMenu = ({ columnId, displayName, filterOptions, filterVariant,
                                 '&::-webkit-scrollbar-thumb:hover': {
                                     background: 'var(--chakra-colors-border-subtle)',
                                 },
-                            }, children: jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 1, children: filteredOptions.length === 0 ? (jsxRuntime.jsx(react.Text, { px: 2, py: 4, color: "fg.muted", textAlign: "center", children: tableLabel.noFiltersMatchText })) : (filteredOptions.map((option) => {
+                            }, children: jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 1, children: filteredOptions.length === 0 ? (jsxRuntime.jsx(react.Text, { px: 2, py: 4, color: "fg.muted", textAlign: "center", children: finalLabels.noFiltersMatchText })) : (filteredOptions.map((option) => {
                                     const isActive = isArrayFilter
                                         ? currentFilterValue?.includes(option.value) ?? false
                                         : currentFilterValue === option.value;
@@ -3356,8 +3356,27 @@ const ColumnFilterMenu = ({ columnId, displayName, filterOptions, filterVariant,
                                                         } }) }), jsxRuntime.jsx(react.Box, { flex: 1, minW: 0, children: jsxRuntime.jsxs(react.HStack, { gap: 2, align: "center", children: [jsxRuntime.jsx(react.Box, { w: 3, h: 3, borderRadius: "full", bg: `${colorPalette}.500`, flexShrink: 0 }), jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", truncate: true, children: option.label })] }) })] }) }, option.value));
                                 })) }) })] }) })] }));
 };
+
+// Generate a color based on column id for visual distinction
+const getColorForColumn = (id) => {
+    const colors = [
+        'blue',
+        'green',
+        'purple',
+        'orange',
+        'pink',
+        'cyan',
+        'teal',
+        'red',
+    ];
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+};
 const TableFilterTags = ({ filterTagsOptions = [], } = {}) => {
-    const { table } = useDataTableContext();
+    const { table, tableLabel } = useDataTableContext();
     // Get columns from filterTagsOptions
     const columnsWithFilters = React.useMemo(() => {
         if (filterTagsOptions.length === 0) {
@@ -3372,26 +3391,37 @@ const TableFilterTags = ({ filterTagsOptions = [], } = {}) => {
             const meta = column.columnDef.meta;
             const displayName = meta?.displayName ?? column.id;
             const filterVariant = meta?.filterVariant;
+            if (!column) {
+                return null;
+            }
             return {
                 columnId: option.column,
                 displayName,
                 filterOptions: option.options,
-                filterVariant: filterVariant === 'tag' ? 'tag' : 'select',
+                filterVariant: (filterVariant === 'tag' ? 'tag' : 'select'),
                 colorPalette: getColorForColumn(option.column),
+                column,
             };
         })
-            .filter((col) => col !== null);
+            .filter((col) => col !== null && col.column !== null && col.column !== undefined);
     }, [table, filterTagsOptions]);
     if (columnsWithFilters.length === 0) {
         return null;
     }
-    return (jsxRuntime.jsx(react.Flex, { gap: 2, flexWrap: "wrap", children: columnsWithFilters.map((column) => (jsxRuntime.jsx(ColumnFilterMenu, { columnId: column.columnId, displayName: column.displayName, filterOptions: column.filterOptions, filterVariant: column.filterVariant, colorPalette: column.colorPalette }, column.columnId))) }));
+    return (jsxRuntime.jsx(react.Flex, { gap: 2, flexWrap: "wrap", children: columnsWithFilters.map((column) => {
+            const filterValue = column.column.getFilterValue();
+            return (jsxRuntime.jsx(ColumnFilterMenu, { displayName: column.displayName, filterOptions: column.filterOptions, filterVariant: column.filterVariant, colorPalette: column.colorPalette, value: filterValue, onChange: (value) => column.column.setFilterValue(value), labels: {
+                    filterByLabel: tableLabel.filterByLabel,
+                    filterLabelsPlaceholder: tableLabel.filterLabelsPlaceholder,
+                    noFiltersMatchText: tableLabel.noFiltersMatchText,
+                } }, column.columnId));
+        }) }));
 };
 
 const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
     const { tableLabel, table } = useDataTableContext();
     const { hasErrorText } = tableLabel;
-    return (jsxRuntime.jsxs(react.Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsx(react.Box, { children: showView && jsxRuntime.jsx(ViewDialog, { icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsxRuntime.jsx(react.Spinner, { size: 'sm' }), hasError && (jsxRuntime.jsx(Tooltip, { content: hasErrorText, children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && jsxRuntime.jsx(FilterDialog, {}), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), showFilterTags && (jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(TableFilterTags, { filterTagsOptions: filterTagsOptions }) }))] }), jsxRuntime.jsx(react.Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsxs(react.Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && jsxRuntime.jsx(RowCountText, {})] }), jsxRuntime.jsx(react.Box, { justifySelf: 'end', children: showPagination && jsxRuntime.jsx(Pagination, {}) })] }))] }));
+    return (jsxRuntime.jsxs(react.Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsx(react.Box, { children: showView && jsxRuntime.jsx(ViewDialog, { icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsxRuntime.jsx(react.Spinner, { size: 'sm' }), hasError && (jsxRuntime.jsx(Tooltip, { content: hasErrorText, children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && jsxRuntime.jsx(FilterDialog, {}), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), showFilterTags && (jsxRuntime.jsx(TableFilterTags, { filterTagsOptions: filterTagsOptions }))] }), jsxRuntime.jsx(react.Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsxs(react.Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && jsxRuntime.jsx(RowCountText, {})] }), jsxRuntime.jsx(react.Box, { justifySelf: 'end', children: showPagination && jsxRuntime.jsx(Pagination, {}) })] }))] }));
 };
 
 const EmptyState$1 = React__namespace.forwardRef(function EmptyState(props, ref) {
@@ -6152,14 +6182,28 @@ const defaultRenderDisplay = (item) => {
         for (const field of displayFields) {
             if (obj[field] !== undefined && obj[field] !== null) {
                 const value = obj[field];
-                // Return the value if it's a string or number, otherwise stringify it
+                // Return the value if it's a string or number
                 if (typeof value === 'string' || typeof value === 'number') {
                     return String(value);
+                }
+                // If the value is an object, show warning and recommend custom renderDisplay
+                if (typeof value === 'object' &&
+                    !Array.isArray(value) &&
+                    !(value instanceof Date)) {
+                    console.warn(`[CustomJSONSchema7] Display field "${field}" contains an object value. Consider providing a custom \`renderDisplay\` function in your schema to properly render this item. Field: ${field}, Value: ${JSON.stringify(value).substring(0, 100)}${JSON.stringify(value).length > 100 ? '...' : ''}`);
+                    // Still return the stringified value for now
+                    return JSON.stringify(value);
                 }
             }
         }
         // If no display field found, fall back to JSON.stringify
         return JSON.stringify(item);
+    }
+    // For strings that look like JSON, show warning and recommend custom renderDisplay
+    if (typeof item === 'string' &&
+        (item.trim().startsWith('{') || item.trim().startsWith('['))) {
+        console.warn(`[CustomJSONSchema7] Item appears to be a JSON string. Consider providing a custom \`renderDisplay\` function in your schema to properly render this item. Current value: ${item.substring(0, 100)}${item.length > 100 ? '...' : ''}`);
+        return item;
     }
     // For non-objects (primitives, arrays, dates), use JSON.stringify
     return JSON.stringify(item);

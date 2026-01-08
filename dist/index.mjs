@@ -3183,44 +3183,46 @@ const Checkbox = React.forwardRef(function Checkbox(props, ref) {
     return (jsxs(Checkbox$1.Root, { ref: rootRef, ...rest, children: [jsx(Checkbox$1.HiddenInput, { ref: ref, ...inputProps }), jsx(Checkbox$1.Control, { children: icon || jsx(Checkbox$1.Indicator, {}) }), children != null && (jsx(Checkbox$1.Label, { children: children }))] }));
 });
 
-// Generate a color based on column id for visual distinction
-const getColorForColumn = (id) => {
-    const colors = [
-        'blue',
-        'green',
-        'purple',
-        'orange',
-        'pink',
-        'cyan',
-        'teal',
-        'red',
-    ];
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-        hash = id.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
-};
-const ColumnFilterMenu = ({ columnId, displayName, filterOptions, filterVariant, colorPalette, }) => {
-    const { table, tableLabel } = useDataTableContext();
+const ColumnFilterMenu = ({ displayName, filterOptions, filterVariant, colorPalette, value: controlledValue, onChange, labels, }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
     const [isOpen, setIsOpen] = useState(false);
+    const [internalValue, setInternalValue] = useState(undefined);
     const [pendingFilterValue, setPendingFilterValue] = useState(undefined);
     const debouncedFilterValue = useDebounce(pendingFilterValue, 300);
     const lastAppliedValueRef = useRef('__INITIAL__');
-    const column = table.getColumn(columnId);
-    const currentFilterValue = column?.getFilterValue();
+    // Use controlled value if provided, otherwise use internal state
+    const currentFilterValue = controlledValue !== undefined ? controlledValue : internalValue;
     const isArrayFilter = filterVariant === 'tag';
-    // Apply debounced filter value to column
+    // Default labels
+    const defaultLabels = {
+        filterByLabel: 'Filter by',
+        filterLabelsPlaceholder: 'Filter labels',
+        noFiltersMatchText: 'No filters match your search',
+    };
+    const finalLabels = { ...defaultLabels, ...labels };
+    // Apply debounced filter value via onChange callback
     useEffect(() => {
         const currentKey = JSON.stringify(debouncedFilterValue);
         // Only apply if the value has changed from what we last applied
         if (currentKey !== lastAppliedValueRef.current) {
-            column?.setFilterValue(debouncedFilterValue);
+            if (onChange) {
+                onChange(debouncedFilterValue);
+            }
+            else {
+                setInternalValue(debouncedFilterValue);
+            }
             lastAppliedValueRef.current = currentKey;
         }
-    }, [debouncedFilterValue, column]);
+    }, [debouncedFilterValue, onChange]);
+    // Sync internal value when controlled value changes
+    useEffect(() => {
+        if (controlledValue !== undefined) {
+            setInternalValue(controlledValue);
+            setPendingFilterValue(controlledValue);
+            lastAppliedValueRef.current = JSON.stringify(controlledValue);
+        }
+    }, [controlledValue]);
     // Debounced filter update function
     const debouncedSetFilterValue = (value) => {
         setPendingFilterValue(value);
@@ -3242,9 +3244,7 @@ const ColumnFilterMenu = ({ columnId, displayName, filterOptions, filterVariant,
         const searchLower = debouncedSearchTerm.toLowerCase();
         return filterOptions.filter((option) => option.label.toLowerCase().includes(searchLower));
     }, [filterOptions, debouncedSearchTerm]);
-    if (!column)
-        return null;
-    return (jsxs(MenuRoot, { open: isOpen, onOpenChange: (details) => setIsOpen(details.open), children: [jsx(MenuTrigger, { asChild: true, children: jsxs(Button$1, { variant: "outline", size: "sm", gap: 2, children: [jsx(Icon, { as: MdFilterList }), jsxs(Text, { children: [displayName, " ", activeCount > 0 && `(${activeCount})`] })] }) }), jsx(MenuContent, { maxW: "20rem", minW: "18rem", children: jsxs(VStack, { align: "stretch", gap: 2, p: 2, children: [jsxs(Heading, { size: "sm", px: 2, children: [tableLabel.filterByLabel, " ", displayName] }), jsx(InputGroup, { startElement: jsx(Icon, { as: MdSearch }), children: jsx(Input, { placeholder: tableLabel.filterLabelsPlaceholder, value: searchTerm, onChange: (e) => setSearchTerm(e.target.value) }) }), jsx(Box, { maxH: "20rem", overflowY: "auto", css: {
+    return (jsxs(MenuRoot, { open: isOpen, onOpenChange: (details) => setIsOpen(details.open), children: [jsx(MenuTrigger, { asChild: true, children: jsxs(Button$1, { variant: "outline", size: "sm", gap: 2, children: [jsx(Icon, { as: MdFilterList }), jsxs(Text, { children: [displayName, " ", activeCount > 0 && `(${activeCount})`] })] }) }), jsx(MenuContent, { maxW: "20rem", minW: "18rem", children: jsxs(VStack, { align: "stretch", gap: 2, p: 2, children: [jsxs(Heading, { size: "sm", px: 2, children: [finalLabels.filterByLabel, " ", displayName] }), jsx(InputGroup, { startElement: jsx(Icon, { as: MdSearch }), children: jsx(Input, { placeholder: finalLabels.filterLabelsPlaceholder, value: searchTerm, onChange: (e) => setSearchTerm(e.target.value) }) }), jsx(Box, { maxH: "20rem", overflowY: "auto", css: {
                                 '&::-webkit-scrollbar': {
                                     width: '8px',
                                 },
@@ -3258,7 +3258,7 @@ const ColumnFilterMenu = ({ columnId, displayName, filterOptions, filterVariant,
                                 '&::-webkit-scrollbar-thumb:hover': {
                                     background: 'var(--chakra-colors-border-subtle)',
                                 },
-                            }, children: jsx(VStack, { align: "stretch", gap: 1, children: filteredOptions.length === 0 ? (jsx(Text, { px: 2, py: 4, color: "fg.muted", textAlign: "center", children: tableLabel.noFiltersMatchText })) : (filteredOptions.map((option) => {
+                            }, children: jsx(VStack, { align: "stretch", gap: 1, children: filteredOptions.length === 0 ? (jsx(Text, { px: 2, py: 4, color: "fg.muted", textAlign: "center", children: finalLabels.noFiltersMatchText })) : (filteredOptions.map((option) => {
                                     const isActive = isArrayFilter
                                         ? currentFilterValue?.includes(option.value) ?? false
                                         : currentFilterValue === option.value;
@@ -3336,8 +3336,27 @@ const ColumnFilterMenu = ({ columnId, displayName, filterOptions, filterVariant,
                                                         } }) }), jsx(Box, { flex: 1, minW: 0, children: jsxs(HStack, { gap: 2, align: "center", children: [jsx(Box, { w: 3, h: 3, borderRadius: "full", bg: `${colorPalette}.500`, flexShrink: 0 }), jsx(Text, { fontSize: "sm", fontWeight: "medium", truncate: true, children: option.label })] }) })] }) }, option.value));
                                 })) }) })] }) })] }));
 };
+
+// Generate a color based on column id for visual distinction
+const getColorForColumn = (id) => {
+    const colors = [
+        'blue',
+        'green',
+        'purple',
+        'orange',
+        'pink',
+        'cyan',
+        'teal',
+        'red',
+    ];
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+};
 const TableFilterTags = ({ filterTagsOptions = [], } = {}) => {
-    const { table } = useDataTableContext();
+    const { table, tableLabel } = useDataTableContext();
     // Get columns from filterTagsOptions
     const columnsWithFilters = useMemo(() => {
         if (filterTagsOptions.length === 0) {
@@ -3352,26 +3371,37 @@ const TableFilterTags = ({ filterTagsOptions = [], } = {}) => {
             const meta = column.columnDef.meta;
             const displayName = meta?.displayName ?? column.id;
             const filterVariant = meta?.filterVariant;
+            if (!column) {
+                return null;
+            }
             return {
                 columnId: option.column,
                 displayName,
                 filterOptions: option.options,
-                filterVariant: filterVariant === 'tag' ? 'tag' : 'select',
+                filterVariant: (filterVariant === 'tag' ? 'tag' : 'select'),
                 colorPalette: getColorForColumn(option.column),
+                column,
             };
         })
-            .filter((col) => col !== null);
+            .filter((col) => col !== null && col.column !== null && col.column !== undefined);
     }, [table, filterTagsOptions]);
     if (columnsWithFilters.length === 0) {
         return null;
     }
-    return (jsx(Flex, { gap: 2, flexWrap: "wrap", children: columnsWithFilters.map((column) => (jsx(ColumnFilterMenu, { columnId: column.columnId, displayName: column.displayName, filterOptions: column.filterOptions, filterVariant: column.filterVariant, colorPalette: column.colorPalette }, column.columnId))) }));
+    return (jsx(Flex, { gap: 2, flexWrap: "wrap", children: columnsWithFilters.map((column) => {
+            const filterValue = column.column.getFilterValue();
+            return (jsx(ColumnFilterMenu, { displayName: column.displayName, filterOptions: column.filterOptions, filterVariant: column.filterVariant, colorPalette: column.colorPalette, value: filterValue, onChange: (value) => column.column.setFilterValue(value), labels: {
+                    filterByLabel: tableLabel.filterByLabel,
+                    filterLabelsPlaceholder: tableLabel.filterLabelsPlaceholder,
+                    noFiltersMatchText: tableLabel.noFiltersMatchText,
+                } }, column.columnId));
+        }) }));
 };
 
 const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsx(Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
     const { tableLabel, table } = useDataTableContext();
     const { hasErrorText } = tableLabel;
-    return (jsxs(Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsxs(Flex, { flexFlow: 'column', gap: 2, children: [jsxs(Flex, { justifyContent: 'space-between', children: [jsx(Box, { children: showView && jsx(ViewDialog, { icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsx(Spinner, { size: 'sm' }), hasError && (jsx(Tooltip, { content: hasErrorText, children: jsx(Icon, { as: BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsx(GlobalFilter, {}), showFilter && jsx(FilterDialog, {}), showReload && jsx(ReloadButton, {}), extraItems] })] }), showFilterTags && (jsx(Flex, { children: jsx(TableFilterTags, { filterTagsOptions: filterTagsOptions }) }))] }), jsx(Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxs(Flex, { justifyContent: 'space-between', children: [jsxs(Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsx(PageSizeControl, {}), showPageCountText && jsx(RowCountText, {})] }), jsx(Box, { justifySelf: 'end', children: showPagination && jsx(Pagination, {}) })] }))] }));
+    return (jsxs(Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsxs(Flex, { flexFlow: 'column', gap: 2, children: [jsxs(Flex, { justifyContent: 'space-between', children: [jsx(Box, { children: showView && jsx(ViewDialog, { icon: jsx(MdOutlineViewColumn, {}) }) }), jsxs(Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsx(Spinner, { size: 'sm' }), hasError && (jsx(Tooltip, { content: hasErrorText, children: jsx(Icon, { as: BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsx(GlobalFilter, {}), showFilter && jsx(FilterDialog, {}), showReload && jsx(ReloadButton, {}), extraItems] })] }), showFilterTags && (jsx(TableFilterTags, { filterTagsOptions: filterTagsOptions }))] }), jsx(Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxs(Flex, { justifyContent: 'space-between', children: [jsxs(Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsx(PageSizeControl, {}), showPageCountText && jsx(RowCountText, {})] }), jsx(Box, { justifySelf: 'end', children: showPagination && jsx(Pagination, {}) })] }))] }));
 };
 
 const EmptyState$1 = React.forwardRef(function EmptyState(props, ref) {
@@ -6132,14 +6162,28 @@ const defaultRenderDisplay = (item) => {
         for (const field of displayFields) {
             if (obj[field] !== undefined && obj[field] !== null) {
                 const value = obj[field];
-                // Return the value if it's a string or number, otherwise stringify it
+                // Return the value if it's a string or number
                 if (typeof value === 'string' || typeof value === 'number') {
                     return String(value);
+                }
+                // If the value is an object, show warning and recommend custom renderDisplay
+                if (typeof value === 'object' &&
+                    !Array.isArray(value) &&
+                    !(value instanceof Date)) {
+                    console.warn(`[CustomJSONSchema7] Display field "${field}" contains an object value. Consider providing a custom \`renderDisplay\` function in your schema to properly render this item. Field: ${field}, Value: ${JSON.stringify(value).substring(0, 100)}${JSON.stringify(value).length > 100 ? '...' : ''}`);
+                    // Still return the stringified value for now
+                    return JSON.stringify(value);
                 }
             }
         }
         // If no display field found, fall back to JSON.stringify
         return JSON.stringify(item);
+    }
+    // For strings that look like JSON, show warning and recommend custom renderDisplay
+    if (typeof item === 'string' &&
+        (item.trim().startsWith('{') || item.trim().startsWith('['))) {
+        console.warn(`[CustomJSONSchema7] Item appears to be a JSON string. Consider providing a custom \`renderDisplay\` function in your schema to properly render this item. Current value: ${item.substring(0, 100)}${item.length > 100 ? '...' : ''}`);
+        return item;
     }
     // For non-objects (primitives, arrays, dates), use JSON.stringify
     return JSON.stringify(item);
