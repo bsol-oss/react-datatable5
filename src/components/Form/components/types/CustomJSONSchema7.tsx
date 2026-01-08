@@ -167,15 +167,38 @@ export const defaultRenderDisplay = (item: unknown): ReactNode => {
     for (const field of displayFields) {
       if (obj[field] !== undefined && obj[field] !== null) {
         const value = obj[field];
-        // Return the value if it's a string or number, otherwise stringify it
+        // Return the value if it's a string or number
         if (typeof value === 'string' || typeof value === 'number') {
           return String(value);
+        }
+        // If the value is an object, show warning and recommend custom renderDisplay
+        if (
+          typeof value === 'object' &&
+          !Array.isArray(value) &&
+          !(value instanceof Date)
+        ) {
+          console.warn(
+            `[CustomJSONSchema7] Display field "${field}" contains an object value. Consider providing a custom \`renderDisplay\` function in your schema to properly render this item. Field: ${field}, Value: ${JSON.stringify(value).substring(0, 100)}${JSON.stringify(value).length > 100 ? '...' : ''}`
+          );
+          // Still return the stringified value for now
+          return JSON.stringify(value);
         }
       }
     }
 
     // If no display field found, fall back to JSON.stringify
     return JSON.stringify(item);
+  }
+
+  // For strings that look like JSON, show warning and recommend custom renderDisplay
+  if (
+    typeof item === 'string' &&
+    (item.trim().startsWith('{') || item.trim().startsWith('['))
+  ) {
+    console.warn(
+      `[CustomJSONSchema7] Item appears to be a JSON string. Consider providing a custom \`renderDisplay\` function in your schema to properly render this item. Current value: ${item.substring(0, 100)}${item.length > 100 ? '...' : ''}`
+    );
+    return item;
   }
 
   // For non-objects (primitives, arrays, dates), use JSON.stringify
