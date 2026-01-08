@@ -108,6 +108,9 @@ const DataTableContext = React.createContext({
         globalFilterPlaceholder: 'Search',
         trueLabel: 'True',
         falseLabel: 'False',
+        noFiltersMatchText: 'No filters match your search',
+        filterByLabel: 'Filter by',
+        filterLabelsPlaceholder: 'Filter labels',
     },
 });
 
@@ -3195,49 +3198,200 @@ const TableSelector = () => {
                 }, "aria-label": 'reset selection', children: jsxRuntime.jsx(md.MdClear, {}) }))] }));
 };
 
-const TableFilterTags = () => {
+const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
+    const { icon, children, inputProps, rootRef, ...rest } = props;
+    return (jsxRuntime.jsxs(react.Checkbox.Root, { ref: rootRef, ...rest, children: [jsxRuntime.jsx(react.Checkbox.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsx(react.Checkbox.Control, { children: icon || jsxRuntime.jsx(react.Checkbox.Indicator, {}) }), children != null && (jsxRuntime.jsx(react.Checkbox.Label, { children: children }))] }));
+});
+
+// Generate a color based on column id for visual distinction
+const getColorForColumn = (id) => {
+    const colors = [
+        'blue',
+        'green',
+        'purple',
+        'orange',
+        'pink',
+        'cyan',
+        'teal',
+        'red',
+    ];
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+};
+const ColumnFilterMenu = ({ columnId, displayName, filterOptions, filterVariant, colorPalette, }) => {
+    const { table, tableLabel } = useDataTableContext();
+    const [searchTerm, setSearchTerm] = React.useState('');
+    const debouncedSearchTerm = usehooks.useDebounce(searchTerm, 300);
+    const [isOpen, setIsOpen] = React.useState(false);
+    const [pendingFilterValue, setPendingFilterValue] = React.useState(undefined);
+    const debouncedFilterValue = usehooks.useDebounce(pendingFilterValue, 300);
+    const lastAppliedValueRef = React.useRef('__INITIAL__');
+    const column = table.getColumn(columnId);
+    const currentFilterValue = column?.getFilterValue();
+    const isArrayFilter = filterVariant === 'tag';
+    // Apply debounced filter value to column
+    React.useEffect(() => {
+        const currentKey = JSON.stringify(debouncedFilterValue);
+        // Only apply if the value has changed from what we last applied
+        if (currentKey !== lastAppliedValueRef.current) {
+            column?.setFilterValue(debouncedFilterValue);
+            lastAppliedValueRef.current = currentKey;
+        }
+    }, [debouncedFilterValue, column]);
+    // Debounced filter update function
+    const debouncedSetFilterValue = (value) => {
+        setPendingFilterValue(value);
+    };
+    // Get active count for this column
+    const activeCount = React.useMemo(() => {
+        if (!currentFilterValue)
+            return 0;
+        if (isArrayFilter) {
+            return currentFilterValue.length;
+        }
+        return 1;
+    }, [currentFilterValue, isArrayFilter]);
+    // Filter options based on debounced search term
+    const filteredOptions = React.useMemo(() => {
+        if (!debouncedSearchTerm.trim()) {
+            return filterOptions;
+        }
+        const searchLower = debouncedSearchTerm.toLowerCase();
+        return filterOptions.filter((option) => option.label.toLowerCase().includes(searchLower));
+    }, [filterOptions, debouncedSearchTerm]);
+    if (!column)
+        return null;
+    return (jsxRuntime.jsxs(MenuRoot, { open: isOpen, onOpenChange: (details) => setIsOpen(details.open), children: [jsxRuntime.jsx(MenuTrigger, { asChild: true, children: jsxRuntime.jsxs(react.Button, { variant: "outline", size: "sm", gap: 2, children: [jsxRuntime.jsx(react.Icon, { as: md.MdFilterList }), jsxRuntime.jsxs(react.Text, { children: [displayName, " ", activeCount > 0 && `(${activeCount})`] })] }) }), jsxRuntime.jsx(MenuContent, { maxW: "20rem", minW: "18rem", children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 2, p: 2, children: [jsxRuntime.jsxs(react.Heading, { size: "sm", px: 2, children: [tableLabel.filterByLabel, " ", displayName] }), jsxRuntime.jsx(InputGroup, { startElement: jsxRuntime.jsx(react.Icon, { as: md.MdSearch }), children: jsxRuntime.jsx(react.Input, { placeholder: tableLabel.filterLabelsPlaceholder, value: searchTerm, onChange: (e) => setSearchTerm(e.target.value) }) }), jsxRuntime.jsx(react.Box, { maxH: "20rem", overflowY: "auto", css: {
+                                '&::-webkit-scrollbar': {
+                                    width: '8px',
+                                },
+                                '&::-webkit-scrollbar-track': {
+                                    background: 'transparent',
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    background: 'var(--chakra-colors-border-emphasized)',
+                                    borderRadius: '4px',
+                                },
+                                '&::-webkit-scrollbar-thumb:hover': {
+                                    background: 'var(--chakra-colors-border-subtle)',
+                                },
+                            }, children: jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 1, children: filteredOptions.length === 0 ? (jsxRuntime.jsx(react.Text, { px: 2, py: 4, color: "fg.muted", textAlign: "center", children: tableLabel.noFiltersMatchText })) : (filteredOptions.map((option) => {
+                                    const isActive = isArrayFilter
+                                        ? currentFilterValue?.includes(option.value) ?? false
+                                        : currentFilterValue === option.value;
+                                    const handleToggle = () => {
+                                        if (isArrayFilter) {
+                                            // Handle array-based filters (tag variant)
+                                            const currentArray = currentFilterValue ?? [];
+                                            if (isActive) {
+                                                // Remove from filter
+                                                const newArray = currentArray.filter((v) => v !== option.value);
+                                                if (newArray.length === 0) {
+                                                    debouncedSetFilterValue(undefined);
+                                                }
+                                                else {
+                                                    debouncedSetFilterValue(newArray);
+                                                }
+                                            }
+                                            else {
+                                                // Add to filter
+                                                if (!currentArray.includes(option.value)) {
+                                                    debouncedSetFilterValue([
+                                                        ...currentArray,
+                                                        option.value,
+                                                    ]);
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            // Handle single value filters (select variant)
+                                            if (isActive) {
+                                                debouncedSetFilterValue(undefined);
+                                            }
+                                            else {
+                                                debouncedSetFilterValue(option.value);
+                                            }
+                                        }
+                                    };
+                                    return (jsxRuntime.jsx(react.Box, { px: 2, py: 1.5, borderRadius: "md", cursor: "pointer", _hover: {
+                                            bg: 'bg.subtle',
+                                        }, onClick: handleToggle, children: jsxRuntime.jsxs(react.HStack, { gap: 2, align: "start", children: [jsxRuntime.jsx(react.Box, { onClick: (e) => {
+                                                        e.stopPropagation();
+                                                    }, children: jsxRuntime.jsx(Checkbox, { checked: isActive, colorPalette: colorPalette, onCheckedChange: (details) => {
+                                                            if (isArrayFilter) {
+                                                                // Handle array-based filters (tag variant)
+                                                                const currentArray = currentFilterValue ?? [];
+                                                                if (details.checked) {
+                                                                    // Add to filter
+                                                                    if (!currentArray.includes(option.value)) {
+                                                                        debouncedSetFilterValue([
+                                                                            ...currentArray,
+                                                                            option.value,
+                                                                        ]);
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    // Remove from filter
+                                                                    const newArray = currentArray.filter((v) => v !== option.value);
+                                                                    if (newArray.length === 0) {
+                                                                        debouncedSetFilterValue(undefined);
+                                                                    }
+                                                                    else {
+                                                                        debouncedSetFilterValue(newArray);
+                                                                    }
+                                                                }
+                                                            }
+                                                            else {
+                                                                // Handle single value filters (select variant)
+                                                                if (details.checked) {
+                                                                    debouncedSetFilterValue(option.value);
+                                                                }
+                                                                else {
+                                                                    debouncedSetFilterValue(undefined);
+                                                                }
+                                                            }
+                                                        } }) }), jsxRuntime.jsx(react.Box, { flex: 1, minW: 0, children: jsxRuntime.jsxs(react.HStack, { gap: 2, align: "center", children: [jsxRuntime.jsx(react.Box, { w: 3, h: 3, borderRadius: "full", bg: `${colorPalette}.500`, flexShrink: 0 }), jsxRuntime.jsx(react.Text, { fontSize: "sm", fontWeight: "medium", truncate: true, children: option.label })] }) })] }) }, option.value));
+                                })) }) })] }) })] }));
+};
+const TableFilterTags = ({ filterTagsOptions = [], } = {}) => {
     const { table } = useDataTableContext();
-    return (jsxRuntime.jsx(react.Flex, { gap: '0.5rem', flexFlow: 'wrap', children: table.getState().columnFilters.map(({ id, value }) => {
-            const column = table.getColumn(id);
-            const displayName = column?.columnDef.meta?.displayName ?? id;
-            // Format the value for display
-            const formatValue = (val) => {
-                if (Array.isArray(val)) {
-                    return val.join(', ');
-                }
-                if (val === null || val === undefined) {
-                    return '';
-                }
-                return String(val);
+    // Get columns from filterTagsOptions
+    const columnsWithFilters = React.useMemo(() => {
+        if (filterTagsOptions.length === 0) {
+            return [];
+        }
+        return filterTagsOptions
+            .map((option) => {
+            const column = table.getColumn(option.column);
+            if (!column || !column.getCanFilter()) {
+                return null;
+            }
+            const meta = column.columnDef.meta;
+            const displayName = meta?.displayName ?? column.id;
+            const filterVariant = meta?.filterVariant;
+            return {
+                columnId: option.column,
+                displayName,
+                filterOptions: option.options,
+                filterVariant: filterVariant === 'tag' ? 'tag' : 'select',
+                colorPalette: getColorForColumn(option.column),
             };
-            const displayValue = formatValue(value);
-            const label = displayValue
-                ? `${displayName}: ${displayValue}`
-                : displayName;
-            return (jsxRuntime.jsx(CheckboxCard, { checked: true, label: label, size: "sm", variant: "outline", colorPalette: "blue", onCheckedChange: (details) => {
-                    if (!details.checked) {
-                        table.setColumnFilters(table.getState().columnFilters.filter((filter) => {
-                            return (filter.id !== id ||
-                                JSON.stringify(filter.value) !== JSON.stringify(value));
-                        }));
-                    }
-                } }, `${id}-${JSON.stringify(value)}`));
-        }) }));
+        })
+            .filter((col) => col !== null);
+    }, [table, filterTagsOptions]);
+    if (columnsWithFilters.length === 0) {
+        return null;
+    }
+    return (jsxRuntime.jsx(react.Flex, { gap: 2, flexWrap: "wrap", children: columnsWithFilters.map((column) => (jsxRuntime.jsx(ColumnFilterMenu, { columnId: column.columnId, displayName: column.displayName, filterOptions: column.filterOptions, filterVariant: column.filterVariant, colorPalette: column.colorPalette }, column.columnId))) }));
 };
 
 const TableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsxRuntime.jsx(jsxRuntime.Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsxRuntime.jsx(jsxRuntime.Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
     const { tableLabel, table } = useDataTableContext();
     const { hasErrorText } = tableLabel;
-    return (jsxRuntime.jsxs(react.Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsx(react.Box, { children: showView && jsxRuntime.jsx(ViewDialog, { icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsxRuntime.jsx(react.Spinner, { size: 'sm' }), hasError && (jsxRuntime.jsx(Tooltip, { content: hasErrorText, children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && jsxRuntime.jsx(FilterDialog, {}), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), filterTagsOptions.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: '0.5rem', children: filterTagsOptions.map((option) => {
-                            const { column, options } = option;
-                            const tableColumn = table.getColumn(column);
-                            return (jsxRuntime.jsxs(react.Flex, { alignItems: 'center', flexFlow: 'wrap', gap: '0.5rem', children: [tableColumn?.columnDef.meta?.displayName && (jsxRuntime.jsx(react.Text, { children: tableColumn?.columnDef.meta?.displayName })), jsxRuntime.jsx(TagFilter, { availableTags: options, selectedTags: tableColumn?.getFilterValue() ?? [], selectOne: true, onTagChange: (tags) => {
-                                            if (tags.length === 0) {
-                                                return tableColumn?.setFilterValue(undefined);
-                                            }
-                                            tableColumn?.setFilterValue(tags);
-                                        } })] }, column));
-                        }) })), showFilterTags && (jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(TableFilterTags, {}) }))] }), jsxRuntime.jsx(react.Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsxs(react.Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && jsxRuntime.jsx(RowCountText, {})] }), jsxRuntime.jsx(react.Box, { justifySelf: 'end', children: showPagination && jsxRuntime.jsx(Pagination, {}) })] }))] }));
+    return (jsxRuntime.jsxs(react.Grid, { templateRows: 'auto 1fr', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: '0.5rem', p: 1, ...gridProps, children: [jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 2, children: [jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsx(react.Box, { children: showView && jsxRuntime.jsx(ViewDialog, { icon: jsxRuntime.jsx(md.MdOutlineViewColumn, {}) }) }), jsxRuntime.jsxs(react.Flex, { gap: '0.5rem', alignItems: 'center', justifySelf: 'end', children: [loading && jsxRuntime.jsx(react.Spinner, { size: 'sm' }), hasError && (jsxRuntime.jsx(Tooltip, { content: hasErrorText, children: jsxRuntime.jsx(react.Icon, { as: bs.BsExclamationCircleFill, color: 'red.400' }) })), showGlobalFilter && jsxRuntime.jsx(GlobalFilter, {}), showFilter && jsxRuntime.jsx(FilterDialog, {}), showReload && jsxRuntime.jsx(ReloadButton, {}), extraItems] })] }), showFilterTags && (jsxRuntime.jsx(react.Flex, { children: jsxRuntime.jsx(TableFilterTags, { filterTagsOptions: filterTagsOptions }) }))] }), jsxRuntime.jsx(react.Grid, { children: children }), (showPageSizeControl || showPageCountText || showPagination) && (jsxRuntime.jsxs(react.Flex, { justifyContent: 'space-between', children: [jsxRuntime.jsxs(react.Flex, { gap: '1rem', alignItems: 'center', children: [showPageSizeControl && jsxRuntime.jsx(PageSizeControl, {}), showPageCountText && jsxRuntime.jsx(RowCountText, {})] }), jsxRuntime.jsx(react.Box, { justifySelf: 'end', children: showPagination && jsxRuntime.jsx(Pagination, {}) })] }))] }));
 };
 
 const EmptyState$1 = React__namespace.forwardRef(function EmptyState(props, ref) {
@@ -3401,11 +3555,6 @@ const Table = ({ children, emptyComponent = EmptyResult, canResize = true, showL
     }
     return (jsxRuntime.jsx(react.Box, { ref: containerRef, width: "100%", overflow: "auto", children: jsxRuntime.jsx(react.Table.Root, { stickyHeader: true, width: canResize ? table.getCenterTotalSize() : undefined, display: 'grid', alignContent: 'start', ...props, children: children }) }));
 };
-
-const Checkbox = React__namespace.forwardRef(function Checkbox(props, ref) {
-    const { icon, children, inputProps, rootRef, ...rest } = props;
-    return (jsxRuntime.jsxs(react.Checkbox.Root, { ref: rootRef, ...rest, children: [jsxRuntime.jsx(react.Checkbox.HiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsx(react.Checkbox.Control, { children: icon || jsxRuntime.jsx(react.Checkbox.Indicator, {}) }), children != null && (jsxRuntime.jsx(react.Checkbox.Label, { children: children }))] }));
-});
 
 const TableBody = ({ showSelector = false, canResize = true, }) => {
     'use no memo';
@@ -3893,7 +4042,7 @@ const useDataTable = ({ default: { sorting: defaultSorting = [], pagination: def
 };
 
 const useDataTableServer = (props) => {
-    const { url, default: defaultProps, placeholderData, queryFn: customQueryFn, } = props;
+    const { url, default: defaultProps, placeholderData, queryFn: customQueryFn, debounce = true, debounceDelay = 1000, } = props;
     const { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, } = defaultProps || {};
     const [sorting, setSorting] = React.useState(defaultSorting || []);
     const [columnFilters, setColumnFilters] = React.useState(defaultColumnFilters || []); // can set initial column filter state here
@@ -3907,13 +4056,21 @@ const useDataTableServer = (props) => {
     const [density, setDensity] = React.useState(defaultDensity || 'sm');
     const [columnVisibility, setColumnVisibility] = React.useState(defaultColumnVisibility || {});
     const { pageSize, pageIndex } = pagination;
-    const params = {
+    // Debounce params if debounce is enabled
+    const paramsKey = React.useMemo(() => JSON.stringify({
         offset: pageIndex * pageSize,
         limit: pageSize,
         sorting,
         where: columnFilters,
         searching: globalFilter,
-    };
+    }), [pageIndex, pageSize, sorting, columnFilters, globalFilter]);
+    const debouncedParamsKey = debounce
+        ? usehooks.useDebounce(paramsKey, debounceDelay)
+        : paramsKey;
+    // Parse debounced params key back to params object
+    const params = React.useMemo(() => {
+        return JSON.parse(debouncedParamsKey);
+    }, [debouncedParamsKey]);
     const defaultQueryFn = async () => {
         if (!url) {
             throw new Error('url is required');
@@ -6020,7 +6177,7 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     }
     const { table, column: column_ref, customQueryFn, } = foreign_key;
     const [searchText, setSearchText] = React.useState('');
-    const [debouncedSearchText, setDebouncedSearchText] = React.useState('');
+    const debouncedSearchText = usehooks.useDebounce(searchText, 300);
     const [limit] = React.useState(50); // Increased limit for combobox
     // Get colLabel from schema context (we'll compute it here)
     const colLabel = `${prefix}${column}`;
@@ -6047,13 +6204,6 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
         : currentId
             ? [currentId]
             : [];
-    // Debounce search text to avoid too many API calls
-    React.useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearchText(searchText);
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [searchText]);
     // Find IDs that are in currentValue but missing from idMap
     const missingIds = React.useMemo(() => {
         return currentValue.filter((id) => !idMap[id]);
@@ -6770,201 +6920,20 @@ const TextAreaInput = ({ column, schema, prefix, }) => {
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-const TimePicker$1 = (props) => {
-    const { format = '12h', value: controlledValue, onChange: controlledOnChange, hour: uncontrolledHour, setHour: uncontrolledSetHour, minute: uncontrolledMinute, setMinute: uncontrolledSetMinute, startTime, selectedDate, timezone = 'Asia/Hong_Kong', portalled = true, labels = {
-        placeholder: format === '24h' ? 'HH:mm:ss' : 'hh:mm AM/PM',
-        emptyMessage: 'No time found',
-    }, onTimeChange, } = props;
-    const is24Hour = format === '24h';
-    const uncontrolledMeridiem = is24Hour ? undefined : props.meridiem;
-    const uncontrolledSetMeridiem = is24Hour ? undefined : props.setMeridiem;
-    const uncontrolledSecond = is24Hour ? props.second : undefined;
-    const uncontrolledSetSecond = is24Hour ? props.setSecond : undefined;
-    // Determine if we're in controlled mode
-    const isControlled = controlledValue !== undefined;
-    // Parse time string to extract hour, minute, second, meridiem
-    const parseTimeString = (timeStr) => {
-        if (!timeStr || !timeStr.trim()) {
-            return { hour: null, minute: null, second: null, meridiem: null };
-        }
-        // Remove timezone suffix if present (e.g., "14:30:00Z" -> "14:30:00")
-        const timeWithoutTz = timeStr.replace(/[Z+-]\d{2}:?\d{2}$/, '').trim();
-        // Try parsing 24-hour format: "HH:mm:ss" or "HH:mm"
-        const time24Pattern = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/;
-        const match24 = timeWithoutTz.match(time24Pattern);
-        if (match24) {
-            const hour24 = parseInt(match24[1], 10);
-            const minute = parseInt(match24[2], 10);
-            const second = match24[3] ? parseInt(match24[3], 10) : 0;
-            if (hour24 >= 0 &&
-                hour24 <= 23 &&
-                minute >= 0 &&
-                minute <= 59 &&
-                second >= 0 &&
-                second <= 59) {
-                if (is24Hour) {
-                    return { hour: hour24, minute, second, meridiem: null };
-                }
-                else {
-                    // Convert to 12-hour format
-                    let hour12 = hour24;
-                    let meridiem;
-                    if (hour24 === 0) {
-                        hour12 = 12;
-                        meridiem = 'am';
-                    }
-                    else if (hour24 === 12) {
-                        hour12 = 12;
-                        meridiem = 'pm';
-                    }
-                    else if (hour24 > 12) {
-                        hour12 = hour24 - 12;
-                        meridiem = 'pm';
-                    }
-                    else {
-                        hour12 = hour24;
-                        meridiem = 'am';
-                    }
-                    return { hour: hour12, minute, second: null, meridiem };
-                }
-            }
-        }
-        // Try parsing 12-hour format: "hh:mm AM/PM" or "hh:mm:ss AM/PM"
-        const time12Pattern = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?\s*(am|pm|AM|PM)$/i;
-        const match12 = timeWithoutTz.match(time12Pattern);
-        if (match12 && !is24Hour) {
-            const hour12 = parseInt(match12[1], 10);
-            const minute = parseInt(match12[2], 10);
-            const second = match12[3] ? parseInt(match12[3], 10) : null;
-            const meridiem = match12[4].toLowerCase();
-            if (hour12 >= 1 &&
-                hour12 <= 12 &&
-                minute >= 0 &&
-                minute <= 59 &&
-                (second === null || (second >= 0 && second <= 59))) {
-                return { hour: hour12, minute, second, meridiem };
-            }
-        }
-        return { hour: null, minute: null, second: null, meridiem: null };
-    };
-    // Format time values to time string
-    const formatTimeString = (hour, minute, second, meridiem) => {
-        if (hour === null || minute === null) {
-            return undefined;
-        }
-        if (is24Hour) {
-            const h = hour.toString().padStart(2, '0');
-            const m = minute.toString().padStart(2, '0');
-            const s = (second ?? 0).toString().padStart(2, '0');
-            return `${h}:${m}:${s}`;
-        }
-        else {
-            if (meridiem === null) {
-                return undefined;
-            }
-            const h = hour.toString();
-            const m = minute.toString().padStart(2, '0');
-            return `${h}:${m} ${meridiem.toUpperCase()}`;
-        }
-    };
-    // Internal state for controlled mode
-    const [internalHour, setInternalHour] = React.useState(null);
-    const [internalMinute, setInternalMinute] = React.useState(null);
-    const [internalSecond, setInternalSecond] = React.useState(null);
-    const [internalMeridiem, setInternalMeridiem] = React.useState(null);
-    // Use controlled or uncontrolled values
-    const hour = isControlled ? internalHour : uncontrolledHour ?? null;
-    const minute = isControlled ? internalMinute : uncontrolledMinute ?? null;
-    const second = isControlled ? internalSecond : uncontrolledSecond ?? null;
-    const meridiem = isControlled
-        ? internalMeridiem
-        : uncontrolledMeridiem ?? null;
-    // Setters that work for both modes
-    const setHour = isControlled
-        ? setInternalHour
-        : uncontrolledSetHour || (() => { });
-    const setMinute = isControlled
-        ? setInternalMinute
-        : uncontrolledSetMinute || (() => { });
-    const setSecond = isControlled
-        ? setInternalSecond
-        : uncontrolledSetSecond || (() => { });
-    const setMeridiem = isControlled
-        ? setInternalMeridiem
-        : uncontrolledSetMeridiem || (() => { });
-    // Sync internal state with controlled value prop
-    const prevValueRef = React.useRef(controlledValue);
-    React.useEffect(() => {
-        if (!isControlled)
-            return;
-        if (prevValueRef.current === controlledValue) {
-            return;
-        }
-        prevValueRef.current = controlledValue;
-        const parsed = parseTimeString(controlledValue);
-        setInternalHour(parsed.hour);
-        setInternalMinute(parsed.minute);
-        if (is24Hour) {
-            setInternalSecond(parsed.second);
-        }
-        else {
-            setInternalMeridiem(parsed.meridiem);
-        }
-    }, [controlledValue, isControlled, is24Hour]);
-    // Wrapper onChange that calls both controlled and uncontrolled onChange
-    const handleTimeChange = (newHour, newMinute, newSecond, newMeridiem) => {
-        if (isControlled) {
-            const timeString = formatTimeString(newHour, newMinute, newSecond, newMeridiem);
-            controlledOnChange?.(timeString);
-        }
-        else {
-            // Call legacy onTimeChange if provided
-            if (onTimeChange) {
-                if (is24Hour) {
-                    const timeChange24h = onTimeChange;
-                    timeChange24h({
-                        hour: newHour,
-                        minute: newMinute,
-                        second: newSecond,
-                    });
-                }
-                else {
-                    const timeChange12h = onTimeChange;
-                    timeChange12h({
-                        hour: newHour,
-                        minute: newMinute,
-                        meridiem: newMeridiem,
-                    });
-                }
-            }
-        }
-    };
-    const [inputValue, setInputValue] = React.useState('');
-    // Sync inputValue with current time
-    React.useEffect(() => {
-        if (is24Hour && second !== undefined) {
-            if (hour !== null && minute !== null && second !== null) {
-                const formatted = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
-                setInputValue(formatted);
-            }
-            else {
-                setInputValue('');
-            }
-        }
-        else {
-            // 12-hour format - input is managed by combobox
-            setInputValue('');
-        }
-    }, [hour, minute, second, is24Hour]);
-    // Generate time options based on format
+dayjs.extend(customParseFormat);
+const TimePicker$1 = ({ hour, setHour, minute, setMinute, meridiem, setMeridiem, onChange, format = '12h', showSeconds = false, startTime, selectedDate, timezone: tz = 'Asia/Hong_Kong', portalled: _portalled = false, // Unused - kept for API compatibility
+labels, }) => {
+    const is24Hour = format === '24h' || showSeconds;
+    const [timeInputValue, setTimeInputValue] = React.useState('');
+    // Generate time options
     const timeOptions = React.useMemo(() => {
         const options = [];
         // Get start time for comparison if provided
         let startDateTime = null;
         let shouldFilterByDate = false;
         if (startTime && selectedDate) {
-            const startDateObj = dayjs(startTime).tz(timezone);
-            const selectedDateObj = dayjs(selectedDate).tz(timezone);
+            const startDateObj = dayjs(startTime).tz(tz);
+            const selectedDateObj = dayjs(selectedDate).tz(tz);
             if (startDateObj.isValid() && selectedDateObj.isValid()) {
                 startDateTime = startDateObj;
                 shouldFilterByDate =
@@ -6973,12 +6942,12 @@ const TimePicker$1 = (props) => {
             }
         }
         if (is24Hour) {
-            // Generate 24-hour format options (0-23 for hours)
+            // Generate 24-hour format options
             for (let h = 0; h < 24; h++) {
                 for (let m = 0; m < 60; m += 15) {
                     // Filter out times that would result in negative duration
                     if (startDateTime && selectedDate && shouldFilterByDate) {
-                        const selectedDateObj = dayjs(selectedDate).tz(timezone);
+                        const selectedDateObj = dayjs(selectedDate).tz(tz);
                         const optionDateTime = selectedDateObj
                             .hour(h)
                             .minute(m)
@@ -6991,7 +6960,7 @@ const TimePicker$1 = (props) => {
                     // Calculate duration if startTime is provided
                     let durationText;
                     if (startDateTime && selectedDate) {
-                        const selectedDateObj = dayjs(selectedDate).tz(timezone);
+                        const selectedDateObj = dayjs(selectedDate).tz(tz);
                         const optionDateTime = selectedDateObj
                             .hour(h)
                             .minute(m)
@@ -7018,13 +6987,16 @@ const TimePicker$1 = (props) => {
                             }
                         }
                     }
-                    const timeDisplay = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:00`;
+                    const s = showSeconds ? 0 : 0;
+                    const timeDisplay = showSeconds
+                        ? `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:00`
+                        : `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
                     options.push({
                         label: timeDisplay,
-                        value: `${h}:${m}:0`,
+                        value: `${h}:${m}:${s}`,
                         hour: h,
                         minute: m,
-                        second: 0,
+                        second: s,
                         searchText: timeDisplay,
                         durationText,
                     });
@@ -7032,7 +7004,7 @@ const TimePicker$1 = (props) => {
             }
         }
         else {
-            // Generate 12-hour format options (1-12 for hours, AM/PM)
+            // Generate 12-hour format options
             for (let h = 1; h <= 12; h++) {
                 for (let m = 0; m < 60; m += 15) {
                     for (const mer of ['am', 'pm']) {
@@ -7044,7 +7016,7 @@ const TimePicker$1 = (props) => {
                             hour24 = h + 12;
                         // Filter out times that would result in negative duration
                         if (startDateTime && selectedDate && shouldFilterByDate) {
-                            const selectedDateObj = dayjs(selectedDate).tz(timezone);
+                            const selectedDateObj = dayjs(selectedDate).tz(tz);
                             const optionDateTime = selectedDateObj
                                 .hour(hour24)
                                 .minute(m)
@@ -7057,7 +7029,7 @@ const TimePicker$1 = (props) => {
                         // Calculate duration if startTime is provided
                         let durationText;
                         if (startDateTime && selectedDate) {
-                            const selectedDateObj = dayjs(selectedDate).tz(timezone);
+                            const selectedDateObj = dayjs(selectedDate).tz(tz);
                             const optionDateTime = selectedDateObj
                                 .hour(hour24)
                                 .minute(m)
@@ -7099,8 +7071,8 @@ const TimePicker$1 = (props) => {
                     }
                 }
             }
-            // Sort 12-hour options by time (convert to 24-hour for proper chronological sorting)
-            return options.sort((a, b) => {
+            // Sort 12-hour options by time
+            options.sort((a, b) => {
                 const a12 = a;
                 const b12 = b;
                 let hour24A = a12.hour;
@@ -7120,20 +7092,18 @@ const TimePicker$1 = (props) => {
             });
         }
         return options;
-    }, [startTime, selectedDate, timezone, is24Hour]);
-    // itemToString returns only the clean display text (no metadata)
+    }, [startTime, selectedDate, tz, is24Hour, showSeconds]);
+    // Time picker combobox setup
     const itemToString = React.useMemo(() => {
         return (item) => {
             return item.searchText;
         };
     }, []);
-    // Custom filter function
     const { contains } = react.useFilter({ sensitivity: 'base' });
     const customTimeFilter = React.useMemo(() => {
         if (is24Hour) {
-            return contains; // Simple contains filter for 24-hour format
+            return contains;
         }
-        // For 12-hour format, support both 12-hour and 24-hour input
         return (itemText, filterText) => {
             if (!filterText) {
                 return true;
@@ -7147,7 +7117,6 @@ const TimePicker$1 = (props) => {
             if (!item || !('meridiem' in item)) {
                 return false;
             }
-            // Convert item to 24-hour format for matching
             let hour24 = item.hour;
             if (item.meridiem === 'am' && item.hour === 12)
                 hour24 = 0;
@@ -7172,13 +7141,14 @@ const TimePicker$1 = (props) => {
         itemToValue: (item) => item.value,
         filter: customTimeFilter,
     });
-    // Get current value string for combobox
-    const currentValue = React.useMemo(() => {
+    // Get current value string for combobox (must match option.value format)
+    const currentTimeValue = React.useMemo(() => {
         if (is24Hour) {
-            if (hour === null || minute === null || second === null) {
+            if (hour === null || minute === null) {
                 return '';
             }
-            return `${hour}:${minute}:${second}`;
+            const s = showSeconds ? 0 : 0;
+            return `${hour}:${minute}:${s}`;
         }
         else {
             if (hour === null || minute === null || meridiem === null) {
@@ -7186,310 +7156,207 @@ const TimePicker$1 = (props) => {
             }
             return `${hour}:${minute}:${meridiem}`;
         }
-    }, [hour, minute, second, meridiem, is24Hour]);
-    // Calculate duration difference
-    const durationDiff = React.useMemo(() => {
-        if (!startTime || !selectedDate || hour === null || minute === null) {
-            return null;
+    }, [hour, minute, meridiem, is24Hour, showSeconds]);
+    // Parse custom time input formats like "1400", "2pm", "14:00", "2:00 PM"
+    const parseCustomTimeInput = (input) => {
+        if (!input || !input.trim()) {
+            return { hour: null, minute: null, second: null, meridiem: null };
         }
-        if (is24Hour) {
-            if (second === null)
-                return null;
-        }
-        else {
-            if (meridiem === null)
-                return null;
-        }
-        const startDateObj = dayjs(startTime).tz(timezone);
-        const selectedDateObj = dayjs(selectedDate).tz(timezone);
-        // Convert to 24-hour format
-        let hour24 = hour;
-        if (!is24Hour && meridiem) {
-            if (meridiem === 'am' && hour === 12)
-                hour24 = 0;
-            else if (meridiem === 'pm' && hour < 12)
-                hour24 = hour + 12;
-        }
-        const currentDateTime = selectedDateObj
-            .hour(hour24)
-            .minute(minute)
-            .second(is24Hour && second !== null && second !== undefined
-            ? second
-            : 0)
-            .millisecond(0);
-        if (!startDateObj.isValid() || !currentDateTime.isValid()) {
-            return null;
-        }
-        const diffMs = currentDateTime.diff(startDateObj);
-        if (diffMs < 0) {
-            return null;
-        }
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-        if (diffHours > 0 || diffMinutes > 0 || diffSeconds > 0) {
-            let diffText = '';
-            if (diffHours > 0) {
-                diffText = `${diffHours}h ${diffMinutes}m`;
+        const trimmed = input.trim().toLowerCase();
+        // Try parsing 4-digit format without colon: "1400" -> 14:00
+        const fourDigitMatch = trimmed.match(/^(\d{4})$/);
+        if (fourDigitMatch) {
+            const digits = fourDigitMatch[1];
+            const hour = parseInt(digits.substring(0, 2), 10);
+            const minute = parseInt(digits.substring(2, 4), 10);
+            if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+                if (is24Hour) {
+                    return { hour, minute, second: 0, meridiem: null };
+                }
+                else {
+                    // Convert to 12-hour format
+                    let hour12 = hour;
+                    let meridiem;
+                    if (hour === 0) {
+                        hour12 = 12;
+                        meridiem = 'am';
+                    }
+                    else if (hour === 12) {
+                        hour12 = 12;
+                        meridiem = 'pm';
+                    }
+                    else if (hour > 12) {
+                        hour12 = hour - 12;
+                        meridiem = 'pm';
+                    }
+                    else {
+                        hour12 = hour;
+                        meridiem = 'am';
+                    }
+                    return { hour: hour12, minute, second: null, meridiem };
+                }
             }
-            else if (diffMinutes > 0) {
-                diffText = `${diffMinutes}m ${diffSeconds}s`;
+        }
+        // Try parsing 3-digit or 4-digit format with meridiem: "215pm", "1124pm"
+        // 3 digits: first digit is hour (1-9), last 2 digits are minutes
+        // 4 digits: first 2 digits are hour (10-12), last 2 digits are minutes
+        const timeNoColonMeridiemMatch = trimmed.match(/^(\d{3,4})(am|pm)$/);
+        if (timeNoColonMeridiemMatch && !is24Hour) {
+            const digits = timeNoColonMeridiemMatch[1];
+            const meridiem = timeNoColonMeridiemMatch[2];
+            let hour12;
+            let minute;
+            if (digits.length === 3) {
+                // 3 digits: "215" -> hour=2, minute=15
+                hour12 = parseInt(digits.substring(0, 1), 10);
+                minute = parseInt(digits.substring(1, 3), 10);
             }
             else {
-                diffText = `${diffSeconds}s`;
+                // 4 digits: "1124" -> hour=11, minute=24
+                hour12 = parseInt(digits.substring(0, 2), 10);
+                minute = parseInt(digits.substring(2, 4), 10);
             }
-            return `+${diffText}`;
+            if (hour12 >= 1 && hour12 <= 12 && minute >= 0 && minute <= 59) {
+                return { hour: hour12, minute, second: null, meridiem };
+            }
         }
-        return null;
-    }, [
-        hour,
-        minute,
-        second,
-        meridiem,
-        startTime,
-        selectedDate,
-        timezone,
-        is24Hour,
-    ]);
-    const handleClear = () => {
-        setHour(null);
-        setMinute(null);
-        if (is24Hour && setSecond) {
-            setSecond(null);
-            handleTimeChange(null, null, null, null);
+        // Try parsing hour with meridiem: "2pm", "14pm", "2am"
+        const hourMeridiemMatch = trimmed.match(/^(\d{1,2})\s*(am|pm)$/);
+        if (hourMeridiemMatch && !is24Hour) {
+            const hour12 = parseInt(hourMeridiemMatch[1], 10);
+            const meridiem = hourMeridiemMatch[2];
+            if (hour12 >= 1 && hour12 <= 12) {
+                return { hour: hour12, minute: 0, second: null, meridiem };
+            }
         }
-        else if (!is24Hour && setMeridiem) {
-            setMeridiem(null);
-            handleTimeChange(null, null, null, null);
+        // Try parsing 24-hour format with hour only: "14" -> 14:00
+        const hourOnlyMatch = trimmed.match(/^(\d{1,2})$/);
+        if (hourOnlyMatch && is24Hour) {
+            const hour = parseInt(hourOnlyMatch[1], 10);
+            if (hour >= 0 && hour <= 23) {
+                return { hour, minute: 0, second: 0, meridiem: null };
+            }
         }
-        filter('');
+        // Try parsing standard formats: "14:00", "2:00 PM"
+        const time24Pattern = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/;
+        const match24 = trimmed.match(time24Pattern);
+        if (match24) {
+            const hour24 = parseInt(match24[1], 10);
+            const minute = parseInt(match24[2], 10);
+            const second = match24[3] ? parseInt(match24[3], 10) : 0;
+            if (hour24 >= 0 &&
+                hour24 <= 23 &&
+                minute >= 0 &&
+                minute <= 59 &&
+                second >= 0 &&
+                second <= 59) {
+                if (is24Hour) {
+                    return { hour: hour24, minute, second, meridiem: null };
+                }
+                else {
+                    // Convert to 12-hour format
+                    let hour12 = hour24;
+                    let meridiem;
+                    if (hour24 === 0) {
+                        hour12 = 12;
+                        meridiem = 'am';
+                    }
+                    else if (hour24 === 12) {
+                        hour12 = 12;
+                        meridiem = 'pm';
+                    }
+                    else if (hour24 > 12) {
+                        hour12 = hour24 - 12;
+                        meridiem = 'pm';
+                    }
+                    else {
+                        hour12 = hour24;
+                        meridiem = 'am';
+                    }
+                    return { hour: hour12, minute, second: null, meridiem };
+                }
+            }
+        }
+        // Try parsing 12-hour format: "2:00 PM", "2:00PM"
+        const time12Pattern = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?\s*(am|pm)$/;
+        const match12 = trimmed.match(time12Pattern);
+        if (match12 && !is24Hour) {
+            const hour12 = parseInt(match12[1], 10);
+            const minute = parseInt(match12[2], 10);
+            const second = match12[3] ? parseInt(match12[3], 10) : null;
+            const meridiem = match12[4];
+            if (hour12 >= 1 &&
+                hour12 <= 12 &&
+                minute >= 0 &&
+                minute <= 59 &&
+                (second === null || (second >= 0 && second <= 59))) {
+                return { hour: hour12, minute, second, meridiem };
+            }
+        }
+        return { hour: null, minute: null, second: null, meridiem: null };
     };
-    const handleValueChange = (details) => {
+    // Handle time change
+    const handleTimeChange = (newHour, newMinute, newMeridiem) => {
+        setHour(newHour);
+        setMinute(newMinute);
+        if (!is24Hour) {
+            setMeridiem(newMeridiem);
+        }
+        onChange?.({
+            hour: newHour,
+            minute: newMinute,
+            meridiem: newMeridiem,
+        });
+    };
+    const handleTimeValueChange = (details) => {
         if (details.value.length === 0) {
-            handleClear();
+            handleTimeChange(null, null, null);
+            filter('');
             return;
         }
         const selectedValue = details.value[0];
         const selectedOption = timeOptions.find((opt) => opt.value === selectedValue);
         if (selectedOption) {
-            setHour(selectedOption.hour);
-            setMinute(selectedOption.minute);
             filter('');
             if (is24Hour) {
                 const opt24 = selectedOption;
-                if (setSecond)
-                    setSecond(opt24.second);
-                handleTimeChange(opt24.hour, opt24.minute, opt24.second, null);
+                handleTimeChange(opt24.hour, opt24.minute, null);
             }
             else {
                 const opt12 = selectedOption;
-                if (setMeridiem)
-                    setMeridiem(opt12.meridiem);
-                handleTimeChange(opt12.hour, opt12.minute, null, opt12.meridiem);
+                handleTimeChange(opt12.hour, opt12.minute, opt12.meridiem);
             }
         }
     };
-    // Parse input value and update state
-    const parseAndCommitInput = (value) => {
-        const trimmedValue = value.trim();
-        filter(trimmedValue);
-        if (!trimmedValue) {
-            return;
-        }
-        if (is24Hour) {
-            // Parse 24-hour format: "HH:mm:ss" or "HH:mm" or "HHmmss" or "HHmm"
-            const timePattern = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/;
-            const match = trimmedValue.match(timePattern);
-            if (match) {
-                const parsedHour = parseInt(match[1], 10);
-                const parsedMinute = parseInt(match[2], 10);
-                const parsedSecond = match[3] ? parseInt(match[3], 10) : 0;
-                if (parsedHour >= 0 &&
-                    parsedHour <= 23 &&
-                    parsedMinute >= 0 &&
-                    parsedMinute <= 59 &&
-                    parsedSecond >= 0 &&
-                    parsedSecond <= 59) {
-                    setHour(parsedHour);
-                    setMinute(parsedMinute);
-                    if (setSecond)
-                        setSecond(parsedSecond);
-                    handleTimeChange(parsedHour, parsedMinute, parsedSecond, null);
-                    return;
-                }
-            }
-            // Try numbers only format: "123045" or "1230"
-            const numbersOnly = trimmedValue.replace(/[^0-9]/g, '');
-            if (numbersOnly.length >= 4) {
-                const parsedHour = parseInt(numbersOnly.slice(0, 2), 10);
-                const parsedMinute = parseInt(numbersOnly.slice(2, 4), 10);
-                const parsedSecond = numbersOnly.length >= 6 ? parseInt(numbersOnly.slice(4, 6), 10) : 0;
-                if (parsedHour >= 0 &&
-                    parsedHour <= 23 &&
-                    parsedMinute >= 0 &&
-                    parsedMinute <= 59 &&
-                    parsedSecond >= 0 &&
-                    parsedSecond <= 59) {
-                    setHour(parsedHour);
-                    setMinute(parsedMinute);
-                    if (setSecond)
-                        setSecond(parsedSecond);
-                    handleTimeChange(parsedHour, parsedMinute, parsedSecond, null);
-                    return;
-                }
-            }
-        }
-        else {
-            // Parse 24-hour format first (e.g., "13:30", "14:00", "1330", "1400")
-            const timePattern24Hour = /^(\d{1,2}):?(\d{2})$/;
-            const match24Hour = trimmedValue.match(timePattern24Hour);
-            if (match24Hour) {
-                const parsedHour24 = parseInt(match24Hour[1], 10);
-                const parsedMinute = parseInt(match24Hour[2], 10);
-                if (parsedHour24 >= 0 &&
-                    parsedHour24 <= 23 &&
-                    parsedMinute >= 0 &&
-                    parsedMinute <= 59) {
-                    // Convert 24-hour to 12-hour format
-                    let hour12;
-                    let meridiem;
-                    if (parsedHour24 === 0) {
-                        hour12 = 12;
-                        meridiem = 'am';
-                    }
-                    else if (parsedHour24 === 12) {
-                        hour12 = 12;
-                        meridiem = 'pm';
-                    }
-                    else if (parsedHour24 > 12) {
-                        hour12 = parsedHour24 - 12;
-                        meridiem = 'pm';
-                    }
-                    else {
-                        hour12 = parsedHour24;
-                        meridiem = 'am';
-                    }
-                    setHour(hour12);
-                    setMinute(parsedMinute);
-                    if (setMeridiem)
-                        setMeridiem(meridiem);
-                    handleTimeChange(hour12, parsedMinute, null, meridiem);
-                    return;
-                }
-            }
-            // Parse formats like "1:30 PM", "1:30PM", "1:30 pm", "1:30pm"
-            const timePattern12Hour = /^(\d{1,2}):(\d{1,2})\s*(am|pm|AM|PM)$/i;
-            const match12Hour = trimmedValue.match(timePattern12Hour);
-            if (match12Hour) {
-                const parsedHour = parseInt(match12Hour[1], 10);
-                const parsedMinute = parseInt(match12Hour[2], 10);
-                const parsedMeridiem = match12Hour[3].toLowerCase();
-                if (parsedHour >= 1 &&
-                    parsedHour <= 12 &&
-                    parsedMinute >= 0 &&
-                    parsedMinute <= 59) {
-                    setHour(parsedHour);
-                    setMinute(parsedMinute);
-                    if (setMeridiem)
-                        setMeridiem(parsedMeridiem);
-                    handleTimeChange(parsedHour, parsedMinute, null, parsedMeridiem);
-                    return;
-                }
-            }
-            // Parse formats like "12am" or "1pm" (hour only with meridiem, no minutes)
-            const timePatternHourOnly = /^(\d{1,2})\s*(am|pm|AM|PM)$/i;
-            const matchHourOnly = trimmedValue.match(timePatternHourOnly);
-            if (matchHourOnly) {
-                const parsedHour = parseInt(matchHourOnly[1], 10);
-                const parsedMeridiem = matchHourOnly[2].toLowerCase();
-                if (parsedHour >= 1 && parsedHour <= 12) {
-                    setHour(parsedHour);
-                    setMinute(0); // Default to 0 minutes when only hour is provided
-                    if (setMeridiem)
-                        setMeridiem(parsedMeridiem);
-                    handleTimeChange(parsedHour, 0, null, parsedMeridiem);
-                    return;
-                }
-            }
-            // Try to parse formats like "130pm" or "130 pm" (without colon, with minutes)
-            const timePatternNoColon = /^(\d{1,4})\s*(am|pm|AM|PM)$/i;
-            const matchNoColon = trimmedValue.match(timePatternNoColon);
-            if (matchNoColon) {
-                const numbersOnly = matchNoColon[1];
-                const parsedMeridiem = matchNoColon[2].toLowerCase();
-                if (numbersOnly.length >= 3) {
-                    const parsedHour = parseInt(numbersOnly.slice(0, -2), 10);
-                    const parsedMinute = parseInt(numbersOnly.slice(-2), 10);
-                    if (parsedHour >= 1 &&
-                        parsedHour <= 12 &&
-                        parsedMinute >= 0 &&
-                        parsedMinute <= 59) {
-                        setHour(parsedHour);
-                        setMinute(parsedMinute);
-                        if (setMeridiem)
-                            setMeridiem(parsedMeridiem);
-                        handleTimeChange(parsedHour, parsedMinute, null, parsedMeridiem);
-                        return;
-                    }
-                }
-            }
-        }
-        // Parse failed, select first result
-        selectFirstResult();
-    };
-    // Select first result from filtered collection
-    const selectFirstResult = () => {
-        if (collection.items.length > 0) {
-            const firstItem = collection.items[0];
-            setHour(firstItem.hour);
-            setMinute(firstItem.minute);
-            filter('');
-            if (is24Hour) {
-                const opt24 = firstItem;
-                if (setSecond)
-                    setSecond(opt24.second);
-                handleTimeChange(opt24.hour, opt24.minute, opt24.second, null);
-            }
-            else {
-                const opt12 = firstItem;
-                if (setMeridiem)
-                    setMeridiem(opt12.meridiem);
-                handleTimeChange(opt12.hour, opt12.minute, null, opt12.meridiem);
-            }
-        }
-    };
-    const handleInputValueChange = (details) => {
-        if (is24Hour) {
-            setInputValue(details.inputValue);
-        }
+    const handleTimeInputChange = (details) => {
+        // Store the input value and filter
+        setTimeInputValue(details.inputValue);
         filter(details.inputValue);
     };
-    const handleFocus = (e) => {
-        e.target.select();
-    };
-    const handleBlur = (e) => {
-        const inputVal = e.target.value;
-        if (is24Hour) {
-            setInputValue(inputVal);
-        }
-        if (inputVal) {
-            parseAndCommitInput(inputVal);
-        }
-    };
-    const handleKeyDown = (e) => {
+    const handleTimeInputKeyDown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            const inputVal = e.currentTarget.value;
-            if (is24Hour) {
-                setInputValue(inputVal);
+            // Use the stored input value
+            const parsed = parseCustomTimeInput(timeInputValue);
+            if (parsed.hour !== null && parsed.minute !== null) {
+                if (is24Hour) {
+                    handleTimeChange(parsed.hour, parsed.minute, null);
+                }
+                else {
+                    if (parsed.meridiem !== null) {
+                        handleTimeChange(parsed.hour, parsed.minute, parsed.meridiem);
+                    }
+                }
+                // Clear the filter and input value after applying
+                filter('');
+                setTimeInputValue('');
             }
-            if (inputVal) {
-                parseAndCommitInput(inputVal);
-            }
-            e.currentTarget?.blur();
         }
     };
-    return (jsxRuntime.jsx(react.Flex, { direction: "column", gap: 3, children: jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: "2", width: "auto", minWidth: "300px", children: [jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue ? [currentValue] : [], onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, allowCustomValue: true, selectionBehavior: "replace", flex: 1, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { value: is24Hour ? inputValue : undefined, placeholder: labels?.placeholder ?? (is24Hour ? 'HH:mm:ss' : 'hh:mm AM/PM'), onFocus: handleFocus, onBlur: handleBlur, onKeyDown: handleKeyDown }) }), jsxRuntime.jsx(react.Combobox.IndicatorGroup, { children: jsxRuntime.jsx(react.Combobox.Trigger, {}) })] }), jsxRuntime.jsx(react.Portal, { disabled: !portalled, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: labels?.emptyMessage ?? 'No time found' }), collection.items.map((item) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsxs(react.Flex, { alignItems: "center", gap: 2, width: "100%", children: [jsxRuntime.jsx(react.Text, { flex: 1, children: item.label }), item.durationText && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: item.durationText }) }))] }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value)))] }) }) })] }), durationDiff && (jsxRuntime.jsx(react.Tag.Root, { size: "sm", children: jsxRuntime.jsx(react.Tag.Label, { children: durationDiff }) }))] }) }));
+    return (jsxRuntime.jsx(react.Grid, { gap: 2, children: jsxRuntime.jsxs(react.Combobox.Root, { value: currentTimeValue ? [currentTimeValue] : [], onValueChange: handleTimeValueChange, onInputValueChange: handleTimeInputChange, collection: collection, allowCustomValue: true, children: [jsxRuntime.jsxs(react.Combobox.Control, { children: [jsxRuntime.jsx(react.InputGroup, { startElement: jsxRuntime.jsx(bs.BsClock, {}), children: jsxRuntime.jsx(react.Combobox.Input, { placeholder: labels?.placeholder ?? (is24Hour ? 'HH:mm' : 'hh:mm AM/PM'), onKeyDown: handleTimeInputKeyDown }) }), jsxRuntime.jsx(react.Combobox.IndicatorGroup, { children: jsxRuntime.jsx(react.Combobox.Trigger, {}) })] }), jsxRuntime.jsx(react.Portal, { disabled: true, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [jsxRuntime.jsx(react.Combobox.Empty, { children: labels?.emptyMessage ?? 'No time found' }), collection.items.map((item) => {
+                                    const option = item;
+                                    return (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsxs(react.Flex, { justify: "space-between", align: "center", w: "100%", children: [jsxRuntime.jsx(react.Text, { children: option.label }), option.durationText && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "gray.500", children: option.durationText }))] }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, option.value));
+                                })] }) }) })] }) }));
 };
 
 dayjs.extend(timezone);
@@ -8296,6 +8163,29 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                     }
                     return { hour: hour12, minute, second: null, meridiem };
                 }
+            }
+        }
+        // Try parsing 3-digit or 4-digit format with meridiem: "215pm", "1124pm"
+        // 3 digits: first digit is hour (1-9), last 2 digits are minutes
+        // 4 digits: first 2 digits are hour (10-12), last 2 digits are minutes
+        const timeNoColonMeridiemMatch = trimmed.match(/^(\d{3,4})(am|pm)$/);
+        if (timeNoColonMeridiemMatch && !is24Hour) {
+            const digits = timeNoColonMeridiemMatch[1];
+            const meridiem = timeNoColonMeridiemMatch[2];
+            let hour12;
+            let minute;
+            if (digits.length === 3) {
+                // 3 digits: "215" -> hour=2, minute=15
+                hour12 = parseInt(digits.substring(0, 1), 10);
+                minute = parseInt(digits.substring(1, 3), 10);
+            }
+            else {
+                // 4 digits: "1124" -> hour=11, minute=24
+                hour12 = parseInt(digits.substring(0, 2), 10);
+                minute = parseInt(digits.substring(2, 4), 10);
+            }
+            if (hour12 >= 1 && hour12 <= 12 && minute >= 0 && minute <= 59) {
+                return { hour: hour12, minute, second: null, meridiem };
             }
         }
         // Try parsing hour with meridiem: "2pm", "14pm", "2am"
@@ -10114,6 +10004,9 @@ function DataTable({ columns, data, enableRowSelection = true, enableMultiRowSel
     globalFilterPlaceholder: 'Search',
     trueLabel: 'True',
     falseLabel: 'False',
+    noFiltersMatchText: 'No filters match your search',
+    filterByLabel: 'Filter by',
+    filterLabelsPlaceholder: 'Filter labels',
 }, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],
@@ -10213,6 +10106,9 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
     globalFilterPlaceholder: 'Search',
     trueLabel: 'True',
     falseLabel: 'False',
+    noFiltersMatchText: 'No filters match your search',
+    filterByLabel: 'Filter by',
+    filterLabelsPlaceholder: 'Filter labels',
 }, }) {
     const table = reactTable.useReactTable({
         _features: [DensityFeature],

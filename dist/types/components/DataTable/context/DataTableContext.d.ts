@@ -17,6 +17,9 @@ export interface DataTableLabel {
     globalFilterPlaceholder: string;
     trueLabel: string;
     falseLabel: string;
+    noFiltersMatchText: string;
+    filterByLabel: string;
+    filterLabelsPlaceholder: string;
 }
 export interface DataTableContextProps<TData = unknown> extends Omit<DataTableProps, 'translate'> {
     table: Table<TData>;

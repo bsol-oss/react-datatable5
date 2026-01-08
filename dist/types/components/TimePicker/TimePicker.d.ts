@@ -1,51 +1,23 @@
-import { Dispatch, SetStateAction } from 'react';
+import React from 'react';
 import { TimePickerLabels } from '../Form/components/types/CustomJSONSchema7';
-type TimePickerProps12h = {
-    format?: '12h';
-    value?: string;
-    onChange?: (value: string | undefined) => void;
-    hour?: number | null;
-    setHour?: Dispatch<SetStateAction<number | null>>;
-    minute?: number | null;
-    setMinute?: Dispatch<SetStateAction<number | null>>;
-    meridiem?: 'am' | 'pm' | null;
-    setMeridiem?: Dispatch<SetStateAction<'am' | 'pm' | null>>;
-    second?: never;
-    setSecond?: never;
-    onTimeChange?: (newValue: {
+export interface TimePickerProps {
+    hour: number | null;
+    setHour: (hour: number | null) => void;
+    minute: number | null;
+    setMinute: (minute: number | null) => void;
+    meridiem: 'am' | 'pm' | null;
+    setMeridiem: (meridiem: 'am' | 'pm' | null) => void;
+    onChange?: (params: {
         hour: number | null;
         minute: number | null;
         meridiem: 'am' | 'pm' | null;
     }) => void;
+    format?: '12h' | '24h';
+    showSeconds?: boolean;
     startTime?: string;
     selectedDate?: string;
     timezone?: string;
     portalled?: boolean;
     labels?: TimePickerLabels;
-};
-type TimePickerProps24h = {
-    format: '24h';
-    value?: string;
-    onChange?: (value: string | undefined) => void;
-    hour?: number | null;
-    setHour?: Dispatch<SetStateAction<number | null>>;
-    minute?: number | null;
-    setMinute?: Dispatch<SetStateAction<number | null>>;
-    second?: number | null;
-    setSecond?: Dispatch<SetStateAction<number | null>>;
-    meridiem?: never;
-    setMeridiem?: never;
-    onTimeChange?: (newValue: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-    }) => void;
-    startTime?: string;
-    selectedDate?: string;
-    timezone?: string;
-    portalled?: boolean;
-    labels?: TimePickerLabels;
-};
-export type TimePickerProps = TimePickerProps12h | TimePickerProps24h;
-export declare const TimePicker: (props: TimePickerProps) => import("react/jsx-runtime").JSX.Element;
-export {};
+}
+export declare const TimePicker: React.FC<TimePickerProps>;
