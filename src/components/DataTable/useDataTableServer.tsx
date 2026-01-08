@@ -7,8 +7,9 @@ import {
   SortingState,
   VisibilityState,
 } from '@tanstack/react-table';
+import { useDebounce } from '@uidotdev/usehooks';
 import axios from 'axios';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DensityState } from './controls/DensityFeature';
 import { UseDataTableProps, UseDataTableReturn } from './useDataTable';
 
@@ -104,6 +105,8 @@ export const useDataTableServer = <TData,>(
     default: defaultProps,
     placeholderData,
     queryFn: customQueryFn,
+    debounce = true,
+    debounceDelay = 1000,
   } = props;
   const {
     sorting: defaultSorting,
@@ -140,13 +143,27 @@ export const useDataTableServer = <TData,>(
     defaultColumnVisibility || {}
   );
   const { pageSize, pageIndex } = pagination;
-  const params: QueryParams = {
-    offset: pageIndex * pageSize,
-    limit: pageSize,
-    sorting,
-    where: columnFilters,
-    searching: globalFilter,
-  };
+
+  // Debounce params if debounce is enabled
+  const paramsKey = useMemo(
+    () =>
+      JSON.stringify({
+        offset: pageIndex * pageSize,
+        limit: pageSize,
+        sorting,
+        where: columnFilters,
+        searching: globalFilter,
+      }),
+    [pageIndex, pageSize, sorting, columnFilters, globalFilter]
+  );
+  const debouncedParamsKey = debounce
+    ? useDebounce(paramsKey, debounceDelay)
+    : paramsKey;
+
+  // Parse debounced params key back to params object
+  const params: QueryParams = useMemo(() => {
+    return JSON.parse(debouncedParamsKey);
+  }, [debouncedParamsKey]);
 
   const defaultQueryFn = async () => {
     if (!url) {

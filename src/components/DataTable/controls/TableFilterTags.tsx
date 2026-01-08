@@ -12,7 +12,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useMemo, useState, useRef, useCallback } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 import { MdFilterList, MdSearch } from 'react-icons/md';
 import { useDataTableContext } from '../context/useDataTableContext';
@@ -55,24 +55,30 @@ const ColumnFilterMenu = ({
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [isOpen, setIsOpen] = useState(false);
-  const debounceTimerRef = useRef<number | null>(null);
+  const [pendingFilterValue, setPendingFilterValue] = useState<
+    string[] | string | undefined
+  >(undefined);
+  const debouncedFilterValue = useDebounce(pendingFilterValue, 300);
+  const lastAppliedValueRef = useRef<string>('__INITIAL__');
 
   const column = table.getColumn(columnId);
   const currentFilterValue = column?.getFilterValue();
   const isArrayFilter = filterVariant === 'tag';
 
+  // Apply debounced filter value to column
+  useEffect(() => {
+    const currentKey = JSON.stringify(debouncedFilterValue);
+    // Only apply if the value has changed from what we last applied
+    if (currentKey !== lastAppliedValueRef.current) {
+      column?.setFilterValue(debouncedFilterValue);
+      lastAppliedValueRef.current = currentKey;
+    }
+  }, [debouncedFilterValue, column]);
+
   // Debounced filter update function
-  const debouncedSetFilterValue = useCallback(
-    (value: string[] | string | undefined) => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      debounceTimerRef.current = setTimeout(() => {
-        column?.setFilterValue(value);
-      }, 300);
-    },
-    [column]
-  );
+  const debouncedSetFilterValue = (value: string[] | string | undefined) => {
+    setPendingFilterValue(value);
+  };
 
   // Get active count for this column
   const activeCount = useMemo(() => {

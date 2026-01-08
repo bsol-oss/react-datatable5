@@ -1,5 +1,6 @@
 import { useFilter, useListCollection } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
+import { useDebounce } from '@uidotdev/usehooks';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -108,7 +109,7 @@ export const useIdPickerData = ({
     customQueryFn,
   } = foreign_key as ForeignKeyProps;
   const [searchText, setSearchText] = useState<string>('');
-  const [debouncedSearchText, setDebouncedSearchText] = useState<string>('');
+  const debouncedSearchText = useDebounce(searchText, 300);
   const [limit] = useState<number>(50); // Increased limit for combobox
 
   // Get colLabel from schema context (we'll compute it here)
@@ -142,15 +143,6 @@ export const useIdPickerData = ({
     : currentId
       ? [currentId]
       : [];
-
-  // Debounce search text to avoid too many API calls
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchText(searchText);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchText]);
 
   // Find IDs that are in currentValue but missing from idMap
   const missingIds = useMemo(() => {
