@@ -261,26 +261,23 @@ export const convertToAjvErrorsFormat = (
  * );
  * // Result: { username: "This field is required", email: "This field is required" }
  *
- * // With keyPrefix for i18n
+ * // With prefix in generator function
  * const required = buildRequiredErrors(
  *   ["username", "email"],
- *   (field) => `${field}.field_required`,
- *   "user"
+ *   (field) => `user.${field}.field_required`
  * );
  * // Result: { username: "user.username.field_required", email: "user.email.field_required" }
  * ```
  */
 export const buildRequiredErrors = (
   fields: string[],
-  messageOrGenerator: string | ((field: string) => string),
-  keyPrefix: string = ''
+  messageOrGenerator: string | ((field: string) => string)
 ): Record<string, string> => {
   const result: Record<string, string> = {};
 
   fields.forEach((field) => {
     if (typeof messageOrGenerator === 'function') {
-      const message = messageOrGenerator(field);
-      result[field] = keyPrefix ? `${keyPrefix}.${message}` : message;
+      result[field] = messageOrGenerator(field);
     } else {
       result[field] = messageOrGenerator;
     }

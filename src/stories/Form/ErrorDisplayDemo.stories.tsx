@@ -72,7 +72,6 @@ export const FieldTypesComparison: Story = {
 // Demo form showing error display improvements
 const ErrorDisplayDemoForm = () => {
   const form = useForm({
-    keyPrefix: 'demo',
     preLoadedValues: {},
   });
 
@@ -187,7 +186,6 @@ const ErrorDisplayDemoForm = () => {
 // Form showing different field types with error display
 const FieldTypesComparisonForm = () => {
   const form = useForm({
-    keyPrefix: 'comparison',
     preLoadedValues: {},
   });
 

@@ -35,7 +35,7 @@ export const Activities4: Story = {
 };
 
 const SomeForm = () => {
-  const form = useForm({ keyPrefix: 'nice' });
+  const form = useForm({});
 
   return (
     <DefaultForm

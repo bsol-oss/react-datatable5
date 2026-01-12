@@ -12,13 +12,11 @@ export interface Translate {
 
 export interface UseFormProps {
   preLoadedValues?: FieldValues | undefined;
-  keyPrefix?: string; // Deprecated: no longer used (was for i18n)
   namespace?: string; // Deprecated: no longer used (was for i18n)
   schema?: JSONSchema7;
 }
 export const useForm = ({
   preLoadedValues,
-  keyPrefix: _keyPrefix, // Deprecated: kept for backward compatibility
   namespace: _namespace, // Deprecated: kept for backward compatibility
   schema,
 }: UseFormProps) => {

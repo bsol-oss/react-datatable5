@@ -34,7 +34,6 @@ export const displayConfig: Story = {
 
 const SomeForm = () => {
   const form = useForm({
-    keyPrefix: 'nice',
     preLoadedValues: { parent_id: 'nice' },
   });
 

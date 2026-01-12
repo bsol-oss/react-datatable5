@@ -701,7 +701,6 @@ const eventsGeolocationsSchema = {
 
 const SomeForm = () => {
   const form = useForm({
-    keyPrefix: 'nice',
     preLoadedValues: { parent_id: 'nice' },
   });
 

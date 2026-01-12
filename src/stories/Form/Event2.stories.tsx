@@ -46,7 +46,7 @@ export const Event2: Story = {
 };
 
 const SomeForm = () => {
-  const form = useForm({ keyPrefix: 'nice' });
+  const form = useForm({});
 
   // Add title to name property to avoid showing translation key
   const schemaWithTitle = {

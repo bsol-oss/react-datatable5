@@ -454,7 +454,6 @@ const queryDefault = useQuery({
               fontSize="sm"
             >
               {`const form = useForm({
-  keyPrefix: '',
   preLoadedValues: {
     // Single IdPicker with initial value
     manager: 'emp-2',

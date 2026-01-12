@@ -38,7 +38,7 @@ import { useForm } from '@bsol-oss/react-datatable5';
 import { JSONSchema7 } from 'json-schema';
 
 const MyForm = () => {
-  const form = useForm({ keyPrefix: '' });
+  const form = useForm({});
 
   const schema: JSONSchema7 = {
     type: 'object',

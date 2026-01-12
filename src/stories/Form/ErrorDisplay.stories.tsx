@@ -187,7 +187,6 @@ const ComprehensiveForm = () => {
   } as JSONSchema7;
 
   const form = useForm({
-    keyPrefix: 'comprehensive',
     preLoadedValues: {},
     schema,
   });
@@ -241,7 +240,6 @@ const RequiredFieldsForm = () => {
   } as JSONSchema7;
 
   const form = useForm({
-    keyPrefix: 'required',
     preLoadedValues: {},
     schema,
   });
@@ -310,7 +308,6 @@ const ValidationErrorsForm = () => {
   } as JSONSchema7;
 
   const form = useForm({
-    keyPrefix: 'validation',
     preLoadedValues: {},
     schema,
   });
@@ -405,7 +402,6 @@ const ComplexForm = () => {
   } as JSONSchema7;
 
   const form = useForm({
-    keyPrefix: 'complex',
     preLoadedValues: {},
     schema,
   });

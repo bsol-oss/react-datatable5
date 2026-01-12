@@ -298,7 +298,6 @@ export const WithControlledTimezoneOffset: Story = {
 // Basic date-time picker form
 const BasicDateTimeForm = () => {
   const form = useForm({
-    keyPrefix: 'datetime',
     preLoadedValues: {},
   });
 
@@ -344,7 +343,6 @@ const BasicDateTimeForm = () => {
 // Date-time picker with pre-filled values
 const PreFilledDateTimeForm = () => {
   const form = useForm({
-    keyPrefix: 'datetimePrefilled',
     preLoadedValues: {
       eventDateTime: '2024-01-15T10:30:00+08:00',
     },
@@ -391,7 +389,6 @@ const PreFilledDateTimeForm = () => {
 // Date-time picker with validation
 const ValidationDateTimeForm = () => {
   const form = useForm({
-    keyPrefix: 'datetimeValidation',
     preLoadedValues: {},
   });
 
@@ -448,7 +445,6 @@ const ValidationDateTimeForm = () => {
 // Date-time picker with custom date format
 const CustomDateFormatForm = () => {
   const form = useForm({
-    keyPrefix: 'datetimeCustom',
     preLoadedValues: {},
   });
 
@@ -496,7 +492,6 @@ const CustomDateFormatForm = () => {
 // Date-time picker with custom labels
 const CustomLabelsForm = () => {
   const form = useForm({
-    keyPrefix: 'datetimeLabels',
     preLoadedValues: {
       eventDateTime: '2024-03-20T14:00:00+08:00',
     },
@@ -571,7 +566,6 @@ const CustomLabelsForm = () => {
 // Form with multiple date-time picker fields
 const MultipleDateTimeFieldsForm = () => {
   const form = useForm({
-    keyPrefix: 'multipleDatetime',
     preLoadedValues: {
       startDateTime: '2024-06-01T09:00:00+08:00',
       endDateTime: '2024-06-01T17:00:00+08:00',
@@ -632,7 +626,6 @@ const MultipleDateTimeFieldsForm = () => {
 // Date-time picker with schema-based helper buttons
 const SchemaHelperButtonsForm = () => {
   const form = useForm({
-    keyPrefix: 'datetimeHelper',
     preLoadedValues: {},
   });
 
@@ -717,7 +710,6 @@ const SchemaHelperButtonsForm = () => {
 // Date-time picker with schema-based helper buttons and timezone selector
 const SchemaHelperButtonsAndTimezoneForm = () => {
   const form = useForm({
-    keyPrefix: 'datetimeHelperTimezone',
     preLoadedValues: {},
   });
 
@@ -802,7 +794,6 @@ const SchemaHelperButtonsAndTimezoneForm = () => {
 // Date-time picker form inside a dialog
 const DateTimePickerInDialogForm = () => {
   const form = useForm({
-    keyPrefix: 'datetimeDialog',
     preLoadedValues: {},
   });
   const [open, setOpen] = useState(false);

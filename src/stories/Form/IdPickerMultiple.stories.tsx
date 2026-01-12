@@ -359,7 +359,7 @@ const IdPickerMultipleForm = () => {
     string,
     unknown
   > | null>(null);
-  const form = useForm({ keyPrefix: '' });
+  const form = useForm({});
 
   const schema = {
     type: 'object',

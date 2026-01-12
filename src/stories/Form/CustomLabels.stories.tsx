@@ -155,7 +155,6 @@ export const CombinedCustomLabels: Story = {
 
 const DateTimePickerForm = () => {
   const form = useForm({
-    keyPrefix: 'datetime',
     preLoadedValues: { event_date: '2024-01-15T10:30:00Z' },
   });
 
@@ -209,7 +208,6 @@ const DateTimePickerForm = () => {
 
 const IdPickerForm = () => {
   const form = useForm({
-    keyPrefix: 'idpicker',
     preLoadedValues: { category_id: '1', tags: ['1', '2'] },
   });
 
@@ -264,7 +262,6 @@ const IdPickerForm = () => {
 
 const CombinedForm = () => {
   const form = useForm({
-    keyPrefix: 'combined',
     preLoadedValues: {
       event_date: '2024-02-20T14:00:00Z',
       organizer_id: '2',
@@ -346,7 +343,6 @@ const CombinedForm = () => {
 
 const EnumPickerForm = () => {
   const form = useForm({
-    keyPrefix: 'enumpicker',
     preLoadedValues: { status: 'active', tags: ['tag1', 'tag2'] },
   });
 

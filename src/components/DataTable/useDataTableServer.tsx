@@ -13,8 +13,7 @@ import { useMemo, useState } from 'react';
 import { DensityState } from './controls/DensityFeature';
 import { UseDataTableProps, UseDataTableReturn } from './useDataTable';
 
-export interface UseDataTableServerProps<TData>
-  extends Omit<UseDataTableProps, 'keyPrefix'> {
+export interface UseDataTableServerProps<TData> extends UseDataTableProps {
   /**
    * Delay to send the request if the `refreshData` called multiple times
    *

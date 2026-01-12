@@ -36,7 +36,6 @@ export const InsideDialog: Story = {
 
 const SomeForm = () => {
   const form = useForm({
-    keyPrefix: 'nice',
     preLoadedValues: { parent_id: 'nice' },
   });
   const [open, setOpen] = useState(false);

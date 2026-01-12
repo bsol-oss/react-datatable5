@@ -100,7 +100,6 @@ const SomeForm = () => {
   } as JSONSchema7;
 
   const form = useForm({
-    keyPrefix: 'nice',
     preLoadedValues: { parent_id: 'nice' },
     schema,
   });
@@ -169,7 +168,6 @@ const FormWithHelpers = () => {
   } as JSONSchema7;
 
   const form = useForm({
-    keyPrefix: 'user',
     preLoadedValues: {},
     schema,
   });
@@ -240,7 +238,6 @@ const FormWithI18n = () => {
   } as JSONSchema7;
 
   const form = useForm({
-    keyPrefix: 'product',
     preLoadedValues: {},
     schema,
   });

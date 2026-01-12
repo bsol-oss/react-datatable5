@@ -114,7 +114,6 @@ export const CustomDateFormat: Story = {
 // Basic date range picker form
 const BasicDateRangeForm = () => {
   const form = useForm({
-    keyPrefix: 'dateRange',
     preLoadedValues: {},
   });
 
@@ -164,7 +163,6 @@ const BasicDateRangeForm = () => {
 // Date range picker with pre-filled values
 const PreFilledDateRangeForm = () => {
   const form = useForm({
-    keyPrefix: 'dateRangePrefilled',
     preLoadedValues: {
       dateRange: ['2024-01-01', '2024-01-31'],
     },
@@ -215,7 +213,6 @@ const PreFilledDateRangeForm = () => {
 // Date range picker with validation
 const ValidationDateRangeForm = () => {
   const form = useForm({
-    keyPrefix: 'dateRangeValidation',
     preLoadedValues: {},
   });
 
@@ -274,7 +271,6 @@ const ValidationDateRangeForm = () => {
 // Date range picker with custom date format
 const CustomDateFormatForm = () => {
   const form = useForm({
-    keyPrefix: 'dateRangeCustom',
     preLoadedValues: {},
   });
 

@@ -105,7 +105,7 @@ export const BasicFileUpload: Story = {
 };
 
 const BasicFileUploadForm = () => {
-  const form = useForm({ keyPrefix: 'files.basic_files' });
+  const form = useForm({});
 
   const schema = {
     type: 'object',
@@ -147,7 +147,7 @@ export const WithMediaLibrary: Story = {
 };
 
 const WithMediaLibraryForm = () => {
-  const form = useForm({ keyPrefix: 'files.with_media_library' });
+  const form = useForm({});
 
   const schema = {
     type: 'object',
@@ -196,7 +196,7 @@ export const ImageOnlyWithLibrary: Story = {
 };
 
 const ImageOnlyForm = () => {
-  const form = useForm({ keyPrefix: 'files.image_upload' });
+  const form = useForm({});
 
   const schema = {
     type: 'object',
@@ -243,7 +243,7 @@ export const RequiredFiles: Story = {
 };
 
 const RequiredFilesForm = () => {
-  const form = useForm({ keyPrefix: 'files.file_upload' });
+  const form = useForm({});
 
   const schema = {
     type: 'object',
@@ -289,7 +289,7 @@ export const MultipleFilePickers: Story = {
 };
 
 const MultipleFilePickersForm = () => {
-  const form = useForm({ keyPrefix: 'files' });
+  const form = useForm({});
 
   const schema = {
     type: 'object',
@@ -355,7 +355,7 @@ export const WithCustomLabels: Story = {
 };
 
 const WithCustomLabelsForm = () => {
-  const form = useForm({ keyPrefix: 'files.file_upload' });
+  const form = useForm({});
 
   const schema = {
     type: 'object',
@@ -430,7 +430,7 @@ export const SingleSelect: Story = {
 };
 
 const SingleSelectForm = () => {
-  const form = useForm({ keyPrefix: 'files.file_upload' });
+  const form = useForm({});
 
   const schema = {
     type: 'object',
@@ -478,7 +478,7 @@ export const FilePickerAndMediaLibrary: Story = {
 };
 
 const FilePickerAndMediaLibraryForm = () => {
-  const form = useForm({ keyPrefix: 'files' });
+  const form = useForm({});
 
   const schema = {
     type: 'object',
