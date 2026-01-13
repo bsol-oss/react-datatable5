@@ -12,14 +12,9 @@ export interface Translate {
 
 export interface UseFormProps {
   preLoadedValues?: FieldValues | undefined;
-  namespace?: string; // Deprecated: no longer used (was for i18n)
   schema?: JSONSchema7;
 }
-export const useForm = ({
-  preLoadedValues,
-  namespace: _namespace, // Deprecated: kept for backward compatibility
-  schema,
-}: UseFormProps) => {
+export const useForm = ({ preLoadedValues, schema }: UseFormProps) => {
   const form = useReactHookForm({
     values: preLoadedValues,
     resolver: schema ? ajvResolver(schema) : undefined,
