@@ -1,5 +1,6 @@
 import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
+import AjvErrors from 'ajv-errors';
 import { JSONSchema7 } from 'json-schema';
 
 type ValidateDataResult = {
@@ -20,6 +21,7 @@ export const validateData = (
     allErrors: true,
   });
   addFormats(ajv);
+  AjvErrors(ajv); // Load ajv-errors plugin to process errorMessage format
   const validate = ajv.compile(schema);
   const validationResult = validate(data);
   const errors = validate.errors;

@@ -25,6 +25,8 @@ export const FormBody = () => {
   const { showSubmitButton, showResetButton } = displayConfig;
   const methods = useFormContext();
 
+  console.log(methods.formState.errors);
+
   const { properties } = schema;
 
   interface renderColumnsConfig {

@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import { createContext, Dispatch, ReactNode, SetStateAction } from 'react';
-import { FieldValues, Resolver } from 'react-hook-form';
+import { FieldValues } from 'react-hook-form';
 import { Translate } from './useForm';
 import {
   DateTimePickerLabels,
@@ -56,7 +56,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
   filePickerLabels?: FilePickerLabels;
   formButtonLabels?: FormButtonLabels;
   timePickerLabels?: TimePickerLabels;
-  ajvResolver: Resolver<FieldValues>;
   insideDialog?: boolean;
 }
 
@@ -83,5 +82,4 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   },
   requireConfirmation: false,
   onFormSubmit: async () => {},
-  ajvResolver: async () => ({ values: {}, errors: {} }),
 });

@@ -1,6 +1,6 @@
 import { SchemaFormContext } from '@/components/Form/SchemaFormContext';
 import { ForeignKeyProps } from '@/components/Form/components/fields/StringInputField';
-import { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 import {
@@ -9,17 +9,14 @@ import {
   SubmitHandler,
   UseFormReturn,
 } from 'react-hook-form';
-import { Translate } from '../../useForm';
-import axios from 'axios';
 import { clearEmptyString } from '../../utils/clearEmptyString';
-import { ajvResolver } from '../../utils/ajvResolver';
 import {
   CustomJSONSchema7,
   DateTimePickerLabels,
-  IdPickerLabels,
   EnumPickerLabels,
   FilePickerLabels,
   FormButtonLabels,
+  IdPickerLabels,
   TimePickerLabels,
 } from '../types/CustomJSONSchema7';
 
@@ -29,8 +26,6 @@ export interface FormRootProps<TData extends FieldValues> {
   idMap: Record<string, object>;
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
   form: UseFormReturn;
-  /** Translate object for fallback text (components prefer label objects) */
-  translate: Translate;
   children: ReactNode;
   order?: string[];
   ignore?: string[];
@@ -99,7 +94,6 @@ export const FormRoot = <TData extends FieldValues>({
   idMap,
   setIdMap,
   form,
-  translate,
   children,
   order = [],
   ignore = [],
@@ -175,7 +169,7 @@ export const FormRoot = <TData extends FieldValues>({
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFormSubmit = async (data: any) => {
-    // AJV validation is now handled by react-hook-form resolver
+    // Validation is handled by react-hook-form
     // This function will only be called if validation passes
     if (onSubmit === undefined) {
       await defaultOnSubmit(Promise.resolve(defaultSubmitPromise(data)));
@@ -196,7 +190,6 @@ export const FormRoot = <TData extends FieldValues>({
         rowNumber,
         idMap,
         setIdMap,
-        translate,
         requestOptions,
         isSuccess,
         setIsSuccess,
@@ -222,7 +215,6 @@ export const FormRoot = <TData extends FieldValues>({
         filePickerLabels,
         formButtonLabels,
         timePickerLabels,
-        ajvResolver: ajvResolver(schema),
         insideDialog,
       }}
     >
