@@ -152,16 +152,15 @@ export declare const convertToAjvErrorsFormat: (errorMessages: ErrorMessageResul
  * );
  * // Result: { username: "This field is required", email: "This field is required" }
  *
- * // With keyPrefix for i18n
+ * // With prefix in generator function
  * const required = buildRequiredErrors(
  *   ["username", "email"],
- *   (field) => `${field}.field_required`,
- *   "user"
+ *   (field) => `user.${field}.field_required`
  * );
  * // Result: { username: "user.username.field_required", email: "user.email.field_required" }
  * ```
  */
-export declare const buildRequiredErrors: (fields: string[], messageOrGenerator: string | ((field: string) => string), keyPrefix?: string) => Record<string, string>;
+export declare const buildRequiredErrors: (fields: string[], messageOrGenerator: string | ((field: string) => string)) => Record<string, string>;
 /**
  * Helper function to build field-specific validation errors
  *

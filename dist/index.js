@@ -9032,8 +9032,7 @@ const DefaultForm = ({ formConfig, }) => {
     return (jsxRuntime.jsx(FormRoot, { ...formConfig, children: jsxRuntime.jsxs(react.Grid, { gap: "2", children: [showTitle && jsxRuntime.jsx(FormTitle, {}), jsxRuntime.jsx(FormBody, {})] }) }));
 };
 
-const useForm = ({ preLoadedValues, keyPrefix: _keyPrefix, // Deprecated: kept for backward compatibility
-namespace: _namespace, // Deprecated: kept for backward compatibility
+const useForm = ({ preLoadedValues, namespace: _namespace, // Deprecated: kept for backward compatibility
 schema, }) => {
     const form = reactHookForm.useForm({
         values: preLoadedValues,
@@ -9206,21 +9205,19 @@ const convertToAjvErrorsFormat = (errorMessages) => {
  * );
  * // Result: { username: "This field is required", email: "This field is required" }
  *
- * // With keyPrefix for i18n
+ * // With prefix in generator function
  * const required = buildRequiredErrors(
  *   ["username", "email"],
- *   (field) => `${field}.field_required`,
- *   "user"
+ *   (field) => `user.${field}.field_required`
  * );
  * // Result: { username: "user.username.field_required", email: "user.email.field_required" }
  * ```
  */
-const buildRequiredErrors = (fields, messageOrGenerator, keyPrefix = '') => {
+const buildRequiredErrors = (fields, messageOrGenerator) => {
     const result = {};
     fields.forEach((field) => {
         if (typeof messageOrGenerator === 'function') {
-            const message = messageOrGenerator(field);
-            result[field] = keyPrefix ? `${keyPrefix}.${message}` : message;
+            result[field] = messageOrGenerator(field);
         }
         else {
             result[field] = messageOrGenerator;

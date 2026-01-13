@@ -1,7 +1,7 @@
 import { UseQueryResult } from '@tanstack/react-query';
 import { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import { UseDataTableProps, UseDataTableReturn } from './useDataTable';
-export interface UseDataTableServerProps<TData> extends Omit<UseDataTableProps, 'keyPrefix'> {
+export interface UseDataTableServerProps<TData> extends UseDataTableProps {
     /**
      * Delay to send the request if the `refreshData` called multiple times
      *

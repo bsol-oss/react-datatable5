@@ -320,7 +320,7 @@ interface UseDataTableReturn {
 }
 declare const useDataTable: ({ default: { sorting: defaultSorting, pagination: defaultPagination, rowSelection: defaultRowSelection, columnFilters: defaultColumnFilters, columnOrder: defaultColumnOrder, columnVisibility: defaultColumnVisibility, globalFilter: defaultGlobalFilter, density: defaultDensity, }, }?: UseDataTableProps) => UseDataTableReturn;
 
-interface UseDataTableServerProps<TData> extends Omit<UseDataTableProps, 'keyPrefix'> {
+interface UseDataTableServerProps<TData> extends UseDataTableProps {
     /**
      * Delay to send the request if the `refreshData` called multiple times
      *
@@ -509,11 +509,10 @@ interface Translate {
 }
 interface UseFormProps {
     preLoadedValues?: FieldValues | undefined;
-    keyPrefix?: string;
     namespace?: string;
     schema?: JSONSchema7;
 }
-declare const useForm: ({ preLoadedValues, keyPrefix: _keyPrefix, namespace: _namespace, schema, }: UseFormProps) => {
+declare const useForm: ({ preLoadedValues, namespace: _namespace, schema, }: UseFormProps) => {
     form: react_hook_form.UseFormReturn<FieldValues, any, undefined>;
     idMap: Record<string, object>;
     setIdMap: React$1.Dispatch<React$1.SetStateAction<Record<string, object>>>;
@@ -700,16 +699,15 @@ declare const convertToAjvErrorsFormat: (errorMessages: ErrorMessageResult) => R
  * );
  * // Result: { username: "This field is required", email: "This field is required" }
  *
- * // With keyPrefix for i18n
+ * // With prefix in generator function
  * const required = buildRequiredErrors(
  *   ["username", "email"],
- *   (field) => `${field}.field_required`,
- *   "user"
+ *   (field) => `user.${field}.field_required`
  * );
  * // Result: { username: "user.username.field_required", email: "user.email.field_required" }
  * ```
  */
-declare const buildRequiredErrors: (fields: string[], messageOrGenerator: string | ((field: string) => string), keyPrefix?: string) => Record<string, string>;
+declare const buildRequiredErrors: (fields: string[], messageOrGenerator: string | ((field: string) => string)) => Record<string, string>;
 /**
  * Helper function to build field-specific validation errors
  *
