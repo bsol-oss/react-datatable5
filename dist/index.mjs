@@ -9012,8 +9012,7 @@ const DefaultForm = ({ formConfig, }) => {
     return (jsx(FormRoot, { ...formConfig, children: jsxs(Grid, { gap: "2", children: [showTitle && jsx(FormTitle, {}), jsx(FormBody, {})] }) }));
 };
 
-const useForm = ({ preLoadedValues, namespace: _namespace, // Deprecated: kept for backward compatibility
-schema, }) => {
+const useForm = ({ preLoadedValues, schema }) => {
     const form = useForm$1({
         values: preLoadedValues,
         resolver: schema ? ajvResolver(schema) : undefined,

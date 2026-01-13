@@ -9032,8 +9032,7 @@ const DefaultForm = ({ formConfig, }) => {
     return (jsxRuntime.jsx(FormRoot, { ...formConfig, children: jsxRuntime.jsxs(react.Grid, { gap: "2", children: [showTitle && jsxRuntime.jsx(FormTitle, {}), jsxRuntime.jsx(FormBody, {})] }) }));
 };
 
-const useForm = ({ preLoadedValues, namespace: _namespace, // Deprecated: kept for backward compatibility
-schema, }) => {
+const useForm = ({ preLoadedValues, schema }) => {
     const form = reactHookForm.useForm({
         values: preLoadedValues,
         resolver: schema ? ajvResolver(schema) : undefined,

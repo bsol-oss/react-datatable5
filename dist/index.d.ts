@@ -509,10 +509,9 @@ interface Translate {
 }
 interface UseFormProps {
     preLoadedValues?: FieldValues | undefined;
-    namespace?: string;
     schema?: JSONSchema7;
 }
-declare const useForm: ({ preLoadedValues, namespace: _namespace, schema, }: UseFormProps) => {
+declare const useForm: ({ preLoadedValues, schema }: UseFormProps) => {
     form: react_hook_form.UseFormReturn<FieldValues, any, undefined>;
     idMap: Record<string, object>;
     setIdMap: React$1.Dispatch<React$1.SetStateAction<Record<string, object>>>;
