@@ -2,7 +2,7 @@ import { Field } from '@/components/ui/field';
 import { Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 
 export interface BooleanViewerProps {
   column: string;
@@ -23,7 +23,7 @@ export const BooleanViewer = ({
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   return (
     <Field
       label={formI18n.label()}

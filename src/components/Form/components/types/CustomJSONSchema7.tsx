@@ -32,6 +32,7 @@ export interface DateTimePickerLabels {
   weekdayNamesShort?: string[]; // Array of 7 weekday names (starting with Sunday)
   backButtonLabel?: string;
   forwardButtonLabel?: string;
+  selectDateLabel?: string;
   quickActionLabels?: {
     yesterday?: string;
     today?: string;
@@ -94,6 +95,7 @@ export interface FormButtonLabels {
 export interface TimePickerLabels {
   placeholder?: string;
   emptyMessage?: string;
+  selectTimeLabel?: string;
 }
 
 export interface LoadInitialValuesParams {

@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { Textarea } from '@/components/TextArea/TextArea';
 
@@ -24,7 +24,7 @@ export const TextAreaInput = ({
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const fieldError = errors[colLabel]?.message;
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
 
   const watchValue = watch(colLabel);
 

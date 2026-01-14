@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 import { removeIndex } from '../../utils/removeIndex';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface TimeViewerProps {
@@ -28,7 +28,7 @@ export const TimeViewer = ({ column, schema, prefix }: TimeViewerProps) => {
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const selectedDate = watch(colLabel);
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   const displayedTime = dayjs(`1970-01-01T${selectedDate}`)
     .tz(timezone)
     .isValid()

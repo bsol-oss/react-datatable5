@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { MdDateRange } from 'react-icons/md';
 import { useSchemaContext } from '../../useSchemaContext';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { InputDefaultProps } from './types';
 import { InputGroup } from '@/components/ui/input-group';
 
@@ -24,7 +24,7 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
     setValue,
   } = useFormContext();
   const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   const {
     required,
     gridColumn = 'span 12',

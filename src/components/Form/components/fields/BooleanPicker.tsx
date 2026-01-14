@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { removeIndex } from '../../utils/removeIndex';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 
 export interface DatePickerProps {
   column: string;
@@ -23,7 +23,7 @@ export const BooleanPicker = ({ schema, column, prefix }: DatePickerProps) => {
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   return (
     <Field
       label={formI18n.label()}

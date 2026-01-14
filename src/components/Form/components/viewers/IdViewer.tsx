@@ -3,7 +3,7 @@ import { Flex, Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import {
   CustomJSONSchema7,
   defaultRenderDisplay,
@@ -35,7 +35,7 @@ export const IdViewer = ({
     foreign_key,
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
 
   const colLabel = `${prefix}${column}`;
   const watchId = watch(colLabel);

@@ -387,12 +387,13 @@ export function DateTimePicker({
 
   // Display text for buttons
   const dateDisplayText = useMemo(() => {
-    if (!selectedDate) return 'Select date';
+    if (!selectedDate) return labels?.selectDateLabel ?? 'Select date';
     return dayjs(selectedDate).tz(tz).format('YYYY-MM-DD');
-  }, [selectedDate, tz]);
+  }, [selectedDate, tz, labels]);
 
   const timeDisplayText = useMemo(() => {
-    if (hour === null || minute === null) return 'Select time';
+    const selectTimeLabel = timePickerLabels?.selectTimeLabel ?? 'Select time';
+    if (hour === null || minute === null) return selectTimeLabel;
     if (is24Hour) {
       // 24-hour format: never show meridiem, always use 24-hour format (0-23)
       const hour24 = hour >= 0 && hour <= 23 ? hour : hour % 24;
@@ -405,12 +406,12 @@ export function DateTimePicker({
       // 12-hour format: always show meridiem (AM/PM)
       const hour12 = hour >= 1 && hour <= 12 ? hour : hour % 12;
 
-      if (meridiem === null) return 'Select time';
+      if (meridiem === null) return selectTimeLabel;
       const hourDisplay = hour12.toString();
       const minuteDisplay = minute.toString().padStart(2, '0');
       return `${hourDisplay}:${minuteDisplay} ${meridiem.toUpperCase()}`;
     }
-  }, [hour, minute, second, meridiem, is24Hour, showSeconds]);
+  }, [hour, minute, second, meridiem, is24Hour, showSeconds, timePickerLabels]);
 
   const timezoneDisplayText = useMemo(() => {
     if (!showTimezoneSelector) return '';

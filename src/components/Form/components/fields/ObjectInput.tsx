@@ -4,7 +4,7 @@ import { useSchemaContext } from '../../useSchemaContext';
 import { ColumnRenderer } from './ColumnRenderer';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { removeIndex } from '../../utils/removeIndex';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 
 export interface ObjectInputProps {
   schema: CustomJSONSchema7;
@@ -22,7 +22,7 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
   } = schema;
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   const {
     formState: { errors },
   } = useFormContext();

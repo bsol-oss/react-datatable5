@@ -17,7 +17,7 @@ import {
   CustomJSONSchema7,
   FilePickerMediaFile,
 } from '../types/CustomJSONSchema7';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { useSchemaContext } from '../../useSchemaContext';
 import { InputDefaultProps } from './types';
 import { MediaBrowserDialog } from './FilePicker';
@@ -33,7 +33,7 @@ export const FormMediaLibraryBrowser = ({
     watch,
   } = useFormContext();
   const { filePickerLabels } = useSchemaContext();
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   const {
     required,
     gridColumn = 'span 12',

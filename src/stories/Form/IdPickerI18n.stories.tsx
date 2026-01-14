@@ -378,7 +378,7 @@ const IdPickerForm = () => {
       >
         <Heading size="sm">Translation Keys Used by IdPicker</Heading>
         <Text fontSize="xs" color="text.subtle">
-          All these keys are accessed via the useFormI18n hook:
+          All these keys are accessed via the useFormLabel hook:
         </Text>
         <Flex direction="column" gap={1} mt={2} fontFamily="mono" fontSize="xs">
           <Text>

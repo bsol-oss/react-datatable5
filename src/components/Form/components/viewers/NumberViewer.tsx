@@ -4,7 +4,7 @@ import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { removeIndex } from '../../utils/removeIndex';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 export interface NumberInputFieldProps {
   column: string;
   schema: CustomJSONSchema7;
@@ -24,7 +24,7 @@ export const NumberViewer = ({
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
 
   // Format the value for display if formatOptions are provided
   const formatValue = (val: string | number | undefined) => {

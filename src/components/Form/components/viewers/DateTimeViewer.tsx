@@ -3,7 +3,7 @@ import { Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 import { removeIndex } from '../../utils/removeIndex';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import dayjs from 'dayjs';
 
@@ -28,7 +28,7 @@ export const DateTimeViewer = ({ column, schema, prefix }: DateViewerProps) => {
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const selectedDate = watch(colLabel);
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   const displayDate = dayjs(selectedDate)
     .tz(timezone)
     .format(displayDateFormat);

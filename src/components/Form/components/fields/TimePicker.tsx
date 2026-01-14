@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { IoMdClock } from 'react-icons/io';
 import { useSchemaContext } from '../../useSchemaContext';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import timezone from 'dayjs/plugin/timezone';
 
@@ -41,7 +41,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
   };
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   const [open, setOpen] = useState(false);
   const value = watch(colLabel);
 

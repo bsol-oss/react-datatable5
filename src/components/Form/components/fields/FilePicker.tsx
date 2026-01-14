@@ -23,7 +23,7 @@ import {
   FilePickerLabels,
 } from '../types/CustomJSONSchema7';
 import { formatBytes } from '../../utils/formatBytes';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { useSchemaContext } from '../../useSchemaContext';
 import { InputDefaultProps } from './types';
 import { MediaLibraryBrowser } from '../MediaLibraryBrowser';
@@ -284,7 +284,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
     watch,
   } = useFormContext();
   const { filePickerLabels } = useSchemaContext();
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   const {
     required,
     gridColumn = 'span 12',

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { CgClose } from 'react-icons/cg';
 import { useSchemaContext } from '../../useSchemaContext';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface DatePickerProps {
@@ -27,7 +27,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
   const [showNewEntries, setShowNewEntries] = useState<boolean>(false);
   const [newKey, setNewKey] = useState<string>();
   const [newValue, setNewValue] = useState<string>();
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
 
   return (
     <Field

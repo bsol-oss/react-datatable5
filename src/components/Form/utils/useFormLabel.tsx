@@ -1,0 +1,71 @@
+import { CustomJSONSchema7 } from '../components/types/CustomJSONSchema7';
+
+export const useFormLabel = (
+  column: string,
+  prefix: string | undefined = '',
+  schema: CustomJSONSchema7
+) => {
+  const colLabel = `${prefix}${column}`;
+  return {
+    /**
+     * The constructed column label (prefix + column)
+     */
+    colLabel,
+    /**
+     * Get the field label from schema title property.
+     * Logs a debug message if title is missing.
+     */
+    label: () => {
+      if (schema.title) {
+        return schema.title;
+      }
+      // Debug log when field title is missing
+      console.debug(
+        `[Form Field Label] Missing title for field '${colLabel}'. Add title property to schema for field '${colLabel}'.`,
+        {
+          fieldName: column,
+          colLabel,
+          prefix,
+          schema: {
+            type: schema.type,
+            errorMessages: schema.errorMessages
+              ? Object.keys(schema.errorMessages)
+              : undefined,
+          },
+        }
+      );
+      // Return column name as fallback
+      return column;
+    },
+    /**
+     * Get the required error message from schema.errorMessages?.required.
+     * Returns a helpful fallback message if not provided.
+     */
+    required: () => {
+      const errorMessage = schema.errorMessages?.required;
+      if (errorMessage) {
+        return errorMessage;
+      }
+      // Debug log when error message is missing
+      console.debug(
+        `[Form Field Required] Missing error message for required field '${colLabel}'. Add errorMessages.required to schema for field '${colLabel}'.`,
+        {
+          fieldName: column,
+          colLabel,
+          prefix,
+          schema: {
+            type: schema.type,
+            title: schema.title,
+            required: schema.required,
+            hasErrorMessages: !!schema.errorMessages,
+            errorMessageKeys: schema.errorMessages
+              ? Object.keys(schema.errorMessages)
+              : undefined,
+          },
+        }
+      );
+      // Return helpful fallback message
+      return `Missing error message for required. Add errorMessages.required to schema for field '${colLabel}'`;
+    },
+  };
+};

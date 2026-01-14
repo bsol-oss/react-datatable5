@@ -6,7 +6,7 @@ import {
   CustomJSONSchema7,
   defaultRenderDisplay,
 } from '../types/CustomJSONSchema7';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 
 export interface EnumViewerProps {
   column: string;
@@ -25,7 +25,7 @@ export const EnumViewer = ({
     watch,
     formState: { errors },
   } = useFormContext();
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;

@@ -1,7 +1,7 @@
 import { NumberInput } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface NumberInputFieldProps {
@@ -30,7 +30,7 @@ export const NumberInputField = ({
   const colLabel = `${prefix}${column}`;
   const value = watch(`${colLabel}`);
   const fieldError = errors[colLabel]?.message;
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
 
   // Convert value to string for NumberInput (it uses string values internally)
   // NumberInput expects string values to preserve locale-specific formatting

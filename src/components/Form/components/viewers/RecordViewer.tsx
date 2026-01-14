@@ -1,7 +1,7 @@
 import { Field } from '@/components/ui/field';
 import { Grid, Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface DatePickerProps {
@@ -18,7 +18,7 @@ export const RecordViewer = ({ column, schema, prefix }: DatePickerProps) => {
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const entries = Object.entries(getValues(column) ?? {});
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
 
   return (
     <Field

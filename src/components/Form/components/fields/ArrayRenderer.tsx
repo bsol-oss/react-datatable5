@@ -2,7 +2,7 @@ import { Box, Button, Flex, Grid, Icon, Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { CgTrash } from 'react-icons/cg';
 import { useSchemaContext } from '../../useSchemaContext';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { SchemaRenderer } from './SchemaRenderer';
 
@@ -23,7 +23,7 @@ export const ArrayRenderer = ({
 
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   const {
     formState: { errors },
     setValue,

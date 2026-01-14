@@ -2,7 +2,7 @@ import { Field } from '@/components/ui/field';
 import { Box, Card, Flex, Image } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
-import { useFormI18n } from '../../utils/useFormI18n';
+import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export const FileViewer = ({ column, schema, prefix }) => {
@@ -16,7 +16,7 @@ export const FileViewer = ({ column, schema, prefix }) => {
 
   const currentFiles = (watch(column) ?? []) as File[];
   const colLabel = `${prefix}${column}`;
-  const formI18n = useFormI18n(column, prefix, schema);
+  const formI18n = useFormLabel(column, prefix, schema);
   return (
     <Field
       label={formI18n.label()}
