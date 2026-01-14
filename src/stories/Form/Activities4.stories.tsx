@@ -3,9 +3,6 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
-import { activitiesSchema } from '../schema';
-import { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -59,10 +56,10 @@ const SomeForm = () => {
             start_date: {
               // @ts-expect-error TODO: find appropriate types
               variant: 'custom-input',
-              inputRender: ({ sadd }) => {
+              inputRender: () => {
                 return <div>Custom Input</div>;
               },
-              inputViewerRender: (props) => {
+              inputViewerRender: () => {
                 return <div>Custom InputView</div>;
               },
             },

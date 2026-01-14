@@ -1,6 +1,5 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
 import { useForm } from '@/components/Form/useForm';
-import { getTableData } from '@/components/Form/utils/getTableData';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import {
@@ -264,10 +263,10 @@ const SomeForm = () => {
   // Create custom translate function that handles enum value translations
   const enumTranslationsMap = enumTranslations[language];
   const customTranslate: Translate = {
-    t: (key: string, options?: any) => {
+    t: (key: string) => {
       // Check if this is an enum value translation
-      if (enumTranslationsMap[key]) {
-        return enumTranslationsMap[key];
+      if (key in enumTranslationsMap) {
+        return enumTranslationsMap[key as keyof typeof enumTranslationsMap];
       }
       // Fallback to key as-is
       return key;

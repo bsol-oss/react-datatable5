@@ -121,7 +121,7 @@ const DataDisplayMultiView = () => {
       <div>
         <DatePicker
           selected={selectedDates}
-          onDateSelected={({ selected, date }) => {
+          onDateSelected={({ date }) => {
             const isSelected = selectedDates.some(
               (d) => d.getTime() === date.getTime()
             );

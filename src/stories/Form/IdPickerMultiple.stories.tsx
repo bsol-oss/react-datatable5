@@ -375,7 +375,14 @@ const IdPickerMultipleForm = () => {
         },
         customQueryFn: customTeamMemberQueryFn,
         idColumn: 'id',
-        loadInitialValues: async (params) => {
+        loadInitialValues: async (params: {
+          ids: string[];
+          customQueryFn: any;
+          idColumn: string;
+          setIdMap: React.Dispatch<
+            React.SetStateAction<Record<string, object>>
+          >;
+        }) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -397,7 +404,7 @@ const IdPickerMultipleForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state) => {
+            params.setIdMap((state: Record<string, object>) => {
               return { ...state, ...returnedIdMap };
             });
           }
@@ -414,7 +421,14 @@ const IdPickerMultipleForm = () => {
         },
         customQueryFn: customTeamMemberQueryFn,
         idColumn: 'id',
-        loadInitialValues: async (params) => {
+        loadInitialValues: async (params: {
+          ids: string[];
+          customQueryFn: any;
+          idColumn: string;
+          setIdMap: React.Dispatch<
+            React.SetStateAction<Record<string, object>>
+          >;
+        }) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -436,7 +450,7 @@ const IdPickerMultipleForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state) => {
+            params.setIdMap((state: Record<string, object>) => {
               return { ...state, ...returnedIdMap };
             });
           }
@@ -453,7 +467,14 @@ const IdPickerMultipleForm = () => {
         },
         customQueryFn: customTeamMemberQueryFn,
         idColumn: 'id',
-        loadInitialValues: async (params) => {
+        loadInitialValues: async (params: {
+          ids: string[];
+          customQueryFn: any;
+          idColumn: string;
+          setIdMap: React.Dispatch<
+            React.SetStateAction<Record<string, object>>
+          >;
+        }) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -475,7 +496,7 @@ const IdPickerMultipleForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state) => {
+            params.setIdMap((state: Record<string, object>) => {
               return { ...state, ...returnedIdMap };
             });
           }
@@ -493,7 +514,14 @@ const IdPickerMultipleForm = () => {
         customQueryFn: customTeamMemberQueryFn,
         idColumn: 'id',
         renderDisplay: renderRichDisplay, // Custom rendering function
-        loadInitialValues: async (params) => {
+        loadInitialValues: async (params: {
+          ids: string[];
+          customQueryFn: any;
+          idColumn: string;
+          setIdMap: React.Dispatch<
+            React.SetStateAction<Record<string, object>>
+          >;
+        }) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -515,7 +543,7 @@ const IdPickerMultipleForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state) => {
+            params.setIdMap((state: Record<string, object>) => {
               return { ...state, ...returnedIdMap };
             });
           }

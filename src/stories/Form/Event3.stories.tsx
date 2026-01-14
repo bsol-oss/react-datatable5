@@ -73,7 +73,14 @@ const SomeForm = () => {
                 };
               },
               idColumn: 'id',
-              loadInitialValues: async (params) => {
+              loadInitialValues: async (params: {
+                ids: string[];
+                customQueryFn: any;
+                idColumn: string;
+                setIdMap: React.Dispatch<
+                  React.SetStateAction<Record<string, object>>
+                >;
+              }) => {
                 if (!params.ids || params.ids.length === 0) {
                   return { data: { data: [], count: 0 }, idMap: {} };
                 }
@@ -96,7 +103,7 @@ const SomeForm = () => {
                   ],
                 });
                 if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-                  params.setIdMap((state) => {
+                  params.setIdMap((state: Record<string, object>) => {
                     return { ...state, ...returnedIdMap };
                   });
                 }

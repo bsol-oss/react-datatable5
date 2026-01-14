@@ -4,8 +4,8 @@ import {
 } from '@/components/Form/components/types/CustomJSONSchema7';
 import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 
-// Mock query functions for example schema
-const _mockEventQueryFn = async ({
+// Mock query functions for example schema (prefixed with underscore as they are example templates)
+export const mockEventQueryFn = async ({
   limit,
   offset,
   where,
@@ -32,7 +32,7 @@ const _mockEventQueryFn = async ({
   };
 };
 
-const _mockGeolocationQueryFn = async ({
+export const mockGeolocationQueryFn = async ({
   limit,
   offset,
   where,

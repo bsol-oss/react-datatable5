@@ -98,7 +98,8 @@ const DefaultTableShowcase2 = () => {
     }),
   ];
 
-  const columnv2: ColumnDef<ProfileData>[] = [
+  // @ts-expect-error - Alternative column definition for reference
+  const _columnv2: ColumnDef<ProfileData>[] = [
     // Display Column
     columnHelper.display({
       id: 'actions1',

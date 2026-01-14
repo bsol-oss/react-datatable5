@@ -1,7 +1,7 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
-import { Box, Flex } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
@@ -363,7 +363,14 @@ const eventsGeolocationsSchema = {
           variant: 'id-picker',
           customQueryFn: mockActivityQueryFn,
           idColumn: 'id',
-          loadInitialValues: async (params) => {
+          loadInitialValues: async (params: {
+            ids: string[];
+            customQueryFn: any;
+            idColumn: string;
+            setIdMap: React.Dispatch<
+              React.SetStateAction<Record<string, object>>
+            >;
+          }) => {
             if (!params.ids || params.ids.length === 0) {
               return { data: { data: [], count: 0 }, idMap: {} };
             }
@@ -385,7 +392,7 @@ const eventsGeolocationsSchema = {
               ],
             });
             if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-              params.setIdMap((state) => {
+              params.setIdMap((state: Record<string, object>) => {
                 return { ...state, ...returnedIdMap };
               });
             }
@@ -514,7 +521,14 @@ const eventsGeolocationsSchema = {
             variant: 'id-picker',
             customQueryFn: mockActivityQueryFn,
             idColumn: 'id',
-            loadInitialValues: async (params) => {
+            loadInitialValues: async (params: {
+              ids: string[];
+              customQueryFn: any;
+              idColumn: string;
+              setIdMap: React.Dispatch<
+                React.SetStateAction<Record<string, object>>
+              >;
+            }) => {
               if (!params.ids || params.ids.length === 0) {
                 return { data: { data: [], count: 0 }, idMap: {} };
               }
@@ -536,7 +550,7 @@ const eventsGeolocationsSchema = {
                 ],
               });
               if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-                params.setIdMap((state) => {
+                params.setIdMap((state: Record<string, object>) => {
                   return { ...state, ...returnedIdMap };
                 });
               }
@@ -663,7 +677,14 @@ const eventsGeolocationsSchema = {
                   variant: 'id-picker',
                   customQueryFn: mockEventQueryFn,
                   idColumn: 'id',
-                  loadInitialValues: async (params) => {
+                  loadInitialValues: async (params: {
+                    ids: string[];
+                    customQueryFn: any;
+                    idColumn: string;
+                    setIdMap: React.Dispatch<
+                      React.SetStateAction<Record<string, object>>
+                    >;
+                  }) => {
                     if (!params.ids || params.ids.length === 0) {
                       return { data: { data: [], count: 0 }, idMap: {} };
                     }
@@ -691,7 +712,7 @@ const eventsGeolocationsSchema = {
                       returnedIdMap &&
                       Object.keys(returnedIdMap).length > 0
                     ) {
-                      params.setIdMap((state) => {
+                      params.setIdMap((state: Record<string, object>) => {
                         return { ...state, ...returnedIdMap };
                       });
                     }
@@ -730,7 +751,12 @@ const eventsGeolocationsSchema = {
       variant: 'id-picker',
       customQueryFn: mockActivityQueryFn,
       idColumn: 'id',
-      loadInitialValues: async (params) => {
+      loadInitialValues: async (params: {
+        ids: string[];
+        customQueryFn: any;
+        idColumn: string;
+        setIdMap: React.Dispatch<React.SetStateAction<Record<string, object>>>;
+      }) => {
         if (!params.ids || params.ids.length === 0) {
           return { data: { data: [], count: 0 }, idMap: {} };
         }
@@ -752,7 +778,7 @@ const eventsGeolocationsSchema = {
           ],
         });
         if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-          params.setIdMap((state) => {
+          params.setIdMap((state: Record<string, object>) => {
             return { ...state, ...returnedIdMap };
           });
         }
