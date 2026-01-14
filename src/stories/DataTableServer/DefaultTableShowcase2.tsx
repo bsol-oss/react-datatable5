@@ -1,19 +1,15 @@
-import { Provider } from "@/components/ui/provider";
-import {
-  Box,
-  Button,
-  Text
-} from "@chakra-ui/react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { useState } from "react";
+import { Provider } from '@/components/ui/provider';
+import { Box, Button, Text } from '@chakra-ui/react';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { useState } from 'react';
 import {
   DataTableServer,
   TableComponent,
   TextCell,
   useDataTableServer,
-} from "../../index";
-import axios from "axios";
-import { DataResponse } from "@/components/DataTable/useDataTableServer";
+} from '../../index';
+// axios not needed in this file
+// DataResponse type not used in this file
 
 export interface Root {
   count: number;
@@ -31,11 +27,7 @@ export interface ProfileData {
   updated_at: string;
 }
 
-interface RowActionsProps {
-  row: ProfileData;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
+const RowActions = () => {
   return <>has no actions</>;
 };
 
@@ -50,45 +42,45 @@ const DefaultTableShowcase2 = () => {
 
   const columns: ColumnDef<ProfileData>[] = [
     columnHelper.display({
-      id: "actionsa",
+      id: 'actionsa',
       header: () => <span>Actions A</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
       meta: {
-        displayName: "Actions A",
+        displayName: 'Actions A',
       },
     }),
     columnHelper.display({
-      id: "actionsb",
+      id: 'actionsb',
       header: () => <span>Actions B</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
       meta: {
-        displayName: "Actions B",
+        displayName: 'Actions B',
       },
     }),
     columnHelper.display({
-      id: "actionsc",
+      id: 'actionsc',
       header: () => <span>Actions C</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
       meta: {
-        displayName: "Actions C",
+        displayName: 'Actions C',
       },
     }),
     // Display Column
     columnHelper.display({
-      id: "actions",
+      id: 'actions',
       header: () => <span>Actions</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
       meta: {
-        displayName: "Actions",
+        displayName: 'Actions',
       },
     }),
 
     // Grouping Column
     columnHelper.group({
-      header: "Information",
+      header: 'Information',
       footer: (props) => props.column.id,
       columns: [
-        columnHelper.accessor("data", {
+        columnHelper.accessor('data', {
           cell: (props) => {
             return (
               <TextCell label={`${JSON.stringify(props.row.original.data)}`}>
@@ -99,7 +91,7 @@ const DefaultTableShowcase2 = () => {
           header: () => <Box>Data</Box>,
           footer: () => <Box>Data</Box>,
           meta: {
-            displayName: "Data",
+            displayName: 'Data',
           },
         }),
       ],
@@ -109,36 +101,36 @@ const DefaultTableShowcase2 = () => {
   const columnv2: ColumnDef<ProfileData>[] = [
     // Display Column
     columnHelper.display({
-      id: "actions1",
+      id: 'actions1',
       header: () => <span>Actions 1</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
       meta: {
-        displayName: "Actions 1",
+        displayName: 'Actions 1',
       },
     }),
     columnHelper.display({
-      id: "actions2",
+      id: 'actions2',
       header: () => <span>Actions 2</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
       meta: {
-        displayName: "Actions 2",
+        displayName: 'Actions 2',
       },
     }),
     columnHelper.display({
-      id: "actions3",
+      id: 'actions3',
       header: () => <span>Actions 3</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
       meta: {
-        displayName: "Actions 3",
+        displayName: 'Actions 3',
       },
     }),
 
     // Grouping Column
     columnHelper.group({
-      header: "Information",
+      header: 'Information',
       footer: (props) => props.column.id,
       columns: [
-        columnHelper.accessor("data", {
+        columnHelper.accessor('data', {
           cell: (props) => {
             return (
               <TextCell label={`${JSON.stringify(props.row.original.data)}`}>
@@ -149,28 +141,21 @@ const DefaultTableShowcase2 = () => {
           header: () => <Box>Column Def v2</Box>,
           footer: () => <Box>Column Def v2</Box>,
           meta: {
-            displayName: "dddddddd Id",
+            displayName: 'dddddddd Id',
           },
         }),
       ],
     }),
   ];
 
-  interface Post {
-    userId: number;
-    id: number;
-    title: string;
-    body: string;
-  }
-
-  const [selectedId, setSelectedId] = useState<string>();
-  const dataTable = useDataTableServer<Post>({
+  const [_selectedId, setSelectedId] = useState<string>();
+  const dataTable = useDataTableServer<ProfileData>({
     queryFn: async (params) => {
-      console.log(params, "params");
-      const response = await axios.get<Post[]>(`https://jsonplaceholder.typicode.com/posts`);
+      console.log(params, 'params');
+      // Mock API - in real scenario this would fetch ProfileData
       return {
-        data: response.data,
-        count: response.data.length,
+        data: [] as ProfileData[],
+        count: 0,
       };
     },
     default: {
@@ -182,7 +167,7 @@ const DefaultTableShowcase2 = () => {
     <Provider>
       <Button
         onClick={() => {
-          setSelectedId("staff_profile");
+          setSelectedId('staff_profile');
           dataTable.setColumnVisibility({ actionsa: false });
         }}
       >
@@ -191,13 +176,13 @@ const DefaultTableShowcase2 = () => {
       +
       <Button
         onClick={() => {
-          setSelectedId("aad_profile");
+          setSelectedId('aad_profile');
           dataTable.setColumnVisibility({ actions1: false });
         }}
       >
         aad profile
       </Button>
-      <DataTableServer
+      <DataTableServer<ProfileData>
         // url={`http://localhost:8081/api/profile-data/${selectedId}/search`}
         columns={columns}
         // onFetchSuccess={(response)=>{console.log(response,"some-response-123")}}

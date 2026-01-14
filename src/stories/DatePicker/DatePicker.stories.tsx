@@ -20,6 +20,7 @@ export default meta;
 
 export const Single: Story = {
   name: 'Single',
+  args: { selected: [] },
   render: () => {
     return <DataDisplayView />;
   },
@@ -35,8 +36,8 @@ const DataDisplayView = () => {
     <Provider>
       <div>
         <DatePicker
-          selected={selectedDate}
-          onDateSelected={({ selected, selectable, date }) => {
+          selected={selectedDate ?? []}
+          onDateSelected={({ date }) => {
             setSelectedDate(() => date);
           }}
           firstDayOfWeek={firstDayOfWeek}
@@ -70,9 +71,11 @@ const DataDisplayView = () => {
               data-test={`firstDayOfWeekButton${day}`}
               key={day}
               onClick={() => {
-                setFirstDayOfWeek(i);
+                setFirstDayOfWeek(i as 0 | 1 | 2 | 3 | 4 | 5 | 6);
               }}
-              style={{ background: firstDayOfWeek === i ? 'purple' : null }}
+              style={{
+                background: firstDayOfWeek === i ? 'purple' : undefined,
+              }}
             >
               {day}
             </Button>
@@ -101,6 +104,7 @@ const DataDisplayView = () => {
 
 export const Multi: Story = {
   name: 'Multi',
+  args: { selected: [] },
   render: () => {
     return <DataDisplayMultiView />;
   },
@@ -117,10 +121,13 @@ const DataDisplayMultiView = () => {
       <div>
         <DatePicker
           selected={selectedDates}
-          onDateSelected={({ selected, selectable, date }) => {
+          onDateSelected={({ selected, date }) => {
+            const isSelected = selectedDates.some(
+              (d) => d.getTime() === date.getTime()
+            );
             const newDates = getMultiDates({
-              selected,
-              selectable,
+              selected: isSelected,
+              selectable: true,
               selectedDate: date,
               selectedDates,
             });
@@ -136,9 +143,11 @@ const DataDisplayMultiView = () => {
               data-test={`firstDayOfWeekButton${day}`}
               key={day}
               onClick={() => {
-                setFirstDayOfWeek(i);
+                setFirstDayOfWeek(i as 0 | 1 | 2 | 3 | 4 | 5 | 6);
               }}
-              style={{ background: firstDayOfWeek === i ? 'purple' : null }}
+              style={{
+                background: firstDayOfWeek === i ? 'purple' : undefined,
+              }}
             >
               {day}
             </Button>
@@ -167,6 +176,7 @@ const DataDisplayMultiView = () => {
 
 export const MinMax: Story = {
   name: 'Min Max',
+  args: { selected: [] },
   render: () => {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [firstDayOfWeek, setFirstDayOfWeek] = useState<
@@ -178,10 +188,13 @@ export const MinMax: Story = {
         <div>
           <DatePicker
             selected={selectedDates}
-            onDateSelected={({ selected, selectable, date }) => {
+            onDateSelected={({ date }) => {
+              const isSelected = selectedDates.some(
+                (d) => d.getTime() === date.getTime()
+              );
               const newDates = getMultiDates({
-                selected,
-                selectable,
+                selected: isSelected,
+                selectable: true,
                 selectedDate: date,
                 selectedDates,
               });
@@ -202,9 +215,11 @@ export const MinMax: Story = {
                 data-test={`firstDayOfWeekButton${day}`}
                 key={day}
                 onClick={() => {
-                  setFirstDayOfWeek(i);
+                  setFirstDayOfWeek(i as 0 | 1 | 2 | 3 | 4 | 5 | 6);
                 }}
-                style={{ background: firstDayOfWeek === i ? 'purple' : null }}
+                style={{
+                  background: firstDayOfWeek === i ? 'purple' : undefined,
+                }}
               >
                 {day}
               </Button>
@@ -234,6 +249,7 @@ export const MinMax: Story = {
 
 export const MultipleMonths: Story = {
   name: 'Multiple Months',
+  args: { selected: [] },
   render: () => {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [firstDayOfWeek, setFirstDayOfWeek] = useState<
@@ -245,10 +261,13 @@ export const MultipleMonths: Story = {
         <div>
           <DatePicker
             selected={selectedDates}
-            onDateSelected={({ selected, selectable, date }) => {
+            onDateSelected={({ date }) => {
+              const isSelected = selectedDates.some(
+                (d) => d.getTime() === date.getTime()
+              );
               const newDates = getMultiDates({
-                selected,
-                selectable,
+                selected: isSelected,
+                selectable: true,
                 selectedDate: date,
                 selectedDates,
               });
@@ -270,9 +289,11 @@ export const MultipleMonths: Story = {
                 data-test={`firstDayOfWeekButton${day}`}
                 key={day}
                 onClick={() => {
-                  setFirstDayOfWeek(i);
+                  setFirstDayOfWeek(i as 0 | 1 | 2 | 3 | 4 | 5 | 6);
                 }}
-                style={{ background: firstDayOfWeek === i ? 'purple' : null }}
+                style={{
+                  background: firstDayOfWeek === i ? 'purple' : undefined,
+                }}
               >
                 {day}
               </Button>

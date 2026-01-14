@@ -2,7 +2,7 @@ import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import { Box, Text, VStack } from '@chakra-ui/react';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 
@@ -19,15 +19,16 @@ const meta = {
     },
   },
   argTypes: {},
-} satisfies Meta<typeof DefaultForm>;
+};
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
 export default meta;
 const queryClient = new QueryClient();
 
 export const BasicUsage: Story = {
   name: 'Basic Usage',
+  args: {},
   render: () => {
     return (
       <Provider>
@@ -49,6 +50,7 @@ export const BasicUsage: Story = {
 
 export const WithPreFilledValues: Story = {
   name: 'With Pre Filled Values',
+  args: {},
   render: () => {
     return (
       <Provider>
@@ -91,6 +93,7 @@ export const WithValidation: Story = {
 
 export const CustomDateFormat: Story = {
   name: 'Custom Date Format',
+  args: {},
   render: () => {
     return (
       <Provider>
@@ -132,7 +135,7 @@ const BasicDateRangeForm = () => {
   } as JSONSchema7;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Box>
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Basic Date Range Picker
@@ -183,7 +186,7 @@ const PreFilledDateRangeForm = () => {
   } as JSONSchema7;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Box>
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Date Range Picker with Pre-filled Values
@@ -233,7 +236,7 @@ const ValidationDateRangeForm = () => {
   } as JSONSchema7;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Box>
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Date Range Picker with Validation
@@ -284,7 +287,7 @@ const CustomDateFormatForm = () => {
   } as JSONSchema7;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Box>
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Date Range Picker with Custom Date Format

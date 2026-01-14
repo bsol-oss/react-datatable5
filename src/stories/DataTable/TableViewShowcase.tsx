@@ -1,11 +1,6 @@
-import {
-  Box,
-  Flex,
-  Grid,
-  Text
-} from "@chakra-ui/react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { useDataTable } from "../../components/DataTable/useDataTable";
+import { Box, Flex, Grid, Text } from '@chakra-ui/react';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { useDataTable } from '../../components/DataTable/useDataTable';
 import {
   DataTable,
   FilterDialog,
@@ -22,22 +17,18 @@ import {
   Pagination,
   TableSelector,
   TextCell,
-} from "../../index";
-import { data, Product } from "../product_data";
-import { Provider } from "@/components/ui/provider";
+} from '../../index';
+import { data, Product } from '../product_data';
+import { Provider } from '@/components/ui/provider';
 
-interface RowActionsProps {
-  row: Product;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
+const RowActions = () => {
   return <>has no actions</>;
 };
 
 const TableViewShowcase = () => {
   const datatable = useDataTable({
     default: {
-      sorting: [{ id: "title", desc: false }],
+      sorting: [{ id: 'title', desc: false }],
       columnVisibility: { description: false },
     },
   });
@@ -45,17 +36,17 @@ const TableViewShowcase = () => {
   const columns: ColumnDef<Product>[] = [
     // Display Column
     columnHelper.display({
-      id: "actions",
+      id: 'actions',
       header: () => <span>Actions</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
     }),
 
     // Grouping Column
     columnHelper.group({
-      header: "Information",
+      header: 'Information',
       footer: () => <span>Information</span>,
       columns: [
-        columnHelper.accessor("id", {
+        columnHelper.accessor('id', {
           cell: (props) => {
             return <TextCell>{props.row.original.id}</TextCell>;
           },
@@ -63,10 +54,10 @@ const TableViewShowcase = () => {
           footer: () => <span>Id</span>,
           size: 50,
         }),
-        columnHelper.accessor("title", {
+        columnHelper.accessor('title', {
           cell: (props) => {
             return (
-              <Box padding={"0rem"}>
+              <Box padding={'0rem'}>
                 <TextCell label={props.row.original.title}>
                   {props.row.original.title}
                 </TextCell>
@@ -78,7 +69,7 @@ const TableViewShowcase = () => {
           size: 200,
         }),
         // Accessor Column
-        columnHelper.accessor("description", {
+        columnHelper.accessor('description', {
           cell: (props) => {
             return <TextCell>{props.row.original.description}</TextCell>;
           },
@@ -86,7 +77,7 @@ const TableViewShowcase = () => {
           footer: () => <span>Description</span>,
           size: 400,
         }),
-        columnHelper.accessor("price", {
+        columnHelper.accessor('price', {
           cell: (props) => {
             return <TextCell>{props.row.original.price}</TextCell>;
           },
@@ -99,7 +90,7 @@ const TableViewShowcase = () => {
             return min < row.original.price && max > row.original.price;
           },
           meta: {
-            filterVariant: "range",
+            filterVariant: 'range',
             filterRangeConfig: {
               min: -15,
               max: 10000,
@@ -125,7 +116,7 @@ const TableViewShowcase = () => {
           <Text paddingRight="0.5rem">Total:</Text>
           <RowCountText />
         </Flex>
-        <Grid gridTemplateColumns={"repeat(auto-fit, minmax(20rem, 1fr))"}>
+        <Grid gridTemplateColumns={'repeat(auto-fit, minmax(20rem, 1fr))'}>
           <TableFilter />
         </Grid>
         <Table>

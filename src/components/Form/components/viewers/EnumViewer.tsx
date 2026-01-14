@@ -21,10 +21,7 @@ export const EnumViewer = ({
   schema,
   prefix,
 }: EnumViewerProps) => {
-  const {
-    watch,
-    formState: { errors },
-  } = useFormContext();
+  const { watch } = useFormContext();
   const formI18n = useFormLabel(column, prefix, schema);
   const { required } = schema;
   const isRequired = required?.some((columnId) => columnId === column);

@@ -74,7 +74,7 @@ const AddressApp = () => {
     <Provider>
       <DataTableServer
         url="http://localhost:8081/api/g/core_people"
-        columns={columns}
+        columns={columns as any}
         {...datatable}
       >
         <DefaultTable
@@ -99,7 +99,7 @@ const AddressApp = () => {
       </DataTableServer>
       <DataTableServer
         url="http://localhost:8081/api/g/core_people"
-        columns={columnsInclude}
+        columns={columnsInclude as any}
         {...datatable}
       >
         <DataDisplay />

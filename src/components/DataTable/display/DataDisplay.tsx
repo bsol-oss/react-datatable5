@@ -1,5 +1,5 @@
-import { Box, Card, Flex, Grid, Text } from '@chakra-ui/react';
-import { flexRender } from '@tanstack/react-table';
+import { Box, Card, Flex } from '@chakra-ui/react';
+import { Cell, flexRender } from '@tanstack/react-table';
 import { snakeToLabel } from '../../Form/utils/snakeToLabel';
 import { RecordDisplay } from './RecordDisplay';
 import { useDataTableContext } from '../context/useDataTableContext';
@@ -8,7 +8,7 @@ export interface DataDisplayProps {
   variant?: 'horizontal' | 'stats' | '';
 }
 
-const CellRenderer = ({ cell }) => {
+const CellRenderer = <TData,>({ cell }: { cell: Cell<TData, unknown> }) => {
   const getLabel = ({ columnId }: { columnId: string }) => {
     const column = cell.column;
     return column.columnDef.meta?.displayName ?? snakeToLabel(columnId);
@@ -76,7 +76,7 @@ const CellRenderer = ({ cell }) => {
   );
 };
 
-export const DataDisplay = ({ variant = '' }: DataDisplayProps) => {
+export const DataDisplay = ({}: DataDisplayProps) => {
   const { table } = useDataTableContext();
 
   return (
@@ -119,10 +119,11 @@ export const DataDisplay = ({ variant = '' }: DataDisplayProps) => {
                             .find((cell) => {
                               return cell.id === `${rowId}_${subColumn.id}`;
                             });
+                          if (!foundCell) return null;
                           return (
                             <CellRenderer
                               key={`chakra-table-cell-${rowId}-${subColumn.id}`}
-                              {...{ cell: foundCell }}
+                              cell={foundCell}
                             />
                           );
                         })}
@@ -130,10 +131,11 @@ export const DataDisplay = ({ variant = '' }: DataDisplayProps) => {
                     </Card.Root>
                   );
                 }
+                if (!childCell) return null;
                 return (
                   <CellRenderer
                     key={`chakra-table-cell-${rowId}-${column.id}`}
-                    {...{ cell: childCell }}
+                    cell={childCell}
                   />
                 );
               })}

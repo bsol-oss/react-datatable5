@@ -1,5 +1,3 @@
-import axios, { AxiosRequestConfig } from 'axios';
-
 export interface GetTableDataConfig {
   limit?: number;
   offset?: number;
@@ -12,12 +10,7 @@ export interface GetTableResponse {
   count: number;
 }
 
-export const getTableData = async ({
-  searching = '',
-  where = [],
-  limit = 10,
-  offset = 0,
-}: GetTableDataConfig) => {
+export const getTableData = async ({}: GetTableDataConfig) => {
   throw new Error(
     'getTableData requires customQueryFn to be provided. serverUrl has been removed.'
   );

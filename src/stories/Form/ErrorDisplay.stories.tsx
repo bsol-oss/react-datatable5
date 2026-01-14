@@ -1,7 +1,7 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 import { FilePickerMediaFile } from '@/components/Form/components/types/CustomJSONSchema7';
@@ -19,9 +19,9 @@ const meta = {
     },
   },
   argTypes: {},
-} satisfies Meta<typeof DefaultForm>;
+};
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
 export default meta;
 const queryClient = new QueryClient();
@@ -99,6 +99,7 @@ const mockFetchFiles = async (
 
 export const AllFieldTypesWithErrors: Story = {
   name: 'All Field Types With Errors',
+  args: {},
   render: () => {
     return (
       <Provider>
@@ -141,6 +142,7 @@ export const RequiredFieldErrors: Story = {
 
 export const ValidationErrors: Story = {
   name: 'Validation Errors',
+  args: {},
   render: () => {
     return (
       <Provider>
@@ -162,6 +164,7 @@ export const ValidationErrors: Story = {
 
 export const ComplexFormWithErrors: Story = {
   name: 'Complex Form With Errors',
+  args: {},
   render: () => {
     return (
       <Provider>
@@ -183,6 +186,7 @@ export const ComplexFormWithErrors: Story = {
 
 export const TraditionalChineseErrors: Story = {
   name: 'Traditional Chinese Error Messages (繁體中文錯誤訊息)',
+  args: {},
   render: () => {
     return (
       <Provider>

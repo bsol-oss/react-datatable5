@@ -15,12 +15,7 @@ export const Calendar = ({
   firstDayOfWeek = 0,
 }: CalendarProps) => {
   const { labels } = useContext(DatePickerContext);
-  const {
-    monthNamesShort,
-    weekdayNamesShort,
-    backButtonLabel,
-    forwardButtonLabel,
-  } = labels;
+  const { monthNamesShort, weekdayNamesShort } = labels;
   if (calendars.length) {
     return (
       <Grid>

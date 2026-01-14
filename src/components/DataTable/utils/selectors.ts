@@ -101,7 +101,7 @@ export function areSomePageRowsSelected<TData>(
  */
 export function createRowToggleHandler<TData>(
   row: Row<TData>,
-  rowSelection: RowSelectionState,
+  _rowSelection: RowSelectionState,
   setRowSelection: OnChangeFn<RowSelectionState>
 ) {
   return () => {

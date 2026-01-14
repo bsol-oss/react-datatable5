@@ -6,7 +6,6 @@ import { Checkbox } from '../../ui/checkbox';
 import { useDataTableContext } from '../context/useDataTableContext';
 import {
   areAllRowsSelected,
-  areSomeRowsSelected,
   createToggleAllRowsHandler,
 } from '../utils/selectors';
 

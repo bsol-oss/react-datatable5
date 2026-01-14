@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
-import { Card, Grid, IconButton, Input, Show, Text } from '@chakra-ui/react';
+import { Card, Grid, IconButton, Input, Show } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { CgClose } from 'react-icons/cg';

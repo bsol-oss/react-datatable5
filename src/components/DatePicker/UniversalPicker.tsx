@@ -167,15 +167,16 @@ export function UniversalPicker({
           <TimePicker
             format="24h"
             hour={internalValue?.hour || null}
-            setHour={(h) => handleInternalChange({ ...internalValue, hour: h })}
+            setHour={(h: number | null) =>
+              handleInternalChange({ ...internalValue, hour: h })
+            }
             minute={internalValue?.minute || null}
-            setMinute={(m) =>
+            setMinute={(m: number | null) =>
               handleInternalChange({ ...internalValue, minute: m })
             }
-            second={internalValue?.second || null}
-            setSecond={(s) =>
-              handleInternalChange({ ...internalValue, second: s })
-            }
+            meridiem={null}
+            setMeridiem={() => {}}
+            showSeconds={true}
             onChange={handleInternalChange}
           />
         );

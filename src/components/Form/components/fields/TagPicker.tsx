@@ -3,7 +3,6 @@ import { RadioCardItem, RadioCardRoot } from '@/components/ui/radio-card';
 import { CheckboxGroup, Flex, Text } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useFormContext } from 'react-hook-form';
-import { useSchemaContext } from '../../useSchemaContext';
 import { TagPickerProps } from '../types/CustomJSONSchema7';
 export interface Tag {
   id: string;
@@ -32,7 +31,7 @@ export interface TagResponse {
   data: TagData[];
 }
 
-export const TagPicker = ({ column, schema, prefix }: TagPickerProps) => {
+export const TagPicker = ({ column, schema }: TagPickerProps) => {
   const {
     watch,
     formState: { errors },

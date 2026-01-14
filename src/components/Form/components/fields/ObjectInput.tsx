@@ -1,9 +1,7 @@
-import { Box, Grid, Text } from '@chakra-ui/react';
+import { Box, Grid } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
-import { useSchemaContext } from '../../useSchemaContext';
 import { ColumnRenderer } from './ColumnRenderer';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
-import { removeIndex } from '../../utils/removeIndex';
 import { useFormLabel } from '../../utils/useFormLabel';
 
 export interface ObjectInputProps {
@@ -23,9 +21,7 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
   const formI18n = useFormLabel(column, prefix, schema);
-  const {
-    formState: { errors },
-  } = useFormContext();
+  useFormContext();
   if (properties === undefined) {
     throw new Error(`properties is undefined when using ObjectInput`);
   }

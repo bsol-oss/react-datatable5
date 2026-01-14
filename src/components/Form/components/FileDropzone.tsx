@@ -1,4 +1,3 @@
-import { Tag } from '@/components/ui/tag';
 import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/external/adapter';
 import { getFiles } from '@atlaskit/pragmatic-drag-and-drop/external/file';
 import { getText } from '@atlaskit/pragmatic-drag-and-drop/external/text';

@@ -1,13 +1,8 @@
-import { Provider } from "@/components/ui/provider";
-import { Button, Text } from "@chakra-ui/react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import axios from "axios";
-import { useState } from "react";
-import {
-  DataTableServer,
-  DefaultTable,
-  useDataTableServer
-} from "../../index";
+import { Provider } from '@/components/ui/provider';
+import { Button, Text } from '@chakra-ui/react';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import axios from 'axios';
+import { DataTableServer, DefaultTable, useDataTableServer } from '../../index';
 
 interface Post {
   userId: number;
@@ -20,51 +15,51 @@ const DefaultTableShowcase3 = () => {
 
   const columns: ColumnDef<Post>[] = [
     columnHelper.display({
-      id: "title",
+      id: 'title',
       header: () => <span>Title</span>,
       cell: (props) => <Text>{props.row.original.title}</Text>,
       meta: {
-        displayName: "Title",
+        displayName: 'Title',
       },
     }),
     columnHelper.display({
-      id: "body",
+      id: 'body',
       header: () => <span>Body</span>,
       cell: (props) => <Text>{props.row.original.title}</Text>,
       meta: {
-        displayName: "Body",
+        displayName: 'Body',
       },
     }),
     columnHelper.display({
-      id: "userId",
+      id: 'userId',
       header: () => <span>User ID</span>,
       cell: (props) => <Text>{props.row.original.title}</Text>,
       meta: {
-        displayName: "User ID",
+        displayName: 'User ID',
       },
     }),
     // Display Column
     columnHelper.display({
-      id: "id",
+      id: 'id',
       header: () => <span>ID</span>,
       cell: (props) => <Text>{props.row.original.title}</Text>,
       meta: {
-        displayName: "ID",
+        displayName: 'ID',
       },
     }),
     columnHelper.display({
-      id: "actions",
+      id: 'actions',
       header: () => <span>Actions</span>,
-      cell: (props) => <Button>Edit</Button>,
+      cell: () => <Button>Edit</Button>,
       meta: {
-        displayName: "Actions",
+        displayName: 'Actions',
       },
     }),
   ];
 
   const dataTable = useDataTableServer<Post>({
     queryFn: async (params) => {
-      console.log(params, "params");
+      console.log(params, 'params');
 
       // Remarks: https://jsonplaceholder.typicode.com/posts do not support pagination and sorting.
       // so it ignore the limit and offset.
@@ -81,8 +76,8 @@ const DefaultTableShowcase3 = () => {
         {
           userId: 1,
           id: 1,
-          title: "test",
-          body: "test",
+          title: 'test',
+          body: 'test',
         },
       ],
       count: 0,
@@ -94,11 +89,8 @@ const DefaultTableShowcase3 = () => {
 
   return (
     <Provider>
-      <DataTableServer
-        columns={columns}
-        {...dataTable}
-      >
-        <DefaultTable/>
+      <DataTableServer columns={columns} {...dataTable}>
+        <DefaultTable />
       </DataTableServer>
     </Provider>
   );

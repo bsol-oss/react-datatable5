@@ -1,35 +1,31 @@
-import { BoxProps, Flex, FlexProps, Grid } from "@chakra-ui/react";
-import { ReactNode } from "react";
+import { Flex, FlexProps, Grid, GridProps } from '@chakra-ui/react';
+import { ReactNode } from 'react';
 
-export interface TableCardContainerProps extends BoxProps {
+export interface TableCardContainerProps extends Omit<GridProps, 'direction'> {
   children: ReactNode;
-  variant?: "carousel" | "";
+  variant?: 'carousel' | '';
   gap?: string;
   gridTemplateColumns?: string;
-  direction?: FlexProps["direction"];
+  direction?: FlexProps['direction'];
 }
 
 export const TableCardContainer = ({
   children,
-  variant = "",
-  gap = "1rem",
-  gridTemplateColumns = "repeat(auto-fit, minmax(20rem, 1fr))",
-  direction = "row",
+  variant = '',
+  gap = '1rem',
+  gridTemplateColumns = 'repeat(auto-fit, minmax(20rem, 1fr))',
+  direction = 'row',
   ...props
 }: TableCardContainerProps) => {
-  if (variant === "carousel") {
+  if (variant === 'carousel') {
     return (
-      <Flex overflow={"auto"} gap={gap} direction={direction} {...props}>
+      <Flex overflow={'auto'} gap={gap} direction={direction} {...props}>
         {children}
       </Flex>
     );
   }
   return (
-    <Grid
-      gridTemplateColumns={gridTemplateColumns}
-      gap={gap}
-      {...props}
-    >
+    <Grid gridTemplateColumns={gridTemplateColumns} gap={gap} {...props}>
       {children}
     </Grid>
   );

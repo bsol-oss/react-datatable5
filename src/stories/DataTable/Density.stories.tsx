@@ -9,19 +9,19 @@ import {
 } from '../../index';
 import { data, Product } from '../product_data';
 import { Provider } from '@/components/ui/provider';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 
-const meta = {
+const meta: Meta = {
   title: 'react-datatable5/DataTable/Density',
   component: DataTable,
   parameters: {
     layout: 'padded',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof DataTable>;
+};
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
 const RowActions = () => {
   return <Text fontSize="sm">View</Text>;
@@ -95,6 +95,7 @@ const columns: ColumnDef<Product>[] = [
 
 export const DensityToggle: Story = {
   name: 'Density Toggle',
+  args: {},
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -128,6 +129,7 @@ export const DensityToggle: Story = {
 
 export const ExtraSmallDensity: Story = {
   name: 'Extra Small Density',
+  args: {},
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -184,6 +186,7 @@ export const SmallDensity: Story = {
 
 export const MediumDensity: Story = {
   name: 'Medium Density',
+  args: {},
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -240,6 +243,7 @@ export const LargeDensity: Story = {
 
 export const DensityComparison: Story = {
   name: 'Density Comparison',
+  args: {},
   render: () => {
     const datatableXs = useDataTable({
       default: {

@@ -2,7 +2,7 @@ import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
 import { useForm } from '@/components/Form/useForm';
 import { getTableData } from '@/components/Form/utils/getTableData';
 import { Provider } from '@/components/ui/provider';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { StoryObj } from '@storybook/react-vite';
 import {
   QueryClient,
   QueryClientProvider,
@@ -27,9 +27,9 @@ const meta = {
   parameters: {},
 
   argTypes: {},
-} satisfies Meta<typeof DefaultForm>;
+};
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
 export default meta;
 const queryClient = new QueryClient();

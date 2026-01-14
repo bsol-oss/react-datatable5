@@ -1,12 +1,12 @@
 import { ColumnFilterMenu } from '@/components/DataTable/controls/ColumnFilterMenu';
 import { Provider } from '@/components/ui/provider';
 import { Box, Flex, Text, VStack, HStack, Code, Badge } from '@chakra-ui/react';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { data } from '../product_data';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const meta = {
+const meta: Meta = {
   title: 'react-datatable5/DataTable/ColumnFilterMenu',
   component: ColumnFilterMenu,
   parameters: {
@@ -18,9 +18,9 @@ const meta = {
     },
   },
   argTypes: {},
-} satisfies Meta<typeof ColumnFilterMenu>;
+};
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
 export default meta;
 
@@ -111,6 +111,7 @@ const FilteredResultsCount = ({
 
 export const SelectVariant: Story = {
   name: 'Select Variant (Single Selection) - Standalone',
+  args: {},
   render: () => {
     const [brandFilter, setBrandFilter] = useState<string | undefined>(
       undefined
@@ -184,6 +185,7 @@ export const SelectVariant: Story = {
 
 export const TagVariant: Story = {
   name: 'Tag Variant (Multi-Selection) - Standalone',
+  args: {},
   render: () => {
     const [categoryFilter, setCategoryFilter] = useState<string[] | undefined>(
       undefined
@@ -263,6 +265,7 @@ export const TagVariant: Story = {
 
 export const WithSearch: Story = {
   name: 'With Search Functionality - Standalone',
+  args: {},
   render: () => {
     const [brandFilter, setBrandFilter] = useState<string[] | undefined>(
       undefined
@@ -596,6 +599,7 @@ const ApiIntegrationExample = () => {
 
 export const PublicApiIntegration: Story = {
   name: 'Public API Integration Example - Standalone',
+  args: {},
   render: () => {
     return (
       <Provider>
@@ -624,6 +628,7 @@ export const PublicApiIntegration: Story = {
 
 export const MultipleFilters: Story = {
   name: 'Multiple Filter Controls - Standalone',
+  args: {},
   render: () => {
     const [brandFilter, setBrandFilter] = useState<string | undefined>(
       undefined

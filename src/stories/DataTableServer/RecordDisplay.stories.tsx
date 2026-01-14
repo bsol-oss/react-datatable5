@@ -1,5 +1,4 @@
 import { RecordDisplay } from '@/components/DataTable/display/RecordDisplay';
-import { DataDisplay } from '@/components/DataTable/display/DataDisplay';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -11,7 +10,7 @@ const meta = {
   parameters: {},
 
   argTypes: {},
-} satisfies Meta<typeof DataDisplay>;
+} satisfies Meta<typeof RecordDisplay>;
 
 type Story = StoryObj<typeof meta>;
 
@@ -19,6 +18,7 @@ export default meta;
 
 export const ObjectDisplay1: Story = {
   name: 'Object Display 1',
+  args: { object: {} },
   render: () => {
     return <DataDisplayView />;
   },
@@ -50,6 +50,7 @@ const DataDisplayView = () => {
 
 export const ObjectDisplay2: Story = {
   name: 'Object Display 2',
+  args: { object: {} },
   render: () => {
     return (
       <QueryClientProvider client={queryClient}>

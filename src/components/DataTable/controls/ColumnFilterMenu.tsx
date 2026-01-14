@@ -11,7 +11,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 import { MdFilterList, MdSearch } from 'react-icons/md';
 

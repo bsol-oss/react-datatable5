@@ -18,11 +18,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-interface RowActionsProps {
-  row: Product;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
+const RowActions = () => {
   return <>no actions</>;
 };
 
@@ -33,7 +29,7 @@ const columns: ColumnDef<Product>[] = [
   columnHelper.display({
     id: 'actions',
     header: () => <span>Actions</span>,
-    cell: (props) => <RowActions row={props.row.original} />,
+    cell: () => <RowActions />,
   }),
 
   // Grouping Column

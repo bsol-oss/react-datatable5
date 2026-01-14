@@ -61,13 +61,13 @@ const AddressApp = () => {
 
   return (
     <Provider>
-      <DataTableServer columns={columns} {...datatable}>
+      <DataTableServer columns={columns as any} {...datatable}>
         <DefaultTable
-          showFilter
-          showFilterName
-          showFilterTags
-          fitTableWidth
-          fitTableHeight
+          controlProps={{
+            showFilter: true,
+            fitTableWidth: true,
+            fitTableHeight: true,
+          }}
         />
         <DataDisplay />
         <DataDisplay variant="stats" />

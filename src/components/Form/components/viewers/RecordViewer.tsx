@@ -11,10 +11,7 @@ export interface DatePickerProps {
 }
 
 export const RecordViewer = ({ column, schema, prefix }: DatePickerProps) => {
-  const {
-    formState: { errors },
-    getValues,
-  } = useFormContext();
+  const { getValues } = useFormContext();
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const entries = Object.entries(getValues(column) ?? {});

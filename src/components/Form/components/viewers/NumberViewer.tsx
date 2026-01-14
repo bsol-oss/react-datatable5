@@ -1,9 +1,7 @@
 import { Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
-import { useSchemaContext } from '../../useSchemaContext';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
-import { removeIndex } from '../../utils/removeIndex';
 import { useFormLabel } from '../../utils/useFormLabel';
 export interface NumberInputFieldProps {
   column: string;
@@ -16,10 +14,7 @@ export const NumberViewer = ({
   column,
   prefix,
 }: NumberInputFieldProps) => {
-  const {
-    watch,
-    formState: { errors },
-  } = useFormContext();
+  const { watch } = useFormContext();
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;

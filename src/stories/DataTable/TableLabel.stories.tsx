@@ -3,7 +3,7 @@ import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { DataTable } from '../../components/DataTable/DataTable';
 import { useDataTable } from '../../components/DataTable/useDataTable';
 import { Provider } from '@/components/ui/provider';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { data, Product } from '../product_data';
 import {
   TableControls,
@@ -20,7 +20,7 @@ import {
 } from '../../index';
 import { DataTableLabel } from '../../components/DataTable/context/DataTableContext';
 
-const meta = {
+const meta: Meta = {
   title: 'react-datatable5/DataTable/TableLabel',
   component: DataTable,
   parameters: {
@@ -32,9 +32,9 @@ const meta = {
     },
   },
   argTypes: {},
-} satisfies Meta<typeof DataTable>;
+};
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
 export default meta;
 
@@ -114,6 +114,9 @@ const defaultLabels: DataTableLabel = {
   globalFilterPlaceholder: 'Search',
   trueLabel: 'True',
   falseLabel: 'False',
+  noFiltersMatchText: 'No filters match',
+  filterByLabel: 'Filter by',
+  filterLabelsPlaceholder: 'Search filters...',
 };
 
 // Custom labels example
@@ -133,10 +136,14 @@ const customLabels: DataTableLabel = {
   globalFilterPlaceholder: '搜尋...',
   trueLabel: '是',
   falseLabel: '否',
+  noFiltersMatchText: '沒有符合的篩選',
+  filterByLabel: '篩選條件',
+  filterLabelsPlaceholder: '搜尋篩選條件...',
 };
 
 export const DefaultLabels: Story = {
   name: 'Default Labels',
+  args: {},
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -171,7 +178,6 @@ export const DefaultLabels: Story = {
                 showFilter
                 showReload
                 showView
-                showFilterTags
                 showPageCountText
               >
                 <TableWithData>
@@ -240,6 +246,7 @@ export const DefaultLabels: Story = {
 
 export const CustomLabels: Story = {
   name: 'Custom Labels',
+  args: {},
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -274,7 +281,6 @@ export const CustomLabels: Story = {
                 showFilter
                 showReload
                 showView
-                showFilterTags
                 showPageCountText
               >
                 <TableWithData>
@@ -293,6 +299,7 @@ export const CustomLabels: Story = {
 
 export const IndividualComponents: Story = {
   name: 'Individual Components',
+  args: {},
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -427,6 +434,7 @@ export const IndividualComponents: Story = {
 
 export const BooleanFilterLabels: Story = {
   name: 'Boolean Filter Labels',
+  args: {},
   render: () => {
     const datatable = useDataTable({
       default: {
@@ -461,7 +469,7 @@ export const BooleanFilterLabels: Story = {
               {...datatable}
               tableLabel={booleanLabels}
             >
-              <TableControls showFilter showFilterTags>
+              <TableControls showFilter>
                 <TableWithData>
                   <TableHeader canResize />
                   <TableBody />
@@ -489,6 +497,7 @@ export const BooleanFilterLabels: Story = {
 
 export const Comparison: Story = {
   name: 'Comparison',
+  args: {},
   render: () => {
     const datatable1 = useDataTable({
       default: {

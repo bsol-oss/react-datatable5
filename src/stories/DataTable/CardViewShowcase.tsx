@@ -1,5 +1,5 @@
-import { Box, Flex } from "@chakra-ui/react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import { Box, Flex } from '@chakra-ui/react';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import {
   CardHeader,
   DataTable,
@@ -12,18 +12,14 @@ import {
   Pagination,
   TableSelector,
   TextCell,
-} from "../../index";
+} from '../../index';
 
-import { MdStarRate } from "react-icons/md";
-import { useDataTable } from "../../components/DataTable/useDataTable";
-import { data, Product } from "../product_data";
-import { Provider } from "@/components/ui/provider";
+import { MdStarRate } from 'react-icons/md';
+import { useDataTable } from '../../components/DataTable/useDataTable';
+import { data, Product } from '../product_data';
+import { Provider } from '@/components/ui/provider';
 
-interface RowActionsProps {
-  row: Product;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
+const RowActions = () => {
   return <>no actions</>;
 };
 
@@ -34,40 +30,40 @@ const CardViewShowcase = () => {
   const columns: ColumnDef<Product>[] = [
     // Display Column
     columnHelper.display({
-      id: "actions",
+      id: 'actions',
       header: () => <span>Actions</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
     }),
 
     // Grouping Column
     columnHelper.group({
-      header: "Information",
+      header: 'Information',
       footer: (props) => props.column.id,
       columns: [
-        columnHelper.accessor("id", {
+        columnHelper.accessor('id', {
           cell: (props) => {
             return <TextCell>{props.row.original.id}</TextCell>;
           },
-          header: () => <Box color={"green.400"}>Id</Box>,
+          header: () => <Box color={'green.400'}>Id</Box>,
           footer: (props) => props.column.id,
           size: 50,
         }),
-        columnHelper.accessor("title", {
+        columnHelper.accessor('title', {
           cell: (props) => {
             return (
-              <Box padding={"0rem"}>
+              <Box padding={'0rem'}>
                 <TextCell label={props.row.original.title}>
                   {props.row.original.title}
                 </TextCell>
               </Box>
             );
           },
-          header: () => <Box color={"blue.400"}>Title</Box>,
+          header: () => <Box color={'blue.400'}>Title</Box>,
           footer: (props) => props.column.id,
           size: 100,
         }),
         // Accessor Column
-        columnHelper.accessor("description", {
+        columnHelper.accessor('description', {
           cell: (props) => {
             return <TextCell>{props.row.original.description}</TextCell>;
           },
@@ -97,16 +93,16 @@ const CardViewShowcase = () => {
                 <CardHeader
                   {...{
                     row: row,
-                    imageColumnId: "thumbnail",
-                    titleColumnId: "title",
-                    tagColumnId: "rating",
+                    imageColumnId: 'thumbnail',
+                    titleColumnId: 'title',
+                    tagColumnId: 'rating',
                     tagIcon: MdStarRate,
                     showTag: false,
                   }}
                 />
               );
             }}
-            cardBodyProps={{ minWidth: "10rem" }}
+            cardBodyProps={{ minWidth: '10rem' }}
           />
         </TableCardContainer>
         <TableCardContainer variant="carousel">
@@ -116,16 +112,16 @@ const CardViewShowcase = () => {
                 <CardHeader
                   {...{
                     row: row,
-                    imageColumnId: "thumbnail",
-                    titleColumnId: "title",
-                    tagColumnId: "rating",
+                    imageColumnId: 'thumbnail',
+                    titleColumnId: 'title',
+                    tagColumnId: 'rating',
                     tagIcon: MdStarRate,
                     showTag: false,
                   }}
                 />
               );
             }}
-            cardBodyProps={{ minWidth: "10rem" }}
+            cardBodyProps={{ minWidth: '10rem' }}
           />
         </TableCardContainer>
         <Pagination />

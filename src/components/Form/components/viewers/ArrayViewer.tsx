@@ -1,7 +1,5 @@
-import { Box, Flex, Grid, Text } from '@chakra-ui/react';
+import { Box, Flex, Grid } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
-import { useSchemaContext } from '../../useSchemaContext';
-import { removeIndex } from '../../utils/removeIndex';
 import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { SchemaViewer } from './SchemaViewer';
@@ -22,10 +20,7 @@ export const ArrayViewer = ({ schema, column, prefix }: ArrayViewerProps) => {
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
   const formI18n = useFormLabel(column, prefix, schema);
-  const {
-    watch,
-    formState: { errors },
-  } = useFormContext();
+  const { watch } = useFormContext();
   const values = watch(colLabel) ?? [];
 
   return (
@@ -35,7 +30,7 @@ export const ArrayViewer = ({ schema, column, prefix }: ArrayViewerProps) => {
         {isRequired && <span>*</span>}
       </Box>
       <Flex flexFlow={'column'} gap={1}>
-        {values.map((field: any, index: number) => (
+        {values.map((_: unknown, index: number) => (
           <Flex
             key={`form-${prefix}${column}.${index}`}
             flexFlow={'column'}

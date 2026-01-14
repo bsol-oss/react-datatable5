@@ -3,7 +3,6 @@ import { Text } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
-import { removeIndex } from '../../utils/removeIndex';
 import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
@@ -14,10 +13,7 @@ export interface TimeViewerProps {
 }
 
 export const TimeViewer = ({ column, schema, prefix }: TimeViewerProps) => {
-  const {
-    watch,
-    formState: { errors },
-  } = useFormContext();
+  const { watch } = useFormContext();
   const { timezone } = useSchemaContext();
   const {
     required,

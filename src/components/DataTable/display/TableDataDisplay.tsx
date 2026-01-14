@@ -1,8 +1,8 @@
 import { Box, BoxProps, Grid } from '@chakra-ui/react';
+import { ColumnDef } from '@tanstack/react-table';
 import { useDataTableContext } from '../context/useDataTableContext';
 import { RecordDisplay } from './RecordDisplay';
-import { ReactNode } from 'react';
-import { flexRender } from '@tanstack/react-table';
+import React, { ReactNode } from 'react';
 
 export interface TableDataDisplayProps {
   colorPalette?: string;
@@ -16,7 +16,10 @@ export const TableDataDisplay = ({
   const { columns, data } = useDataTableContext();
   const columnsMap = Object.fromEntries(
     columns.map((def) => {
-      const { accessorKey, id } = def;
+      const { id } = def;
+      const accessorKey = (
+        def as ColumnDef<unknown, unknown> & { accessorKey?: string }
+      ).accessorKey;
       if (accessorKey) {
         return [accessorKey, def];
       }
@@ -96,7 +99,7 @@ export const TableDataDisplay = ({
           <Box key={`chakra-table-record-${recordIndex}`} display="contents">
             {columnHeaders.map((header) => {
               const { cell } = columnsMap[header];
-              const value = record[header];
+              const value = (record as Record<string, unknown>)[header];
               if (!!record === false) {
                 return (
                   <Box
@@ -132,7 +135,7 @@ export const TableDataDisplay = ({
                   key={`chakra-table-cell-${recordIndex}-${header}`}
                   {...cellProps}
                 >
-                  {value}
+                  {value as React.ReactNode}
                 </Box>
               );
             })}

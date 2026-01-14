@@ -12,11 +12,7 @@ import {
 } from '../../index';
 import { Employee, staffData } from '../staff_data';
 
-interface RowActionsProps {
-  row: Employee;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
+const RowActions = () => {
   return <>has no actions</>;
 };
 
@@ -30,7 +26,7 @@ const DefaultTableShowcase2 = () => {
     columnHelper.display({
       id: 'actions',
       header: () => <span>Actions</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
     }),
 
     // Grouping Column
@@ -57,7 +53,7 @@ const DefaultTableShowcase2 = () => {
           header: () => <span>is_active</span>,
           footer: () => <span>is_active</span>,
           size: 100,
-          filterFn: (row, col, filterValue) => {
+          filterFn: (row, _col, filterValue) => {
             return filterValue.some((value: 'true' | 'false') => {
               if (value === undefined || value === null) {
                 return false;
@@ -81,13 +77,13 @@ const DefaultTableShowcase2 = () => {
           header: () => <span>hire_date</span>,
           footer: () => <span>hire_date</span>,
           size: 100,
-          filterFn: (row, col, filterValue) => {
-            console.log(row, col, filterValue, 'dksopf');
+          filterFn: (row, columnId, filterValue) => {
+            console.log(row, columnId, filterValue, 'dksopf');
 
-            if (!row || !col || !filterValue || filterValue.length !== 2) {
+            if (!row || !columnId || !filterValue || filterValue.length !== 2) {
               return false; // Handle invalid input gracefully
             }
-            const hireDateValue = row.getValue(col);
+            const hireDateValue = row.getValue(columnId);
 
             if (!hireDateValue) {
               return false; // Handle missing hire date gracefully.  Crucially important!
@@ -99,7 +95,7 @@ const DefaultTableShowcase2 = () => {
               hireDate = hireDateValue;
             } else {
               try {
-                hireDate = new Date(hireDateValue); // Try to parse it if it's a string
+                hireDate = new Date(hireDateValue as string | number); // Try to parse it if it's a string
               } catch (error) {
                 console.error('Error parsing hire date:', hireDateValue, error);
                 return false; // Handle invalid date strings gracefully
@@ -128,12 +124,12 @@ const DefaultTableShowcase2 = () => {
           header: () => <span>university</span>,
           footer: () => <span>university</span>,
           size: 400,
-          filterFn: (row, col, filterValue) => {
+          filterFn: () => {
             return true;
           },
           meta: {
             filterVariant: 'custom',
-            renderFilter: (state, updater) => {
+            renderFilter: () => {
               return <>custom filter</>;
             },
           },

@@ -65,11 +65,7 @@ const Template = (args: any) => {
   );
 };
 
-interface RowActionsProps {
-  row: Product;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
+const RowActions = () => {
   return <>no actions</>;
 };
 
@@ -80,7 +76,7 @@ const columns: ColumnDef<Product>[] = [
   columnHelper.display({
     id: 'actions',
     header: () => <span>Actions</span>,
-    cell: (props) => <RowActions row={props.row.original} />,
+    cell: () => <RowActions />,
   }),
 
   // Grouping Column
@@ -123,21 +119,21 @@ const columns: ColumnDef<Product>[] = [
   }),
 ];
 
-export const Playground = Template.bind({});
-Playground.storyName = 'Playground';
-
-Playground.args = {
-  data: data,
-  columns: columns,
-  enableRowSelection: true,
-  enableMultiRowSelection: true,
-  enableSubRowSelection: true,
-  onRowSelect: () => {},
-  columnOrder: ['actions', 'id', 'title', 'description'],
-  columnFilters: [],
-  globalFilter: '',
-  density: 'sm',
-  pagination: { pageIndex: 0, pageSize: 10 },
-  sorting: [],
-  rowSelection: {},
+export const Playground = {
+  render: Template,
+  args: {
+    data: data,
+    columns: columns,
+    enableRowSelection: true,
+    enableMultiRowSelection: true,
+    enableSubRowSelection: true,
+    onRowSelect: () => {},
+    columnOrder: ['actions', 'id', 'title', 'description'],
+    columnFilters: [],
+    globalFilter: '',
+    density: 'sm',
+    pagination: { pageIndex: 0, pageSize: 10 },
+    sorting: [],
+    rowSelection: {},
+  },
 };

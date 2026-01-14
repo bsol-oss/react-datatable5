@@ -1,9 +1,6 @@
-import { Provider } from "@/components/ui/provider";
-import {
-  Box,
-  Flex
-} from "@chakra-ui/react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import { Provider } from '@/components/ui/provider';
+import { Box, Flex } from '@chakra-ui/react';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import {
   DataTableServer,
   EditSortingButton,
@@ -16,7 +13,7 @@ import {
   TextCell,
   ViewDialog,
   useDataTableServer,
-} from "../../index";
+} from '../../index';
 
 interface ChatRecord {
   session_id: string;
@@ -32,19 +29,15 @@ interface ChatRecord {
   last_update: string;
 }
 
-interface RowActionsProps {
-  row: ChatRecord;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
+const RowActions = () => {
   return <>no actions</>;
 };
 
 const CardViewShowcase = () => {
   const dataTable = useDataTableServer<ChatRecord>({
-    url: "http://localhost:8333/api/v1/gpt/chat/history/all",
+    url: 'http://localhost:8333/api/v1/gpt/chat/history/all',
     default: {
-      sorting: [{ id: "last_update", desc: true }],
+      sorting: [{ id: 'last_update', desc: true }],
       pagination: { pageSize: 25, pageIndex: 0 },
     },
   });
@@ -53,20 +46,20 @@ const CardViewShowcase = () => {
   const columns: ColumnDef<ChatRecord>[] = [
     // Display Column
     columnHelper.display({
-      id: "actions",
+      id: 'actions',
       header: () => <span>Actions</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
       meta: {
-        displayName: "Actions",
+        displayName: 'Actions',
       },
     }),
 
     // Grouping Column
     columnHelper.group({
-      header: "Information",
+      header: 'Information',
       footer: (props) => props.column.id,
       columns: [
-        columnHelper.accessor("session_id", {
+        columnHelper.accessor('session_id', {
           cell: (props) => {
             return (
               <TextCell label={props.row.original.session_id}>
@@ -77,13 +70,13 @@ const CardViewShowcase = () => {
           header: () => <Box>Session Id</Box>,
           footer: () => <Box>Session Id</Box>,
           meta: {
-            displayName: "Session Id",
+            displayName: 'Session Id',
           },
         }),
-        columnHelper.accessor("last_user_message", {
+        columnHelper.accessor('last_user_message', {
           cell: (props) => {
             return (
-              <Box padding={"0rem"}>
+              <Box padding={'0rem'}>
                 <TextCell label={props.row.original.last_user_message}>
                   {props.row.original.last_user_message}
                 </TextCell>
@@ -94,11 +87,11 @@ const CardViewShowcase = () => {
           header: () => <Box>User Message</Box>,
           footer: () => <Box>User Message</Box>,
           meta: {
-            displayName: "User Message",
+            displayName: 'User Message',
           },
         }),
         // Accessor Column
-        columnHelper.accessor("total_token", {
+        columnHelper.accessor('total_token', {
           cell: (props) => {
             return <TextCell>{props.row.original.total_token}</TextCell>;
           },
@@ -106,7 +99,7 @@ const CardViewShowcase = () => {
           footer: () => <span>Total Token</span>,
           sortDescFirst: false,
           meta: {
-            displayName: "Total Token",
+            displayName: 'Total Token',
           },
         }),
       ],
@@ -115,8 +108,8 @@ const CardViewShowcase = () => {
 
   return (
     <Provider>
-      <DataTableServer<ChatRecord> 
-        columns={columns} 
+      <DataTableServer<ChatRecord>
+        columns={columns}
         url="http://localhost:8333/api/v1/gpt/chat/history/all"
         {...dataTable}
       >

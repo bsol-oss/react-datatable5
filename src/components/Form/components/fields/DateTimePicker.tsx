@@ -3,7 +3,6 @@ import { Field } from '@/components/ui/field';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 import { useFormLabel } from '../../utils/useFormLabel';
@@ -23,14 +22,13 @@ export const DateTimePicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { timezone, dateTimePickerLabels, timePickerLabels, insideDialog } =
+  const { timezone, dateTimePickerLabels, timePickerLabels } =
     useSchemaContext();
   const formI18n = useFormLabel(column, prefix, schema);
   const {
     required,
     gridColumn = 'span 12',
     gridRow = 'span 1',
-    displayDateFormat = 'YYYY-MM-DD HH:mm:ss',
     // with timezone
     dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ',
     dateTimePicker,
@@ -38,12 +36,7 @@ export const DateTimePicker = ({
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = formI18n.colLabel;
   const fieldError = getNestedError(errors, colLabel);
-  const [open, setOpen] = useState(false);
   const selectedDate = watch(colLabel);
-  const displayDate =
-    selectedDate && dayjs(selectedDate).tz(timezone).isValid()
-      ? dayjs(selectedDate).tz(timezone).format(displayDateFormat)
-      : '';
 
   // Set default date on mount if no value exists
 

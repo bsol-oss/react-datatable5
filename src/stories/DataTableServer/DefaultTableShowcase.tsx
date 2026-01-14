@@ -1,14 +1,14 @@
-import { Box, Text } from "@chakra-ui/react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { Provider } from "@/components/ui/provider";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Box, Text } from '@chakra-ui/react';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { Provider } from '@/components/ui/provider';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   DataTableServer,
   DefaultTable,
   TableComponent,
   TextCell,
   useDataTableServer,
-} from "../../index";
+} from '../../index';
 
 interface ChatRecord {
   session_id: string;
@@ -24,35 +24,31 @@ interface ChatRecord {
   last_update: string;
 }
 
-interface RowActionsProps {
-  row: ChatRecord;
-}
-
-const RowActions = ({ row }: RowActionsProps) => {
+const RowActions = () => {
   return <>has no actions</>;
 };
 
 const App = () => {
   const dataTable = useDataTableServer<ChatRecord>({
-    url: "https://echo.free.beeceptor.com",
+    url: 'https://echo.free.beeceptor.com',
     default: {
-      sorting: [{ id: "last_update", desc: true }],
+      sorting: [{ id: 'last_update', desc: true }],
       pagination: { pageSize: 25, pageIndex: 0 },
     },
     placeholderData: {
       data: [
         {
-          session_id: "1",
-          last_user_message: "Hello",
-          last_system_response: "Hello",
+          session_id: '1',
+          last_user_message: 'Hello',
+          last_system_response: 'Hello',
           total_token: 100,
           total_prompt_tokens: 100,
           total_completion_tokens: 100,
           total_normalise_tokens: 100,
-          chat_type: "chat",
-          model: "gpt-4",
-          created_by: "John Doe",
-          last_update: "2021-01-01",
+          chat_type: 'chat',
+          model: 'gpt-4',
+          created_by: 'John Doe',
+          last_update: '2021-01-01',
         },
       ],
       count: 0,
@@ -63,20 +59,20 @@ const App = () => {
   const columns: ColumnDef<ChatRecord>[] = [
     // Display Column
     columnHelper.display({
-      id: "actions",
+      id: 'actions',
       header: () => <span>Actions</span>,
-      cell: (props) => <RowActions row={props.row.original} />,
+      cell: () => <RowActions />,
       meta: {
-        displayName: "Actions",
+        displayName: 'Actions',
       },
     }),
 
     // Grouping Column
     columnHelper.group({
-      header: "Information",
+      header: 'Information',
       footer: (props) => props.column.id,
       columns: [
-        columnHelper.accessor("session_id", {
+        columnHelper.accessor('session_id', {
           cell: (props) => {
             return (
               <TextCell label={props.row.original.session_id}>
@@ -87,13 +83,13 @@ const App = () => {
           header: () => <Box>Session Id</Box>,
           footer: () => <Box>Session Id</Box>,
           meta: {
-            displayName: "Session Id",
+            displayName: 'Session Id',
           },
         }),
-        columnHelper.accessor("last_user_message", {
+        columnHelper.accessor('last_user_message', {
           cell: (props) => {
             return (
-              <Box padding={"0rem"}>
+              <Box padding={'0rem'}>
                 <TextCell label={props.row.original.last_user_message}>
                   {props.row.original.last_user_message}
                 </TextCell>
@@ -104,11 +100,11 @@ const App = () => {
           header: () => <Box>User Message</Box>,
           footer: () => <Box>User Message</Box>,
           meta: {
-            displayName: "User Message",
+            displayName: 'User Message',
           },
         }),
         // Accessor Column
-        columnHelper.accessor("total_token", {
+        columnHelper.accessor('total_token', {
           cell: (props) => {
             return <TextCell>{props.row.original.total_token}</TextCell>;
           },
@@ -116,10 +112,10 @@ const App = () => {
           footer: () => <span>Total Token</span>,
           sortDescFirst: false,
           meta: {
-            displayName: "Total Token",
+            displayName: 'Total Token',
           },
         }),
-        columnHelper.accessor("total_token", {
+        columnHelper.accessor('total_token', {
           cell: (props) => {
             return <TextCell>{props.row.original.total_token}</TextCell>;
           },
@@ -127,12 +123,12 @@ const App = () => {
           footer: () => <span>Total Token</span>,
           sortDescFirst: false,
           meta: {
-            displayName: "Total Token",
+            displayName: 'Total Token',
           },
           enableColumnFilter: false,
         }),
         // Accessor Column
-        columnHelper.accessor("model", {
+        columnHelper.accessor('model', {
           cell: (props) => {
             return <TextCell>{props.row.original.model}</TextCell>;
           },
@@ -140,11 +136,11 @@ const App = () => {
           footer: () => <span>Model</span>,
           sortDescFirst: false,
           meta: {
-            displayName: "Model",
-            filterVariant: "select",
+            displayName: 'Model',
+            filterVariant: 'select',
             filterOptions: [
-              { label: "gpt4", value: "gpt4" },
-              { label: "gpt35", value: "gpt35" },
+              { label: 'gpt4', value: 'gpt4' },
+              { label: 'gpt35', value: 'gpt35' },
             ],
           },
         }),
@@ -156,25 +152,30 @@ const App = () => {
       <DataTableServer<ChatRecord> columns={columns} {...dataTable}>
         <DefaultTable
           controlProps={{
-            filterOptions: [
-              { label: "gpt4", value: "gpt4" },
-              { label: "gpt35", value: "gpt35" },
+            filterTagsOptions: [
+              {
+                column: 'model',
+                options: [
+                  { label: 'gpt4', value: 'gpt4' },
+                  { label: 'gpt35', value: 'gpt35' },
+                ],
+              },
             ],
             showFilter: true,
             showReload: true,
             extraItems: <>some extra items</>,
           }}
         />
-        <Box width="400px" height={"400px"}>
+        <Box width="400px" height={'400px'}>
           <DefaultTable controlProps={{ showFilter: true }} />
         </Box>
-        <Box width="2400px" height={"2400px"}>
+        <Box width="2400px" height={'2400px'}>
           <DefaultTable controlProps={{ showFilter: true }} />
         </Box>
 
-        <Text> {"fitTable={true}"}</Text>
+        <Text> {'fitTable={true}'}</Text>
 
-        <Box width="400px" height={"400px"}>
+        <Box width="400px" height={'400px'}>
           <DefaultTable
             controlProps={{
               showFilter: true,
@@ -183,7 +184,7 @@ const App = () => {
             }}
           />
         </Box>
-        <Box width="2400px" height={"2400px"}>
+        <Box width="2400px" height={'2400px'}>
           <DefaultTable
             controlProps={{
               showFilter: true,
@@ -193,7 +194,7 @@ const App = () => {
           />
         </Box>
 
-        <Box width="2400px" height={"2400px"}>
+        <Box width="2400px" height={'2400px'}>
           <DefaultTable
             controlProps={{
               showFilter: true,

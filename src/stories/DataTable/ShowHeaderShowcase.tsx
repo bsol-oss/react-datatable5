@@ -96,7 +96,7 @@ const ShowHeaderShowcase = () => {
 
   return (
     <Provider>
-      <VStack spacing={8} align="stretch" padding={4}>
+      <VStack gap={8} align="stretch" padding={4}>
         <Box>
           <Text fontSize="xl" fontWeight="bold" marginBottom={4}>
             Default Table (with header - showHeader=true)

@@ -1,8 +1,6 @@
 import { Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
-import { useSchemaContext } from '../../useSchemaContext';
-import { removeIndex } from '../../utils/removeIndex';
 import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
@@ -17,10 +15,7 @@ export const TextAreaViewer = ({
   schema,
   prefix,
 }: TextAreaViewerProps) => {
-  const {
-    watch,
-    formState: { errors },
-  } = useFormContext();
+  const { watch } = useFormContext();
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;

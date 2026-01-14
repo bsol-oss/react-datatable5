@@ -63,10 +63,11 @@ const columns: ColumnDef<Product>[] = [
     meta: {
       displayName: 'Price',
       filterVariant: 'range',
-      filterRange: {
+      filterRangeConfig: {
         min: 0,
         max: 2000,
         step: 10,
+        defaultValue: [0, 2000],
       },
     },
   }),

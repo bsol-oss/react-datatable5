@@ -5,8 +5,7 @@ import {
 import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 
 // Mock query functions for example schema
-const mockEventQueryFn = async ({
-  searching,
+const _mockEventQueryFn = async ({
   limit,
   offset,
   where,
@@ -33,8 +32,7 @@ const mockEventQueryFn = async ({
   };
 };
 
-const mockGeolocationQueryFn = async ({
-  searching,
+const _mockGeolocationQueryFn = async ({
   limit,
   offset,
   where,

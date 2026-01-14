@@ -56,7 +56,6 @@ export const MobileTableControls = ({
   children = <></>,
   showGlobalFilter = false,
   showFilter = false,
-  showFilterName = false,
   showFilterTags = false,
   showReload = false,
   showPagination = true,

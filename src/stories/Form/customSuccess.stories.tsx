@@ -1,16 +1,8 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
-import {
-  Box,
-  Button,
-  Flex,
-  Text,
-  VStack,
-  HStack,
-  Icon,
-} from '@chakra-ui/react';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Box, Button, Text, VStack, HStack } from '@chakra-ui/react';
+import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 
@@ -21,9 +13,9 @@ const meta = {
   parameters: {},
 
   argTypes: {},
-} satisfies Meta<typeof DefaultForm>;
+};
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
 export default meta;
 const queryClient = new QueryClient();
@@ -43,6 +35,7 @@ export const DefaultSuccess: Story = {
 
 export const CustomSuccess: Story = {
   name: 'Custom Success',
+  args: {},
   render: () => {
     return (
       <Provider>
@@ -164,12 +157,12 @@ const CustomSuccessForm = () => {
             textAlign="center"
             boxShadow="lg"
           >
-            <VStack spacing={6}>
+            <VStack gap={6}>
               {/* Celebration Icon */}
               <Box fontSize="4xl">🎉</Box>
 
               {/* Success Message */}
-              <VStack spacing={2}>
+              <VStack gap={2}>
                 <Text fontSize="2xl" fontWeight="bold" color="green.700">
                   Success!
                 </Text>
@@ -182,7 +175,7 @@ const CustomSuccessForm = () => {
               </VStack>
 
               {/* Custom Action Buttons */}
-              <HStack spacing={4}>
+              <HStack gap={4}>
                 <Button
                   onClick={resetHandler}
                   colorScheme="green"

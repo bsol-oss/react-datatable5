@@ -1,5 +1,4 @@
-import { Box, Grid, Text } from '@chakra-ui/react';
-import { useFormContext } from 'react-hook-form';
+import { Box, Grid } from '@chakra-ui/react';
 import { ColumnViewer } from './ColumnViewer';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { useFormLabel } from '../../utils/useFormLabel';
@@ -21,9 +20,6 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
   const formI18n = useFormLabel(column, prefix, schema);
-  const {
-    formState: { errors },
-  } = useFormContext();
   if (properties === undefined) {
     throw new Error(`properties is undefined when using ObjectInput`);
   }

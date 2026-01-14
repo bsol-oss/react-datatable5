@@ -42,7 +42,7 @@ const DataDisplayView = () => {
     columnHelper.display({
       id: 'actions',
       header: () => <span>Actions</span>,
-      cell: (props) => <RowActions />,
+      cell: () => <RowActions />,
     }),
 
     // Grouping Column

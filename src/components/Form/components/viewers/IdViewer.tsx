@@ -27,7 +27,7 @@ export const IdViewer = ({
     watch,
     formState: { errors },
   } = useFormContext();
-  const { idMap, idPickerLabels, formButtonLabels } = useSchemaContext();
+  const { idMap, idPickerLabels } = useSchemaContext();
   const {
     required,
     gridColumn = 'span 12',

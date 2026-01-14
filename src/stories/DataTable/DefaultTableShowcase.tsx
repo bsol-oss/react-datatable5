@@ -6,7 +6,7 @@ import { useDataTable } from '../../components/DataTable/useDataTable';
 import { DataTable, DefaultTable, TableComponent, TextCell } from '../../index';
 import { data, Product } from '../product_data';
 import { BiPencil } from 'react-icons/bi';
-import { BsEye, BsViewList } from 'react-icons/bs';
+import { BsEye } from 'react-icons/bs';
 // Uncomment the following imports when using DataTableServer
 // import { DataTableServer } from "../../components/DataTable/DataTableServer";
 // import { useDataTableServer } from "../../components/DataTable/useDataTableServer";
@@ -138,7 +138,7 @@ const DefaultTableShowcase = () => {
     columnHelper.display({
       id: 'actions',
       header: () => <span></span>,
-      cell: (props) => (
+      cell: () => (
         <HStack h={'100%'} alignItems={'center'} justifyContent={'end'}>
           <ButtonGroup size="sm" variant="outline" attached>
             <Button>
@@ -162,7 +162,6 @@ const DefaultTableShowcase = () => {
       <DataTable columns={columns} data={data} {...datatable}>
         <DefaultTable
           controlProps={{
-            showFilterTags: true,
             filterTagsOptions: [
               {
                 column: 'brand',

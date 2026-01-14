@@ -1,6 +1,5 @@
 import { Box, Card, Flex, Stack, Text } from '@chakra-ui/react';
-import { flexRender, Row } from '@tanstack/react-table';
-import { ReactNode } from 'react';
+import { flexRender } from '@tanstack/react-table';
 import { Checkbox } from '../../ui/checkbox';
 import { useDataTableContext } from '../context/useDataTableContext';
 import {

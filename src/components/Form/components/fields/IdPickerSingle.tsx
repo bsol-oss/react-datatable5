@@ -51,7 +51,6 @@ export const IdPickerSingle = ({
     idPickerLabels,
     insideDialog,
     renderDisplay: renderDisplayFn,
-    itemToValue,
     itemToString,
     errors,
     setValue,

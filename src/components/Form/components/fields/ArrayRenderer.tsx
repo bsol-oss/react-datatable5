@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Grid, Icon, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Icon } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { CgTrash } from 'react-icons/cg';
 import { useSchemaContext } from '../../useSchemaContext';
@@ -24,11 +24,7 @@ export const ArrayRenderer = ({
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
   const formI18n = useFormLabel(column, prefix, schema);
-  const {
-    formState: { errors },
-    setValue,
-    watch,
-  } = useFormContext();
+  const { setValue, watch } = useFormContext();
   const { formButtonLabels } = useSchemaContext();
   const fields = (watch(colLabel) ?? []) as any[];
   return (
@@ -38,7 +34,7 @@ export const ArrayRenderer = ({
         {isRequired && <span>*</span>}
       </Box>
       <Flex flexFlow={'column'} gap={2}>
-        {fields.map((field, index) => (
+        {fields.map((_, index) => (
           <Grid
             key={`${colLabel}.${index}`}
             gridTemplateColumns={'1fr auto'}

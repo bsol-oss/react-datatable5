@@ -1,11 +1,16 @@
 import { Field } from '@/components/ui/field';
 import { Box, Card, Flex, Image } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
-import { useSchemaContext } from '../../useSchemaContext';
 import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
-export const FileViewer = ({ column, schema, prefix }) => {
+export interface FileViewerProps {
+  column: string;
+  schema: CustomJSONSchema7;
+  prefix: string;
+}
+
+export const FileViewer = ({ column, schema, prefix }: FileViewerProps) => {
   const { watch } = useFormContext();
   const {
     required,
@@ -15,7 +20,6 @@ export const FileViewer = ({ column, schema, prefix }) => {
   const isRequired = required?.some((columnId) => columnId === column);
 
   const currentFiles = (watch(column) ?? []) as File[];
-  const colLabel = `${prefix}${column}`;
   const formI18n = useFormLabel(column, prefix, schema);
   return (
     <Field

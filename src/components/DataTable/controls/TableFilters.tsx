@@ -133,7 +133,7 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
         <Text>{displayName}</Text>
         <RangeDatePicker
           selected={filterValue}
-          onDateSelected={({ selected, selectable, date }) => {
+          onDateSelected={({ selectable, date }) => {
             const newDates =
               getRangeDates({
                 selectable,

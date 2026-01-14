@@ -92,6 +92,18 @@ declare module '@tanstack/react-table' {
      * Only applies when canResize={false}.
      */
     responsivePriority?: number;
+
+    /**
+     * Grid column span for data display layout.
+     * Used in DataDisplay component.
+     */
+    gridColumn?: string | string[];
+
+    /**
+     * Grid row span for data display layout.
+     * Used in DataDisplay component.
+     */
+    gridRow?: string | object;
   }
 }
 

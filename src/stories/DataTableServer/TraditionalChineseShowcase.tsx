@@ -42,7 +42,7 @@ const traditionalChineseLabels: DataTableLabel = {
 
 const TraditionalChineseShowcase = () => {
   const dataTable = useDataTableServer<Post>({
-    queryFn: async (params) => {
+    queryFn: async (_params) => {
       const response = await axios.get<Post[]>(
         `https://jsonplaceholder.typicode.com/posts`
       );
@@ -99,11 +99,11 @@ const TraditionalChineseShowcase = () => {
         displayName: '用戶編號',
         filterVariant: 'select',
         filterOptions: [
-          { label: '用戶 1', value: 1 },
-          { label: '用戶 2', value: 2 },
-          { label: '用戶 3', value: 3 },
-          { label: '用戶 4', value: 4 },
-          { label: '用戶 5', value: 5 },
+          { label: '用戶 1', value: '1' },
+          { label: '用戶 2', value: '2' },
+          { label: '用戶 3', value: '3' },
+          { label: '用戶 4', value: '4' },
+          { label: '用戶 5', value: '5' },
         ],
       },
     }),
@@ -132,7 +132,6 @@ const TraditionalChineseShowcase = () => {
               showFilter: true,
               showReload: true,
               showView: true,
-              showFilterTags: true,
               showPageCountText: true,
             }}
           />

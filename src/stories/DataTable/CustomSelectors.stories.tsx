@@ -139,7 +139,7 @@ const columns: ColumnDef<Product>[] = [
 export const TableViewWithCustomSelectors = () => {
   const datatable = useDataTable({
     default: {
-      pageSize: 10,
+      pagination: { pageIndex: 0, pageSize: 10 },
       sorting: [{ id: 'title', desc: false }],
     },
   });
@@ -182,7 +182,7 @@ export const TableViewWithCustomSelectors = () => {
 export const CardViewWithCustomSelectors = () => {
   const datatable = useDataTable({
     default: {
-      pageSize: 6,
+      pagination: { pageIndex: 0, pageSize: 6 },
       sorting: [{ id: 'title', desc: false }],
     },
   });
@@ -205,7 +205,7 @@ export const CardViewWithCustomSelectors = () => {
           gridTemplateColumns="repeat(auto-fill, minmax(300px, 1fr))"
           gap="1rem"
         >
-          <TableCards
+          <TableCards<Product>
             isSelectable={true}
             renderTitle={(row) => (
               <Text fontWeight="bold" fontSize="lg">
@@ -228,7 +228,7 @@ export const CardViewWithCustomSelectors = () => {
 export const SelectionStateDebug = () => {
   const datatable = useDataTable({
     default: {
-      pageSize: 5,
+      pagination: { pageIndex: 0, pageSize: 5 },
     },
   });
 
@@ -280,7 +280,7 @@ export const SelectionStateDebug = () => {
 export const MultiPageSelection = () => {
   const datatable = useDataTable({
     default: {
-      pageSize: 5,
+      pagination: { pageIndex: 0, pageSize: 5 },
     },
   });
 

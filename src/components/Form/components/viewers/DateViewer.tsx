@@ -2,7 +2,6 @@ import { Field } from '@/components/ui/field';
 import { Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
-import { removeIndex } from '../../utils/removeIndex';
 import { useFormLabel } from '../../utils/useFormLabel';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import dayjs from 'dayjs';
@@ -14,10 +13,7 @@ export interface DateViewerProps {
 }
 
 export const DateViewer = ({ column, schema, prefix }: DateViewerProps) => {
-  const {
-    watch,
-    formState: { errors },
-  } = useFormContext();
+  const { watch } = useFormContext();
   const { timezone } = useSchemaContext();
   const {
     required,

@@ -21,6 +21,7 @@ export default meta;
 
 export const MultipleMonths: Story = {
   name: 'Multiple Months',
+  args: { selected: [] },
   render: () => {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [firstDayOfWeek, setFirstDayOfWeek] = useState<
@@ -32,13 +33,13 @@ export const MultipleMonths: Story = {
         <Flex flexFlow={'column'}>
           <RangeDatePicker
             selected={selectedDates}
-            onDateSelected={({ selected, selectable, date }) => {
+            onDateSelected={({ selectable, date }) => {
               const newDates = getRangeDates({
                 selectable,
                 date,
                 selectedDates,
               });
-              setSelectedDates(() => newDates);
+              setSelectedDates(() => newDates ?? []);
             }}
             firstDayOfWeek={firstDayOfWeek}
             showOutsideDays={showOutsideDays}
@@ -52,13 +53,13 @@ export const MultipleMonths: Story = {
           />
           <RangeDatePicker
             selected={selectedDates}
-            onDateSelected={({ selected, selectable, date }) => {
+            onDateSelected={({ selectable, date }) => {
               const newDates = getRangeDates({
                 selectable,
                 date,
                 selectedDates,
               });
-              setSelectedDates(() => newDates);
+              setSelectedDates(() => newDates ?? []);
             }}
             firstDayOfWeek={firstDayOfWeek}
             showOutsideDays={showOutsideDays}
@@ -77,9 +78,11 @@ export const MultipleMonths: Story = {
                 data-test={`firstDayOfWeekButton${day}`}
                 key={day}
                 onClick={() => {
-                  setFirstDayOfWeek(i);
+                  setFirstDayOfWeek(i as 0 | 1 | 2 | 3 | 4 | 5 | 6);
                 }}
-                style={{ background: firstDayOfWeek === i ? 'purple' : null }}
+                style={{
+                  background: firstDayOfWeek === i ? 'purple' : undefined,
+                }}
               >
                 {day}
               </Button>
@@ -109,6 +112,7 @@ export const MultipleMonths: Story = {
 
 export const ChineseLabels: Story = {
   name: 'Chinese Labels',
+  args: { selected: [] },
   render: () => {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [firstDayOfWeek, setFirstDayOfWeek] = useState<
@@ -119,13 +123,13 @@ export const ChineseLabels: Story = {
         <Flex flexFlow={'column'} gap={4}>
           <RangeDatePicker
             selected={selectedDates}
-            onDateSelected={({ selected, selectable, date }) => {
+            onDateSelected={({ selectable, date }) => {
               const newDates = getRangeDates({
                 selectable,
                 date,
                 selectedDates,
               });
-              setSelectedDates(() => newDates);
+              setSelectedDates(() => newDates ?? []);
             }}
             firstDayOfWeek={firstDayOfWeek}
             monthsToDisplay={2}
@@ -158,9 +162,11 @@ export const ChineseLabels: Story = {
                 data-test={`firstDayOfWeekButton${day}`}
                 key={day}
                 onClick={() => {
-                  setFirstDayOfWeek(i);
+                  setFirstDayOfWeek(i as 0 | 1 | 2 | 3 | 4 | 5 | 6);
                 }}
-                style={{ background: firstDayOfWeek === i ? 'purple' : null }}
+                style={{
+                  background: firstDayOfWeek === i ? 'purple' : undefined,
+                }}
               >
                 {day}
               </Button>

@@ -1,4 +1,4 @@
-import { Input, Text } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useFormLabel } from '../../utils/useFormLabel';

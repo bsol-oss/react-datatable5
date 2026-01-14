@@ -1,9 +1,9 @@
 import { useEffect, useRef, RefObject } from 'react';
-import { Table, VisibilityState } from '@tanstack/react-table';
+import { VisibilityState } from '@tanstack/react-table';
 import { useDataTableContext } from '../context/useDataTableContext';
 
 interface UseResponsiveColumnVisibilityOptions {
-  containerRef: RefObject<HTMLElement>;
+  containerRef: RefObject<HTMLElement | null>;
   enabled: boolean;
   showSelector?: boolean;
 }

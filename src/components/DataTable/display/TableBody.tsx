@@ -1,4 +1,4 @@
-import { Box, Table, TableRowProps } from '@chakra-ui/react';
+import { Table, TableRowProps } from '@chakra-ui/react';
 import { Cell, flexRender, Row } from '@tanstack/react-table';
 import { useState } from 'react';
 import { Checkbox } from '../../ui/checkbox';
