@@ -8,7 +8,6 @@ import { IconType } from 'react-icons';
 import { UseQueryResult } from '@tanstack/react-query';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { JSONSchema7 } from 'json-schema';
-import { ForeignKeyProps as ForeignKeyProps$1 } from '@/components/Form/components/fields/StringInputField';
 import { AxiosRequestConfig } from 'axios';
 import * as react_hook_form from 'react-hook-form';
 import { UseFormReturn, FieldValues, SubmitHandler } from 'react-hook-form';
@@ -522,11 +521,6 @@ interface CustomQueryFnParams {
     }>;
 }
 type CustomQueryFn = (params: CustomQueryFnParams) => Promise<CustomQueryFnResponse>;
-interface ForeignKeyProps {
-    column: string;
-    table: string;
-    customQueryFn?: CustomQueryFn;
-}
 
 type ValidationErrorType = 'minLength' | 'maxLength' | 'pattern' | 'minimum' | 'maximum' | 'multipleOf' | 'format' | 'type' | 'enum' | 'required' | 'minItems' | 'maxItems' | 'uniqueItems' | 'minProperties' | 'maxProperties' | 'anyOf' | 'oneOf' | 'allOf' | 'const' | 'additionalProperties' | 'dependencies';
 interface DateTimePickerLabels {
@@ -596,7 +590,8 @@ interface TimePickerLabels {
 }
 interface LoadInitialValuesParams {
     ids: string[];
-    foreign_key: ForeignKeyProps;
+    customQueryFn: CustomQueryFn;
+    idColumn: string;
     setIdMap: React__default.Dispatch<React__default.SetStateAction<Record<string, object>>>;
 }
 interface LoadInitialValuesResult {
@@ -609,7 +604,8 @@ interface LoadInitialValuesResult {
 interface CustomJSONSchema7 extends JSONSchema7 {
     gridColumn?: string;
     gridRow?: string;
-    foreign_key?: ForeignKeyProps;
+    customQueryFn?: CustomQueryFn;
+    idColumn?: string;
     variant?: string;
     renderDisplay?: (item: unknown) => ReactNode;
     itemToValue?: (item: unknown) => string;
@@ -743,13 +739,11 @@ interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
     gridColumn: string;
     gridRow: string;
-    foreign_key: ForeignKeyProps$1;
+    customQueryFn: any;
+    idColumn: string;
     children: ReactNode;
 }
-declare const idPickerSanityCheck: (column: string, foreign_key?: {
-    table?: string | undefined;
-    column?: string | undefined;
-} | undefined) => void;
+declare const idPickerSanityCheck: (column: string, customQueryFn?: any, idColumn?: string) => void;
 declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DefaultFormProps<TData extends FieldValues> {

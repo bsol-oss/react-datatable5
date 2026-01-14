@@ -4275,16 +4275,12 @@ const clearEmptyString = (object) => {
     return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
 };
 
-const idPickerSanityCheck = (column, foreign_key) => {
-    if (!!foreign_key == false) {
-        throw new Error(`The key foreign_key does not exist in properties of column ${column} when using id-picker.`);
+const idPickerSanityCheck = (column, customQueryFn, idColumn) => {
+    if (!customQueryFn) {
+        throw new Error(`customQueryFn is required in properties of column ${column} when using id-picker.`);
     }
-    const { table, column: foreignKeyColumn } = foreign_key;
-    if (!!table == false) {
-        throw new Error(`The key table does not exist in properties of column ${table} when using id-picker.`);
-    }
-    if (!!foreignKeyColumn == false) {
-        throw new Error(`The key column does not exist in properties of column ${column} when using id-picker.`);
+    if (!idColumn) {
+        throw new Error(`idColumn is required in properties of column ${column} when using id-picker.`);
     }
 };
 const FormRoot = ({ schema, idMap, setIdMap, form, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, customSuccessRenderer, displayConfig = {
@@ -5971,13 +5967,13 @@ const defaultRenderDisplay = (item) => {
 const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     const { watch, getValues, formState: { errors }, setValue, } = useFormContext();
     const { idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
-    const { renderDisplay, itemToValue: schemaItemToValue, loadInitialValues, foreign_key, variant, } = schema;
+    const { renderDisplay, itemToValue: schemaItemToValue, loadInitialValues, customQueryFn, idColumn, variant, } = schema;
     // loadInitialValues should be provided in schema for id-picker fields
     // It's used to load the record of the id so the display is human-readable
     if (variant === 'id-picker' && !loadInitialValues) {
         console.warn(`loadInitialValues is recommended in schema for IdPicker field '${column}'. Please provide loadInitialValues function in the schema to load records for human-readable display.`);
     }
-    const { table, column: column_ref, customQueryFn, } = foreign_key;
+    const column_ref = idColumn || 'id';
     const [searchText, setSearchText] = useState('');
     const debouncedSearchText = useDebounce(searchText, 300);
     const [limit] = useState(50); // Increased limit for combobox
@@ -6036,7 +6032,8 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
             }
             const result = await loadInitialValues({
                 ids: missingIds,
-                foreign_key: foreign_key,
+                customQueryFn: customQueryFn,
+                idColumn: column_ref,
                 setIdMap,
             });
             return result.data;
@@ -6051,9 +6048,9 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     const query = useQuery({
         queryKey: [`idpicker`, { column, searchText: debouncedSearchText, limit }],
         queryFn: async () => {
-            // customQueryFn is required when serverUrl is not available
+            // customQueryFn is required
             if (!customQueryFn) {
-                throw new Error(`customQueryFn is required in foreign_key for table ${table}. serverUrl has been removed.`);
+                throw new Error(`customQueryFn is required in properties of column ${column} when using id-picker.`);
             }
             const { data, idMap } = await customQueryFn({
                 searching: debouncedSearchText ?? '',
@@ -8083,7 +8080,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {
     const colSchema = schema;
-    const { type, variant, properties: innerProperties, foreign_key, format, items, } = schema;
+    const { type, variant, properties: innerProperties, customQueryFn, idColumn, format, items, } = schema;
     if (variant === 'custom-input') {
         return jsx(CustomInput, { schema: colSchema, prefix, column });
     }
@@ -8092,7 +8089,7 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
             return jsx(EnumPicker, { schema: colSchema, prefix, column });
         }
         if (variant === 'id-picker') {
-            idPickerSanityCheck(column, foreign_key);
+            idPickerSanityCheck(column, customQueryFn, idColumn);
             return jsx(IdPickerSingle, { schema: colSchema, prefix, column });
         }
         if (format === 'date') {
@@ -8126,7 +8123,7 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
     }
     if (type === 'array') {
         if (variant === 'id-picker') {
-            idPickerSanityCheck(column, foreign_key);
+            idPickerSanityCheck(column, customQueryFn, idColumn);
             return jsx(IdPickerMultiple, { schema: colSchema, prefix, column });
         }
         if (variant === 'tag-picker') {

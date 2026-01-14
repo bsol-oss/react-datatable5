@@ -1,6 +1,6 @@
 import { JSONSchema7 } from 'json-schema';
 import { ReactNode } from 'react';
-import { ForeignKeyProps } from '../fields/StringInputField';
+import { CustomQueryFn } from '../fields/StringInputField';
 import { UseFormReturn } from 'react-hook-form';
 import React from 'react';
 export type ValidationErrorType = 'minLength' | 'maxLength' | 'pattern' | 'minimum' | 'maximum' | 'multipleOf' | 'format' | 'type' | 'enum' | 'required' | 'minItems' | 'maxItems' | 'uniqueItems' | 'minProperties' | 'maxProperties' | 'anyOf' | 'oneOf' | 'allOf' | 'const' | 'additionalProperties' | 'dependencies';
@@ -71,7 +71,8 @@ export interface TimePickerLabels {
 }
 export interface LoadInitialValuesParams {
     ids: string[];
-    foreign_key: ForeignKeyProps;
+    customQueryFn: CustomQueryFn;
+    idColumn: string;
     setIdMap: React.Dispatch<React.SetStateAction<Record<string, object>>>;
 }
 export interface LoadInitialValuesResult {
@@ -84,7 +85,8 @@ export interface LoadInitialValuesResult {
 export interface CustomJSONSchema7 extends JSONSchema7 {
     gridColumn?: string;
     gridRow?: string;
-    foreign_key?: ForeignKeyProps;
+    customQueryFn?: CustomQueryFn;
+    idColumn?: string;
     variant?: string;
     renderDisplay?: (item: unknown) => ReactNode;
     itemToValue?: (item: unknown) => string;
