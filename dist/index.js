@@ -8182,9 +8182,12 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         if (variant === 'enum-picker') {
             const { items } = colSchema;
             const { enum: enumItems } = items;
+            // Use renderDisplay from parent schema only
+            const renderDisplay = colSchema.renderDisplay;
             const enumSchema = {
                 type: 'string',
                 enum: enumItems,
+                ...(renderDisplay && { renderDisplay }),
             };
             return (jsxRuntime.jsx(EnumPicker, { isMultiple: true, schema: enumSchema, prefix, column }));
         }
