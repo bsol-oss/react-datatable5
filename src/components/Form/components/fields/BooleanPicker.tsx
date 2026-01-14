@@ -2,6 +2,7 @@ import { CheckboxCard } from '@/components/ui/checkbox-card';
 import { Field } from '@/components/ui/field';
 import { useFormContext } from 'react-hook-form';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { getNestedError } from '../../utils/getNestedError';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface DatePickerProps {
@@ -21,7 +22,7 @@ export const BooleanPicker = ({ schema, column, prefix }: DatePickerProps) => {
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
   const formI18n = useFormLabel(column, prefix, schema);
-  const fieldError = errors[colLabel]?.message;
+  const fieldError = getNestedError(errors, colLabel);
   return (
     <Field
       label={formI18n.label()}

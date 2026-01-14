@@ -9,6 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { getNestedError } from '../../utils/getNestedError';
 import { Field } from '../../../ui/field';
 import { useIdPickerData, RecordType } from './useIdPickerData';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
@@ -70,7 +71,7 @@ export const IdPickerMultiple = ({
   // Use renderDisplay from hook (which comes from schema) or fallback to default
   const renderDisplayFunction = renderDisplayFn || defaultRenderDisplay;
 
-  const fieldError = errors[colLabel]?.message;
+  const fieldError = getNestedError(errors, colLabel);
 
   return (
     <Field

@@ -11,6 +11,7 @@ import { useFormContext } from 'react-hook-form';
 import { MdDateRange } from 'react-icons/md';
 import { useSchemaContext } from '../../useSchemaContext';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { getNestedError } from '../../utils/getNestedError';
 import { InputDefaultProps } from './types';
 
 dayjs.extend(utc);
@@ -37,7 +38,7 @@ export const DateRangePicker = ({
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = formI18n.colLabel;
-  const fieldError = errors[colLabel]?.message;
+  const fieldError = getNestedError(errors, colLabel);
   const [open, setOpen] = useState(false);
   const selectedDateRange = watch(colLabel) as string[] | undefined;
 

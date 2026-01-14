@@ -24,6 +24,7 @@ import {
 } from '../types/CustomJSONSchema7';
 import { formatBytes } from '../../utils/formatBytes';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { getNestedError } from '../../utils/getNestedError';
 import { useSchemaContext } from '../../useSchemaContext';
 import { InputDefaultProps } from './types';
 import { MediaLibraryBrowser } from '../MediaLibraryBrowser';
@@ -307,7 +308,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
       : [];
 
   const colLabel = formI18n.colLabel;
-  const fieldError = errors[colLabel]?.message;
+  const fieldError = getNestedError(errors, colLabel);
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
 
   // FilePicker variant: Only handle File objects, no media library browser

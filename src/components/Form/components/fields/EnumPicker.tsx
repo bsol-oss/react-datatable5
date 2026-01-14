@@ -15,6 +15,7 @@ import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { getNestedError } from '../../utils/getNestedError';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface IdPickerProps {
@@ -43,7 +44,7 @@ export const EnumPicker = ({
   const isRequired = required?.some((columnId) => columnId === column);
   const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
   const colLabel = formI18n.colLabel;
-  const fieldError = errors[colLabel]?.message;
+  const fieldError = getNestedError(errors, colLabel);
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];
   const dataList = schema.enum ?? [];

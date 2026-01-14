@@ -1,6 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { getNestedError } from '../../utils/getNestedError';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { Textarea } from '@/components/TextArea/TextArea';
 
@@ -23,7 +24,7 @@ export const TextAreaInput = ({
   const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
-  const fieldError = errors[colLabel]?.message;
+  const fieldError = getNestedError(errors, colLabel);
   const formI18n = useFormLabel(column, prefix, schema);
 
   const watchValue = watch(colLabel);

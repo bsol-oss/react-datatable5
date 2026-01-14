@@ -326,14 +326,105 @@ const ComprehensiveForm = () => {
             type: 'string',
             minLength: 5,
             title: 'Street',
+            errorMessages: {
+              required: 'Street address is required',
+              minLength: 'Street must be at least 5 characters',
+            },
           },
           city: {
             type: 'string',
+            minLength: 2,
             title: 'City',
+            errorMessages: {
+              required: 'City is required',
+              minLength: 'City name is too short',
+            },
+          },
+          postalCode: {
+            type: 'string',
+            pattern: '^[0-9]{5}(-[0-9]{4})?$',
+            title: 'Postal Code',
+            errorMessages: {
+              required: 'Postal code is required',
+              pattern: 'Invalid postal code format (use 12345 or 12345-6789)',
+            },
+          },
+          country: {
+            type: 'string',
+            enum: ['USA', 'Canada', 'UK', 'Australia'],
+            title: 'Country',
+            errorMessages: {
+              required: 'Please select a country',
+            },
           },
         },
-        required: ['street', 'city'],
-        title: 'Nested Object Input',
+        required: ['street', 'city', 'postalCode', 'country'],
+        title: 'Nested Object Input (Address)',
+      },
+      deeplyNestedObject: {
+        type: 'object',
+        properties: {
+          contactInfo: {
+            type: 'object',
+            properties: {
+              email: {
+                type: 'string',
+                format: 'email',
+                title: 'Email',
+                errorMessages: {
+                  required: 'Email is required',
+                  format: 'Invalid email format',
+                },
+              },
+              phone: {
+                type: 'string',
+                pattern: '^[0-9]{10}$',
+                title: 'Phone',
+                errorMessages: {
+                  required: 'Phone number is required',
+                  pattern: 'Phone must be 10 digits',
+                },
+              },
+            },
+            required: ['email', 'phone'],
+            title: 'Contact Information',
+          },
+          emergencyContact: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+                minLength: 2,
+                title: 'Emergency Contact Name',
+                errorMessages: {
+                  required: 'Emergency contact name is required',
+                  minLength: 'Name must be at least 2 characters',
+                },
+              },
+              relationship: {
+                type: 'string',
+                enum: ['Parent', 'Spouse', 'Sibling', 'Friend', 'Other'],
+                title: 'Relationship',
+                errorMessages: {
+                  required: 'Please select a relationship',
+                },
+              },
+              phoneNumber: {
+                type: 'string',
+                pattern: '^[0-9]{10}$',
+                title: 'Phone Number',
+                errorMessages: {
+                  required: 'Emergency phone is required',
+                  pattern: 'Phone must be 10 digits',
+                },
+              },
+            },
+            required: ['name', 'relationship', 'phoneNumber'],
+            title: 'Emergency Contact',
+          },
+        },
+        required: ['contactInfo', 'emergencyContact'],
+        title: 'Deeply Nested Object',
       },
       recordInput: {
         type: 'object',
@@ -359,6 +450,7 @@ const ComprehensiveForm = () => {
       'mediaLibraryMultiple',
       'simpleArrayInput',
       'nestedObjectInput',
+      'deeplyNestedObject',
       'recordInput',
     ],
   } as JSONSchema7;

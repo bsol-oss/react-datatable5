@@ -18,6 +18,7 @@ import {
   FilePickerMediaFile,
 } from '../types/CustomJSONSchema7';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { getNestedError } from '../../utils/getNestedError';
 import { useSchemaContext } from '../../useSchemaContext';
 import { InputDefaultProps } from './types';
 import { MediaBrowserDialog } from './FilePicker';
@@ -57,7 +58,7 @@ export const FormMediaLibraryBrowser = ({
       : [];
 
   const colLabel = formI18n.colLabel;
-  const fieldError = errors[colLabel]?.message;
+  const fieldError = getNestedError(errors, colLabel);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
   // Map of file ID to FilePickerMediaFile for display

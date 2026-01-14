@@ -13,6 +13,7 @@ import {
   useCombobox,
 } from '@chakra-ui/react';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { getNestedError } from '../../utils/getNestedError';
 import { Field } from '../../../ui/field';
 import { useIdPickerData, RecordType } from './useIdPickerData';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
@@ -103,7 +104,7 @@ export const IdPickerSingle = ({
     ? renderDisplayFunction(selectedItem)
     : null;
 
-  const fieldError = errors[colLabel]?.message;
+  const fieldError = getNestedError(errors, colLabel);
 
   return (
     <Field

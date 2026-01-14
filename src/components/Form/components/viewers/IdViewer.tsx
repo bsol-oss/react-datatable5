@@ -4,6 +4,7 @@ import { useFormContext } from 'react-hook-form';
 import { Field } from '../../../ui/field';
 import { useSchemaContext } from '../../useSchemaContext';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { getNestedError } from '../../utils/getNestedError';
 import {
   CustomJSONSchema7,
   defaultRenderDisplay,
@@ -37,7 +38,7 @@ export const IdViewer = ({
   const formI18n = useFormLabel(column, prefix, schema);
 
   const colLabel = `${prefix}${column}`;
-  const fieldError = errors[colLabel]?.message;
+  const fieldError = getNestedError(errors, colLabel);
   const watchId = watch(colLabel);
   const watchIds = (watch(colLabel) ?? []) as string[];
 

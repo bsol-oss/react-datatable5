@@ -10,6 +10,7 @@ import { useFormContext } from 'react-hook-form';
 import { MdDateRange } from 'react-icons/md';
 import { useSchemaContext } from '../../useSchemaContext';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { getNestedError } from '../../utils/getNestedError';
 import { InputDefaultProps } from './types';
 import { InputGroup } from '@/components/ui/input-group';
 
@@ -34,7 +35,7 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = formI18n.colLabel;
-  const fieldError = errors[colLabel]?.message;
+  const fieldError = getNestedError(errors, colLabel);
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const selectedDate = watch(colLabel);
