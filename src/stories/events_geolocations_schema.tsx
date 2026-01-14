@@ -59,7 +59,6 @@ export const eventGeolocationsSchema = {
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'id-picker',
-      in_table: 'core_events',
       column_ref: 'id',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
@@ -75,7 +74,6 @@ export const eventGeolocationsSchema = {
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'id-picker',
-      in_table: 'core_geolocations',
       column_ref: 'id',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },

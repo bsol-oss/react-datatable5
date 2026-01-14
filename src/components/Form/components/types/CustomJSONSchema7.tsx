@@ -2,8 +2,30 @@ import { JSONSchema7 } from 'json-schema';
 import { ReactNode } from 'react';
 import { ForeignKeyProps } from '../fields/StringInputField';
 import { UseFormReturn } from 'react-hook-form';
-import { ValidationErrorType } from '../../utils/buildErrorMessages';
 import React from 'react';
+
+export type ValidationErrorType =
+  | 'minLength'
+  | 'maxLength'
+  | 'pattern'
+  | 'minimum'
+  | 'maximum'
+  | 'multipleOf'
+  | 'format'
+  | 'type'
+  | 'enum'
+  | 'required'
+  | 'minItems'
+  | 'maxItems'
+  | 'uniqueItems'
+  | 'minProperties'
+  | 'maxProperties'
+  | 'anyOf'
+  | 'oneOf'
+  | 'allOf'
+  | 'const'
+  | 'additionalProperties'
+  | 'dependencies';
 
 export interface DateTimePickerLabels {
   monthNamesShort?: string[]; // Array of 12 month names
@@ -118,7 +140,6 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
   filePicker?: FilePickerProps;
   tagPicker?: {
     queryFn?: (params: {
-      in_table: string;
       where?: { id: string; value: string[] }[];
       limit?: number;
       offset?: number;

@@ -1,19 +1,18 @@
 import { AxiosRequestConfig } from 'axios';
-import { JSONSchema7 } from 'json-schema';
 import { createContext, Dispatch, ReactNode, SetStateAction } from 'react';
 import { FieldValues } from 'react-hook-form';
-import { Translate } from './useForm';
 import {
+  CustomJSONSchema7,
   DateTimePickerLabels,
-  IdPickerLabels,
   EnumPickerLabels,
   FilePickerLabels,
   FormButtonLabels,
+  IdPickerLabels,
   TimePickerLabels,
 } from './components/types/CustomJSONSchema7';
 
 export interface SchemaFormContext<TData extends FieldValues> {
-  schema: JSONSchema7;
+  schema: CustomJSONSchema7;
   requestUrl: string;
   order: string[];
   ignore: string[];
@@ -22,8 +21,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
   rowNumber?: number | string;
   idMap: Record<string, object>;
   setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
-  /** Translate object for fallback text (components prefer label objects) */
-  translate: Translate;
   requestOptions: AxiosRequestConfig;
   isSuccess: boolean;
   setIsSuccess: Dispatch<SetStateAction<boolean>>;
@@ -61,18 +58,13 @@ export interface SchemaFormContext<TData extends FieldValues> {
 
 //@ts-expect-error TODO: find appropriate type
 export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
-  schema: {} as JSONSchema7,
+  schema: {} as CustomJSONSchema7,
   requestUrl: '',
   order: [],
   ignore: [],
   include: [],
   onSubmit: async () => {},
   rowNumber: 0,
-  /** Default translate fallback - returns key as-is */
-  translate: {
-    t: (key: string) => key,
-    ready: true,
-  } as Translate,
   requestOptions: {},
   timezone: 'Asia/Hong_Kong',
   displayConfig: {

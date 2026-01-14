@@ -42,13 +42,7 @@ export const TagPicker = ({ column, schema, prefix }: TagPickerProps) => {
   if (schema.properties == undefined) {
     throw new Error('schema properties undefined when using DatePicker');
   }
-  const { gridColumn, gridRow, in_table, object_id_column, tagPicker } = schema;
-  if (in_table === undefined) {
-    throw new Error('in_table is undefined when using TagPicker');
-  }
-  if (object_id_column === undefined) {
-    throw new Error('object_id_column is undefined when using TagPicker');
-  }
+  const { gridColumn, gridRow, tagPicker } = schema;
   if (!tagPicker?.queryFn) {
     throw new Error(
       'tagPicker.queryFn is required in schema. serverUrl has been removed.'
@@ -56,16 +50,10 @@ export const TagPicker = ({ column, schema, prefix }: TagPickerProps) => {
   }
 
   const query = useQuery<TagResponse>({
-    queryKey: [`tagpicker`, in_table],
+    queryKey: [`tagpicker`],
     queryFn: async () => {
       const result = await tagPicker.queryFn!({
-        in_table: 'tables_tags_view',
-        where: [
-          {
-            id: 'table_name',
-            value: [in_table],
-          },
-        ],
+        where: [],
         limit: 100,
         offset: 0,
         searching: '',
@@ -74,15 +62,14 @@ export const TagPicker = ({ column, schema, prefix }: TagPickerProps) => {
     },
     staleTime: 10000,
   });
-  const object_id = watch(object_id_column);
+  const object_id = watch(column);
   const existingTagsQuery = useQuery({
-    queryKey: [`existing`, { in_table, object_id_column }, object_id],
+    queryKey: [`existing`, object_id],
     queryFn: async () => {
       const result = await tagPicker.queryFn!({
-        in_table: in_table,
         where: [
           {
-            id: object_id_column,
+            id: column,
             value: [object_id[0]],
           },
         ],

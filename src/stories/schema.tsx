@@ -169,7 +169,6 @@ export const membershipSchema = {
       type: 'string',
       format: 'uuid',
       variant: 'id-picker',
-      in_table: 'core_people',
       column_ref: 'id',
       title: 'Person',
       description:
@@ -225,7 +224,6 @@ export const membershipSchema = {
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'id-picker',
-      in_table: 'core_people',
       column_ref: 'id',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
@@ -309,7 +307,6 @@ export const rewardPointsTransactionsSchema = {
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'id-picker',
-      in_table: 'core_memberships',
       column_ref: 'id',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
@@ -320,7 +317,6 @@ export const rewardPointsTransactionsSchema = {
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'id-picker',
-      in_table: 'core_people',
       column_ref: 'id',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
@@ -588,8 +584,6 @@ export const eventsTagsSchema = {
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'tag-picker',
-      in_table: 'events_tags',
-      object_id_column: 'event_id',
       gridColumn: '1/span 12',
       gridRow: '2/span 1',
     },
@@ -600,7 +594,6 @@ export const eventsTagsSchema = {
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'id-picker',
-      in_table: 'core_events',
       column_ref: 'id',
       gridColumn: '1/span 6',
       gridRow: '1/span 1',
@@ -638,8 +631,6 @@ export const membershipsSchema = {
       description:
         'Missing description. Database type: uuid. Default value: null',
       variant: 'tag-picker',
-      in_table: 'memberships_tags',
-      object_id_column: 'membership_id',
       gridColumn: '1/span 12',
       gridRow: '2/span 1',
     },
@@ -661,7 +652,6 @@ export const membershipsSchema = {
       gridColumn: '1/span 6',
       gridRow: '1/span 1',
       variant: 'id-picker',
-      in_table: 'core_memberships',
       column_ref: 'id',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },

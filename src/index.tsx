@@ -146,7 +146,6 @@ export * from './components/Form/components/core/FormBody';
 export * from './components/Form/components/types/CustomJSONSchema7';
 export * from './components/Form/components/MediaLibraryBrowser';
 export * from './components/Form/useForm';
-export * from './components/Form/utils/buildErrorMessages';
 
 // DatePicker
 export * from './components/DatePicker/DatePicker';

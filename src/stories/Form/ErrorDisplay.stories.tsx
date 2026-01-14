@@ -4,7 +4,6 @@ import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
-import { buildErrorMessages } from '@/components/Form/utils/buildErrorMessages';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -438,56 +437,6 @@ const ComplexForm = () => {
 
 // Traditional Chinese error messages form
 const TraditionalChineseForm = () => {
-  const errorMessage = buildErrorMessages({
-    required: {
-      使用者名稱: '使用者名稱為必填欄位',
-      電子郵件: '電子郵件為必填欄位',
-      密碼: '密碼為必填欄位',
-      確認密碼: '確認密碼為必填欄位',
-      年齡: '年齡為必填欄位',
-      電話號碼: '電話號碼為必填欄位',
-      網站網址: '網站網址為必填欄位',
-      描述: '描述為必填欄位',
-    },
-    properties: {
-      使用者名稱: {
-        minLength: '使用者名稱至少需要 3 個字元',
-        maxLength: '使用者名稱不能超過 20 個字元',
-        pattern: '使用者名稱只能包含英文字母、數字和底線',
-      },
-      電子郵件: {
-        format: '請輸入有效的電子郵件地址',
-      },
-      密碼: {
-        minLength: '密碼至少需要 8 個字元',
-        pattern: '密碼必須包含至少一個大寫字母、一個小寫字母和一個數字',
-      },
-      確認密碼: {
-        pattern: '密碼必須包含至少一個大寫字母、一個小寫字母和一個數字',
-      },
-      年齡: {
-        minimum: '年齡必須至少 18 歲',
-        maximum: '年齡不能超過 120 歲',
-      },
-      網站網址: {
-        format: '請輸入有效的網址',
-      },
-      描述: {
-        minLength: '描述至少需要 10 個字元',
-        maxLength: '描述不能超過 500 個字元',
-      },
-    },
-    // Global fallback messages in Traditional Chinese
-    minLength: '此欄位太短',
-    maxLength: '此欄位太長',
-    pattern: '格式不符合要求',
-    minimum: '數值太小',
-    maximum: '數值太大',
-    format: '格式無效',
-    type: '類型錯誤',
-    enum: '請選擇有效的選項',
-  });
-
   const schema = {
     type: 'object',
     properties: {
@@ -547,7 +496,6 @@ const TraditionalChineseForm = () => {
       '網站網址',
       '描述',
     ],
-    errorMessage,
   } as JSONSchema7;
 
   const form = useForm({

@@ -252,7 +252,6 @@ const SomeForm = () => {
       // Note: getTableData no longer accepts serverUrl. Use customQueryFn in foreign_key instead.
       // const data = await getTableData({
       //   searching: 'e8ad43bf-e00f-4633-b334-68c0f3fd6ead',
-      //   in_table: 'core_activities',
       //   limit: 10,
       //   offset: 0,
       // });
@@ -327,7 +326,6 @@ const SomeForm = () => {
             // Note: getTableData no longer accepts serverUrl. Use customQueryFn in foreign_key instead.
             // const response = await getTableData({
             //   searching: 'e8ad43bf-e00f-4633-b334-68c0f3fd6ead',
-            //   in_table: 'core_activities',
             //   limit: 10,
             //   offset: 0,
             // });

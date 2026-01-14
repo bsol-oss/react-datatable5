@@ -21,6 +21,31 @@ import {
 } from '../types/CustomJSONSchema7';
 
 export interface FormRootProps<TData extends FieldValues> {
+  /**
+   * JSON Schema with support for errorMessages in properties.
+   * Each property can define errorMessages object with keys like:
+   * - required: Error message when field is required but missing
+   * - minLength, maxLength: Error messages for string length validation
+   * - minimum, maximum: Error messages for number range validation
+   * - format: Error message for format validation (email, date, etc.)
+   * - pattern: Error message for pattern validation
+   * - type: Error message for type validation
+   *
+   * @example
+   * {
+   *   type: 'object',
+   *   properties: {
+   *     username: {
+   *       type: 'string',
+   *       minLength: 3,
+   *       errorMessages: {
+   *         required: 'Username is required',
+   *         minLength: 'Username must be at least 3 characters'
+   *       }
+   *     }
+   *   }
+   * }
+   */
   schema: CustomJSONSchema7;
   requestUrl?: string;
   idMap: Record<string, object>;
@@ -55,8 +80,6 @@ export interface FormRootProps<TData extends FieldValues> {
 
 export interface CustomJSONSchema7Definition extends JSONSchema7 {
   variant: string;
-  in_table: string;
-  column_ref: string;
   gridColumn: string;
   gridRow: string;
   foreign_key: ForeignKeyProps;

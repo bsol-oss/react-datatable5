@@ -5,7 +5,6 @@ import { Box, Text, VStack, HStack, Button, Dialog } from '@chakra-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
-import { buildErrorMessages } from '@/components/Form/utils/buildErrorMessages';
 import { useState } from 'react';
 import { DateTimePicker } from '@/components/DatePicker/DateTimePicker';
 
@@ -392,12 +391,6 @@ const ValidationDateTimeForm = () => {
     preLoadedValues: {},
   });
 
-  const errorMessage = buildErrorMessages({
-    required: {
-      eventDateTime: 'Event date and time is required',
-    },
-  });
-
   const schema = {
     type: 'object',
     properties: {
@@ -411,7 +404,6 @@ const ValidationDateTimeForm = () => {
       },
     },
     required: ['eventDateTime'],
-    errorMessage,
   } as JSONSchema7;
 
   return (

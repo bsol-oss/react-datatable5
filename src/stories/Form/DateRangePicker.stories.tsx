@@ -5,7 +5,6 @@ import { Box, Text, VStack } from '@chakra-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
-import { buildErrorMessages } from '@/components/Form/utils/buildErrorMessages';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -216,12 +215,6 @@ const ValidationDateRangeForm = () => {
     preLoadedValues: {},
   });
 
-  const errorMessage = buildErrorMessages({
-    required: {
-      dateRange: 'Date range is required',
-    },
-  });
-
   const schema = {
     type: 'object',
     properties: {
@@ -237,7 +230,6 @@ const ValidationDateRangeForm = () => {
       },
     },
     required: ['dateRange'],
-    errorMessage,
   } as JSONSchema7;
 
   return (
