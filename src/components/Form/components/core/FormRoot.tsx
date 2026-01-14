@@ -68,7 +68,6 @@ export interface FormRootProps<TData extends FieldValues> {
     showResetButton?: boolean;
     showTitle?: boolean;
   };
-  requireConfirmation?: boolean;
   dateTimePickerLabels?: DateTimePickerLabels;
   idPickerLabels?: IdPickerLabels;
   enumPickerLabels?: EnumPickerLabels;
@@ -132,7 +131,6 @@ export const FormRoot = <TData extends FieldValues>({
     showResetButton: true,
     showTitle: true,
   },
-  requireConfirmation = false,
   dateTimePickerLabels,
   idPickerLabels,
   enumPickerLabels,
@@ -144,7 +142,6 @@ export const FormRoot = <TData extends FieldValues>({
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
-  const [isConfirming, setIsConfirming] = useState<boolean>(false);
   const [validatedData, setValidatedData] = useState<unknown>();
   const [error, setError] = useState<unknown>();
 
@@ -220,8 +217,6 @@ export const FormRoot = <TData extends FieldValues>({
         setIsError,
         isSubmiting,
         setIsSubmiting,
-        isConfirming,
-        setIsConfirming,
         validatedData,
         setValidatedData,
         error,
@@ -230,7 +225,6 @@ export const FormRoot = <TData extends FieldValues>({
         customErrorRenderer,
         customSuccessRenderer,
         displayConfig,
-        requireConfirmation,
         onFormSubmit,
         dateTimePickerLabels,
         idPickerLabels,

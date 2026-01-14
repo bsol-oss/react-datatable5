@@ -28,8 +28,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
   setIsError: Dispatch<SetStateAction<boolean>>;
   isSubmiting: boolean;
   setIsSubmiting: Dispatch<SetStateAction<boolean>>;
-  isConfirming: boolean;
-  setIsConfirming: Dispatch<SetStateAction<boolean>>;
   validatedData: TData | undefined;
   setValidatedData: Dispatch<SetStateAction<TData>>;
   error: unknown;
@@ -45,7 +43,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
     showResetButton?: boolean;
     showTitle?: boolean;
   };
-  requireConfirmation: boolean;
   onFormSubmit: (data: TData) => Promise<void>;
   dateTimePickerLabels?: DateTimePickerLabels;
   idPickerLabels?: IdPickerLabels;
@@ -72,6 +69,5 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
     showResetButton: true,
     showTitle: true,
   },
-  requireConfirmation: false,
   onFormSubmit: async () => {},
 });

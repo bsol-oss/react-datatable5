@@ -1,8 +1,7 @@
-import { Box, Button, Center, Flex, Grid, Spinner } from '@chakra-ui/react';
+import { Button, Flex, Grid } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 import { ColumnRenderer } from '../fields/ColumnRenderer';
-import { ColumnViewer } from '../viewers/ColumnViewer';
 import { SubmitButton } from './SubmitButton';
 
 export const FormBody = () => {
@@ -12,14 +11,9 @@ export const FormBody = () => {
     ignore,
     include,
     isError,
-    isSubmiting,
-    isConfirming,
-    setIsConfirming,
-    validatedData,
     error,
     customErrorRenderer,
     displayConfig,
-    onFormSubmit,
     formButtonLabels,
   } = useSchemaContext();
   const { showSubmitButton, showResetButton } = displayConfig;
@@ -60,56 +54,6 @@ export const FormBody = () => {
     include,
   });
 
-  if (isConfirming) {
-    return (
-      <Flex flexFlow={'column'} gap="2">
-        <Grid
-          gap={4}
-          gridTemplateColumns={'repeat(12, 1fr)'}
-          gridTemplateRows={'repeat(12, max-content)'}
-          autoFlow={'row'}
-        >
-          {ordered.map((column) => {
-            return (
-              <ColumnViewer
-                // @ts-expect-error find suitable types
-                properties={properties}
-                prefix={``}
-                key={`form-viewer-${column}`}
-                {...{ column }}
-              />
-            );
-          })}
-        </Grid>
-        <Flex justifyContent={'end'} gap={'2'}>
-          <Button
-            onClick={() => {
-              setIsConfirming(false);
-            }}
-            variant={'subtle'}
-          >
-            {formButtonLabels?.cancel ?? 'Cancel'}
-          </Button>
-          <Button
-            onClick={() => {
-              onFormSubmit(validatedData);
-            }}
-          >
-            {formButtonLabels?.confirm ?? 'Confirm'}
-          </Button>
-        </Flex>
-
-        {isSubmiting && (
-          <Box pos="absolute" inset="0" bg="bg/80">
-            <Center h="full">
-              <Spinner color="teal.500" />
-            </Center>
-          </Box>
-        )}
-        {isError && customErrorRenderer && customErrorRenderer(error)}
-      </Flex>
-    );
-  }
   return (
     <Flex flexFlow={'column'} gap="2">
       <Grid gap="4" gridTemplateColumns={'repeat(12, 1fr)'} autoFlow={'row'}>
