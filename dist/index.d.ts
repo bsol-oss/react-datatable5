@@ -11,7 +11,7 @@ import { JSONSchema7 } from 'json-schema';
 import { ForeignKeyProps as ForeignKeyProps$1 } from '@/components/Form/components/fields/StringInputField';
 import { AxiosRequestConfig } from 'axios';
 import * as react_hook_form from 'react-hook-form';
-import { FieldValues, UseFormReturn, SubmitHandler } from 'react-hook-form';
+import { UseFormReturn, FieldValues, SubmitHandler } from 'react-hook-form';
 
 interface TableHeaderTexts {
     pinColumn?: string;
@@ -502,22 +502,6 @@ interface GetColumnsConfigs<K extends RowData> {
 declare const widthSanityCheck: <K extends unknown>(widthList: number[], ignoreList: K[], properties: { [key in K as string]?: object | undefined; }) => void;
 declare const getColumns: <TData extends unknown>({ schema, include, ignore, width, meta, defaultWidth, }: GetColumnsConfigs<TData>) => ColumnDef<TData>[];
 
-interface Translate {
-    t: (key: string, options?: any) => string;
-    i18n?: any;
-    ready?: boolean;
-}
-interface UseFormProps {
-    preLoadedValues?: FieldValues | undefined;
-    schema?: JSONSchema7;
-}
-declare const useForm: ({ preLoadedValues, schema }: UseFormProps) => {
-    form: react_hook_form.UseFormReturn<FieldValues, any, undefined>;
-    idMap: Record<string, object>;
-    setIdMap: React$1.Dispatch<React$1.SetStateAction<Record<string, object>>>;
-    translate: Translate;
-};
-
 interface CustomQueryFnResponse {
     /**
      * The data of the query
@@ -544,234 +528,13 @@ interface ForeignKeyProps {
     customQueryFn?: CustomQueryFn;
 }
 
-/**
- * Type definitions for error message configuration
- */
-/**
- * Common validation error types that can be customized
- */
 type ValidationErrorType = 'minLength' | 'maxLength' | 'pattern' | 'minimum' | 'maximum' | 'multipleOf' | 'format' | 'type' | 'enum' | 'required' | 'minItems' | 'maxItems' | 'uniqueItems' | 'minProperties' | 'maxProperties' | 'anyOf' | 'oneOf' | 'allOf' | 'const' | 'additionalProperties' | 'dependencies';
-/**
- * Configuration for field-specific validation errors
- */
-type FieldErrorConfig = Partial<Record<ValidationErrorType, string>>;
-/**
- * Configuration for building error messages
- */
-interface ErrorMessageConfig {
-    /**
-     * Required field error messages
-     * Maps field names to their required error messages
-     * Supports both plain strings and i18n translation keys
-     *
-     * @example
-     * ```typescript
-     * required: {
-     *   username: "Username is required", // plain string
-     *   email: "user.email.field_required" // i18n key
-     * }
-     * ```
-     */
-    required?: Record<string, string>;
-    /**
-     * Field-specific validation error messages
-     * Maps field names to their validation error configurations
-     *
-     * @example
-     * ```typescript
-     * properties: {
-     *   username: {
-     *     minLength: "Username must be at least 3 characters",
-     *     pattern: "Username can only contain letters and numbers"
-     *   },
-     *   age: {
-     *     minimum: "Age must be at least 18",
-     *     maximum: "Age cannot exceed 120"
-     *   }
-     * }
-     * ```
-     */
-    properties?: Record<string, FieldErrorConfig>;
-    /**
-     * Global fallback error messages for validation types
-     * These are used when no field-specific message is provided
-     *
-     * @example
-     * ```typescript
-     * {
-     *   minLength: "This field is too short",
-     *   minimum: "Value is too small"
-     * }
-     * ```
-     */
-    [key: string]: any;
-}
-/**
- * Result of buildErrorMessages that follows ajv-errors format
- */
-interface ErrorMessageResult {
-    required?: Record<string, string>;
-    properties?: Record<string, FieldErrorConfig>;
-    [key: string]: any;
-}
-/**
- * Schema-level error message builder
- *
- * Builds a complete errorMessage object compatible with ajv-errors plugin.
- * Supports both i18n translation keys and plain string messages.
- *
- * @param config - Error message configuration
- * @returns Complete errorMessage object for JSON Schema
- *
- * @example
- * ```typescript
- * // Simple required field errors
- * const errorMessage = buildErrorMessages({
- *   required: {
- *     username: "Username is required",
- *     email: "user.email.field_required" // i18n key
- *   }
- * });
- *
- * // With validation rules
- * const errorMessage = buildErrorMessages({
- *   required: {
- *     password: "Password is required"
- *   },
- *   properties: {
- *     password: {
- *       minLength: "Password must be at least 8 characters",
- *       pattern: "Password must contain letters and numbers"
- *     },
- *     age: {
- *       minimum: "Must be 18 or older",
- *       maximum: "Must be under 120"
- *     }
- *   }
- * });
- *
- * // With global fallbacks
- * const errorMessage = buildErrorMessages({
- *   required: {
- *     email: "Email is required"
- *   },
- *   minLength: "This field is too short", // applies to all fields
- *   minimum: "Value is too small"
- * });
- * ```
- */
-declare const buildErrorMessages: (config: ErrorMessageConfig) => ErrorMessageResult;
-/**
- * Converts buildErrorMessages result to ajv-errors compatible format
- */
-declare const convertToAjvErrorsFormat: (errorMessages: ErrorMessageResult) => Record<string, any>;
-/**
- * Helper function to build required field errors
- *
- * Simplifies creating required field error messages, especially useful
- * for generating i18n translation keys following a pattern.
- *
- * @param fields - Array of required field names
- * @param messageOrGenerator - Either a string template or function to generate messages
- * @returns Required field error configuration
- *
- * @example
- * ```typescript
- * // Plain string messages
- * const required = buildRequiredErrors(
- *   ["username", "email", "password"],
- *   (field) => `${field} is required`
- * );
- * // Result: { username: "username is required", email: "email is required", ... }
- *
- * // i18n translation keys
- * const required = buildRequiredErrors(
- *   ["username", "email"],
- *   (field) => `user.${field}.field_required`
- * );
- * // Result: { username: "user.username.field_required", email: "user.email.field_required" }
- *
- * // Same message for all fields
- * const required = buildRequiredErrors(
- *   ["username", "email"],
- *   "This field is required"
- * );
- * // Result: { username: "This field is required", email: "This field is required" }
- *
- * // With prefix in generator function
- * const required = buildRequiredErrors(
- *   ["username", "email"],
- *   (field) => `user.${field}.field_required`
- * );
- * // Result: { username: "user.username.field_required", email: "user.email.field_required" }
- * ```
- */
-declare const buildRequiredErrors: (fields: string[], messageOrGenerator: string | ((field: string) => string)) => Record<string, string>;
-/**
- * Helper function to build field-specific validation errors
- *
- * Creates property-specific error messages for multiple fields at once.
- *
- * @param config - Maps field names to their validation error configurations
- * @returns Properties error configuration
- *
- * @example
- * ```typescript
- * const properties = buildFieldErrors({
- *   username: {
- *     minLength: "Username must be at least 3 characters",
- *     pattern: "Username can only contain letters and numbers"
- *   },
- *   age: {
- *     minimum: "Must be 18 or older",
- *     maximum: "Must be under 120"
- *   },
- *   email: {
- *     format: "Please enter a valid email address"
- *   }
- * });
- * ```
- */
-declare const buildFieldErrors: (config: Record<string, FieldErrorConfig>) => Record<string, FieldErrorConfig>;
-/**
- * Helper function to create a complete error message configuration in one call
- *
- * Convenient wrapper that combines required and validation errors.
- *
- * @param required - Required field error messages
- * @param properties - Field-specific validation error messages
- * @param globalFallbacks - Global fallback error messages
- * @returns Complete error message configuration
- *
- * @example
- * ```typescript
- * const errorMessage = createErrorMessage(
- *   {
- *     username: "Username is required",
- *     email: "Email is required"
- *   },
- *   {
- *     username: {
- *       minLength: "Username must be at least 3 characters"
- *     },
- *     email: {
- *       format: "Please enter a valid email"
- *     }
- *   },
- *   {
- *     minLength: "This field is too short",
- *     format: "Invalid format"
- *   }
- * );
- * ```
- */
-declare const createErrorMessage: (required?: Record<string, string>, properties?: Record<string, FieldErrorConfig>, globalFallbacks?: Partial<Record<ValidationErrorType, string>>) => ErrorMessageResult;
-
 interface DateTimePickerLabels {
     monthNamesShort?: string[];
     weekdayNamesShort?: string[];
     backButtonLabel?: string;
     forwardButtonLabel?: string;
+    selectDateLabel?: string;
     quickActionLabels?: {
         yesterday?: string;
         today?: string;
@@ -829,6 +592,7 @@ interface FormButtonLabels {
 interface TimePickerLabels {
     placeholder?: string;
     emptyMessage?: string;
+    selectTimeLabel?: string;
 }
 interface LoadInitialValuesParams {
     ids: string[];
@@ -873,7 +637,6 @@ interface CustomJSONSchema7 extends JSONSchema7 {
     filePicker?: FilePickerProps;
     tagPicker?: {
         queryFn?: (params: {
-            in_table: string;
             where?: {
                 id: string;
                 value: string[];
@@ -923,13 +686,36 @@ interface FilePickerProps {
 }
 
 interface FormRootProps<TData extends FieldValues> {
+    /**
+     * JSON Schema with support for errorMessages in properties.
+     * Each property can define errorMessages object with keys like:
+     * - required: Error message when field is required but missing
+     * - minLength, maxLength: Error messages for string length validation
+     * - minimum, maximum: Error messages for number range validation
+     * - format: Error message for format validation (email, date, etc.)
+     * - pattern: Error message for pattern validation
+     * - type: Error message for type validation
+     *
+     * @example
+     * {
+     *   type: 'object',
+     *   properties: {
+     *     username: {
+     *       type: 'string',
+     *       minLength: 3,
+     *       errorMessages: {
+     *         required: 'Username is required',
+     *         minLength: 'Username must be at least 3 characters'
+     *       }
+     *     }
+     *   }
+     * }
+     */
     schema: CustomJSONSchema7;
     requestUrl?: string;
     idMap: Record<string, object>;
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
     form: UseFormReturn;
-    /** Translate object for fallback text (components prefer label objects) */
-    translate: Translate;
     children: ReactNode;
     order?: string[];
     ignore?: string[];
@@ -945,7 +731,6 @@ interface FormRootProps<TData extends FieldValues> {
         showResetButton?: boolean;
         showTitle?: boolean;
     };
-    requireConfirmation?: boolean;
     dateTimePickerLabels?: DateTimePickerLabels;
     idPickerLabels?: IdPickerLabels;
     enumPickerLabels?: EnumPickerLabels;
@@ -956,8 +741,6 @@ interface FormRootProps<TData extends FieldValues> {
 }
 interface CustomJSONSchema7Definition extends JSONSchema7 {
     variant: string;
-    in_table: string;
-    column_ref: string;
     gridColumn: string;
     gridRow: string;
     foreign_key: ForeignKeyProps$1;
@@ -967,7 +750,7 @@ declare const idPickerSanityCheck: (column: string, foreign_key?: {
     table?: string | undefined;
     column?: string | undefined;
 } | undefined) => void;
-declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, translate, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, requireConfirmation, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DefaultFormProps<TData extends FieldValues> {
     formConfig: Omit<FormRootProps<TData>, "children">;
@@ -999,6 +782,21 @@ type MediaLibraryBrowserPropsMultiple = MediaLibraryBrowserPropsBase & {
 };
 type MediaLibraryBrowserProps = MediaLibraryBrowserPropsSingle | MediaLibraryBrowserPropsMultiple;
 declare const MediaLibraryBrowser: ({ onFetchFiles, filterImageOnly, labels, enabled, multiple, onFileSelect, selectedFile: controlledSelectedFile, onSelectedFileChange, }: MediaLibraryBrowserProps) => react_jsx_runtime.JSX.Element | null;
+
+interface Translate {
+    t: (key: string, options?: any) => string;
+    i18n?: any;
+    ready?: boolean;
+}
+interface UseFormProps {
+    preLoadedValues?: FieldValues | undefined;
+    schema?: JSONSchema7;
+}
+declare const useForm: ({ preLoadedValues, schema }: UseFormProps) => {
+    form: react_hook_form.UseFormReturn<FieldValues, any, undefined>;
+    idMap: Record<string, object>;
+    setIdMap: React$1.Dispatch<React$1.SetStateAction<Record<string, object>>>;
+};
 
 interface CalendarDate {
     date: Date;
@@ -1451,4 +1249,4 @@ declare module '@tanstack/react-table' {
     }
 }
 
-export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerContext, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type ErrorMessageConfig, type ErrorMessageResult, type FieldErrorConfig, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, type TableFilterTagsProps, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type TimePickerLabels, type Translate, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, convertToAjvErrorsFormat, createErrorMessage, defaultRenderDisplay, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerContext, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, FormTitle, type GetColumnsConfigs, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, type TableFilterTagsProps, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type TimePickerLabels, type Translate, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, defaultRenderDisplay, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };

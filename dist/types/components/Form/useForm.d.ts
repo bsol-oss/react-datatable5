@@ -1,6 +1,6 @@
 /// <reference types="react" />
-import { FieldValues } from 'react-hook-form';
 import { JSONSchema7 } from 'json-schema';
+import { FieldValues } from 'react-hook-form';
 export interface Translate {
     t: (key: string, options?: any) => string;
     i18n?: any;
@@ -14,5 +14,4 @@ export declare const useForm: ({ preLoadedValues, schema }: UseFormProps) => {
     form: import("react-hook-form").UseFormReturn<FieldValues, any, undefined>;
     idMap: Record<string, object>;
     setIdMap: import("react").Dispatch<import("react").SetStateAction<Record<string, object>>>;
-    translate: Translate;
 };

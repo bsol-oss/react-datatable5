@@ -10,4 +10,8 @@ export declare const convertAjvErrorsToFieldErrors: (errors: ErrorObject<string,
     params?: Record<string, unknown>;
     message?: string;
 }>;
+/**
+ * AJV resolver for react-hook-form
+ * Integrates AJV validation with react-hook-form's validation system
+ */
 export declare const ajvResolver: <T extends FieldValues>(schema: CustomJSONSchema7) => Resolver<T>;

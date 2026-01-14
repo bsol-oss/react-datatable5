@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Tag as Tag$1, Checkbox as Checkbox$1, Icon, VStack, Heading, EmptyState as EmptyState$2, List, Table as Table$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Clipboard, Badge, Link, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, useCombobox, Show, Skeleton, NumberInput, RadioCard, CheckboxGroup, Textarea as Textarea$1, InputGroup as InputGroup$1, Select, Center, Stack } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Tag as Tag$1, Checkbox as Checkbox$1, Icon, VStack, Heading, EmptyState as EmptyState$2, List, Table as Table$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Clipboard, Badge, Link, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, useCombobox, Show, Skeleton, NumberInput, RadioCard, CheckboxGroup, Textarea as Textarea$1, InputGroup as InputGroup$1, Select, Stack } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import { createContext, useContext, useState, useMemo, useCallback, useEffect, useRef } from 'react';
@@ -25,13 +25,14 @@ import { flexRender, createColumnHelper, makeStateUpdater, functionalUpdate, use
 import { GrAscend, GrDescend } from 'react-icons/gr';
 import axios from 'axios';
 import { FormProvider, useFormContext, useForm as useForm$1 } from 'react-hook-form';
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { TiDeleteOutline } from 'react-icons/ti';
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
+import AjvErrors from 'ajv-errors';
 import { rankItem } from '@tanstack/match-sorter-utils';
 
 const DataTableContext = createContext({
@@ -4256,11 +4257,6 @@ const SchemaFormContext = createContext({
     include: [],
     onSubmit: async () => { },
     rowNumber: 0,
-    /** Default translate fallback - returns key as-is */
-    translate: {
-        t: (key) => key,
-        ready: true,
-    },
     requestOptions: {},
     timezone: 'Asia/Hong_Kong',
     displayConfig: {
@@ -4268,9 +4264,7 @@ const SchemaFormContext = createContext({
         showResetButton: true,
         showTitle: true,
     },
-    requireConfirmation: false,
     onFormSubmit: async () => { },
-    ajvResolver: async () => ({ values: {}, errors: {} }),
 });
 
 const useSchemaContext = () => {
@@ -4279,217 +4273,6 @@ const useSchemaContext = () => {
 
 const clearEmptyString = (object) => {
     return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
-};
-
-const validateData = (data, schema) => {
-    const ajv = new Ajv({
-        strict: false,
-        allErrors: true,
-    });
-    addFormats(ajv);
-    const validate = ajv.compile(schema);
-    const validationResult = validate(data);
-    const errors = validate.errors;
-    return {
-        isValid: validationResult,
-        validate,
-        errors,
-    };
-};
-
-/**
- * Gets the schema node for a field by following the path from root schema
- */
-const getSchemaNodeForField = (schema, fieldPath) => {
-    if (!fieldPath || fieldPath === '') {
-        return schema;
-    }
-    const pathParts = fieldPath.split('.');
-    let currentSchema = schema;
-    for (const part of pathParts) {
-        if (currentSchema &&
-            currentSchema.properties &&
-            currentSchema.properties[part] &&
-            typeof currentSchema.properties[part] === 'object' &&
-            currentSchema.properties[part] !== null) {
-            currentSchema = currentSchema.properties[part];
-        }
-        else {
-            return undefined;
-        }
-    }
-    return currentSchema;
-};
-/**
- * Converts AJV error objects to react-hook-form field errors format
- */
-const convertAjvErrorsToFieldErrors = (errors, schema) => {
-    if (!errors || errors.length === 0) {
-        return {};
-    }
-    const fieldErrors = {};
-    errors.forEach((error) => {
-        let fieldName = '';
-        // Special handling for required keyword: map to the specific missing property
-        if (error.keyword === 'required') {
-            const basePath = (error.instancePath || '')
-                .replace(/^\//, '')
-                .replace(/\//g, '.');
-            const missingProperty = (error.params &&
-                error.params.missingProperty);
-            if (missingProperty) {
-                fieldName = basePath
-                    ? `${basePath}.${missingProperty}`
-                    : missingProperty;
-            }
-            else {
-                // Fallback to schemaPath conversion if missingProperty is unavailable
-                fieldName = (error.schemaPath || '')
-                    .replace(/^#\//, '#.')
-                    .replace(/\//g, '.');
-            }
-        }
-        else {
-            const fieldPath = error.instancePath || error.schemaPath;
-            if (fieldPath) {
-                fieldName = fieldPath.replace(/^\//, '').replace(/\//g, '.');
-            }
-        }
-        if (fieldName) {
-            // Get the schema node for this field to check for custom error messages
-            const fieldSchema = getSchemaNodeForField(schema, fieldName);
-            const customMessage = fieldSchema?.errorMessages?.[error.keyword];
-            // Debug log when error message is missing
-            if (!customMessage) {
-                console.debug(`[Form Validation] Missing error message for field '${fieldName}' with keyword '${error.keyword}'. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`, {
-                    fieldName,
-                    keyword: error.keyword,
-                    instancePath: error.instancePath,
-                    schemaPath: error.schemaPath,
-                    params: error.params,
-                    fieldSchema: fieldSchema
-                        ? {
-                            type: fieldSchema.type,
-                            errorMessages: fieldSchema.errorMessages,
-                        }
-                        : undefined,
-                });
-            }
-            // Provide helpful fallback message if no custom message is provided
-            const fallbackMessage = customMessage ||
-                `Missing error message for ${error.keyword}. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`;
-            if (error.keyword === 'required') {
-                // Required errors override any existing non-required errors for this field
-                fieldErrors[fieldName] = {
-                    type: 'required',
-                    keyword: error.keyword,
-                    params: error.params,
-                    message: fallbackMessage,
-                };
-            }
-            else {
-                const existing = fieldErrors[fieldName];
-                if (existing) {
-                    // Do not override required errors
-                    if (existing.type === 'required') {
-                        return;
-                    }
-                    // Combine messages if multiple errors for same field
-                    existing.message = existing.message
-                        ? `${existing.message}; ${fallbackMessage}`
-                        : fallbackMessage;
-                }
-                else {
-                    fieldErrors[fieldName] = {
-                        type: error.keyword,
-                        keyword: error.keyword,
-                        params: error.params,
-                        message: fallbackMessage,
-                    };
-                }
-            }
-        }
-    });
-    return fieldErrors;
-};
-/**
- * AJV resolver for react-hook-form
- * Integrates AJV validation with react-hook-form's validation system
- */
-/**
- * Strips null, undefined, and empty string values from an object
- */
-const stripEmptyValues = (obj) => {
-    if (obj === null || obj === undefined) {
-        return undefined;
-    }
-    if (typeof obj === 'string' && obj.trim() === '') {
-        return undefined;
-    }
-    if (Array.isArray(obj)) {
-        const filtered = obj
-            .map(stripEmptyValues)
-            .filter((item) => item !== undefined);
-        return filtered.length > 0 ? filtered : undefined;
-    }
-    if (typeof obj === 'object' && obj !== null) {
-        const result = {};
-        let hasValues = false;
-        for (const [key, value] of Object.entries(obj)) {
-            const cleanedValue = stripEmptyValues(value);
-            if (cleanedValue !== undefined) {
-                result[key] = cleanedValue;
-                hasValues = true;
-            }
-        }
-        return hasValues ? result : undefined;
-    }
-    return obj;
-};
-const ajvResolver = (schema) => {
-    return async (values) => {
-        try {
-            // Strip empty values before validation
-            const cleanedValues = stripEmptyValues(values);
-            // Use empty object for validation if all values were stripped
-            const valuesToValidate = cleanedValues === undefined ? {} : cleanedValues;
-            const { isValid, errors } = validateData(valuesToValidate, schema);
-            console.debug('AJV Validation Result:', {
-                isValid,
-                errors,
-                cleanedValues,
-                valuesToValidate,
-            });
-            if (isValid) {
-                return {
-                    values: (cleanedValues || {}),
-                    errors: {},
-                };
-            }
-            const fieldErrors = convertAjvErrorsToFieldErrors(errors, schema);
-            console.debug('AJV Validation Failed:', {
-                errors,
-                fieldErrors,
-                cleanedValues,
-                valuesToValidate,
-            });
-            return {
-                values: {},
-                errors: fieldErrors,
-            };
-        }
-        catch (error) {
-            return {
-                values: {},
-                errors: {
-                    root: {
-                        type: 'validation',
-                        message: error instanceof Error ? error.message : 'Validation failed',
-                    },
-                },
-            };
-        }
-    };
 };
 
 const idPickerSanityCheck = (column, foreign_key) => {
@@ -4504,15 +4287,14 @@ const idPickerSanityCheck = (column, foreign_key) => {
         throw new Error(`The key column does not exist in properties of column ${column} when using id-picker.`);
     }
 };
-const FormRoot = ({ schema, idMap, setIdMap, form, translate, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, customSuccessRenderer, displayConfig = {
+const FormRoot = ({ schema, idMap, setIdMap, form, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, customSuccessRenderer, displayConfig = {
     showSubmitButton: true,
     showResetButton: true,
     showTitle: true,
-}, requireConfirmation = false, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog = false, }) => {
+}, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog = false, }) => {
     const [isSuccess, setIsSuccess] = useState(false);
     const [isError, setIsError] = useState(false);
     const [isSubmiting, setIsSubmiting] = useState(false);
-    const [isConfirming, setIsConfirming] = useState(false);
     const [validatedData, setValidatedData] = useState();
     const [error, setError] = useState();
     const onBeforeSubmit = () => {
@@ -4557,7 +4339,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, translate, children, order = 
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFormSubmit = async (data) => {
-        // AJV validation is now handled by react-hook-form resolver
+        // Validation is handled by react-hook-form
         // This function will only be called if validation passes
         if (onSubmit === undefined) {
             await defaultOnSubmit(Promise.resolve(defaultSubmitPromise(data)));
@@ -4575,7 +4357,6 @@ const FormRoot = ({ schema, idMap, setIdMap, form, translate, children, order = 
             rowNumber,
             idMap,
             setIdMap,
-            translate,
             requestOptions,
             isSuccess,
             setIsSuccess,
@@ -4583,8 +4364,6 @@ const FormRoot = ({ schema, idMap, setIdMap, form, translate, children, order = 
             setIsError,
             isSubmiting,
             setIsSubmiting,
-            isConfirming,
-            setIsConfirming,
             validatedData,
             setValidatedData,
             error,
@@ -4593,7 +4372,6 @@ const FormRoot = ({ schema, idMap, setIdMap, form, translate, children, order = 
             customErrorRenderer,
             customSuccessRenderer,
             displayConfig,
-            requireConfirmation,
             onFormSubmit,
             dateTimePickerLabels,
             idPickerLabels,
@@ -4601,36 +4379,11 @@ const FormRoot = ({ schema, idMap, setIdMap, form, translate, children, order = 
             filePickerLabels,
             formButtonLabels,
             timePickerLabels,
-            ajvResolver: ajvResolver(schema),
             insideDialog,
         }, children: jsx(FormProvider, { ...form, children: children }) }));
 };
 
-/**
- * Custom hook for form field labels.
- * Automatically handles colLabel construction.
- * Uses schema.title for labels and schema.errorMessages for error messages.
- *
- * @param column - The column name
- * @param prefix - The prefix for the field (usually empty string or parent path)
- * @param schema - Required schema object with title and errorMessages properties
- * @returns Object with label helper functions
- *
- * @example
- * ```tsx
- * const formI18n = useFormI18n(column, prefix, schema);
- *
- * // Get field label (from schema.title)
- * <Field label={formI18n.label()} />
- *
- * // Get required error message (from schema.errorMessages?.required)
- * <Text>{formI18n.required()}</Text>
- *
- * // Access the raw colLabel
- * const colLabel = formI18n.colLabel;
- * ```
- */
-const useFormI18n = (column, prefix = '', schema) => {
+const useFormLabel = (column, prefix = '', schema) => {
     const colLabel = `${prefix}${column}`;
     return {
         /**
@@ -4660,33 +4413,6 @@ const useFormI18n = (column, prefix = '', schema) => {
             // Return column name as fallback
             return column;
         },
-        /**
-         * Get the required error message from schema.errorMessages?.required.
-         * Returns a helpful fallback message if not provided.
-         */
-        required: () => {
-            const errorMessage = schema.errorMessages?.required;
-            if (errorMessage) {
-                return errorMessage;
-            }
-            // Debug log when error message is missing
-            console.debug(`[Form Field Required] Missing error message for required field '${colLabel}'. Add errorMessages.required to schema for field '${colLabel}'.`, {
-                fieldName: column,
-                colLabel,
-                prefix,
-                schema: {
-                    type: schema.type,
-                    title: schema.title,
-                    required: schema.required,
-                    hasErrorMessages: !!schema.errorMessages,
-                    errorMessageKeys: schema.errorMessages
-                        ? Object.keys(schema.errorMessages)
-                        : undefined,
-                },
-            });
-            // Return helpful fallback message
-            return `Missing error message for required. Add errorMessages.required to schema for field '${colLabel}'`;
-        },
     };
 };
 
@@ -4696,7 +4422,7 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
     const { type } = items;
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
     const { formState: { errors }, setValue, watch, } = useFormContext();
     const { formButtonLabels } = useSchemaContext();
     const fields = (watch(colLabel) ?? []);
@@ -4724,7 +4450,7 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
                             return;
                         }
                         setValue(colLabel, [...fields, {}]);
-                    }, children: formButtonLabels?.add ?? 'Add' }) }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
+                    }, children: formButtonLabels?.add ?? 'Add' }) })] }));
 };
 
 const Field = React.forwardRef(function Field(props, ref) {
@@ -4738,9 +4464,10 @@ const BooleanPicker = ({ schema, column, prefix }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
+    const fieldError = errors[colLabel]?.message;
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsx(CheckboxCard, { checked: value, variant: 'surface', onChange: () => {
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(CheckboxCard, { checked: value, variant: 'surface', onChange: () => {
                 setValue(colLabel, !value);
             } }) }));
 };
@@ -5038,10 +4765,11 @@ dayjs.extend(customParseFormat);
 const DatePicker = ({ column, schema, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { timezone, dateTimePickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
+    const fieldError = errors[colLabel]?.message;
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const selectedDate = watch(colLabel);
@@ -5196,7 +4924,7 @@ const DatePicker = ({ column, schema, prefix }) => {
     };
     const datePickerContent = (jsx(DatePicker$1, { selected: selectedDateObj, onDateSelected: handleDateSelected, labels: datePickerLabels }));
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(InputGroup, { endElement: jsx(Popover.Trigger, { asChild: true, children: jsx(IconButton, { variant: "ghost", size: "2xs", "aria-label": "Open calendar", onClick: () => setOpen(true), children: jsx(Icon, { children: jsx(MdDateRange, {}) }) }) }), children: jsx(Input, { value: inputValue, onChange: handleInputChange, onBlur: handleInputBlur, onKeyDown: handleKeyDown, placeholder: formI18n.label(), size: "sm" }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) }))] }) }));
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(InputGroup, { endElement: jsx(Popover.Trigger, { asChild: true, children: jsx(IconButton, { variant: "ghost", size: "2xs", "aria-label": "Open calendar", onClick: () => setOpen(true), children: jsx(Icon, { children: jsx(MdDateRange, {}) }) }) }), children: jsx(Input, { value: inputValue, onChange: handleInputChange, onBlur: handleInputBlur, onKeyDown: handleKeyDown, placeholder: formI18n.label(), size: "sm" }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) }))] }) }));
 };
 
 dayjs.extend(utc);
@@ -5204,10 +4932,11 @@ dayjs.extend(timezone);
 const DateRangePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { timezone, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
+    const fieldError = errors[colLabel]?.message;
     const [open, setOpen] = useState(false);
     const selectedDateRange = watch(colLabel);
     // Convert string[] to Date[] for the picker
@@ -5266,7 +4995,7 @@ const DateRangePicker = ({ column, schema, prefix, }) => {
         }
     }, [selectedDateRange, dateFormat, colLabel, setValue, timezone]);
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
                         }, justifyContent: 'start', children: [jsx(MdDateRange, {}), getDisplayText()] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "50rem", minH: "25rem", children: jsx(Popover.Body, { children: jsx(RangeDatePicker, { selected: selectedDates, onDateSelected: ({ selectable, date }) => {
                                     const newDates = getRangeDates({
@@ -5302,11 +5031,12 @@ const DateRangePicker = ({ column, schema, prefix, }) => {
 const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLimit = false, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { enumPickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
     const { required, variant } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
     const colLabel = formI18n.colLabel;
+    const fieldError = errors[colLabel]?.message;
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
     const dataList = schema.enum ?? [];
@@ -5404,7 +5134,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
     };
     if (variant === 'radio') {
         return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-            gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsx(RadioGroup$1.Root, { value: !isMultiple ? watchEnum : undefined, onValueChange: (details) => {
+            gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(RadioGroup$1.Root, { value: !isMultiple ? watchEnum : undefined, onValueChange: (details) => {
                     if (!isMultiple) {
                         setValue(colLabel, details.value);
                     }
@@ -5413,7 +5143,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                     }) }) }) }));
     }
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [isMultiple && currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((enumValue) => {
+        gridRow, errorText: undefined, invalid: !!errors[colLabel], children: [isMultiple && currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((enumValue) => {
                     if (!enumValue) {
                         return null;
                     }
@@ -6001,7 +5731,7 @@ function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = 
 const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
     const { filePickerLabels } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', type, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const isSingleSelect = type === 'string';
@@ -6015,6 +5745,7 @@ const FilePicker = ({ column, schema, prefix }) => {
             ? currentValue.filter((f) => f instanceof File)
             : [];
     const colLabel = formI18n.colLabel;
+    const fieldError = errors[colLabel]?.message;
     const [failedImageIds, setFailedImageIds] = useState(new Set());
     // FilePicker variant: Only handle File objects, no media library browser
     const handleImageError = (fileIdentifier) => {
@@ -6046,7 +5777,7 @@ const FilePicker = ({ column, schema, prefix }) => {
         return URL.createObjectURL(file);
     };
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(FileDropzone, { onDrop: ({ files }) => {
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(FileDropzone, { onDrop: ({ files }) => {
                         // file-picker variant: Store File objects directly (no ID conversion)
                         if (isSingleSelect) {
                             // In single-select mode, use the first file and replace any existing file
@@ -6077,7 +5808,7 @@ const FilePicker = ({ column, schema, prefix }) => {
 const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
     const { filePickerLabels } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', filePicker, type, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const isSingleSelect = type === 'string';
@@ -6091,6 +5822,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
             ? currentValue
             : [];
     const colLabel = formI18n.colLabel;
+    const fieldError = errors[colLabel]?.message;
     const [dialogOpen, setDialogOpen] = useState(false);
     const [failedImageIds, setFailedImageIds] = useState(new Set());
     // Map of file ID to FilePickerMediaFile for display
@@ -6144,7 +5876,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
     }, [currentFileIds.join(',')]);
     if (!onFetchFiles) {
         return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-            gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsx(Text, { color: "fg.muted", children: "Media library browser requires onFetchFiles" }) }));
+            gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(Text, { color: "fg.muted", children: "Media library browser requires onFetchFiles" }) }));
     }
     const handleImageError = (fileIdentifier) => {
         setFailedImageIds((prev) => new Set(prev).add(fileIdentifier));
@@ -6170,7 +5902,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
         }
     };
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(Button$1, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ?? 'Browse from Library' }) }), jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ?? formI18n.label() ?? 'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
+        gridRow, errorText: undefined, invalid: !!errors[colLabel], children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(Button$1, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ?? 'Browse from Library' }) }), jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ?? formI18n.label() ?? 'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
                     const file = fileMap.get(fileId);
                     const isImage = file
                         ? /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name)
@@ -6505,7 +6237,7 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
 };
 
 const IdPickerSingle = ({ column, schema, prefix, }) => {
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { colLabel, currentValue, searchText, setSearchText, isLoading, isFetching, isPending, isError, isSearching, collection, filter, idMap, idPickerLabels, insideDialog, renderDisplay: renderDisplayFn, itemToValue, itemToString, errors, setValue, } = useIdPickerData({
@@ -6550,8 +6282,9 @@ const IdPickerSingle = ({ column, schema, prefix, }) => {
     const selectedRendered = selectedItem
         ? renderDisplayFunction(selectedItem)
         : null;
+    const fieldError = errors[colLabel]?.message;
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(Combobox.RootProvider, { value: combobox, width: "100%", children: [jsx(Show, { when: selectedId && selectedRendered, children: jsxs(HStack, { justifyContent: 'space-between', children: [jsx(Box, { children: selectedRendered }), currentValue.length > 0 && (jsx(Button$1, { variant: "ghost", size: "sm", onClick: () => {
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxs(Combobox.RootProvider, { value: combobox, width: "100%", children: [jsx(Show, { when: selectedId && selectedRendered, children: jsxs(HStack, { justifyContent: 'space-between', children: [jsx(Box, { children: selectedRendered }), currentValue.length > 0 && (jsx(Button$1, { variant: "ghost", size: "sm", onClick: () => {
                                     setValue(colLabel, '');
                                 }, children: jsx(Icon, { children: jsx(BiX, {}) }) }))] }) }), jsx(Show, { when: !selectedId || !selectedRendered, children: jsxs(Combobox.Control, { position: "relative", children: [jsx(Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? 'Type to search' }), jsxs(Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsx(Spinner, { size: "xs" }), isError && (jsx(Icon, { color: "fg.error", children: jsx(BiError, {}) })), jsx(Combobox.Trigger, {})] })] }) }), insideDialog ? (jsx(Combobox.Positioner, { children: jsx(Combobox.Content, { children: isError ? (jsx(Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
                         // Show skeleton items to prevent UI shift
@@ -6567,7 +6300,7 @@ const IdPickerSingle = ({ column, schema, prefix, }) => {
 };
 
 const IdPickerMultiple = ({ column, schema, prefix, }) => {
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const { colLabel, currentValue, searchText, setSearchText, isLoading, isFetching, isPending, isError, isSearching, isLoadingInitialValues, isFetchingInitialValues, missingIds, collection, idMap, idPickerLabels, insideDialog, renderDisplay: renderDisplayFn, errors, setValue, } = useIdPickerData({
@@ -6584,8 +6317,9 @@ const IdPickerMultiple = ({ column, schema, prefix, }) => {
     };
     // Use renderDisplay from hook (which comes from schema) or fallback to default
     const renderDisplayFunction = renderDisplayFn || defaultRenderDisplay;
+    const fieldError = errors[colLabel]?.message;
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: [currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((id) => {
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((id) => {
                     const item = idMap[id];
                     // Show loading skeleton while fetching initial values
                     if (item === undefined &&
@@ -6616,69 +6350,14 @@ const IdPickerMultiple = ({ column, schema, prefix, }) => {
                                             'Start typing to search' })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [renderDisplayFunction(item.raw), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) })) }) }) }))] })] }));
 };
 
-/**
- * Gets the error message for a specific field from react-hook-form errors
- * Prioritizes required errors (#.required) over field-specific validation errors
- */
-const getFieldError = (errors, fieldName) => {
-    // Check for form-level required errors first (highest priority)
-    const requiredError = errors['#.required'];
-    if (requiredError) {
-        const requiredErrorMessage = extractErrorMessage(requiredError);
-        if (requiredErrorMessage) {
-            return requiredErrorMessage;
-        }
-    }
-    // If no required errors, return field-specific error
-    const fieldError = errors[fieldName];
-    if (fieldError) {
-        const fieldErrorMessage = extractErrorMessage(fieldError);
-        if (fieldErrorMessage) {
-            return fieldErrorMessage;
-        }
-    }
-    return undefined;
-};
-/**
- * Helper function to extract error message from various error formats
- * Only returns message if explicitly provided, no fallback text
- */
-const extractErrorMessage = (error) => {
-    if (!error) {
-        return undefined;
-    }
-    // If it's a simple string error
-    if (typeof error === 'string') {
-        return error;
-    }
-    // If it's an error object with a message property
-    if (error && typeof error === 'object' && 'message' in error) {
-        return error.message;
-    }
-    // If it's an array of errors, get the first one
-    if (Array.isArray(error) && error.length > 0) {
-        const firstError = error[0];
-        if (typeof firstError === 'string') {
-            return firstError;
-        }
-        if (firstError &&
-            typeof firstError === 'object' &&
-            'message' in firstError) {
-            return firstError.message;
-        }
-    }
-    // No fallback - return undefined if no message provided
-    return undefined;
-};
-
 const NumberInputField = ({ schema, column, prefix, }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1', numberStorageType = 'number', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(`${colLabel}`);
-    const fieldError = getFieldError(errors, colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
+    const fieldError = errors[colLabel]?.message;
+    const formI18n = useFormLabel(column, prefix, schema);
     // Convert value to string for NumberInput (it uses string values internally)
     // NumberInput expects string values to preserve locale-specific formatting
     // Do not fill any default value if initial value doesn't exist
@@ -6703,8 +6382,8 @@ const ObjectInput = ({ schema, column, prefix }) => {
     const { properties, gridColumn = 'span 12', gridRow = 'span 1', required, showLabel = true, } = schema;
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
-    const formI18n = useFormI18n(column, prefix, schema);
-    const { formState: { errors }, } = useFormContext();
+    const formI18n = useFormLabel(column, prefix, schema);
+    useFormContext();
     if (properties === undefined) {
         throw new Error(`properties is undefined when using ObjectInput`);
     }
@@ -6718,7 +6397,7 @@ const ObjectInput = ({ schema, column, prefix }) => {
                         prefix: `${prefix}${column}.`,
                         properties,
                         parentRequired: required }, `form-${colLabel}-${key}`));
-                }) }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
+                }) })] }));
 };
 
 const RecordInput = ({ column, schema, prefix }) => {
@@ -6730,8 +6409,9 @@ const RecordInput = ({ column, schema, prefix }) => {
     const [showNewEntries, setShowNewEntries] = useState(false);
     const [newKey, setNewKey] = useState();
     const [newValue, setNewValue] = useState();
-    const formI18n = useFormI18n(column, prefix, schema);
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn, gridRow, errorText: errors[`${column}`] ? formI18n.required() : undefined, invalid: !!errors[column], children: [entries.map(([key, value]) => {
+    const formI18n = useFormLabel(column, prefix, schema);
+    const fieldError = errors[column]?.message;
+    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn, gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [entries.map(([key, value]) => {
                 return (jsxs(Grid, { templateColumns: '1fr 1fr auto', gap: 1, children: [jsx(Input, { value: key, onChange: (e) => {
                                 const filtered = entries.filter(([target]) => {
                                     return target !== key;
@@ -6779,9 +6459,9 @@ const StringInputField = ({ column, schema, prefix, }) => {
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    const fieldError = getFieldError(errors, colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
-    return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: fieldError, invalid: !!fieldError, children: jsx(Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
+    const fieldError = errors[colLabel]?.message;
+    const formI18n = useFormLabel(column, prefix, schema);
+    return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
 };
 
 const RadioCardItem = React.forwardRef(function RadioCardItem(props, ref) {
@@ -6799,27 +6479,15 @@ const TagPicker = ({ column, schema, prefix }) => {
     if (schema.properties == undefined) {
         throw new Error('schema properties undefined when using DatePicker');
     }
-    const { gridColumn, gridRow, in_table, object_id_column, tagPicker } = schema;
-    if (in_table === undefined) {
-        throw new Error('in_table is undefined when using TagPicker');
-    }
-    if (object_id_column === undefined) {
-        throw new Error('object_id_column is undefined when using TagPicker');
-    }
+    const { gridColumn, gridRow, tagPicker } = schema;
     if (!tagPicker?.queryFn) {
         throw new Error('tagPicker.queryFn is required in schema. serverUrl has been removed.');
     }
     const query = useQuery({
-        queryKey: [`tagpicker`, in_table],
+        queryKey: [`tagpicker`],
         queryFn: async () => {
             const result = await tagPicker.queryFn({
-                in_table: 'tables_tags_view',
-                where: [
-                    {
-                        id: 'table_name',
-                        value: [in_table],
-                    },
-                ],
+                where: [],
                 limit: 100,
                 offset: 0,
                 searching: '',
@@ -6828,15 +6496,14 @@ const TagPicker = ({ column, schema, prefix }) => {
         },
         staleTime: 10000,
     });
-    const object_id = watch(object_id_column);
+    const object_id = watch(column);
     const existingTagsQuery = useQuery({
-        queryKey: [`existing`, { in_table, object_id_column }, object_id],
+        queryKey: [`existing`, object_id],
         queryFn: async () => {
             const result = await tagPicker.queryFn({
-                in_table: in_table,
                 where: [
                     {
-                        id: object_id_column,
+                        id: column,
                         value: [object_id[0]],
                     },
                 ],
@@ -6899,14 +6566,10 @@ const TextAreaInput = ({ column, schema, prefix, }) => {
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    const fieldError = getFieldError(errors, colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
+    const fieldError = errors[colLabel]?.message;
+    const formI18n = useFormLabel(column, prefix, schema);
     const watchValue = watch(colLabel);
-    return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: "grid", errorText: fieldError
-                ? fieldError.includes('required')
-                    ? formI18n.required()
-                    : fieldError
-                : undefined, invalid: !!fieldError, children: jsx(Textarea, { value: watchValue, onChange: (value) => setValue(colLabel, value) }) }) }));
+    return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: "grid", errorText: fieldError, invalid: !!fieldError, children: jsx(Textarea, { value: watchValue, onChange: (value) => setValue(colLabel, value) }) }) }));
 };
 
 dayjs.extend(utc);
@@ -7357,7 +7020,8 @@ const TimePicker = ({ column, schema, prefix }) => {
     const { required, gridColumn = 'span 12', gridRow = 'span 1', timeFormat = 'HH:mm:ssZ', displayTimeFormat = 'hh:mm A', startTimeField, selectedDateField, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
+    const fieldError = errors[colLabel]?.message;
     const [open, setOpen] = useState(false);
     const value = watch(colLabel);
     // Watch startTime and selectedDate fields for offset calculation
@@ -7432,7 +7096,7 @@ const TimePicker = ({ column, schema, prefix }) => {
         setValue(colLabel, timeString, { shouldValidate: true, shouldDirty: true });
     };
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
                         }, justifyContent: 'start', children: [jsx(IoMdClock, {}), !!value ? `${displayedTime}` : ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsx(Popover.Body, { overflow: "visible", children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { children: jsx(Popover.Body, { children: jsx(TimePicker$1, { format: "12h", hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) }) }))] }) }));
 };
@@ -7698,12 +7362,13 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     // Display text for buttons
     const dateDisplayText = useMemo(() => {
         if (!selectedDate)
-            return 'Select date';
+            return labels?.selectDateLabel ?? 'Select date';
         return dayjs(selectedDate).tz(tz).format('YYYY-MM-DD');
-    }, [selectedDate, tz]);
+    }, [selectedDate, tz, labels]);
     const timeDisplayText = useMemo(() => {
+        const selectTimeLabel = timePickerLabels?.selectTimeLabel ?? 'Select time';
         if (hour === null || minute === null)
-            return 'Select time';
+            return selectTimeLabel;
         if (is24Hour) {
             // 24-hour format: never show meridiem, always use 24-hour format (0-23)
             const hour24 = hour >= 0 && hour <= 23 ? hour : hour % 24;
@@ -7717,12 +7382,12 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             // 12-hour format: always show meridiem (AM/PM)
             const hour12 = hour >= 1 && hour <= 12 ? hour : hour % 12;
             if (meridiem === null)
-                return 'Select time';
+                return selectTimeLabel;
             const hourDisplay = hour12.toString();
             const minuteDisplay = minute.toString().padStart(2, '0');
             return `${hourDisplay}:${minuteDisplay} ${meridiem.toUpperCase()}`;
         }
-    }, [hour, minute, second, meridiem, is24Hour, showSeconds]);
+    }, [hour, minute, second, meridiem, is24Hour, showSeconds, timePickerLabels]);
     const timezoneDisplayText = useMemo(() => {
         if (!showTimezoneSelector)
             return '';
@@ -8358,12 +8023,13 @@ dayjs.extend(timezone);
 const DateTimePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { timezone, dateTimePickerLabels, timePickerLabels, insideDialog } = useSchemaContext();
-    const formI18n = useFormI18n(column, prefix, schema);
+    const formI18n = useFormLabel(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD HH:mm:ss', 
     // with timezone
     dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ', dateTimePicker, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
+    const fieldError = errors[colLabel]?.message;
     useState(false);
     const selectedDate = watch(colLabel);
     selectedDate && dayjs(selectedDate).tz(timezone).isValid()
@@ -8412,7 +8078,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
         }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels, showQuickActions: dateTimePicker?.showQuickActions ?? false, quickActionLabels: dateTimePickerLabels?.quickActionLabels ??
             dateTimePicker?.quickActionLabels, showTimezoneSelector: dateTimePicker?.showTimezoneSelector ?? false }));
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: errors[`${colLabel}`] ? formI18n.required() : undefined, invalid: !!errors[colLabel], children: dateTimePickerContent }));
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: dateTimePickerContent }));
 };
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {
@@ -8509,440 +8175,16 @@ const ColumnRenderer = ({ column, properties, prefix, parentRequired, }) => {
     return jsx(SchemaRenderer, { schema: schemaWithRequired, prefix, column });
 };
 
-const ArrayViewer = ({ schema, column, prefix }) => {
-    const { gridColumn = 'span 12', gridRow = 'span 1', required, items, } = schema;
-    const colLabel = `${prefix}${column}`;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const formI18n = useFormI18n(column, prefix, schema);
-    const { watch, formState: { errors }, } = useFormContext();
-    const values = watch(colLabel) ?? [];
-    return (jsxs(Box, { gridRow, gridColumn, children: [jsxs(Box, { as: "label", gridColumn: '1/span12', children: [formI18n.label(), isRequired && jsx("span", { children: "*" })] }), jsx(Flex, { flexFlow: 'column', gap: 1, children: values.map((field, index) => (jsx(Flex, { flexFlow: 'column', bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: '2', borderRadius: 'md', borderWidth: 'thin', borderColor: {
-                        base: 'colorPalette.200',
-                        _dark: 'colorPalette.800',
-                    }, children: jsx(Grid, { gap: "4", gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: jsx(SchemaViewer, { column: `${index}`,
-                            prefix: `${colLabel}.`,
-                            // @ts-expect-error find suitable types
-                            schema: { showLabel: false, ...(items ?? {}) } }) }) }, `form-${prefix}${column}.${index}`))) }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
-};
-
-const BooleanViewer = ({ schema, column, prefix, }) => {
-    const { watch, formState: { errors }, } = useFormContext();
-    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
-    const value = watch(colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, children: [jsx(Text, { children: value ? 'True' : 'False' }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
-};
-
-const CustomViewer = ({ column, schema, prefix }) => {
-    const formContext = useFormContext();
-    const { inputViewerRender } = schema;
-    return (inputViewerRender &&
-        inputViewerRender({
-            column,
-            schema,
-            prefix,
-            formContext,
-        }));
-};
-
-const DateViewer = ({ column, schema, prefix }) => {
-    const { watch, formState: { errors }, } = useFormContext();
-    const { timezone } = useSchemaContext();
-    const { required, gridColumn = 'span 4', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
-    const selectedDate = watch(colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
-    const displayDate = dayjs(selectedDate)
-        .tz(timezone)
-        .format(displayDateFormat);
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, children: [jsxs(Text, { children: [" ", selectedDate !== undefined ? displayDate : ''] }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
-};
-
-const EnumViewer = ({ column, isMultiple = false, schema, prefix, }) => {
-    const { watch, formState: { errors }, } = useFormContext();
-    const formI18n = useFormI18n(column, prefix, schema);
-    const { required } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
-    const colLabel = formI18n.colLabel;
-    const watchEnum = watch(colLabel);
-    const watchEnums = (watch(colLabel) ?? []);
-    const renderDisplayFunction = renderDisplay || defaultRenderDisplay;
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, children: [isMultiple && (jsx(Flex, { flexFlow: 'wrap', gap: 1, children: watchEnums.map((enumValue) => {
-                    const item = enumValue;
-                    if (item === undefined) {
-                        return jsx(Fragment, { children: "undefined" });
-                    }
-                    return (jsx(Tag, { size: "lg", children: renderDisplayFunction(item) }, item));
-                }) })), !isMultiple && jsx(Text, { children: renderDisplayFunction(watchEnum) }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
-};
-
-const FileViewer = ({ column, schema, prefix }) => {
-    const { watch } = useFormContext();
-    const { required, gridColumn = 'span 12', gridRow = 'span 1', } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const currentFiles = (watch(column) ?? []);
-    const formI18n = useFormI18n(column, prefix, schema);
-    return (jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, display: 'grid', gridTemplateRows: 'auto 1fr auto', alignItems: 'stretch', children: jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFiles.map((file) => {
-                return (jsx(Card.Root, { variant: 'subtle', children: jsxs(Card.Body, { gap: "2", display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', children: [file.type.startsWith('image/') && (jsx(Image, { src: URL.createObjectURL(file), alt: file.name, boxSize: "50px", objectFit: "cover", borderRadius: "md", marginRight: "2" })), jsx(Box, { children: file.name })] }) }, file.name));
-            }) }) }));
-};
-
-const IdViewer = ({ column, schema, prefix, isMultiple = false, }) => {
-    const { watch, formState: { errors }, } = useFormContext();
-    const { idMap, idPickerLabels, formButtonLabels } = useSchemaContext();
-    const { required, gridColumn = 'span 12', gridRow = 'span 1', renderDisplay, foreign_key, } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const formI18n = useFormI18n(column, prefix, schema);
-    const colLabel = `${prefix}${column}`;
-    const watchId = watch(colLabel);
-    const watchIds = (watch(colLabel) ?? []);
-    const getPickedValue = () => {
-        if (Object.keys(idMap).length <= 0) {
-            return '';
-        }
-        const record = idMap[watchId];
-        if (record === undefined) {
-            return '';
-        }
-        const rendered = renderDisplay
-            ? renderDisplay(record)
-            : defaultRenderDisplay(record);
-        return typeof rendered === 'string' ? rendered : JSON.stringify(record);
-    };
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, children: [isMultiple && (jsx(Flex, { flexFlow: 'wrap', gap: 1, children: watchIds.map((id) => {
-                    const item = idMap[id];
-                    if (item === undefined) {
-                        return (jsx(Text, { children: idPickerLabels?.undefined ?? 'Undefined' }, id));
-                    }
-                    return (jsx(Tag, { closable: true, children: renderDisplay
-                            ? renderDisplay(item)
-                            : defaultRenderDisplay(item) }, id));
-                }) })), !isMultiple && jsx(Text, { children: getPickedValue() }), errors[`${colLabel}`] && (jsx(Text, { color: 'red.400', children: formButtonLabels?.fieldRequired ?? formI18n.required() }))] }));
-};
-
-const NumberViewer = ({ schema, column, prefix, }) => {
-    const { watch, formState: { errors }, } = useFormContext();
-    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
-    const value = watch(colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
-    // Format the value for display if formatOptions are provided
-    const formatValue = (val) => {
-        if (val === undefined || val === null || val === '')
-            return '';
-        const numValue = typeof val === 'string' ? parseFloat(val) : val;
-        if (isNaN(numValue))
-            return String(val);
-        // Use formatOptions if available, otherwise display as-is
-        if (schema.formatOptions) {
-            try {
-                return new Intl.NumberFormat(undefined, schema.formatOptions).format(numValue);
-            }
-            catch {
-                return String(val);
-            }
-        }
-        return String(val);
-    };
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, gridColumn, gridRow, children: [jsx(Text, { children: formatValue(value) }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
-};
-
-const ObjectViewer = ({ schema, column, prefix }) => {
-    const { properties, gridColumn = 'span 12', gridRow = 'span 1', required, showLabel = true, } = schema;
-    const colLabel = `${prefix}${column}`;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const formI18n = useFormI18n(column, prefix, schema);
-    const { formState: { errors }, } = useFormContext();
-    if (properties === undefined) {
-        throw new Error(`properties is undefined when using ObjectInput`);
-    }
-    return (jsxs(Box, { gridRow, gridColumn, children: [showLabel && (jsxs(Box, { as: "label", children: [formI18n.label(), isRequired && jsx("span", { children: "*" })] })), jsx(Grid, { gap: "4", padding: '4', gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: '1', borderRadius: 'md', borderWidth: 'thin', borderColor: {
-                    base: 'colorPalette.200',
-                    _dark: 'colorPalette.800',
-                }, children: Object.keys(properties ?? {}).map((key) => {
-                    return (
-                    // @ts-expect-error find suitable types
-                    jsx(ColumnViewer, { column: `${key}`,
-                        prefix: `${prefix}${column}.`,
-                        properties }, `form-objectviewer-${colLabel}-${key}`));
-                }) }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
-};
-
-const RecordViewer = ({ column, schema, prefix }) => {
-    const { formState: { errors }, getValues, } = useFormContext();
-    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const entries = Object.entries(getValues(column) ?? {});
-    const formI18n = useFormI18n(column, prefix, schema);
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn, gridRow, children: [entries.length === 0 ? (jsx(Text, { color: "gray.500", children: "No entries" })) : (jsx(Grid, { templateColumns: '1fr 1fr', gap: 2, children: entries.map(([key, value]) => {
-                    return (jsxs(Grid, { templateColumns: '1fr 1fr', gap: 2, children: [jsxs(Text, { fontWeight: "medium", children: [key, ":"] }), jsx(Text, { children: String(value ?? '') })] }, key));
-                }) })), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
-};
-
-const StringViewer = ({ column, schema, prefix, }) => {
-    const { watch, formState: { errors }, } = useFormContext();
-    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
-    const value = watch(colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
-    return (jsx(Fragment, { children: jsxs(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', children: [jsx(Text, { children: value }), errors[colLabel] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }) }));
-};
-
-const TagViewer = ({ column, schema, prefix }) => {
-    const { watch, formState: { errors }, setValue, } = useFormContext();
-    if (schema.properties == undefined) {
-        throw new Error('schema properties undefined when using DatePicker');
-    }
-    const { gridColumn, gridRow, in_table, object_id_column, tagPicker } = schema;
-    if (in_table === undefined) {
-        throw new Error('in_table is undefined when using TagPicker');
-    }
-    if (object_id_column === undefined) {
-        throw new Error('object_id_column is undefined when using TagPicker');
-    }
-    if (!tagPicker?.queryFn) {
-        throw new Error('tagPicker.queryFn is required in schema. serverUrl has been removed.');
-    }
-    const query = useQuery({
-        queryKey: [`tagpicker`, in_table],
-        queryFn: async () => {
-            const result = await tagPicker.queryFn({
-                in_table: 'tables_tags_view',
-                where: [
-                    {
-                        id: 'table_name',
-                        value: [in_table],
-                    },
-                ],
-                limit: 100,
-                offset: 0,
-                searching: '',
-            });
-            return result.data || { data: [] };
-        },
-        staleTime: 10000,
-    });
-    const object_id = watch(object_id_column);
-    const existingTagsQuery = useQuery({
-        queryKey: [`existing`, { in_table, object_id_column }, object_id],
-        queryFn: async () => {
-            const result = await tagPicker.queryFn({
-                in_table: in_table,
-                where: [
-                    {
-                        id: object_id_column,
-                        value: [object_id[0]],
-                    },
-                ],
-                limit: 100,
-                offset: 0,
-                searching: '',
-            });
-            return result.data || { data: [] };
-        },
-        enabled: object_id != undefined,
-        staleTime: 10000,
-    });
-    const { isLoading, isFetching, data, isPending, isError } = query;
-    const dataList = data?.data ?? [];
-    const existingTagList = existingTagsQuery.data?.data ?? [];
-    if (!!object_id === false) {
-        return jsx(Fragment, {});
-    }
-    return (jsxs(Flex, { flexFlow: 'column', gap: 4, gridColumn,
-        gridRow, children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), isError && jsx(Fragment, { children: "isError" }), dataList.map(({ parent_tag_name, all_tags, is_mutually_exclusive }) => {
-                return (jsxs(Flex, { flexFlow: 'column', gap: 2, children: [jsx(Text, { children: parent_tag_name }), is_mutually_exclusive && (jsx(RadioCardRoot, { defaultValue: "next", variant: 'surface', onValueChange: (tagIds) => {
-                                const existedTags = Object.values(all_tags)
-                                    .filter(({ id }) => {
-                                    return existingTagList.some(({ tag_id }) => tag_id === id);
-                                })
-                                    .map(({ id }) => {
-                                    return id;
-                                });
-                                setValue(`${column}.${parent_tag_name}.current`, [
-                                    tagIds.value,
-                                ]);
-                                setValue(`${column}.${parent_tag_name}.old`, existedTags);
-                            }, children: jsx(Flex, { flexFlow: 'wrap', gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
-                                    if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                                        return (jsx(RadioCardItem, { label: tagName, value: id, flex: '0 0 0%', disabled: true }, `${tagName}-${id}`));
-                                    }
-                                    return (jsx(RadioCardItem, { label: tagName, value: id, flex: '0 0 0%', colorPalette: 'blue' }, `${tagName}-${id}`));
-                                }) }) })), !is_mutually_exclusive && (jsx(CheckboxGroup, { onValueChange: (tagIds) => {
-                                setValue(`${column}.${parent_tag_name}.current`, tagIds);
-                            }, children: jsx(Flex, { flexFlow: 'wrap', gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
-                                    if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                                        return (jsx(CheckboxCard, { label: tagName, value: id, flex: '0 0 0%', disabled: true, colorPalette: 'blue' }, `${tagName}-${id}`));
-                                    }
-                                    return (jsx(CheckboxCard, { label: tagName, value: id, flex: '0 0 0%' }, `${tagName}-${id}`));
-                                }) }) }))] }, `tag-${parent_tag_name}`));
-            }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: (errors[`${column}`]?.message ?? 'No error message') }))] }));
-};
-
-const TextAreaViewer = ({ column, schema, prefix, }) => {
-    const { watch, formState: { errors }, } = useFormContext();
-    const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
-    const value = watch(colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
-    return (jsx(Fragment, { children: jsxs(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, children: [jsx(Text, { whiteSpace: "pre-wrap", children: value }), ' ', errors[colLabel] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }) }));
-};
-
-const TimeViewer = ({ column, schema, prefix }) => {
-    const { watch, formState: { errors }, } = useFormContext();
-    const { timezone } = useSchemaContext();
-    const { required, gridColumn = 'span 12', gridRow = 'span 1', displayTimeFormat = 'hh:mm A', } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
-    const selectedDate = watch(colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
-    const displayedTime = dayjs(`1970-01-01T${selectedDate}`)
-        .tz(timezone)
-        .isValid()
-        ? dayjs(`1970-01-01T${selectedDate}`).tz(timezone).format(displayTimeFormat)
-        : '';
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, children: [jsx(Text, { children: displayedTime }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
-};
-
-const DateTimeViewer = ({ column, schema, prefix }) => {
-    const { watch, formState: { errors }, } = useFormContext();
-    const { timezone } = useSchemaContext();
-    const { required, gridColumn = 'span 4', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD HH:mm:ss', } = schema;
-    const isRequired = required?.some((columnId) => columnId === column);
-    const colLabel = `${prefix}${column}`;
-    const selectedDate = watch(colLabel);
-    const formI18n = useFormI18n(column, prefix, schema);
-    const displayDate = dayjs(selectedDate)
-        .tz(timezone)
-        .format(displayDateFormat);
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, children: [jsxs(Text, { children: [" ", selectedDate !== undefined ? displayDate : ''] }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: formI18n.required() }))] }));
-};
-
-const SchemaViewer = ({ schema, prefix, column, }) => {
-    const colSchema = schema;
-    const { type, variant, properties: innerProperties, foreign_key, items, format, } = schema;
-    if (variant === 'custom-input') {
-        return jsx(CustomViewer, { schema: colSchema, prefix, column });
-    }
-    if (type === 'string') {
-        if ((schema.enum ?? []).length > 0) {
-            return jsx(EnumViewer, { schema: colSchema, prefix, column });
-        }
-        if (variant === 'id-picker') {
-            idPickerSanityCheck(column, foreign_key);
-            return jsx(IdViewer, { schema: colSchema, prefix, column });
-        }
-        if (format === 'time') {
-            return jsx(TimeViewer, { schema: colSchema, prefix, column });
-        }
-        if (format === 'date') {
-            return jsx(DateViewer, { schema: colSchema, prefix, column });
-        }
-        if (format === 'date-time') {
-            return jsx(DateTimeViewer, { schema: colSchema, prefix, column });
-        }
-        if (variant === 'text-area') {
-            return jsx(TextAreaViewer, { schema: colSchema, prefix, column });
-        }
-        return jsx(StringViewer, { schema: colSchema, prefix, column });
-    }
-    if (type === 'number' || type === 'integer') {
-        return jsx(NumberViewer, { schema: colSchema, prefix, column });
-    }
-    if (type === 'boolean') {
-        return jsx(BooleanViewer, { schema: colSchema, prefix, column });
-    }
-    if (type === 'object') {
-        if (innerProperties) {
-            return jsx(ObjectViewer, { schema: colSchema, prefix, column });
-        }
-        return jsx(RecordViewer, { schema: colSchema, prefix, column });
-    }
-    if (type === 'array') {
-        if (variant === 'id-picker') {
-            idPickerSanityCheck(column, foreign_key);
-            return (jsx(IdViewer, { schema: colSchema, prefix, column, isMultiple: true }));
-        }
-        if (variant === 'tag-picker') {
-            return jsx(TagViewer, { schema: colSchema, prefix, column });
-        }
-        if (variant === 'file-picker') {
-            return jsx(FileViewer, { schema: colSchema, prefix, column });
-        }
-        if (variant === 'media-library-browser') {
-            return jsx(FileViewer, { schema: colSchema, prefix, column });
-        }
-        if (variant === 'enum-picker') {
-            const { items } = schema;
-            const { enum: enumItems } = items;
-            const enumSchema = {
-                type: 'string',
-                enum: enumItems,
-            };
-            return (jsx(EnumViewer, { isMultiple: true, schema: enumSchema, prefix, column }));
-        }
-        if (items) {
-            return jsx(ArrayViewer, { schema: colSchema, prefix, column });
-        }
-        return jsx(Text, { children: `array ${column}` });
-    }
-    if (type === 'null') {
-        return jsx(Text, { children: `null ${column}` });
-    }
-    return jsx(Text, { children: "missing type" });
-};
-
-const ColumnViewer = ({ column, properties, prefix, }) => {
-    if (properties === undefined) {
-        return jsx(Fragment, {});
-    }
-    const colSchema = properties[column];
-    if (colSchema === undefined) {
-        throw new Error(`${column} does not exist when using ColumnRenderer`);
-    }
-    return jsx(SchemaViewer, { schema: colSchema, prefix, column });
-};
-
 const SubmitButton = () => {
-    const { setValidatedData, setIsError, setIsConfirming, requireConfirmation, onFormSubmit, formButtonLabels, } = useSchemaContext();
+    const { setValidatedData, setIsError, onFormSubmit, formButtonLabels } = useSchemaContext();
     const methods = useFormContext();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onValid = (data) => {
-        // const { isValid, errors } = validateData(data, schema);
-        // if (!isValid) {
-        //   setError({
-        //     type: 'validation',
-        //     errors,
-        //   });
-        //   setIsError(true);
-        //   return;
-        // }
-        // If validation passes, check if confirmation is required
-        if (requireConfirmation) {
-            // Show confirmation (existing behavior)
-            setValidatedData(data);
-            setIsError(false);
-            setIsConfirming(true);
-        }
-        else {
-            // Skip confirmation and submit directly
-            setValidatedData(data);
-            setIsError(false);
-            onFormSubmit(data);
-        }
+        // Validation is handled by react-hook-form
+        // This function will only be called if validation passes
+        setValidatedData(data);
+        setIsError(false);
+        onFormSubmit(data);
     };
     return (jsx(Button$1, { onClick: () => {
             methods.handleSubmit(onValid)();
@@ -8950,9 +8192,10 @@ const SubmitButton = () => {
 };
 
 const FormBody = () => {
-    const { schema, order, ignore, include, isError, isSubmiting, isConfirming, setIsConfirming, validatedData, error, customErrorRenderer, displayConfig, onFormSubmit, formButtonLabels, } = useSchemaContext();
+    const { schema, order, ignore, include, isError, error, customErrorRenderer, displayConfig, formButtonLabels, } = useSchemaContext();
     const { showSubmitButton, showResetButton } = displayConfig;
     const methods = useFormContext();
+    console.log(methods.formState.errors);
     const { properties } = schema;
     const renderColumns = ({ order, keys, ignore, include, }) => {
         const included = include.length > 0 ? include : keys;
@@ -8967,19 +8210,6 @@ const FormBody = () => {
         ignore,
         include,
     });
-    if (isConfirming) {
-        return (jsxs(Flex, { flexFlow: 'column', gap: "2", children: [jsx(Grid, { gap: 4, gridTemplateColumns: 'repeat(12, 1fr)', gridTemplateRows: 'repeat(12, max-content)', autoFlow: 'row', children: ordered.map((column) => {
-                        return (jsx(ColumnViewer
-                        // @ts-expect-error find suitable types
-                        , { 
-                            // @ts-expect-error find suitable types
-                            properties: properties, prefix: ``, column }, `form-viewer-${column}`));
-                    }) }), jsxs(Flex, { justifyContent: 'end', gap: '2', children: [jsx(Button$1, { onClick: () => {
-                                setIsConfirming(false);
-                            }, variant: 'subtle', children: formButtonLabels?.cancel ?? 'Cancel' }), jsx(Button$1, { onClick: () => {
-                                onFormSubmit(validatedData);
-                            }, children: formButtonLabels?.confirm ?? 'Confirm' })] }), isSubmiting && (jsx(Box, { pos: "absolute", inset: "0", bg: "bg/80", children: jsx(Center, { h: "full", children: jsx(Spinner, { color: "teal.500" }) }) })), isError && customErrorRenderer && customErrorRenderer(error)] }));
-    }
     return (jsxs(Flex, { flexFlow: 'column', gap: "2", children: [jsx(Grid, { gap: "4", gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: ordered.map((column) => {
                     return (jsx(ColumnRenderer
                     // @ts-expect-error find suitable types
@@ -9012,267 +8242,231 @@ const DefaultForm = ({ formConfig, }) => {
     return (jsx(FormRoot, { ...formConfig, children: jsxs(Grid, { gap: "2", children: [showTitle && jsx(FormTitle, {}), jsx(FormBody, {})] }) }));
 };
 
-const useForm = ({ preLoadedValues, schema }) => {
-    const form = useForm$1({
-        values: preLoadedValues,
-        resolver: schema ? ajvResolver(schema) : undefined,
-        mode: 'onSubmit',
-        reValidateMode: 'onChange',
+const validateData = (data, schema) => {
+    const ajv = new Ajv({
+        strict: false,
+        allErrors: true,
     });
-    const [idMap, setIdMap] = useState({});
-    // Fallback translate object - returns key as-is (no i18n required)
-    const translate = {
-        t: (key) => key,
-        ready: true,
-    };
+    addFormats(ajv);
+    AjvErrors(ajv); // Load ajv-errors plugin to process errorMessage format
+    const validate = ajv.compile(schema);
+    const validationResult = validate(data);
+    const errors = validate.errors;
     return {
-        form,
-        idMap,
-        setIdMap,
-        translate, // Components prefer label objects over translate
+        isValid: validationResult,
+        validate,
+        errors,
     };
 };
 
 /**
- * Type definitions for error message configuration
+ * Gets the schema node for a given field path
  */
-/**
- * Schema-level error message builder
- *
- * Builds a complete errorMessage object compatible with ajv-errors plugin.
- * Supports both i18n translation keys and plain string messages.
- *
- * @param config - Error message configuration
- * @returns Complete errorMessage object for JSON Schema
- *
- * @example
- * ```typescript
- * // Simple required field errors
- * const errorMessage = buildErrorMessages({
- *   required: {
- *     username: "Username is required",
- *     email: "user.email.field_required" // i18n key
- *   }
- * });
- *
- * // With validation rules
- * const errorMessage = buildErrorMessages({
- *   required: {
- *     password: "Password is required"
- *   },
- *   properties: {
- *     password: {
- *       minLength: "Password must be at least 8 characters",
- *       pattern: "Password must contain letters and numbers"
- *     },
- *     age: {
- *       minimum: "Must be 18 or older",
- *       maximum: "Must be under 120"
- *     }
- *   }
- * });
- *
- * // With global fallbacks
- * const errorMessage = buildErrorMessages({
- *   required: {
- *     email: "Email is required"
- *   },
- *   minLength: "This field is too short", // applies to all fields
- *   minimum: "Value is too small"
- * });
- * ```
- */
-const buildErrorMessages = (config) => {
-    const result = {};
-    // Add required field errors
-    if (config.required && Object.keys(config.required).length > 0) {
-        result.required = config.required;
+const getSchemaNodeForField = (schema, fieldPath) => {
+    if (!fieldPath || fieldPath === '') {
+        return schema;
     }
-    // Add field-specific validation errors
-    if (config.properties && Object.keys(config.properties).length > 0) {
-        result.properties = config.properties;
-    }
-    // Add global fallback error messages
-    const globalKeys = [
-        'minLength',
-        'maxLength',
-        'pattern',
-        'minimum',
-        'maximum',
-        'multipleOf',
-        'format',
-        'type',
-        'enum',
-    ];
-    globalKeys.forEach((key) => {
-        if (config[key]) {
-            result[key] = config[key];
-        }
-    });
-    return result;
-};
-/**
- * Converts buildErrorMessages result to ajv-errors compatible format
- */
-const convertToAjvErrorsFormat = (errorMessages) => {
-    const result = {};
-    // Convert required field errors
-    if (errorMessages.required) {
-        result.required = errorMessages.required;
-    }
-    // Convert properties errors to ajv-errors format
-    if (errorMessages.properties) {
-        result.properties = {};
-        Object.keys(errorMessages.properties).forEach((fieldName) => {
-            const fieldErrors = errorMessages.properties[fieldName];
-            result.properties[fieldName] = {};
-            Object.keys(fieldErrors).forEach((keyword) => {
-                result.properties[fieldName][keyword] =
-                    fieldErrors[keyword];
-            });
-        });
-    }
-    // Add global fallback errors
-    const globalKeys = [
-        'minLength',
-        'maxLength',
-        'pattern',
-        'minimum',
-        'maximum',
-        'multipleOf',
-        'format',
-        'type',
-        'enum',
-    ];
-    globalKeys.forEach((key) => {
-        if (errorMessages[key]) {
-            result[key] = errorMessages[key];
-        }
-    });
-    return result;
-};
-/**
- * Helper function to build required field errors
- *
- * Simplifies creating required field error messages, especially useful
- * for generating i18n translation keys following a pattern.
- *
- * @param fields - Array of required field names
- * @param messageOrGenerator - Either a string template or function to generate messages
- * @returns Required field error configuration
- *
- * @example
- * ```typescript
- * // Plain string messages
- * const required = buildRequiredErrors(
- *   ["username", "email", "password"],
- *   (field) => `${field} is required`
- * );
- * // Result: { username: "username is required", email: "email is required", ... }
- *
- * // i18n translation keys
- * const required = buildRequiredErrors(
- *   ["username", "email"],
- *   (field) => `user.${field}.field_required`
- * );
- * // Result: { username: "user.username.field_required", email: "user.email.field_required" }
- *
- * // Same message for all fields
- * const required = buildRequiredErrors(
- *   ["username", "email"],
- *   "This field is required"
- * );
- * // Result: { username: "This field is required", email: "This field is required" }
- *
- * // With prefix in generator function
- * const required = buildRequiredErrors(
- *   ["username", "email"],
- *   (field) => `user.${field}.field_required`
- * );
- * // Result: { username: "user.username.field_required", email: "user.email.field_required" }
- * ```
- */
-const buildRequiredErrors = (fields, messageOrGenerator) => {
-    const result = {};
-    fields.forEach((field) => {
-        if (typeof messageOrGenerator === 'function') {
-            result[field] = messageOrGenerator(field);
+    const pathParts = fieldPath.split('.');
+    let currentSchema = schema;
+    for (const part of pathParts) {
+        if (currentSchema &&
+            currentSchema.properties &&
+            currentSchema.properties[part] &&
+            typeof currentSchema.properties[part] === 'object' &&
+            currentSchema.properties[part] !== null) {
+            currentSchema = currentSchema.properties[part];
         }
         else {
-            result[field] = messageOrGenerator;
+            return undefined;
+        }
+    }
+    return currentSchema;
+};
+/**
+ * Strips null, undefined, and empty string values from an object
+ */
+const stripEmptyValues = (obj) => {
+    if (obj === null || obj === undefined) {
+        return undefined;
+    }
+    if (typeof obj === 'string' && obj.trim() === '') {
+        return undefined;
+    }
+    if (Array.isArray(obj)) {
+        const filtered = obj
+            .map(stripEmptyValues)
+            .filter((item) => item !== undefined);
+        return filtered.length > 0 ? filtered : undefined;
+    }
+    if (typeof obj === 'object' && obj !== null) {
+        const result = {};
+        let hasValues = false;
+        for (const [key, value] of Object.entries(obj)) {
+            const cleanedValue = stripEmptyValues(value);
+            if (cleanedValue !== undefined) {
+                result[key] = cleanedValue;
+                hasValues = true;
+            }
+        }
+        return hasValues ? result : undefined;
+    }
+    return obj;
+};
+/**
+ * Converts AJV error objects to react-hook-form field errors format
+ */
+const convertAjvErrorsToFieldErrors = (errors, schema) => {
+    if (!errors || errors.length === 0) {
+        return {};
+    }
+    const fieldErrors = {};
+    errors.forEach((error) => {
+        let fieldName = '';
+        // Special handling for required keyword: map to the specific missing property
+        if (error.keyword === 'required') {
+            const basePath = (error.instancePath || '')
+                .replace(/^\//, '')
+                .replace(/\//g, '.');
+            const missingProperty = error.params && error.params.missingProperty;
+            if (missingProperty) {
+                fieldName = basePath
+                    ? `${basePath}.${missingProperty}`
+                    : missingProperty;
+            }
+            else {
+                // Fallback to schemaPath conversion if missingProperty is unavailable
+                fieldName = (error.schemaPath || '')
+                    .replace(/^#\//, '#.')
+                    .replace(/\//g, '.');
+            }
+        }
+        else {
+            const fieldPath = error.instancePath || error.schemaPath;
+            if (fieldPath) {
+                fieldName = fieldPath.replace(/^\//, '').replace(/\//g, '.');
+            }
+        }
+        if (fieldName) {
+            // Get the schema node for this field to check for custom error messages
+            const fieldSchema = getSchemaNodeForField(schema, fieldName);
+            const customMessage = fieldSchema?.errorMessages?.[error.keyword];
+            // Debug log when error message is missing
+            if (!customMessage) {
+                console.debug(`[Form Validation] Missing error message for field '${fieldName}' with keyword '${error.keyword}'. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`, {
+                    fieldName,
+                    keyword: error.keyword,
+                    instancePath: error.instancePath,
+                    schemaPath: error.schemaPath,
+                    params: error.params,
+                    fieldSchema: fieldSchema
+                        ? {
+                            type: fieldSchema.type,
+                            errorMessages: fieldSchema
+                                .errorMessages,
+                        }
+                        : undefined,
+                });
+            }
+            // Provide helpful fallback message if no custom message is provided
+            const fallbackMessage = customMessage ||
+                `Missing error message for ${error.keyword}. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`;
+            if (error.keyword === 'required') {
+                // Required errors override any existing non-required errors for this field
+                fieldErrors[fieldName] = {
+                    type: 'required',
+                    keyword: error.keyword,
+                    params: error.params,
+                    message: fallbackMessage,
+                };
+            }
+            else {
+                const existing = fieldErrors[fieldName];
+                if (existing) {
+                    // Do not override required errors
+                    if (existing.type === 'required') {
+                        return;
+                    }
+                    // Combine messages if multiple errors for same field
+                    existing.message = existing.message
+                        ? `${existing.message}; ${fallbackMessage}`
+                        : fallbackMessage;
+                }
+                else {
+                    fieldErrors[fieldName] = {
+                        type: error.keyword,
+                        keyword: error.keyword,
+                        params: error.params,
+                        message: fallbackMessage,
+                    };
+                }
+            }
         }
     });
-    return result;
+    return fieldErrors;
 };
 /**
- * Helper function to build field-specific validation errors
- *
- * Creates property-specific error messages for multiple fields at once.
- *
- * @param config - Maps field names to their validation error configurations
- * @returns Properties error configuration
- *
- * @example
- * ```typescript
- * const properties = buildFieldErrors({
- *   username: {
- *     minLength: "Username must be at least 3 characters",
- *     pattern: "Username can only contain letters and numbers"
- *   },
- *   age: {
- *     minimum: "Must be 18 or older",
- *     maximum: "Must be under 120"
- *   },
- *   email: {
- *     format: "Please enter a valid email address"
- *   }
- * });
- * ```
+ * AJV resolver for react-hook-form
+ * Integrates AJV validation with react-hook-form's validation system
  */
-const buildFieldErrors = (config) => {
-    return config;
-};
-/**
- * Helper function to create a complete error message configuration in one call
- *
- * Convenient wrapper that combines required and validation errors.
- *
- * @param required - Required field error messages
- * @param properties - Field-specific validation error messages
- * @param globalFallbacks - Global fallback error messages
- * @returns Complete error message configuration
- *
- * @example
- * ```typescript
- * const errorMessage = createErrorMessage(
- *   {
- *     username: "Username is required",
- *     email: "Email is required"
- *   },
- *   {
- *     username: {
- *       minLength: "Username must be at least 3 characters"
- *     },
- *     email: {
- *       format: "Please enter a valid email"
- *     }
- *   },
- *   {
- *     minLength: "This field is too short",
- *     format: "Invalid format"
- *   }
- * );
- * ```
- */
-const createErrorMessage = (required, properties, globalFallbacks) => {
-    const config = {
-        required,
-        properties,
+const ajvResolver = (schema) => {
+    return async (values) => {
+        try {
+            // Strip empty values before validation
+            const cleanedValues = stripEmptyValues(values);
+            // Use empty object for validation if all values were stripped
+            const valuesToValidate = cleanedValues === undefined ? {} : cleanedValues;
+            const { isValid, errors } = validateData(valuesToValidate, schema);
+            console.debug('AJV Validation Result:', {
+                isValid,
+                errors,
+                cleanedValues,
+                valuesToValidate,
+            });
+            if (isValid) {
+                return {
+                    values: (cleanedValues || {}),
+                    errors: {},
+                };
+            }
+            const fieldErrors = convertAjvErrorsToFieldErrors(errors, schema);
+            console.debug('AJV Validation Failed:', {
+                errors,
+                fieldErrors,
+                cleanedValues,
+                valuesToValidate,
+            });
+            return {
+                values: {},
+                errors: fieldErrors,
+            };
+        }
+        catch (error) {
+            return {
+                values: {},
+                errors: {
+                    root: {
+                        type: 'validation',
+                        message: error instanceof Error ? error.message : 'Validation failed',
+                    },
+                },
+            };
+        }
     };
-    if (globalFallbacks) {
-        Object.assign(config, globalFallbacks);
-    }
-    return buildErrorMessages(config);
+};
+
+const useForm = ({ preLoadedValues, schema }) => {
+    const form = useForm$1({
+        values: preLoadedValues,
+        mode: 'onSubmit',
+        resolver: schema ? ajvResolver(schema) : undefined,
+        reValidateMode: 'onChange',
+    });
+    const [idMap, setIdMap] = useState({});
+    return {
+        form,
+        idMap,
+        setIdMap,
+    };
 };
 
 const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) => {
@@ -10169,4 +9363,4 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: jsx(DataTableServerContext.Provider, { value: { url: url ?? '', query }, children: children }) }));
 }
 
-export { CalendarDisplay, CardHeader, DataDisplay, DataTable, DataTableServer, DatePickerContext, DatePickerInput, DefaultCardTitle, DefaultForm, DefaultTable, DefaultTableServer, DensityToggleButton, EditSortingButton, EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, MediaLibraryBrowser, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, SelectAllRowsToggle, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, buildErrorMessages, buildFieldErrors, buildRequiredErrors, convertToAjvErrorsFormat, createErrorMessage, defaultRenderDisplay, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
+export { CalendarDisplay, CardHeader, DataDisplay, DataTable, DataTableServer, DatePickerContext, DatePickerInput, DefaultCardTitle, DefaultForm, DefaultTable, DefaultTableServer, DensityToggleButton, EditSortingButton, EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, MediaLibraryBrowser, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, SelectAllRowsToggle, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, ViewDialog, defaultRenderDisplay, getColumns, getMultiDates, getRangeDates, idPickerSanityCheck, useDataTable, useDataTableContext, useDataTableServer, useForm, widthSanityCheck };
