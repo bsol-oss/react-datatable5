@@ -105,9 +105,12 @@ export const SchemaRenderer = ({
     if (variant === 'enum-picker') {
       const { items } = colSchema;
       const { enum: enumItems } = items as JSONSchema7;
+      // Use renderDisplay from parent schema only
+      const renderDisplay = colSchema.renderDisplay;
       const enumSchema = {
         type: 'string' as const,
         enum: enumItems,
+        ...(renderDisplay && { renderDisplay }),
       };
       return (
         <EnumPicker
