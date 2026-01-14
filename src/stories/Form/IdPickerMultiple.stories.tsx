@@ -373,19 +373,16 @@ const IdPickerMultipleForm = () => {
         items: {
           type: 'string',
         },
-        foreign_key: {
-          table: 'team_members',
-          column: 'id',
-          customQueryFn: customTeamMemberQueryFn,
-        },
+        customQueryFn: customTeamMemberQueryFn,
+        idColumn: 'id',
         loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
-          const { column: column_ref, customQueryFn } = params.foreign_key;
+          const { customQueryFn, idColumn } = params;
           if (!customQueryFn) {
             throw new Error(
-              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+              'customQueryFn is required. serverUrl has been removed.'
             );
           }
           const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -394,7 +391,7 @@ const IdPickerMultipleForm = () => {
             offset: 0,
             where: [
               {
-                id: column_ref,
+                id: idColumn,
                 value: params.ids.length === 1 ? params.ids[0] : params.ids,
               },
             ],
@@ -415,19 +412,16 @@ const IdPickerMultipleForm = () => {
         items: {
           type: 'string',
         },
-        foreign_key: {
-          table: 'team_members',
-          column: 'id',
-          customQueryFn: customTeamMemberQueryFn,
-        },
+        customQueryFn: customTeamMemberQueryFn,
+        idColumn: 'id',
         loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
-          const { column: column_ref, customQueryFn } = params.foreign_key;
+          const { customQueryFn, idColumn } = params;
           if (!customQueryFn) {
             throw new Error(
-              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+              'customQueryFn is required. serverUrl has been removed.'
             );
           }
           const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -436,7 +430,7 @@ const IdPickerMultipleForm = () => {
             offset: 0,
             where: [
               {
-                id: column_ref,
+                id: idColumn,
                 value: params.ids.length === 1 ? params.ids[0] : params.ids,
               },
             ],
@@ -457,19 +451,16 @@ const IdPickerMultipleForm = () => {
         items: {
           type: 'string',
         },
-        foreign_key: {
-          table: 'team_members',
-          column: 'id',
-          customQueryFn: customTeamMemberQueryFn,
-        },
+        customQueryFn: customTeamMemberQueryFn,
+        idColumn: 'id',
         loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
-          const { column: column_ref, customQueryFn } = params.foreign_key;
+          const { customQueryFn, idColumn } = params;
           if (!customQueryFn) {
             throw new Error(
-              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+              'customQueryFn is required. serverUrl has been removed.'
             );
           }
           const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -478,7 +469,7 @@ const IdPickerMultipleForm = () => {
             offset: 0,
             where: [
               {
-                id: column_ref,
+                id: idColumn,
                 value: params.ids.length === 1 ? params.ids[0] : params.ids,
               },
             ],
@@ -499,20 +490,17 @@ const IdPickerMultipleForm = () => {
         items: {
           type: 'string',
         },
-        foreign_key: {
-          table: 'team_members',
-          column: 'id',
-          customQueryFn: customTeamMemberQueryFn,
-        },
+        customQueryFn: customTeamMemberQueryFn,
+        idColumn: 'id',
         renderDisplay: renderRichDisplay, // Custom rendering function
         loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
-          const { column: column_ref, customQueryFn } = params.foreign_key;
+          const { customQueryFn, idColumn } = params;
           if (!customQueryFn) {
             throw new Error(
-              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+              'customQueryFn is required. serverUrl has been removed.'
             );
           }
           const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -521,7 +509,7 @@ const IdPickerMultipleForm = () => {
             offset: 0,
             where: [
               {
-                id: column_ref,
+                id: idColumn,
                 value: params.ids.length === 1 ? params.ids[0] : params.ids,
               },
             ],
@@ -684,11 +672,8 @@ const IdPickerMultipleForm = () => {
       "items": {
         "type": "string"
       },
-      "foreign_key": {
-        "table": "team_members",
-        "column": "id",
-        "customQueryFn": customQueryFn
-      }
+      "customQueryFn": customTeamMemberQueryFn,
+      "idColumn": "id"
     }
   }
 }`}
@@ -708,8 +693,10 @@ const IdPickerMultipleForm = () => {
               <Text color="gray.300">Uses IdPicker component</Text>
             </HStack>
             <HStack gap={4}>
-              <Code colorScheme="blue">foreign_key</Code>
-              <Text color="gray.300">Configures data source and display</Text>
+              <Code colorScheme="blue">customQueryFn</Code>
+              <Text color="gray.300">
+                Configures data source query function
+              </Text>
             </HStack>
             <HStack gap={4}>
               <Code colorScheme="blue">customQueryFn</Code>
@@ -936,11 +923,8 @@ const IdPickerMultipleForm = () => {
                     items: {
                       type: 'string',
                     },
-                    foreign_key: {
-                      table: 'team_members',
-                      column: 'id',
-                      customQueryFn: customTeamMemberQueryFn,
-                    },
+                    customQueryFn: customTeamMemberQueryFn,
+                    idColumn: 'id',
                     renderDisplay: renderRichDisplay, // Uses renderRichDisplay
                   },
                 },

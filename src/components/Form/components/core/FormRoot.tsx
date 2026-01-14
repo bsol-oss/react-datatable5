@@ -1,5 +1,4 @@
 import { SchemaFormContext } from '@/components/Form/SchemaFormContext';
-import { ForeignKeyProps } from '@/components/Form/components/fields/StringInputField';
 import axios, { AxiosRequestConfig } from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
@@ -81,32 +80,24 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
   variant: string;
   gridColumn: string;
   gridRow: string;
-  foreign_key: ForeignKeyProps;
+  customQueryFn: any;
+  idColumn: string;
   children: ReactNode;
 }
 
 export const idPickerSanityCheck = (
   column: string,
-  foreign_key?: {
-    table?: string;
-    column?: string;
-  }
+  customQueryFn?: any,
+  idColumn?: string
 ) => {
-  if (!!foreign_key == false) {
+  if (!customQueryFn) {
     throw new Error(
-      `The key foreign_key does not exist in properties of column ${column} when using id-picker.`
+      `customQueryFn is required in properties of column ${column} when using id-picker.`
     );
   }
-  const { table, column: foreignKeyColumn } = foreign_key;
-
-  if (!!table == false) {
+  if (!idColumn) {
     throw new Error(
-      `The key table does not exist in properties of column ${table} when using id-picker.`
-    );
-  }
-  if (!!foreignKeyColumn == false) {
-    throw new Error(
-      `The key column does not exist in properties of column ${column} when using id-picker.`
+      `idColumn is required in properties of column ${column} when using id-picker.`
     );
   }
 };

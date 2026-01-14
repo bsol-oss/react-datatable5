@@ -19,6 +19,6 @@ export const getTableData = async ({
   offset = 0,
 }: GetTableDataConfig) => {
   throw new Error(
-    'getTableData requires customQueryFn to be provided in foreign_key. serverUrl has been removed.'
+    'getTableData requires customQueryFn to be provided. serverUrl has been removed.'
   );
 };

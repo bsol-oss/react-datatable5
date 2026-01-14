@@ -34,7 +34,8 @@ export const SchemaViewer = ({
     type,
     variant,
     properties: innerProperties,
-    foreign_key,
+    customQueryFn,
+    idColumn,
     items,
     format,
   } = schema;
@@ -46,7 +47,7 @@ export const SchemaViewer = ({
       return <EnumViewer schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === 'id-picker') {
-      idPickerSanityCheck(column, foreign_key);
+      idPickerSanityCheck(column, customQueryFn, idColumn);
       return <IdViewer schema={colSchema} {...{ prefix, column }} />;
     }
     if (format === 'time') {
@@ -78,7 +79,7 @@ export const SchemaViewer = ({
   }
   if (type === 'array') {
     if (variant === 'id-picker') {
-      idPickerSanityCheck(column, foreign_key);
+      idPickerSanityCheck(column, customQueryFn, idColumn);
       return (
         <IdViewer
           schema={colSchema}

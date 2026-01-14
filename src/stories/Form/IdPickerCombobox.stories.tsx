@@ -271,20 +271,17 @@ const IdPickerComboboxForm = () => {
       selected_user: {
         type: 'string',
         variant: 'id-picker',
-        foreign_key: {
-          table: 'users',
-          column: 'id',
-          customQueryFn: jsonPlaceholderUserQueryFn,
-        },
+        customQueryFn: jsonPlaceholderUserQueryFn,
+        idColumn: 'id',
         renderDisplay: renderUserDisplay, // Custom rendering function - used in both dropdown and selected value
         loadInitialValues: async (params: LoadInitialValuesParams) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
-          const { column: column_ref, customQueryFn } = params.foreign_key;
+          const { customQueryFn, idColumn } = params;
           if (!customQueryFn) {
             throw new Error(
-              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+              'customQueryFn is required. serverUrl has been removed.'
             );
           }
           const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -293,7 +290,7 @@ const IdPickerComboboxForm = () => {
             offset: 0,
             where: [
               {
-                id: column_ref,
+                id: idColumn,
                 value: params.ids.length === 1 ? params.ids[0] : params.ids,
               },
             ],
@@ -308,58 +305,54 @@ const IdPickerComboboxForm = () => {
       },
 
       // Multiple selection IdPicker with combobox (no renderDisplay - shows default)
-      team_members: {
-        type: 'array',
-        variant: 'id-picker',
-        items: {
-          type: 'string',
-        },
-        foreign_key: {
-          table: 'users',
-          column: 'id',
-          customQueryFn: jsonPlaceholderUserQueryFn,
-        },
-        // Note: No renderDisplay - will use default display
-        loadInitialValues: async (params: LoadInitialValuesParams) => {
-          if (!params.ids || params.ids.length === 0) {
-            return { data: { data: [], count: 0 }, idMap: {} };
-          }
-          const { column: column_ref, customQueryFn } = params.foreign_key;
-          if (!customQueryFn) {
-            throw new Error(
-              'customQueryFn is required in foreign_key. serverUrl has been removed.'
-            );
-          }
-          const { data, idMap: returnedIdMap } = await customQueryFn({
-            searching: '',
-            limit: params.ids.length,
-            offset: 0,
-            where: [
-              {
-                id: column_ref,
-                value: params.ids.length === 1 ? params.ids[0] : params.ids,
-              },
-            ],
-          });
-          if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
-              return { ...state, ...returnedIdMap };
+      team_members: (() => {
+        const customQueryFn = jsonPlaceholderUserQueryFn;
+        return {
+          type: 'array',
+          variant: 'id-picker',
+          items: {
+            type: 'string',
+          },
+          customQueryFn,
+          // Note: No renderDisplay - will use default display
+          loadInitialValues: async (params: LoadInitialValuesParams) => {
+            if (!params.ids || params.ids.length === 0) {
+              return { data: { data: [], count: 0 }, idMap: {} };
+            }
+            const column_ref = 'id';
+            if (!customQueryFn) {
+              throw new Error(
+                'customQueryFn is required. serverUrl has been removed.'
+              );
+            }
+            const { data, idMap: returnedIdMap } = await customQueryFn({
+              searching: '',
+              limit: params.ids.length,
+              offset: 0,
+              where: [
+                {
+                  id: column_ref,
+                  value: params.ids.length === 1 ? params.ids[0] : params.ids,
+                },
+              ],
             });
-          }
-          return { data, idMap: returnedIdMap || {} };
-        }, // Required for id-picker: loads records for human-readable display
-      },
+            if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
+              params.setIdMap((state: Record<string, object>) => {
+                return { ...state, ...returnedIdMap };
+              });
+            }
+            return { data, idMap: returnedIdMap || {} };
+          }, // Required for id-picker: loads records for human-readable display
+        };
+      })(),
 
       // Single selection IdPicker with custom itemToValue function
       // This demonstrates using a custom value extraction (username instead of id)
       selected_by_username: {
         type: 'string',
         variant: 'id-picker',
-        foreign_key: {
-          table: 'users',
-          column: 'id',
-          customQueryFn: jsonPlaceholderUserQueryFn,
-        },
+        customQueryFn: jsonPlaceholderUserQueryFn,
+        idColumn: 'id',
         renderDisplay: renderUserDisplay,
         // Custom itemToValue: extract username instead of id
         // This allows storing/using username as the value instead of the numeric id
@@ -371,10 +364,10 @@ const IdPickerComboboxForm = () => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
-          const { customQueryFn } = params.foreign_key;
+          const { customQueryFn } = params;
           if (!customQueryFn) {
             throw new Error(
-              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+              'customQueryFn is required. serverUrl has been removed.'
             );
           }
           // Since we're using username as value, we need to find users by username
@@ -643,11 +636,8 @@ const renderUserDisplay = (item: unknown): ReactNode => {
   "type": "string",
   "variant": "id-picker",
   "renderDisplay": renderUserDisplay, // ← Add this property
-  "foreign_key": {
-    "table": "users",
-    "column": "id",
-    "customQueryFn": jsonPlaceholderUserQueryFn
-  }
+  "customQueryFn": jsonPlaceholderUserQueryFn,
+  "idColumn": "id"
 }`}
               </Code>
             </Box>
@@ -768,11 +758,8 @@ const renderUserDisplay = (item: unknown): ReactNode => {
 {
   "type": "string",
   "variant": "id-picker",
-  "foreign_key": {
-    "table": "users",
-    "column": "id",
-    "customQueryFn": jsonPlaceholderUserQueryFn
-  },
+  "customQueryFn": jsonPlaceholderUserQueryFn,
+  "idColumn": "id",
   "itemToValue": (item) => {
     const user = item as TransformedUser;
     return user.username; // Use username as value instead of id
@@ -1156,11 +1143,8 @@ const data = { id: '3', x: 1, y: 2 };
                 {`{
     "type": "string",        // or "array" for multiple
     "variant": "id-picker",
-    "foreign_key": {
-      "table": "users",
-      "column": "id",
-      "customQueryFn": jsonPlaceholderUserQueryFn
-    },
+      "customQueryFn": jsonPlaceholderUserQueryFn,
+      "idColumn": "id",
     "renderDisplay": renderUserDisplay,  // Optional: custom display
     "itemToValue": (item) => item.username,  // Optional: custom value extraction
     // itemToString is automatically provided by useIdPickerData hook

@@ -36,7 +36,8 @@ export const SchemaRenderer = ({
     type,
     variant,
     properties: innerProperties,
-    foreign_key,
+    customQueryFn,
+    idColumn,
     format,
     items,
   } = schema;
@@ -48,7 +49,7 @@ export const SchemaRenderer = ({
       return <EnumPicker schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === 'id-picker') {
-      idPickerSanityCheck(column, foreign_key);
+      idPickerSanityCheck(column, customQueryFn, idColumn);
       return <IdPickerSingle schema={colSchema} {...{ prefix, column }} />;
     }
     if (format === 'date') {
@@ -84,7 +85,7 @@ export const SchemaRenderer = ({
   }
   if (type === 'array') {
     if (variant === 'id-picker') {
-      idPickerSanityCheck(column, foreign_key);
+      idPickerSanityCheck(column, customQueryFn, idColumn);
       return <IdPickerMultiple schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === 'tag-picker') {

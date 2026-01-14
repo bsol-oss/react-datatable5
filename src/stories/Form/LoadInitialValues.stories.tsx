@@ -3,10 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  CustomQueryFnParams,
-  ForeignKeyProps,
-} from '@/components/Form/components/fields/StringInputField';
+import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 import {
   Heading,
   Text,
@@ -38,7 +35,7 @@ import { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSON
  * - loadInitialValues is at the same level as renderDisplay in schema
  * - Only meaningful when variant === 'id-picker'
  * - Loads records by ID for human-readable display
- * - Uses customQueryFn from foreign_key to fetch data
+ * - Uses customQueryFn to fetch data
  * - Custom loadInitialValues implementation in schema
  */
 
@@ -217,12 +214,10 @@ const LoadInitialValuesDemoForm = () => {
       return { data: { data: [], count: 0 }, idMap: {} };
     }
 
-    const { column: column_ref, customQueryFn } = params.foreign_key;
+    const { customQueryFn, idColumn } = params;
 
     if (!customQueryFn) {
-      throw new Error(
-        'customQueryFn is required in foreign_key. serverUrl has been removed.'
-      );
+      throw new Error('customQueryFn is required. serverUrl has been removed.');
     }
 
     const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -231,7 +226,7 @@ const LoadInitialValuesDemoForm = () => {
       offset: 0,
       where: [
         {
-          id: column_ref,
+          id: idColumn,
           value: params.ids.length === 1 ? params.ids[0] : params.ids,
         },
       ],
@@ -253,11 +248,8 @@ const LoadInitialValuesDemoForm = () => {
       featured_product: {
         type: 'string',
         variant: 'id-picker',
-        foreign_key: {
-          table: 'products',
-          column: 'id',
-          customQueryFn: customProductQueryFn,
-        },
+        customQueryFn: customProductQueryFn,
+        idColumn: 'id',
         loadInitialValues: defaultLoadInitialValues, // Required for id-picker: loads records for human-readable display
       } as CustomJSONSchema7,
       related_products: {
@@ -266,11 +258,8 @@ const LoadInitialValuesDemoForm = () => {
         items: {
           type: 'string',
         },
-        foreign_key: {
-          table: 'products',
-          column: 'id',
-          customQueryFn: customProductQueryFn,
-        },
+        customQueryFn: customProductQueryFn,
+        idColumn: 'id',
         loadInitialValues: defaultLoadInitialValues, // Required for id-picker: loads records for human-readable display
       } as CustomJSONSchema7,
     },
@@ -280,15 +269,10 @@ const LoadInitialValuesDemoForm = () => {
   const handleLoadInitialValues = async (ids: string[]) => {
     setLoadingStatus('Loading...');
     try {
-      const foreign_key: ForeignKeyProps = {
-        table: 'products',
-        column: 'id',
-        customQueryFn: customProductQueryFn, // Required
-      };
-
       const params: LoadInitialValuesParams = {
         ids,
-        foreign_key,
+        customQueryFn: customProductQueryFn,
+        idColumn: 'id',
         setIdMap: form.setIdMap,
       };
 
@@ -344,7 +328,7 @@ const LoadInitialValuesDemoForm = () => {
                   </Text>
                   <Text>
                     ✓ Uses <Code>customQueryFn</Code> from{' '}
-                    <Code>foreign_key</Code> to fetch data
+                    <Code>customQueryFn</Code> to fetch data
                   </Text>
                   <Text>
                     ✓ Automatically updates the idMap with fetched data
@@ -488,11 +472,8 @@ const LoadInitialValuesDemoForm = () => {
                 {`const schema = {
   type: 'string',
   variant: 'id-picker',
-  foreign_key: {
-    table: 'products',
-    column: 'id',
-    customQueryFn: customProductQueryFn,
-  },
+  customQueryFn: customProductQueryFn,
+  idColumn: 'id',
   renderDisplay: (item) => item.name,
   loadInitialValues: async (params) => {
     // Custom implementation
@@ -502,7 +483,7 @@ const LoadInitialValuesDemoForm = () => {
       limit: params.ids.length,
       offset: 0,
       where: [{
-        id: params.foreign_key.column,
+        id: params.idColumn,
         value: params.ids,
       }],
     });
@@ -551,11 +532,8 @@ const loadInitialValuesFn = schema.properties.featured_product.loadInitialValues
 // Call it programmatically
 const result = await loadInitialValuesFn({
   ids: ['prod-1', 'prod-2'],
-  foreign_key: {
-    table: 'products',
-    column: 'id',
-    customQueryFn: customProductQueryFn, // Required
-  },
+  customQueryFn: customProductQueryFn, // Required
+  idColumn: 'id',
   setIdMap: form.setIdMap,
 });
 
@@ -619,8 +597,8 @@ const result = await loadInitialValuesFn({
                 2
               </Badge>
               <Text>
-                Uses <Code>customQueryFn</Code> from <Code>foreign_key</Code>{' '}
-                with a where clause to fetch records by their IDs
+                Uses <Code>customQueryFn</Code> with a where clause to fetch
+                records by their IDs
               </Text>
             </HStack>
             <HStack gap={4}>
@@ -687,24 +665,22 @@ const SchemaLevelLoadInitialValuesForm = () => {
     const startTime = Date.now();
 
     // customQueryFn is required
-    if (!params.foreign_key.customQueryFn) {
-      throw new Error(
-        'customQueryFn is required in foreign_key. serverUrl has been removed.'
-      );
+    const { customQueryFn, idColumn } = params;
+    if (!customQueryFn) {
+      throw new Error('customQueryFn is required. serverUrl has been removed.');
     }
 
-    const { data, idMap: returnedIdMap } =
-      await params.foreign_key.customQueryFn({
-        searching: '',
-        limit: params.ids.length,
-        offset: 0,
-        where: [
-          {
-            id: params.foreign_key.column,
-            value: params.ids.length === 1 ? params.ids[0] : params.ids,
-          },
-        ],
-      });
+    const { data, idMap: returnedIdMap } = await customQueryFn({
+      searching: '',
+      limit: params.ids.length,
+      offset: 0,
+      where: [
+        {
+          id: idColumn,
+          value: params.ids.length === 1 ? params.ids[0] : params.ids,
+        },
+      ],
+    });
 
     if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
       params.setIdMap((state) => {
@@ -726,12 +702,10 @@ const SchemaLevelLoadInitialValuesForm = () => {
       return { data: { data: [], count: 0 }, idMap: {} };
     }
 
-    const { column: column_ref, customQueryFn } = params.foreign_key;
+    const { customQueryFn, idColumn } = params;
 
     if (!customQueryFn) {
-      throw new Error(
-        'customQueryFn is required in foreign_key. serverUrl has been removed.'
-      );
+      throw new Error('customQueryFn is required. serverUrl has been removed.');
     }
 
     const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -740,7 +714,7 @@ const SchemaLevelLoadInitialValuesForm = () => {
       offset: 0,
       where: [
         {
-          id: column_ref,
+          id: idColumn,
           value: params.ids.length === 1 ? params.ids[0] : params.ids,
         },
       ],
@@ -766,11 +740,8 @@ const SchemaLevelLoadInitialValuesForm = () => {
       featured_product: {
         type: 'string',
         variant: 'id-picker',
-        foreign_key: {
-          table: 'products',
-          column: 'id',
-          customQueryFn: customProductQueryFn,
-        },
+        customQueryFn: customProductQueryFn,
+        idColumn: 'id',
         renderDisplay: (item: any) => `${item.name} ($${item.price})`,
         loadInitialValues: customLoadInitialValues, // Custom implementation for id-picker: loads records for human-readable display
       } as CustomJSONSchema7,
@@ -780,11 +751,8 @@ const SchemaLevelLoadInitialValuesForm = () => {
         items: {
           type: 'string',
         },
-        foreign_key: {
-          table: 'products',
-          column: 'id',
-          customQueryFn: customProductQueryFn,
-        },
+        customQueryFn: customProductQueryFn,
+        idColumn: 'id',
         renderDisplay: (item: any) => `${item.name} - ${item.category}`,
         loadInitialValues: defaultLoadInitialValuesForRelated, // Required for id-picker: loads records for human-readable display
       } as CustomJSONSchema7,
@@ -885,14 +853,16 @@ const SchemaLevelLoadInitialValuesForm = () => {
     featured_product: {
       type: 'string',
       variant: 'id-picker',
-      foreign_key: { ... },
+      customQueryFn: customProductQueryFn,
+      idColumn: 'id',
       renderDisplay: (item) => \`\${item.name} (\$\${item.price})\`,
       loadInitialValues: customLoadInitialValues, // ← Custom implementation
     },
     related_products: {
       type: 'array',
       variant: 'id-picker',
-      foreign_key: { ... },
+      customQueryFn: customProductQueryFn,
+      idColumn: 'id',
       renderDisplay: (item) => \`\${item.name} - \${item.category}\`,
       loadInitialValues: defaultLoadInitialValues, // Required
     },

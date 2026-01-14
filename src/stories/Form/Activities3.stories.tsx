@@ -249,7 +249,7 @@ const SomeForm = () => {
   const query = useQuery({
     queryKey: [`some_actitivitues`],
     queryFn: async () => {
-      // Note: getTableData no longer accepts serverUrl. Use customQueryFn in foreign_key instead.
+      // Note: getTableData no longer accepts serverUrl. Use customQueryFn instead.
       // const data = await getTableData({
       //   searching: 'e8ad43bf-e00f-4633-b334-68c0f3fd6ead',
       //   limit: 10,
@@ -323,7 +323,7 @@ const SomeForm = () => {
             console.log('onSubmit', data);
           },
           getUpdatedData: async () => {
-            // Note: getTableData no longer accepts serverUrl. Use customQueryFn in foreign_key instead.
+            // Note: getTableData no longer accepts serverUrl. Use customQueryFn instead.
             // const response = await getTableData({
             //   searching: 'e8ad43bf-e00f-4633-b334-68c0f3fd6ead',
             //   limit: 10,

@@ -203,19 +203,16 @@ const IdPickerInitialValuesForm = () => {
       manager: {
         type: 'string',
         variant: 'id-picker',
-        foreign_key: {
-          table: 'employees',
-          column: 'id',
-          customQueryFn: customEmployeeQueryFn,
-        },
+        customQueryFn: customEmployeeQueryFn,
+        idColumn: 'id',
         loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
-          const { column: column_ref, customQueryFn } = params.foreign_key;
+          const { customQueryFn, idColumn } = params;
           if (!customQueryFn) {
             throw new Error(
-              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+              'customQueryFn is required. serverUrl has been removed.'
             );
           }
           const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -224,7 +221,7 @@ const IdPickerInitialValuesForm = () => {
             offset: 0,
             where: [
               {
-                id: column_ref,
+                id: idColumn,
                 value: params.ids.length === 1 ? params.ids[0] : params.ids,
               },
             ],
@@ -245,19 +242,16 @@ const IdPickerInitialValuesForm = () => {
         items: {
           type: 'string',
         },
-        foreign_key: {
-          table: 'employees',
-          column: 'id',
-          customQueryFn: customEmployeeQueryFn,
-        },
+        customQueryFn: customEmployeeQueryFn,
+        idColumn: 'id',
         loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
-          const { column: column_ref, customQueryFn } = params.foreign_key;
+          const { customQueryFn, idColumn } = params;
           if (!customQueryFn) {
             throw new Error(
-              'customQueryFn is required in foreign_key. serverUrl has been removed.'
+              'customQueryFn is required. serverUrl has been removed.'
             );
           }
           const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -266,7 +260,7 @@ const IdPickerInitialValuesForm = () => {
             offset: 0,
             where: [
               {
-                id: column_ref,
+                id: idColumn,
                 value: params.ids.length === 1 ? params.ids[0] : params.ids,
               },
             ],

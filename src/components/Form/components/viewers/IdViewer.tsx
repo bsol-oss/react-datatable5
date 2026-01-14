@@ -32,7 +32,6 @@ export const IdViewer = ({
     gridColumn = 'span 12',
     gridRow = 'span 1',
     renderDisplay,
-    foreign_key,
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const formI18n = useFormLabel(column, prefix, schema);

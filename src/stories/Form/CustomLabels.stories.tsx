@@ -18,12 +18,10 @@ const createDefaultLoadInitialValues = () => {
       return { data: { data: [], count: 0 }, idMap: {} };
     }
 
-    const { column: column_ref, customQueryFn } = params.foreign_key;
+    const { customQueryFn, idColumn } = params;
 
     if (!customQueryFn) {
-      throw new Error(
-        'customQueryFn is required in foreign_key. serverUrl has been removed.'
-      );
+      throw new Error('customQueryFn is required. serverUrl has been removed.');
     }
 
     const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -32,7 +30,7 @@ const createDefaultLoadInitialValues = () => {
       offset: 0,
       where: [
         {
-          id: column_ref,
+          id: idColumn,
           value: params.ids.length === 1 ? params.ids[0] : params.ids,
         },
       ],
@@ -218,20 +216,14 @@ const IdPickerForm = () => {
         type: 'string',
         title: 'Category',
         variant: 'id-picker',
-        foreign_key: {
-          table: 'categories',
-          column: 'id',
-        },
+        idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
       tags: {
         type: 'array',
         title: 'Tags',
         variant: 'id-picker',
-        foreign_key: {
-          table: 'tags',
-          column: 'id',
-        },
+        idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
     },
@@ -280,20 +272,14 @@ const CombinedForm = () => {
         type: 'string',
         title: 'Organizer',
         variant: 'id-picker',
-        foreign_key: {
-          table: 'users',
-          column: 'id',
-        },
+        idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
       categories: {
         type: 'array',
         title: 'Categories',
         variant: 'id-picker',
-        foreign_key: {
-          table: 'categories',
-          column: 'id',
-        },
+        idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
     },

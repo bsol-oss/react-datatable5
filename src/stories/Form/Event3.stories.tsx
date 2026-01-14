@@ -44,49 +44,43 @@ const SomeForm = () => {
             someString: {
               type: 'string',
               variant: 'id-picker',
-              foreign_key: {
-                table: 'core_people',
-                column: 'id',
-                customQueryFn: async ({ searching }: CustomQueryFnParams) => {
-                  return {
-                    data: {
-                      data: [
-                        {
-                          id: '12333',
-                          name: 'John Doe',
-                        },
-                        {
-                          id: '12334',
-                          name: 'Jane Doe',
-                        },
-                      ].filter((item) =>
-                        item.name
-                          .toLowerCase()
-                          .includes(searching.toLowerCase())
-                      ),
-                    },
-                    idMap: {
-                      '12333': {
+              customQueryFn: async ({ searching }: CustomQueryFnParams) => {
+                return {
+                  data: {
+                    data: [
+                      {
                         id: '12333',
                         name: 'John Doe',
                       },
-                      '12334': {
+                      {
                         id: '12334',
                         name: 'Jane Doe',
                       },
+                    ].filter((item) =>
+                      item.name.toLowerCase().includes(searching.toLowerCase())
+                    ),
+                  },
+                  idMap: {
+                    '12333': {
+                      id: '12333',
+                      name: 'John Doe',
                     },
-                  };
-                },
+                    '12334': {
+                      id: '12334',
+                      name: 'Jane Doe',
+                    },
+                  },
+                };
               },
+              idColumn: 'id',
               loadInitialValues: async (params) => {
                 if (!params.ids || params.ids.length === 0) {
                   return { data: { data: [], count: 0 }, idMap: {} };
                 }
-                const { column: column_ref, customQueryFn } =
-                  params.foreign_key;
+                const { customQueryFn, idColumn } = params;
                 if (!customQueryFn) {
                   throw new Error(
-                    'customQueryFn is required in foreign_key. serverUrl has been removed.'
+                    'customQueryFn is required. serverUrl has been removed.'
                   );
                 }
                 const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -95,7 +89,7 @@ const SomeForm = () => {
                   offset: 0,
                   where: [
                     {
-                      id: column_ref,
+                      id: idColumn,
                       value:
                         params.ids.length === 1 ? params.ids[0] : params.ids,
                     },

@@ -28,12 +28,6 @@ export interface CustomQueryFnParams {
 export type CustomQueryFn = (
   params: CustomQueryFnParams
 ) => Promise<CustomQueryFnResponse>;
-
-export interface ForeignKeyProps {
-  column: string;
-  table: string;
-  customQueryFn?: CustomQueryFn;
-}
 export const StringInputField = ({
   column,
   schema,

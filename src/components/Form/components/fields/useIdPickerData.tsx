@@ -5,7 +5,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
-import { ForeignKeyProps } from './StringInputField';
 import {
   CustomJSONSchema7,
   defaultRenderDisplay,
@@ -92,7 +91,8 @@ export const useIdPickerData = ({
     renderDisplay,
     itemToValue: schemaItemToValue,
     loadInitialValues,
-    foreign_key,
+    customQueryFn,
+    idColumn,
     variant,
   } = schema;
 
@@ -103,11 +103,7 @@ export const useIdPickerData = ({
       `loadInitialValues is recommended in schema for IdPicker field '${column}'. Please provide loadInitialValues function in the schema to load records for human-readable display.`
     );
   }
-  const {
-    table,
-    column: column_ref,
-    customQueryFn,
-  } = foreign_key as ForeignKeyProps;
+  const column_ref = idColumn || 'id';
   const [searchText, setSearchText] = useState<string>('');
   const debouncedSearchText = useDebounce(searchText, 300);
   const [limit] = useState<number>(50); // Increased limit for combobox
@@ -181,7 +177,8 @@ export const useIdPickerData = ({
 
       const result = await loadInitialValues({
         ids: missingIds,
-        foreign_key: foreign_key as ForeignKeyProps,
+        customQueryFn: customQueryFn!,
+        idColumn: column_ref,
         setIdMap,
       });
 
@@ -202,10 +199,10 @@ export const useIdPickerData = ({
   const query = useQuery({
     queryKey: [`idpicker`, { column, searchText: debouncedSearchText, limit }],
     queryFn: async () => {
-      // customQueryFn is required when serverUrl is not available
+      // customQueryFn is required
       if (!customQueryFn) {
         throw new Error(
-          `customQueryFn is required in foreign_key for table ${table}. serverUrl has been removed.`
+          `customQueryFn is required in properties of column ${column} when using id-picker.`
         );
       }
       const { data, idMap } = await customQueryFn({

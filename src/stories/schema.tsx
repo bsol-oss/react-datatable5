@@ -15,12 +15,10 @@ const createDefaultLoadInitialValues = () => {
       return { data: { data: [], count: 0 }, idMap: {} };
     }
 
-    const { column: column_ref, customQueryFn } = params.foreign_key;
+    const { customQueryFn, idColumn } = params;
 
     if (!customQueryFn) {
-      throw new Error(
-        'customQueryFn is required in foreign_key. serverUrl has been removed.'
-      );
+      throw new Error('customQueryFn is required. serverUrl has been removed.');
     }
 
     const { data, idMap: returnedIdMap } = await customQueryFn({
@@ -29,7 +27,7 @@ const createDefaultLoadInitialValues = () => {
       offset: 0,
       where: [
         {
-          id: column_ref,
+          id: idColumn,
           value: params.ids.length === 1 ? params.ids[0] : params.ids,
         },
       ],
@@ -443,10 +441,7 @@ export const activitiesSchema = {
       gridColumn: '1/span 6',
       gridRow: '2/span 1',
       variant: 'id-picker',
-      foreign_key: {
-        table: 'core_activities',
-        column: 'id',
-      },
+      idColumn: 'id',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
   },
@@ -688,10 +683,7 @@ export const eventsFilesSchema = {
       title: 'Event',
       gridColumn: '1/span 6',
       gridRow: '1/span 1',
-      foreign_key: {
-        table: 'core_events',
-        column: 'id',
-      },
+      idColumn: 'id',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
     good: {
@@ -717,10 +709,7 @@ export const eventsFilesSchema2 = {
       format: 'uuid',
       variant: 'id-picker',
       title: 'Files',
-      foreign_key: {
-        table: 'core_files',
-        column: 'id',
-      },
+      idColumn: 'id',
       gridColumn: '1/span 8',
       gridRow: '2/span 8',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
@@ -730,10 +719,7 @@ export const eventsFilesSchema2 = {
       format: 'uuid',
       variant: 'id-picker',
       title: 'Event',
-      foreign_key: {
-        table: 'core_events',
-        column: 'id',
-      },
+      idColumn: 'id',
       gridColumn: '1/span 6',
       gridRow: '1/span 1',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
