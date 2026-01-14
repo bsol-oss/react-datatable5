@@ -662,7 +662,7 @@ const Filter = ({ column }) => {
     }
     if (filterVariant === 'dateRange') {
         const filterValue = column.getFilterValue() ?? [];
-        return (jsxs(Flex, { flexFlow: 'column', gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(RangeDatePicker, { selected: filterValue, onDateSelected: ({ selected, selectable, date }) => {
+        return (jsxs(Flex, { flexFlow: 'column', gap: "0.25rem", children: [jsx(Text, { children: displayName }), jsx(RangeDatePicker, { selected: filterValue, onDateSelected: ({ selectable, date }) => {
                         const newDates = getRangeDates({
                             selectable,
                             date,
@@ -704,7 +704,7 @@ const FilterDialog = ({ icon = jsx(MdFilterAlt, {}), }) => {
     const filterModal = useDisclosure();
     const { tableLabel } = useDataTableContext();
     const { filterButtonText, filterTitle, filterClose } = tableLabel;
-    return (jsxs(DialogRoot, { size: ["full", "full", "md", "md"], open: filterModal.open, children: [jsx(DialogTrigger, { asChild: true, children: jsxs(Button$1, { as: Box, variant: "ghost", onClick: filterModal.onOpen, children: [icon, " ", filterButtonText] }) }), jsxs(DialogContent, { children: [jsx(DialogHeader, { children: jsx(DialogTitle, { children: filterTitle }) }), jsx(DialogBody, { display: "flex", flexFlow: "column", children: jsx(TableFilter, {}) }), jsxs(DialogFooter, { children: [jsx(ResetFilteringButton, {}), jsx(Button$1, { onClick: filterModal.onClose, variant: "subtle", children: filterClose })] }), jsx(DialogCloseTrigger, { onClick: filterModal.onClose })] })] }));
+    return (jsxs(DialogRoot, { size: ['full', 'full', 'md', 'md'], open: filterModal.open, children: [jsx(DialogTrigger, { asChild: true, children: jsxs(Button$1, { as: Box, variant: 'ghost', onClick: filterModal.onOpen, children: [icon, " ", filterButtonText] }) }), jsxs(DialogContent, { children: [jsx(DialogHeader, { children: jsx(DialogTitle, { children: filterTitle }) }), jsx(DialogBody, { display: 'flex', flexFlow: 'column', children: jsx(TableFilter, {}) }), jsxs(DialogFooter, { children: [jsx(ResetFilteringButton, {}), jsx(Button$1, { onClick: filterModal.onClose, variant: 'subtle', children: filterClose })] }), jsx(DialogCloseTrigger, { onClick: filterModal.onClose })] })] }));
 };
 
 const MenuContent = React.forwardRef(function MenuContent(props, ref) {
@@ -1032,7 +1032,7 @@ function areAllPageRowsSelected(table, rowSelection) {
 /**
  * Create a toggle handler for a specific row
  */
-function createRowToggleHandler(row, rowSelection, setRowSelection) {
+function createRowToggleHandler(row, _rowSelection, setRowSelection) {
     return () => {
         setRowSelection((old) => {
             const newSelection = { ...old };
@@ -3672,9 +3672,9 @@ const TableRowSelector = ({ row }) => {
             onCheckedChange: toggleHandler }) }));
 };
 
-const TableCardContainer = ({ children, variant = "", gap = "1rem", gridTemplateColumns = "repeat(auto-fit, minmax(20rem, 1fr))", direction = "row", ...props }) => {
-    if (variant === "carousel") {
-        return (jsx(Flex, { overflow: "auto", gap: gap, direction: direction, ...props, children: children }));
+const TableCardContainer = ({ children, variant = '', gap = '1rem', gridTemplateColumns = 'repeat(auto-fit, minmax(20rem, 1fr))', direction = 'row', ...props }) => {
+    if (variant === 'carousel') {
+        return (jsx(Flex, { overflow: 'auto', gap: gap, direction: direction, ...props, children: children }));
     }
     return (jsx(Grid, { gridTemplateColumns: gridTemplateColumns, gap: gap, ...props, children: children }));
 };
@@ -4419,10 +4419,10 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
     const formI18n = useFormLabel(column, prefix, schema);
-    const { formState: { errors }, setValue, watch, } = useFormContext();
+    const { setValue, watch } = useFormContext();
     const { formButtonLabels } = useSchemaContext();
     const fields = (watch(colLabel) ?? []);
-    return (jsxs(Flex, { gridRow, gridColumn, flexFlow: 'column', gap: 2, children: [jsxs(Box, { as: "label", children: [formI18n.label(), isRequired && jsx("span", { children: "*" })] }), jsx(Flex, { flexFlow: 'column', gap: 2, children: fields.map((field, index) => (jsxs(Grid, { gridTemplateColumns: '1fr auto', gap: 2, bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
+    return (jsxs(Flex, { gridRow, gridColumn, flexFlow: 'column', gap: 2, children: [jsxs(Box, { as: "label", children: [formI18n.label(), isRequired && jsx("span", { children: "*" })] }), jsx(Flex, { flexFlow: 'column', gap: 2, children: fields.map((_, index) => (jsxs(Grid, { gridTemplateColumns: '1fr auto', gap: 2, bgColor: { base: 'colorPalette.100', _dark: 'colorPalette.900' }, p: 2, borderRadius: 4, borderWidth: 1, borderColor: {
                         base: 'colorPalette.200',
                         _dark: 'colorPalette.800',
                     }, children: [jsx(Grid, { gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: jsx(SchemaRenderer, { column: `${index}`,
@@ -4454,6 +4454,31 @@ const Field = React.forwardRef(function Field(props, ref) {
     return (jsxs(Field$1.Root, { ref: ref, ...rest, children: [label && (jsxs(Field$1.Label, { children: [label, jsx(Field$1.RequiredIndicator, { color: rest.invalid && rest.required ? 'red.500' : undefined, fallback: optionalText })] })), children, helperText && (jsx(Field$1.HelperText, { children: helperText })), !!errorText && (jsxs(Field$1.ErrorText, { children: [rest.required && rest.invalid && (jsx("span", { style: { color: 'var(--chakra-colors-red-500)' }, children: "* " })), errorText] }))] }));
 });
 
+/**
+ * Get nested error message from react-hook-form errors object.
+ * For nested fields like 'address.street', errors are stored as
+ * errors.address.street, not errors['address.street'].
+ * This utility traverses the nested structure to find the error.
+ *
+ * @param errors - The errors object from react-hook-form
+ * @param path - The field path (e.g., 'address.street' or 'contact.info.email')
+ * @returns The error message string or undefined if no error
+ */
+const getNestedError = (errors, path) => {
+    if (!errors || !path)
+        return undefined;
+    const parts = path.split('.');
+    let current = errors;
+    for (const part of parts) {
+        if (current === undefined || current === null) {
+            return undefined;
+        }
+        current = current[part];
+    }
+    // Return the message if it exists
+    return current?.message;
+};
+
 const BooleanPicker = ({ schema, column, prefix }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
@@ -4461,7 +4486,7 @@ const BooleanPicker = ({ schema, column, prefix }) => {
     const colLabel = `${prefix}${column}`;
     const value = watch(colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(CheckboxCard, { checked: value, variant: 'surface', onChange: () => {
                 setValue(colLabel, !value);
@@ -4482,7 +4507,7 @@ const CustomInput = ({ column, schema, prefix }) => {
 
 const Calendar = ({ calendars, getBackProps, getForwardProps, getDateProps, firstDayOfWeek = 0, }) => {
     const { labels } = useContext(DatePickerContext);
-    const { monthNamesShort, weekdayNamesShort, backButtonLabel, forwardButtonLabel, } = labels;
+    const { monthNamesShort, weekdayNamesShort } = labels;
     if (calendars.length) {
         return (jsx(Grid, { children: jsx(Grid, { templateColumns: 'repeat(2, auto)', justifyContent: 'center', children: calendars.map((calendar) => (jsxs(Grid, { gap: 2, children: [jsxs(Grid, { templateColumns: 'repeat(6, auto)', justifyContent: 'center', alignItems: 'center', gap: 2, children: [jsx(Button$1, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getBackProps({ calendars }), children: '<' }), jsx(Text, { textAlign: 'center', children: monthNamesShort[calendar.month] }), jsx(Button$1, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getForwardProps({ calendars }), children: '>' }), jsx(Button$1, { variant: 'ghost', size: 'sm', colorPalette: 'gray', ...getBackProps({
                                         calendars,
@@ -4765,7 +4790,7 @@ const DatePicker = ({ column, schema, prefix }) => {
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const selectedDate = watch(colLabel);
@@ -4932,7 +4957,7 @@ const DateRangePicker = ({ column, schema, prefix, }) => {
     const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD', dateFormat = 'YYYY-MM-DD', } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     const [open, setOpen] = useState(false);
     const selectedDateRange = watch(colLabel);
     // Convert string[] to Date[] for the picker
@@ -5032,7 +5057,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
     const isRequired = required?.some((columnId) => columnId === column);
     const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
     const colLabel = formI18n.colLabel;
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     const watchEnum = watch(colLabel);
     const watchEnums = (watch(colLabel) ?? []);
     const dataList = schema.enum ?? [];
@@ -5741,7 +5766,7 @@ const FilePicker = ({ column, schema, prefix }) => {
             ? currentValue.filter((f) => f instanceof File)
             : [];
     const colLabel = formI18n.colLabel;
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     const [failedImageIds, setFailedImageIds] = useState(new Set());
     // FilePicker variant: Only handle File objects, no media library browser
     const handleImageError = (fileIdentifier) => {
@@ -5818,7 +5843,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
             ? currentValue
             : [];
     const colLabel = formI18n.colLabel;
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [failedImageIds, setFailedImageIds] = useState(new Set());
     // Map of file ID to FilePickerMediaFile for display
@@ -5898,7 +5923,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
         }
     };
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: undefined, invalid: !!errors[colLabel], children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(Button$1, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ?? 'Browse from Library' }) }), jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ?? formI18n.label() ?? 'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(Button$1, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ?? 'Browse from Library' }) }), jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ?? formI18n.label() ?? 'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
                     const file = fileMap.get(fileId);
                     const isImage = file
                         ? /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name)
@@ -6237,7 +6262,7 @@ const IdPickerSingle = ({ column, schema, prefix, }) => {
     const formI18n = useFormLabel(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
-    const { colLabel, currentValue, searchText, setSearchText, isLoading, isFetching, isPending, isError, isSearching, collection, filter, idMap, idPickerLabels, insideDialog, renderDisplay: renderDisplayFn, itemToValue, itemToString, errors, setValue, } = useIdPickerData({
+    const { colLabel, currentValue, searchText, setSearchText, isLoading, isFetching, isPending, isError, isSearching, collection, filter, idMap, idPickerLabels, insideDialog, renderDisplay: renderDisplayFn, itemToString, errors, setValue, } = useIdPickerData({
         column,
         schema,
         prefix,
@@ -6279,7 +6304,7 @@ const IdPickerSingle = ({ column, schema, prefix, }) => {
     const selectedRendered = selectedItem
         ? renderDisplayFunction(selectedItem)
         : null;
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxs(Combobox.RootProvider, { value: combobox, width: "100%", children: [jsx(Show, { when: selectedId && selectedRendered, children: jsxs(HStack, { justifyContent: 'space-between', children: [jsx(Box, { children: selectedRendered }), currentValue.length > 0 && (jsx(Button$1, { variant: "ghost", size: "sm", onClick: () => {
                                     setValue(colLabel, '');
@@ -6314,7 +6339,7 @@ const IdPickerMultiple = ({ column, schema, prefix, }) => {
     };
     // Use renderDisplay from hook (which comes from schema) or fallback to default
     const renderDisplayFunction = renderDisplayFn || defaultRenderDisplay;
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((id) => {
                     const item = idMap[id];
@@ -6353,7 +6378,7 @@ const NumberInputField = ({ schema, column, prefix, }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const value = watch(`${colLabel}`);
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
     // Convert value to string for NumberInput (it uses string values internally)
     // NumberInput expects string values to preserve locale-specific formatting
@@ -6456,7 +6481,7 @@ const StringInputField = ({ column, schema, prefix, }) => {
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
     return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
 };
@@ -6471,7 +6496,7 @@ const RadioCardRoot = RadioCard.Root;
 RadioCard.Label;
 RadioCard.ItemIndicator;
 
-const TagPicker = ({ column, schema, prefix }) => {
+const TagPicker = ({ column, schema }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
     if (schema.properties == undefined) {
         throw new Error('schema properties undefined when using DatePicker');
@@ -6563,7 +6588,7 @@ const TextAreaInput = ({ column, schema, prefix, }) => {
     const { required, gridColumn = 'span 12', gridRow = 'span 1' } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
     const watchValue = watch(colLabel);
     return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: "grid", errorText: fieldError, invalid: !!fieldError, children: jsx(Textarea, { value: watchValue, onChange: (value) => setValue(colLabel, value) }) }) }));
@@ -7018,7 +7043,7 @@ const TimePicker = ({ column, schema, prefix }) => {
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = `${prefix}${column}`;
     const formI18n = useFormLabel(column, prefix, schema);
-    const fieldError = errors[colLabel]?.message;
+    const fieldError = getNestedError(errors, colLabel);
     const [open, setOpen] = useState(false);
     const value = watch(colLabel);
     // Watch startTime and selectedDate fields for offset calculation
@@ -8019,19 +8044,15 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const DateTimePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { timezone, dateTimePickerLabels, timePickerLabels, insideDialog } = useSchemaContext();
+    const { timezone, dateTimePickerLabels, timePickerLabels } = useSchemaContext();
     const formI18n = useFormLabel(column, prefix, schema);
-    const { required, gridColumn = 'span 12', gridRow = 'span 1', displayDateFormat = 'YYYY-MM-DD HH:mm:ss', 
+    const { required, gridColumn = 'span 12', gridRow = 'span 1', 
     // with timezone
     dateFormat = 'YYYY-MM-DD[T]HH:mm:ssZ', dateTimePicker, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const colLabel = formI18n.colLabel;
-    const fieldError = errors[colLabel]?.message;
-    useState(false);
+    const fieldError = getNestedError(errors, colLabel);
     const selectedDate = watch(colLabel);
-    selectedDate && dayjs(selectedDate).tz(timezone).isValid()
-        ? dayjs(selectedDate).tz(timezone).format(displayDateFormat)
-        : '';
     // Set default date on mount if no value exists
     const dateTimePickerLabelsConfig = {
         monthNamesShort: dateTimePickerLabels?.monthNamesShort ?? [
@@ -8485,7 +8506,8 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
 const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
     const { columns, data } = useDataTableContext();
     const columnsMap = Object.fromEntries(columns.map((def) => {
-        const { accessorKey, id } = def;
+        const { id } = def;
+        const accessorKey = def.accessorKey;
         if (accessorKey) {
             return [accessorKey, def];
         }
@@ -8546,7 +8568,7 @@ const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
             })] }));
 };
 
-const MobileTableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsx(Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterName = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
+const MobileTableControls = ({ fitTableWidth = false, fitTableHeight = false, children = jsx(Fragment, {}), showGlobalFilter = false, showFilter = false, showFilterTags = false, showReload = false, showPagination = true, showPageSizeControl = true, showPageCountText = true, showView = true, filterTagsOptions = [], extraItems = jsx(Fragment, {}), loading = false, hasError = false, gridProps = {}, }) => {
     const { tableLabel, table } = useDataTableContext();
     const { hasErrorText } = tableLabel;
     return (jsxs(Grid, { templateRows: 'auto 1fr auto', width: fitTableWidth ? 'fit-content' : '100%', height: fitTableHeight ? 'fit-content' : '100%', gap: 2, padding: 2, ...gridProps, children: [jsxs(Stack, { gap: 2, children: [jsxs(Flex, { justifyContent: 'space-between', alignItems: 'center', gap: 2, children: [jsxs(Flex, { gap: 1, alignItems: 'center', children: [showView && jsx(ViewDialog, { icon: jsx(MdOutlineViewColumn, {}) }), loading && jsx(Spinner, { size: 'sm' }), hasError && (jsx(Tooltip, { content: hasErrorText, children: jsx(Icon, { as: BsExclamationCircleFill, color: 'red.400' }) }))] }), jsxs(Flex, { gap: 1, alignItems: 'center', children: [showGlobalFilter && jsx(GlobalFilter, {}), showFilter && jsx(FilterDialog, {}), showReload && jsx(ReloadButton, {}), extraItems] })] }), filterTagsOptions.length > 0 && (jsx(Stack, { gap: 2, children: filterTagsOptions.map((option) => {
@@ -8756,7 +8778,7 @@ const CellRenderer = ({ cell }) => {
     }
     return (jsxs(Box, { gridColumn, gridRow, children: [jsx(Box, { color: 'colorPalette.400', children: getLabel({ columnId: cell.column.id }) }), jsx(Box, { wordBreak: 'break-word', textOverflow: 'ellipsis', overflow: 'hidden', children: `${formatValue(cell.getValue())}` })] }, cell.id));
 };
-const DataDisplay = ({ variant = '' }) => {
+const DataDisplay = ({}) => {
     const { table } = useDataTableContext();
     return (jsx(Flex, { flexFlow: 'column', gap: '1', children: table.getRowModel().rows.map((row) => {
             const rowId = row.id;
@@ -8774,9 +8796,13 @@ const DataDisplay = ({ variant = '' }) => {
                                                 .find((cell) => {
                                                 return cell.id === `${rowId}_${subColumn.id}`;
                                             });
+                                            if (!foundCell)
+                                                return null;
                                             return (jsx(CellRenderer, { cell: foundCell }, `chakra-table-cell-${rowId}-${subColumn.id}`));
                                         }) })] }, `chakra-table-card-${rowId}-${column.id}`));
                         }
+                        if (!childCell)
+                            return null;
                         return (jsx(CellRenderer, { cell: childCell }, `chakra-table-cell-${rowId}-${column.id}`));
                     }) }) }, `chakra-table-card-${rowId}`));
         }) }));

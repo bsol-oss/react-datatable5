@@ -1,10 +1,10 @@
-import { BoxProps, FlexProps } from "@chakra-ui/react";
-import { ReactNode } from "react";
-export interface TableCardContainerProps extends BoxProps {
+import { FlexProps, GridProps } from '@chakra-ui/react';
+import { ReactNode } from 'react';
+export interface TableCardContainerProps extends Omit<GridProps, 'direction'> {
     children: ReactNode;
-    variant?: "carousel" | "";
+    variant?: 'carousel' | '';
     gap?: string;
     gridTemplateColumns?: string;
-    direction?: FlexProps["direction"];
+    direction?: FlexProps['direction'];
 }
 export declare const TableCardContainer: ({ children, variant, gap, gridTemplateColumns, direction, ...props }: TableCardContainerProps) => import("react/jsx-runtime").JSX.Element;

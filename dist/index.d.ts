@@ -3,7 +3,7 @@ import { Row, Table as Table$1, RowData, OnChangeFn, Updater, SortingState, Colu
 import * as React$1 from 'react';
 import React__default, { ReactNode, Dispatch, SetStateAction } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { TableHeaderProps as TableHeaderProps$1, TableRowProps, GridProps, TableRootProps, BoxProps, FlexProps, CardBodyProps, TextProps, ImageProps } from '@chakra-ui/react';
+import { TableHeaderProps as TableHeaderProps$1, TableRowProps, GridProps, TableRootProps, FlexProps, CardBodyProps, TextProps, ImageProps, BoxProps } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
 import { UseQueryResult } from '@tanstack/react-query';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
@@ -191,12 +191,12 @@ interface TableRowSelectorProps<TData> {
 }
 declare const TableBody: ({ showSelector, canResize, }: TableBodyProps) => react_jsx_runtime.JSX.Element;
 
-interface TableCardContainerProps extends BoxProps {
+interface TableCardContainerProps extends Omit<GridProps, 'direction'> {
     children: ReactNode;
-    variant?: "carousel" | "";
+    variant?: 'carousel' | '';
     gap?: string;
     gridTemplateColumns?: string;
-    direction?: FlexProps["direction"];
+    direction?: FlexProps['direction'];
 }
 declare const TableCardContainer: ({ children, variant, gap, gridTemplateColumns, direction, ...props }: TableCardContainerProps) => react_jsx_runtime.JSX.Element;
 
@@ -1032,7 +1032,7 @@ declare const DefaultTableServer: ({ isLoading: isLoadingOverride, ...props }: D
 interface DataDisplayProps {
     variant?: 'horizontal' | 'stats' | '';
 }
-declare const DataDisplay: ({ variant }: DataDisplayProps) => react_jsx_runtime.JSX.Element;
+declare const DataDisplay: ({}: DataDisplayProps) => react_jsx_runtime.JSX.Element;
 
 interface CalendarEvent<TData = unknown> {
     data: TData;
@@ -1240,6 +1240,16 @@ declare module '@tanstack/react-table' {
          * Only applies when canResize={false}.
          */
         responsivePriority?: number;
+        /**
+         * Grid column span for data display layout.
+         * Used in DataDisplay component.
+         */
+        gridColumn?: string | string[];
+        /**
+         * Grid row span for data display layout.
+         * Used in DataDisplay component.
+         */
+        gridRow?: string | object;
     }
 }
 

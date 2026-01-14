@@ -27,4 +27,4 @@ export interface TagViewerProps {
     schema: CustomJSONSchema7;
     prefix: string;
 }
-export declare const TagViewer: ({ column, schema, prefix }: TagViewerProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TagViewer: ({ column, schema }: TagViewerProps) => import("react/jsx-runtime").JSX.Element;

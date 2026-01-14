@@ -11,4 +11,4 @@ export interface GetTableResponse {
     data?: object[];
     count: number;
 }
-export declare const getTableData: ({ searching, where, limit, offset, }: GetTableDataConfig) => Promise<never>;
+export declare const getTableData: ({}: GetTableDataConfig) => Promise<never>;

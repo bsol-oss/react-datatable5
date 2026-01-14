@@ -22,4 +22,4 @@ export interface TagData {
 export interface TagResponse {
     data: TagData[];
 }
-export declare const TagPicker: ({ column, schema, prefix }: TagPickerProps) => import("react/jsx-runtime").JSX.Element;
+export declare const TagPicker: ({ column, schema }: TagPickerProps) => import("react/jsx-runtime").JSX.Element;

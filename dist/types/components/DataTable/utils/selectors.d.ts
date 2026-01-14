@@ -34,7 +34,7 @@ export declare function areSomePageRowsSelected<TData>(table: Table<TData>, rowS
 /**
  * Create a toggle handler for a specific row
  */
-export declare function createRowToggleHandler<TData>(row: Row<TData>, rowSelection: RowSelectionState, setRowSelection: OnChangeFn<RowSelectionState>): () => void;
+export declare function createRowToggleHandler<TData>(row: Row<TData>, _rowSelection: RowSelectionState, setRowSelection: OnChangeFn<RowSelectionState>): () => void;
 /**
  * Create a toggle handler for all rows
  */

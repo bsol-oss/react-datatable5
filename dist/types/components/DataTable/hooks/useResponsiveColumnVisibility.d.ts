@@ -1,6 +1,6 @@
 import { RefObject } from 'react';
 interface UseResponsiveColumnVisibilityOptions {
-    containerRef: RefObject<HTMLElement>;
+    containerRef: RefObject<HTMLElement | null>;
     enabled: boolean;
     showSelector?: boolean;
 }
