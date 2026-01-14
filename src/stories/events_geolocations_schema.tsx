@@ -2,6 +2,64 @@ import {
   LoadInitialValuesParams,
   LoadInitialValuesResult,
 } from '@/components/Form/components/types/CustomJSONSchema7';
+import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
+
+// Mock query functions for example schema
+const mockEventQueryFn = async ({
+  searching,
+  limit,
+  offset,
+  where,
+}: CustomQueryFnParams) => {
+  const mockData = [
+    { id: 'evt-1', name: 'Event 1' },
+    { id: 'evt-2', name: 'Event 2' },
+  ];
+  let filtered = mockData;
+  if (where && where.length > 0) {
+    const ids = Array.isArray(where[0].value)
+      ? where[0].value
+      : [where[0].value];
+    filtered = mockData.filter((item) => ids.includes(item.id));
+  }
+  const paginated = filtered.slice(offset, offset + limit);
+  const idMap: Record<string, any> = {};
+  paginated.forEach((item) => {
+    idMap[item.id] = item;
+  });
+  return {
+    data: { data: paginated, count: filtered.length },
+    idMap,
+  };
+};
+
+const mockGeolocationQueryFn = async ({
+  searching,
+  limit,
+  offset,
+  where,
+}: CustomQueryFnParams) => {
+  const mockData = [
+    { id: 'geo-1', name: 'Geolocation 1' },
+    { id: 'geo-2', name: 'Geolocation 2' },
+  ];
+  let filtered = mockData;
+  if (where && where.length > 0) {
+    const ids = Array.isArray(where[0].value)
+      ? where[0].value
+      : [where[0].value];
+    filtered = mockData.filter((item) => ids.includes(item.id));
+  }
+  const paginated = filtered.slice(offset, offset + limit);
+  const idMap: Record<string, any> = {};
+  paginated.forEach((item) => {
+    idMap[item.id] = item;
+  });
+  return {
+    data: { data: paginated, count: filtered.length },
+    idMap,
+  };
+};
 
 // Helper function to create default loadInitialValues for id-picker fields
 const createDefaultLoadInitialValues = () => {

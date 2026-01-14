@@ -5,6 +5,7 @@ import { Box, Flex } from '@chakra-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
+import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -19,6 +20,77 @@ type Story = StoryObj<typeof meta>;
 
 export default meta;
 const queryClient = new QueryClient();
+
+// Mock query functions for id-picker fields
+const mockActivityQueryFn = async ({
+  searching,
+  limit,
+  offset,
+  where,
+}: CustomQueryFnParams) => {
+  const mockData = [
+    { id: 'act-1', name: 'Activity 1', description: 'First activity' },
+    { id: 'act-2', name: 'Activity 2', description: 'Second activity' },
+    { id: 'act-3', name: 'Activity 3', description: 'Third activity' },
+  ];
+  let filtered = mockData;
+  if (searching) {
+    filtered = mockData.filter(
+      (item) =>
+        item.name.toLowerCase().includes(searching.toLowerCase()) ||
+        item.description.toLowerCase().includes(searching.toLowerCase())
+    );
+  }
+  if (where && where.length > 0) {
+    const ids = Array.isArray(where[0].value)
+      ? where[0].value
+      : [where[0].value];
+    filtered = mockData.filter((item) => ids.includes(item.id));
+  }
+  const paginated = filtered.slice(offset, offset + limit);
+  const idMap: Record<string, any> = {};
+  paginated.forEach((item) => {
+    idMap[item.id] = item;
+  });
+  return {
+    data: { data: paginated, count: filtered.length },
+    idMap,
+  };
+};
+
+const mockEventQueryFn = async ({
+  searching,
+  limit,
+  offset,
+  where,
+}: CustomQueryFnParams) => {
+  const mockData = [
+    { id: 'evt-1', name: 'Event 1', date: '2024-01-01' },
+    { id: 'evt-2', name: 'Event 2', date: '2024-02-01' },
+    { id: 'evt-3', name: 'Event 3', date: '2024-03-01' },
+  ];
+  let filtered = mockData;
+  if (searching) {
+    filtered = mockData.filter((item) =>
+      item.name.toLowerCase().includes(searching.toLowerCase())
+    );
+  }
+  if (where && where.length > 0) {
+    const ids = Array.isArray(where[0].value)
+      ? where[0].value
+      : [where[0].value];
+    filtered = mockData.filter((item) => ids.includes(item.id));
+  }
+  const paginated = filtered.slice(offset, offset + limit);
+  const idMap: Record<string, any> = {};
+  paginated.forEach((item) => {
+    idMap[item.id] = item;
+  });
+  return {
+    data: { data: paginated, count: filtered.length },
+    idMap,
+  };
+};
 
 export const EventsGeolocations: Story = {
   name: 'Events Geolocations',
@@ -289,6 +361,7 @@ const eventsGeolocationsSchema = {
           gridColumn: '1/span 6',
           gridRow: '2/span 1',
           variant: 'id-picker',
+          customQueryFn: mockActivityQueryFn,
           idColumn: 'id',
           loadInitialValues: async (params) => {
             if (!params.ids || params.ids.length === 0) {
@@ -439,6 +512,7 @@ const eventsGeolocationsSchema = {
             gridColumn: '1/span 6',
             gridRow: '2/span 1',
             variant: 'id-picker',
+            customQueryFn: mockActivityQueryFn,
             idColumn: 'id',
             loadInitialValues: async (params) => {
               if (!params.ids || params.ids.length === 0) {
@@ -587,6 +661,7 @@ const eventsGeolocationsSchema = {
                   gridColumn: '1/span 6',
                   gridRow: '2/span 1',
                   variant: 'id-picker',
+                  customQueryFn: mockEventQueryFn,
                   idColumn: 'id',
                   loadInitialValues: async (params) => {
                     if (!params.ids || params.ids.length === 0) {
@@ -653,6 +728,7 @@ const eventsGeolocationsSchema = {
         type: 'string',
       },
       variant: 'id-picker',
+      customQueryFn: mockActivityQueryFn,
       idColumn: 'id',
       loadInitialValues: async (params) => {
         if (!params.ids || params.ids.length === 0) {

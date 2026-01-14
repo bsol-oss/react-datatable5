@@ -6,6 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
 import { useState } from 'react';
+import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -40,6 +41,51 @@ const SomeForm = () => {
   });
   const [open, setOpen] = useState(false);
 
+  // Mock query function for id-picker
+  const mockGeolocationQueryFn = async ({
+    searching,
+    limit,
+    offset,
+    where,
+  }: CustomQueryFnParams) => {
+    const mockData = [
+      { id: 'loc-1', name: 'Location 1', address: '123 Main St' },
+      { id: 'loc-2', name: 'Location 2', address: '456 Oak Ave' },
+      { id: 'loc-3', name: 'Location 3', address: '789 Pine Rd' },
+    ];
+
+    let filtered = mockData;
+    if (searching) {
+      filtered = mockData.filter((item) =>
+        item.name.toLowerCase().includes(searching.toLowerCase())
+      );
+    }
+
+    if (where && where.length > 0) {
+      const whereClause = where[0];
+      if (whereClause.id === 'id') {
+        const ids = Array.isArray(whereClause.value)
+          ? whereClause.value
+          : [whereClause.value];
+        filtered = mockData.filter((item) => ids.includes(item.id));
+      }
+    }
+
+    const paginated = filtered.slice(offset, offset + limit);
+    const idMap: Record<string, any> = {};
+    paginated.forEach((item) => {
+      idMap[item.id] = item;
+    });
+
+    return {
+      data: {
+        data: paginated,
+        count: filtered.length,
+      },
+      idMap,
+    };
+  };
+
   const schema = {
     type: 'object',
     properties: {
@@ -63,6 +109,7 @@ const SomeForm = () => {
       someId: {
         type: 'string',
         variant: 'id-picker',
+        customQueryFn: mockGeolocationQueryFn,
         idColumn: 'id',
         loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {

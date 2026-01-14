@@ -8,6 +8,112 @@ import {
   LoadInitialValuesParams,
   LoadInitialValuesResult,
 } from '@/components/Form/components/types/CustomJSONSchema7';
+import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
+
+// Mock query functions for id-picker fields
+const mockCategoryQueryFn = async ({
+  searching,
+  limit,
+  offset,
+  where,
+}: CustomQueryFnParams) => {
+  const mockData = [
+    { id: '1', name: 'Category 1' },
+    { id: '2', name: 'Category 2' },
+    { id: '3', name: 'Category 3' },
+  ];
+  let filtered = mockData;
+  if (searching) {
+    filtered = mockData.filter((item) =>
+      item.name.toLowerCase().includes(searching.toLowerCase())
+    );
+  }
+  if (where && where.length > 0) {
+    const ids = Array.isArray(where[0].value)
+      ? where[0].value
+      : [where[0].value];
+    filtered = mockData.filter((item) => ids.includes(item.id));
+  }
+  const paginated = filtered.slice(offset, offset + limit);
+  const idMap: Record<string, any> = {};
+  paginated.forEach((item) => {
+    idMap[item.id] = item;
+  });
+  return {
+    data: { data: paginated, count: filtered.length },
+    idMap,
+  };
+};
+
+const mockTagQueryFn = async ({
+  searching,
+  limit,
+  offset,
+  where,
+}: CustomQueryFnParams) => {
+  const mockData = [
+    { id: '1', name: 'Tag 1' },
+    { id: '2', name: 'Tag 2' },
+    { id: '3', name: 'Tag 3' },
+  ];
+  let filtered = mockData;
+  if (searching) {
+    filtered = mockData.filter((item) =>
+      item.name.toLowerCase().includes(searching.toLowerCase())
+    );
+  }
+  if (where && where.length > 0) {
+    const ids = Array.isArray(where[0].value)
+      ? where[0].value
+      : [where[0].value];
+    filtered = mockData.filter((item) => ids.includes(item.id));
+  }
+  const paginated = filtered.slice(offset, offset + limit);
+  const idMap: Record<string, any> = {};
+  paginated.forEach((item) => {
+    idMap[item.id] = item;
+  });
+  return {
+    data: { data: paginated, count: filtered.length },
+    idMap,
+  };
+};
+
+const mockUserQueryFn = async ({
+  searching,
+  limit,
+  offset,
+  where,
+}: CustomQueryFnParams) => {
+  const mockData = [
+    { id: '1', name: 'User 1', email: 'user1@example.com' },
+    { id: '2', name: 'User 2', email: 'user2@example.com' },
+    { id: '3', name: 'User 3', email: 'user3@example.com' },
+  ];
+  let filtered = mockData;
+  if (searching) {
+    filtered = mockData.filter(
+      (item) =>
+        item.name.toLowerCase().includes(searching.toLowerCase()) ||
+        item.email.toLowerCase().includes(searching.toLowerCase())
+    );
+  }
+  if (where && where.length > 0) {
+    const ids = Array.isArray(where[0].value)
+      ? where[0].value
+      : [where[0].value];
+    filtered = mockData.filter((item) => ids.includes(item.id));
+  }
+  const paginated = filtered.slice(offset, offset + limit);
+  const idMap: Record<string, any> = {};
+  paginated.forEach((item) => {
+    idMap[item.id] = item;
+  });
+  return {
+    data: { data: paginated, count: filtered.length },
+    idMap,
+  };
+};
 
 // Helper function to create default loadInitialValues for id-picker fields
 const createDefaultLoadInitialValues = () => {
@@ -216,6 +322,7 @@ const IdPickerForm = () => {
         type: 'string',
         title: 'Category',
         variant: 'id-picker',
+        customQueryFn: mockCategoryQueryFn,
         idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
@@ -223,6 +330,7 @@ const IdPickerForm = () => {
         type: 'array',
         title: 'Tags',
         variant: 'id-picker',
+        customQueryFn: mockTagQueryFn,
         idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
@@ -272,6 +380,7 @@ const CombinedForm = () => {
         type: 'string',
         title: 'Organizer',
         variant: 'id-picker',
+        customQueryFn: mockUserQueryFn,
         idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
@@ -279,6 +388,7 @@ const CombinedForm = () => {
         type: 'array',
         title: 'Categories',
         variant: 'id-picker',
+        customQueryFn: mockCategoryQueryFn,
         idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },

@@ -175,8 +175,8 @@ export const FormMediaLibraryBrowser = ({
         gridColumn,
         gridRow,
       }}
-      errorText={undefined}
-      invalid={!!errors[colLabel]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       <VStack align="stretch" gap={2}>
         <Button
