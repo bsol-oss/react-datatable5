@@ -54,9 +54,6 @@ export const NumberViewer = ({
       {...{ gridColumn, gridRow }}
     >
       <Text>{formatValue(value)}</Text>
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Field>
   );
 };

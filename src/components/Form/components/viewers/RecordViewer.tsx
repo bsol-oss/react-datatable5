@@ -41,9 +41,6 @@ export const RecordViewer = ({ column, schema, prefix }: DatePickerProps) => {
           })}
         </Grid>
       )}
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Field>
   );
 };

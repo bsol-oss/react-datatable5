@@ -35,9 +35,6 @@ export const StringViewer = ({
         gridRow={gridRow ?? 'span 1'}
       >
         <Text>{value}</Text>
-        {errors[colLabel] && (
-          <Text color={'red.400'}>{formI18n.required()}</Text>
-        )}
       </Field>
     </>
   );

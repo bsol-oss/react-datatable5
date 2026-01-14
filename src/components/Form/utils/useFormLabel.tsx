@@ -37,35 +37,5 @@ export const useFormLabel = (
       // Return column name as fallback
       return column;
     },
-    /**
-     * Get the required error message from schema.errorMessages?.required.
-     * Returns a helpful fallback message if not provided.
-     */
-    required: () => {
-      const errorMessage = schema.errorMessages?.required;
-      if (errorMessage) {
-        return errorMessage;
-      }
-      // Debug log when error message is missing
-      console.debug(
-        `[Form Field Required] Missing error message for required field '${colLabel}'. Add errorMessages.required to schema for field '${colLabel}'.`,
-        {
-          fieldName: column,
-          colLabel,
-          prefix,
-          schema: {
-            type: schema.type,
-            title: schema.title,
-            required: schema.required,
-            hasErrorMessages: !!schema.errorMessages,
-            errorMessageKeys: schema.errorMessages
-              ? Object.keys(schema.errorMessages)
-              : undefined,
-          },
-        }
-      );
-      // Return helpful fallback message
-      return `Missing error message for required. Add errorMessages.required to schema for field '${colLabel}'`;
-    },
   };
 };

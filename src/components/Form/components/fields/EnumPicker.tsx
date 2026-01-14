@@ -43,6 +43,7 @@ export const EnumPicker = ({
   const isRequired = required?.some((columnId) => columnId === column);
   const { gridColumn = 'span 12', gridRow = 'span 1', renderDisplay } = schema;
   const colLabel = formI18n.colLabel;
+  const fieldError = errors[colLabel]?.message;
   const watchEnum = watch(colLabel);
   const watchEnums = (watch(colLabel) ?? []) as string[];
   const dataList = schema.enum ?? [];
@@ -177,8 +178,8 @@ export const EnumPicker = ({
           gridColumn,
           gridRow,
         }}
-        errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
-        invalid={!!errors[colLabel]}
+        errorText={<>{fieldError}</>}
+        invalid={!!fieldError}
       >
         <RadioGroup.Root
           value={!isMultiple ? watchEnum : undefined}
@@ -215,7 +216,7 @@ export const EnumPicker = ({
         gridColumn,
         gridRow,
       }}
-      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
+      errorText={undefined}
       invalid={!!errors[colLabel]}
     >
       {/* Multiple Picker - Show selected tags */}

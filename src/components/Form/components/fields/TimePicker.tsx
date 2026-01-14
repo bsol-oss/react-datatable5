@@ -42,6 +42,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = `${prefix}${column}`;
   const formI18n = useFormLabel(column, prefix, schema);
+  const fieldError = errors[colLabel]?.message;
   const [open, setOpen] = useState(false);
   const value = watch(colLabel);
 
@@ -148,8 +149,8 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
         gridColumn,
         gridRow,
       }}
-      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
-      invalid={!!errors[colLabel]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       <Popover.Root
         open={open}

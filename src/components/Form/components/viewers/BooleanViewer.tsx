@@ -35,9 +35,6 @@ export const BooleanViewer = ({
       }}
     >
       <Text>{value ? 'True' : 'False'}</Text>
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Field>
   );
 };

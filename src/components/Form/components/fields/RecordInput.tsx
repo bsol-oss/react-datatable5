@@ -28,6 +28,7 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
   const [newKey, setNewKey] = useState<string>();
   const [newValue, setNewValue] = useState<string>();
   const formI18n = useFormLabel(column, prefix, schema);
+  const fieldError = errors[column]?.message;
 
   return (
     <Field
@@ -35,8 +36,8 @@ export const RecordInput = ({ column, schema, prefix }: DatePickerProps) => {
       required={isRequired}
       alignItems={'stretch'}
       {...{ gridColumn, gridRow }}
-      errorText={errors[`${column}`] ? formI18n.required() : undefined}
-      invalid={!!errors[column]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       {entries.map(([key, value]) => {
         return (

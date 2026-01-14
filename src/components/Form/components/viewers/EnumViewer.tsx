@@ -60,10 +60,6 @@ export const EnumViewer = ({
         </Flex>
       )}
       {!isMultiple && <Text>{renderDisplayFunction(watchEnum)}</Text>}
-
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Field>
   );
 };

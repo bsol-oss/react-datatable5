@@ -1,13 +1,10 @@
 import { DateTimePicker as ChakraDateTimePicker } from '@/components/DatePicker/DateTimePicker';
-import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
-import { Popover, Portal } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { MdDateRange } from 'react-icons/md';
 import { useSchemaContext } from '../../useSchemaContext';
 import { useFormLabel } from '../../utils/useFormLabel';
 import { InputDefaultProps } from './types';
@@ -39,6 +36,7 @@ export const DateTimePicker = ({
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = formI18n.colLabel;
+  const fieldError = errors[colLabel]?.message;
   const [open, setOpen] = useState(false);
   const selectedDate = watch(colLabel);
   const displayDate =
@@ -112,8 +110,8 @@ export const DateTimePicker = ({
         gridColumn,
         gridRow,
       }}
-      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
-      invalid={!!errors[colLabel]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       {dateTimePickerContent}
     </Field>

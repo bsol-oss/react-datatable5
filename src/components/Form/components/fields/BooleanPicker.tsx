@@ -1,11 +1,8 @@
 import { CheckboxCard } from '@/components/ui/checkbox-card';
 import { Field } from '@/components/ui/field';
-import { Text } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
-import { useSchemaContext } from '../../useSchemaContext';
-import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
-import { removeIndex } from '../../utils/removeIndex';
 import { useFormLabel } from '../../utils/useFormLabel';
+import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 
 export interface DatePickerProps {
   column: string;
@@ -24,6 +21,7 @@ export const BooleanPicker = ({ schema, column, prefix }: DatePickerProps) => {
   const colLabel = `${prefix}${column}`;
   const value = watch(colLabel);
   const formI18n = useFormLabel(column, prefix, schema);
+  const fieldError = errors[colLabel]?.message;
   return (
     <Field
       label={formI18n.label()}
@@ -33,8 +31,8 @@ export const BooleanPicker = ({ schema, column, prefix }: DatePickerProps) => {
         gridColumn,
         gridRow,
       }}
-      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
-      invalid={!!errors[colLabel]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       <CheckboxCard
         checked={value}

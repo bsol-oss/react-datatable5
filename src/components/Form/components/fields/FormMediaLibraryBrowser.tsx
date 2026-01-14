@@ -57,6 +57,7 @@ export const FormMediaLibraryBrowser = ({
       : [];
 
   const colLabel = formI18n.colLabel;
+  const fieldError = errors[colLabel]?.message;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
   // Map of file ID to FilePickerMediaFile for display
@@ -130,8 +131,8 @@ export const FormMediaLibraryBrowser = ({
           gridColumn,
           gridRow,
         }}
-        errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
-        invalid={!!errors[colLabel]}
+        errorText={<>{fieldError}</>}
+        invalid={!!fieldError}
       >
         <Text color="fg.muted">
           Media library browser requires onFetchFiles
@@ -174,7 +175,7 @@ export const FormMediaLibraryBrowser = ({
         gridColumn,
         gridRow,
       }}
-      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
+      errorText={undefined}
       invalid={!!errors[colLabel]}
     >
       <VStack align="stretch" gap={2}>

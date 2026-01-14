@@ -385,9 +385,6 @@ const IdPickerForm = () => {
             • <strong>formI18n.label()</strong> → field_label
           </Text>
           <Text>
-            • <strong>formI18n.required()</strong> → field_required
-          </Text>
-          <Text>
             • <strong>formI18n.t('undefined')</strong> → undefined
           </Text>
           <Text>

@@ -37,6 +37,7 @@ export const DateRangePicker = ({
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = formI18n.colLabel;
+  const fieldError = errors[colLabel]?.message;
   const [open, setOpen] = useState(false);
   const selectedDateRange = watch(colLabel) as string[] | undefined;
 
@@ -107,8 +108,8 @@ export const DateRangePicker = ({
         gridColumn,
         gridRow,
       }}
-      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
-      invalid={!!errors[colLabel]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       <Popover.Root
         open={open}

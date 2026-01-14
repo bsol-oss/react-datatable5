@@ -49,8 +49,6 @@ export const StringInputField = ({
   const fieldError = errors[colLabel]?.message;
   const formI18n = useFormLabel(column, prefix, schema);
 
-  console.log(errors, colLabel, fieldError, 'fieldError');
-
   return (
     <>
       <Field
@@ -58,7 +56,7 @@ export const StringInputField = ({
         required={isRequired}
         gridColumn={gridColumn}
         gridRow={gridRow}
-        errorText={fieldError}
+        errorText={<>{fieldError}</>}
         invalid={!!fieldError}
       >
         <Input

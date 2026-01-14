@@ -44,9 +44,6 @@ export const DateTimeViewer = ({ column, schema, prefix }: DateViewerProps) => {
       }}
     >
       <Text> {selectedDate !== undefined ? displayDate : ''}</Text>
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Field>
   );
 };

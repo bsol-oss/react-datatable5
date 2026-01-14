@@ -38,6 +38,7 @@ export const IdViewer = ({
   const formI18n = useFormLabel(column, prefix, schema);
 
   const colLabel = `${prefix}${column}`;
+  const fieldError = errors[colLabel]?.message;
   const watchId = watch(colLabel);
   const watchIds = (watch(colLabel) ?? []) as string[];
 
@@ -86,11 +87,7 @@ export const IdViewer = ({
       )}
       {!isMultiple && <Text>{getPickedValue()}</Text>}
 
-      {errors[`${colLabel}`] && (
-        <Text color={'red.400'}>
-          {formButtonLabels?.fieldRequired ?? formI18n.required()}
-        </Text>
-      )}
+      {fieldError && <Text color={'red.400'}>{fieldError}</Text>}
     </Field>
   );
 };

@@ -65,9 +65,6 @@ export const ArrayViewer = ({ schema, column, prefix }: ArrayViewerProps) => {
           </Flex>
         ))}
       </Flex>
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Box>
   );
 };

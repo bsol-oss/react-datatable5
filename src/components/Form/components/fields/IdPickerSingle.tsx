@@ -103,6 +103,8 @@ export const IdPickerSingle = ({
     ? renderDisplayFunction(selectedItem)
     : null;
 
+  const fieldError = errors[colLabel]?.message;
+
   return (
     <Field
       label={formI18n.label()}
@@ -112,8 +114,8 @@ export const IdPickerSingle = ({
         gridColumn,
         gridRow,
       }}
-      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
-      invalid={!!errors[colLabel]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       <Combobox.RootProvider value={combobox} width="100%">
         <Show when={selectedId && selectedRendered}>

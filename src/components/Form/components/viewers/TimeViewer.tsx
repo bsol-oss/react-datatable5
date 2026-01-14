@@ -45,10 +45,6 @@ export const TimeViewer = ({ column, schema, prefix }: TimeViewerProps) => {
       }}
     >
       <Text>{displayedTime}</Text>
-
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Field>
   );
 };

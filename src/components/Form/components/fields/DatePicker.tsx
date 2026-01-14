@@ -34,6 +34,7 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   } = schema;
   const isRequired = required?.some((columnId) => columnId === column);
   const colLabel = formI18n.colLabel;
+  const fieldError = errors[colLabel]?.message;
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const selectedDate = watch(colLabel);
@@ -214,8 +215,8 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
         gridColumn,
         gridRow,
       }}
-      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
-      invalid={!!errors[colLabel]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       <Popover.Root
         open={open}

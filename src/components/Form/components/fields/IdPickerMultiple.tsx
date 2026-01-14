@@ -70,6 +70,8 @@ export const IdPickerMultiple = ({
   // Use renderDisplay from hook (which comes from schema) or fallback to default
   const renderDisplayFunction = renderDisplayFn || defaultRenderDisplay;
 
+  const fieldError = errors[colLabel]?.message;
+
   return (
     <Field
       label={formI18n.label()}
@@ -79,8 +81,8 @@ export const IdPickerMultiple = ({
         gridColumn,
         gridRow,
       }}
-      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
-      invalid={!!errors[colLabel]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       {/* Multiple Picker - Show selected tags */}
       {currentValue.length > 0 && (

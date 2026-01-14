@@ -63,9 +63,6 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
           );
         })}
       </Grid>
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Box>
   );
 };

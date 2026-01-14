@@ -307,6 +307,7 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
       : [];
 
   const colLabel = formI18n.colLabel;
+  const fieldError = errors[colLabel]?.message;
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
 
   // FilePicker variant: Only handle File objects, no media library browser
@@ -354,8 +355,8 @@ export const FilePicker = ({ column, schema, prefix }: InputDefaultProps) => {
         gridColumn,
         gridRow,
       }}
-      errorText={errors[`${colLabel}`] ? formI18n.required() : undefined}
-      invalid={!!errors[colLabel]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       <VStack align="stretch" gap={2}>
         <FileDropzone

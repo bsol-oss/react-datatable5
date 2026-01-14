@@ -34,10 +34,7 @@ export const TextAreaViewer = ({
         gridColumn={gridColumn}
         gridRow={gridRow}
       >
-        <Text whiteSpace="pre-wrap">{value}</Text>{' '}
-        {errors[colLabel] && (
-          <Text color={'red.400'}>{formI18n.required()}</Text>
-        )}
+        <Text whiteSpace="pre-wrap">{value}</Text>
       </Field>
     </>
   );

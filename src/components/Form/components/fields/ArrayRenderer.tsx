@@ -103,10 +103,6 @@ export const ArrayRenderer = ({
           {formButtonLabels?.add ?? 'Add'}
         </Button>
       </Flex>
-
-      {errors[`${column}`] && (
-        <Text color={'red.400'}>{formI18n.required()}</Text>
-      )}
     </Flex>
   );
 };
