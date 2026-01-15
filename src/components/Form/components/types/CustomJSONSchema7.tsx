@@ -109,11 +109,37 @@ export interface LoadInitialValuesResult {
   idMap: Record<string, object>;
 }
 
-export interface CustomJSONSchema7 extends JSONSchema7 {
+export interface CustomJSONSchema7
+  extends Omit<
+    JSONSchema7,
+    | 'items'
+    | 'additionalItems'
+    | 'properties'
+    | 'additionalProperties'
+    | 'definitions'
+    | 'patternProperties'
+    | 'dependencies'
+    | 'allOf'
+    | 'anyOf'
+    | 'oneOf'
+    | 'not'
+    | 'if'
+    | 'then'
+    | 'else'
+    | 'contains'
+  > {
   gridColumn?: string;
   gridRow?: string;
   customQueryFn?: CustomQueryFn;
-  variant?: string;
+  variant?:
+    | 'custom-input'
+    | 'id-picker'
+    | 'text-area'
+    | 'media-library-browser'
+    | 'tag-picker'
+    | 'file-picker'
+    | 'date-range'
+    | 'enum-picker';
   renderDisplay?: (item: unknown) => ReactNode;
   itemToValue?: (item: unknown) => string;
   loadInitialValues?: (
@@ -161,6 +187,31 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
     };
     showTimezoneSelector?: boolean;
   };
+
+  // Override recursive properties to use CustomJSONSchema7
+  items?: CustomJSONSchema7 | CustomJSONSchema7[];
+  additionalItems?: CustomJSONSchema7;
+  properties?: {
+    [key: string]: CustomJSONSchema7;
+  };
+  additionalProperties?: boolean | CustomJSONSchema7;
+  definitions?: {
+    [key: string]: CustomJSONSchema7;
+  };
+  patternProperties?: {
+    [key: string]: CustomJSONSchema7;
+  };
+  dependencies?: {
+    [key: string]: CustomJSONSchema7 | string[];
+  };
+  allOf?: CustomJSONSchema7[];
+  anyOf?: CustomJSONSchema7[];
+  oneOf?: CustomJSONSchema7[];
+  not?: CustomJSONSchema7;
+  if?: CustomJSONSchema7;
+  then?: CustomJSONSchema7;
+  else?: CustomJSONSchema7;
+  contains?: CustomJSONSchema7;
 }
 
 // Default renderDisplay function that intelligently displays items

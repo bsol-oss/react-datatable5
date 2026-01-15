@@ -8,6 +8,9 @@ The **IdPicker** component is a powerful searchable combobox field for selecting
 - [Basic Usage](#basic-usage)
 - [Schema Configuration](#schema-configuration)
 - [Required Functions](#required-functions)
+- [Custom Functions](#custom-functions)
+  - [itemToValue](#itemtovalue-optional)
+  - [renderDisplay](#renderdisplay-optional)
 - [Single vs Multiple Selection](#single-vs-multiple-selection)
 - [Customization Options](#customization-options)
 - [Labels and Internationalization](#labels-and-internationalization)
@@ -297,9 +300,11 @@ const createDefaultLoadInitialValues = () => {
 loadInitialValues: createDefaultLoadInitialValues();
 ```
 
-### 3. `itemToValue` (Optional)
+## Custom Functions
 
-Extracts the ID/value from a record object. Default behavior tries `item.id`, then falls back to stringifying the item.
+### `itemToValue` (Optional)
+
+Extracts the ID/value from a record object. This function determines what value is stored in the form when an item is selected. Default behavior tries `item.id`, then falls back to stringifying the item.
 
 **Signature:**
 
@@ -307,25 +312,110 @@ Extracts the ID/value from a record object. Default behavior tries `item.id`, th
 type ItemToValue = (item: any) => string;
 ```
 
-**Example:**
+**When to Use:**
+
+- Your records use a different field as the identifier (e.g., `username`, `code`, `slug`)
+- You need composite keys (e.g., `${categoryId}-${productId}`)
+- You want to store a different value than the record's ID
+
+**Default Behavior:**
+
+If `itemToValue` is not provided, the component will:
+
+1. Try `item.id`
+2. Try `item._id`
+3. Fall back to `String(item)`
+
+**Examples:**
 
 ```tsx
-// Use username instead of id as the value
+// Example 1: Use username instead of id as the value
 itemToValue: (item) => {
   return item.username;
 };
 
-// Use a composite key
+// Example 2: Use a composite key
 itemToValue: (item) => {
   return `${item.categoryId}-${item.productId}`;
 };
+
+// Example 3: Use a code field
+itemToValue: (item) => {
+  return item.code || item.id;
+};
+
+// Example 4: Use slug for SEO-friendly URLs
+itemToValue: (item) => {
+  return item.slug;
+};
+
+// Example 5: Handle nullable values
+itemToValue: (item) => {
+  if (!item || !item.id) {
+    throw new Error('Item must have an id');
+  }
+  return String(item.id);
+};
 ```
 
-**Note:** If you use a custom `itemToValue`, make sure your `loadInitialValues` function can handle loading by that value (not just by `id`).
+**Important Notes:**
 
-### 4. `renderDisplay` (Optional)
+1. **Consistency with `loadInitialValues`**: If you use a custom `itemToValue`, your `loadInitialValues` function must be able to load records by that value. For example, if `itemToValue` returns `username`, then `loadInitialValues` should filter by `username`, not `id`.
 
-Custom function to render items in the dropdown and selected display. If not provided, uses `defaultRenderDisplay` which tries common fields like `name`, `title`, `label`, etc.
+2. **Type Safety**: The returned value must be a string. If your identifier is a number, convert it: `String(item.id)`.
+
+3. **Uniqueness**: The value returned by `itemToValue` must be unique across all items. Duplicate values will cause issues.
+
+**Example with Custom `itemToValue` and Matching `loadInitialValues`:**
+
+```tsx
+{
+  type: 'string',
+  variant: 'id-picker',
+  title: 'Select User by Username',
+  itemToValue: (user) => user.username, // Store username instead of id
+  customQueryFn: async (params) => {
+    // Your search function
+  },
+  loadInitialValues: async (params) => {
+    // Must load by username since itemToValue returns username
+    if (!params.ids || params.ids.length === 0) {
+      return { data: { data: [], count: 0 }, idMap: {} };
+    }
+
+    const { customQueryFn, setIdMap } = params;
+
+    // Filter by username field, not id
+    const { data, idMap } = await customQueryFn({
+      searching: '',
+      limit: params.ids.length,
+      offset: 0,
+      where: [
+        {
+          id: 'username', // ← Filter by username field
+          value: params.ids.length === 1 ? params.ids[0] : params.ids,
+        },
+      ],
+    });
+
+    // Create idMap using username as key (matching itemToValue)
+    const usernameIdMap: Record<string, any> = {};
+    data.data.forEach((user) => {
+      usernameIdMap[user.username] = user;
+    });
+
+    if (Object.keys(usernameIdMap).length > 0) {
+      setIdMap((state) => ({ ...state, ...usernameIdMap }));
+    }
+
+    return { data, idMap: usernameIdMap };
+  },
+}
+```
+
+### `renderDisplay` (Optional)
+
+Custom function to render items in both the dropdown list and the selected display area. This function controls how items appear to users throughout the component. If not provided, uses `defaultRenderDisplay` which tries common fields like `name`, `title`, `label`, `displayName`, etc.
 
 **Signature:**
 
@@ -333,30 +423,175 @@ Custom function to render items in the dropdown and selected display. If not pro
 type RenderDisplay = (item: any) => ReactNode;
 ```
 
-**Example:**
+**When to Use:**
+
+- Your records don't have standard fields like `name` or `title`
+- You want to show multiple fields or rich content (avatars, badges, icons)
+- You need conditional rendering based on item properties
+- You want consistent branding/styling across dropdown and selected items
+
+**Default Behavior:**
+
+If `renderDisplay` is not provided, the component will try these fields in order:
+
+1. `item.name`
+2. `item.title`
+3. `item.label`
+4. `item.displayName`
+5. `item.text`
+6. Falls back to `String(item)`
+
+**Examples:**
 
 ```tsx
-// Simple string display
+// Example 1: Simple string display
 renderDisplay: (item) => item.name;
 
-// Custom React component
+// Example 2: Custom React component with avatar
 renderDisplay: (item) => (
   <Flex gap={2} align="center">
-    <Avatar src={item.avatar} size="sm" />
-    <Text>{item.name}</Text>
-    <Badge>{item.role}</Badge>
+    <Avatar src={item.avatar_url} size="sm" />
+    <Box>
+      <Text fontWeight="medium">{item.name}</Text>
+      <Text fontSize="sm" color="gray.500">
+        {item.email}
+      </Text>
+    </Box>
   </Flex>
 );
 
-// Complex display with multiple fields
+// Example 3: Display with badge/status indicator
+renderDisplay: (item) => (
+  <Flex gap={2} align="center">
+    <Text fontWeight="bold">{item.name}</Text>
+    <Badge colorPalette={item.status === 'active' ? 'green' : 'gray'}>
+      {item.status}
+    </Badge>
+  </Flex>
+);
+
+// Example 4: Complex multi-line display
 renderDisplay: (item) => (
   <Box>
     <Text fontWeight="bold">{item.name}</Text>
     <Text fontSize="sm" color="gray.500">
       {item.email} • {item.department}
     </Text>
+    {item.role && (
+      <Text fontSize="xs" color="gray.400">
+        {item.role}
+      </Text>
+    )}
   </Box>
 );
+
+// Example 5: Conditional rendering based on item type
+renderDisplay: (item) => {
+  if (item.type === 'user') {
+    return (
+      <Flex gap={2} align="center">
+        <Avatar src={item.avatar} size="sm" />
+        <Text>{item.name}</Text>
+      </Flex>
+    );
+  }
+  return (
+    <Flex gap={2} align="center">
+      <Icon name="Building" />
+      <Text>{item.name}</Text>
+    </Flex>
+  );
+};
+
+// Example 6: Display with icon and metadata
+renderDisplay: (item) => (
+  <Flex gap={2} align="center" width="100%">
+    <Icon name="File" size="sm" />
+    <Box flex="1">
+      <Text fontWeight="medium" truncate>
+        {item.filename}
+      </Text>
+      <Text fontSize="sm" color="gray.500">
+        {item.size} • {item.modifiedDate}
+      </Text>
+    </Box>
+  </Flex>
+);
+
+// Example 7: Product display with price and stock
+renderDisplay: (item) => (
+  <Flex gap={2} justify="space-between" width="100%">
+    <Box>
+      <Text fontWeight="medium">{item.name}</Text>
+      <Text fontSize="sm" color="gray.500">
+        SKU: {item.sku}
+      </Text>
+    </Box>
+    <Box textAlign="right">
+      <Text fontWeight="bold" colorPalette="green">
+        ${item.price}
+      </Text>
+      <Text fontSize="xs" color={item.stock > 0 ? 'gray.500' : 'red.500'}>
+        {item.stock > 0 ? `${item.stock} in stock` : 'Out of stock'}
+      </Text>
+    </Box>
+  </Flex>
+);
+
+// Example 8: Category with parent hierarchy
+renderDisplay: (item) => (
+  <Box>
+    <Text fontWeight="medium">{item.name}</Text>
+    {item.parent && (
+      <Text fontSize="xs" color="gray.500">
+        Parent: {item.parent.name}
+      </Text>
+    )}
+  </Box>
+);
+```
+
+**Best Practices:**
+
+1. **Keep it Simple**: For dropdown items, simpler displays are better. Users scan quickly, so avoid overly complex layouts.
+
+2. **Consistent Styling**: The same `renderDisplay` is used for both dropdown items and selected items. Design accordingly.
+
+3. **Handle Missing Data**: Always handle cases where fields might be undefined:
+
+   ```tsx
+   renderDisplay: (item) => <Text>{item.name || 'Unnamed Item'}</Text>;
+   ```
+
+4. **Performance**: Avoid heavy computations in `renderDisplay`. It's called for every visible item.
+
+5. **Accessibility**: Ensure your rendered content is accessible. Use semantic HTML and proper ARIA labels when needed.
+
+6. **Dark Mode**: If using Chakra UI color tokens, they automatically adapt to dark mode. Use `colorPalette` instead of hardcoded colors.
+
+**Using with `itemToValue`:**
+
+When using both `renderDisplay` and `itemToValue`, remember:
+
+- `renderDisplay` controls **what users see**
+- `itemToValue` controls **what gets stored in the form**
+
+```tsx
+{
+  type: 'string',
+  variant: 'id-picker',
+  title: 'Select Product',
+  // What users see
+  renderDisplay: (product) => (
+    <Flex gap={2}>
+      <Text fontWeight="bold">{product.name}</Text>
+      <Badge>${product.price}</Badge>
+    </Flex>
+  ),
+  // What gets stored (could be different from what's displayed)
+  itemToValue: (product) => product.sku, // Store SKU instead of ID
+  // ... rest of config
+}
 ```
 
 ## Single vs Multiple Selection
@@ -625,6 +860,143 @@ const form = useForm({
 // to load the records for 'cat-123', 'tag-1', and 'tag-2'
 ```
 
+### Example 5: Using `renderDisplay` and `itemToValue` Together
+
+This example shows how to use both functions together for a product picker that displays rich information but stores SKU codes:
+
+```tsx
+const schema = {
+  type: 'object',
+  properties: {
+    product_sku: {
+      type: 'string',
+      variant: 'id-picker',
+      title: 'Select Product',
+      // Display rich product information
+      renderDisplay: (product) => (
+        <Flex gap={3} align="center" width="100%">
+          <Avatar src={product.image_url} size="md" />
+          <Box flex="1">
+            <Text fontWeight="bold">{product.name}</Text>
+            <Text fontSize="sm" color="gray.500">
+              {product.category} • SKU: {product.sku}
+            </Text>
+          </Box>
+          <Box textAlign="right">
+            <Text fontWeight="bold" colorPalette="green">
+              ${product.price}
+            </Text>
+            <Badge colorPalette={product.in_stock ? 'green' : 'red'} size="sm">
+              {product.in_stock ? 'In Stock' : 'Out of Stock'}
+            </Badge>
+          </Box>
+        </Flex>
+      ),
+      // Store SKU instead of ID
+      itemToValue: (product) => product.sku,
+      customQueryFn: async (params) => {
+        const response = await axios.post('/api/products/search', {
+          search: params.searching || '',
+          limit: params.limit || 50,
+        });
+
+        const idMap: Record<string, any> = {};
+        response.data.products.forEach((product: any) => {
+          idMap[product.sku] = product; // Use SKU as key
+        });
+
+        return {
+          data: {
+            data: response.data.products,
+            count: response.data.total,
+          },
+          idMap,
+        };
+      },
+      loadInitialValues: async (params) => {
+        if (!params.ids || params.ids.length === 0) {
+          return { data: { data: [], count: 0 }, idMap: {} };
+        }
+
+        const { customQueryFn, setIdMap } = params;
+
+        // Load by SKU since itemToValue returns SKU
+        const { data, idMap } = await customQueryFn({
+          searching: '',
+          limit: params.ids.length,
+          offset: 0,
+          where: [
+            {
+              id: 'sku', // Filter by SKU field
+              value: params.ids.length === 1 ? params.ids[0] : params.ids,
+            },
+          ],
+        });
+
+        if (idMap && Object.keys(idMap).length > 0) {
+          setIdMap((state) => ({ ...state, ...idMap }));
+        }
+
+        return { data, idMap: idMap || {} };
+      },
+    },
+  },
+};
+```
+
+### Example 6: Advanced `renderDisplay` with Conditional Styling
+
+This example shows conditional rendering based on item properties:
+
+```tsx
+const schema = {
+  type: 'object',
+  properties: {
+    assigned_user: {
+      type: 'string',
+      variant: 'id-picker',
+      title: 'Assign To',
+      renderDisplay: (user) => {
+        const isOnline = user.status === 'online';
+        const isAway = user.status === 'away';
+
+        return (
+          <Flex gap={2} align="center" width="100%">
+            <Box position="relative">
+              <Avatar src={user.avatar_url} size="sm" />
+              <Box
+                position="absolute"
+                bottom="0"
+                right="0"
+                width="10px"
+                height="10px"
+                borderRadius="full"
+                bg={isOnline ? 'green.500' : isAway ? 'yellow.500' : 'gray.400'}
+                border="2px solid"
+                borderColor="white"
+              />
+            </Box>
+            <Box flex="1">
+              <Text fontWeight="medium">{user.name}</Text>
+              <Text fontSize="sm" color="gray.500">
+                {user.role} • {user.department}
+              </Text>
+            </Box>
+            {user.isManager && (
+              <Badge colorPalette="purple" size="sm">
+                Manager
+              </Badge>
+            )}
+          </Flex>
+        );
+      },
+      customQueryFn: userQueryFn,
+      loadInitialValues: createDefaultLoadInitialValues(),
+    },
+  },
+};
+```
+
 ## Best Practices
 
 ### 1. Always Provide `loadInitialValues`
@@ -680,6 +1052,28 @@ renderDisplay: (item) => (
   </Flex>
 );
 ```
+
+**Tips for `renderDisplay`:**
+
+- Keep dropdown items compact and scannable
+- Use consistent styling with your application's design system
+- Handle edge cases (missing fields, null values)
+- Consider dark mode compatibility when using colors
+- Test with long text to ensure proper truncation
+
+### 7. Use `itemToValue` When Needed
+
+Only use `itemToValue` when you need to store a different value than the record's ID:
+
+```tsx
+// Good: When you need to store username instead of ID
+itemToValue: (user) => user.username;
+
+// Avoid: Don't use if default behavior (item.id) works fine
+// Just omit itemToValue if item.id is sufficient
+```
+
+**Remember:** When using `itemToValue`, always update `loadInitialValues` to load by that value.
 
 ### 5. Handle Loading States
 
@@ -757,6 +1151,54 @@ loadInitialValues: async (params) => {
     where: [{ id: 'username', value: params.ids }],
   });
   // ...
+};
+```
+
+**Also ensure:**
+
+- The `idMap` uses the same key as `itemToValue` returns
+- Your `customQueryFn` supports filtering by that field
+
+### Issue: `renderDisplay` not showing correctly
+
+**Solution:**
+
+1. **Check return type**: `renderDisplay` must return a `ReactNode`. Ensure you're returning valid JSX or a string:
+
+   ```tsx
+   // ✅ Good
+   renderDisplay: (item) => <Text>{item.name}</Text>;
+   renderDisplay: (item) => item.name;
+
+   // ❌ Bad - returns undefined
+   renderDisplay: (item) => {
+     if (item.name) {
+       return <Text>{item.name}</Text>;
+     }
+     // Missing return for else case
+   };
+   ```
+
+2. **Handle missing fields**: Always provide fallbacks:
+
+   ```tsx
+   renderDisplay: (item) => <Text>{item.name || item.title || 'Unnamed'}</Text>;
+   ```
+
+3. **Check component imports**: Ensure all Chakra UI components are imported:
+   ```tsx
+   import { Flex, Text, Avatar, Badge } from '@chakra-ui/react';
+   ```
+
+### Issue: Items showing as `[object Object]` or similar
+
+**Solution:** This happens when `renderDisplay` is not provided and the default fallback can't find a display field. Provide a `renderDisplay` function:
+
+```tsx
+// If your items don't have name/title/label fields
+renderDisplay: (item) => {
+  // Use whatever field contains the display text
+  return item.displayName || item.text || String(item.id);
 };
 ```
 

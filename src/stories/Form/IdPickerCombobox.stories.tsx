@@ -3,7 +3,6 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
 import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 import { LoadInitialValuesParams } from '@/components/Form/components/types/CustomJSONSchema7';
 import axios from 'axios';
@@ -21,6 +20,7 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 
 /**
  * IdPicker Combobox Story
@@ -273,7 +273,7 @@ const IdPickerComboboxForm = () => {
         variant: 'id-picker',
         customQueryFn: jsonPlaceholderUserQueryFn,
         renderDisplay: renderUserDisplay, // Custom rendering function - used in both dropdown and selected value
-        loadInitialValues: async (params: LoadInitialValuesParams) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -354,11 +354,11 @@ const IdPickerComboboxForm = () => {
         renderDisplay: renderUserDisplay,
         // Custom itemToValue: extract username instead of id
         // This allows storing/using username as the value instead of the numeric id
-        itemToValue: (item: unknown) => {
+        itemToValue: (item) => {
           const user = item as TransformedUser;
           return user.username; // Use username as the value instead of id
         },
-        loadInitialValues: async (params: LoadInitialValuesParams) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -406,7 +406,7 @@ const IdPickerComboboxForm = () => {
         },
       },
     },
-  } as JSONSchema7;
+  } as CustomJSONSchema7;
 
   return (
     <VStack gap={6} align="stretch" p={4}>
