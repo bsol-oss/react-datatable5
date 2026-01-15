@@ -4186,88 +4186,6 @@ const useDataTableServer = (props) => {
     };
 };
 
-const idListSanityCheck = (param, idList, properties) => {
-    const allKeyExists = idList.every((key) => Object.keys(properties).some((column) => column == key));
-    if (!allKeyExists) {
-        const wrongKey = idList.find((key) => !Object.keys(properties).some((column) => column == key));
-        throw new Error(`The key ${wrongKey} in ${param} does not exist in schema.`);
-    }
-};
-
-const snakeToLabel = (str) => {
-    return str
-        .split("_") // Split by underscore
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
-        .join(" "); // Join with space
-};
-
-const RecordDisplay = ({ object, boxProps, prefix = '', }) => {
-    const getColumn = ({ field }) => {
-        return snakeToLabel(field);
-    };
-    if (object === null) {
-        return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "null" });
-    }
-    return (jsxRuntime.jsx(react.Grid, { rowGap: 1, padding: 1, overflow: 'auto', ...boxProps, children: Object.entries(object).map(([field, value], index) => {
-            const uniqueKey = `${prefix}${field}-${index}`;
-            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: 'auto 1fr', children: [jsxRuntime.jsx(react.Text, { color: 'colorPalette.400', children: getColumn({ field }) }), typeof value === 'object' && value !== null ? (jsxRuntime.jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.` })) : (jsxRuntime.jsx(react.Text, { children: JSON.stringify(value) }))] }, uniqueKey));
-        }) }));
-};
-
-const widthSanityCheck = (widthList, ignoreList, properties) => {
-    const widthListToolong = widthList.length > Object.keys(properties).length;
-    if (widthListToolong) {
-        throw new Error(`The width list is too long given from the number of properties.`);
-    }
-    const widthListToolongWithIgnore = widthList.length > Object.keys(properties).length - ignoreList.length;
-    if (widthListToolongWithIgnore) {
-        throw new Error(`The width list is too long given from the number of remaining properties after ignore some.`);
-    }
-};
-const getColumns = ({ schema, include = [], ignore = [], width = [], meta = {}, defaultWidth = 400, }) => {
-    const { properties } = schema;
-    idListSanityCheck('ignore', ignore, properties);
-    widthSanityCheck(width, ignore, properties);
-    idListSanityCheck('meta', Object.keys(meta), properties);
-    const getColumn = ({ column }) => {
-        return snakeToLabel(column);
-    };
-    const keys = Object.keys(properties);
-    const included = include.length > 0 ? include : keys;
-    const ignored = included.filter((key) => {
-        return !ignore.some((shouldIgnoreKey) => key === shouldIgnoreKey);
-    });
-    const columnHelper = reactTable.createColumnHelper();
-    const columns = [
-        ...ignored.map((column, index) => {
-            // @ts-expect-error column accessor type issue with generic TData
-            return columnHelper.accessor(column, {
-                cell: (props) => {
-                    // @ts-expect-error find type for unknown
-                    const value = props.row.original[column];
-                    if (typeof value === 'object') {
-                        return (jsxRuntime.jsx(react.Grid, { overflow: 'auto', children: jsxRuntime.jsx(RecordDisplay, { object: value }) }));
-                    }
-                    return jsxRuntime.jsx(TextCell, { children: value });
-                },
-                header: (columnHeader) => {
-                    const displayName = columnHeader.column.columnDef.meta?.displayName ??
-                        getColumn({ column });
-                    return jsxRuntime.jsx("span", { children: displayName });
-                },
-                footer: (columnFooter) => {
-                    const displayName = columnFooter.column.columnDef.meta?.displayName ??
-                        getColumn({ column });
-                    return jsxRuntime.jsx("span", { children: displayName });
-                },
-                size: width[index] ?? defaultWidth,
-                meta: Object.keys(meta).length > 0 ? meta[column] : {},
-            });
-        }),
-    ];
-    return columns;
-};
-
 //@ts-expect-error TODO: find appropriate type
 const SchemaFormContext = React.createContext({
     schema: {},
@@ -4289,114 +4207,6 @@ const SchemaFormContext = React.createContext({
 
 const useSchemaContext = () => {
     return React.useContext(SchemaFormContext);
-};
-
-const clearEmptyString = (object) => {
-    return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
-};
-
-const idPickerSanityCheck = (column, customQueryFn, idColumn) => {
-    if (!customQueryFn) {
-        throw new Error(`customQueryFn is required in properties of column ${column} when using id-picker.`);
-    }
-    if (!idColumn) {
-        throw new Error(`idColumn is required in properties of column ${column} when using id-picker.`);
-    }
-};
-const FormRoot = ({ schema, idMap, setIdMap, form, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, customSuccessRenderer, displayConfig = {
-    showSubmitButton: true,
-    showResetButton: true,
-    showTitle: true,
-}, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog = false, }) => {
-    const [isSuccess, setIsSuccess] = React.useState(false);
-    const [isError, setIsError] = React.useState(false);
-    const [isSubmiting, setIsSubmiting] = React.useState(false);
-    const [validatedData, setValidatedData] = React.useState();
-    const [error, setError] = React.useState();
-    const onBeforeSubmit = () => {
-        setIsSubmiting(true);
-    };
-    const onAfterSubmit = () => {
-        setIsSubmiting(false);
-    };
-    const onSubmitError = (error) => {
-        setIsError(true);
-        setError(error);
-    };
-    const onSubmitSuccess = () => {
-        setIsSuccess(true);
-    };
-    const defaultOnSubmit = async (promise) => {
-        try {
-            console.log('onBeforeSubmit');
-            onBeforeSubmit();
-            await promise;
-            console.log('onSubmitSuccess');
-            onSubmitSuccess();
-        }
-        catch (error) {
-            console.log('onSubmitError', error);
-            onSubmitError(error);
-        }
-        finally {
-            onAfterSubmit();
-        }
-    };
-    const defaultSubmitPromise = (data) => {
-        if (!requestOptions.url) {
-            throw new Error('requestOptions.url is required when onSubmit is not provided');
-        }
-        const options = {
-            method: 'POST',
-            data: clearEmptyString(data),
-            ...requestOptions,
-        };
-        return axios.request(options);
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onFormSubmit = async (data) => {
-        // Validation is handled by react-hook-form
-        // This function will only be called if validation passes
-        if (onSubmit === undefined) {
-            await defaultOnSubmit(Promise.resolve(defaultSubmitPromise(data)));
-            return;
-        }
-        await defaultOnSubmit(Promise.resolve(onSubmit(data)));
-    };
-    return (jsxRuntime.jsx(SchemaFormContext.Provider, { value: {
-            schema,
-            order,
-            ignore,
-            include,
-            // @ts-expect-error TODO: find appropriate types
-            onSubmit,
-            rowNumber,
-            idMap,
-            setIdMap,
-            requestOptions,
-            isSuccess,
-            setIsSuccess,
-            isError,
-            setIsError,
-            isSubmiting,
-            setIsSubmiting,
-            validatedData,
-            setValidatedData,
-            error,
-            setError,
-            getUpdatedData,
-            customErrorRenderer,
-            customSuccessRenderer,
-            displayConfig,
-            onFormSubmit,
-            dateTimePickerLabels,
-            idPickerLabels,
-            enumPickerLabels,
-            filePickerLabels,
-            formButtonLabels,
-            timePickerLabels,
-            insideDialog,
-        }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: children }) }));
 };
 
 const useFormLabel = (column, prefix = '', schema) => {
@@ -6012,13 +5822,12 @@ const defaultRenderDisplay = (item) => {
 const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
     const { watch, getValues, formState: { errors }, setValue, } = reactHookForm.useFormContext();
     const { idMap, setIdMap, idPickerLabels, insideDialog } = useSchemaContext();
-    const { renderDisplay, itemToValue: schemaItemToValue, loadInitialValues, customQueryFn, idColumn, variant, } = schema;
+    const { renderDisplay, itemToValue: schemaItemToValue, loadInitialValues, customQueryFn, variant, } = schema;
     // loadInitialValues should be provided in schema for id-picker fields
     // It's used to load the record of the id so the display is human-readable
     if (variant === 'id-picker' && !loadInitialValues) {
         console.warn(`loadInitialValues is recommended in schema for IdPicker field '${column}'. Please provide loadInitialValues function in the schema to load records for human-readable display.`);
     }
-    const column_ref = idColumn || 'id';
     const [searchText, setSearchText] = React.useState('');
     const debouncedSearchText = usehooks.useDebounce(searchText, 300);
     const [limit] = React.useState(50); // Increased limit for combobox
@@ -6078,7 +5887,6 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
             const result = await loadInitialValues({
                 ids: missingIds,
                 customQueryFn: customQueryFn,
-                idColumn: column_ref,
                 setIdMap,
             });
             return result.data;
@@ -6139,12 +5947,15 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
         // Depend on idMapKey which only changes when items we care about change
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentValueKey, idMapKey]);
-    // Default itemToValue function: extract value from item using column_ref
-    const defaultItemToValue = (item) => String(item[column_ref]);
-    // Use schema's itemToValue if provided, otherwise use default
+    // Use schema's itemToValue if provided, otherwise throw error
+    // schemaItemToValue should be provided in schema for id-picker fields
     const itemToValueFn = schemaItemToValue
         ? (item) => schemaItemToValue(item)
-        : defaultItemToValue;
+        : (item) => {
+            console.warn(`itemToValue is required in schema for IdPicker field '${column}'. Please provide itemToValue function in the schema. Currently trying to get 'id' field as last resort`);
+            // Fallback: try to get 'id' field as last resort
+            return String(item?.id ?? item);
+        };
     // itemToString function: convert item to readable string using renderDisplay
     // This ensures items can always be displayed as readable strings in the combobox
     const renderFn = renderDisplay || defaultRenderDisplay;
@@ -6206,7 +6017,7 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
         })
             .filter((item) => item !== null);
         return [...itemsFromIdMap, ...itemsFromDataList];
-    }, [dataList, column_ref, renderDisplay, idMapItems, itemToValueFn]);
+    }, [dataList, renderDisplay, idMapItems, itemToValueFn]);
     // Use filter hook for combobox
     const { contains } = react.useFilter({ sensitivity: 'base' });
     // Create collection for combobox
@@ -6272,7 +6083,6 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
         itemToString: itemToStringFn,
         loadInitialValues: loadInitialValues ??
             (async () => ({ data: { data: [], count: 0 }, idMap: {} })), // Fallback if not provided
-        column_ref,
         errors,
         setValue,
     };
@@ -8121,7 +7931,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {
     const colSchema = schema;
-    const { type, variant, properties: innerProperties, customQueryFn, idColumn, format, items, } = schema;
+    const { type, variant, properties: innerProperties, format, items } = schema;
     if (variant === 'custom-input') {
         return jsxRuntime.jsx(CustomInput, { schema: colSchema, prefix, column });
     }
@@ -8130,7 +7940,6 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
             return jsxRuntime.jsx(EnumPicker, { schema: colSchema, prefix, column });
         }
         if (variant === 'id-picker') {
-            idPickerSanityCheck(column, customQueryFn, idColumn);
             return jsxRuntime.jsx(IdPickerSingle, { schema: colSchema, prefix, column });
         }
         if (format === 'date') {
@@ -8164,7 +7973,6 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
     }
     if (type === 'array') {
         if (variant === 'id-picker') {
-            idPickerSanityCheck(column, customQueryFn, idColumn);
             return jsxRuntime.jsx(IdPickerMultiple, { schema: colSchema, prefix, column });
         }
         if (variant === 'tag-picker') {
@@ -8276,6 +8084,106 @@ const FormTitle = () => {
         });
     }
     return jsxRuntime.jsx(react.Heading, { children: schema.title ?? 'Form' });
+};
+
+const clearEmptyString = (object) => {
+    return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
+};
+
+const FormRoot = ({ schema, idMap, setIdMap, form, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, customSuccessRenderer, displayConfig = {
+    showSubmitButton: true,
+    showResetButton: true,
+    showTitle: true,
+}, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog = false, }) => {
+    const [isSuccess, setIsSuccess] = React.useState(false);
+    const [isError, setIsError] = React.useState(false);
+    const [isSubmiting, setIsSubmiting] = React.useState(false);
+    const [validatedData, setValidatedData] = React.useState();
+    const [error, setError] = React.useState();
+    const onBeforeSubmit = () => {
+        setIsSubmiting(true);
+    };
+    const onAfterSubmit = () => {
+        setIsSubmiting(false);
+    };
+    const onSubmitError = (error) => {
+        setIsError(true);
+        setError(error);
+    };
+    const onSubmitSuccess = () => {
+        setIsSuccess(true);
+    };
+    const defaultOnSubmit = async (promise) => {
+        try {
+            console.log('onBeforeSubmit');
+            onBeforeSubmit();
+            await promise;
+            console.log('onSubmitSuccess');
+            onSubmitSuccess();
+        }
+        catch (error) {
+            console.log('onSubmitError', error);
+            onSubmitError(error);
+        }
+        finally {
+            onAfterSubmit();
+        }
+    };
+    const defaultSubmitPromise = (data) => {
+        if (!requestOptions.url) {
+            throw new Error('requestOptions.url is required when onSubmit is not provided');
+        }
+        const options = {
+            method: 'POST',
+            data: clearEmptyString(data),
+            ...requestOptions,
+        };
+        return axios.request(options);
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onFormSubmit = async (data) => {
+        // Validation is handled by react-hook-form
+        // This function will only be called if validation passes
+        if (onSubmit === undefined) {
+            await defaultOnSubmit(Promise.resolve(defaultSubmitPromise(data)));
+            return;
+        }
+        await defaultOnSubmit(Promise.resolve(onSubmit(data)));
+    };
+    return (jsxRuntime.jsx(SchemaFormContext.Provider, { value: {
+            schema,
+            order,
+            ignore,
+            include,
+            // @ts-expect-error TODO: find appropriate types
+            onSubmit,
+            rowNumber,
+            idMap,
+            setIdMap,
+            requestOptions,
+            isSuccess,
+            setIsSuccess,
+            isError,
+            setIsError,
+            isSubmiting,
+            setIsSubmiting,
+            validatedData,
+            setValidatedData,
+            error,
+            setError,
+            getUpdatedData,
+            customErrorRenderer,
+            customSuccessRenderer,
+            displayConfig,
+            onFormSubmit,
+            dateTimePickerLabels,
+            idPickerLabels,
+            enumPickerLabels,
+            filePickerLabels,
+            formButtonLabels,
+            timePickerLabels,
+            insideDialog,
+        }, children: jsxRuntime.jsx(reactHookForm.FormProvider, { ...form, children: children }) }));
 };
 
 const DefaultForm = ({ formConfig, }) => {
@@ -8524,6 +8432,26 @@ const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) =
         // Add
         return [...selectedDates, selectedDate];
     }
+};
+
+const snakeToLabel = (str) => {
+    return str
+        .split("_") // Split by underscore
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
+        .join(" "); // Join with space
+};
+
+const RecordDisplay = ({ object, boxProps, prefix = '', }) => {
+    const getColumn = ({ field }) => {
+        return snakeToLabel(field);
+    };
+    if (object === null) {
+        return jsxRuntime.jsx(jsxRuntime.Fragment, { children: "null" });
+    }
+    return (jsxRuntime.jsx(react.Grid, { rowGap: 1, padding: 1, overflow: 'auto', ...boxProps, children: Object.entries(object).map(([field, value], index) => {
+            const uniqueKey = `${prefix}${field}-${index}`;
+            return (jsxRuntime.jsxs(react.Grid, { columnGap: 2, gridTemplateColumns: 'auto 1fr', children: [jsxRuntime.jsx(react.Text, { color: 'colorPalette.400', children: getColumn({ field }) }), typeof value === 'object' && value !== null ? (jsxRuntime.jsx(RecordDisplay, { object: value, prefix: `${prefix}${field}.` })) : (jsxRuntime.jsx(react.Text, { children: JSON.stringify(value) }))] }, uniqueKey));
+        }) }));
 };
 
 const TableDataDisplay = ({ colorPalette, emptyComponent, }) => {
@@ -9457,12 +9385,9 @@ exports.TableViewer = TableViewer;
 exports.TextCell = TextCell;
 exports.ViewDialog = ViewDialog;
 exports.defaultRenderDisplay = defaultRenderDisplay;
-exports.getColumns = getColumns;
 exports.getMultiDates = getMultiDates;
 exports.getRangeDates = getRangeDates;
-exports.idPickerSanityCheck = idPickerSanityCheck;
 exports.useDataTable = useDataTable;
 exports.useDataTableContext = useDataTableContext;
 exports.useDataTableServer = useDataTableServer;
 exports.useForm = useForm;
-exports.widthSanityCheck = widthSanityCheck;

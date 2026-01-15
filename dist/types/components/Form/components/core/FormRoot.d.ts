@@ -62,8 +62,6 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
     gridColumn: string;
     gridRow: string;
     customQueryFn: any;
-    idColumn: string;
     children: ReactNode;
 }
-export declare const idPickerSanityCheck: (column: string, customQueryFn?: any, idColumn?: string) => void;
 export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;

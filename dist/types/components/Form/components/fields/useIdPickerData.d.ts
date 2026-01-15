@@ -1,5 +1,5 @@
 import React from 'react';
-import { CustomJSONSchema7, LoadInitialValuesParams, LoadInitialValuesResult } from '../types/CustomJSONSchema7';
+import { CustomJSONSchema7, IdPickerLabels, LoadInitialValuesParams, LoadInitialValuesResult } from '../types/CustomJSONSchema7';
 export interface RecordType {
     [key: string]: any;
 }
@@ -39,13 +39,12 @@ export interface UseIdPickerDataReturn {
         raw: RecordType;
     }>) => void;
     idMap: Record<string, object>;
-    idPickerLabels: any;
+    idPickerLabels?: IdPickerLabels;
     insideDialog: boolean;
     renderDisplay: ((item: RecordType) => React.ReactNode) | undefined;
     itemToValue: (item: RecordType) => string;
     itemToString: (item: RecordType) => string;
     loadInitialValues: (params: LoadInitialValuesParams) => Promise<LoadInitialValuesResult>;
-    column_ref: string;
     errors: any;
     setValue: (name: string, value: any) => void;
 }

@@ -72,7 +72,6 @@ export interface TimePickerLabels {
 export interface LoadInitialValuesParams {
     ids: string[];
     customQueryFn: CustomQueryFn;
-    idColumn: string;
     setIdMap: React.Dispatch<React.SetStateAction<Record<string, object>>>;
 }
 export interface LoadInitialValuesResult {
@@ -86,7 +85,6 @@ export interface CustomJSONSchema7 extends JSONSchema7 {
     gridColumn?: string;
     gridRow?: string;
     customQueryFn?: CustomQueryFn;
-    idColumn?: string;
     variant?: string;
     renderDisplay?: (item: unknown) => ReactNode;
     itemToValue?: (item: unknown) => string;
