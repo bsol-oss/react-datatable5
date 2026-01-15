@@ -1,127 +1,119 @@
 # IdPicker Complete Guide
 
-## Overview
-
-The **IdPicker** component is a powerful form field that allows users to select items from a database table or API endpoint. It provides a modern combobox interface with search, keyboard navigation, and support for both single and multiple selection modes.
-
-### Key Features
-
-- 🔍 **Real-time search** with debounced API calls
-- ⌨️ **Keyboard navigation** for accessibility
-- 🏷️ **Tag-based display** for multiple selections
-- 🎨 **Customizable display** with `renderDisplay` function
-- 🌐 **Multilingual support** via label objects
-- ⚡ **React Query integration** for efficient data fetching
-- 📦 **Automatic caching** of selected items
-- 🔄 **Loading states** with skeleton loaders
+The **IdPicker** component is a powerful searchable combobox field for selecting records by ID. It supports both single and multiple selection, with built-in search functionality, loading states, and custom display rendering.
 
 ## Table of Contents
 
-1. [Quick Start](#quick-start)
-2. [Basic Usage](#basic-usage)
-3. [Schema Configuration](#schema-configuration)
-4. [Required Properties](#required-properties)
-5. [Custom Query Functions](#custom-query-functions)
-6. [Single vs Multiple Selection](#single-vs-multiple-selection)
-7. [Customizing Display](#customizing-display)
-8. [Customizing Labels](#customizing-labels)
-9. [Advanced Patterns](#advanced-patterns)
-10. [Troubleshooting](#troubleshooting)
+- [Overview](#overview)
+- [Basic Usage](#basic-usage)
+- [Schema Configuration](#schema-configuration)
+- [Required Functions](#required-functions)
+- [Single vs Multiple Selection](#single-vs-multiple-selection)
+- [Customization Options](#customization-options)
+- [Labels and Internationalization](#labels-and-internationalization)
+- [Examples](#examples)
+- [Best Practices](#best-practices)
+- [Common Issues](#common-issues)
 
-## Quick Start
+## Overview
 
-Here's the simplest IdPicker setup:
+The IdPicker component provides:
+
+- **Searchable dropdown**: Type to search and filter options
+- **Async data loading**: Fetches data from your API as you type
+- **Initial value loading**: Automatically loads selected values for display
+- **Custom rendering**: Display items using custom React components
+- **Single or multiple selection**: Choose one or many items
+- **Loading states**: Shows skeletons and spinners during data fetching
+- **Error handling**: Displays error messages when data loading fails
+
+## Basic Usage
+
+### Single Selection
 
 ```tsx
-import { DefaultForm } from '@bsol-oss/react-datatable5';
-import { useForm } from '@bsol-oss/react-datatable5';
-import { JSONSchema7 } from 'json-schema';
+import { FormRoot, FormBody } from '@bsol-oss/react-datatable5';
+import { useForm } from '@bsol-oss/react-datatable5'';
 
 const MyForm = () => {
-  const form = useForm({});
+  const form = useForm();
 
-  const schema: JSONSchema7 = {
+  const schema = {
     type: 'object',
     properties: {
-      user_id: {
+      category_id: {
         type: 'string',
         variant: 'id-picker',
-        foreign_key: {
-          table: 'users',
-          column: 'id',
+        title: 'Category',
+        customQueryFn: async (params) => {
+          // Fetch categories from your API
+          const response = await fetch('/api/categories', {
+            method: 'POST',
+            body: JSON.stringify({
+              searching: params.searching || '',
+              limit: params.limit || 50,
+              offset: params.offset || 0,
+            }),
+          });
+          const result = await response.json();
+          return {
+            data: { data: result.items, count: result.total },
+            idMap: {}, // Optional: pre-populate idMap
+          };
         },
-        loadInitialValues: async ({ ids }) => {
-          // Fetch users by IDs from your API
-          const response = await fetch(`/api/users?ids=${ids.join(',')}`);
-          const users = await response.json();
-          return { data: users };
+        loadInitialValues: async (params) => {
+          // Load selected category for display
+          if (!params.ids || params.ids.length === 0) {
+            return { data: { data: [], count: 0 }, idMap: {} };
+          }
+          const { customQueryFn } = params;
+          const { data, idMap } = await customQueryFn({
+            searching: '',
+            limit: params.ids.length,
+            offset: 0,
+            where: [{ id: 'id', value: params.ids }],
+          });
+          if (idMap && Object.keys(idMap).length > 0) {
+            params.setIdMap((state) => ({ ...state, ...idMap }));
+          }
+          return { data, idMap: idMap || {} };
         },
       },
     },
   };
 
   return (
-    <DefaultForm
-      formConfig={{
-        schema,
-        serverUrl: 'http://localhost:8000',
-        onSubmit: (data) => console.log(data),
-        ...form,
-      }}
-    />
+    <FormRoot
+      schema={schema}
+      onSubmit={(data) => console.log('Submitted:', data)}
+      {...form}
+    >
+      <FormBody />
+    </FormRoot>
   );
-};
-```
-
-## Basic Usage
-
-### Single Selection
-
-For selecting a single item, use `type: 'string'`:
-
-```tsx
-const schema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    category_id: {
-      type: 'string',
-      variant: 'id-picker',
-      foreign_key: {
-        table: 'categories',
-        column: 'id',
-      },
-      loadInitialValues: async ({ ids }) => {
-        const response = await fetch(`/api/categories?ids=${ids.join(',')}`);
-        const categories = await response.json();
-        return { data: categories };
-      },
-    },
-  },
 };
 ```
 
 ### Multiple Selection
 
-For selecting multiple items, use `type: 'array'`:
+For multiple selection, use `type: 'array'`:
 
 ```tsx
-const schema: JSONSchema7 = {
+const schema = {
   type: 'object',
   properties: {
-    team_members: {
+    tags: {
       type: 'array',
       variant: 'id-picker',
+      title: 'Tags',
       items: {
         type: 'string',
       },
-      foreign_key: {
-        table: 'users',
-        column: 'id',
+      customQueryFn: async (params) => {
+        // Same as single selection
       },
-      loadInitialValues: async ({ ids }) => {
-        const response = await fetch(`/api/users?ids=${ids.join(',')}`);
-        const users = await response.json();
-        return { data: users };
+      loadInitialValues: async (params) => {
+        // Same as single selection
       },
     },
   },
@@ -132,613 +124,659 @@ const schema: JSONSchema7 = {
 
 ### Required Properties
 
-Every IdPicker field must have these properties:
-
-| Property      | Type                    | Description                                 |
-| ------------- | ----------------------- | ------------------------------------------- |
-| `type`        | `'string'` or `'array'` | Single or multiple selection                |
-| `variant`     | `'id-picker'`           | Identifies this as an IdPicker field        |
-| `foreign_key` | `object`                | Defines the table/column and query function |
-
-### Recommended Properties
-
-| Property            | Type       | Description                                                                           |
-| ------------------- | ---------- | ------------------------------------------------------------------------------------- |
-| `loadInitialValues` | `function` | Loads records for display when form has initial values (recommended but not required) |
+| Property            | Type          | Required | Description                                  |
+| ------------------- | ------------- | -------- | -------------------------------------------- |
+| `variant`           | `'id-picker'` | Yes      | Must be set to `'id-picker'`                 |
+| `customQueryFn`     | `Function`    | Yes      | Function to fetch search results             |
+| `loadInitialValues` | `Function`    | Yes      | Function to load selected values for display |
 
 ### Optional Properties
 
-| Property        | Type                           | Description                                 |
-| --------------- | ------------------------------ | ------------------------------------------- |
-| `renderDisplay` | `(item: unknown) => ReactNode` | Custom function to render items             |
-| `required`      | `string[]`                     | Array of required field names               |
-| `gridColumn`    | `string`                       | CSS grid column span (default: `'span 12'`) |
-| `gridRow`       | `string`                       | CSS grid row span (default: `'span 1'`)     |
+| Property        | Type                       | Description                                                      |
+| --------------- | -------------------------- | ---------------------------------------------------------------- |
+| `renderDisplay` | `(item: any) => ReactNode` | Custom function to render items in dropdown and selected display |
+| `itemToValue`   | `(item: any) => string`    | Extract the ID/value from an item (default: tries `item.id`)     |
+| `gridColumn`    | `string`                   | CSS grid column span (default: `'span 12'`)                      |
+| `gridRow`       | `string`                   | CSS grid row span (default: `'span 1'`)                          |
+| `title`         | `string`                   | Field label                                                      |
+| `required`      | `string[]`                 | Array of required field names                                    |
 
-### Complete Schema Example
+## Required Functions
+
+### 1. `customQueryFn`
+
+Fetches search results as the user types. This function is called with debounced search text.
+
+**Signature:**
+
+```typescript
+type CustomQueryFn = (params: {
+  searching?: string;
+  limit?: number;
+  offset?: number;
+  where?: { id: string; value: string | string[] }[];
+}) => Promise<{
+  data: { data: any[]; count: number };
+  idMap?: Record<string, object>;
+}>;
+```
+
+**Parameters:**
+
+- `searching`: The search query text (debounced by 300ms)
+- `limit`: Maximum number of results to return (default: 50)
+- `offset`: Pagination offset (default: 0)
+- `where`: Array of filter conditions (used by `loadInitialValues`)
+
+**Returns:**
+
+- `data`: Object with `data` array and `count` number
+- `idMap`: Optional map of ID to record object (for caching)
+
+**Example:**
 
 ```tsx
-const schema: JSONSchema7 = {
-  type: 'object',
-  required: ['user_id', 'team_members'],
-  properties: {
-    user_id: {
-      type: 'string',
-      variant: 'id-picker',
-      gridColumn: 'span 6', // Custom grid layout
-      foreign_key: {
-        table: 'users',
-        column: 'id',
-        customQueryFn: customUserQuery,
-      },
-      renderDisplay: renderUserDisplay, // Custom display
-      loadInitialValues: async ({ ids }) => {
-        const users = await fetchUsersByIds(ids);
-        return { data: users };
-      },
+customQueryFn: async (params) => {
+  const response = await axios.post('/api/users/search', {
+    search: params.searching || '',
+    limit: params.limit || 50,
+    offset: params.offset || 0,
+  });
+
+  // Create idMap for caching
+  const idMap: Record<string, any> = {};
+  response.data.items.forEach((user: any) => {
+    idMap[user.id] = user;
+  });
+
+  return {
+    data: {
+      data: response.data.items,
+      count: response.data.total,
     },
-    team_members: {
-      type: 'array',
-      variant: 'id-picker',
-      items: { type: 'string' },
-      foreign_key: {
-        table: 'users',
-        column: 'id',
-        customQueryFn: customUserQuery,
-      },
-      loadInitialValues: async ({ ids }) => {
-        const users = await fetchUsersByIds(ids);
-        return { data: users };
-      },
-    },
-  },
+    idMap, // Optional but recommended for performance
+  };
 };
 ```
 
-## Required Properties
+### 2. `loadInitialValues`
 
-### 1. `foreign_key` Object
+Loads the full record data for selected IDs so they can be displayed in a human-readable format. This is called automatically when the form loads with pre-filled values.
 
-Defines the data source for the IdPicker:
+**Signature:**
+
+```typescript
+type LoadInitialValues = (params: {
+  ids: string[];
+  customQueryFn: CustomQueryFn;
+  setIdMap: React.Dispatch<React.SetStateAction<Record<string, object>>>;
+}) => Promise<{
+  data: { data: any[]; count: number };
+  idMap: Record<string, object>;
+}>;
+```
+
+**Parameters:**
+
+- `ids`: Array of selected IDs that need to be loaded
+- `customQueryFn`: The same function provided in schema (for reuse)
+- `setIdMap`: Function to update the idMap cache
+
+**Example:**
 
 ```tsx
-foreign_key: {
-  table: 'users',        // Table name (for reference)
-  column: 'id',          // Column name (for reference)
-  customQueryFn?: (params) => Promise<{ data: { data: T[], count: number }, idMap?: Record<string, T> }>
-}
+loadInitialValues: async (params) => {
+  if (!params.ids || params.ids.length === 0) {
+    return { data: { data: [], count: 0 }, idMap: {} };
+  }
+
+  const { customQueryFn, setIdMap } = params;
+
+  // Use customQueryFn to fetch records by ID
+  const { data, idMap: returnedIdMap } = await customQueryFn({
+    searching: '',
+    limit: params.ids.length,
+    offset: 0,
+    where: [
+      {
+        id: 'id', // The field name to filter by
+        value: params.ids.length === 1 ? params.ids[0] : params.ids,
+      },
+    ],
+  });
+
+  // Update the idMap cache
+  if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
+    setIdMap((state) => ({ ...state, ...returnedIdMap }));
+  }
+
+  return { data, idMap: returnedIdMap || {} };
+};
 ```
 
-#### Using Default Query (with `serverUrl`)
+**Helper Function:**
 
-If you provide `serverUrl` in `FormRoot`/`DefaultForm`, the IdPicker will automatically query:
+You can create a reusable helper:
 
+```tsx
+const createDefaultLoadInitialValues = () => {
+  return async (
+    params: LoadInitialValuesParams
+  ): Promise<LoadInitialValuesResult> => {
+    if (!params.ids || params.ids.length === 0) {
+      return { data: { data: [], count: 0 }, idMap: {} };
+    }
+
+    const { customQueryFn, setIdMap } = params;
+
+    if (!customQueryFn) {
+      throw new Error('customQueryFn is required');
+    }
+
+    const { data, idMap: returnedIdMap } = await customQueryFn({
+      searching: '',
+      limit: params.ids.length,
+      offset: 0,
+      where: [
+        {
+          id: 'id',
+          value: params.ids.length === 1 ? params.ids[0] : params.ids,
+        },
+      ],
+    });
+
+    if (returnedIdMap && Object.keys(idMap).length > 0) {
+      setIdMap((state) => ({ ...state, ...returnedIdMap }));
+    }
+
+    return { data, idMap: returnedIdMap || {} };
+  };
+};
+
+// Usage in schema
+loadInitialValues: createDefaultLoadInitialValues();
 ```
-GET {serverUrl}/api/{table}?offset=0&limit=50&searching={searchText}
+
+### 3. `itemToValue` (Optional)
+
+Extracts the ID/value from a record object. Default behavior tries `item.id`, then falls back to stringifying the item.
+
+**Signature:**
+
+```typescript
+type ItemToValue = (item: any) => string;
 ```
 
 **Example:**
 
 ```tsx
-<DefaultForm
-  formConfig={{
-    schema,
-    serverUrl: 'http://localhost:8000', // ← Enables default query
-    ...form,
-  }}
-/>
-```
-
-#### Using Custom Query Function
-
-For more control, provide `customQueryFn`:
-
-```tsx
-const customUserQuery = async ({
-  searching,
-  limit = 50,
-  offset = 0,
-  where,
-}: CustomQueryFnParams) => {
-  // Build your query
-  const params = new URLSearchParams({
-    limit: limit.toString(),
-    offset: offset.toString(),
-  });
-
-  if (searching) {
-    params.append('search', searching);
-  }
-
-  // Handle where clause for loading specific IDs
-  if (where && where.length > 0) {
-    const whereClause = where[0];
-    if (whereClause.id === 'id' && whereClause.value) {
-      const ids = Array.isArray(whereClause.value)
-        ? whereClause.value
-        : [whereClause.value];
-      params.append('ids', ids.join(','));
-    }
-  }
-
-  // Fetch from your API
-  const response = await fetch(`/api/users?${params}`);
-  const result = await response.json();
-
-  // Transform to expected format
-  const idMap = Object.fromEntries(
-    result.data.map((user: User) => [user.id, user])
-  );
-
-  return {
-    data: {
-      data: result.data,
-      count: result.count || result.data.length,
-    },
-    idMap, // Optional: pre-populate cache
-  };
+// Use username instead of id as the value
+itemToValue: (item) => {
+  return item.username;
 };
 
-// Use in schema
-foreign_key: {
-  table: 'users',
-  column: 'id',
-  customQueryFn: customUserQuery,
-}
+// Use a composite key
+itemToValue: (item) => {
+  return `${item.categoryId}-${item.productId}`;
+};
 ```
 
-## Custom Query Functions
+**Note:** If you use a custom `itemToValue`, make sure your `loadInitialValues` function can handle loading by that value (not just by `id`).
 
-### Query Function Parameters
+### 4. `renderDisplay` (Optional)
+
+Custom function to render items in the dropdown and selected display. If not provided, uses `defaultRenderDisplay` which tries common fields like `name`, `title`, `label`, etc.
+
+**Signature:**
 
 ```typescript
-interface CustomQueryFnParams {
-  searching?: string; // Search text from user input
-  limit?: number; // Number of items to fetch (default: 50)
-  offset?: number; // Pagination offset (default: 0)
-  where?: Array<{
-    // Filter conditions
-    id: string;
-    value: string | string[];
-  }>;
-}
+type RenderDisplay = (item: any) => ReactNode;
 ```
 
-### Expected Return Format
-
-```typescript
-{
-  data: {
-    data: T[];              // Array of items
-    count: number;          // Total count (for pagination)
-  };
-  idMap?: Record<string, T>; // Optional: pre-populate cache
-}
-```
-
-### Example: External API Integration
+**Example:**
 
 ```tsx
-const jsonPlaceholderQuery = async ({
-  searching,
-  limit = 50,
-  offset = 0,
-  where,
-}: CustomQueryFnParams) => {
-  // Handle loading specific IDs
-  if (where && where.length > 0) {
-    const whereClause = where[0];
-    if (whereClause.id === 'id' && whereClause.value) {
-      const ids = Array.isArray(whereClause.value)
-        ? whereClause.value
-        : [whereClause.value];
+// Simple string display
+renderDisplay: (item) => item.name;
 
-      // Fetch specific users by ID
-      const userPromises = ids.map((id) =>
-        fetch(`https://jsonplaceholder.typicode.com/users/${id}`)
-          .then((res) => res.json())
-          .catch(() => null)
-      );
+// Custom React component
+renderDisplay: (item) => (
+  <Flex gap={2} align="center">
+    <Avatar src={item.avatar} size="sm" />
+    <Text>{item.name}</Text>
+    <Badge>{item.role}</Badge>
+  </Flex>
+);
 
-      const users = (await Promise.all(userPromises)).filter(
-        (user) => user !== null
-      );
-
-      return {
-        data: {
-          data: users,
-          count: users.length,
-        },
-        idMap: Object.fromEntries(users.map((u) => [String(u.id), u])),
-      };
-    }
-  }
-
-  // Fetch all users
-  const response = await fetch('https://jsonplaceholder.typicode.com/users');
-  let users = await response.json();
-
-  // Filter by search term
-  if (searching) {
-    const searchLower = searching.toLowerCase();
-    users = users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(searchLower) ||
-        user.email.toLowerCase().includes(searchLower)
-    );
-  }
-
-  // Paginate
-  const paginated = users.slice(offset, offset + limit);
-
-  return {
-    data: {
-      data: paginated,
-      count: users.length,
-    },
-    idMap: Object.fromEntries(paginated.map((u) => [String(u.id), u])),
-  };
-};
+// Complex display with multiple fields
+renderDisplay: (item) => (
+  <Box>
+    <Text fontWeight="bold">{item.name}</Text>
+    <Text fontSize="sm" color="gray.500">
+      {item.email} • {item.department}
+    </Text>
+  </Box>
+);
 ```
 
 ## Single vs Multiple Selection
 
 ### Single Selection
 
-- **Schema:** `type: 'string'`
-- **Form value:** `string` (the selected ID)
-- **Display:** Shows selected value above the combobox
-- **Behavior:** Closes dropdown on selection
+- **Schema type**: `type: 'string'`
+- **Form value**: Single string (ID)
+- **Component**: `IdPickerSingle`
+- **Display**: Shows selected item above input, or in input when selected
+- **Clear button**: X button appears when value is selected
 
 ```tsx
 {
   type: 'string',
   variant: 'id-picker',
-  // ... rest of config
+  title: 'Select User',
+  customQueryFn: userQueryFn,
+  loadInitialValues: defaultLoadInitialValues,
 }
 ```
 
 ### Multiple Selection
 
-- **Schema:** `type: 'array'` with `items: { type: 'string' }`
-- **Form value:** `string[]` (array of selected IDs)
-- **Display:** Shows selected items as removable tags
-- **Behavior:** Keeps dropdown open after selection
+- **Schema type**: `type: 'array'` with `items: { type: 'string' }`
+- **Form value**: Array of strings (IDs)
+- **Component**: `IdPickerMultiple`
+- **Display**: Shows selected items as removable tags above input
+- **Selection**: Can select multiple items without closing dropdown
 
 ```tsx
 {
   type: 'array',
   variant: 'id-picker',
+  title: 'Select Tags',
   items: {
     type: 'string',
   },
-  // ... rest of config
+  customQueryFn: tagQueryFn,
+  loadInitialValues: defaultLoadInitialValues,
 }
 ```
 
-## Customizing Display
+## Customization Options
 
-The `renderDisplay` function allows you to customize how items appear in both the dropdown and selected tags.
+### Grid Layout
 
-### Basic Example
-
-```tsx
-import { Text, HStack } from '@chakra-ui/react';
-import type { ReactNode } from 'react';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
-const renderUser = (item: unknown): ReactNode => {
-  const user = item as User;
-  return (
-    <HStack gap={2}>
-      <Text fontWeight="medium">{user.name}</Text>
-      <Text fontSize="sm" color="fg.muted">
-        ({user.email})
-      </Text>
-    </HStack>
-  );
-};
-
-// In schema
-{
-  renderDisplay: renderUser,
-}
-```
-
-### Advanced Example with Badges
-
-```tsx
-import { Text, HStack, VStack, Badge } from '@chakra-ui/react';
-
-const renderUserWithBadge = (item: unknown): ReactNode => {
-  const user = item as User;
-  return (
-    <HStack gap={3} align="center" width="100%">
-      <VStack gap={0} align="start" flex={1}>
-        <Text fontWeight="semibold">{user.name}</Text>
-        <Text fontSize="xs" color="fg.muted">
-          {user.role} • {user.email}
-        </Text>
-      </VStack>
-      <Badge colorPalette="blue" variant="subtle">
-        {user.department}
-      </Badge>
-    </HStack>
-  );
-};
-```
-
-📖 **See [IdPicker Custom Display Documentation](./IDPICKER_CUSTOM_DISPLAY.md)** for more examples and patterns.
-
-## Customizing Labels
-
-Customize UI text (placeholders, buttons, messages) using the `idPickerLabels` prop:
-
-```tsx
-<DefaultForm
-  formConfig={{
-    schema,
-    idPickerLabels: {
-      typeToSearch: 'Search users...',
-      emptySearchResult: 'No users found',
-      addMore: 'Add another user',
-      undefined: 'User not found',
-      total: 'Total',
-      showing: 'Showing',
-      perPage: 'per page',
-      initialResults: 'Start typing to search',
-    },
-    ...form,
-  }}
-/>
-```
-
-📖 **See [IdPicker Labels Documentation](./IDPICKER_LABELS.md)** for complete label reference and multilingual examples.
-
-## Advanced Patterns
-
-### Pattern 1: Conditional Display Based on User Role
-
-```tsx
-const renderUserWithRole = (item: unknown): ReactNode => {
-  const user = item as User;
-  const isAdmin = user.role === 'admin';
-
-  return (
-    <HStack gap={2}>
-      <Text fontWeight={isAdmin ? 'bold' : 'normal'}>{user.name}</Text>
-      {isAdmin && (
-        <Badge colorPalette="red" size="sm">
-          Admin
-        </Badge>
-      )}
-    </HStack>
-  );
-};
-```
-
-### Pattern 2: Loading State Handling
-
-The IdPicker automatically handles loading states, but you can customize the query function:
-
-```tsx
-const customQueryWithLoading = async (params: CustomQueryFnParams) => {
-  // Add artificial delay to see loading states
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Your query logic here
-  const response = await fetch('/api/users');
-  const data = await response.json();
-
-  return {
-    data: {
-      data: data.items,
-      count: data.total,
-    },
-  };
-};
-```
-
-### Pattern 3: Filtering by Related Data
-
-```tsx
-const queryUsersByDepartment = async ({
-  searching,
-  limit,
-  offset,
-}: CustomQueryFnParams) => {
-  const params = new URLSearchParams({
-    limit: limit?.toString() || '50',
-    offset: offset?.toString() || '0',
-    department: 'engineering', // Filter by department
-  });
-
-  if (searching) {
-    params.append('search', searching);
-  }
-
-  const response = await fetch(`/api/users?${params}`);
-  const result = await response.json();
-
-  return {
-    data: {
-      data: result.data,
-      count: result.count,
-    },
-  };
-};
-```
-
-### Pattern 4: Combining Multiple IdPickers
-
-```tsx
-const schema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    // Manager selection
-    manager_id: {
-      type: 'string',
-      variant: 'id-picker',
-      foreign_key: {
-        table: 'users',
-        column: 'id',
-        customQueryFn: queryManagersOnly,
-      },
-      loadInitialValues: loadUserByIds,
-    },
-    // Team members (filtered by manager)
-    team_members: {
-      type: 'array',
-      variant: 'id-picker',
-      items: { type: 'string' },
-      foreign_key: {
-        table: 'users',
-        column: 'id',
-        customQueryFn: queryTeamMembers,
-      },
-      loadInitialValues: loadUserByIds,
-    },
-  },
-};
-```
-
-## Recommended Properties
-
-### 1. `loadInitialValues` Function
-
-**Purpose:** Loads full record data for IDs that are already selected (e.g., when editing an existing form).
-
-**When it's called:**
-
-- On component mount if the form has initial values
-- When IDs are selected but not yet in the `idMap` cache
-
-**Function signature:**
-
-```typescript
-loadInitialValues: (params: { ids: string[] }) =>
-  Promise<{
-    data: Array<Record<string, any>>;
-  }>;
-```
-
-**Example:**
-
-```tsx
-loadInitialValues: async ({ ids }) => {
-  if (ids.length === 0) {
-    return { data: [] };
-  }
-
-  // Fetch records from your API
-  const response = await fetch(`/api/users?ids=${ids.join(',')}`);
-  const users = await response.json();
-
-  // Return in expected format
-  return { data: users };
-};
-```
-
-**Important:** This function is **recommended** for proper display of initial values. If missing, a warning will be logged to the console and the component will continue to work, but initial values may not display correctly.
-
-## Troubleshooting
-
-### Warning: "loadInitialValues is recommended"
-
-**Problem:** The schema is missing the `loadInitialValues` function.
-
-**Impact:** Initial values may not display correctly (showing IDs instead of human-readable text).
-
-**Solution:** Add `loadInitialValues` to your schema:
+Control field positioning using CSS Grid:
 
 ```tsx
 {
   type: 'string',
   variant: 'id-picker',
-  foreign_key: { /* ... */ },
-  loadInitialValues: async ({ ids }) => {
-    // Your implementation
-    return { data: [] };
+  gridColumn: 'span 6', // Half width
+  gridRow: 'span 2',    // Two rows tall
+  // ...
+}
+```
+
+### Custom Validation
+
+Add validation using JSON Schema:
+
+```tsx
+{
+  type: 'string',
+  variant: 'id-picker',
+  title: 'Required Category',
+  // ... other config
+}
+
+// In schema root
+{
+  type: 'object',
+  required: ['category_id'], // Makes field required
+  properties: {
+    category_id: { /* ... */ }
+  }
+}
+```
+
+### Custom Error Messages
+
+Use `errorMessages` in schema:
+
+```tsx
+{
+  type: 'string',
+  variant: 'id-picker',
+  errorMessages: {
+    required: 'Please select a category',
   },
 }
 ```
 
-### Selected Items Show "Undefined"
+## Labels and Internationalization
 
-**Problem:** The `idMap` doesn't contain the selected IDs, or `loadInitialValues` isn't working.
+IdPicker supports custom labels through the `idPickerLabels` prop in `FormRoot`:
 
-**Solutions:**
+```tsx
+<FormRoot
+  schema={schema}
+  idPickerLabels={{
+    undefined: 'Item not found',
+    addMore: 'Add more items',
+    typeToSearch: 'Type to search...',
+    total: 'Total items',
+    showing: 'Showing',
+    perPage: 'per page',
+    emptySearchResult: 'No results found',
+    initialResults: 'Start typing to search',
+  }}
+  {...form}
+>
+  <FormBody />
+</FormRoot>
+```
 
-1. Ensure `loadInitialValues` is provided in the schema (check console for warnings)
-2. Check that `loadInitialValues` is correctly implemented
-3. Verify the API returns data in the expected format: `{ data: [...] }`
-4. Ensure IDs match between the form value and the API response
+**Label Properties:**
 
-### Search Not Working
-
-**Problem:** The search functionality isn't filtering results.
-
-**Solutions:**
-
-1. If using `customQueryFn`, ensure you're handling the `searching` parameter
-2. Check that your API endpoint supports search queries
-3. Verify the search parameter name matches what your API expects
-
-### Items Not Loading on Mount
-
-**Problem:** Initial values aren't being loaded when the form mounts.
-
-**Solutions:**
-
-1. Ensure `loadInitialValues` is provided in the schema (check console for warnings)
-2. Check that `loadInitialValues` is correctly implemented and working
-3. Check that form initial values are set correctly
-4. Verify the query function handles the `where` clause for loading specific IDs
-
-### TypeScript Errors
-
-**Problem:** Type errors with `renderDisplay` or query functions.
-
-**Solutions:**
-
-1. Type-assert the `item` parameter in `renderDisplay`:
-   ```tsx
-   const renderUser = (item: unknown): ReactNode => {
-     const user = item as User; // ← Type assertion
-     return <Text>{user.name}</Text>;
-   };
-   ```
-2. Use proper types for query functions:
-   ```tsx
-   import type { CustomQueryFnParams } from '@bsol-oss/react-datatable5';
-   ```
-
-### Performance Issues
-
-**Problem:** The component is slow or making too many API calls.
-
-**Solutions:**
-
-1. The search is automatically debounced (300ms), but you can adjust this
-2. Ensure your `customQueryFn` implements proper pagination
-3. Use `idMap` in the query response to pre-populate the cache
-4. Keep `renderDisplay` functions lightweight
-
-## Related Documentation
-
-- **[IdPicker Labels](./IDPICKER_LABELS.md)** - Complete guide to customizing UI labels
-- **[IdPicker Custom Display](./IDPICKER_CUSTOM_DISPLAY.md)** - Guide to customizing item display
-- **[IdPicker Quick Reference](./IDPICKER_QUICK_REFERENCE.md)** - Quick comparison of customization options
-- **[Form Usage Documentation](./DEFAULTFORM_USAGE.md)** - Complete form component guide
+| Property            | Default                    | Description                                            |
+| ------------------- | -------------------------- | ------------------------------------------------------ |
+| `undefined`         | `'Undefined'`              | Shown when selected ID cannot be found                 |
+| `addMore`           | `'Add more'`               | Button text for adding more items (multiple selection) |
+| `typeToSearch`      | `'Type to search'`         | Placeholder text in input                              |
+| `total`             | `'Total'`                  | Label for total count                                  |
+| `showing`           | `'Showing'`                | Label for "showing X of Y"                             |
+| `perPage`           | `'per page'`               | Label for per page count                               |
+| `emptySearchResult` | `'No results found'`       | Shown when search returns no results                   |
+| `initialResults`    | `'Start typing to search'` | Shown when dropdown is empty and no search entered     |
 
 ## Examples
 
-- **[IdPicker Combobox Story](../src/stories/Form/IdPickerCombobox.stories.tsx)** - Live examples with public API
-- **[IdPicker Multiple Selection Story](../src/stories/Form/IdPickerMultiple.stories.tsx)** - Multiple selection examples
-- **[IdPicker Initial Values Story](../src/stories/Form/IdPickerInitialValues.stories.tsx)** - Loading initial values
-- **[IdPicker I18n Story](../src/stories/Form/IdPickerI18n.stories.tsx)** - Multilingual examples
+### Example 1: User Selection with Avatar
+
+```tsx
+const schema = {
+  type: 'object',
+  properties: {
+    assigned_to: {
+      type: 'string',
+      variant: 'id-picker',
+      title: 'Assign To',
+      customQueryFn: async (params) => {
+        const response = await axios.post('/api/users/search', {
+          search: params.searching || '',
+          limit: params.limit || 50,
+        });
+        return {
+          data: {
+            data: response.data.users,
+            count: response.data.total,
+          },
+        };
+      },
+      renderDisplay: (user) => (
+        <Flex gap={2} align="center">
+          <Avatar src={user.avatar_url} size="sm" />
+          <Box>
+            <Text fontWeight="medium">{user.name}</Text>
+            <Text fontSize="sm" color="gray.500">
+              {user.email}
+            </Text>
+          </Box>
+        </Flex>
+      ),
+      loadInitialValues: createDefaultLoadInitialValues(),
+    },
+  },
+};
+```
+
+### Example 2: Multiple Tag Selection
+
+```tsx
+const schema = {
+  type: 'object',
+  properties: {
+    tags: {
+      type: 'array',
+      variant: 'id-picker',
+      title: 'Tags',
+      items: { type: 'string' },
+      customQueryFn: async (params) => {
+        const response = await axios.get('/api/tags', {
+          params: {
+            search: params.searching,
+            limit: params.limit,
+          },
+        });
+        return {
+          data: {
+            data: response.data.tags,
+            count: response.data.total,
+          },
+        };
+      },
+      loadInitialValues: createDefaultLoadInitialValues(),
+    },
+  },
+};
+```
+
+### Example 3: Custom Value Extraction
+
+Using username instead of ID as the value:
+
+```tsx
+const schema = {
+  type: 'object',
+  properties: {
+    selected_by_username: {
+      type: 'string',
+      variant: 'id-picker',
+      title: 'Select User',
+      customQueryFn: userQueryFn,
+      itemToValue: (user) => user.username, // Use username as value
+      loadInitialValues: async (params) => {
+        // Since we use username as value, load by username
+        if (!params.ids || params.ids.length === 0) {
+          return { data: { data: [], count: 0 }, idMap: {} };
+        }
+
+        // Fetch all users and filter by username
+        const { data: allData } = await userQueryFn({
+          searching: '',
+          limit: 100,
+          offset: 0,
+        });
+
+        const matchingUsers = allData.data.filter((user) =>
+          params.ids.includes(user.username)
+        );
+
+        // Create idMap using username as key
+        const usernameIdMap: Record<string, any> = {};
+        matchingUsers.forEach((user) => {
+          usernameIdMap[user.username] = user;
+        });
+
+        if (Object.keys(usernameIdMap).length > 0) {
+          params.setIdMap((state) => ({ ...state, ...usernameIdMap }));
+        }
+
+        return {
+          data: { data: matchingUsers, count: matchingUsers.length },
+          idMap: usernameIdMap,
+        };
+      },
+    },
+  },
+};
+```
+
+### Example 4: Pre-filled Form Values
+
+```tsx
+const form = useForm({
+  preLoadedValues: {
+    category_id: 'cat-123',
+    tags: ['tag-1', 'tag-2'],
+  },
+});
+
+// The loadInitialValues function will automatically be called
+// to load the records for 'cat-123', 'tag-1', and 'tag-2'
+```
+
+## Best Practices
+
+### 1. Always Provide `loadInitialValues`
+
+Without `loadInitialValues`, selected values will show as IDs instead of human-readable text. Always provide this function.
+
+### 2. Use `idMap` for Caching
+
+Return `idMap` from `customQueryFn` to cache records and avoid unnecessary API calls:
+
+```tsx
+customQueryFn: async (params) => {
+  const response = await fetchData(params);
+
+  // Create idMap for caching
+  const idMap: Record<string, any> = {};
+  response.data.items.forEach((item) => {
+    idMap[item.id] = item;
+  });
+
+  return {
+    data: response.data,
+    idMap, // Include for caching
+  };
+};
+```
+
+### 3. Reuse `customQueryFn` in `loadInitialValues`
+
+Don't duplicate API logic. Use the provided `customQueryFn`:
+
+```tsx
+loadInitialValues: async (params) => {
+  const { customQueryFn } = params;
+  // Reuse customQueryFn instead of duplicating API call
+  return await customQueryFn({
+    searching: '',
+    limit: params.ids.length,
+    where: [{ id: 'id', value: params.ids }],
+  });
+};
+```
+
+### 4. Provide Custom `renderDisplay` for Better UX
+
+Default rendering may not be ideal. Provide a custom `renderDisplay` for better user experience:
+
+```tsx
+renderDisplay: (item) => (
+  <Flex gap={2}>
+    <Text fontWeight="bold">{item.name}</Text>
+    <Badge>{item.status}</Badge>
+  </Flex>
+);
+```
+
+### 5. Handle Loading States
+
+The component automatically shows loading states, but ensure your API responds quickly. Consider:
+
+- Debouncing search (already handled - 300ms)
+- Limiting results (default: 50)
+- Using pagination for large datasets
+
+### 6. Error Handling
+
+Handle errors in `customQueryFn`:
+
+```tsx
+customQueryFn: async (params) => {
+  try {
+    const response = await fetchData(params);
+    return { data: response.data, idMap: {} };
+  } catch (error) {
+    console.error('Failed to fetch:', error);
+    // Return empty data - component will show error state
+    return { data: { data: [], count: 0 }, idMap: {} };
+  }
+};
+```
+
+## Common Issues
+
+### Issue: Selected values show as IDs instead of names
+
+**Solution:** Ensure `loadInitialValues` is provided and working correctly. Check that it's loading records and updating `idMap`.
+
+### Issue: Search doesn't work
+
+**Solution:**
+
+1. Verify `customQueryFn` is provided
+2. Check that `customQueryFn` handles the `searching` parameter
+3. Ensure the function returns data in the correct format: `{ data: { data: [], count: 0 } }`
+
+### Issue: Initial values not loading
+
+**Solution:**
+
+1. Check that `loadInitialValues` is provided
+2. Verify `preLoadedValues` in `useForm` contains the correct field names
+3. Ensure `loadInitialValues` uses `where` parameter correctly to filter by ID
+
+### Issue: Multiple selection not working
+
+**Solution:** Ensure schema uses `type: 'array'` with `items: { type: 'string' }`:
+
+```tsx
+{
+  type: 'array',        // ← Must be array
+  variant: 'id-picker',
+  items: {
+    type: 'string',     // ← Array items are strings (IDs)
+  },
+}
+```
+
+### Issue: Custom `itemToValue` not working with `loadInitialValues`
+
+**Solution:** When using custom `itemToValue`, update `loadInitialValues` to load by that value, not by `id`:
+
+```tsx
+// If itemToValue returns username
+itemToValue: (item) => item.username;
+
+// Then loadInitialValues must load by username
+loadInitialValues: async (params) => {
+  // Load by username, not by id
+  const { data } = await customQueryFn({
+    where: [{ id: 'username', value: params.ids }],
+  });
+  // ...
+};
+```
+
+### Issue: Component shows "Undefined" for selected items
+
+**Solution:**
+
+1. Check that `idMap` is being populated correctly
+2. Verify `loadInitialValues` is updating `idMap` via `setIdMap`
+3. Ensure the ID in form value matches the key in `idMap`
+
+### Issue: Performance issues with large datasets
+
+**Solution:**
+
+1. Limit results in `customQueryFn` (default is 50)
+2. Implement server-side search filtering
+3. Use `idMap` caching to avoid refetching
+4. Consider pagination for very large datasets
+
+---
+
+For more examples, see the Storybook stories in `src/stories/Form/IdPicker*.stories.tsx`.

@@ -92,7 +92,7 @@ export const SchemaRenderer = ({
       return <DateRangePicker schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === 'enum-picker') {
-      const { items } = colSchema;
+      const { items, title } = colSchema;
       const { enum: enumItems } = items as JSONSchema7;
       // Use renderDisplay from parent schema only
       const renderDisplay = colSchema.renderDisplay;
@@ -100,6 +100,7 @@ export const SchemaRenderer = ({
         type: 'string' as const,
         enum: enumItems,
         ...(renderDisplay && { renderDisplay }),
+        ...(title && { title }),
       };
       return (
         <EnumPicker
