@@ -1,10 +1,10 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
+import { FilePickerMediaFile } from '@/components/Form/components/types/CustomJSONSchema7';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
-import { FilePickerMediaFile } from '@/components/Form/components/types/CustomJSONSchema7';
+import { CustomJSONSchema7 } from 'json-schema';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -208,7 +208,7 @@ export const TraditionalChineseErrors: Story = {
 
 // Comprehensive form showing all field types with errors
 const ComprehensiveForm = () => {
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       textInput: {
@@ -457,7 +457,7 @@ const ComprehensiveForm = () => {
       'deeplyNestedObject',
       'recordInput',
     ],
-  } as JSONSchema7;
+  };
 
   const form = useForm({
     preLoadedValues: {},
@@ -468,7 +468,7 @@ const ComprehensiveForm = () => {
     <DefaultForm
       formConfig={{
         ...form,
-        schema: schema as JSONSchema7,
+        schema,
         onSubmit: (data) => {
           console.log('Comprehensive form data:', data);
         },
@@ -479,7 +479,7 @@ const ComprehensiveForm = () => {
 
 // Form focusing on required field errors
 const RequiredFieldsForm = () => {
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       firstName: {
@@ -510,7 +510,7 @@ const RequiredFieldsForm = () => {
       },
     },
     required: ['firstName', 'lastName', 'age', 'email', 'phone'],
-  } as JSONSchema7;
+  };
 
   const form = useForm({
     preLoadedValues: {},
@@ -521,7 +521,7 @@ const RequiredFieldsForm = () => {
     <DefaultForm
       formConfig={{
         ...form,
-        schema: schema as JSONSchema7,
+        schema,
         onSubmit: (data) => {
           console.log('Required fields form data:', data);
         },
@@ -532,7 +532,7 @@ const RequiredFieldsForm = () => {
 
 // Form focusing on validation errors
 const ValidationErrorsForm = () => {
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       username: {
@@ -578,7 +578,7 @@ const ValidationErrorsForm = () => {
       },
     },
     required: ['username', 'password', 'confirmPassword'],
-  } as JSONSchema7;
+  };
 
   const form = useForm({
     preLoadedValues: {},
@@ -588,7 +588,7 @@ const ValidationErrorsForm = () => {
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema,
         onSubmit: (data) => {
           console.log('Validation form data:', data);
         },
@@ -600,7 +600,7 @@ const ValidationErrorsForm = () => {
 
 // Complex form with nested objects and arrays
 const ComplexForm = () => {
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       name: {
@@ -672,7 +672,7 @@ const ComplexForm = () => {
       },
     },
     required: ['name', 'price', 'category', 'address'],
-  } as JSONSchema7;
+  };
 
   const form = useForm({
     preLoadedValues: {},
@@ -682,7 +682,7 @@ const ComplexForm = () => {
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema,
         onSubmit: (data) => {
           console.log('Complex form data:', data);
         },
@@ -693,8 +693,8 @@ const ComplexForm = () => {
 };
 
 // Traditional Chinese error messages form
-const TraditionalChineseForm = () => {
-  const schema = {
+const TraditionalChineseForm = (): CustomJSONSchema7 => {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       使用者名稱: {
@@ -753,7 +753,7 @@ const TraditionalChineseForm = () => {
       '網站網址',
       '描述',
     ],
-  } as JSONSchema7;
+  };
 
   const form = useForm({
     preLoadedValues: {},
@@ -763,7 +763,7 @@ const TraditionalChineseForm = () => {
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema,
         onSubmit: (data) => {
           console.log('Traditional Chinese form data:', data);
         },
