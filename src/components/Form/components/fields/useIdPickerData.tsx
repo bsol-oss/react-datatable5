@@ -1,13 +1,14 @@
 import { useFilter, useListCollection } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from '@uidotdev/usehooks';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useSchemaContext } from '../../useSchemaContext';
 import {
   CustomJSONSchema7,
   defaultRenderDisplay,
+  IdPickerLabels,
   LoadInitialValuesParams,
   LoadInitialValuesResult,
 } from '../types/CustomJSONSchema7';
@@ -61,7 +62,7 @@ export interface UseIdPickerDataReturn {
     }>
   ) => void;
   idMap: Record<string, object>;
-  idPickerLabels: any;
+  idPickerLabels?: IdPickerLabels;
   insideDialog: boolean;
   renderDisplay: ((item: RecordType) => React.ReactNode) | undefined;
   itemToValue: (item: RecordType) => string;
@@ -69,7 +70,6 @@ export interface UseIdPickerDataReturn {
   loadInitialValues: (
     params: LoadInitialValuesParams
   ) => Promise<LoadInitialValuesResult>;
-  column_ref: string;
   errors: any;
   setValue: (name: string, value: any) => void;
 }
@@ -102,7 +102,6 @@ export const useIdPickerData = ({
       `loadInitialValues is recommended in schema for IdPicker field '${column}'. Please provide loadInitialValues function in the schema to load records for human-readable display.`
     );
   }
-  const column_ref = 'id';
   const [searchText, setSearchText] = useState<string>('');
   const debouncedSearchText = useDebounce(searchText, 300);
   const [limit] = useState<number>(50); // Increased limit for combobox
@@ -255,13 +254,17 @@ export const useIdPickerData = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentValueKey, idMapKey]);
 
-  // Default itemToValue function: extract value from item using column_ref
-  const defaultItemToValue = (item: RecordType) => String(item[column_ref]);
-
-  // Use schema's itemToValue if provided, otherwise use default
+  // Use schema's itemToValue if provided, otherwise throw error
+  // schemaItemToValue should be provided in schema for id-picker fields
   const itemToValueFn = schemaItemToValue
     ? (item: RecordType) => schemaItemToValue(item)
-    : defaultItemToValue;
+    : (item: RecordType) => {
+        console.warn(
+          `itemToValue is required in schema for IdPicker field '${column}'. Please provide itemToValue function in the schema. Currently trying to get 'id' field as last resort`
+        );
+        // Fallback: try to get 'id' field as last resort
+        return String(item?.id ?? item);
+      };
 
   // itemToString function: convert item to readable string using renderDisplay
   // This ensures items can always be displayed as readable strings in the combobox
@@ -341,7 +344,7 @@ export const useIdPickerData = ({
       );
 
     return [...itemsFromIdMap, ...itemsFromDataList];
-  }, [dataList, column_ref, renderDisplay, idMapItems, itemToValueFn]);
+  }, [dataList, renderDisplay, idMapItems, itemToValueFn]);
 
   // Use filter hook for combobox
   const { contains } = useFilter({ sensitivity: 'base' });
@@ -428,7 +431,6 @@ export const useIdPickerData = ({
     loadInitialValues:
       loadInitialValues ??
       (async () => ({ data: { data: [], count: 0 }, idMap: {} })), // Fallback if not provided
-    column_ref,
     errors,
     setValue,
   };
