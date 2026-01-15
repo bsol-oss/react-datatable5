@@ -7968,7 +7968,7 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
             return jsx(DateRangePicker, { schema: colSchema, prefix, column });
         }
         if (variant === 'enum-picker') {
-            const { items } = colSchema;
+            const { items, title } = colSchema;
             const { enum: enumItems } = items;
             // Use renderDisplay from parent schema only
             const renderDisplay = colSchema.renderDisplay;
@@ -7976,6 +7976,7 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
                 type: 'string',
                 enum: enumItems,
                 ...(renderDisplay && { renderDisplay }),
+                ...(title && { title }),
             };
             return (jsx(EnumPicker, { isMultiple: true, schema: enumSchema, prefix, column }));
         }
