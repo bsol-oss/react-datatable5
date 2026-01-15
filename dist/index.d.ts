@@ -790,7 +790,7 @@ interface Translate {
 }
 interface UseFormProps {
     preLoadedValues?: FieldValues | undefined;
-    schema?: JSONSchema7;
+    schema?: CustomJSONSchema7;
 }
 declare const useForm: ({ preLoadedValues, schema }: UseFormProps) => {
     form: react_hook_form.UseFormReturn<FieldValues, any, undefined>;

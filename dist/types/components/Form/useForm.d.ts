@@ -1,6 +1,6 @@
 /// <reference types="react" />
-import { JSONSchema7 } from 'json-schema';
 import { FieldValues } from 'react-hook-form';
+import { CustomJSONSchema7 } from './components/types/CustomJSONSchema7';
 export interface Translate {
     t: (key: string, options?: any) => string;
     i18n?: any;
@@ -8,7 +8,7 @@ export interface Translate {
 }
 export interface UseFormProps {
     preLoadedValues?: FieldValues | undefined;
-    schema?: JSONSchema7;
+    schema?: CustomJSONSchema7;
 }
 export declare const useForm: ({ preLoadedValues, schema }: UseFormProps) => {
     form: import("react-hook-form").UseFormReturn<FieldValues, any, undefined>;
