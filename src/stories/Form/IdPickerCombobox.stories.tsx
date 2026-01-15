@@ -272,13 +272,12 @@ const IdPickerComboboxForm = () => {
         type: 'string',
         variant: 'id-picker',
         customQueryFn: jsonPlaceholderUserQueryFn,
-        idColumn: 'id',
         renderDisplay: renderUserDisplay, // Custom rendering function - used in both dropdown and selected value
         loadInitialValues: async (params: LoadInitialValuesParams) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
-          const { customQueryFn, idColumn } = params;
+          const { customQueryFn } = params;
           if (!customQueryFn) {
             throw new Error(
               'customQueryFn is required. serverUrl has been removed.'
@@ -290,7 +289,7 @@ const IdPickerComboboxForm = () => {
             offset: 0,
             where: [
               {
-                id: idColumn,
+                id: 'id',
                 value: params.ids.length === 1 ? params.ids[0] : params.ids,
               },
             ],
@@ -352,7 +351,6 @@ const IdPickerComboboxForm = () => {
         type: 'string',
         variant: 'id-picker',
         customQueryFn: jsonPlaceholderUserQueryFn,
-        idColumn: 'id',
         renderDisplay: renderUserDisplay,
         // Custom itemToValue: extract username instead of id
         // This allows storing/using username as the value instead of the numeric id
@@ -637,7 +635,6 @@ const renderUserDisplay = (item: unknown): ReactNode => {
   "variant": "id-picker",
   "renderDisplay": renderUserDisplay, // ← Add this property
   "customQueryFn": jsonPlaceholderUserQueryFn,
-  "idColumn": "id"
 }`}
               </Code>
             </Box>
@@ -759,7 +756,7 @@ const renderUserDisplay = (item: unknown): ReactNode => {
   "type": "string",
   "variant": "id-picker",
   "customQueryFn": jsonPlaceholderUserQueryFn,
-  "idColumn": "id",
+,
   "itemToValue": (item) => {
     const user = item as TransformedUser;
     return user.username; // Use username as value instead of id
@@ -1144,7 +1141,7 @@ const data = { id: '3', x: 1, y: 2 };
     "type": "string",        // or "array" for multiple
     "variant": "id-picker",
       "customQueryFn": jsonPlaceholderUserQueryFn,
-      "idColumn": "id",
+,
     "renderDisplay": renderUserDisplay,  // Optional: custom display
     "itemToValue": (item) => item.username,  // Optional: custom value extraction
     // itemToString is automatically provided by useIdPickerData hook

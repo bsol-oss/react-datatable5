@@ -68,7 +68,7 @@ const createDefaultLoadInitialValues = () => {
       return { data: { data: [], count: 0 }, idMap: {} };
     }
 
-    const { customQueryFn, idColumn } = params;
+    const { customQueryFn } = params;
 
     if (!customQueryFn) {
       throw new Error('customQueryFn is required. serverUrl has been removed.');
@@ -80,7 +80,7 @@ const createDefaultLoadInitialValues = () => {
       offset: 0,
       where: [
         {
-          id: idColumn,
+          id: 'id',
           value: params.ids.length === 1 ? params.ids[0] : params.ids,
         },
       ],

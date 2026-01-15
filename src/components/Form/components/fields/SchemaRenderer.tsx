@@ -1,5 +1,4 @@
 import { Text } from '@chakra-ui/react';
-import { idPickerSanityCheck } from '../core/FormRoot';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { ArrayRenderer } from './ArrayRenderer';
 import { BooleanPicker } from './BooleanPicker';
@@ -37,7 +36,6 @@ export const SchemaRenderer = ({
     variant,
     properties: innerProperties,
     customQueryFn,
-    idColumn,
     format,
     items,
   } = schema;
@@ -49,7 +47,6 @@ export const SchemaRenderer = ({
       return <EnumPicker schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === 'id-picker') {
-      idPickerSanityCheck(column, customQueryFn, idColumn);
       return <IdPickerSingle schema={colSchema} {...{ prefix, column }} />;
     }
     if (format === 'date') {
@@ -85,7 +82,6 @@ export const SchemaRenderer = ({
   }
   if (type === 'array') {
     if (variant === 'id-picker') {
-      idPickerSanityCheck(column, customQueryFn, idColumn);
       return <IdPickerMultiple schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === 'tag-picker') {

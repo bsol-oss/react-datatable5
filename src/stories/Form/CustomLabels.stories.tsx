@@ -124,7 +124,7 @@ const createDefaultLoadInitialValues = () => {
       return { data: { data: [], count: 0 }, idMap: {} };
     }
 
-    const { customQueryFn, idColumn } = params;
+    const { customQueryFn } = params;
 
     if (!customQueryFn) {
       throw new Error('customQueryFn is required. serverUrl has been removed.');
@@ -136,7 +136,7 @@ const createDefaultLoadInitialValues = () => {
       offset: 0,
       where: [
         {
-          id: idColumn,
+          id: 'id',
           value: params.ids.length === 1 ? params.ids[0] : params.ids,
         },
       ],
@@ -323,7 +323,6 @@ const IdPickerForm = () => {
         title: 'Category',
         variant: 'id-picker',
         customQueryFn: mockCategoryQueryFn,
-        idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
       tags: {
@@ -331,7 +330,6 @@ const IdPickerForm = () => {
         title: 'Tags',
         variant: 'id-picker',
         customQueryFn: mockTagQueryFn,
-        idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
     },
@@ -381,7 +379,6 @@ const CombinedForm = () => {
         title: 'Organizer',
         variant: 'id-picker',
         customQueryFn: mockUserQueryFn,
-        idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
       categories: {
@@ -389,7 +386,6 @@ const CombinedForm = () => {
         title: 'Categories',
         variant: 'id-picker',
         customQueryFn: mockCategoryQueryFn,
-        idColumn: 'id',
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
     },

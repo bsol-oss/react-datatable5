@@ -110,11 +110,9 @@ const SomeForm = () => {
         type: 'string',
         variant: 'id-picker',
         customQueryFn: mockGeolocationQueryFn,
-        idColumn: 'id',
         loadInitialValues: async (params: {
           ids: string[];
           customQueryFn: any;
-          idColumn: string;
           setIdMap: React.Dispatch<
             React.SetStateAction<Record<string, object>>
           >;
@@ -122,7 +120,7 @@ const SomeForm = () => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
-          const { customQueryFn, idColumn } = params;
+          const { customQueryFn } = params;
           if (!customQueryFn) {
             throw new Error(
               'customQueryFn is required. serverUrl has been removed.'
@@ -134,7 +132,7 @@ const SomeForm = () => {
             offset: 0,
             where: [
               {
-                id: idColumn,
+                id: 'id',
                 value: params.ids.length === 1 ? params.ids[0] : params.ids,
               },
             ],

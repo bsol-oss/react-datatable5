@@ -81,26 +81,8 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
   gridColumn: string;
   gridRow: string;
   customQueryFn: any;
-  idColumn: string;
   children: ReactNode;
 }
-
-export const idPickerSanityCheck = (
-  column: string,
-  customQueryFn?: any,
-  idColumn?: string
-) => {
-  if (!customQueryFn) {
-    throw new Error(
-      `customQueryFn is required in properties of column ${column} when using id-picker.`
-    );
-  }
-  if (!idColumn) {
-    throw new Error(
-      `idColumn is required in properties of column ${column} when using id-picker.`
-    );
-  }
-};
 
 export const FormRoot = <TData extends FieldValues>({
   schema,

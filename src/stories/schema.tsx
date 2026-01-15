@@ -15,7 +15,7 @@ const createDefaultLoadInitialValues = () => {
       return { data: { data: [], count: 0 }, idMap: {} };
     }
 
-    const { customQueryFn, idColumn } = params;
+    const { customQueryFn } = params;
 
     if (!customQueryFn) {
       throw new Error('customQueryFn is required. serverUrl has been removed.');
@@ -27,7 +27,7 @@ const createDefaultLoadInitialValues = () => {
       offset: 0,
       where: [
         {
-          id: idColumn,
+          id: 'id',
           value: params.ids.length === 1 ? params.ids[0] : params.ids,
         },
       ],
@@ -441,7 +441,6 @@ export const activitiesSchema = {
       gridColumn: '1/span 6',
       gridRow: '2/span 1',
       variant: 'id-picker',
-      idColumn: 'id',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
   },
@@ -683,7 +682,6 @@ export const eventsFilesSchema = {
       title: 'Event',
       gridColumn: '1/span 6',
       gridRow: '1/span 1',
-      idColumn: 'id',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
     good: {
@@ -709,7 +707,6 @@ export const eventsFilesSchema2 = {
       format: 'uuid',
       variant: 'id-picker',
       title: 'Files',
-      idColumn: 'id',
       gridColumn: '1/span 8',
       gridRow: '2/span 8',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
@@ -719,7 +716,6 @@ export const eventsFilesSchema2 = {
       format: 'uuid',
       variant: 'id-picker',
       title: 'Event',
-      idColumn: 'id',
       gridColumn: '1/span 6',
       gridRow: '1/span 1',
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display

@@ -1,5 +1,4 @@
 import { Text } from '@chakra-ui/react';
-import { idPickerSanityCheck } from '../core/FormRoot';
 import { CustomJSONSchema7 } from '../types/CustomJSONSchema7';
 import { ArrayViewer } from './ArrayViewer';
 import { BooleanViewer } from './BooleanViewer';
@@ -35,7 +34,6 @@ export const SchemaViewer = ({
     variant,
     properties: innerProperties,
     customQueryFn,
-    idColumn,
     items,
     format,
   } = schema;
@@ -47,7 +45,6 @@ export const SchemaViewer = ({
       return <EnumViewer schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === 'id-picker') {
-      idPickerSanityCheck(column, customQueryFn, idColumn);
       return <IdViewer schema={colSchema} {...{ prefix, column }} />;
     }
     if (format === 'time') {
@@ -79,7 +76,6 @@ export const SchemaViewer = ({
   }
   if (type === 'array') {
     if (variant === 'id-picker') {
-      idPickerSanityCheck(column, customQueryFn, idColumn);
       return (
         <IdViewer
           schema={colSchema}
