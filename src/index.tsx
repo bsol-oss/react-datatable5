@@ -148,7 +148,6 @@ export * from './components/DataTable/display/ErrorAlert';
 export * from './components/DataTable/useDataTable';
 export * from './components/DataTable/useDataTableServer';
 export * from './components/DataTable/context/useDataTableContext';
-export * from './components/DataTable/utils/getColumns';
 
 // Form
 export * from './components/Form/components/core/DefaultForm';

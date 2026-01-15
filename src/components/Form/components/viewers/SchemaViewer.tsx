@@ -29,14 +29,7 @@ export const SchemaViewer = ({
   column,
 }: SchemaRendererProps) => {
   const colSchema = schema;
-  const {
-    type,
-    variant,
-    properties: innerProperties,
-    customQueryFn,
-    items,
-    format,
-  } = schema;
+  const { type, variant, properties: innerProperties, items, format } = schema;
   if (variant === 'custom-input') {
     return <CustomViewer schema={colSchema} {...{ prefix, column }} />;
   }
