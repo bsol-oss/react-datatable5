@@ -164,7 +164,10 @@ export interface CustomJSONSchema7
   showLabel?: boolean;
   formatOptions?: Intl.NumberFormatOptions;
   numberStorageType?: 'string' | 'number';
-  errorMessages?: Partial<Record<ValidationErrorType | string, string>>;
+  errorMessage?: Record<
+    Partial<ValidationErrorType> | string,
+    string | Record<string, string>
+  >;
   filePicker?: FilePickerProps;
   tagPicker?: {
     queryFn?: (params: {

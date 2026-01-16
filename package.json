@@ -91,5 +91,8 @@
     "*.{ts,js,json,md,tsx}": [
       "prettier --config ./.prettierrc --write"
     ]
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2"
   }
 }

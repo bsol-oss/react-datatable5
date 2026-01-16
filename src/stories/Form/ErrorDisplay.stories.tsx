@@ -4,7 +4,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { CustomJSONSchema7 } from 'json-schema';
+import { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -330,7 +330,7 @@ const ComprehensiveForm = () => {
             type: 'string',
             minLength: 5,
             title: 'Street',
-            errorMessages: {
+            errorMessage: {
               required: 'Street address is required',
               minLength: 'Street must be at least 5 characters',
             },
@@ -339,7 +339,7 @@ const ComprehensiveForm = () => {
             type: 'string',
             minLength: 2,
             title: 'City',
-            errorMessages: {
+            errorMessage: {
               required: 'City is required',
               minLength: 'City name is too short',
             },
@@ -348,7 +348,7 @@ const ComprehensiveForm = () => {
             type: 'string',
             pattern: '^[0-9]{5}(-[0-9]{4})?$',
             title: 'Postal Code',
-            errorMessages: {
+            errorMessage: {
               required: 'Postal code is required',
               pattern: 'Invalid postal code format (use 12345 or 12345-6789)',
             },
@@ -357,7 +357,7 @@ const ComprehensiveForm = () => {
             type: 'string',
             enum: ['USA', 'Canada', 'UK', 'Australia'],
             title: 'Country',
-            errorMessages: {
+            errorMessage: {
               required: 'Please select a country',
             },
           },
@@ -375,7 +375,7 @@ const ComprehensiveForm = () => {
                 type: 'string',
                 format: 'email',
                 title: 'Email',
-                errorMessages: {
+                errorMessage: {
                   required: 'Email is required',
                   format: 'Invalid email format',
                 },
@@ -384,7 +384,7 @@ const ComprehensiveForm = () => {
                 type: 'string',
                 pattern: '^[0-9]{10}$',
                 title: 'Phone',
-                errorMessages: {
+                errorMessage: {
                   required: 'Phone number is required',
                   pattern: 'Phone must be 10 digits',
                 },
@@ -400,7 +400,7 @@ const ComprehensiveForm = () => {
                 type: 'string',
                 minLength: 2,
                 title: 'Emergency Contact Name',
-                errorMessages: {
+                errorMessage: {
                   required: 'Emergency contact name is required',
                   minLength: 'Name must be at least 2 characters',
                 },
@@ -409,7 +409,7 @@ const ComprehensiveForm = () => {
                 type: 'string',
                 enum: ['Parent', 'Spouse', 'Sibling', 'Friend', 'Other'],
                 title: 'Relationship',
-                errorMessages: {
+                errorMessage: {
                   required: 'Please select a relationship',
                 },
               },
@@ -417,7 +417,7 @@ const ComprehensiveForm = () => {
                 type: 'string',
                 pattern: '^[0-9]{10}$',
                 title: 'Phone Number',
-                errorMessages: {
+                errorMessage: {
                   required: 'Emergency phone is required',
                   pattern: 'Phone must be 10 digits',
                 },
@@ -693,7 +693,7 @@ const ComplexForm = () => {
 };
 
 // Traditional Chinese error messages form
-const TraditionalChineseForm = (): CustomJSONSchema7 => {
+const TraditionalChineseForm = () => {
   const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
@@ -703,11 +703,19 @@ const TraditionalChineseForm = (): CustomJSONSchema7 => {
         maxLength: 20,
         pattern: '^[a-zA-Z0-9_]+$',
         title: '使用者名稱',
+        errorMessage: {
+          minLength: '使用者名稱必須至少3個字元',
+          maxLength: '使用者名稱不能超過20個字元',
+          pattern: '使用者名稱只能包含字母、數字和底線',
+        },
       },
       電子郵件: {
         type: 'string',
         format: 'email',
         title: '電子郵件地址',
+        errorMessage: {
+          format: '請輸入有效的電子郵件地址',
+        },
       },
       密碼: {
         type: 'string',
@@ -753,6 +761,18 @@ const TraditionalChineseForm = (): CustomJSONSchema7 => {
       '網站網址',
       '描述',
     ],
+    errorMessage: {
+      required: {
+        使用者名稱: '使用者名稱是必填項',
+        電子郵件: '電子郵件地址是必填項',
+        密碼: '密碼是必填項',
+        確認密碼: '確認密碼是必填項',
+        年齡: '年齡是必填項',
+        電話號碼: '電話號碼是必填項',
+        網站網址: '網站網址是必填項',
+        描述: '描述是必填項',
+      },
+    },
   };
 
   const form = useForm({

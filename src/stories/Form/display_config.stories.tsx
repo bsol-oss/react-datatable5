@@ -4,7 +4,6 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { UseFormReturn } from 'react-hook-form';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -34,7 +33,7 @@ export const displayConfig: Story = {
 };
 
 const SomeForm = () => {
-  const { form, idMap, setIdMap } = useForm<any>({
+  const { form, idMap, setIdMap } = useForm({
     preLoadedValues: { someTextArea: 'nice', someNumber: 10 },
   });
 
@@ -56,7 +55,7 @@ const SomeForm = () => {
 
   return (
     <>
-      <DefaultForm
+      <DefaultForm<{ someTextArea: string; someNumber: number }>
         formConfig={{
           schema: schema,
           onSubmit: (data) => {
