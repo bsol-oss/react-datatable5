@@ -108,7 +108,7 @@ export interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'addition
     showLabel?: boolean;
     formatOptions?: Intl.NumberFormatOptions;
     numberStorageType?: 'string' | 'number';
-    errorMessages?: Partial<Record<ValidationErrorType | string, string>>;
+    errorMessage?: Record<Partial<ValidationErrorType> | string, string | Record<string, string>>;
     filePicker?: FilePickerProps;
     tagPicker?: {
         queryFn?: (params: {

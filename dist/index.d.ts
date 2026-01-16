@@ -614,7 +614,7 @@ interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'additionalItems
     showLabel?: boolean;
     formatOptions?: Intl.NumberFormatOptions;
     numberStorageType?: 'string' | 'number';
-    errorMessages?: Partial<Record<ValidationErrorType | string, string>>;
+    errorMessage?: Record<Partial<ValidationErrorType> | string, string | Record<string, string>>;
     filePicker?: FilePickerProps;
     tagPicker?: {
         queryFn?: (params: {
@@ -719,7 +719,7 @@ interface FormRootProps<TData extends FieldValues> {
     requestUrl?: string;
     idMap: Record<string, object>;
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
-    form: UseFormReturn;
+    form: UseFormReturn<TData, any, TData>;
     children: ReactNode;
     order?: string[];
     ignore?: string[];
@@ -783,17 +783,12 @@ type MediaLibraryBrowserPropsMultiple = MediaLibraryBrowserPropsBase & {
 type MediaLibraryBrowserProps = MediaLibraryBrowserPropsSingle | MediaLibraryBrowserPropsMultiple;
 declare const MediaLibraryBrowser: ({ onFetchFiles, filterImageOnly, labels, enabled, multiple, onFileSelect, selectedFile: controlledSelectedFile, onSelectedFileChange, }: MediaLibraryBrowserProps) => react_jsx_runtime.JSX.Element | null;
 
-interface Translate {
-    t: (key: string, options?: any) => string;
-    i18n?: any;
-    ready?: boolean;
-}
-interface UseFormProps {
-    preLoadedValues?: FieldValues | undefined;
+interface UseFormProps<T> {
+    preLoadedValues?: T | undefined;
     schema?: CustomJSONSchema7;
 }
-declare const useForm: ({ preLoadedValues, schema }: UseFormProps) => {
-    form: react_hook_form.UseFormReturn<FieldValues, any, undefined>;
+declare function useForm<T extends FieldValues = any>({ preLoadedValues, schema, }: UseFormProps<T>): {
+    form: react_hook_form.UseFormReturn<T, any, T>;
     idMap: Record<string, object>;
     setIdMap: React$1.Dispatch<React$1.SetStateAction<Record<string, object>>>;
 };
@@ -1259,4 +1254,4 @@ declare module '@tanstack/react-table' {
     }
 }
 
-export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerContext, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, FormTitle, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, type TableFilterTagsProps, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type TimePickerLabels, type Translate, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, defaultRenderDisplay, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm };
+export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerContext, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, FormTitle, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, type TableFilterTagsProps, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type TimePickerLabels, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, defaultRenderDisplay, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm };

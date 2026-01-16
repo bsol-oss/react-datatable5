@@ -33,7 +33,7 @@ export interface FormRootProps<TData extends FieldValues> {
     requestUrl?: string;
     idMap: Record<string, object>;
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
-    form: UseFormReturn;
+    form: UseFormReturn<TData, any, TData>;
     children: ReactNode;
     order?: string[];
     ignore?: string[];

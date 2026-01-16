@@ -31,9 +31,7 @@ var customParseFormat = require('dayjs/plugin/customParseFormat');
 var timezone = require('dayjs/plugin/timezone');
 var utc = require('dayjs/plugin/utc');
 var ti = require('react-icons/ti');
-var Ajv = require('ajv');
-var addFormats = require('ajv-formats');
-var AjvErrors = require('ajv-errors');
+var ajv = require('@hookform/resolvers/ajv');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
 
 function _interopNamespaceDefault(e) {
@@ -1153,7 +1151,7 @@ function getElementFromPointWithoutHoneypot(client) {
 var maxZIndex = 2147483647;
 
 function ownKeys$2(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread$2(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys$2(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys$2(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _objectSpread$2(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys$2(Object(t), true).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys$2(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 var honeyPotSize = 2;
 var halfHoneyPotSize = honeyPotSize / 2;
 
@@ -2258,8 +2256,8 @@ function addAttribute(element, _ref) {
 }
 
 function ownKeys$1(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread$1(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys$1(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys$1(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _createForOfIteratorHelper$1(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray$1(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
+function _objectSpread$1(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys$1(Object(t), true).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys$1(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _createForOfIteratorHelper$1(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray$1(r)) || e) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: true } : { done: false, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = true, u = false; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = true, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
 function _unsupportedIterableToArray$1(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray$1(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray$1(r, a) : void 0; } }
 function _arrayLikeToArray$1(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function copyReverse(array) {
@@ -2563,11 +2561,11 @@ function makeDropTarget(_ref) {
   };
 }
 
-function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: true } : { done: false, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = true, u = false; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = true, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), true).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function makeMonitor() {
   var registry = new Set();
   var dragging = null;
@@ -8192,223 +8190,15 @@ const DefaultForm = ({ formConfig, }) => {
     return (jsxRuntime.jsx(FormRoot, { ...formConfig, children: jsxRuntime.jsxs(react.Grid, { gap: "2", children: [showTitle && jsxRuntime.jsx(FormTitle, {}), jsxRuntime.jsx(FormBody, {})] }) }));
 };
 
-const validateData = (data, schema) => {
-    const ajv = new Ajv({
-        strict: false,
-        allErrors: true,
-    });
-    addFormats(ajv);
-    AjvErrors(ajv); // Load ajv-errors plugin to process errorMessage format
-    const validate = ajv.compile(schema);
-    const validationResult = validate(data);
-    const errors = validate.errors;
-    return {
-        isValid: validationResult,
-        validate,
-        errors,
-    };
-};
-
-/**
- * Gets the schema node for a given field path
- */
-const getSchemaNodeForField = (schema, fieldPath) => {
-    if (!fieldPath || fieldPath === '') {
-        return schema;
-    }
-    const pathParts = fieldPath.split('.');
-    let currentSchema = schema;
-    for (const part of pathParts) {
-        if (currentSchema &&
-            currentSchema.properties &&
-            currentSchema.properties[part] &&
-            typeof currentSchema.properties[part] === 'object' &&
-            currentSchema.properties[part] !== null) {
-            currentSchema = currentSchema.properties[part];
-        }
-        else {
-            return undefined;
-        }
-    }
-    return currentSchema;
-};
-/**
- * Strips null, undefined, and empty string values from an object
- */
-const stripEmptyValues = (obj) => {
-    if (obj === null || obj === undefined) {
-        return undefined;
-    }
-    if (typeof obj === 'string' && obj.trim() === '') {
-        return undefined;
-    }
-    if (Array.isArray(obj)) {
-        const filtered = obj
-            .map(stripEmptyValues)
-            .filter((item) => item !== undefined);
-        return filtered.length > 0 ? filtered : undefined;
-    }
-    if (typeof obj === 'object' && obj !== null) {
-        const result = {};
-        let hasValues = false;
-        for (const [key, value] of Object.entries(obj)) {
-            const cleanedValue = stripEmptyValues(value);
-            if (cleanedValue !== undefined) {
-                result[key] = cleanedValue;
-                hasValues = true;
-            }
-        }
-        return hasValues ? result : undefined;
-    }
-    return obj;
-};
-/**
- * Converts AJV error objects to react-hook-form field errors format
- */
-const convertAjvErrorsToFieldErrors = (errors, schema) => {
-    if (!errors || errors.length === 0) {
-        return {};
-    }
-    const fieldErrors = {};
-    errors.forEach((error) => {
-        let fieldName = '';
-        // Special handling for required keyword: map to the specific missing property
-        if (error.keyword === 'required') {
-            const basePath = (error.instancePath || '')
-                .replace(/^\//, '')
-                .replace(/\//g, '.');
-            const missingProperty = error.params && error.params.missingProperty;
-            if (missingProperty) {
-                fieldName = basePath
-                    ? `${basePath}.${missingProperty}`
-                    : missingProperty;
-            }
-            else {
-                // Fallback to schemaPath conversion if missingProperty is unavailable
-                fieldName = (error.schemaPath || '')
-                    .replace(/^#\//, '#.')
-                    .replace(/\//g, '.');
-            }
-        }
-        else {
-            const fieldPath = error.instancePath || error.schemaPath;
-            if (fieldPath) {
-                fieldName = fieldPath.replace(/^\//, '').replace(/\//g, '.');
-            }
-        }
-        if (fieldName) {
-            // Get the schema node for this field to check for custom error messages
-            const fieldSchema = getSchemaNodeForField(schema, fieldName);
-            const customMessage = fieldSchema?.errorMessages?.[error.keyword];
-            // Debug log when error message is missing
-            if (!customMessage) {
-                console.debug(`[Form Validation] Missing error message for field '${fieldName}' with keyword '${error.keyword}'. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`, {
-                    fieldName,
-                    keyword: error.keyword,
-                    instancePath: error.instancePath,
-                    schemaPath: error.schemaPath,
-                    params: error.params,
-                    fieldSchema: fieldSchema
-                        ? {
-                            type: fieldSchema.type,
-                            errorMessages: fieldSchema
-                                .errorMessages,
-                        }
-                        : undefined,
-                });
-            }
-            // Provide helpful fallback message if no custom message is provided
-            const fallbackMessage = customMessage ||
-                `Missing error message for ${error.keyword}. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`;
-            if (error.keyword === 'required') {
-                // Required errors override any existing non-required errors for this field
-                fieldErrors[fieldName] = {
-                    type: 'required',
-                    keyword: error.keyword,
-                    params: error.params,
-                    message: fallbackMessage,
-                };
-            }
-            else {
-                const existing = fieldErrors[fieldName];
-                if (existing) {
-                    // Do not override required errors
-                    if (existing.type === 'required') {
-                        return;
-                    }
-                    // Combine messages if multiple errors for same field
-                    existing.message = existing.message
-                        ? `${existing.message}; ${fallbackMessage}`
-                        : fallbackMessage;
-                }
-                else {
-                    fieldErrors[fieldName] = {
-                        type: error.keyword,
-                        keyword: error.keyword,
-                        params: error.params,
-                        message: fallbackMessage,
-                    };
-                }
-            }
-        }
-    });
-    return fieldErrors;
-};
-/**
- * AJV resolver for react-hook-form
- * Integrates AJV validation with react-hook-form's validation system
- */
-const ajvResolver = (schema) => {
-    return async (values) => {
-        try {
-            // Strip empty values before validation
-            const cleanedValues = stripEmptyValues(values);
-            // Use empty object for validation if all values were stripped
-            const valuesToValidate = cleanedValues === undefined ? {} : cleanedValues;
-            const { isValid, errors } = validateData(valuesToValidate, schema);
-            console.debug('AJV Validation Result:', {
-                isValid,
-                errors,
-                cleanedValues,
-                valuesToValidate,
-            });
-            if (isValid) {
-                return {
-                    values: (cleanedValues || {}),
-                    errors: {},
-                };
-            }
-            const fieldErrors = convertAjvErrorsToFieldErrors(errors, schema);
-            console.debug('AJV Validation Failed:', {
-                errors,
-                fieldErrors,
-                cleanedValues,
-                valuesToValidate,
-            });
-            return {
-                values: {},
-                errors: fieldErrors,
-            };
-        }
-        catch (error) {
-            return {
-                values: {},
-                errors: {
-                    root: {
-                        type: 'validation',
-                        message: error instanceof Error ? error.message : 'Validation failed',
-                    },
-                },
-            };
-        }
-    };
-};
-
-const useForm = ({ preLoadedValues, schema }) => {
+function useForm({ preLoadedValues, schema, }) {
     const form = reactHookForm.useForm({
         values: preLoadedValues,
         mode: 'onSubmit',
-        resolver: schema ? ajvResolver(schema) : undefined,
+        resolver: schema
+            ? ajv.ajvResolver(schema, {
+                strict: false,
+            })
+            : undefined,
         reValidateMode: 'onChange',
     });
     const [idMap, setIdMap] = React.useState({});
@@ -8417,7 +8207,7 @@ const useForm = ({ preLoadedValues, schema }) => {
         idMap,
         setIdMap,
     };
-};
+}
 
 const getMultiDates = ({ selected, selectedDate, selectedDates, selectable, }) => {
     if (!selectable) {
