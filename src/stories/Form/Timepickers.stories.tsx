@@ -45,12 +45,12 @@ const SomeForm = () => {
         format: 'date-time',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: (data) => {
           console.log('nice', data, 'onSubmit-gkrp');
         },

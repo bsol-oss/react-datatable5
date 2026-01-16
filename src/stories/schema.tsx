@@ -444,7 +444,7 @@ export const activitiesSchema = {
       loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
     },
   },
-} as JSONSchema7;
+};
 
 export const peopleSchema = {
   $id: 'core_people',

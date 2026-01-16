@@ -3,19 +3,15 @@ import { FieldValues, useForm as useReactHookForm } from 'react-hook-form';
 import { CustomJSONSchema7 } from './components/types/CustomJSONSchema7';
 import { ajvResolver } from './utils/ajvResolver';
 
-// Simple translate interface - no i18n dependency required
-export interface Translate {
-  t: (key: string, options?: any) => string;
-  i18n?: any;
-  ready?: boolean;
-}
-
-export interface UseFormProps {
-  preLoadedValues?: FieldValues | undefined;
+export interface UseFormProps<T> {
+  preLoadedValues?: T | undefined;
   schema?: CustomJSONSchema7;
 }
-export const useForm = ({ preLoadedValues, schema }: UseFormProps) => {
-  const form = useReactHookForm({
+export function useForm<T extends FieldValues = any>({
+  preLoadedValues,
+  schema,
+}: UseFormProps<T>) {
+  const form = useReactHookForm<T, any, T>({
     values: preLoadedValues,
     mode: 'onSubmit',
     resolver: schema ? ajvResolver(schema) : undefined,
@@ -27,4 +23,4 @@ export const useForm = ({ preLoadedValues, schema }: UseFormProps) => {
     idMap,
     setIdMap,
   };
-};
+}

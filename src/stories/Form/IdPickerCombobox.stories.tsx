@@ -1034,7 +1034,7 @@ const data = { id: '3', x: 1, y: 2 };
 
           <DefaultForm
             formConfig={{
-              schema: schema as JSONSchema7,
+              schema: schema,
               onSubmit: async (data) => {
                 console.log('Form submitted with data:', data);
                 setSubmittedData(data);

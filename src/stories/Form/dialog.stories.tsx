@@ -171,7 +171,7 @@ const SomeForm = () => {
         someNumber: 'Please greater number someNumber',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <>
@@ -180,7 +180,7 @@ const SomeForm = () => {
         <Dialog.Content>
           <DefaultForm
             formConfig={{
-              schema: schema as JSONSchema7,
+              schema: schema,
               onSubmit: (data) => {
                 console.log('nice', data, 'onSubmit-gkrp');
               },

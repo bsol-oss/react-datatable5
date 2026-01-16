@@ -132,7 +132,7 @@ const BasicDateRangeForm = () => {
         title: 'Select Date Range',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -148,7 +148,7 @@ const BasicDateRangeForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -183,7 +183,7 @@ const PreFilledDateRangeForm = () => {
         title: 'Date Range',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -198,7 +198,7 @@ const PreFilledDateRangeForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -233,7 +233,7 @@ const ValidationDateRangeForm = () => {
       },
     },
     required: ['dateRange'],
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -249,7 +249,7 @@ const ValidationDateRangeForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -284,7 +284,7 @@ const CustomDateFormatForm = () => {
         dateFormat: 'YYYY-MM-DD',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -300,7 +300,7 @@ const CustomDateFormatForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(

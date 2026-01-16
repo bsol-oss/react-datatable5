@@ -222,7 +222,7 @@ const PreloadedValuesForm = () => {
       },
     },
     required: ['name', 'email', 'age', 'status'],
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch" p={4}>
@@ -382,7 +382,7 @@ const PreloadedValuesForm = () => {
 
           <DefaultForm
             formConfig={{
-              schema: schema as JSONSchema7,
+              schema: schema,
               onSubmit: async (data) => {
                 console.log('Form submitted with data:', data);
                 alert(

@@ -24,7 +24,7 @@ const getSchemaNodeForField = (
       typeof currentSchema.properties[part] === 'object' &&
       currentSchema.properties[part] !== null
     ) {
-      currentSchema = currentSchema.properties[part] as JSONSchema7;
+      currentSchema = currentSchema.properties[part];
     } else {
       return undefined;
     }

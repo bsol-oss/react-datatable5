@@ -105,7 +105,7 @@ export const BasicFileUpload: Story = {
 };
 
 const BasicFileUploadForm = () => {
-  const form = useForm({});
+  const { form, idMap, setIdMap } = useForm({});
 
   const schema = {
     type: 'object',
@@ -118,7 +118,7 @@ const BasicFileUploadForm = () => {
       },
     },
     required: [],
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
@@ -127,7 +127,9 @@ const BasicFileUploadForm = () => {
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
         },
-        ...form,
+        form,
+        idMap,
+        setIdMap,
       }}
     />
   );
@@ -147,7 +149,7 @@ export const WithMediaLibrary: Story = {
 };
 
 const WithMediaLibraryForm = () => {
-  const form = useForm({});
+  const { form, idMap, setIdMap } = useForm({});
 
   const schema = {
     type: 'object',
@@ -166,7 +168,7 @@ const WithMediaLibraryForm = () => {
       },
     },
     required: [],
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
@@ -176,7 +178,9 @@ const WithMediaLibraryForm = () => {
           console.log('Form submitted:', data);
           console.log('Files:', data.file_upload);
         },
-        ...form,
+        form,
+        idMap,
+        setIdMap,
       }}
     />
   );
@@ -196,34 +200,34 @@ export const ImageOnlyWithLibrary: Story = {
 };
 
 const ImageOnlyForm = () => {
-  const form = useForm({});
-
-  const schema = {
-    type: 'object',
-    properties: {
-      file_upload: {
-        type: 'array',
-        variant: 'media-library-browser',
-        gridColumn: '1/span 12',
-        gridRow: '1/span 1',
-        filePicker: {
-          onFetchFiles: mockFetchFiles,
-          filterImageOnly: true,
-        },
-      },
-    },
-    required: [],
-  } as JSONSchema7;
+  const { form, idMap, setIdMap } = useForm({});
 
   return (
     <DefaultForm
       formConfig={{
-        schema: schema,
+        schema: {
+          type: 'object',
+          properties: {
+            file_upload: {
+              type: 'array',
+              variant: 'media-library-browser',
+              gridColumn: '1/span 12',
+              gridRow: '1/span 1',
+              filePicker: {
+                onFetchFiles: mockFetchFiles,
+                filterImageOnly: true,
+              },
+            },
+          },
+          required: [],
+        },
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
           console.log('Images:', data.file_upload);
         },
-        ...form,
+        form,
+        idMap,
+        setIdMap,
       }}
     />
   );
@@ -243,7 +247,7 @@ export const RequiredFiles: Story = {
 };
 
 const RequiredFilesForm = () => {
-  const form = useForm({});
+  const { form, idMap, setIdMap } = useForm({});
 
   const schema = {
     type: 'object',
@@ -260,7 +264,7 @@ const RequiredFilesForm = () => {
       },
     },
     required: ['file_upload'],
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
@@ -269,7 +273,9 @@ const RequiredFilesForm = () => {
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
         },
-        ...form,
+        form,
+        idMap,
+        setIdMap,
       }}
     />
   );
@@ -289,7 +295,7 @@ export const MultipleFilePickers: Story = {
 };
 
 const MultipleFilePickersForm = () => {
-  const form = useForm({});
+  const { form, idMap, setIdMap } = useForm({});
 
   const schema = {
     type: 'object',
@@ -323,7 +329,7 @@ const MultipleFilePickersForm = () => {
       },
     },
     required: [],
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
@@ -335,7 +341,9 @@ const MultipleFilePickersForm = () => {
           console.log('Files with library:', data.files_with_library);
           console.log('Images only:', data.images_only);
         },
-        ...form,
+        form,
+        idMap,
+        setIdMap,
       }}
     />
   );
@@ -355,7 +363,7 @@ export const WithCustomLabels: Story = {
 };
 
 const WithCustomLabelsForm = () => {
-  const form = useForm({});
+  const { form, idMap, setIdMap } = useForm({});
 
   const schema = {
     type: 'object',
@@ -378,7 +386,7 @@ const WithCustomLabelsForm = () => {
       },
     },
     required: [],
-  } as JSONSchema7;
+  };
 
   // Custom labels that override i18n translations - showing all available labels
   const customFilePickerLabels = {
@@ -410,7 +418,9 @@ const WithCustomLabelsForm = () => {
           console.log('Form submitted:', data);
         },
         filePickerLabels: customFilePickerLabels,
-        ...form,
+        form,
+        idMap,
+        setIdMap,
       }}
     />
   );
@@ -430,7 +440,7 @@ export const SingleSelect: Story = {
 };
 
 const SingleSelectForm = () => {
-  const form = useForm({});
+  const { form, idMap, setIdMap } = useForm({});
 
   const schema = {
     type: 'object',
@@ -448,7 +458,7 @@ const SingleSelectForm = () => {
       },
     },
     required: [],
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
@@ -458,7 +468,9 @@ const SingleSelectForm = () => {
           console.log('Form submitted:', data);
           console.log('Single file (ID or File object):', data.single_file);
         },
-        ...form,
+        form,
+        idMap,
+        setIdMap,
       }}
     />
   );
@@ -478,7 +490,7 @@ export const FilePickerAndMediaLibrary: Story = {
 };
 
 const FilePickerAndMediaLibraryForm = () => {
-  const form = useForm({});
+  const { form, idMap, setIdMap } = useForm({});
 
   const schema = {
     type: 'object',
@@ -529,7 +541,7 @@ const FilePickerAndMediaLibraryForm = () => {
       },
     },
     required: [],
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
@@ -548,7 +560,9 @@ const FilePickerAndMediaLibraryForm = () => {
             data.single_media_library
           );
         },
-        ...form,
+        form,
+        idMap,
+        setIdMap,
       }}
     />
   );

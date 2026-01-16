@@ -24,7 +24,7 @@ export const Event2: Story = {
   name: 'Event 2',
   args: {
     formConfig: {
-      schema: {} as JSONSchema7,
+      schema: {},
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -54,11 +54,11 @@ const SomeForm = () => {
     properties: {
       ...(activitiesSchema.properties || {}),
       name: {
-        ...(activitiesSchema.properties?.name as JSONSchema7),
+        ...activitiesSchema.properties?.name,
         title: 'Name',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm

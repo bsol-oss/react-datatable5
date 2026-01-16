@@ -1,9 +1,10 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
+import { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
+import { UseFormReturn } from 'react-hook-form';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -33,11 +34,11 @@ export const displayConfig: Story = {
 };
 
 const SomeForm = () => {
-  const form = useForm({
-    preLoadedValues: { parent_id: 'nice' },
+  const { form, idMap, setIdMap } = useForm<any>({
+    preLoadedValues: { someTextArea: 'nice', someNumber: 10 },
   });
 
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       someTextarea: {
@@ -51,25 +52,13 @@ const SomeForm = () => {
       },
     },
     required: ['someTextarea', 'someNumber'],
-    errorMessage: {
-      required: {
-        someTextarea: 'it is required someTextarea <type-some-textarea>',
-        someNumber: 'it is required someNumber <type-some-number>',
-      },
-      minLength: 'Please longer text',
-      minimum: 'Please greater number',
-      properties: {
-        someTextarea: 'Please longer text someTextarea',
-        someNumber: 'Please greater number someNumber',
-      },
-    },
-  } as JSONSchema7;
+  };
 
   return (
     <>
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('nice', data, 'onSubmit-gkrp');
           },
@@ -78,12 +67,14 @@ const SomeForm = () => {
             showResetButton: false,
             showTitle: false,
           },
-          ...form,
+          form,
+          idMap,
+          setIdMap,
         }}
       />
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('nice', data, 'onSubmit-gkrp');
           },
@@ -92,7 +83,9 @@ const SomeForm = () => {
             showResetButton: true,
             showTitle: true,
           },
-          ...form,
+          form,
+          idMap,
+          setIdMap,
         }}
       />
     </>

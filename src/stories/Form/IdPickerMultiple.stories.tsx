@@ -1,24 +1,24 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
+import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
+import { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
+import {
+  Alert,
+  Badge,
+  Box,
+  Code,
+  Heading,
+  HStack,
+  List,
+  Separator,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
-import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
-import {
-  Heading,
-  Text,
-  Box,
-  VStack,
-  HStack,
-  Badge,
-  Code,
-  Separator,
-  Alert,
-  List,
-} from '@chakra-ui/react';
-import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 
 /**
  * IdPicker Multiple Selection Story
@@ -361,7 +361,7 @@ const IdPickerMultipleForm = () => {
   > | null>(null);
   const form = useForm({});
 
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'Project Team Assignment',
     required: ['team_members'],
@@ -543,7 +543,7 @@ const IdPickerMultipleForm = () => {
         }, // Required for id-picker: loads records for human-readable display
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch" p={4}>
@@ -646,7 +646,7 @@ const IdPickerMultipleForm = () => {
 
           <DefaultForm
             formConfig={{
-              schema: schema as JSONSchema7,
+              schema,
               onSubmit: async (data) => {
                 console.log('Form submitted with data:', data);
                 setSubmittedData(data);
@@ -946,7 +946,7 @@ const IdPickerMultipleForm = () => {
                     renderDisplay: renderRichDisplay, // Uses renderRichDisplay
                   },
                 },
-              } as JSONSchema7,
+              },
               onSubmit: async (data) => {
                 console.log('Custom display form submitted:', data);
                 alert(

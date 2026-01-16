@@ -83,12 +83,12 @@ const DefaultSuccessForm = () => {
       minLength: 'Please provide more details',
       format: 'Please enter a valid email address',
     },
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: async (data) => {
           console.log('Form submitted with data:', data);
           // Simulate API call
@@ -136,12 +136,12 @@ const CustomSuccessForm = () => {
       minLength: 'Please provide more details',
       format: 'Please enter a valid email address',
     },
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: async (data) => {
           console.log('Form submitted with data:', data);
           // Simulate API call

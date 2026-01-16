@@ -66,12 +66,12 @@ const SomeForm = () => {
           `Translated: ${enumValue === 'family_member' ? 'Family Member' : 'Companion'}`,
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: (data) => {
           console.log('nice', data, 'onSubmit-gkrp');
         },

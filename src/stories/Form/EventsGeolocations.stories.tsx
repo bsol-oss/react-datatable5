@@ -789,7 +789,7 @@ const SomeForm = () => {
     <Flex>
       <DefaultForm
         formConfig={{
-          schema: eventsGeolocationsSchema as JSONSchema7,
+          schema: eventsGeolocationsSchema,
           onSubmit: (data) => {
             console.log('nice', data, 'onSubmit-gkrp');
           },

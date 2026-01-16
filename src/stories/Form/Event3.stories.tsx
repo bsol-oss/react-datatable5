@@ -109,7 +109,7 @@ const SomeForm = () => {
               }, // Required for id-picker: loads records for human-readable display
             },
           },
-        } as JSONSchema7,
+        },
         // include: ["name"],
         // ignore: ["id", "created_at", "updated_at"],
         ...form,

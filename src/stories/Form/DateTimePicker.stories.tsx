@@ -309,7 +309,7 @@ const BasicDateTimeForm = () => {
         title: 'Event Date & Time',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -325,7 +325,7 @@ const BasicDateTimeForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -356,7 +356,7 @@ const PreFilledDateTimeForm = () => {
         title: 'Event Date & Time',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -371,7 +371,7 @@ const PreFilledDateTimeForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -404,7 +404,7 @@ const ValidationDateTimeForm = () => {
       },
     },
     required: ['eventDateTime'],
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -420,7 +420,7 @@ const ValidationDateTimeForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -451,7 +451,7 @@ const CustomDateFormatForm = () => {
         dateFormat: 'YYYY-MM-DD[T]HH:mm:ssZ',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -467,7 +467,7 @@ const CustomDateFormatForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -498,7 +498,7 @@ const CustomLabelsForm = () => {
         title: 'Event Date & Time',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -514,7 +514,7 @@ const CustomLabelsForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -587,7 +587,7 @@ const MultipleDateTimeFieldsForm = () => {
       },
     },
     required: ['startDateTime', 'endDateTime'],
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -603,7 +603,7 @@ const MultipleDateTimeFieldsForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(`Form data: ${JSON.stringify(data, null, 2)}`);
@@ -640,7 +640,7 @@ const SchemaHelperButtonsForm = () => {
         },
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -685,7 +685,7 @@ const SchemaHelperButtonsForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -724,7 +724,7 @@ const SchemaHelperButtonsAndTimezoneForm = () => {
         },
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -769,7 +769,7 @@ const SchemaHelperButtonsAndTimezoneForm = () => {
 
       <DefaultForm
         formConfig={{
-          schema: schema as JSONSchema7,
+          schema: schema,
           onSubmit: (data) => {
             console.log('Form submitted with data:', data);
             alert(
@@ -820,7 +820,7 @@ const DateTimePickerInDialogForm = () => {
       },
     },
     required: ['eventDateTime', 'eventName'],
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch">
@@ -844,7 +844,7 @@ const DateTimePickerInDialogForm = () => {
         <Dialog.Content>
           <DefaultForm
             formConfig={{
-              schema: schema as JSONSchema7,
+              schema: schema,
               onSubmit: (data) => {
                 console.log('Form submitted with data:', data);
                 alert(`Form submitted:\n${JSON.stringify(data, null, 2)}`);

@@ -41,7 +41,7 @@ const SomeForm = () => {
   return (
     <DefaultForm
       formConfig={{
-        schema: eventsFilesSchema2 as JSONSchema7,
+        schema: eventsFilesSchema2,
         ignore: ['id', 'created_at', 'updated_at'],
         onSubmit: async (data) => {
           const body = data['file_id'].map((file_id: string) => {

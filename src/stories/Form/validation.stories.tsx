@@ -97,7 +97,7 @@ const SomeForm = () => {
       },
     },
     required: ['someTextarea', 'someNumber'],
-  } as JSONSchema7;
+  };
 
   const form = useForm({
     preLoadedValues: { parent_id: 'nice' },
@@ -107,7 +107,7 @@ const SomeForm = () => {
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: (data) => {
           console.log('nice', data, 'onSubmit-gkrp');
         },
@@ -165,7 +165,7 @@ const FormWithHelpers = () => {
       },
     },
     required: ['username', 'email', 'password'],
-  } as JSONSchema7;
+  };
 
   const form = useForm({
     preLoadedValues: {},
@@ -175,7 +175,7 @@ const FormWithHelpers = () => {
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: (data) => {
           console.log('User registration:', data);
         },
@@ -235,7 +235,7 @@ const FormWithI18n = () => {
       },
     },
     required: ['name', 'price', 'category'],
-  } as JSONSchema7;
+  };
 
   const form = useForm({
     preLoadedValues: {},
@@ -245,7 +245,7 @@ const FormWithI18n = () => {
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: (data) => {
           console.log('Product data:', data);
         },

@@ -91,7 +91,7 @@ const schema = {
     },
   },
   required: ['username', 'email', 'password'],
-} as JSONSchema7;
+};
 ```
 
 ### Number Validation
@@ -122,7 +122,7 @@ const schema = {
     },
   },
   required: ['age', 'price'],
-} as JSONSchema7;
+};
 ```
 
 ### Date and Time Validation
@@ -157,7 +157,7 @@ const schema = {
     },
   },
   required: ['birthDate', 'appointmentTime'],
-} as JSONSchema7;
+};
 ```
 
 ### Enum Validation
@@ -184,7 +184,7 @@ const schema = {
     },
   },
   required: ['category', 'status'],
-} as JSONSchema7;
+};
 ```
 
 ### Array Validation
@@ -210,7 +210,7 @@ const schema = {
     },
   },
   required: ['tags'],
-} as JSONSchema7;
+};
 ```
 
 ### Textarea Validation
@@ -232,7 +232,7 @@ const schema = {
     },
   },
   required: ['description'],
-} as JSONSchema7;
+};
 ```
 
 ## Using Translation Keys (i18n)
@@ -253,7 +253,7 @@ const schema = {
     },
   },
   required: ['username'],
-} as JSONSchema7;
+};
 ```
 
 Then in your i18n translation files:
@@ -304,7 +304,7 @@ const schema = {
       required: ['street', 'city', 'zipCode'],
     },
   },
-} as JSONSchema7;
+};
 ```
 
 ## Error Message Priority
@@ -395,7 +395,7 @@ const UserRegistrationForm = () => {
       },
     },
     required: ['username', 'email', 'password', 'age'],
-  } as JSONSchema7;
+  } ;
 
   const form = useForm({
     schema,

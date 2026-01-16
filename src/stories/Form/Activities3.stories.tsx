@@ -224,7 +224,7 @@ const applyFieldLabels = (
   language: 'en' | 'zh-HK'
 ): JSONSchema7 => {
   const labels = fieldLabels[language];
-  const schemaCopy = JSON.parse(JSON.stringify(schema)) as JSONSchema7;
+  const schemaCopy = JSON.parse(JSON.stringify(schema));
 
   if (schemaCopy.properties) {
     Object.keys(schemaCopy.properties).forEach((key) => {
@@ -288,10 +288,7 @@ const SomeForm = () => {
   const labels = language === 'zh-HK' ? zhHKLabels : enLabels;
 
   // Apply field labels to schema based on language
-  const localizedSchema = applyFieldLabels(
-    activitiesSchema as JSONSchema7,
-    language
-  );
+  const localizedSchema = applyFieldLabels(activitiesSchema, language);
 
   return (
     <>

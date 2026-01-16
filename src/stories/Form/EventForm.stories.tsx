@@ -39,7 +39,7 @@ const SomeForm = () => {
   return (
     <DefaultForm
       formConfig={{
-        schema: activitiesSchema as JSONSchema7,
+        schema: activitiesSchema,
         ignore: ['id', 'created_at', 'updated_at'],
         ...form,
       }}

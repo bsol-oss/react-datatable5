@@ -177,7 +177,7 @@ export const CustomDateTimePickerLabels: Story = {
   name: 'Custom Date Time Picker Labels',
   args: {
     formConfig: {
-      schema: {} as JSONSchema7,
+      schema: {},
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -198,7 +198,7 @@ export const CustomIdPickerLabels: Story = {
   name: 'Custom Id Picker Labels',
   args: {
     formConfig: {
-      schema: {} as JSONSchema7,
+      schema: {},
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -219,7 +219,7 @@ export const CustomEnumPickerLabels: Story = {
   name: 'Custom Enum Picker Labels',
   args: {
     formConfig: {
-      schema: {} as JSONSchema7,
+      schema: {},
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -240,7 +240,7 @@ export const CombinedCustomLabels: Story = {
   name: 'Combined Custom Labels',
   args: {
     formConfig: {
-      schema: {} as JSONSchema7,
+      schema: {},
       idMap: {},
       setIdMap: () => {},
       form: {} as any,
@@ -276,12 +276,12 @@ const DateTimePickerForm = () => {
         title: 'Start Time',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: (data) => {
           console.log('DateTimePicker form submitted:', data);
         },
@@ -333,12 +333,12 @@ const IdPickerForm = () => {
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: (data) => {
           console.log('IdPicker form submitted:', data);
         },
@@ -389,12 +389,12 @@ const CombinedForm = () => {
         loadInitialValues: createDefaultLoadInitialValues(), // Required for id-picker: loads records for human-readable display
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: (data) => {
           console.log('Combined form submitted:', data);
         },
@@ -457,12 +457,12 @@ const EnumPickerForm = () => {
         variant: 'enum-picker',
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <DefaultForm
       formConfig={{
-        schema: schema as JSONSchema7,
+        schema: schema,
         onSubmit: (data) => {
           console.log('EnumPicker form submitted:', data);
         },

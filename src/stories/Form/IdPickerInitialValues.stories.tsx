@@ -284,7 +284,7 @@ const IdPickerInitialValuesForm = () => {
         }, // Required for id-picker: loads records for human-readable display
       },
     },
-  } as JSONSchema7;
+  };
 
   return (
     <VStack gap={6} align="stretch" p={4}>
@@ -421,7 +421,7 @@ const queryDefault = useQuery({
 
           <DefaultForm
             formConfig={{
-              schema: schema as JSONSchema7,
+              schema: schema,
               onSubmit: async (data) => {
                 console.log('Form submitted with data:', data);
                 alert(
