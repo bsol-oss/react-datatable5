@@ -18,8 +18,8 @@ export const ArrayRenderer = ({
   prefix,
 }: ArrayRendererProps) => {
   const { gridRow, gridColumn = '1/span 12', required, items } = schema;
-  // @ts-expect-error TODO: find suitable types
-  const { type } = items;
+  const itemsSchema = Array.isArray(items) ? items[0] : items;
+  const { type } = itemsSchema ?? {};
 
   const colLabel = `${prefix}${column}`;
   const isRequired = required?.some((columnId) => columnId === column);
@@ -53,8 +53,10 @@ export const ArrayRenderer = ({
                 {...{
                   column: `${index}`,
                   prefix: `${colLabel}.`,
-                  // @ts-expect-error find suitable types
-                  schema: { showLabel: false, ...(items ?? {}) },
+                  schema: {
+                    showLabel: false,
+                    ...(Array.isArray(items) ? items[0] : items ?? {}),
+                  } as CustomJSONSchema7,
                 }}
               />
             </Grid>

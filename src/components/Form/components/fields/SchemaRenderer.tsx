@@ -17,7 +17,6 @@ import { TagPicker } from './TagPicker';
 import { TextAreaInput } from './TextAreaInput';
 import { TimePicker } from './TimePicker';
 import { DateTimePicker } from './DateTimePicker';
-import { JSONSchema7 } from 'json-schema';
 
 export interface SchemaRendererProps {
   column: string;
@@ -93,7 +92,8 @@ export const SchemaRenderer = ({
     }
     if (variant === 'enum-picker') {
       const { items, title } = colSchema;
-      const { enum: enumItems } = items;
+      const itemsSchema = Array.isArray(items) ? items[0] : items;
+      const { enum: enumItems } = itemsSchema ?? {};
       // Use renderDisplay from parent schema only
       const renderDisplay = colSchema.renderDisplay;
       const enumSchema = {

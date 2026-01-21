@@ -47,13 +47,12 @@ export const ObjectViewer = ({ schema, column, prefix }: ObjectViewerProps) => {
       >
         {Object.keys(properties ?? {}).map((key) => {
           return (
-            // @ts-expect-error find suitable types
             <ColumnViewer
               key={`form-objectviewer-${colLabel}-${key}`}
               {...{
                 column: `${key}`,
                 prefix: `${prefix}${column}.`,
-                properties,
+                properties: properties ?? {},
               }}
             />
           );

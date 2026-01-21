@@ -52,8 +52,10 @@ export const ArrayViewer = ({ schema, column, prefix }: ArrayViewerProps) => {
                 {...{
                   column: `${index}`,
                   prefix: `${colLabel}.`,
-                  // @ts-expect-error find suitable types
-                  schema: { showLabel: false, ...(items ?? {}) },
+                  schema: {
+                    showLabel: false,
+                    ...(Array.isArray(items) ? items[0] : items ?? {}),
+                  } as CustomJSONSchema7,
                 }}
               />
             </Grid>

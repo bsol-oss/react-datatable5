@@ -24,7 +24,7 @@ const getSchemaNodeForField = (
       typeof currentSchema.properties[part] === 'object' &&
       currentSchema.properties[part] !== null
     ) {
-      currentSchema = currentSchema.properties[part];
+      currentSchema = currentSchema.properties[part] as JSONSchema7;
     } else {
       return undefined;
     }
@@ -121,13 +121,18 @@ export const convertAjvErrorsToFieldErrors = (
     if (fieldName) {
       // Get the schema node for this field to check for custom error messages
       const fieldSchema = getSchemaNodeForField(schema, fieldName);
-      const customMessage = (fieldSchema as CustomJSONSchema7)?.errorMessages?.[
-        error.keyword
-      ];
+      const errorMessageObj = (fieldSchema as CustomJSONSchema7)?.errorMessage;
+      const errorMessageValue =
+        errorMessageObj && error.keyword in errorMessageObj
+          ? errorMessageObj[error.keyword]
+          : undefined;
+      // Handle errorMessage which can be string or Record<string, string>
+      const customMessage =
+        typeof errorMessageValue === 'string' ? errorMessageValue : undefined;
       // Debug log when error message is missing
       if (!customMessage) {
         console.debug(
-          `[Form Validation] Missing error message for field '${fieldName}' with keyword '${error.keyword}'. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`,
+          `[Form Validation] Missing error message for field '${fieldName}' with keyword '${error.keyword}'. Add errorMessage.${error.keyword} to schema for field '${fieldName}'`,
           {
             fieldName,
             keyword: error.keyword,
@@ -137,8 +142,7 @@ export const convertAjvErrorsToFieldErrors = (
             fieldSchema: fieldSchema
               ? {
                   type: fieldSchema.type,
-                  errorMessages: (fieldSchema as CustomJSONSchema7)
-                    .errorMessages,
+                  errorMessage: (fieldSchema as CustomJSONSchema7).errorMessage,
                 }
               : undefined,
           }
@@ -147,7 +151,7 @@ export const convertAjvErrorsToFieldErrors = (
       // Provide helpful fallback message if no custom message is provided
       const fallbackMessage =
         customMessage ||
-        `Missing error message for ${error.keyword}. Add errorMessages.${error.keyword} to schema for field '${fieldName}'`;
+        `Missing error message for ${error.keyword}. Add errorMessage.${error.keyword} to schema for field '${fieldName}'`;
       if (error.keyword === 'required') {
         // Required errors override any existing non-required errors for this field
         fieldErrors[fieldName] = {
@@ -215,7 +219,7 @@ export const ajvResolver = <T extends FieldValues>(
         valuesToValidate,
       });
       return {
-        values: {} as T,
+        values: values as T,
         errors: fieldErrors,
       };
     } catch (error) {

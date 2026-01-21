@@ -28,8 +28,8 @@ export const useFormLabel = (
           prefix,
           schema: {
             type: schema.type,
-            errorMessages: schema.errorMessages
-              ? Object.keys(schema.errorMessages)
+            errorMessage: schema.errorMessage
+              ? Object.keys(schema.errorMessage)
               : undefined,
           },
         }

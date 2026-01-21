@@ -4,7 +4,7 @@ import {
   LoadInitialValuesResult,
 } from '@/components/Form/components/types/CustomJSONSchema7';
 import axios from 'axios';
-import { JSONSchema7 } from 'json-schema';
+import { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 
 // Helper function to create default loadInitialValues for id-picker fields
 const createDefaultLoadInitialValues = () => {
@@ -323,7 +323,7 @@ export const rewardPointsTransactionsSchema = {
   additionalProperties: false,
 };
 
-export const activitiesSchema = {
+export const activitiesSchema: CustomJSONSchema7 = {
   type: 'object',
   title: 'core_activities',
   required: ['name'],
@@ -340,7 +340,6 @@ export const activitiesSchema = {
     },
     end_date: {
       type: 'string',
-      variant: 'date-picker',
       format: 'date',
       title: 'End Date',
       gridColumn: '7/span 3',
@@ -386,19 +385,19 @@ export const activitiesSchema = {
     },
     start_date: {
       type: 'string',
-      variant: 'date-picker',
+      format: 'date',
       title: 'Start Date',
       gridColumn: '1/span 3',
       gridRow: '4/span 1',
     },
     start_date2: {
       type: 'string',
-      variant: 'date-picker',
+      format: 'date',
       title: 'Start Date 2',
     },
     start_time: {
       type: 'string',
-      variant: 'time-picker',
+      format: 'time',
       title: 'Start Time',
       gridColumn: '4/span 3',
       gridRow: '4/span 1',

@@ -42,7 +42,6 @@ const SomeForm = () => {
           properties: {
             name: {
               type: 'string',
-              // @ts-expect-error custom variant property
               variant: 'radio',
               title: 'Name',
               description: 'Name of the activity',

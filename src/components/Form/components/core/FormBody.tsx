@@ -9,7 +9,7 @@ export const FormBody = () => {
   const { showSubmitButton, showResetButton } = displayConfig;
   const methods = useFormContext();
 
-  console.log(methods.formState.errors);
+  console.log('errors', methods.formState.errors);
 
   const { properties } = schema;
 
@@ -19,9 +19,15 @@ export const FormBody = () => {
     <Flex flexFlow={'column'} gap="2">
       <Grid gap="4" gridTemplateColumns={'repeat(12, 1fr)'} autoFlow={'row'}>
         {ordered.map((column) => {
+          if (!properties) {
+            console.error(
+              'properties is undefined when using FormBody',
+              schema
+            );
+            return null;
+          }
           return (
             <ColumnRenderer
-              // @ts-expect-error find suitable types
               properties={properties}
               prefix={``}
               key={`form-input-${column}`}

@@ -29,17 +29,13 @@ export const FileDropzone = ({
       element: el,
       onDragEnter: () => setIsDraggedOver(true),
       onDragLeave: () => setIsDraggedOver(false),
-      //   canDrop: some(containsFiles, containsText),
       onDrop: ({ source }) => {
         const files = getFiles({ source });
         const text = getText({ source });
-        console.log(files, text, 'dfposa');
         onDrop({ files, text });
       },
     });
   }, [onDrop]);
-
-  // const isDark = (location + location) % 2 === 1;
 
   function getColor(isDraggedOver: boolean): BoxProps {
     if (isDraggedOver) {
@@ -50,7 +46,6 @@ export const FileDropzone = ({
         },
       };
     }
-    // return isDark ? "lightgrey" : "white";
     return {
       backgroundColor: undefined,
       _dark: {

@@ -139,7 +139,8 @@ export interface CustomJSONSchema7
     | 'tag-picker'
     | 'file-picker'
     | 'date-range'
-    | 'enum-picker';
+    | 'enum-picker'
+    | 'radio';
   renderDisplay?: (item: unknown) => ReactNode;
   itemToValue?: (item: unknown) => string;
   loadInitialValues?: (

@@ -49,13 +49,12 @@ export const ObjectInput = ({ schema, column, prefix }: ObjectInputProps) => {
       >
         {Object.keys(properties ?? {}).map((key) => {
           return (
-            // @ts-expect-error find suitable types
             <ColumnRenderer
               key={`form-${colLabel}-${key}`}
               {...{
                 column: `${key}`,
                 prefix: `${prefix}${column}.`,
-                properties,
+                properties: properties ?? {},
                 parentRequired: required,
               }}
             />

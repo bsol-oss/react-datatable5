@@ -16,8 +16,8 @@ import type {
   DateTimePickerLabels,
   FormButtonLabels,
   EnumPickerLabels,
+  CustomJSONSchema7,
 } from '@/components/Form/components/types/CustomJSONSchema7';
-import type { Translate } from '@/components/Form/useForm';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -46,7 +46,8 @@ export const Activities3: Story = {
   },
 };
 
-// Enum value translations
+// Enum value translations (kept for future use)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const enumTranslations = {
   en: {
     'recurring_type.daily': 'Daily',
@@ -220,11 +221,11 @@ const fieldLabels = {
 
 // Function to apply field labels to schema based on language
 const applyFieldLabels = (
-  schema: JSONSchema7,
+  schema: CustomJSONSchema7,
   language: 'en' | 'zh-HK'
-): JSONSchema7 => {
+): CustomJSONSchema7 => {
   const labels = fieldLabels[language];
-  const schemaCopy = JSON.parse(JSON.stringify(schema));
+  const schemaCopy = JSON.parse(JSON.stringify(schema)) as CustomJSONSchema7;
 
   if (schemaCopy.properties) {
     Object.keys(schemaCopy.properties).forEach((key) => {
@@ -260,29 +261,9 @@ const SomeForm = () => {
     staleTime: 300000,
   });
 
-  // Create custom translate function that handles enum value translations
-  const enumTranslationsMap = enumTranslations[language];
-  const customTranslate: Translate = {
-    t: (key: string) => {
-      // Check if this is an enum value translation
-      if (key in enumTranslationsMap) {
-        return enumTranslationsMap[key as keyof typeof enumTranslationsMap];
-      }
-      // Fallback to key as-is
-      return key;
-    },
-    ready: true,
-  };
-
   const form = useForm({
     preLoadedValues: (query.data ?? { data: [] }).data[0],
   });
-
-  // Override translate with custom one that handles enum translations
-  const formWithTranslate = {
-    ...form,
-    translate: customTranslate,
-  };
 
   // Select labels based on current language
   const labels = language === 'zh-HK' ? zhHKLabels : enLabels;
@@ -319,7 +300,7 @@ const SomeForm = () => {
           },
           // Apply labels based on selected language
           ...labels,
-          ...formWithTranslate,
+          ...form,
         }}
       />
     </>

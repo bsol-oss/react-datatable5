@@ -15,7 +15,6 @@ import { TagViewer } from './TagViewer';
 import { TextAreaViewer } from './TextAreaViewer';
 import { TimeViewer } from './TimeViewer';
 import { DateTimeViewer } from './DateTimeViewer';
-import { JSONSchema7 } from 'json-schema';
 
 export interface SchemaRendererProps {
   column: string;
@@ -87,7 +86,8 @@ export const SchemaViewer = ({
     }
     if (variant === 'enum-picker') {
       const { items } = schema;
-      const { enum: enumItems } = items;
+      const itemsSchema = Array.isArray(items) ? items[0] : items;
+      const { enum: enumItems } = itemsSchema ?? {};
       // Use renderDisplay from parent schema only
       const renderDisplay = schema.renderDisplay;
       const enumSchema = {
