@@ -291,7 +291,7 @@ export interface CustomQueryFnResponse<TRecord = unknown> {
   /**
    * The data of the query
    */
-  data: TRecord[];
+  data: { data: TRecord[]; count: number };
 
   /**
    * The id map of the data

@@ -25,7 +25,7 @@ export function useForm<T extends FieldValues = any>({
       : undefined,
     reValidateMode: 'onChange',
   });
-  const [idMap, setIdMap] = useState<Record<string, object>>({});
+  const [idMap, setIdMap] = useState<Record<string, unknown>>({});
   return {
     form,
     idMap,

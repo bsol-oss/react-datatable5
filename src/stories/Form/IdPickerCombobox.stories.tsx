@@ -260,9 +260,7 @@ const IdPickerComboboxForm = () => {
     string,
     unknown
   > | null>(null);
-  const form = useForm({});
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'User Selection with Combobox',
     required: ['selected_user', 'team_members'],
@@ -295,8 +293,8 @@ const IdPickerComboboxForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
-              return { ...state, ...returnedIdMap };
+            params.setIdMap((state) => {
+              return { ...state, ...returnedIdMap } as Record<string, unknown>;
             });
           }
           return { data, idMap: returnedIdMap || {} };
@@ -336,8 +334,11 @@ const IdPickerComboboxForm = () => {
               ],
             });
             if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-              params.setIdMap((state: Record<string, object>) => {
-                return { ...state, ...returnedIdMap };
+              params.setIdMap((state) => {
+                return { ...state, ...returnedIdMap } as Record<
+                  string,
+                  unknown
+                >;
               });
             }
             return { data, idMap: returnedIdMap || {} };
@@ -391,8 +392,8 @@ const IdPickerComboboxForm = () => {
           });
 
           if (Object.keys(usernameIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
-              return { ...state, ...usernameIdMap };
+            params.setIdMap((state) => {
+              return { ...state, ...usernameIdMap } as Record<string, unknown>;
             });
           }
 
@@ -407,6 +408,8 @@ const IdPickerComboboxForm = () => {
       },
     },
   } as CustomJSONSchema7;
+
+  const form = useForm({ schema });
 
   return (
     <VStack gap={6} align="stretch" p={4}>

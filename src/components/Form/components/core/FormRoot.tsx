@@ -44,8 +44,8 @@ export interface FormRootProps<TData extends FieldValues> {
    * }
    */
   schema: CustomJSONSchema7;
-  idMap: Record<string, object>;
-  setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
+  idMap: Record<string, unknown>;
+  setIdMap: Dispatch<SetStateAction<Record<string, unknown>>>;
   form: UseFormReturn<TData, any, TData>;
   children: ReactNode;
   onSubmit?: SubmitHandler<TData>;

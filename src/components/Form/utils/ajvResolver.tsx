@@ -1,4 +1,4 @@
-import { FieldValues, Resolver } from 'react-hook-form';
+import { FieldValues, Resolver, FieldErrors } from 'react-hook-form';
 import { ErrorObject } from 'ajv';
 import { CustomJSONSchema7 } from '../components/types/CustomJSONSchema7';
 import { validateData } from './validateData';
@@ -208,7 +208,7 @@ export const ajvResolver = <T extends FieldValues>(
       if (isValid) {
         return {
           values: (cleanedValues || {}) as T,
-          errors: {},
+          errors: {} as FieldErrors<T>,
         };
       }
       const fieldErrors = convertAjvErrorsToFieldErrors(errors, schema);
@@ -220,7 +220,7 @@ export const ajvResolver = <T extends FieldValues>(
       });
       return {
         values: values as T,
-        errors: fieldErrors,
+        errors: fieldErrors as FieldErrors<T>,
       };
     } catch (error) {
       return {
@@ -231,7 +231,7 @@ export const ajvResolver = <T extends FieldValues>(
             message:
               error instanceof Error ? error.message : 'Validation failed',
           },
-        },
+        } as FieldErrors<T>,
       };
     }
   };

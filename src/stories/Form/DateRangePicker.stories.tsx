@@ -4,7 +4,7 @@ import { Provider } from '@/components/ui/provider';
 import { Box, Text, VStack } from '@chakra-ui/react';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
+import type { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -115,11 +115,7 @@ export const CustomDateFormat: Story = {
 
 // Basic date range picker form
 const BasicDateRangeForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       dateRange: {
@@ -133,6 +129,8 @@ const BasicDateRangeForm = () => {
       },
     },
   };
+
+  const form = useForm({ schema, preLoadedValues: {} });
 
   return (
     <VStack gap={6} align="stretch">
@@ -164,13 +162,7 @@ const BasicDateRangeForm = () => {
 
 // Date range picker with pre-filled values
 const PreFilledDateRangeForm = () => {
-  const form = useForm({
-    preLoadedValues: {
-      dateRange: ['2024-01-01', '2024-01-31'],
-    },
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       dateRange: {
@@ -184,6 +176,13 @@ const PreFilledDateRangeForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {
+      dateRange: ['2024-01-01', '2024-01-31'],
+    },
+  });
 
   return (
     <VStack gap={6} align="stretch">
@@ -214,11 +213,7 @@ const PreFilledDateRangeForm = () => {
 
 // Date range picker with validation
 const ValidationDateRangeForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       dateRange: {
@@ -234,6 +229,8 @@ const ValidationDateRangeForm = () => {
     },
     required: ['dateRange'],
   };
+
+  const form = useForm({ schema, preLoadedValues: {} });
 
   return (
     <VStack gap={6} align="stretch">
@@ -265,11 +262,7 @@ const ValidationDateRangeForm = () => {
 
 // Date range picker with custom date format
 const CustomDateFormatForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       dateRange: {
@@ -285,6 +278,8 @@ const CustomDateFormatForm = () => {
       },
     },
   };
+
+  const form = useForm({ schema, preLoadedValues: {} });
 
   return (
     <VStack gap={6} align="stretch">

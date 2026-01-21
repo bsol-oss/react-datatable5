@@ -7,7 +7,6 @@ import {
   QueryClientProvider,
   useQuery,
 } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
 import { activitiesSchema } from '../schema';
 import { useState } from 'react';
 import { Button, HStack, Text } from '@chakra-ui/react';
@@ -47,7 +46,6 @@ export const Activities3: Story = {
 };
 
 // Enum value translations (kept for future use)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const enumTranslations = {
   en: {
     'recurring_type.daily': 'Daily',
@@ -261,15 +259,16 @@ const SomeForm = () => {
     staleTime: 300000,
   });
 
-  const form = useForm({
-    preLoadedValues: (query.data ?? { data: [] }).data[0],
-  });
-
   // Select labels based on current language
   const labels = language === 'zh-HK' ? zhHKLabels : enLabels;
 
   // Apply field labels to schema based on language
   const localizedSchema = applyFieldLabels(activitiesSchema, language);
+
+  const form = useForm({
+    schema: localizedSchema,
+    preLoadedValues: (query.data ?? { data: [] }).data[0],
+  });
 
   return (
     <>

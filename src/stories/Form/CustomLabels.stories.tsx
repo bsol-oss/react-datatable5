@@ -1,14 +1,14 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
+import {
+  CustomJSONSchema7,
+  CustomQueryFnParams,
+  LoadInitialValuesParams,
+  LoadInitialValuesResult,
+} from '@/components/Form/components/types/CustomJSONSchema7';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
-import {
-  LoadInitialValuesParams,
-  LoadInitialValuesResult,
-} from '@/components/Form/components/types/CustomJSONSchema7';
-import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
 
 // Mock query functions for id-picker fields
 const mockCategoryQueryFn = async ({
@@ -144,7 +144,7 @@ const createDefaultLoadInitialValues = () => {
 
     if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
       params.setIdMap((state) => {
-        return { ...state, ...returnedIdMap };
+        return { ...state, ...returnedIdMap } as Record<string, unknown>;
       });
     }
 
@@ -258,11 +258,7 @@ export const CombinedCustomLabels: Story = {
 };
 
 const DateTimePickerForm = () => {
-  const form = useForm({
-    preLoadedValues: { event_date: '2024-01-15T10:30:00Z' },
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       event_date: {
@@ -277,6 +273,11 @@ const DateTimePickerForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: { event_date: '2024-01-15T10:30:00Z' },
+  });
 
   return (
     <DefaultForm
@@ -311,11 +312,7 @@ const DateTimePickerForm = () => {
 };
 
 const IdPickerForm = () => {
-  const form = useForm({
-    preLoadedValues: { category_id: '1', tags: ['1', '2'] },
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       category_id: {
@@ -334,6 +331,11 @@ const IdPickerForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: { category_id: '1', tags: ['1', '2'] },
+  });
 
   return (
     <DefaultForm
@@ -359,14 +361,7 @@ const IdPickerForm = () => {
 };
 
 const CombinedForm = () => {
-  const form = useForm({
-    preLoadedValues: {
-      event_date: '2024-02-20T14:00:00Z',
-      organizer_id: '2',
-    },
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       event_date: {
@@ -390,6 +385,14 @@ const CombinedForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {
+      event_date: '2024-02-20T14:00:00Z',
+      organizer_id: '2',
+    },
+  });
 
   return (
     <DefaultForm
@@ -434,11 +437,7 @@ const CombinedForm = () => {
 };
 
 const EnumPickerForm = () => {
-  const form = useForm({
-    preLoadedValues: { status: 'active', tags: ['tag1', 'tag2'] },
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       status: {
@@ -458,6 +457,11 @@ const EnumPickerForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: { status: 'active', tags: ['tag1', 'tag2'] },
+  });
 
   return (
     <DefaultForm
