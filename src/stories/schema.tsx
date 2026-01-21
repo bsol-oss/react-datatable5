@@ -1,4 +1,4 @@
-import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
+import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
 import {
   LoadInitialValuesParams,
   LoadInitialValuesResult,

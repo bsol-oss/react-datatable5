@@ -3,7 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
+import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
 import { LoadInitialValuesParams } from '@/components/Form/components/types/CustomJSONSchema7';
 import axios from 'axios';
 import {

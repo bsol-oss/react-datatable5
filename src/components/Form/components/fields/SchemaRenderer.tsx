@@ -13,7 +13,6 @@ import { NumberInputField } from './NumberInputField';
 import { ObjectInput } from './ObjectInput';
 import { RecordInput } from './RecordInput';
 import { StringInputField } from './StringInputField';
-import { TagPicker } from './TagPicker';
 import { TextAreaInput } from './TextAreaInput';
 import { TimePicker } from './TimePicker';
 import { DateTimePicker } from './DateTimePicker';
@@ -75,9 +74,6 @@ export const SchemaRenderer = ({
   if (type === 'array') {
     if (variant === 'id-picker') {
       return <IdPickerMultiple schema={colSchema} {...{ prefix, column }} />;
-    }
-    if (variant === 'tag-picker') {
-      return <TagPicker schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === 'file-picker') {
       return <FilePicker schema={colSchema} {...{ prefix, column }} />;

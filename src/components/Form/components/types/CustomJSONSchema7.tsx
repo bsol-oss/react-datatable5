@@ -1,6 +1,5 @@
 import { JSONSchema7 } from 'json-schema';
 import { ReactNode } from 'react';
-import { CustomQueryFn } from '../fields/StringInputField';
 import { UseFormReturn } from 'react-hook-form';
 import React from 'react';
 
@@ -98,15 +97,15 @@ export interface TimePickerLabels {
   selectTimeLabel?: string;
 }
 
-export interface LoadInitialValuesParams {
+export interface LoadInitialValuesParams<TRecord = unknown> {
   ids: string[];
-  customQueryFn: CustomQueryFn;
-  setIdMap: React.Dispatch<React.SetStateAction<Record<string, object>>>;
+  customQueryFn: CustomQueryFn<TRecord>;
+  setIdMap: React.Dispatch<React.SetStateAction<Record<string, TRecord>>>;
 }
 
-export interface LoadInitialValuesResult {
-  data: { data: Record<string, any>[]; count: number };
-  idMap: Record<string, object>;
+export interface LoadInitialValuesResult<TRecord = unknown> {
+  data: { data: TRecord[]; count: number };
+  idMap: Record<string, TRecord>;
 }
 
 export interface CustomJSONSchema7
@@ -136,7 +135,6 @@ export interface CustomJSONSchema7
     | 'id-picker'
     | 'text-area'
     | 'media-library-browser'
-    | 'tag-picker'
     | 'file-picker'
     | 'date-range'
     | 'enum-picker'
@@ -170,17 +168,6 @@ export interface CustomJSONSchema7
     string | Record<string, string>
   >;
   filePicker?: FilePickerProps;
-  tagPicker?: {
-    queryFn?: (params: {
-      where?: { id: string; value: string[] }[];
-      limit?: number;
-      offset?: number;
-      searching?: string;
-    }) => Promise<{
-      data: { data: any[]; count: number };
-      idMap?: Record<string, object>;
-    }>;
-  };
   dateTimePicker?: {
     showQuickActions?: boolean;
     quickActionLabels?: {
@@ -282,11 +269,6 @@ export const defaultRenderDisplay = (item: unknown): ReactNode => {
   // For non-objects (primitives, arrays, dates), use JSON.stringify
   return JSON.stringify(item);
 };
-export interface TagPickerProps {
-  column: string;
-  schema: CustomJSONSchema7;
-  prefix: string;
-}
 
 export interface FilePickerMediaFile {
   id: string;
@@ -304,3 +286,24 @@ export interface FilePickerProps {
   enableUpload?: boolean;
   onUploadFile?: (file: File) => Promise<string>;
 }
+
+export interface CustomQueryFnResponse<TRecord = unknown> {
+  /**
+   * The data of the query
+   */
+  data: TRecord[];
+
+  /**
+   * The id map of the data
+   */
+  idMap: Record<string, TRecord>;
+}
+export interface CustomQueryFnParams {
+  searching: string;
+  limit: number;
+  offset: number;
+  where?: Array<{ id: string; value: string | string[] }>;
+}
+export type CustomQueryFn<TRecord = unknown> = (
+  params: CustomQueryFnParams
+) => Promise<CustomQueryFnResponse<TRecord>>;

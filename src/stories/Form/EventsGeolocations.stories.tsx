@@ -5,7 +5,7 @@ import { Flex } from '@chakra-ui/react';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { JSONSchema7 } from 'json-schema';
-import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
+import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {

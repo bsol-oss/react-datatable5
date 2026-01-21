@@ -1,12 +1,11 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
+import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import { Button, Dialog } from '@chakra-ui/react';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
 import { useState } from 'react';
-import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {

@@ -1,5 +1,5 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
-import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
+import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
 import { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';

@@ -8,7 +8,7 @@ import {
   LoadInitialValuesParams,
   LoadInitialValuesResult,
 } from '@/components/Form/components/types/CustomJSONSchema7';
-import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
+import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
 
 // Mock query functions for id-picker fields
 const mockCategoryQueryFn = async ({

@@ -11,7 +11,6 @@ import { NumberViewer } from './NumberViewer';
 import { ObjectViewer } from './ObjectViewer';
 import { RecordViewer } from './RecordViewer';
 import { StringViewer } from './StringViewer';
-import { TagViewer } from './TagViewer';
 import { TextAreaViewer } from './TextAreaViewer';
 import { TimeViewer } from './TimeViewer';
 import { DateTimeViewer } from './DateTimeViewer';
@@ -74,9 +73,6 @@ export const SchemaViewer = ({
           {...{ prefix, column, isMultiple: true }}
         />
       );
-    }
-    if (variant === 'tag-picker') {
-      return <TagViewer schema={colSchema} {...{ prefix, column }} />;
     }
     if (variant === 'file-picker') {
       return <FileViewer schema={colSchema} {...{ prefix, column }} />;

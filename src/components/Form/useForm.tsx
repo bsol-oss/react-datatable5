@@ -6,7 +6,7 @@ import * as Ajv from 'ajv';
 
 export interface UseFormProps<T> {
   preLoadedValues?: T | undefined;
-  schema?: CustomJSONSchema7;
+  schema: CustomJSONSchema7;
 }
 export function useForm<T extends FieldValues = any>({
   preLoadedValues,

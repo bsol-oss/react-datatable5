@@ -74,7 +74,7 @@ The library is organized into major component categories:
 **Form field components** (`src/components/Form/components/fields/`):
 
 - Auto-generated from JSON Schema based on property types
-- Field types: StringInputField, NumberInputField, BooleanPicker, DatePicker, DateTimePicker, EnumPicker, IdPicker, TagPicker, FilePicker
+- Field types: StringInputField, NumberInputField, BooleanPicker, DatePicker, DateTimePicker, EnumPicker, IdPicker, FilePicker
 - Special renderers: ArrayRenderer, ObjectInput, RecordInput, ColumnRenderer
 - SchemaRenderer intelligently selects the right field component based on schema
 - Custom validation error messages via `errorMessages` field in schema properties

@@ -1,8 +1,7 @@
 import {
-  LoadInitialValuesParams,
+  CustomQueryFnParams,
   LoadInitialValuesResult,
 } from '@/components/Form/components/types/CustomJSONSchema7';
-import { CustomQueryFnParams } from '@/components/Form/components/fields/StringInputField';
 
 // Mock query functions for example schema (prefixed with underscore as they are example templates)
 export const mockEventQueryFn = async ({
@@ -61,38 +60,8 @@ export const mockGeolocationQueryFn = async ({
 
 // Helper function to create default loadInitialValues for id-picker fields
 const createDefaultLoadInitialValues = () => {
-  return async (
-    params: LoadInitialValuesParams
-  ): Promise<LoadInitialValuesResult> => {
-    if (!params.ids || params.ids.length === 0) {
-      return { data: { data: [], count: 0 }, idMap: {} };
-    }
-
-    const { customQueryFn } = params;
-
-    if (!customQueryFn) {
-      throw new Error('customQueryFn is required. serverUrl has been removed.');
-    }
-
-    const { data, idMap: returnedIdMap } = await customQueryFn({
-      searching: '',
-      limit: params.ids.length,
-      offset: 0,
-      where: [
-        {
-          id: 'id',
-          value: params.ids.length === 1 ? params.ids[0] : params.ids,
-        },
-      ],
-    });
-
-    if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-      params.setIdMap((state) => {
-        return { ...state, ...returnedIdMap };
-      });
-    }
-
-    return { data, idMap: returnedIdMap || {} };
+  return async (): Promise<LoadInitialValuesResult> => {
+    return { data: { data: [], count: 0 }, idMap: {} };
   };
 };
 
