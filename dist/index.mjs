@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Tag as Tag$1, Checkbox as Checkbox$1, Icon, VStack, Heading, EmptyState as EmptyState$2, List, Table as Table$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Clipboard, Badge, Link, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, useCombobox, Show, Skeleton, NumberInput, RadioCard, CheckboxGroup, Textarea as Textarea$1, InputGroup as InputGroup$1, Select, Stack } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Tag as Tag$1, Checkbox as Checkbox$1, Icon, VStack, Heading, EmptyState as EmptyState$2, List, Table as Table$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Clipboard, Badge, Link, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, useCombobox, Show, Skeleton, NumberInput, Textarea as Textarea$1, InputGroup as InputGroup$1, Select, Stack } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import { createContext, useContext, useState, useMemo, useCallback, useEffect, useRef } from 'react';
@@ -4967,7 +4967,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                     }) }) }) }));
     }
     return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: undefined, invalid: !!errors[colLabel], children: [isMultiple && currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((enumValue) => {
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [isMultiple && currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((enumValue) => {
                     if (!enumValue) {
                         return null;
                     }
@@ -4975,7 +4975,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                             const newValue = currentValue.filter((val) => val !== enumValue);
                             setValue(colLabel, newValue);
                         }, children: renderEnumValue(enumValue) }, enumValue));
-                }) })), jsxs(Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: insideDialog
+                }) })), jsxs(Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!fieldError, width: "100%", positioning: insideDialog
                     ? { strategy: 'fixed', hideWhenDetached: true }
                     : undefined, children: [jsxs(Combobox.Control, { position: "relative", children: [!isMultiple &&
                                 selectedSingleValue &&
@@ -4998,7 +4998,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                         : undefined,
                                 } }), jsxs(Combobox.IndicatorGroup, { children: [!isMultiple && currentValue.length > 0 && (jsx(Combobox.ClearTrigger, { onClick: () => {
                                             setValue(colLabel, '');
-                                        } })), jsx(Combobox.Trigger, {})] })] }), insideDialog ? (jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [showTotalAndLimit && (jsx(Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? 'Total'}: ${collection.items.length}` })), collection.items.length === 0 ? (jsx(Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ?? 'No results found' })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: renderEnumValue(item.raw) }), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) })) : (jsx(Portal, { children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [showTotalAndLimit && (jsx(Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? 'Total'}: ${collection.items.length}` })), collection.items.length === 0 ? (jsx(Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ?? 'No results found' })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: renderEnumValue(item.raw) }), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) }) }))] })] }));
+                                        } })), jsx(Combobox.Trigger, {})] })] }), jsx(Portal, { disabled: insideDialog, children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [showTotalAndLimit && (jsx(Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? 'Total'}: ${collection.items.length}` })), collection.items.length === 0 ? (jsx(Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ?? 'No results found' })) : (jsx(Fragment, { children: collection.items.map((item, index) => (jsxs(Combobox.Item, { item: item, children: [jsx(Combobox.ItemText, { children: renderEnumValue(item.raw) }), jsx(Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) }) })] })] }));
 };
 
 function isEnteringWindow(_ref) {
@@ -5958,13 +5958,14 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
             return fallbackLabel;
         };
         const itemsFromDataList = dataList.map((item) => {
-            const rendered = renderFn(item);
-            const label = typeof rendered === 'string' ? rendered : JSON.stringify(item); // Use string for filtering
+            const typedItem = item;
+            const rendered = renderFn(typedItem);
+            const label = typeof rendered === 'string' ? rendered : JSON.stringify(typedItem); // Use string for filtering
             return {
                 label, // Use string for filtering
                 displayLabel: getDisplayString(rendered, label), // String representation for input display
-                value: itemToValueFn(item),
-                raw: item,
+                value: itemToValueFn(typedItem),
+                raw: typedItem,
             };
         });
         // Add items from idMap that match currentValue but aren't in dataList
@@ -6281,94 +6282,6 @@ const StringInputField = ({ column, schema, prefix, }) => {
     const fieldError = getNestedError(errors, colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
     return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
-};
-
-const RadioCardItem = React.forwardRef(function RadioCardItem(props, ref) {
-    const { inputProps, label, description, addon, icon, indicator = jsx(RadioCard.ItemIndicator, {}), indicatorPlacement = "end", ...rest } = props;
-    const hasContent = label || description || icon;
-    const ContentWrapper = indicator ? RadioCard.ItemContent : React.Fragment;
-    return (jsxs(RadioCard.Item, { ...rest, children: [jsx(RadioCard.ItemHiddenInput, { ref: ref, ...inputProps }), jsxs(RadioCard.ItemControl, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxs(ContentWrapper, { children: [icon, label && jsx(RadioCard.ItemText, { children: label }), description && (jsx(RadioCard.ItemDescription, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsx(RadioCard.ItemAddon, { children: addon })] }));
-});
-const RadioCardRoot = RadioCard.Root;
-RadioCard.Label;
-RadioCard.ItemIndicator;
-
-const TagPicker = ({ column, schema }) => {
-    const { watch, formState: { errors }, setValue, } = useFormContext();
-    if (schema.properties == undefined) {
-        throw new Error('schema properties undefined when using DatePicker');
-    }
-    const { gridColumn, gridRow, tagPicker } = schema;
-    if (!tagPicker?.queryFn) {
-        throw new Error('tagPicker.queryFn is required in schema. serverUrl has been removed.');
-    }
-    const query = useQuery({
-        queryKey: [`tagpicker`],
-        queryFn: async () => {
-            const result = await tagPicker.queryFn({
-                where: [],
-                limit: 100,
-                offset: 0,
-                searching: '',
-            });
-            return result.data || { data: [] };
-        },
-        staleTime: 10000,
-    });
-    const object_id = watch(column);
-    const existingTagsQuery = useQuery({
-        queryKey: [`existing`, object_id],
-        queryFn: async () => {
-            const result = await tagPicker.queryFn({
-                where: [
-                    {
-                        id: column,
-                        value: [object_id[0]],
-                    },
-                ],
-                limit: 100,
-                offset: 0,
-                searching: '',
-            });
-            return result.data || { data: [] };
-        },
-        enabled: object_id != undefined,
-        staleTime: 10000,
-    });
-    const { isLoading, isFetching, data, isPending, isError } = query;
-    const dataList = data?.data ?? [];
-    const existingTagList = existingTagsQuery.data?.data ?? [];
-    if (!!object_id === false) {
-        return jsx(Fragment, {});
-    }
-    return (jsxs(Flex, { flexFlow: 'column', gap: 4, gridColumn,
-        gridRow, children: [isFetching && jsx(Fragment, { children: "isFetching" }), isLoading && jsx(Fragment, { children: "isLoading" }), isPending && jsx(Fragment, { children: "isPending" }), isError && jsx(Fragment, { children: "isError" }), dataList.map(({ parent_tag_name, all_tags, is_mutually_exclusive }) => {
-                return (jsxs(Flex, { flexFlow: 'column', gap: 2, children: [jsx(Text, { children: parent_tag_name }), is_mutually_exclusive && (jsx(RadioCardRoot, { defaultValue: "next", variant: 'surface', onValueChange: (tagIds) => {
-                                const existedTags = Object.values(all_tags)
-                                    .filter(({ id }) => {
-                                    return existingTagList.some(({ tag_id }) => tag_id === id);
-                                })
-                                    .map(({ id }) => {
-                                    return id;
-                                });
-                                setValue(`${column}.${parent_tag_name}.current`, [
-                                    tagIds.value,
-                                ]);
-                                setValue(`${column}.${parent_tag_name}.old`, existedTags);
-                            }, children: jsx(Flex, { flexFlow: 'wrap', gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
-                                    if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                                        return (jsx(RadioCardItem, { label: tagName, value: id, flex: '0 0 0%', disabled: true }, `${tagName}-${id}`));
-                                    }
-                                    return (jsx(RadioCardItem, { label: tagName, value: id, flex: '0 0 0%', colorPalette: 'blue' }, `${tagName}-${id}`));
-                                }) }) })), !is_mutually_exclusive && (jsx(CheckboxGroup, { onValueChange: (tagIds) => {
-                                setValue(`${column}.${parent_tag_name}.current`, tagIds);
-                            }, children: jsx(Flex, { flexFlow: 'wrap', gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
-                                    if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                                        return (jsx(CheckboxCard, { label: tagName, value: id, flex: '0 0 0%', disabled: true, colorPalette: 'blue' }, `${tagName}-${id}`));
-                                    }
-                                    return (jsx(CheckboxCard, { label: tagName, value: id, flex: '0 0 0%' }, `${tagName}-${id}`));
-                                }) }) }))] }, `tag-${parent_tag_name}`));
-            }), errors[`${column}`] && (jsx(Text, { color: 'red.400', children: (errors[`${column}`]?.message ?? 'No error message') }))] }));
 };
 
 const Textarea = React.forwardRef(function Textarea({ value, onChange, ...props }, ref) {
@@ -7941,9 +7854,6 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
     if (type === 'array') {
         if (variant === 'id-picker') {
             return jsx(IdPickerMultiple, { schema: colSchema, prefix, column });
-        }
-        if (variant === 'tag-picker') {
-            return jsx(TagPicker, { schema: colSchema, prefix, column });
         }
         if (variant === 'file-picker') {
             return jsx(FilePicker, { schema: colSchema, prefix, column });

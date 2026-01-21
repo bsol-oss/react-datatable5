@@ -38,7 +38,7 @@ export interface UseIdPickerDataReturn {
         value: string;
         raw: RecordType;
     }>) => void;
-    idMap: Record<string, object>;
+    idMap: Record<string, unknown>;
     idPickerLabels?: IdPickerLabels;
     insideDialog: boolean;
     renderDisplay: ((item: RecordType) => React.ReactNode) | undefined;

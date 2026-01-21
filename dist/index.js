@@ -4987,7 +4987,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                     }) }) }) }));
     }
     return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: undefined, invalid: !!errors[colLabel], children: [isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((enumValue) => {
+        gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: [isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((enumValue) => {
                     if (!enumValue) {
                         return null;
                     }
@@ -4995,7 +4995,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                             const newValue = currentValue.filter((val) => val !== enumValue);
                             setValue(colLabel, newValue);
                         }, children: renderEnumValue(enumValue) }, enumValue));
-                }) })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!errors[colLabel], width: "100%", positioning: insideDialog
+                }) })), jsxRuntime.jsxs(react.Combobox.Root, { collection: collection, value: currentValue, onValueChange: handleValueChange, onInputValueChange: handleInputValueChange, multiple: isMultiple, closeOnSelect: !isMultiple, openOnClick: true, invalid: !!fieldError, width: "100%", positioning: insideDialog
                     ? { strategy: 'fixed', hideWhenDetached: true }
                     : undefined, children: [jsxRuntime.jsxs(react.Combobox.Control, { position: "relative", children: [!isMultiple &&
                                 selectedSingleValue &&
@@ -5018,7 +5018,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                                         : undefined,
                                 } }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [!isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Combobox.ClearTrigger, { onClick: () => {
                                             setValue(colLabel, '');
-                                        } })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), insideDialog ? (jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [showTotalAndLimit && (jsxRuntime.jsx(react.Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? 'Total'}: ${collection.items.length}` })), collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ?? 'No results found' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: renderEnumValue(item.raw) }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [showTotalAndLimit && (jsxRuntime.jsx(react.Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? 'Total'}: ${collection.items.length}` })), collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ?? 'No results found' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: renderEnumValue(item.raw) }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) }) }))] })] }));
+                                        } })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }), jsxRuntime.jsx(react.Portal, { disabled: insideDialog, children: jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsxs(react.Combobox.Content, { children: [showTotalAndLimit && (jsxRuntime.jsx(react.Text, { p: 2, fontSize: "sm", color: "fg.muted", children: `${enumPickerLabels?.total ?? 'Total'}: ${collection.items.length}` })), collection.items.length === 0 ? (jsxRuntime.jsx(react.Combobox.Empty, { children: enumPickerLabels?.emptySearchResult ?? 'No results found' })) : (jsxRuntime.jsx(jsxRuntime.Fragment, { children: collection.items.map((item, index) => (jsxRuntime.jsxs(react.Combobox.Item, { item: item, children: [jsxRuntime.jsx(react.Combobox.ItemText, { children: renderEnumValue(item.raw) }), jsxRuntime.jsx(react.Combobox.ItemIndicator, {})] }, item.value ?? `item-${index}`))) }))] }) }) })] })] }));
 };
 
 function isEnteringWindow(_ref) {
@@ -5978,13 +5978,14 @@ const useIdPickerData = ({ column, schema, prefix, isMultiple, }) => {
             return fallbackLabel;
         };
         const itemsFromDataList = dataList.map((item) => {
-            const rendered = renderFn(item);
-            const label = typeof rendered === 'string' ? rendered : JSON.stringify(item); // Use string for filtering
+            const typedItem = item;
+            const rendered = renderFn(typedItem);
+            const label = typeof rendered === 'string' ? rendered : JSON.stringify(typedItem); // Use string for filtering
             return {
                 label, // Use string for filtering
                 displayLabel: getDisplayString(rendered, label), // String representation for input display
-                value: itemToValueFn(item),
-                raw: item,
+                value: itemToValueFn(typedItem),
+                raw: typedItem,
             };
         });
         // Add items from idMap that match currentValue but aren't in dataList
@@ -6301,94 +6302,6 @@ const StringInputField = ({ column, schema, prefix, }) => {
     const fieldError = getNestedError(errors, colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxRuntime.jsx(react.Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
-};
-
-const RadioCardItem = React__namespace.forwardRef(function RadioCardItem(props, ref) {
-    const { inputProps, label, description, addon, icon, indicator = jsxRuntime.jsx(react.RadioCard.ItemIndicator, {}), indicatorPlacement = "end", ...rest } = props;
-    const hasContent = label || description || icon;
-    const ContentWrapper = indicator ? react.RadioCard.ItemContent : React__namespace.Fragment;
-    return (jsxRuntime.jsxs(react.RadioCard.Item, { ...rest, children: [jsxRuntime.jsx(react.RadioCard.ItemHiddenInput, { ref: ref, ...inputProps }), jsxRuntime.jsxs(react.RadioCard.ItemControl, { children: [indicatorPlacement === "start" && indicator, hasContent && (jsxRuntime.jsxs(ContentWrapper, { children: [icon, label && jsxRuntime.jsx(react.RadioCard.ItemText, { children: label }), description && (jsxRuntime.jsx(react.RadioCard.ItemDescription, { children: description })), indicatorPlacement === "inside" && indicator] })), indicatorPlacement === "end" && indicator] }), addon && jsxRuntime.jsx(react.RadioCard.ItemAddon, { children: addon })] }));
-});
-const RadioCardRoot = react.RadioCard.Root;
-react.RadioCard.Label;
-react.RadioCard.ItemIndicator;
-
-const TagPicker = ({ column, schema }) => {
-    const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    if (schema.properties == undefined) {
-        throw new Error('schema properties undefined when using DatePicker');
-    }
-    const { gridColumn, gridRow, tagPicker } = schema;
-    if (!tagPicker?.queryFn) {
-        throw new Error('tagPicker.queryFn is required in schema. serverUrl has been removed.');
-    }
-    const query = reactQuery.useQuery({
-        queryKey: [`tagpicker`],
-        queryFn: async () => {
-            const result = await tagPicker.queryFn({
-                where: [],
-                limit: 100,
-                offset: 0,
-                searching: '',
-            });
-            return result.data || { data: [] };
-        },
-        staleTime: 10000,
-    });
-    const object_id = watch(column);
-    const existingTagsQuery = reactQuery.useQuery({
-        queryKey: [`existing`, object_id],
-        queryFn: async () => {
-            const result = await tagPicker.queryFn({
-                where: [
-                    {
-                        id: column,
-                        value: [object_id[0]],
-                    },
-                ],
-                limit: 100,
-                offset: 0,
-                searching: '',
-            });
-            return result.data || { data: [] };
-        },
-        enabled: object_id != undefined,
-        staleTime: 10000,
-    });
-    const { isLoading, isFetching, data, isPending, isError } = query;
-    const dataList = data?.data ?? [];
-    const existingTagList = existingTagsQuery.data?.data ?? [];
-    if (!!object_id === false) {
-        return jsxRuntime.jsx(jsxRuntime.Fragment, {});
-    }
-    return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 4, gridColumn,
-        gridRow, children: [isFetching && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isFetching" }), isLoading && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isLoading" }), isPending && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isPending" }), isError && jsxRuntime.jsx(jsxRuntime.Fragment, { children: "isError" }), dataList.map(({ parent_tag_name, all_tags, is_mutually_exclusive }) => {
-                return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: 2, children: [jsxRuntime.jsx(react.Text, { children: parent_tag_name }), is_mutually_exclusive && (jsxRuntime.jsx(RadioCardRoot, { defaultValue: "next", variant: 'surface', onValueChange: (tagIds) => {
-                                const existedTags = Object.values(all_tags)
-                                    .filter(({ id }) => {
-                                    return existingTagList.some(({ tag_id }) => tag_id === id);
-                                })
-                                    .map(({ id }) => {
-                                    return id;
-                                });
-                                setValue(`${column}.${parent_tag_name}.current`, [
-                                    tagIds.value,
-                                ]);
-                                setValue(`${column}.${parent_tag_name}.old`, existedTags);
-                            }, children: jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
-                                    if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                                        return (jsxRuntime.jsx(RadioCardItem, { label: tagName, value: id, flex: '0 0 0%', disabled: true }, `${tagName}-${id}`));
-                                    }
-                                    return (jsxRuntime.jsx(RadioCardItem, { label: tagName, value: id, flex: '0 0 0%', colorPalette: 'blue' }, `${tagName}-${id}`));
-                                }) }) })), !is_mutually_exclusive && (jsxRuntime.jsx(react.CheckboxGroup, { onValueChange: (tagIds) => {
-                                setValue(`${column}.${parent_tag_name}.current`, tagIds);
-                            }, children: jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 2, children: Object.entries(all_tags).map(([tagName, { id }]) => {
-                                    if (existingTagList.some(({ tag_id }) => tag_id === id)) {
-                                        return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: '0 0 0%', disabled: true, colorPalette: 'blue' }, `${tagName}-${id}`));
-                                    }
-                                    return (jsxRuntime.jsx(CheckboxCard, { label: tagName, value: id, flex: '0 0 0%' }, `${tagName}-${id}`));
-                                }) }) }))] }, `tag-${parent_tag_name}`));
-            }), errors[`${column}`] && (jsxRuntime.jsx(react.Text, { color: 'red.400', children: (errors[`${column}`]?.message ?? 'No error message') }))] }));
 };
 
 const Textarea = React__namespace.forwardRef(function Textarea({ value, onChange, ...props }, ref) {
@@ -7961,9 +7874,6 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
     if (type === 'array') {
         if (variant === 'id-picker') {
             return jsxRuntime.jsx(IdPickerMultiple, { schema: colSchema, prefix, column });
-        }
-        if (variant === 'tag-picker') {
-            return jsxRuntime.jsx(TagPicker, { schema: colSchema, prefix, column });
         }
         if (variant === 'file-picker') {
             return jsxRuntime.jsx(FilePicker, { schema: colSchema, prefix, column });

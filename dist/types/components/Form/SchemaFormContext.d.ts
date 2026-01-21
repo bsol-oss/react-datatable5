@@ -4,8 +4,8 @@ import { CustomJSONSchema7, DateTimePickerLabels, EnumPickerLabels, FilePickerLa
 export interface SchemaFormContext<TData extends FieldValues> {
     schema: CustomJSONSchema7;
     onSubmit?: (data: TData) => Promise<void>;
-    idMap: Record<string, object>;
-    setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
+    idMap: Record<string, unknown>;
+    setIdMap: Dispatch<SetStateAction<Record<string, unknown>>>;
     timezone?: string;
     displayConfig: {
         showSubmitButton?: boolean;

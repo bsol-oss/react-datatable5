@@ -487,27 +487,6 @@ interface DataTableContextProps<TData = unknown> extends Omit<DataTableProps, 't
 
 declare const useDataTableContext: <TData>() => DataTableContextProps<TData>;
 
-interface CustomQueryFnResponse {
-    /**
-     * The data of the query
-     */
-    data: any;
-    /**
-     * The id map of the data
-     */
-    idMap: Record<string, any>;
-}
-interface CustomQueryFnParams {
-    searching: string;
-    limit: number;
-    offset: number;
-    where?: Array<{
-        id: string;
-        value: string | string[];
-    }>;
-}
-type CustomQueryFn = (params: CustomQueryFnParams) => Promise<CustomQueryFnResponse>;
-
 type ValidationErrorType = 'minLength' | 'maxLength' | 'pattern' | 'minimum' | 'maximum' | 'multipleOf' | 'format' | 'type' | 'enum' | 'required' | 'minItems' | 'maxItems' | 'uniqueItems' | 'minProperties' | 'maxProperties' | 'anyOf' | 'oneOf' | 'allOf' | 'const' | 'additionalProperties' | 'dependencies';
 interface DateTimePickerLabels {
     monthNamesShort?: string[];
@@ -574,23 +553,23 @@ interface TimePickerLabels {
     emptyMessage?: string;
     selectTimeLabel?: string;
 }
-interface LoadInitialValuesParams {
+interface LoadInitialValuesParams<TRecord = unknown> {
     ids: string[];
-    customQueryFn: CustomQueryFn;
-    setIdMap: React__default.Dispatch<React__default.SetStateAction<Record<string, object>>>;
+    customQueryFn: CustomQueryFn<TRecord>;
+    setIdMap: React__default.Dispatch<React__default.SetStateAction<Record<string, TRecord>>>;
 }
-interface LoadInitialValuesResult {
+interface LoadInitialValuesResult<TRecord = unknown> {
     data: {
-        data: Record<string, any>[];
+        data: TRecord[];
         count: number;
     };
-    idMap: Record<string, object>;
+    idMap: Record<string, TRecord>;
 }
 interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'additionalItems' | 'properties' | 'additionalProperties' | 'definitions' | 'patternProperties' | 'dependencies' | 'allOf' | 'anyOf' | 'oneOf' | 'not' | 'if' | 'then' | 'else' | 'contains'> {
     gridColumn?: string;
     gridRow?: string;
     customQueryFn?: CustomQueryFn;
-    variant?: 'custom-input' | 'id-picker' | 'text-area' | 'media-library-browser' | 'tag-picker' | 'file-picker' | 'date-range' | 'enum-picker' | 'radio';
+    variant?: 'custom-input' | 'id-picker' | 'text-area' | 'media-library-browser' | 'file-picker' | 'date-range' | 'enum-picker' | 'radio';
     renderDisplay?: (item: unknown) => ReactNode;
     itemToValue?: (item: unknown) => string;
     loadInitialValues?: (params: LoadInitialValuesParams) => Promise<LoadInitialValuesResult>;
@@ -615,23 +594,6 @@ interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'additionalItems
     numberStorageType?: 'string' | 'number';
     errorMessage?: Record<Partial<ValidationErrorType> | string, string | Record<string, string>>;
     filePicker?: FilePickerProps;
-    tagPicker?: {
-        queryFn?: (params: {
-            where?: {
-                id: string;
-                value: string[];
-            }[];
-            limit?: number;
-            offset?: number;
-            searching?: string;
-        }) => Promise<{
-            data: {
-                data: any[];
-                count: number;
-            };
-            idMap?: Record<string, object>;
-        }>;
-    };
     dateTimePicker?: {
         showQuickActions?: boolean;
         quickActionLabels?: {
@@ -667,11 +629,6 @@ interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'additionalItems
     contains?: CustomJSONSchema7;
 }
 declare const defaultRenderDisplay: (item: unknown) => ReactNode;
-interface TagPickerProps {
-    column: string;
-    schema: CustomJSONSchema7;
-    prefix: string;
-}
 interface FilePickerMediaFile {
     id: string;
     name: string;
@@ -687,6 +644,29 @@ interface FilePickerProps {
     enableUpload?: boolean;
     onUploadFile?: (file: File) => Promise<string>;
 }
+interface CustomQueryFnResponse<TRecord = unknown> {
+    /**
+     * The data of the query
+     */
+    data: {
+        data: TRecord[];
+        count: number;
+    };
+    /**
+     * The id map of the data
+     */
+    idMap: Record<string, TRecord>;
+}
+interface CustomQueryFnParams {
+    searching: string;
+    limit: number;
+    offset: number;
+    where?: Array<{
+        id: string;
+        value: string | string[];
+    }>;
+}
+type CustomQueryFn<TRecord = unknown> = (params: CustomQueryFnParams) => Promise<CustomQueryFnResponse<TRecord>>;
 
 interface FormRootProps<TData extends FieldValues> {
     /**
@@ -715,8 +695,8 @@ interface FormRootProps<TData extends FieldValues> {
      * }
      */
     schema: CustomJSONSchema7;
-    idMap: Record<string, object>;
-    setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
+    idMap: Record<string, unknown>;
+    setIdMap: Dispatch<SetStateAction<Record<string, unknown>>>;
     form: UseFormReturn<TData, any, TData>;
     children: ReactNode;
     onSubmit?: SubmitHandler<TData>;
@@ -775,12 +755,12 @@ declare const MediaLibraryBrowser: ({ onFetchFiles, filterImageOnly, labels, ena
 
 interface UseFormProps<T> {
     preLoadedValues?: T | undefined;
-    schema?: CustomJSONSchema7;
+    schema: CustomJSONSchema7;
 }
 declare function useForm<T extends FieldValues = any>({ preLoadedValues, schema, }: UseFormProps<T>): {
     form: react_hook_form.UseFormReturn<T, any, T>;
-    idMap: Record<string, object>;
-    setIdMap: React$1.Dispatch<React$1.SetStateAction<Record<string, object>>>;
+    idMap: Record<string, unknown>;
+    setIdMap: React$1.Dispatch<React$1.SetStateAction<Record<string, unknown>>>;
 };
 
 interface CalendarDate {
@@ -1244,4 +1224,4 @@ declare module '@tanstack/react-table' {
     }
 }
 
-export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerContext, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, FormTitle, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, type TableFilterTagsProps, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, type TagPickerProps, TextCell, type TextCellProps, type TimePickerLabels, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, defaultRenderDisplay, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm };
+export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, type CustomQueryFn, type CustomQueryFnParams, type CustomQueryFnResponse, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerContext, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, FormTitle, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, type TableFilterTagsProps, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type TimePickerLabels, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, defaultRenderDisplay, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm };

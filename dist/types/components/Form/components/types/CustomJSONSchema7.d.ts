@@ -1,6 +1,5 @@
 import { JSONSchema7 } from 'json-schema';
 import { ReactNode } from 'react';
-import { CustomQueryFn } from '../fields/StringInputField';
 import { UseFormReturn } from 'react-hook-form';
 import React from 'react';
 export type ValidationErrorType = 'minLength' | 'maxLength' | 'pattern' | 'minimum' | 'maximum' | 'multipleOf' | 'format' | 'type' | 'enum' | 'required' | 'minItems' | 'maxItems' | 'uniqueItems' | 'minProperties' | 'maxProperties' | 'anyOf' | 'oneOf' | 'allOf' | 'const' | 'additionalProperties' | 'dependencies';
@@ -69,23 +68,23 @@ export interface TimePickerLabels {
     emptyMessage?: string;
     selectTimeLabel?: string;
 }
-export interface LoadInitialValuesParams {
+export interface LoadInitialValuesParams<TRecord = unknown> {
     ids: string[];
-    customQueryFn: CustomQueryFn;
-    setIdMap: React.Dispatch<React.SetStateAction<Record<string, object>>>;
+    customQueryFn: CustomQueryFn<TRecord>;
+    setIdMap: React.Dispatch<React.SetStateAction<Record<string, TRecord>>>;
 }
-export interface LoadInitialValuesResult {
+export interface LoadInitialValuesResult<TRecord = unknown> {
     data: {
-        data: Record<string, any>[];
+        data: TRecord[];
         count: number;
     };
-    idMap: Record<string, object>;
+    idMap: Record<string, TRecord>;
 }
 export interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'additionalItems' | 'properties' | 'additionalProperties' | 'definitions' | 'patternProperties' | 'dependencies' | 'allOf' | 'anyOf' | 'oneOf' | 'not' | 'if' | 'then' | 'else' | 'contains'> {
     gridColumn?: string;
     gridRow?: string;
     customQueryFn?: CustomQueryFn;
-    variant?: 'custom-input' | 'id-picker' | 'text-area' | 'media-library-browser' | 'tag-picker' | 'file-picker' | 'date-range' | 'enum-picker' | 'radio';
+    variant?: 'custom-input' | 'id-picker' | 'text-area' | 'media-library-browser' | 'file-picker' | 'date-range' | 'enum-picker' | 'radio';
     renderDisplay?: (item: unknown) => ReactNode;
     itemToValue?: (item: unknown) => string;
     loadInitialValues?: (params: LoadInitialValuesParams) => Promise<LoadInitialValuesResult>;
@@ -110,23 +109,6 @@ export interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'addition
     numberStorageType?: 'string' | 'number';
     errorMessage?: Record<Partial<ValidationErrorType> | string, string | Record<string, string>>;
     filePicker?: FilePickerProps;
-    tagPicker?: {
-        queryFn?: (params: {
-            where?: {
-                id: string;
-                value: string[];
-            }[];
-            limit?: number;
-            offset?: number;
-            searching?: string;
-        }) => Promise<{
-            data: {
-                data: any[];
-                count: number;
-            };
-            idMap?: Record<string, object>;
-        }>;
-    };
     dateTimePicker?: {
         showQuickActions?: boolean;
         quickActionLabels?: {
@@ -162,11 +144,6 @@ export interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'addition
     contains?: CustomJSONSchema7;
 }
 export declare const defaultRenderDisplay: (item: unknown) => ReactNode;
-export interface TagPickerProps {
-    column: string;
-    schema: CustomJSONSchema7;
-    prefix: string;
-}
 export interface FilePickerMediaFile {
     id: string;
     name: string;
@@ -182,3 +159,26 @@ export interface FilePickerProps {
     enableUpload?: boolean;
     onUploadFile?: (file: File) => Promise<string>;
 }
+export interface CustomQueryFnResponse<TRecord = unknown> {
+    /**
+     * The data of the query
+     */
+    data: {
+        data: TRecord[];
+        count: number;
+    };
+    /**
+     * The id map of the data
+     */
+    idMap: Record<string, TRecord>;
+}
+export interface CustomQueryFnParams {
+    searching: string;
+    limit: number;
+    offset: number;
+    where?: Array<{
+        id: string;
+        value: string | string[];
+    }>;
+}
+export type CustomQueryFn<TRecord = unknown> = (params: CustomQueryFnParams) => Promise<CustomQueryFnResponse<TRecord>>;
