@@ -4187,20 +4187,13 @@ const useDataTableServer = (props) => {
 //@ts-expect-error TODO: find appropriate type
 const SchemaFormContext = React.createContext({
     schema: {},
-    requestUrl: '',
-    order: [],
-    ignore: [],
-    include: [],
     onSubmit: async () => { },
-    rowNumber: 0,
-    requestOptions: {},
     timezone: 'Asia/Hong_Kong',
     displayConfig: {
         showSubmitButton: true,
         showResetButton: true,
         showTitle: true,
     },
-    onFormSubmit: async () => { },
 });
 
 const useSchemaContext = () => {
@@ -4229,8 +4222,8 @@ const useFormLabel = (column, prefix = '', schema) => {
                 prefix,
                 schema: {
                     type: schema.type,
-                    errorMessages: schema.errorMessages
-                        ? Object.keys(schema.errorMessages)
+                    errorMessage: schema.errorMessage
+                        ? Object.keys(schema.errorMessage)
                         : undefined,
                 },
             });
@@ -4242,8 +4235,8 @@ const useFormLabel = (column, prefix = '', schema) => {
 
 const ArrayRenderer = ({ schema, column, prefix, }) => {
     const { gridRow, gridColumn = '1/span 12', required, items } = schema;
-    // @ts-expect-error TODO: find suitable types
-    const { type } = items;
+    const itemsSchema = Array.isArray(items) ? items[0] : items;
+    const { type } = itemsSchema ?? {};
     const colLabel = `${prefix}${column}`;
     const isRequired = required?.some((columnId) => columnId === column);
     const formI18n = useFormLabel(column, prefix, schema);
@@ -4255,8 +4248,10 @@ const ArrayRenderer = ({ schema, column, prefix, }) => {
                         _dark: 'colorPalette.800',
                     }, children: [jsxRuntime.jsx(react.Grid, { gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: jsxRuntime.jsx(SchemaRenderer, { column: `${index}`,
                                 prefix: `${colLabel}.`,
-                                // @ts-expect-error find suitable types
-                                schema: { showLabel: false, ...(items ?? {}) } }) }), jsxRuntime.jsx(react.Flex, { justifyContent: 'end', children: jsxRuntime.jsx(react.Button, { variant: 'ghost', onClick: () => {
+                                schema: {
+                                    showLabel: false,
+                                    ...(Array.isArray(items) ? items[0] : items ?? {}),
+                                } }) }), jsxRuntime.jsx(react.Flex, { justifyContent: 'end', children: jsxRuntime.jsx(react.Button, { variant: 'ghost', onClick: () => {
                                     setValue(colLabel, fields.filter((_, curIndex) => {
                                         return curIndex !== index;
                                     }));
@@ -5339,16 +5334,13 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
             element: el,
             onDragEnter: () => setIsDraggedOver(true),
             onDragLeave: () => setIsDraggedOver(false),
-            //   canDrop: some(containsFiles, containsText),
             onDrop: ({ source }) => {
                 const files = getFiles({ source });
                 const text = getText({ source });
-                console.log(files, text, 'dfposa');
                 onDrop({ files, text });
             },
         });
     }, [onDrop]);
-    // const isDark = (location + location) % 2 === 1;
     function getColor(isDraggedOver) {
         if (isDraggedOver) {
             return {
@@ -5358,7 +5350,6 @@ const FileDropzone = ({ children = undefined, gridProps = {}, onDrop = () => { }
                 },
             };
         }
-        // return isDark ? "lightgrey" : "white";
         return {
             backgroundColor: undefined,
             _dark: {
@@ -6241,11 +6232,9 @@ const ObjectInput = ({ schema, column, prefix }) => {
                     base: 'colorPalette.200',
                     _dark: 'colorPalette.800',
                 }, gap: "4", padding: '4', gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: Object.keys(properties ?? {}).map((key) => {
-                    return (
-                    // @ts-expect-error find suitable types
-                    jsxRuntime.jsx(ColumnRenderer, { column: `${key}`,
+                    return (jsxRuntime.jsx(ColumnRenderer, { column: `${key}`,
                         prefix: `${prefix}${column}.`,
-                        properties,
+                        properties: properties ?? {},
                         parentRequired: required }, `form-${colLabel}-${key}`));
                 }) })] }));
 };
@@ -7987,7 +7976,8 @@ const SchemaRenderer = ({ schema, prefix, column, }) => {
         }
         if (variant === 'enum-picker') {
             const { items, title } = colSchema;
-            const { enum: enumItems } = items;
+            const itemsSchema = Array.isArray(items) ? items[0] : items;
+            const { enum: enumItems } = itemsSchema ?? {};
             // Use renderDisplay from parent schema only
             const renderDisplay = colSchema.renderDisplay;
             const enumSchema = {
@@ -8024,15 +8014,15 @@ const ColumnRenderer = ({ column, properties, prefix, parentRequired, }) => {
 };
 
 const SubmitButton = () => {
-    const { setValidatedData, setIsError, onFormSubmit, formButtonLabels } = useSchemaContext();
+    const { onSubmit, formButtonLabels } = useSchemaContext();
     const methods = reactHookForm.useFormContext();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onValid = (data) => {
+    const onValid = async (data) => {
         // Validation is handled by react-hook-form
         // This function will only be called if validation passes
-        setValidatedData(data);
-        setIsError(false);
-        onFormSubmit(data);
+        if (onSubmit) {
+            await onSubmit(data);
+        }
     };
     return (jsxRuntime.jsx(react.Button, { onClick: () => {
             methods.handleSubmit(onValid)();
@@ -8040,33 +8030,21 @@ const SubmitButton = () => {
 };
 
 const FormBody = () => {
-    const { schema, order, ignore, include, isError, error, customErrorRenderer, displayConfig, formButtonLabels, } = useSchemaContext();
+    const { schema, displayConfig, formButtonLabels } = useSchemaContext();
     const { showSubmitButton, showResetButton } = displayConfig;
     const methods = reactHookForm.useFormContext();
-    console.log(methods.formState.errors);
+    console.log('errors', methods.formState.errors);
     const { properties } = schema;
-    const renderColumns = ({ order, keys, ignore, include, }) => {
-        const included = include.length > 0 ? include : keys;
-        const not_exist = included.filter((columnA) => !order.some((columnB) => columnA === columnB));
-        const ordered = [...order, ...not_exist];
-        const ignored = ordered.filter((column) => !ignore.some((shouldIgnore) => column === shouldIgnore));
-        return ignored;
-    };
-    const ordered = renderColumns({
-        order,
-        keys: Object.keys(properties),
-        ignore,
-        include,
-    });
+    const ordered = Object.keys(properties);
     return (jsxRuntime.jsxs(react.Flex, { flexFlow: 'column', gap: "2", children: [jsxRuntime.jsx(react.Grid, { gap: "4", gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: ordered.map((column) => {
-                    return (jsxRuntime.jsx(ColumnRenderer
-                    // @ts-expect-error find suitable types
-                    , { 
-                        // @ts-expect-error find suitable types
-                        properties: properties, prefix: ``, parentRequired: schema.required, column }, `form-input-${column}`));
+                    if (!properties) {
+                        console.error('properties is undefined when using FormBody', schema);
+                        return null;
+                    }
+                    return (jsxRuntime.jsx(ColumnRenderer, { properties: properties, prefix: ``, parentRequired: schema.required, column }, `form-input-${column}`));
                 }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: 'end', gap: "2", children: [showResetButton && (jsxRuntime.jsx(react.Button, { onClick: () => {
                             methods.reset();
-                        }, variant: 'subtle', children: formButtonLabels?.reset ?? 'Reset' })), showSubmitButton && jsxRuntime.jsx(SubmitButton, {})] }), isError && customErrorRenderer && customErrorRenderer(error)] }));
+                        }, variant: 'subtle', children: formButtonLabels?.reset ?? 'Reset' })), showSubmitButton && jsxRuntime.jsx(SubmitButton, {})] })] }));
 };
 
 const FormTitle = () => {
@@ -8085,96 +8063,18 @@ const FormTitle = () => {
     return jsxRuntime.jsx(react.Heading, { children: schema.title ?? 'Form' });
 };
 
-const clearEmptyString = (object) => {
-    return Object.fromEntries(Object.entries(object).filter(([, value]) => value !== ""));
-};
-
-const FormRoot = ({ schema, idMap, setIdMap, form, children, order = [], ignore = [], include = [], onSubmit = undefined, rowNumber = undefined, requestOptions = {}, getUpdatedData = () => { }, customErrorRenderer, customSuccessRenderer, displayConfig = {
+const FormRoot = ({ schema, idMap, setIdMap, form, children, onSubmit = undefined, displayConfig = {
     showSubmitButton: true,
     showResetButton: true,
     showTitle: true,
 }, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog = false, }) => {
-    const [isSuccess, setIsSuccess] = React.useState(false);
-    const [isError, setIsError] = React.useState(false);
-    const [isSubmiting, setIsSubmiting] = React.useState(false);
-    const [validatedData, setValidatedData] = React.useState();
-    const [error, setError] = React.useState();
-    const onBeforeSubmit = () => {
-        setIsSubmiting(true);
-    };
-    const onAfterSubmit = () => {
-        setIsSubmiting(false);
-    };
-    const onSubmitError = (error) => {
-        setIsError(true);
-        setError(error);
-    };
-    const onSubmitSuccess = () => {
-        setIsSuccess(true);
-    };
-    const defaultOnSubmit = async (promise) => {
-        try {
-            console.log('onBeforeSubmit');
-            onBeforeSubmit();
-            await promise;
-            console.log('onSubmitSuccess');
-            onSubmitSuccess();
-        }
-        catch (error) {
-            console.log('onSubmitError', error);
-            onSubmitError(error);
-        }
-        finally {
-            onAfterSubmit();
-        }
-    };
-    const defaultSubmitPromise = (data) => {
-        if (!requestOptions.url) {
-            throw new Error('requestOptions.url is required when onSubmit is not provided');
-        }
-        const options = {
-            method: 'POST',
-            data: clearEmptyString(data),
-            ...requestOptions,
-        };
-        return axios.request(options);
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onFormSubmit = async (data) => {
-        // Validation is handled by react-hook-form
-        // This function will only be called if validation passes
-        if (onSubmit === undefined) {
-            await defaultOnSubmit(Promise.resolve(defaultSubmitPromise(data)));
-            return;
-        }
-        await defaultOnSubmit(Promise.resolve(onSubmit(data)));
-    };
     return (jsxRuntime.jsx(SchemaFormContext.Provider, { value: {
             schema,
-            order,
-            ignore,
-            include,
             // @ts-expect-error TODO: find appropriate types
             onSubmit,
-            rowNumber,
             idMap,
             setIdMap,
-            requestOptions,
-            isSuccess,
-            setIsSuccess,
-            isError,
-            setIsError,
-            isSubmiting,
-            setIsSubmiting,
-            validatedData,
-            setValidatedData,
-            error,
-            setError,
-            getUpdatedData,
-            customErrorRenderer,
-            customSuccessRenderer,
             displayConfig,
-            onFormSubmit,
             dateTimePickerLabels,
             idPickerLabels,
             enumPickerLabels,

@@ -7,7 +7,6 @@ import { TableHeaderProps as TableHeaderProps$1, TableRowProps, GridProps, Table
 import { IconType } from 'react-icons';
 import { UseQueryResult } from '@tanstack/react-query';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
-import { AxiosRequestConfig } from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import * as react_hook_form from 'react-hook-form';
 import { UseFormReturn, FieldValues, SubmitHandler } from 'react-hook-form';
@@ -591,7 +590,7 @@ interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'additionalItems
     gridColumn?: string;
     gridRow?: string;
     customQueryFn?: CustomQueryFn;
-    variant?: 'custom-input' | 'id-picker' | 'text-area' | 'media-library-browser' | 'tag-picker' | 'file-picker' | 'date-range' | 'enum-picker';
+    variant?: 'custom-input' | 'id-picker' | 'text-area' | 'media-library-browser' | 'tag-picker' | 'file-picker' | 'date-range' | 'enum-picker' | 'radio';
     renderDisplay?: (item: unknown) => ReactNode;
     itemToValue?: (item: unknown) => string;
     loadInitialValues?: (params: LoadInitialValuesParams) => Promise<LoadInitialValuesResult>;
@@ -716,20 +715,11 @@ interface FormRootProps<TData extends FieldValues> {
      * }
      */
     schema: CustomJSONSchema7;
-    requestUrl?: string;
     idMap: Record<string, object>;
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
     form: UseFormReturn<TData, any, TData>;
     children: ReactNode;
-    order?: string[];
-    ignore?: string[];
-    include?: string[];
     onSubmit?: SubmitHandler<TData>;
-    rowNumber?: number | string;
-    requestOptions?: AxiosRequestConfig;
-    getUpdatedData?: () => TData | Promise<TData> | void;
-    customErrorRenderer?: (error: unknown) => ReactNode;
-    customSuccessRenderer?: (resetHandler: () => void | Promise<void>) => ReactNode;
     displayConfig?: {
         showSubmitButton?: boolean;
         showResetButton?: boolean;
@@ -750,7 +740,7 @@ interface CustomJSONSchema7Definition extends JSONSchema7 {
     customQueryFn: any;
     children: ReactNode;
 }
-declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, onSubmit, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DefaultFormProps<TData extends FieldValues> {
     formConfig: Omit<FormRootProps<TData>, "children">;

@@ -85,7 +85,7 @@ export interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'addition
     gridColumn?: string;
     gridRow?: string;
     customQueryFn?: CustomQueryFn;
-    variant?: 'custom-input' | 'id-picker' | 'text-area' | 'media-library-browser' | 'tag-picker' | 'file-picker' | 'date-range' | 'enum-picker';
+    variant?: 'custom-input' | 'id-picker' | 'text-area' | 'media-library-browser' | 'tag-picker' | 'file-picker' | 'date-range' | 'enum-picker' | 'radio';
     renderDisplay?: (item: unknown) => ReactNode;
     itemToValue?: (item: unknown) => string;
     loadInitialValues?: (params: LoadInitialValuesParams) => Promise<LoadInitialValuesResult>;

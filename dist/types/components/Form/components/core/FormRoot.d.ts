@@ -1,4 +1,3 @@
-import { AxiosRequestConfig } from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 import { FieldValues, SubmitHandler, UseFormReturn } from 'react-hook-form';
@@ -30,20 +29,11 @@ export interface FormRootProps<TData extends FieldValues> {
      * }
      */
     schema: CustomJSONSchema7;
-    requestUrl?: string;
     idMap: Record<string, object>;
     setIdMap: Dispatch<SetStateAction<Record<string, object>>>;
     form: UseFormReturn<TData, any, TData>;
     children: ReactNode;
-    order?: string[];
-    ignore?: string[];
-    include?: string[];
     onSubmit?: SubmitHandler<TData>;
-    rowNumber?: number | string;
-    requestOptions?: AxiosRequestConfig;
-    getUpdatedData?: () => TData | Promise<TData> | void;
-    customErrorRenderer?: (error: unknown) => ReactNode;
-    customSuccessRenderer?: (resetHandler: () => void | Promise<void>) => ReactNode;
     displayConfig?: {
         showSubmitButton?: boolean;
         showResetButton?: boolean;
@@ -64,4 +54,4 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
     customQueryFn: any;
     children: ReactNode;
 }
-export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, order, ignore, include, onSubmit, rowNumber, requestOptions, getUpdatedData, customErrorRenderer, customSuccessRenderer, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, onSubmit, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
