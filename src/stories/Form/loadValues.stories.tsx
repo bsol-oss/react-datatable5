@@ -3,7 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
+import type { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 import {
   Heading,
   Text,
@@ -66,47 +66,7 @@ export const PreloadedValues: Story = {
 
 const PreloadedValuesForm = () => {
   // Comprehensive preloaded values for all field types
-  const form = useForm({
-    preLoadedValues: {
-      // String fields
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      bio: 'This is a preloaded biography text that demonstrates how textarea fields work with preloaded values.',
-      website: 'https://example.com',
-
-      // Number fields
-      age: 30,
-      score: 85.5,
-      price: 99.99,
-
-      // Boolean fields
-      isActive: true,
-      subscribe: false,
-
-      // Date/Time fields
-      birthDate: '1990-05-15',
-      appointmentTime: '14:30:00+08:00',
-      createdAt: '2024-01-15T10:30:00+08:00',
-
-      // Enum fields
-      status: 'active',
-      role: 'admin',
-
-      // Array fields
-      tags: ['react', 'typescript', 'chakra-ui'],
-      hobbies: ['reading', 'coding', 'gaming'],
-
-      // Object fields (nested)
-      address: {
-        street: '123 Main Street',
-        city: 'Hong Kong',
-        zipCode: '00000',
-        country: 'HK',
-      },
-    },
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'User Profile Form',
     properties: {
@@ -223,6 +183,47 @@ const PreloadedValuesForm = () => {
     },
     required: ['name', 'email', 'age', 'status'],
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {
+      // String fields
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      bio: 'This is a preloaded biography text that demonstrates how textarea fields work with preloaded values.',
+      website: 'https://example.com',
+
+      // Number fields
+      age: 30,
+      score: 85.5,
+      price: 99.99,
+
+      // Boolean fields
+      isActive: true,
+      subscribe: false,
+
+      // Date/Time fields
+      birthDate: '1990-05-15',
+      appointmentTime: '14:30:00+08:00',
+      createdAt: '2024-01-15T10:30:00+08:00',
+
+      // Enum fields
+      status: 'active',
+      role: 'admin',
+
+      // Array fields
+      tags: ['react', 'typescript', 'chakra-ui'],
+      hobbies: ['reading', 'coding', 'gaming'],
+
+      // Object fields (nested)
+      address: {
+        street: '123 Main Street',
+        city: 'Hong Kong',
+        zipCode: '00000',
+        country: 'HK',
+      },
+    },
+  });
 
   return (
     <VStack gap={6} align="stretch" p={4}>

@@ -217,8 +217,8 @@ export const EnumPicker = ({
         gridColumn,
         gridRow,
       }}
-      errorText={undefined}
-      invalid={!!errors[colLabel]}
+      errorText={<>{fieldError}</>}
+      invalid={!!fieldError}
     >
       {/* Multiple Picker - Show selected tags */}
       {isMultiple && currentValue.length > 0 && (
@@ -254,7 +254,7 @@ export const EnumPicker = ({
         multiple={isMultiple}
         closeOnSelect={!isMultiple}
         openOnClick
-        invalid={!!errors[colLabel]}
+        invalid={!!fieldError}
         width="100%"
         positioning={
           insideDialog
@@ -321,7 +321,7 @@ export const EnumPicker = ({
           </Combobox.IndicatorGroup>
         </Combobox.Control>
 
-        {insideDialog ? (
+        <Portal disabled={insideDialog}>
           <Combobox.Positioner>
             <Combobox.Content>
               {showTotalAndLimit && (
@@ -352,40 +352,7 @@ export const EnumPicker = ({
               )}
             </Combobox.Content>
           </Combobox.Positioner>
-        ) : (
-          <Portal>
-            <Combobox.Positioner>
-              <Combobox.Content>
-                {showTotalAndLimit && (
-                  <Text p={2} fontSize="sm" color="fg.muted">
-                    {`${enumPickerLabels?.total ?? 'Total'}: ${
-                      collection.items.length
-                    }`}
-                  </Text>
-                )}
-                {collection.items.length === 0 ? (
-                  <Combobox.Empty>
-                    {enumPickerLabels?.emptySearchResult ?? 'No results found'}
-                  </Combobox.Empty>
-                ) : (
-                  <>
-                    {collection.items.map((item: ComboboxItem, index) => (
-                      <Combobox.Item
-                        key={item.value ?? `item-${index}`}
-                        item={item}
-                      >
-                        <Combobox.ItemText>
-                          {renderEnumValue(item.raw)}
-                        </Combobox.ItemText>
-                        <Combobox.ItemIndicator />
-                      </Combobox.Item>
-                    ))}
-                  </>
-                )}
-              </Combobox.Content>
-            </Combobox.Positioner>
-          </Portal>
-        )}
+        </Portal>
       </Combobox.Root>
     </Field>
   );

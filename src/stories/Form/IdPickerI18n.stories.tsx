@@ -3,8 +3,10 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
-import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
+import {
+  CustomQueryFnParams,
+  CustomJSONSchema7,
+} from '@/components/Form/components/types/CustomJSONSchema7';
 import { Button, Flex, Heading, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 
@@ -189,7 +191,6 @@ export const IdPickerI18n: Story = {
 
 const IdPickerForm = () => {
   const [currentLang, setCurrentLang] = useState<'en' | 'zh-HK'>('en');
-  const form = useForm({});
 
   // Language switcher - switch label objects instead of i18n
   const switchLanguage = (lang: 'en' | 'zh-HK') => {
@@ -199,7 +200,7 @@ const IdPickerForm = () => {
   // Get labels based on current language
   const labels = currentLang === 'en' ? englishLabels : chineseLabels;
 
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'User Selection Form',
     required: ['single_user'],
@@ -209,13 +210,7 @@ const IdPickerForm = () => {
         type: 'string',
         variant: 'id-picker',
         customQueryFn: customUserQueryFn,
-        loadInitialValues: async (params: {
-          ids: string[];
-          customQueryFn: any;
-          setIdMap: React.Dispatch<
-            React.SetStateAction<Record<string, object>>
-          >;
-        }) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -237,7 +232,7 @@ const IdPickerForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
+            params.setIdMap((state) => {
               return { ...state, ...returnedIdMap };
             });
           }
@@ -253,13 +248,7 @@ const IdPickerForm = () => {
           type: 'string',
         },
         customQueryFn: customUserQueryFn,
-        loadInitialValues: async (params: {
-          ids: string[];
-          customQueryFn: any;
-          setIdMap: React.Dispatch<
-            React.SetStateAction<Record<string, object>>
-          >;
-        }) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -281,7 +270,7 @@ const IdPickerForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
+            params.setIdMap((state) => {
               return { ...state, ...returnedIdMap };
             });
           }
@@ -355,19 +344,24 @@ const IdPickerForm = () => {
       </Flex>
 
       {/* The form with IdPicker fields */}
-      <DefaultForm
-        formConfig={{
-          schema: schema,
-          onSubmit: async (data) => {
-            console.log('Form submitted with data:', data);
-            alert(
-              `Form submitted!\nSingle user: ${data.single_user}\nMultiple users: ${JSON.stringify(data.multiple_users)}`
-            );
-          },
-          idPickerLabels: labels.single_user,
-          ...form,
-        }}
-      />
+      {(() => {
+        const form = useForm({ schema });
+        return (
+          <DefaultForm
+            formConfig={{
+              schema: schema,
+              onSubmit: async (data) => {
+                console.log('Form submitted with data:', data);
+                alert(
+                  `Form submitted!\nSingle user: ${data.single_user}\nMultiple users: ${JSON.stringify(data.multiple_users)}`
+                );
+              },
+              idPickerLabels: labels.single_user,
+              ...form,
+            }}
+          />
+        );
+      })()}
 
       {/* Translation keys reference */}
       <Flex

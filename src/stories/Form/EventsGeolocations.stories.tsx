@@ -4,8 +4,10 @@ import { Provider } from '@/components/ui/provider';
 import { Flex } from '@chakra-ui/react';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
-import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
+import {
+  CustomQueryFnParams,
+  CustomJSONSchema7,
+} from '@/components/Form/components/types/CustomJSONSchema7';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -105,7 +107,8 @@ export const EventsGeolocations: Story = {
   },
 };
 
-const eventsGeolocationsSchema = {
+const eventsGeolocationsSchema: CustomJSONSchema7 = {
+  type: 'object',
   title: 'events_geolocations',
   required: ['someNumbers', 'parent_id', 'geolocations'],
   errorMessage: {
@@ -153,9 +156,6 @@ const eventsGeolocationsSchema = {
         type: 'object',
         title: 'core_geolocations',
         $schema: 'http://json-schema.org/draft-07/schema#',
-        example: {
-          name: 'Excepteur',
-        },
         required: ['name'],
         properties: {
           id: {
@@ -241,9 +241,8 @@ const eventsGeolocationsSchema = {
           },
         },
         description: 'Missing description',
-        searchingColumns: ['name'],
         additionalProperties: false,
-      },
+      } as CustomJSONSchema7,
     },
     child_events: {
       type: 'object',
@@ -263,7 +262,6 @@ const eventsGeolocationsSchema = {
         },
         end_date: {
           type: 'string',
-          variant: 'date-picker',
           format: 'date',
           gridColumn: '7/span 3',
           gridRow: '4/span 1',
@@ -302,7 +300,6 @@ const eventsGeolocationsSchema = {
         },
         start_date: {
           type: 'string',
-          variant: 'date-picker',
           gridColumn: '1/span 3',
           gridRow: '4/span 1',
           format: 'date',
@@ -362,13 +359,7 @@ const eventsGeolocationsSchema = {
           gridRow: '2/span 1',
           variant: 'id-picker',
           customQueryFn: mockActivityQueryFn,
-          loadInitialValues: async (params: {
-            ids: string[];
-            customQueryFn: any;
-            setIdMap: React.Dispatch<
-              React.SetStateAction<Record<string, object>>
-            >;
-          }) => {
+          loadInitialValues: async (params) => {
             if (!params.ids || params.ids.length === 0) {
               return { data: { data: [], count: 0 }, idMap: {} };
             }
@@ -390,7 +381,7 @@ const eventsGeolocationsSchema = {
               ],
             });
             if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-              params.setIdMap((state: Record<string, object>) => {
+              params.setIdMap((state) => {
                 return { ...state, ...returnedIdMap };
               });
             }
@@ -419,7 +410,6 @@ const eventsGeolocationsSchema = {
           },
           end_date: {
             type: 'string',
-            variant: 'date-picker',
             format: 'date',
             gridColumn: '7/span 3',
             gridRow: '4/span 1',
@@ -458,7 +448,6 @@ const eventsGeolocationsSchema = {
           },
           start_date: {
             type: 'string',
-            variant: 'date-picker',
             gridColumn: '1/span 3',
             gridRow: '4/span 1',
             format: 'date',
@@ -518,13 +507,7 @@ const eventsGeolocationsSchema = {
             gridRow: '2/span 1',
             variant: 'id-picker',
             customQueryFn: mockActivityQueryFn,
-            loadInitialValues: async (params: {
-              ids: string[];
-              customQueryFn: any;
-              setIdMap: React.Dispatch<
-                React.SetStateAction<Record<string, object>>
-              >;
-            }) => {
+            loadInitialValues: async (params) => {
               if (!params.ids || params.ids.length === 0) {
                 return { data: { data: [], count: 0 }, idMap: {} };
               }
@@ -546,7 +529,7 @@ const eventsGeolocationsSchema = {
                 ],
               });
               if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-                params.setIdMap((state: Record<string, object>) => {
+                params.setIdMap((state) => {
                   return { ...state, ...returnedIdMap };
                 });
               }
@@ -573,7 +556,6 @@ const eventsGeolocationsSchema = {
                 },
                 end_date: {
                   type: 'string',
-                  variant: 'date-picker',
                   format: 'date',
                   gridColumn: '7/span 3',
                   gridRow: '4/span 1',
@@ -612,7 +594,6 @@ const eventsGeolocationsSchema = {
                 },
                 start_date: {
                   type: 'string',
-                  variant: 'date-picker',
                   gridColumn: '1/span 3',
                   gridRow: '4/span 1',
                   format: 'date',
@@ -676,7 +657,7 @@ const eventsGeolocationsSchema = {
                     ids: string[];
                     customQueryFn: any;
                     setIdMap: React.Dispatch<
-                      React.SetStateAction<Record<string, object>>
+                      React.SetStateAction<Record<string, unknown>>
                     >;
                   }) => {
                     if (!params.ids || params.ids.length === 0) {
@@ -706,7 +687,7 @@ const eventsGeolocationsSchema = {
                       returnedIdMap &&
                       Object.keys(returnedIdMap).length > 0
                     ) {
-                      params.setIdMap((state: Record<string, object>) => {
+                      params.setIdMap((state) => {
                         return { ...state, ...returnedIdMap };
                       });
                     }
@@ -735,7 +716,7 @@ const eventsGeolocationsSchema = {
             },
           },
         },
-      },
+      } as CustomJSONSchema7,
     },
     some_events: {
       type: 'array',
@@ -744,11 +725,7 @@ const eventsGeolocationsSchema = {
       },
       variant: 'id-picker',
       customQueryFn: mockActivityQueryFn,
-      loadInitialValues: async (params: {
-        ids: string[];
-        customQueryFn: any;
-        setIdMap: React.Dispatch<React.SetStateAction<Record<string, object>>>;
-      }) => {
+      loadInitialValues: async (params) => {
         if (!params.ids || params.ids.length === 0) {
           return { data: { data: [], count: 0 }, idMap: {} };
         }
@@ -770,7 +747,7 @@ const eventsGeolocationsSchema = {
           ],
         });
         if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-          params.setIdMap((state: Record<string, object>) => {
+          params.setIdMap((state) => {
             return { ...state, ...returnedIdMap };
           });
         }
@@ -782,6 +759,7 @@ const eventsGeolocationsSchema = {
 
 const SomeForm = () => {
   const form = useForm({
+    schema: eventsGeolocationsSchema,
     preLoadedValues: { parent_id: 'nice' },
   });
 

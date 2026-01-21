@@ -147,7 +147,7 @@ const BasicDateRangeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date range selected: ${JSON.stringify(data.dateRange, null, 2)}`
@@ -198,7 +198,7 @@ const PreFilledDateRangeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date range selected: ${JSON.stringify(data.dateRange, null, 2)}`
@@ -247,7 +247,7 @@ const ValidationDateRangeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date range selected: ${JSON.stringify(data.dateRange, null, 2)}`
@@ -296,7 +296,7 @@ const CustomDateFormatForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date range selected: ${JSON.stringify(data.dateRange, null, 2)}`

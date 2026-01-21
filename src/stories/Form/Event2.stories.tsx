@@ -3,7 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
+import type { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 import { activitiesSchema } from '../schema';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -46,10 +46,8 @@ export const Event2: Story = {
 };
 
 const SomeForm = () => {
-  const form = useForm({});
-
   // Add title to name property to avoid showing translation key
-  const schemaWithTitle = {
+  const schemaWithTitle: CustomJSONSchema7 = {
     ...activitiesSchema,
     properties: {
       ...(activitiesSchema.properties || {}),
@@ -59,6 +57,8 @@ const SomeForm = () => {
       },
     },
   };
+
+  const form = useForm({ schema: schemaWithTitle });
 
   return (
     <DefaultForm

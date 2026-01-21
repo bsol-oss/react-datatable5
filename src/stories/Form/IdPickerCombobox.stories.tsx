@@ -381,13 +381,16 @@ const IdPickerComboboxForm = () => {
           const usernames = Array.isArray(params.ids)
             ? params.ids
             : [params.ids];
-          const matchingUsers = allData.data.filter((user: TransformedUser) =>
-            usernames.includes(user.username)
+          const matchingUsers = (allData.data as unknown[]).filter(
+            (user): user is TransformedUser => {
+              const typedUser = user as TransformedUser;
+              return usernames.includes(typedUser.username);
+            }
           );
 
           // Create idMap using username as key (since that's what we use as value)
           const usernameIdMap: Record<string, TransformedUser> = {};
-          matchingUsers.forEach((user: TransformedUser) => {
+          matchingUsers.forEach((user) => {
             usernameIdMap[user.username] = user;
           });
 

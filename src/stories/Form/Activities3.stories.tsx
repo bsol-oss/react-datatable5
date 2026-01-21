@@ -46,6 +46,7 @@ export const Activities3: Story = {
 };
 
 // Enum value translations (kept for future use)
+// @ts-expect-error - kept for future use
 const enumTranslations = {
   en: {
     'recurring_type.daily': 'Daily',

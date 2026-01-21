@@ -4,7 +4,7 @@ import { Provider } from '@/components/ui/provider';
 import { Box, Text, VStack, HStack, Button, Dialog } from '@chakra-ui/react';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
+import type { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 import { useState } from 'react';
 import { DateTimePicker } from '@/components/DatePicker/DateTimePicker';
 
@@ -296,11 +296,7 @@ export const WithControlledTimezoneOffset: Story = {
 
 // Basic date-time picker form
 const BasicDateTimeForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       eventDateTime: {
@@ -310,6 +306,11 @@ const BasicDateTimeForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {},
+  });
 
   return (
     <VStack gap={6} align="stretch">
@@ -326,7 +327,7 @@ const BasicDateTimeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
@@ -341,13 +342,7 @@ const BasicDateTimeForm = () => {
 
 // Date-time picker with pre-filled values
 const PreFilledDateTimeForm = () => {
-  const form = useForm({
-    preLoadedValues: {
-      eventDateTime: '2024-01-15T10:30:00+08:00',
-    },
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       eventDateTime: {
@@ -357,6 +352,13 @@ const PreFilledDateTimeForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {
+      eventDateTime: '2024-01-15T10:30:00+08:00',
+    },
+  });
 
   return (
     <VStack gap={6} align="stretch">
@@ -372,7 +374,7 @@ const PreFilledDateTimeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
@@ -387,24 +389,25 @@ const PreFilledDateTimeForm = () => {
 
 // Date-time picker with validation
 const ValidationDateTimeForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       eventDateTime: {
         type: 'string',
         format: 'date-time',
         title: 'Event Date & Time',
-        errorMessages: {
+        errorMessage: {
           required: 'datetimeValidation.eventDateTime.field_required',
         },
       },
     },
     required: ['eventDateTime'],
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {},
+  });
 
   return (
     <VStack gap={6} align="stretch">
@@ -421,7 +424,7 @@ const ValidationDateTimeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
@@ -436,11 +439,7 @@ const ValidationDateTimeForm = () => {
 
 // Date-time picker with custom date format
 const CustomDateFormatForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       eventDateTime: {
@@ -452,6 +451,11 @@ const CustomDateFormatForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {},
+  });
 
   return (
     <VStack gap={6} align="stretch">
@@ -468,7 +472,7 @@ const CustomDateFormatForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
@@ -483,13 +487,7 @@ const CustomDateFormatForm = () => {
 
 // Date-time picker with custom labels
 const CustomLabelsForm = () => {
-  const form = useForm({
-    preLoadedValues: {
-      eventDateTime: '2024-03-20T14:00:00+08:00',
-    },
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       eventDateTime: {
@@ -499,6 +497,13 @@ const CustomLabelsForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {
+      eventDateTime: '2024-03-20T14:00:00+08:00',
+    },
+  });
 
   return (
     <VStack gap={6} align="stretch">
@@ -515,7 +520,7 @@ const CustomLabelsForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
@@ -557,14 +562,7 @@ const CustomLabelsForm = () => {
 
 // Form with multiple date-time picker fields
 const MultipleDateTimeFieldsForm = () => {
-  const form = useForm({
-    preLoadedValues: {
-      startDateTime: '2024-06-01T09:00:00+08:00',
-      endDateTime: '2024-06-01T17:00:00+08:00',
-    },
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       startDateTime: {
@@ -588,6 +586,14 @@ const MultipleDateTimeFieldsForm = () => {
     },
     required: ['startDateTime', 'endDateTime'],
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {
+      startDateTime: '2024-06-01T09:00:00+08:00',
+      endDateTime: '2024-06-01T17:00:00+08:00',
+    },
+  });
 
   return (
     <VStack gap={6} align="stretch">
@@ -617,11 +623,7 @@ const MultipleDateTimeFieldsForm = () => {
 
 // Date-time picker with schema-based helper buttons
 const SchemaHelperButtonsForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       eventDateTime: {
@@ -641,6 +643,11 @@ const SchemaHelperButtonsForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {},
+  });
 
   return (
     <VStack gap={6} align="stretch">
@@ -686,7 +693,7 @@ const SchemaHelperButtonsForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
@@ -701,11 +708,7 @@ const SchemaHelperButtonsForm = () => {
 
 // Date-time picker with schema-based helper buttons and timezone selector
 const SchemaHelperButtonsAndTimezoneForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       eventDateTime: {
@@ -725,6 +728,11 @@ const SchemaHelperButtonsAndTimezoneForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {},
+  });
 
   return (
     <VStack gap={6} align="stretch">
@@ -770,7 +778,7 @@ const SchemaHelperButtonsAndTimezoneForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
+          onSubmit: (data: any) => {
             console.log('Form submitted with data:', data);
             alert(
               `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
@@ -785,12 +793,9 @@ const SchemaHelperButtonsAndTimezoneForm = () => {
 
 // Date-time picker form inside a dialog
 const DateTimePickerInDialogForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
   const [open, setOpen] = useState(false);
 
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       eventDateTime: {
@@ -821,6 +826,11 @@ const DateTimePickerInDialogForm = () => {
     },
     required: ['eventDateTime', 'eventName'],
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {},
+  });
 
   return (
     <VStack gap={6} align="stretch">

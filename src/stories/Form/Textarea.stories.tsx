@@ -3,7 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
+import type { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -33,11 +33,7 @@ export const Textarea: Story = {
 };
 
 const SomeForm = () => {
-  const form = useForm({
-    preLoadedValues: { parent_id: 'nice' },
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       someTextarea: {
@@ -46,6 +42,11 @@ const SomeForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: { parent_id: 'nice' },
+  });
 
   return (
     <DefaultForm

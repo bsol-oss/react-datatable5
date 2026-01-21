@@ -3,7 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
+import type { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 import { FilePickerMediaFile } from '@/components/Form/components/types/CustomJSONSchema7';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -105,9 +105,7 @@ export const BasicFileUpload: Story = {
 };
 
 const BasicFileUploadForm = () => {
-  const { form, idMap, setIdMap } = useForm({});
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       file_upload: {
@@ -119,6 +117,8 @@ const BasicFileUploadForm = () => {
     },
     required: [],
   };
+
+  const { form, idMap, setIdMap } = useForm({ schema });
 
   return (
     <DefaultForm
@@ -149,9 +149,7 @@ export const WithMediaLibrary: Story = {
 };
 
 const WithMediaLibraryForm = () => {
-  const { form, idMap, setIdMap } = useForm({});
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       file_upload: {
@@ -169,6 +167,8 @@ const WithMediaLibraryForm = () => {
     },
     required: [],
   };
+
+  const { form, idMap, setIdMap } = useForm({ schema });
 
   return (
     <DefaultForm
@@ -200,27 +200,29 @@ export const ImageOnlyWithLibrary: Story = {
 };
 
 const ImageOnlyForm = () => {
-  const { form, idMap, setIdMap } = useForm({});
+  const schema: CustomJSONSchema7 = {
+    type: 'object',
+    properties: {
+      file_upload: {
+        type: 'array',
+        variant: 'media-library-browser',
+        gridColumn: '1/span 12',
+        gridRow: '1/span 1',
+        filePicker: {
+          onFetchFiles: mockFetchFiles,
+          filterImageOnly: true,
+        },
+      },
+    },
+    required: [],
+  };
+
+  const { form, idMap, setIdMap } = useForm({ schema });
 
   return (
     <DefaultForm
       formConfig={{
-        schema: {
-          type: 'object',
-          properties: {
-            file_upload: {
-              type: 'array',
-              variant: 'media-library-browser',
-              gridColumn: '1/span 12',
-              gridRow: '1/span 1',
-              filePicker: {
-                onFetchFiles: mockFetchFiles,
-                filterImageOnly: true,
-              },
-            },
-          },
-          required: [],
-        },
+        schema: schema,
         onSubmit: async (data) => {
           console.log('Form submitted:', data);
           console.log('Images:', data.file_upload);
@@ -247,9 +249,7 @@ export const RequiredFiles: Story = {
 };
 
 const RequiredFilesForm = () => {
-  const { form, idMap, setIdMap } = useForm({});
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       file_upload: {
@@ -265,6 +265,8 @@ const RequiredFilesForm = () => {
     },
     required: ['file_upload'],
   };
+
+  const { form, idMap, setIdMap } = useForm({ schema });
 
   return (
     <DefaultForm
@@ -295,9 +297,7 @@ export const MultipleFilePickers: Story = {
 };
 
 const MultipleFilePickersForm = () => {
-  const { form, idMap, setIdMap } = useForm({});
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       basic_files: {
@@ -331,6 +331,8 @@ const MultipleFilePickersForm = () => {
     required: [],
   };
 
+  const { form, idMap, setIdMap } = useForm({ schema });
+
   return (
     <DefaultForm
       formConfig={{
@@ -363,9 +365,7 @@ export const WithCustomLabels: Story = {
 };
 
 const WithCustomLabelsForm = () => {
-  const { form, idMap, setIdMap } = useForm({});
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       file_upload: {
@@ -387,6 +387,8 @@ const WithCustomLabelsForm = () => {
     },
     required: [],
   };
+
+  const { form, idMap, setIdMap } = useForm({ schema });
 
   // Custom labels that override i18n translations - showing all available labels
   const customFilePickerLabels = {
@@ -440,9 +442,7 @@ export const SingleSelect: Story = {
 };
 
 const SingleSelectForm = () => {
-  const { form, idMap, setIdMap } = useForm({});
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       single_file: {
@@ -459,6 +459,8 @@ const SingleSelectForm = () => {
     },
     required: [],
   };
+
+  const { form, idMap, setIdMap } = useForm({ schema });
 
   return (
     <DefaultForm
@@ -490,9 +492,7 @@ export const FilePickerAndMediaLibrary: Story = {
 };
 
 const FilePickerAndMediaLibraryForm = () => {
-  const { form, idMap, setIdMap } = useForm({});
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       file_picker: {
@@ -542,6 +542,8 @@ const FilePickerAndMediaLibraryForm = () => {
     },
     required: [],
   };
+
+  const { form, idMap, setIdMap } = useForm({ schema });
 
   return (
     <DefaultForm

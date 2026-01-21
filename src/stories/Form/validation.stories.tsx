@@ -3,7 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
+import type { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 // Note: The buildErrorMessages utilities are no longer used in the new approach
 // as we now use per-field errorMessages in the schema directly
 
@@ -67,7 +67,7 @@ export const ValidationWithI18n: Story = {
 
 // Example 1: Using per-field errorMessages (new approach)
 const SomeForm = () => {
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'Basic Validation Form',
     properties: {
@@ -75,7 +75,7 @@ const SomeForm = () => {
         type: 'string',
         variant: 'text-area',
         minLength: 10,
-        errorMessages: {
+        errorMessage: {
           required: 'This field is required',
           minLength: 'Text must be at least 10 characters long',
         },
@@ -83,7 +83,7 @@ const SomeForm = () => {
       someNumber: {
         type: 'number',
         minimum: 10,
-        errorMessages: {
+        errorMessage: {
           required: 'This field is required',
           minimum: 'Number must be at least 10',
         },
@@ -91,7 +91,7 @@ const SomeForm = () => {
       someTime: {
         type: 'string',
         format: 'time',
-        errorMessages: {
+        errorMessage: {
           format: 'Please enter a valid time format',
         },
       },
@@ -117,9 +117,9 @@ const SomeForm = () => {
   );
 };
 
-// Example 2: Using per-field errorMessages for user registration
+// Example 2: Using per-field errorMessage for user registration
 const FormWithHelpers = () => {
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'User Registration Form',
     properties: {
@@ -128,7 +128,7 @@ const FormWithHelpers = () => {
         minLength: 3,
         maxLength: 20,
         pattern: '^[a-zA-Z0-9]+$',
-        errorMessages: {
+        errorMessage: {
           required: 'Username is required',
           minLength: 'Username must be at least 3 characters long',
           maxLength: 'Username must be no more than 20 characters long',
@@ -138,7 +138,7 @@ const FormWithHelpers = () => {
       email: {
         type: 'string',
         format: 'email',
-        errorMessages: {
+        errorMessage: {
           required: 'Email is required',
           format: 'Please enter a valid email address',
         },
@@ -147,7 +147,7 @@ const FormWithHelpers = () => {
         type: 'string',
         minLength: 8,
         pattern: '^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]',
-        errorMessages: {
+        errorMessage: {
           required: 'Password is required',
           minLength: 'Password must be at least 8 characters long',
           pattern:
@@ -158,7 +158,7 @@ const FormWithHelpers = () => {
         type: 'number',
         minimum: 18,
         maximum: 120,
-        errorMessages: {
+        errorMessage: {
           minimum: 'Age must be at least 18',
           maximum: 'Age must be no more than 120',
         },
@@ -185,9 +185,9 @@ const FormWithHelpers = () => {
   );
 };
 
-// Example 3: Using per-field errorMessages for product form
+// Example 3: Using per-field errorMessage for product form
 const FormWithI18n = () => {
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'Product Form',
     properties: {
@@ -195,7 +195,7 @@ const FormWithI18n = () => {
         type: 'string',
         minLength: 3,
         maxLength: 100,
-        errorMessages: {
+        errorMessage: {
           required: 'Product name is required',
           minLength: 'Product name must be at least 3 characters long',
           maxLength: 'Product name must be no more than 100 characters long',
@@ -205,7 +205,7 @@ const FormWithI18n = () => {
         type: 'number',
         minimum: 0.01,
         maximum: 999999.99,
-        errorMessages: {
+        errorMessage: {
           required: 'Price is required',
           minimum: 'Price must be at least 0.01',
           maximum: 'Price must be no more than 999999.99',
@@ -214,7 +214,7 @@ const FormWithI18n = () => {
       category: {
         type: 'string',
         enum: ['electronics', 'clothing', 'food', 'books'],
-        errorMessages: {
+        errorMessage: {
           required: 'Category is required',
           enum: 'Please select a valid category',
         },
@@ -222,14 +222,14 @@ const FormWithI18n = () => {
       description: {
         type: 'string',
         maxLength: 500,
-        errorMessages: {
+        errorMessage: {
           maxLength: 'Description must be no more than 500 characters long',
         },
       },
       releaseDate: {
         type: 'string',
         format: 'date',
-        errorMessages: {
+        errorMessage: {
           format: 'Please enter a valid date format',
         },
       },

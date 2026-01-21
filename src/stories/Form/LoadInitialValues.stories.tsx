@@ -202,7 +202,6 @@ export const SchemaLevelLoadInitialValues: Story = {
 };
 
 const LoadInitialValuesDemoForm = () => {
-  const form = useForm({});
   const [loadingStatus, setLoadingStatus] = useState<string>('');
   const [loadedIds, setLoadedIds] = useState<string[]>([]);
 
@@ -234,7 +233,7 @@ const LoadInitialValuesDemoForm = () => {
 
     if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
       params.setIdMap((state) => {
-        return { ...state, ...returnedIdMap };
+        return { ...state, ...returnedIdMap } as Record<string, unknown>;
       });
     }
 
@@ -262,6 +261,8 @@ const LoadInitialValuesDemoForm = () => {
       } as CustomJSONSchema7,
     },
   };
+
+  const form = useForm({ schema });
 
   // Function to manually load initial values using schema's loadInitialValues
   const handleLoadInitialValues = async (ids: string[]) => {
@@ -643,13 +644,6 @@ const result = await loadInitialValuesFn({
 
 // Story 2: Schema-level loadInitialValues
 const SchemaLevelLoadInitialValuesForm = () => {
-  const form = useForm({
-    preLoadedValues: {
-      featured_product: 'prod-2',
-      related_products: ['prod-1', 'prod-3'],
-    },
-  });
-
   // Custom loadInitialValues implementation
   const customLoadInitialValues = async (
     params: LoadInitialValuesParams
@@ -679,7 +673,7 @@ const SchemaLevelLoadInitialValuesForm = () => {
 
     if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
       params.setIdMap((state) => {
-        return { ...state, ...returnedIdMap };
+        return { ...state, ...returnedIdMap } as Record<string, unknown>;
       });
     }
 
@@ -717,7 +711,7 @@ const SchemaLevelLoadInitialValuesForm = () => {
 
     if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
       params.setIdMap((state) => {
-        return { ...state, ...returnedIdMap };
+        return { ...state, ...returnedIdMap } as Record<string, unknown>;
       });
     }
 
@@ -751,6 +745,14 @@ const SchemaLevelLoadInitialValuesForm = () => {
       } as CustomJSONSchema7,
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {
+      featured_product: 'prod-2',
+      related_products: ['prod-1', 'prod-3'],
+    },
+  });
 
   return (
     <VStack gap={6} align="stretch" p={4}>

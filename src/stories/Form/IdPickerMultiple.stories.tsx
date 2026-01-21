@@ -359,8 +359,6 @@ const IdPickerMultipleForm = () => {
     string,
     unknown
   > | null>(null);
-  const form = useForm({});
-
   const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'Project Team Assignment',
@@ -374,13 +372,7 @@ const IdPickerMultipleForm = () => {
           type: 'string',
         },
         customQueryFn: customTeamMemberQueryFn,
-        loadInitialValues: async (params: {
-          ids: string[];
-          customQueryFn: any;
-          setIdMap: React.Dispatch<
-            React.SetStateAction<Record<string, object>>
-          >;
-        }) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -402,8 +394,8 @@ const IdPickerMultipleForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
-              return { ...state, ...returnedIdMap };
+            params.setIdMap((state) => {
+              return { ...state, ...returnedIdMap } as Record<string, unknown>;
             });
           }
           return { data, idMap: returnedIdMap || {} };
@@ -418,13 +410,7 @@ const IdPickerMultipleForm = () => {
           type: 'string',
         },
         customQueryFn: customTeamMemberQueryFn,
-        loadInitialValues: async (params: {
-          ids: string[];
-          customQueryFn: any;
-          setIdMap: React.Dispatch<
-            React.SetStateAction<Record<string, object>>
-          >;
-        }) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -446,8 +432,8 @@ const IdPickerMultipleForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
-              return { ...state, ...returnedIdMap };
+            params.setIdMap((state) => {
+              return { ...state, ...returnedIdMap } as Record<string, unknown>;
             });
           }
           return { data, idMap: returnedIdMap || {} };
@@ -462,13 +448,7 @@ const IdPickerMultipleForm = () => {
           type: 'string',
         },
         customQueryFn: customTeamMemberQueryFn,
-        loadInitialValues: async (params: {
-          ids: string[];
-          customQueryFn: any;
-          setIdMap: React.Dispatch<
-            React.SetStateAction<Record<string, object>>
-          >;
-        }) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -490,8 +470,8 @@ const IdPickerMultipleForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
-              return { ...state, ...returnedIdMap };
+            params.setIdMap((state) => {
+              return { ...state, ...returnedIdMap } as Record<string, unknown>;
             });
           }
           return { data, idMap: returnedIdMap || {} };
@@ -507,13 +487,7 @@ const IdPickerMultipleForm = () => {
         },
         customQueryFn: customTeamMemberQueryFn,
         renderDisplay: renderRichDisplay, // Custom rendering function
-        loadInitialValues: async (params: {
-          ids: string[];
-          customQueryFn: any;
-          setIdMap: React.Dispatch<
-            React.SetStateAction<Record<string, object>>
-          >;
-        }) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -535,8 +509,8 @@ const IdPickerMultipleForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
-              return { ...state, ...returnedIdMap };
+            params.setIdMap((state) => {
+              return { ...state, ...returnedIdMap } as Record<string, unknown>;
             });
           }
           return { data, idMap: returnedIdMap || {} };
@@ -544,6 +518,8 @@ const IdPickerMultipleForm = () => {
       },
     },
   };
+
+  const form = useForm({ schema });
 
   return (
     <VStack gap={6} align="stretch" p={4}>

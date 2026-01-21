@@ -3,7 +3,7 @@ import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { JSONSchema7 } from 'json-schema';
+import type { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
 import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
 import {
   Heading,
@@ -185,16 +185,8 @@ export const IdPickerWithInitialValues: Story = {
 const IdPickerInitialValuesForm = () => {
   // Pre-load form with initial values
   // These should trigger the query on mount and display correctly
-  const form = useForm({
-    preLoadedValues: {
-      // Single IdPicker with initial value
-      manager: 'emp-2', // Bob Wong
-      // Multiple IdPicker with initial values array
-      team_members: ['emp-1', 'emp-3', 'emp-5'], // Alice Chen, Charlie Lee, Edward Lam
-    },
-  });
 
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     title: 'Team Assignment Form',
     required: ['manager'],
@@ -204,13 +196,7 @@ const IdPickerInitialValuesForm = () => {
         type: 'string',
         variant: 'id-picker',
         customQueryFn: customEmployeeQueryFn,
-        loadInitialValues: async (params: {
-          ids: string[];
-          customQueryFn: any;
-          setIdMap: React.Dispatch<
-            React.SetStateAction<Record<string, object>>
-          >;
-        }) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -232,8 +218,8 @@ const IdPickerInitialValuesForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
-              return { ...state, ...returnedIdMap };
+            params.setIdMap((state) => {
+              return { ...state, ...returnedIdMap } as Record<string, unknown>;
             });
           }
           return { data, idMap: returnedIdMap || {} };
@@ -248,13 +234,7 @@ const IdPickerInitialValuesForm = () => {
           type: 'string',
         },
         customQueryFn: customEmployeeQueryFn,
-        loadInitialValues: async (params: {
-          ids: string[];
-          customQueryFn: any;
-          setIdMap: React.Dispatch<
-            React.SetStateAction<Record<string, object>>
-          >;
-        }) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -276,8 +256,8 @@ const IdPickerInitialValuesForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
-              return { ...state, ...returnedIdMap };
+            params.setIdMap((state) => {
+              return { ...state, ...returnedIdMap } as Record<string, unknown>;
             });
           }
           return { data, idMap: returnedIdMap || {} };
@@ -285,6 +265,16 @@ const IdPickerInitialValuesForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: {
+      // Single IdPicker with initial value
+      manager: 'emp-2', // Bob Wong
+      // Multiple IdPicker with initial values array
+      team_members: ['emp-1', 'emp-3', 'emp-5'], // Alice Chen, Charlie Lee, Edward Lam
+    },
+  });
 
   return (
     <VStack gap={6} align="stretch" p={4}>

@@ -1,5 +1,8 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
-import { CustomQueryFnParams } from '@/components/Form/components/types/CustomJSONSchema7';
+import {
+  CustomQueryFnParams,
+  CustomJSONSchema7,
+} from '@/components/Form/components/types/CustomJSONSchema7';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
 import { Button, Dialog } from '@chakra-ui/react';
@@ -35,9 +38,6 @@ export const InsideDialog: Story = {
 };
 
 const SomeForm = () => {
-  const form = useForm({
-    preLoadedValues: { parent_id: 'nice' },
-  });
   const [open, setOpen] = useState(false);
 
   // Mock query function for id-picker
@@ -85,7 +85,7 @@ const SomeForm = () => {
     };
   };
 
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       someTextarea: {
@@ -109,13 +109,7 @@ const SomeForm = () => {
         type: 'string',
         variant: 'id-picker',
         customQueryFn: mockGeolocationQueryFn,
-        loadInitialValues: async (params: {
-          ids: string[];
-          customQueryFn: any;
-          setIdMap: React.Dispatch<
-            React.SetStateAction<Record<string, object>>
-          >;
-        }) => {
+        loadInitialValues: async (params) => {
           if (!params.ids || params.ids.length === 0) {
             return { data: { data: [], count: 0 }, idMap: {} };
           }
@@ -137,8 +131,8 @@ const SomeForm = () => {
             ],
           });
           if (returnedIdMap && Object.keys(returnedIdMap).length > 0) {
-            params.setIdMap((state: Record<string, object>) => {
-              return { ...state, ...returnedIdMap };
+            params.setIdMap((state) => {
+              return { ...state, ...returnedIdMap } as Record<string, unknown>;
             });
           }
           return { data, idMap: returnedIdMap || {} };
@@ -171,6 +165,11 @@ const SomeForm = () => {
       },
     },
   };
+
+  const form = useForm({
+    schema,
+    preLoadedValues: { parent_id: 'nice' },
+  });
 
   return (
     <>

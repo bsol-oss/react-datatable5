@@ -1,7 +1,6 @@
 import { DefaultForm } from '@/components/Form/components/core/DefaultForm';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
-import { Box, Button, Text, VStack, HStack } from '@chakra-ui/react';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CustomJSONSchema7 } from '@/components/Form/components/types/CustomJSONSchema7';
@@ -49,11 +48,7 @@ export const CustomSuccess: Story = {
 
 // Story 1: Default Success Behavior
 const DefaultSuccessForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       name: {
@@ -84,6 +79,8 @@ const DefaultSuccessForm = () => {
       format: 'Please enter a valid email address',
     },
   };
+
+  const form = useForm({ schema, preLoadedValues: {} });
 
   return (
     <DefaultForm
@@ -102,11 +99,7 @@ const DefaultSuccessForm = () => {
 
 // Story 2: Custom Success Component
 const CustomSuccessForm = () => {
-  const form = useForm({
-    preLoadedValues: {},
-  });
-
-  const schema = {
+  const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
       name: {
@@ -137,6 +130,8 @@ const CustomSuccessForm = () => {
       format: 'Please enter a valid email address',
     },
   };
+
+  const form = useForm({ schema, preLoadedValues: {} });
 
   return (
     <DefaultForm

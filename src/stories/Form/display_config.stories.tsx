@@ -33,10 +33,6 @@ export const displayConfig: Story = {
 };
 
 const SomeForm = () => {
-  const { form, idMap, setIdMap } = useForm({
-    preLoadedValues: { someTextArea: 'nice', someNumber: 10 },
-  });
-
   const schema: CustomJSONSchema7 = {
     type: 'object',
     properties: {
@@ -52,6 +48,11 @@ const SomeForm = () => {
     },
     required: ['someTextarea', 'someNumber'],
   };
+
+  const { form, idMap, setIdMap } = useForm({
+    schema,
+    preLoadedValues: { someTextArea: 'nice', someNumber: 10 },
+  });
 
   return (
     <>

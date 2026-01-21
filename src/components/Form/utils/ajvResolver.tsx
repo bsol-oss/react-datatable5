@@ -1,4 +1,9 @@
-import { FieldValues, Resolver, FieldErrors } from 'react-hook-form';
+import {
+  FieldValues,
+  Resolver,
+  FieldErrors,
+  ResolverResult,
+} from 'react-hook-form';
 import { ErrorObject } from 'ajv';
 import { CustomJSONSchema7 } from '../components/types/CustomJSONSchema7';
 import { validateData } from './validateData';
@@ -192,7 +197,7 @@ export const convertAjvErrorsToFieldErrors = (
 export const ajvResolver = <T extends FieldValues>(
   schema: CustomJSONSchema7
 ): Resolver<T> => {
-  return async (values) => {
+  return async (values): Promise<ResolverResult<T>> => {
     try {
       // Strip empty values before validation
       const cleanedValues = stripEmptyValues(values);
@@ -209,7 +214,7 @@ export const ajvResolver = <T extends FieldValues>(
         return {
           values: (cleanedValues || {}) as T,
           errors: {} as FieldErrors<T>,
-        };
+        } as ResolverResult<T>;
       }
       const fieldErrors = convertAjvErrorsToFieldErrors(errors, schema);
       console.debug('AJV Validation Failed:', {
@@ -219,12 +224,12 @@ export const ajvResolver = <T extends FieldValues>(
         valuesToValidate,
       });
       return {
-        values: values as T,
-        errors: fieldErrors as FieldErrors<T>,
-      };
+        values: {} as Record<string, never>,
+        errors: fieldErrors as unknown as FieldErrors<T>,
+      } as ResolverResult<T>;
     } catch (error) {
       return {
-        values: {} as T,
+        values: {} as Record<string, never>,
         errors: {
           root: {
             type: 'validation',

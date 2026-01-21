@@ -300,15 +300,16 @@ export const useIdPickerData = ({
       return fallbackLabel;
     };
 
-    const itemsFromDataList = dataList.map((item: RecordType) => {
-      const rendered = renderFn(item);
+    const itemsFromDataList = (dataList as unknown[]).map((item: unknown) => {
+      const typedItem = item as RecordType;
+      const rendered = renderFn(typedItem);
       const label =
-        typeof rendered === 'string' ? rendered : JSON.stringify(item); // Use string for filtering
+        typeof rendered === 'string' ? rendered : JSON.stringify(typedItem); // Use string for filtering
       return {
         label, // Use string for filtering
         displayLabel: getDisplayString(rendered, label), // String representation for input display
-        value: itemToValueFn(item),
-        raw: item,
+        value: itemToValueFn(typedItem),
+        raw: typedItem,
       };
     });
 

@@ -370,7 +370,7 @@ export const activitiesSchema: CustomJSONSchema7 = {
       gridColumn: '1/span 12',
       gridRow: '1/span 1',
       customQueryFn: async (params: CustomQueryFnParams) => {
-        const data = await axios.get(
+        const response = await axios.get(
           `http://localhost:8081/api/g/core_people`,
           {
             params: {
@@ -380,7 +380,18 @@ export const activitiesSchema: CustomJSONSchema7 = {
             },
           }
         );
-        return data;
+        const data = response.data?.data || [];
+        const count = response.data?.count || 0;
+        const idMap: Record<string, unknown> = {};
+        data.forEach((item: any) => {
+          if (item.id) {
+            idMap[item.id] = item;
+          }
+        });
+        return {
+          data: { data, count },
+          idMap,
+        };
       },
     },
     start_date: {
@@ -696,7 +707,7 @@ export const eventsFilesSchema = {
   additionalProperties: false,
 };
 
-export const eventsFilesSchema2 = {
+export const eventsFilesSchema2: CustomJSONSchema7 = {
   type: 'object',
   title: 'events_files',
   required: ['event_id', 'file_id'],
