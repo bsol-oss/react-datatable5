@@ -42,7 +42,6 @@ const SomeForm = () => {
     <DefaultForm
       formConfig={{
         schema: eventsFilesSchema2,
-        ignore: ['id', 'created_at', 'updated_at'],
         onSubmit: async (data) => {
           const body = data['file_id'].map((file_id: string) => {
             return {

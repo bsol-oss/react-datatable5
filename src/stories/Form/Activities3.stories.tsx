@@ -314,19 +314,8 @@ const SomeForm = () => {
       <DefaultForm
         formConfig={{
           schema: localizedSchema,
-          ignore: ['id', 'created_at', 'updated_at'],
           onSubmit: async (data) => {
             console.log('onSubmit', data);
-          },
-          getUpdatedData: async () => {
-            // Note: getTableData no longer accepts serverUrl. Use customQueryFn instead.
-            // const response = await getTableData({
-            //   searching: 'e8ad43bf-e00f-4633-b334-68c0f3fd6ead',
-            //   limit: 10,
-            //   offset: 0,
-            // });
-            const response = { data: [], count: 0 }; // Mock data since getTableData requires customQueryFn
-            return response.data[0];
           },
           // Apply labels based on selected language
           ...labels,

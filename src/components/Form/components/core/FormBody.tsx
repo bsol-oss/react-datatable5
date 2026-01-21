@@ -5,17 +5,7 @@ import { ColumnRenderer } from '../fields/ColumnRenderer';
 import { SubmitButton } from './SubmitButton';
 
 export const FormBody = () => {
-  const {
-    schema,
-    order,
-    ignore,
-    include,
-    isError,
-    error,
-    customErrorRenderer,
-    displayConfig,
-    formButtonLabels,
-  } = useSchemaContext();
+  const { schema, displayConfig, formButtonLabels } = useSchemaContext();
   const { showSubmitButton, showResetButton } = displayConfig;
   const methods = useFormContext();
 
@@ -23,36 +13,7 @@ export const FormBody = () => {
 
   const { properties } = schema;
 
-  interface renderColumnsConfig {
-    order: string[];
-    keys: string[];
-    ignore: string[];
-    include: string[];
-  }
-
-  const renderColumns = ({
-    order,
-    keys,
-    ignore,
-    include,
-  }: renderColumnsConfig) => {
-    const included = include.length > 0 ? include : keys;
-    const not_exist = included.filter(
-      (columnA) => !order.some((columnB) => columnA === columnB)
-    );
-    const ordered = [...order, ...not_exist];
-    const ignored = ordered.filter(
-      (column) => !ignore.some((shouldIgnore) => column === shouldIgnore)
-    );
-    return ignored;
-  };
-
-  const ordered = renderColumns({
-    order,
-    keys: Object.keys(properties as object),
-    ignore,
-    include,
-  });
+  const ordered = Object.keys(properties as object);
 
   return (
     <Flex flexFlow={'column'} gap="2">
@@ -83,7 +44,6 @@ export const FormBody = () => {
         )}
         {showSubmitButton && <SubmitButton />}
       </Flex>
-      {isError && customErrorRenderer && customErrorRenderer(error)}
     </Flex>
   );
 };

@@ -40,7 +40,6 @@ const SomeForm = () => {
     <DefaultForm
       formConfig={{
         schema: activitiesSchema,
-        ignore: ['id', 'created_at', 'updated_at'],
         ...form,
       }}
     />

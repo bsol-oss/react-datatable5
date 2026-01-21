@@ -147,63 +147,6 @@ const CustomSuccessForm = () => {
           // Simulate API call
           await new Promise((resolve) => setTimeout(resolve, 1000));
         },
-        customSuccessRenderer: (resetHandler) => (
-          <Box
-            bg="green.50"
-            border="2px solid"
-            borderColor="green.200"
-            borderRadius="lg"
-            p={8}
-            textAlign="center"
-            boxShadow="lg"
-          >
-            <VStack gap={6}>
-              {/* Celebration Icon */}
-              <Box fontSize="4xl">🎉</Box>
-
-              {/* Success Message */}
-              <VStack gap={2}>
-                <Text fontSize="2xl" fontWeight="bold" color="green.700">
-                  Success!
-                </Text>
-                <Text color="green.600" fontSize="lg">
-                  Your form has been submitted successfully.
-                </Text>
-                <Text color="gray.600" fontSize="sm">
-                  Thank you for your submission. We'll get back to you soon!
-                </Text>
-              </VStack>
-
-              {/* Custom Action Buttons */}
-              <HStack gap={4}>
-                <Button
-                  onClick={resetHandler}
-                  colorScheme="green"
-                  variant="solid"
-                  size="lg"
-                >
-                  Submit Another Form
-                </Button>
-                <Button
-                  onClick={() => window.location.reload()}
-                  variant="outline"
-                  colorScheme="green"
-                  size="lg"
-                >
-                  Start Over
-                </Button>
-              </HStack>
-
-              {/* Additional Info */}
-              <Box bg="green.100" borderRadius="md" p={3} w="full">
-                <Text fontSize="sm" color="green.700">
-                  💡 Tip: You can customize this success screen by providing a
-                  customSuccessRenderer prop
-                </Text>
-              </Box>
-            </VStack>
-          </Box>
-        ),
         ...form,
       }}
     />

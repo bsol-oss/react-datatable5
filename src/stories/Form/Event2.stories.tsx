@@ -64,8 +64,6 @@ const SomeForm = () => {
     <DefaultForm
       formConfig={{
         schema: schemaWithTitle,
-        include: ['name'],
-        ignore: ['id', 'created_at', 'updated_at'],
         ...form,
       }}
     />
