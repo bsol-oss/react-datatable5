@@ -4445,6 +4445,7 @@ function DatePickerInput({ value, onChange, placeholder = 'Select a date', dateF
 }, timezone = 'Asia/Hong_Kong', minDate, maxDate, firstDayOfWeek, showOutsideDays, monthsToDisplay = 1, insideDialog = false, readOnly = false, showHelperButtons = true, }) {
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
+    const initialFocusEl = useRef(null);
     // Sync inputValue with value prop changes
     useEffect(() => {
         if (value) {
@@ -4580,7 +4581,7 @@ function DatePickerInput({ value, onChange, placeholder = 'Select a date', dateF
     const yesterday = getYesterday();
     const tomorrow = getTomorrow();
     const datePickerContent = (jsxs(Grid, { gap: 2, children: [showHelperButtons && (jsxs(Grid, { templateColumns: "repeat(3, 1fr)", gap: 2, children: [jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleHelperButtonClick(yesterday), disabled: !isDateValid(yesterday), children: labels.yesterdayLabel ?? 'Yesterday' }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleHelperButtonClick(today), disabled: !isDateValid(today), children: labels.todayLabel ?? 'Today' }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleHelperButtonClick(tomorrow), disabled: !isDateValid(tomorrow), children: labels.tomorrowLabel ?? 'Tomorrow' })] })), jsx(DatePicker$1, { selected: selectedDate, onDateSelected: handleDateSelected, labels: labels, minDate: minDate, maxDate: maxDate, firstDayOfWeek: firstDayOfWeek, showOutsideDays: showOutsideDays, monthsToDisplay: monthsToDisplay })] }));
-    return (jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(InputGroup, { endElement: jsx(Popover.Trigger, { asChild: true, children: jsx(IconButton, { variant: "ghost", size: "2xs", "aria-label": "Open calendar", onClick: () => setOpen(true), children: jsx(Icon, { children: jsx(MdDateRange, {}) }) }) }), children: jsx(Input, { value: inputValue, onChange: handleInputChange, onBlur: handleInputBlur, onKeyDown: handleKeyDown, placeholder: placeholder, readOnly: readOnly }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) }))] }));
+    return (jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: false, autoFocus: false, initialFocusEl: () => initialFocusEl.current, children: [jsx(InputGroup, { endElement: jsx(Popover.Trigger, { asChild: true, children: jsx(IconButton, { variant: "ghost", size: "2xs", "aria-label": "Open calendar", onClick: () => setOpen(true), children: jsx(Icon, { children: jsx(MdDateRange, {}) }) }) }), children: jsx(Input, { value: inputValue, onChange: handleInputChange, onBlur: handleInputBlur, onKeyDown: handleKeyDown, placeholder: placeholder, readOnly: readOnly, ref: initialFocusEl }) }), jsx(Portal, { disabled: insideDialog, children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) })] }));
 }
 
 dayjs.extend(utc);
@@ -4597,6 +4598,7 @@ const DatePicker = ({ column, schema, prefix }) => {
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const selectedDate = watch(colLabel);
+    const initialFocusEl = useRef(null);
     // Update input value when form value changes
     useEffect(() => {
         if (selectedDate) {
@@ -4747,8 +4749,8 @@ const DatePicker = ({ column, schema, prefix }) => {
         setOpen(false);
     };
     const datePickerContent = (jsx(DatePicker$1, { selected: selectedDateObj, onDateSelected: handleDateSelected, labels: datePickerLabels }));
-    return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(InputGroup, { endElement: jsx(Popover.Trigger, { asChild: true, children: jsx(IconButton, { variant: "ghost", size: "2xs", "aria-label": "Open calendar", onClick: () => setOpen(true), children: jsx(Icon, { children: jsx(MdDateRange, {}) }) }) }), children: jsx(Input, { value: inputValue, onChange: handleInputChange, onBlur: handleInputBlur, onKeyDown: handleKeyDown, placeholder: formI18n.label(), size: "sm" }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) }))] }) }));
+    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsx("input", { type: "hidden", name: colLabel, value: selectedDate ?? '', readOnly: true, "aria-hidden": true }), jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), initialFocusEl: () => initialFocusEl.current, closeOnInteractOutside: false, autoFocus: false, children: [jsx(InputGroup, { endElement: jsx(Popover.Trigger, { asChild: true, children: jsx(IconButton, { variant: "ghost", size: "2xs", "aria-label": "Open calendar", onClick: () => setOpen(true), children: jsx(Icon, { children: jsx(MdDateRange, {}) }) }) }), children: jsx(Input, { value: inputValue, onChange: handleInputChange, onBlur: handleInputBlur, onKeyDown: handleKeyDown, placeholder: formI18n.label(), ref: initialFocusEl, size: "sm", "aria-label": formI18n.label() }) }), jsx(Portal, { disabled: insideDialog, children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minH: "25rem", children: jsx(Popover.Body, { children: datePickerContent }) }) }) })] })] }));
 };
 
 dayjs.extend(utc);
@@ -6854,7 +6856,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     backButtonLabel: 'Back',
     forwardButtonLabel: 'Forward',
-}, timePickerLabels, timezone: tz = 'Asia/Hong_Kong', startTime, minDate, maxDate, portalled = false, defaultDate, defaultTime, showQuickActions = false, quickActionLabels = {
+}, timePickerLabels, timezone: tz = 'Asia/Hong_Kong', startTime, minDate, maxDate, portalled = false, defaultDate, defaultTime, quickActionLabels = {
     yesterday: 'Yesterday',
     today: 'Today',
     tomorrow: 'Tomorrow',
@@ -6878,9 +6880,11 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         }
         if (defaultDate) {
             const defaultDateObj = dayjs(defaultDate).tz(tz);
-            return defaultDateObj.isValid() ? defaultDateObj.toDate() : new Date();
+            return defaultDateObj.isValid()
+                ? defaultDateObj.toDate()
+                : dayjs().tz(tz).toDate();
         }
-        return new Date();
+        return dayjs().tz(tz).toDate();
     });
     // Initialize time state
     const [hour, setHour] = useState(() => {
@@ -6920,8 +6924,8 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         }
         return is24Hour ? null : 'am';
     });
+    const dateInitialFocusEl = useRef(null);
     // Popover state - separate for date, time, and timezone
-    const [datePopoverOpen, setDatePopoverOpen] = useState(false);
     const [timePopoverOpen, setTimePopoverOpen] = useState(false);
     const [timezonePopoverOpen, setTimezonePopoverOpen] = useState(false);
     const [calendarPopoverOpen, setCalendarPopoverOpen] = useState(false);
@@ -7061,43 +7065,13 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             parseAndValidateDateInput(dateInputValue);
         }
     };
-    // Helper functions to get dates in the correct timezone
-    const getToday = () => dayjs().tz(tz).startOf('day').toDate();
-    const getYesterday = () => dayjs().tz(tz).subtract(1, 'day').startOf('day').toDate();
-    const getTomorrow = () => dayjs().tz(tz).add(1, 'day').startOf('day').toDate();
-    const getPlus7Days = () => dayjs().tz(tz).add(7, 'day').startOf('day').toDate();
-    // Check if a date is within min/max constraints
-    const isDateValid = (date) => {
-        if (minDate) {
-            const minDateStart = dayjs(minDate).tz(tz).startOf('day').toDate();
-            const dateStart = dayjs(date).tz(tz).startOf('day').toDate();
-            if (dateStart < minDateStart)
-                return false;
-        }
-        if (maxDate) {
-            const maxDateStart = dayjs(maxDate).tz(tz).startOf('day').toDate();
-            const dateStart = dayjs(date).tz(tz).startOf('day').toDate();
-            if (dateStart > maxDateStart)
-                return false;
-        }
-        return true;
-    };
-    // Handle quick action button clicks
-    const handleQuickActionClick = (date) => {
-        if (isDateValid(date)) {
-            setSelectedDate(date);
-            updateDateTime(date, hour, minute, second, meridiem);
-            // Close the calendar popover if open
-            setCalendarPopoverOpen(false);
-        }
-    };
     // Display text for buttons
-    const dateDisplayText = useMemo(() => {
+    useMemo(() => {
         if (!selectedDate)
             return labels?.selectDateLabel ?? 'Select date';
         return dayjs(selectedDate).tz(tz).format('YYYY-MM-DD');
     }, [selectedDate, tz, labels]);
-    const timeDisplayText = useMemo(() => {
+    useMemo(() => {
         const selectTimeLabel = timePickerLabels?.selectTimeLabel ?? 'Select time';
         if (hour === null || minute === null)
             return selectTimeLabel;
@@ -7226,6 +7200,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     const handleDateSelected = ({ date, }) => {
         setSelectedDate(date);
         updateDateTime(date, hour, minute, second, meridiem);
+        setCalendarPopoverOpen(false);
     };
     // Handle time change
     const handleTimeChange = (newHour, newMinute, newSecond, newMeridiem) => {
@@ -7503,14 +7478,13 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
             if (hour === null || minute === null) {
                 return '';
             }
-            const s = second ?? 0;
-            return `${hour}:${minute}:${s}`;
+            return `${hour}:${minute}`;
         }
         else {
             if (hour === null || minute === null || meridiem === null) {
                 return '';
             }
-            return `${hour}:${minute}:${meridiem}`;
+            return `${(hour % 12 || 12).toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${meridiem}`;
         }
     }, [hour, minute, second, meridiem, is24Hour]);
     // Parse custom time input formats like "1400", "2pm", "14:00", "2:00 PM"
@@ -7651,13 +7625,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         }
         return { hour: null, minute: null, second: null, meridiem: null };
     };
-    const handleTimeValueChange = (details) => {
-        if (details.value.length === 0) {
-            handleTimeChange(null, null, null, null);
-            filter('');
-            return;
-        }
-        const selectedValue = details.value[0];
+    const handleTimeOptionSelect = (selectedValue) => {
         const selectedOption = timeOptions.find((opt) => opt.value === selectedValue);
         if (selectedOption) {
             filter('');
@@ -7669,19 +7637,28 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                 const opt12 = selectedOption;
                 handleTimeChange(opt12.hour, opt12.minute, null, opt12.meridiem);
             }
+            setTimePopoverOpen(false);
         }
     };
     // Track the current input value for Enter key handling
     const [timeInputValue, setTimeInputValue] = useState('');
-    const handleTimeInputChange = (details) => {
-        // Store the input value and filter
-        setTimeInputValue(details.inputValue);
-        filter(details.inputValue);
+    const timeInitialFocusEl = useRef(null);
+    const timeDisplayValue = timePopoverOpen ? timeInputValue : currentTimeValue;
+    const handleTimeInputChange = (e) => {
+        const value = e.target.value;
+        setTimeInputValue(value);
+        filter(value);
     };
     const handleTimeInputKeyDown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            // Use the stored input value
+            const trimmed = timeInputValue.trim();
+            if (trimmed === '') {
+                filter('');
+                setTimeInputValue('');
+                setTimePopoverOpen(false);
+                return;
+            }
             const parsed = parseCustomTimeInput(timeInputValue);
             if (parsed.hour !== null && parsed.minute !== null) {
                 if (is24Hour) {
@@ -7689,27 +7666,21 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                 }
                 else {
                     if (parsed.meridiem !== null) {
-                        handleTimeChange(parsed.hour, parsed.minute, null, parsed.meridiem);
+                        handleTimeChange(parsed.hour, parsed.minute, parsed.second, parsed.meridiem);
                     }
                 }
-                // Clear the filter and input value after applying
                 filter('');
                 setTimeInputValue('');
-                // Close the popover if value is valid
                 setTimePopoverOpen(false);
             }
         }
     };
-    return (jsxs(Flex, { direction: "row", gap: 2, align: "center", children: [jsxs(Popover.Root, { open: datePopoverOpen, onOpenChange: (e) => setDatePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button$1, { size: "sm", variant: "outline", onClick: () => setDatePopoverOpen(true), justifyContent: "start", children: [jsx(MdDateRange, {}), dateDisplayText] }) }), portalled ? (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", children: jsx(Popover.Body, { p: 4, children: jsxs(Grid, { gap: 4, children: [jsx(InputGroup$1, { endElement: jsxs(Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsx(MdDateRange, {}) }) }), jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", zIndex: 1500, children: jsx(Popover.Body, { p: 4, children: jsx(DatePickerContext.Provider, { value: { labels: calendarLabels }, children: jsx(Calendar, { ...calendarProps, firstDayOfWeek: 0 }) }) }) }) }) })] }), children: jsx(Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD" }) }), showQuickActions && (jsxs(Grid, { templateColumns: "repeat(4, 1fr)", gap: 2, children: [jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getYesterday()), disabled: !isDateValid(getYesterday()), children: quickActionLabels.yesterday }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getToday()), disabled: !isDateValid(getToday()), children: quickActionLabels.today }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getTomorrow()), disabled: !isDateValid(getTomorrow()), children: quickActionLabels.tomorrow }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getPlus7Days()), disabled: !isDateValid(getPlus7Days()), children: quickActionLabels.plus7Days })] }))] }) }) }) }) })) : (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", children: jsx(Popover.Body, { p: 4, children: jsxs(Grid, { gap: 4, children: [jsx(InputGroup$1, { endElement: jsxs(Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsx(MdDateRange, {}) }) }), jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", zIndex: 1700, children: jsx(Popover.Body, { p: 4, children: jsx(DatePickerContext.Provider, { value: { labels: calendarLabels }, children: jsx(Calendar, { ...calendarProps, firstDayOfWeek: 0 }) }) }) }) }) })] }), children: jsx(Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD" }) }), showQuickActions && (jsxs(Grid, { templateColumns: "repeat(4, 1fr)", gap: 2, children: [jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getYesterday()), disabled: !isDateValid(getYesterday()), children: quickActionLabels.yesterday }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getToday()), disabled: !isDateValid(getToday()), children: quickActionLabels.today }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getTomorrow()), disabled: !isDateValid(getTomorrow()), children: quickActionLabels.tomorrow }), jsx(Button$1, { size: "sm", variant: "outline", onClick: () => handleQuickActionClick(getPlus7Days()), disabled: !isDateValid(getPlus7Days()), children: quickActionLabels.plus7Days })] }))] }) }) }) }))] }), jsxs(Popover.Root, { open: timePopoverOpen, onOpenChange: (e) => setTimePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button$1, { size: "sm", variant: "outline", onClick: () => setTimePopoverOpen(true), justifyContent: "start", children: [jsx(BsClock, {}), timeDisplayText] }) }), portalled ? (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "300px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Combobox.Root, { value: currentTimeValue ? [currentTimeValue] : [], onValueChange: handleTimeValueChange, onInputValueChange: handleTimeInputChange, collection: collection, allowCustomValue: true, children: [jsxs(Combobox.Control, { children: [jsx(InputGroup$1, { startElement: jsx(BsClock, {}), children: jsx(Combobox.Input, { placeholder: timePickerLabels?.placeholder ??
-                                                                    (is24Hour ? 'HH:mm' : 'hh:mm AM/PM'), onKeyDown: handleTimeInputKeyDown }) }), jsx(Combobox.IndicatorGroup, { children: jsx(Combobox.Trigger, {}) })] }), jsx(Portal, { disabled: true, children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [jsx(Combobox.Empty, { children: timePickerLabels?.emptyMessage ??
-                                                                        'No time found' }), collection.items.map((item) => {
-                                                                    const option = item;
-                                                                    return (jsxs(Combobox.Item, { item: item, children: [jsxs(Flex, { justify: "space-between", align: "center", w: "100%", children: [jsx(Text, { children: option.label }), option.durationText && (jsx(Text, { fontSize: "xs", color: "gray.500", children: option.durationText }))] }), jsx(Combobox.ItemIndicator, {})] }, option.value));
-                                                                })] }) }) })] }) }) }) }) }) })) : (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "300px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Combobox.Root, { value: currentTimeValue ? [currentTimeValue] : [], onValueChange: handleTimeValueChange, onInputValueChange: handleTimeInputChange, collection: collection, allowCustomValue: true, children: [jsxs(Combobox.Control, { children: [jsx(InputGroup$1, { startElement: jsx(BsClock, {}), children: jsx(Combobox.Input, { placeholder: timePickerLabels?.placeholder ??
-                                                                (is24Hour ? 'HH:mm' : 'hh:mm AM/PM'), onKeyDown: handleTimeInputKeyDown }) }), jsx(Combobox.IndicatorGroup, { children: jsx(Combobox.Trigger, {}) })] }), jsx(Portal, { disabled: true, children: jsx(Combobox.Positioner, { children: jsxs(Combobox.Content, { children: [jsx(Combobox.Empty, { children: timePickerLabels?.emptyMessage ?? 'No time found' }), collection.items.map((item) => {
-                                                                const option = item;
-                                                                return (jsxs(Combobox.Item, { item: item, children: [jsxs(Flex, { justify: "space-between", align: "center", w: "100%", children: [jsx(Text, { children: option.label }), option.durationText && (jsx(Text, { fontSize: "xs", color: "gray.500", children: option.durationText }))] }), jsx(Combobox.ItemIndicator, {})] }, option.value));
-                                                            })] }) }) })] }) }) }) }) }))] }), showTimezoneSelector && (jsxs(Popover.Root, { open: timezonePopoverOpen, onOpenChange: (e) => setTimezonePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { size: "sm", variant: "outline", onClick: () => setTimezonePopoverOpen(true), justifyContent: "start", children: timezoneDisplayText || 'Select timezone' }) }), portalled ? (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "250px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Select.Root, { size: "sm", collection: timezoneCollection, value: validTimezoneOffset ? [validTimezoneOffset] : [], onValueChange: (e) => {
+    return (jsxs(HStack, { justifyContent: 'start', alignItems: 'center', gap: 2, children: [jsx(InputGroup$1, { endElement: jsxs(Popover.Root, { open: calendarPopoverOpen, onOpenChange: (e) => setCalendarPopoverOpen(e.open), closeOnInteractOutside: false, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { variant: "ghost", size: "xs", "aria-label": "Open calendar", onClick: () => setCalendarPopoverOpen(true), children: jsx(MdDateRange, {}) }) }), jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", zIndex: 1500, children: jsx(Popover.Body, { p: 4, children: jsx(DatePickerContext.Provider, { value: { labels: calendarLabels }, children: jsx(Calendar, { ...calendarProps, firstDayOfWeek: 0 }) }) }) }) })] }), children: jsx(Input, { value: dateInputValue, onChange: handleDateInputChange, onBlur: handleDateInputBlur, onKeyDown: handleDateInputKeyDown, placeholder: "YYYY-MM-DD", ref: dateInitialFocusEl }) }), jsxs(Popover.Root, { open: timePopoverOpen, onOpenChange: (e) => setTimePopoverOpen(e.open), initialFocusEl: () => timeInitialFocusEl.current, closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(InputGroup$1, { startElement: jsx(BsClock, {}), children: jsx(Input, { value: timeDisplayValue, onChange: handleTimeInputChange, onKeyDown: handleTimeInputKeyDown, placeholder: timePickerLabels?.placeholder ??
+                                    (is24Hour ? 'HH:mm' : 'hh:mm AM/PM'), ref: timeInitialFocusEl }) }) }), jsx(Portal, { disabled: !portalled, children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { overflowY: "auto", children: jsx(Popover.Body, { p: 0, maxH: "70vh", width: "fit-content", children: collection.items.length === 0 ? (jsx(Text, { px: 3, py: 2, color: "gray.500", fontSize: "sm", children: timePickerLabels?.emptyMessage ?? 'No time found' })) : (collection.items.map((item) => {
+                                        const option = item;
+                                        const isSelected = option.value === currentTimeValue;
+                                        return (jsx(Button$1, { variant: "ghost", size: "sm", w: "100%", borderRadius: 0, fontWeight: isSelected ? 'semibold' : 'normal', onClick: () => handleTimeOptionSelect(option.value), children: jsxs(Flex, { justify: "space-between", align: "center", w: "100%", children: [jsx(Text, { children: option.label }), option.durationText && (jsx(Text, { fontSize: "xs", color: "gray.500", children: option.durationText }))] }) }, option.value));
+                                    })) }) }) }) })] }), showTimezoneSelector && (jsxs(Popover.Root, { open: timezonePopoverOpen, onOpenChange: (e) => setTimezonePopoverOpen(e.open), closeOnInteractOutside: true, autoFocus: false, children: [jsx(Popover.Trigger, { asChild: true, children: jsx(Button$1, { size: "sm", variant: "outline", onClick: () => setTimezonePopoverOpen(true), justifyContent: "start", children: timezoneDisplayText || 'Select timezone' }) }), jsx(Portal, { disabled: !portalled, children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "250px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Select.Root, { size: "sm", collection: timezoneCollection, value: validTimezoneOffset ? [validTimezoneOffset] : [], onValueChange: (e) => {
                                                 const newOffset = e.value[0];
                                                 if (newOffset) {
                                                     // Update controlled or internal state
@@ -7728,26 +7699,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
                                                     // Close popover after selection
                                                     setTimezonePopoverOpen(false);
                                                 }
-                                            }, children: [jsxs(Select.Control, { children: [jsx(Select.Trigger, {}), jsx(Select.IndicatorGroup, { children: jsx(Select.Indicator, {}) })] }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: timezoneCollection.items.map((item) => (jsxs(Select.Item, { item: item, children: [jsx(Select.ItemText, { children: item.label }), jsx(Select.ItemIndicator, {})] }, item.value))) }) })] }) }) }) }) }) })) : (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "250px", children: jsx(Popover.Body, { p: 4, children: jsx(Grid, { gap: 2, children: jsxs(Select.Root, { size: "sm", collection: timezoneCollection, value: validTimezoneOffset ? [validTimezoneOffset] : [], onValueChange: (e) => {
-                                            const newOffset = e.value[0];
-                                            if (newOffset) {
-                                                // Update controlled or internal state
-                                                if (onTimezoneOffsetChange) {
-                                                    onTimezoneOffsetChange(newOffset);
-                                                }
-                                                else {
-                                                    setInternalTimezoneOffset(newOffset);
-                                                }
-                                                // Update date-time with new offset (pass it directly to avoid stale state)
-                                                if (selectedDate &&
-                                                    hour !== null &&
-                                                    minute !== null) {
-                                                    updateDateTime(selectedDate, hour, minute, second, meridiem, newOffset);
-                                                }
-                                                // Close popover after selection
-                                                setTimezonePopoverOpen(false);
-                                            }
-                                        }, children: [jsxs(Select.Control, { children: [jsx(Select.Trigger, {}), jsx(Select.IndicatorGroup, { children: jsx(Select.Indicator, {}) })] }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: timezoneCollection.items.map((item) => (jsxs(Select.Item, { item: item, children: [jsx(Select.ItemText, { children: item.label }), jsx(Select.ItemIndicator, {})] }, item.value))) }) })] }) }) }) }) }))] }))] }));
+                                            }, children: [jsxs(Select.Control, { children: [jsx(Select.Trigger, {}), jsx(Select.IndicatorGroup, { children: jsx(Select.Indicator, {}) })] }), jsx(Select.Positioner, { children: jsx(Select.Content, { children: timezoneCollection.items.map((item) => (jsxs(Select.Item, { item: item, children: [jsx(Select.ItemText, { children: item.label }), jsx(Select.ItemIndicator, {})] }, item.value))) }) })] }) }) }) }) }) })] }))] }));
 }
 
 dayjs.extend(utc);
@@ -7805,8 +7757,8 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             }
         }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels, showQuickActions: dateTimePicker?.showQuickActions ?? false, quickActionLabels: dateTimePickerLabels?.quickActionLabels ??
             dateTimePicker?.quickActionLabels, showTimezoneSelector: dateTimePicker?.showTimezoneSelector ?? false }));
-    return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
-        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: dateTimePickerContent }));
+    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsx("input", { type: "hidden", name: colLabel, value: selectedDate ?? '', readOnly: true, "aria-hidden": true }), dateTimePickerContent] }));
 };
 
 const SchemaRenderer = ({ schema, prefix, column, }) => {

@@ -29,5 +29,5 @@ interface DateTimePickerProps {
     timezoneOffset?: string;
     onTimezoneOffsetChange?: (offset: string) => void;
 }
-export declare function DateTimePicker({ value, onChange, format, showSeconds, labels, timePickerLabels, timezone: tz, startTime, minDate, maxDate, portalled, defaultDate, defaultTime, showQuickActions, quickActionLabels, showTimezoneSelector, timezoneOffset: controlledTimezoneOffset, onTimezoneOffsetChange, }: DateTimePickerProps): import("react/jsx-runtime").JSX.Element;
+export declare function DateTimePicker({ value, onChange, format, showSeconds, labels, timePickerLabels, timezone: tz, startTime, minDate, maxDate, portalled, defaultDate, defaultTime, quickActionLabels, showTimezoneSelector, timezoneOffset: controlledTimezoneOffset, onTimezoneOffsetChange, }: DateTimePickerProps): import("react/jsx-runtime").JSX.Element;
 export {};
