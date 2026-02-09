@@ -107,6 +107,14 @@ export const DateTimePicker = ({
       errorText={<>{fieldError}</>}
       invalid={!!fieldError}
     >
+      {/* Hidden input stores the actual value for form submission */}
+      <input
+        type="hidden"
+        name={colLabel}
+        value={selectedDate ?? ''}
+        readOnly
+        aria-hidden
+      />
       {dateTimePickerContent}
     </Field>
   );

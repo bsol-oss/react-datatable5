@@ -1,8 +1,8 @@
 import {
   Button,
-  Combobox,
   Flex,
   Grid,
+  HStack,
   Input,
   InputGroup,
   Popover,
@@ -16,7 +16,13 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import React, { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+} from 'react';
 import { BsClock } from 'react-icons/bs';
 import { MdDateRange } from 'react-icons/md';
 import {
@@ -116,7 +122,6 @@ export function DateTimePicker({
   portalled = false,
   defaultDate,
   defaultTime,
-  showQuickActions = false,
   quickActionLabels = {
     yesterday: 'Yesterday',
     today: 'Today',
@@ -145,9 +150,11 @@ export function DateTimePicker({
     }
     if (defaultDate) {
       const defaultDateObj = dayjs(defaultDate).tz(tz);
-      return defaultDateObj.isValid() ? defaultDateObj.toDate() : new Date();
+      return defaultDateObj.isValid()
+        ? defaultDateObj.toDate()
+        : dayjs().tz(tz).toDate();
     }
-    return new Date();
+    return dayjs().tz(tz).toDate();
   });
 
   // Initialize time state
@@ -192,8 +199,8 @@ export function DateTimePicker({
     return is24Hour ? null : 'am';
   });
 
+  const dateInitialFocusEl = useRef<HTMLInputElement>(null);
   // Popover state - separate for date, time, and timezone
-  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [timePopoverOpen, setTimePopoverOpen] = useState(false);
   const [timezonePopoverOpen, setTimezonePopoverOpen] = useState(false);
   const [calendarPopoverOpen, setCalendarPopoverOpen] = useState(false);
@@ -350,15 +357,6 @@ export function DateTimePicker({
       parseAndValidateDateInput(dateInputValue);
     }
   };
-
-  // Helper functions to get dates in the correct timezone
-  const getToday = () => dayjs().tz(tz).startOf('day').toDate();
-  const getYesterday = () =>
-    dayjs().tz(tz).subtract(1, 'day').startOf('day').toDate();
-  const getTomorrow = () =>
-    dayjs().tz(tz).add(1, 'day').startOf('day').toDate();
-  const getPlus7Days = () =>
-    dayjs().tz(tz).add(7, 'day').startOf('day').toDate();
 
   // Check if a date is within min/max constraints
   const isDateValid = (date: Date) => {
@@ -535,6 +533,7 @@ export function DateTimePicker({
   }) => {
     setSelectedDate(date);
     updateDateTime(date, hour, minute, second, meridiem);
+    setCalendarPopoverOpen(false);
   };
 
   // Handle time change
@@ -857,12 +856,12 @@ export function DateTimePicker({
         return '';
       }
       const s = second ?? 0;
-      return `${hour}:${minute}:${s}`;
+      return `${hour}:${minute}`;
     } else {
       if (hour === null || minute === null || meridiem === null) {
         return '';
       }
-      return `${hour}:${minute}:${meridiem}`;
+      return `${(hour % 12 || 12).toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${meridiem}`;
     }
   }, [hour, minute, second, meridiem, is24Hour]);
 
@@ -1018,18 +1017,10 @@ export function DateTimePicker({
     return { hour: null, minute: null, second: null, meridiem: null };
   };
 
-  const handleTimeValueChange = (details: Combobox.ValueChangeDetails) => {
-    if (details.value.length === 0) {
-      handleTimeChange(null, null, null, null);
-      filter('');
-      return;
-    }
-
-    const selectedValue = details.value[0];
+  const handleTimeOptionSelect = (selectedValue: string) => {
     const selectedOption = timeOptions.find(
       (opt) => opt.value === selectedValue
     );
-
     if (selectedOption) {
       filter('');
       if (is24Hour) {
@@ -1039,390 +1030,156 @@ export function DateTimePicker({
         const opt12 = selectedOption as TimeOption12h;
         handleTimeChange(opt12.hour, opt12.minute, null, opt12.meridiem);
       }
+      setTimePopoverOpen(false);
     }
   };
 
   // Track the current input value for Enter key handling
   const [timeInputValue, setTimeInputValue] = useState<string>('');
+  const timeInitialFocusEl = useRef<HTMLInputElement>(null);
+  const timeDisplayValue = timePopoverOpen ? timeInputValue : currentTimeValue;
 
-  const handleTimeInputChange = (details: Combobox.InputValueChangeDetails) => {
-    // Store the input value and filter
-    setTimeInputValue(details.inputValue);
-    filter(details.inputValue);
+  const handleTimeInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTimeInputValue(value);
+    filter(value);
   };
 
   const handleTimeInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      // Use the stored input value
+      const trimmed = timeInputValue.trim();
+      if (trimmed === '') {
+        filter('');
+        setTimeInputValue('');
+        setTimePopoverOpen(false);
+        return;
+      }
       const parsed = parseCustomTimeInput(timeInputValue);
       if (parsed.hour !== null && parsed.minute !== null) {
         if (is24Hour) {
           handleTimeChange(parsed.hour, parsed.minute, parsed.second, null);
         } else {
           if (parsed.meridiem !== null) {
-            handleTimeChange(parsed.hour, parsed.minute, null, parsed.meridiem);
+            handleTimeChange(
+              parsed.hour,
+              parsed.minute,
+              parsed.second,
+              parsed.meridiem
+            );
           }
         }
-        // Clear the filter and input value after applying
         filter('');
         setTimeInputValue('');
-        // Close the popover if value is valid
         setTimePopoverOpen(false);
       }
     }
   };
 
   return (
-    <Flex direction="row" gap={2} align="center">
-      {/* Date Selection Popover */}
-      <Popover.Root
-        open={datePopoverOpen}
-        onOpenChange={(e) => setDatePopoverOpen(e.open)}
-        closeOnInteractOutside
-        autoFocus={false}
-      >
-        <Popover.Trigger asChild>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setDatePopoverOpen(true)}
-            justifyContent="start"
+    <HStack justifyContent={'start'} alignItems={'center'} gap={2}>
+      <InputGroup
+        endElement={
+          <Popover.Root
+            open={calendarPopoverOpen}
+            onOpenChange={(e) => setCalendarPopoverOpen(e.open)}
+            closeOnInteractOutside={false}
+            autoFocus={false}
           >
-            <MdDateRange />
-            {dateDisplayText}
-          </Button>
-        </Popover.Trigger>
-        {portalled ? (
-          <Portal>
+            <Popover.Trigger asChild>
+              <Button
+                variant="ghost"
+                size="xs"
+                aria-label="Open calendar"
+                onClick={() => setCalendarPopoverOpen(true)}
+              >
+                <MdDateRange />
+              </Button>
+            </Popover.Trigger>
             <Popover.Positioner>
-              <Popover.Content width="fit-content">
+              <Popover.Content width="fit-content" zIndex={1500}>
                 <Popover.Body p={4}>
-                  <Grid gap={4}>
-                    <InputGroup
-                      endElement={
-                        <Popover.Root
-                          open={calendarPopoverOpen}
-                          onOpenChange={(e) => setCalendarPopoverOpen(e.open)}
-                          closeOnInteractOutside
-                          autoFocus={false}
-                        >
-                          <Popover.Trigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="xs"
-                              aria-label="Open calendar"
-                              onClick={() => setCalendarPopoverOpen(true)}
-                            >
-                              <MdDateRange />
-                            </Button>
-                          </Popover.Trigger>
-                          <Portal>
-                            <Popover.Positioner>
-                              <Popover.Content
-                                width="fit-content"
-                                zIndex={1500}
-                              >
-                                <Popover.Body p={4}>
-                                  <DatePickerContext.Provider
-                                    value={{ labels: calendarLabels }}
-                                  >
-                                    <Calendar
-                                      {...calendarProps}
-                                      firstDayOfWeek={0}
-                                    />
-                                  </DatePickerContext.Provider>
-                                </Popover.Body>
-                              </Popover.Content>
-                            </Popover.Positioner>
-                          </Portal>
-                        </Popover.Root>
-                      }
-                    >
-                      <Input
-                        value={dateInputValue}
-                        onChange={handleDateInputChange}
-                        onBlur={handleDateInputBlur}
-                        onKeyDown={handleDateInputKeyDown}
-                        placeholder="YYYY-MM-DD"
-                      />
-                    </InputGroup>
-                    {showQuickActions && (
-                      <Grid templateColumns="repeat(4, 1fr)" gap={2}>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleQuickActionClick(getYesterday())}
-                          disabled={!isDateValid(getYesterday())}
-                        >
-                          {quickActionLabels.yesterday}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleQuickActionClick(getToday())}
-                          disabled={!isDateValid(getToday())}
-                        >
-                          {quickActionLabels.today}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleQuickActionClick(getTomorrow())}
-                          disabled={!isDateValid(getTomorrow())}
-                        >
-                          {quickActionLabels.tomorrow}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleQuickActionClick(getPlus7Days())}
-                          disabled={!isDateValid(getPlus7Days())}
-                        >
-                          {quickActionLabels.plus7Days}
-                        </Button>
-                      </Grid>
-                    )}
-                  </Grid>
+                  <DatePickerContext.Provider
+                    value={{ labels: calendarLabels }}
+                  >
+                    <Calendar {...calendarProps} firstDayOfWeek={0} />
+                  </DatePickerContext.Provider>
                 </Popover.Body>
               </Popover.Content>
             </Popover.Positioner>
-          </Portal>
-        ) : (
-          <Popover.Positioner>
-            <Popover.Content width="fit-content">
-              <Popover.Body p={4}>
-                <Grid gap={4}>
-                  <InputGroup
-                    endElement={
-                      <Popover.Root
-                        open={calendarPopoverOpen}
-                        onOpenChange={(e) => setCalendarPopoverOpen(e.open)}
-                        closeOnInteractOutside
-                        autoFocus={false}
-                      >
-                        <Popover.Trigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            aria-label="Open calendar"
-                            onClick={() => setCalendarPopoverOpen(true)}
-                          >
-                            <MdDateRange />
-                          </Button>
-                        </Popover.Trigger>
-                        <Portal>
-                          <Popover.Positioner>
-                            <Popover.Content width="fit-content" zIndex={1700}>
-                              <Popover.Body p={4}>
-                                <DatePickerContext.Provider
-                                  value={{ labels: calendarLabels }}
-                                >
-                                  <Calendar
-                                    {...calendarProps}
-                                    firstDayOfWeek={0}
-                                  />
-                                </DatePickerContext.Provider>
-                              </Popover.Body>
-                            </Popover.Content>
-                          </Popover.Positioner>
-                        </Portal>
-                      </Popover.Root>
-                    }
-                  >
-                    <Input
-                      value={dateInputValue}
-                      onChange={handleDateInputChange}
-                      onBlur={handleDateInputBlur}
-                      onKeyDown={handleDateInputKeyDown}
-                      placeholder="YYYY-MM-DD"
-                    />
-                  </InputGroup>
-                  {showQuickActions && (
-                    <Grid templateColumns="repeat(4, 1fr)" gap={2}>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleQuickActionClick(getYesterday())}
-                        disabled={!isDateValid(getYesterday())}
-                      >
-                        {quickActionLabels.yesterday}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleQuickActionClick(getToday())}
-                        disabled={!isDateValid(getToday())}
-                      >
-                        {quickActionLabels.today}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleQuickActionClick(getTomorrow())}
-                        disabled={!isDateValid(getTomorrow())}
-                      >
-                        {quickActionLabels.tomorrow}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleQuickActionClick(getPlus7Days())}
-                        disabled={!isDateValid(getPlus7Days())}
-                      >
-                        {quickActionLabels.plus7Days}
-                      </Button>
-                    </Grid>
-                  )}
-                </Grid>
-              </Popover.Body>
-            </Popover.Content>
-          </Popover.Positioner>
-        )}
-      </Popover.Root>
+          </Popover.Root>
+        }
+      >
+        <Input
+          value={dateInputValue}
+          onChange={handleDateInputChange}
+          onBlur={handleDateInputBlur}
+          onKeyDown={handleDateInputKeyDown}
+          placeholder="YYYY-MM-DD"
+          ref={dateInitialFocusEl}
+        />
+      </InputGroup>
 
       {/* Time Selection Popover */}
       <Popover.Root
         open={timePopoverOpen}
         onOpenChange={(e) => setTimePopoverOpen(e.open)}
-        closeOnInteractOutside
+        initialFocusEl={() => timeInitialFocusEl.current}
+        closeOnInteractOutside={true}
         autoFocus={false}
       >
         <Popover.Trigger asChild>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setTimePopoverOpen(true)}
-            justifyContent="start"
-          >
-            <BsClock />
-            {timeDisplayText}
-          </Button>
+          <InputGroup startElement={<BsClock />}>
+            <Input
+              value={timeDisplayValue}
+              onChange={handleTimeInputChange}
+              onKeyDown={handleTimeInputKeyDown}
+              placeholder={
+                timePickerLabels?.placeholder ??
+                (is24Hour ? 'HH:mm' : 'hh:mm AM/PM')
+              }
+              ref={timeInitialFocusEl}
+            />
+          </InputGroup>
         </Popover.Trigger>
-        {portalled ? (
-          <Portal>
-            <Popover.Positioner>
-              <Popover.Content width="fit-content" minW="300px">
-                <Popover.Body p={4}>
-                  <Grid gap={2}>
-                    <Combobox.Root
-                      value={currentTimeValue ? [currentTimeValue] : []}
-                      onValueChange={handleTimeValueChange}
-                      onInputValueChange={handleTimeInputChange}
-                      collection={collection}
-                      allowCustomValue
-                    >
-                      <Combobox.Control>
-                        <InputGroup startElement={<BsClock />}>
-                          <Combobox.Input
-                            placeholder={
-                              timePickerLabels?.placeholder ??
-                              (is24Hour ? 'HH:mm' : 'hh:mm AM/PM')
-                            }
-                            onKeyDown={handleTimeInputKeyDown}
-                          />
-                        </InputGroup>
-                        <Combobox.IndicatorGroup>
-                          <Combobox.Trigger />
-                        </Combobox.IndicatorGroup>
-                      </Combobox.Control>
-                      <Portal disabled={true}>
-                        <Combobox.Positioner>
-                          <Combobox.Content>
-                            <Combobox.Empty>
-                              {timePickerLabels?.emptyMessage ??
-                                'No time found'}
-                            </Combobox.Empty>
-                            {collection.items.map((item) => {
-                              const option = item as TimeOption;
-                              return (
-                                <Combobox.Item key={option.value} item={item}>
-                                  <Flex
-                                    justify="space-between"
-                                    align="center"
-                                    w="100%"
-                                  >
-                                    <Text>{option.label}</Text>
-                                    {option.durationText && (
-                                      <Text fontSize="xs" color="gray.500">
-                                        {option.durationText}
-                                      </Text>
-                                    )}
-                                  </Flex>
-                                  <Combobox.ItemIndicator />
-                                </Combobox.Item>
-                              );
-                            })}
-                          </Combobox.Content>
-                        </Combobox.Positioner>
-                      </Portal>
-                    </Combobox.Root>
-                  </Grid>
-                </Popover.Body>
-              </Popover.Content>
-            </Popover.Positioner>
-          </Portal>
-        ) : (
+        <Portal disabled={!portalled}>
           <Popover.Positioner>
-            <Popover.Content width="fit-content" minW="300px">
-              <Popover.Body p={4}>
-                <Grid gap={2}>
-                  <Combobox.Root
-                    value={currentTimeValue ? [currentTimeValue] : []}
-                    onValueChange={handleTimeValueChange}
-                    onInputValueChange={handleTimeInputChange}
-                    collection={collection}
-                    allowCustomValue
-                  >
-                    <Combobox.Control>
-                      <InputGroup startElement={<BsClock />}>
-                        <Combobox.Input
-                          placeholder={
-                            timePickerLabels?.placeholder ??
-                            (is24Hour ? 'HH:mm' : 'hh:mm AM/PM')
-                          }
-                          onKeyDown={handleTimeInputKeyDown}
-                        />
-                      </InputGroup>
-                      <Combobox.IndicatorGroup>
-                        <Combobox.Trigger />
-                      </Combobox.IndicatorGroup>
-                    </Combobox.Control>
-                    <Portal disabled={true}>
-                      <Combobox.Positioner>
-                        <Combobox.Content>
-                          <Combobox.Empty>
-                            {timePickerLabels?.emptyMessage ?? 'No time found'}
-                          </Combobox.Empty>
-                          {collection.items.map((item) => {
-                            const option = item as TimeOption;
-                            return (
-                              <Combobox.Item key={option.value} item={item}>
-                                <Flex
-                                  justify="space-between"
-                                  align="center"
-                                  w="100%"
-                                >
-                                  <Text>{option.label}</Text>
-                                  {option.durationText && (
-                                    <Text fontSize="xs" color="gray.500">
-                                      {option.durationText}
-                                    </Text>
-                                  )}
-                                </Flex>
-                                <Combobox.ItemIndicator />
-                              </Combobox.Item>
-                            );
-                          })}
-                        </Combobox.Content>
-                      </Combobox.Positioner>
-                    </Portal>
-                  </Combobox.Root>
-                </Grid>
+            <Popover.Content overflowY="auto">
+              <Popover.Body p={0} maxH="70vh" width="fit-content">
+                {collection.items.length === 0 ? (
+                  <Text px={3} py={2} color="gray.500" fontSize="sm">
+                    {timePickerLabels?.emptyMessage ?? 'No time found'}
+                  </Text>
+                ) : (
+                  collection.items.map((item) => {
+                    const option = item as TimeOption;
+                    const isSelected = option.value === currentTimeValue;
+                    return (
+                      <Button
+                        key={option.value}
+                        variant="ghost"
+                        size="sm"
+                        w="100%"
+                        borderRadius={0}
+                        fontWeight={isSelected ? 'semibold' : 'normal'}
+                        onClick={() => handleTimeOptionSelect(option.value)}
+                      >
+                        <Flex justify="space-between" align="center" w="100%">
+                          <Text>{option.label}</Text>
+                          {option.durationText && (
+                            <Text fontSize="xs" color="gray.500">
+                              {option.durationText}
+                            </Text>
+                          )}
+                        </Flex>
+                      </Button>
+                    );
+                  })
+                )}
               </Popover.Body>
             </Popover.Content>
           </Popover.Positioner>
-        )}
+        </Portal>
       </Popover.Root>
 
       {/* Timezone Selection Popover */}
@@ -1443,72 +1200,7 @@ export function DateTimePicker({
               {timezoneDisplayText || 'Select timezone'}
             </Button>
           </Popover.Trigger>
-          {portalled ? (
-            <Portal>
-              <Popover.Positioner>
-                <Popover.Content width="fit-content" minW="250px">
-                  <Popover.Body p={4}>
-                    <Grid gap={2}>
-                      <Select.Root
-                        size="sm"
-                        collection={timezoneCollection}
-                        value={validTimezoneOffset ? [validTimezoneOffset] : []}
-                        onValueChange={(e) => {
-                          const newOffset = e.value[0];
-                          if (newOffset) {
-                            // Update controlled or internal state
-                            if (onTimezoneOffsetChange) {
-                              onTimezoneOffsetChange(newOffset);
-                            } else {
-                              setInternalTimezoneOffset(newOffset);
-                            }
-                            // Update date-time with new offset (pass it directly to avoid stale state)
-                            if (
-                              selectedDate &&
-                              hour !== null &&
-                              minute !== null
-                            ) {
-                              updateDateTime(
-                                selectedDate,
-                                hour,
-                                minute,
-                                second,
-                                meridiem,
-                                newOffset
-                              );
-                            }
-                            // Close popover after selection
-                            setTimezonePopoverOpen(false);
-                          }
-                        }}
-                      >
-                        <Select.Control>
-                          <Select.Trigger />
-                          <Select.IndicatorGroup>
-                            <Select.Indicator />
-                          </Select.IndicatorGroup>
-                        </Select.Control>
-                        <Select.Positioner>
-                          <Select.Content>
-                            {timezoneCollection.items.map(
-                              (item: { value: string; label: string }) => (
-                                <Select.Item key={item.value} item={item}>
-                                  <Select.ItemText>
-                                    {item.label}
-                                  </Select.ItemText>
-                                  <Select.ItemIndicator />
-                                </Select.Item>
-                              )
-                            )}
-                          </Select.Content>
-                        </Select.Positioner>
-                      </Select.Root>
-                    </Grid>
-                  </Popover.Body>
-                </Popover.Content>
-              </Popover.Positioner>
-            </Portal>
-          ) : (
+          <Portal disabled={!portalled}>
             <Popover.Positioner>
               <Popover.Content width="fit-content" minW="250px">
                 <Popover.Body p={4}>
@@ -1569,9 +1261,9 @@ export function DateTimePicker({
                 </Popover.Body>
               </Popover.Content>
             </Popover.Positioner>
-          )}
+          </Portal>
         </Popover.Root>
       )}
-    </Flex>
+    </HStack>
   );
 }

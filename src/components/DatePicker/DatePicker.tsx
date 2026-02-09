@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
 import { MdDateRange } from 'react-icons/md';
 import { InputGroup } from '../ui/input-group';
 import { useCalendar, type CalendarRenderProps } from './useCalendar';
@@ -215,7 +215,7 @@ export function DatePickerInput({
 }: DatePickerInputProps) {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
-
+  const initialFocusEl = useRef<HTMLInputElement>(null);
   // Sync inputValue with value prop changes
   useEffect(() => {
     if (value) {
@@ -417,8 +417,9 @@ export function DatePickerInput({
     <Popover.Root
       open={open}
       onOpenChange={(e) => setOpen(e.open)}
-      closeOnInteractOutside
+      closeOnInteractOutside={false}
       autoFocus={false}
+      initialFocusEl={() => initialFocusEl.current}
     >
       <InputGroup
         endElement={
@@ -443,23 +444,16 @@ export function DatePickerInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           readOnly={readOnly}
+          ref={initialFocusEl}
         />
       </InputGroup>
-      {insideDialog ? (
+      <Portal disabled={insideDialog}>
         <Popover.Positioner>
           <Popover.Content width="fit-content" minH="25rem">
             <Popover.Body>{datePickerContent}</Popover.Body>
           </Popover.Content>
         </Popover.Positioner>
-      ) : (
-        <Portal>
-          <Popover.Positioner>
-            <Popover.Content width="fit-content" minH="25rem">
-              <Popover.Body>{datePickerContent}</Popover.Body>
-            </Popover.Content>
-          </Popover.Positioner>
-        </Portal>
-      )}
+      </Portal>
     </Popover.Root>
   );
 }

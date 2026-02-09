@@ -5,7 +5,7 @@ import {
 } from '@/components/Form/components/types/CustomJSONSchema7';
 import { useForm } from '@/components/Form/useForm';
 import { Provider } from '@/components/ui/provider';
-import { Button, Dialog } from '@chakra-ui/react';
+import { Box, Button, Dialog, Portal } from '@chakra-ui/react';
 import type { StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -150,6 +150,10 @@ const SomeForm = () => {
           format: 'date',
         },
       },
+      someDateTime: {
+        type: 'string',
+        format: 'date-time',
+      },
     },
     required: ['someTextarea', 'someNumber'],
     errorMessage: {
@@ -174,19 +178,33 @@ const SomeForm = () => {
   return (
     <>
       <Button onClick={() => setOpen(true)}>Open Dialog</Button>
+
+      <Box mb={4}>
+        This form demonstrates usage of a complex schema with several field
+        types, validation messages, and dialog integration. Lorem ipsum dolor
+        sit amet, consectetur adipiscing elit. Sed fringilla felis vitae risus
+        efficitur, a aliquam quam suscipit. Quisque euismod, justo at cursus
+        egestas, elit ante consequat quam, ac sagittis purus magna vitae erat.
+      </Box>
+      <Box>{JSON.stringify(form.form.getValues(), null, 2)}</Box>
+
       <Dialog.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
-        <Dialog.Content>
-          <DefaultForm
-            formConfig={{
-              schema: schema,
-              onSubmit: (data) => {
-                console.log('nice', data, 'onSubmit-gkrp');
-              },
-              insideDialog: true,
-              ...form,
-            }}
-          />{' '}
-        </Dialog.Content>
+        <Portal>
+          <Dialog.Positioner>
+            <Dialog.Content>
+              <DefaultForm
+                formConfig={{
+                  schema: schema,
+                  onSubmit: (data) => {
+                    console.log('nice', data, 'onSubmit-gkrp');
+                  },
+                  insideDialog: true,
+                  ...form,
+                }}
+              />
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
       </Dialog.Root>
     </>
   );

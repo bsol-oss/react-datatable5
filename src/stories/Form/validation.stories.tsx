@@ -195,11 +195,6 @@ const FormWithI18n = () => {
         type: 'string',
         minLength: 3,
         maxLength: 100,
-        errorMessage: {
-          required: 'Product name is required',
-          minLength: 'Product name must be at least 3 characters long',
-          maxLength: 'Product name must be no more than 100 characters long',
-        },
       },
       price: {
         type: 'number',
@@ -232,6 +227,13 @@ const FormWithI18n = () => {
         errorMessage: {
           format: 'Please enter a valid date format',
         },
+      },
+    },
+    errorMessage: {
+      required: {
+        name: 'Product name is required',
+        price: 'Product price is required',
+        category: 'Product category is required',
       },
     },
     required: ['name', 'price', 'category'],

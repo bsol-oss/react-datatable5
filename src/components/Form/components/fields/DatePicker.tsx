@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { MdDateRange } from 'react-icons/md';
 import { useSchemaContext } from '../../useSchemaContext';
@@ -39,7 +39,7 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const selectedDate = watch(colLabel);
-
+  const initialFocusEl = useRef<HTMLInputElement>(null);
   // Update input value when form value changes
   useEffect(() => {
     if (selectedDate) {
@@ -219,10 +219,19 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
       errorText={<>{fieldError}</>}
       invalid={!!fieldError}
     >
+      {/* Hidden input stores the actual value for form submission */}
+      <input
+        type="hidden"
+        name={colLabel}
+        value={selectedDate ?? ''}
+        readOnly
+        aria-hidden
+      />
       <Popover.Root
         open={open}
         onOpenChange={(e) => setOpen(e.open)}
-        closeOnInteractOutside
+        initialFocusEl={() => initialFocusEl.current}
+        closeOnInteractOutside={false}
         autoFocus={false}
       >
         <InputGroup
@@ -247,24 +256,18 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
             onBlur={handleInputBlur}
             onKeyDown={handleKeyDown}
             placeholder={formI18n.label()}
+            ref={initialFocusEl}
             size="sm"
+            aria-label={formI18n.label()}
           />
         </InputGroup>
-        {insideDialog ? (
+        <Portal disabled={insideDialog}>
           <Popover.Positioner>
             <Popover.Content width="fit-content" minH="25rem">
               <Popover.Body>{datePickerContent}</Popover.Body>
             </Popover.Content>
           </Popover.Positioner>
-        ) : (
-          <Portal>
-            <Popover.Positioner>
-              <Popover.Content width="fit-content" minH="25rem">
-                <Popover.Body>{datePickerContent}</Popover.Body>
-              </Popover.Content>
-            </Popover.Positioner>
-          </Portal>
-        )}
+        </Portal>
       </Popover.Root>
     </Field>
   );
