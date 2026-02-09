@@ -1096,7 +1096,7 @@ export function DateTimePicker({
                 <MdDateRange />
               </Button>
             </Popover.Trigger>
-            <Portal disabled={!portalled}>
+            <Portal disabled={portalled}>
               <Popover.Positioner>
                 <Popover.Content width="fit-content" zIndex={1500}>
                   <Popover.Body p={4}>
