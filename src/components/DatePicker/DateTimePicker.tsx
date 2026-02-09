@@ -1096,17 +1096,19 @@ export function DateTimePicker({
                 <MdDateRange />
               </Button>
             </Popover.Trigger>
-            <Popover.Positioner>
-              <Popover.Content width="fit-content" zIndex={1500}>
-                <Popover.Body p={4}>
-                  <DatePickerContext.Provider
-                    value={{ labels: calendarLabels }}
-                  >
-                    <Calendar {...calendarProps} firstDayOfWeek={0} />
-                  </DatePickerContext.Provider>
-                </Popover.Body>
-              </Popover.Content>
-            </Popover.Positioner>
+            <Portal disabled={!portalled}>
+              <Popover.Positioner>
+                <Popover.Content width="fit-content" zIndex={1500}>
+                  <Popover.Body p={4}>
+                    <DatePickerContext.Provider
+                      value={{ labels: calendarLabels }}
+                    >
+                      <Calendar {...calendarProps} firstDayOfWeek={0} />
+                    </DatePickerContext.Provider>
+                  </Popover.Body>
+                </Popover.Content>
+              </Popover.Positioner>
+            </Portal>
           </Popover.Root>
         }
       >
@@ -1142,10 +1144,10 @@ export function DateTimePicker({
             />
           </InputGroup>
         </Popover.Trigger>
-        <Portal disabled={!portalled}>
+        <Portal disabled={portalled}>
           <Popover.Positioner>
             <Popover.Content overflowY="auto">
-              <Popover.Body p={0} maxH="70vh" width="fit-content">
+              <Popover.Body p={0} minH="200px" maxH="70vh" width="fit-content">
                 {collection.items.length === 0 ? (
                   <Text px={3} py={2} color="gray.500" fontSize="sm">
                     {timePickerLabels?.emptyMessage ?? 'No time found'}
@@ -1200,7 +1202,7 @@ export function DateTimePicker({
               {timezoneDisplayText || 'Select timezone'}
             </Button>
           </Popover.Trigger>
-          <Portal disabled={!portalled}>
+          <Portal disabled={portalled}>
             <Popover.Positioner>
               <Popover.Content width="fit-content" minW="250px">
                 <Popover.Body p={4}>
