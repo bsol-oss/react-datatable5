@@ -6,7 +6,11 @@ import {
   TimeViewportGrid,
   TimeViewportHeader,
   TimeViewportMarkerLine,
+  useTimeViewport,
+  useTimeViewportBlockGeometry,
+  useTimeRangeZoom,
 } from '@/components/DatePicker/TimeRangeZoom';
+import { Avatar, AvatarGroup } from '@/components/ui/avatar';
 import { Provider } from '@/components/ui/provider';
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -263,6 +267,95 @@ const TimeRangeZoomDemo = (props: {
   );
 };
 
+const HeadlessTimeRangeZoomDemo = (props: {
+  minDurationMs?: number;
+  maxDurationMs?: number;
+  zoomFactor?: number;
+  disabled?: boolean;
+  labels?: React.ComponentProps<typeof TimeRangeZoom>['labels'];
+}) => {
+  const [range, setRange] = useState({
+    start: dayjs().subtract(4, 'hour').toDate(),
+    end: dayjs().toDate(),
+  });
+
+  const {
+    labels,
+    canZoomIn,
+    canZoomOut,
+    visibleRangeText,
+    durationText,
+    zoomIn,
+    zoomOut,
+    reset,
+  } = useTimeRangeZoom({
+    range,
+    onRangeChange: setRange,
+    minDurationMs: props.minDurationMs,
+    maxDurationMs: props.maxDurationMs,
+    zoomFactor: props.zoomFactor,
+    disabled: props.disabled,
+    labels: props.labels,
+  });
+
+  return (
+    <Provider>
+      <VStack align="stretch" gap={4} p={4}>
+        <Text fontSize="lg" fontWeight="bold">
+          Headless Hook Usage
+        </Text>
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+          This story does not render the TimeRangeZoom component. The UI below
+          is fully custom and powered only by useTimeRangeZoom.
+        </Text>
+
+        <HStack gap={2}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={zoomOut}
+            disabled={!canZoomOut}
+          >
+            {labels.zoomOut}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={zoomIn}
+            disabled={!canZoomIn}
+          >
+            {labels.zoomIn}
+          </Button>
+          <Button size="sm" variant="ghost" colorPalette="blue" onClick={reset}>
+            {labels.reset}
+          </Button>
+        </HStack>
+
+        <Box
+          p={3}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+        >
+          <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+            {labels.visibleRange}: {visibleRangeText}
+          </Text>
+          <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+            {labels.duration}: {durationText}
+          </Text>
+        </Box>
+
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          Internal range state:{' '}
+          {dayjs(range.start).format('YYYY-MM-DD HH:mm:ss')} -{' '}
+          {dayjs(range.end).format('YYYY-MM-DD HH:mm:ss')}
+        </Text>
+      </VStack>
+    </Provider>
+  );
+};
+
 export const Basic: Story = {
   name: 'Basic',
   args: {
@@ -274,6 +367,625 @@ export const Basic: Story = {
     disabled: false,
   },
   render: (args) => <TimeRangeZoomDemo {...args} />,
+};
+
+export const HeadlessHookOnly: Story = {
+  name: 'Headless Hook Only',
+  args: {
+    ...requiredStoryArgs,
+    minDurationMs: 5 * 60 * 1000,
+    maxDurationMs: 7 * 24 * 60 * 60 * 1000,
+    zoomFactor: 1.8,
+    disabled: false,
+  },
+  render: (args) => (
+    <HeadlessTimeRangeZoomDemo
+      minDurationMs={args.minDurationMs}
+      maxDurationMs={args.maxDurationMs}
+      zoomFactor={args.zoomFactor}
+      disabled={args.disabled}
+      labels={args.labels}
+    />
+  ),
+};
+
+const HeadlessViewportBlockGeometryDemo = () => {
+  const [viewport, setViewport] = useState({
+    start: dayjs().subtract(6, 'hour').toDate(),
+    end: dayjs().toDate(),
+  });
+  const { getGeometry, toTimeMs } = useTimeViewportBlockGeometry(
+    viewport.start,
+    viewport.end
+  );
+  const { isValidViewport, getTicks } = useTimeViewport(
+    viewport.start,
+    viewport.end
+  );
+  const headerTicks = getTicks({ tickStrategy: 'count', tickCount: 8 });
+  const safeHeaderTickCount = headerTicks.length;
+
+  const customBlocks = [
+    {
+      id: 'custom-ingest',
+      track: 'Pipeline A',
+      label: 'Ingest',
+      color: 'purple.500',
+      darkColor: 'purple.300',
+      geometry: getGeometry(
+        dayjs().subtract(5, 'hour').toDate(),
+        dayjs().subtract(2, 'hour').toDate()
+      ),
+    },
+    {
+      id: 'custom-transform',
+      track: 'Pipeline A',
+      label: 'Transform',
+      color: 'orange.500',
+      darkColor: 'orange.300',
+      geometry: getGeometry(
+        dayjs().subtract(3, 'hour').toDate(),
+        dayjs().subtract(30, 'minute').toDate()
+      ),
+    },
+    {
+      id: 'custom-publish',
+      track: 'Pipeline B',
+      label: 'Publish',
+      color: 'green.500',
+      darkColor: 'green.300',
+      geometry: getGeometry(
+        dayjs().subtract(90, 'minute').toDate(),
+        dayjs().add(30, 'minute').toDate()
+      ),
+    },
+    {
+      id: 'custom-validate',
+      track: 'Pipeline B',
+      label: 'Validate',
+      color: 'blue.500',
+      darkColor: 'blue.300',
+      geometry: getGeometry(
+        dayjs().subtract(4, 'hour').toDate(),
+        dayjs().subtract(45, 'minute').toDate()
+      ),
+    },
+  ];
+  const trackNames = Array.from(
+    new Set(customBlocks.map((block) => block.track))
+  );
+  const customMarkers = [
+    {
+      id: 'marker-now',
+      label: 'Now',
+      timestamp: dayjs().toDate(),
+      color: 'red.500',
+      darkColor: 'red.300',
+    },
+    {
+      id: 'marker-cutoff',
+      label: 'Cutoff',
+      timestamp: dayjs().subtract(2, 'hour').toDate(),
+      color: 'blue.500',
+      darkColor: 'blue.300',
+    },
+  ];
+  const viewportStartMs = toTimeMs(viewport.start);
+  const viewportEndMs = toTimeMs(viewport.end);
+  const viewportDurationMs =
+    viewportStartMs !== null &&
+    viewportEndMs !== null &&
+    viewportEndMs > viewportStartMs
+      ? viewportEndMs - viewportStartMs
+      : null;
+  const markerPositions = customMarkers
+    .map((marker) => {
+      const markerMs = toTimeMs(marker.timestamp);
+      if (
+        markerMs === null ||
+        viewportStartMs === null ||
+        viewportDurationMs === null
+      ) {
+        return null;
+      }
+      const rawPercent =
+        ((markerMs - viewportStartMs) / viewportDurationMs) * 100;
+      if (rawPercent < 0 || rawPercent > 100) return null;
+      return {
+        ...marker,
+        percent: Math.min(Math.max(rawPercent, 0), 100),
+      };
+    })
+    .filter((marker): marker is NonNullable<typeof marker> => marker !== null);
+
+  return (
+    <Provider>
+      <VStack align="stretch" gap={4} p={4}>
+        <Text fontSize="lg" fontWeight="bold">
+          Headless Viewport Block Geometry
+        </Text>
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+          This timeline is rendered with plain Box elements using
+          useTimeViewportBlockGeometry only.
+        </Text>
+
+        <TimeRangeZoom
+          range={viewport}
+          onRangeChange={setViewport}
+          minDurationMs={5 * 60 * 1000}
+          maxDurationMs={7 * 24 * 60 * 60 * 1000}
+          zoomFactor={1.6}
+        />
+        <Box
+          p={3}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+        >
+          {isValidViewport && safeHeaderTickCount >= 2 ? (
+            <Box
+              position="relative"
+              width="100%"
+              height="24px"
+              borderBottomWidth="1px"
+              borderColor="gray.200"
+              _dark={{ borderColor: 'gray.700' }}
+              mb={2}
+            >
+              {headerTicks.map((tick) => (
+                <Box
+                  key={`headless-header-tick-${tick.index}`}
+                  position="absolute"
+                  inset={0}
+                  transform={`translateX(${tick.percent}%)`}
+                >
+                  <Text
+                    position="absolute"
+                    insetInlineStart={0}
+                    top="50%"
+                    translate="0 -50%"
+                    transform={
+                      tick.index === 0
+                        ? 'translateX(0%)'
+                        : tick.index === safeHeaderTickCount - 1
+                          ? 'translateX(-100%)'
+                          : 'translateX(-50%)'
+                    }
+                    fontSize="xs"
+                    color="gray.600"
+                    _dark={{ color: 'gray.300' }}
+                    whiteSpace="nowrap"
+                  >
+                    {tick.label}
+                  </Text>
+                </Box>
+              ))}
+            </Box>
+          ) : null}
+          <VStack align="stretch" gap={2}>
+            {trackNames.map((trackName, trackIndex) => (
+              <HStack key={trackName} align="stretch" gap={2}>
+                <Text
+                  minW="88px"
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                >
+                  {trackName}
+                </Text>
+                <Box position="relative" width="100%" height="34px">
+                  {markerPositions.map((marker) => (
+                    <Box
+                      key={`${trackName}-${marker.id}`}
+                      position="absolute"
+                      inset={0}
+                      transform={`translateX(${marker.percent}%)`}
+                      pointerEvents="none"
+                      zIndex={5}
+                    >
+                      <Box
+                        position="absolute"
+                        insetInlineStart={0}
+                        top={0}
+                        bottom={0}
+                        width="2px"
+                        bg={marker.color}
+                        _dark={{ bg: marker.darkColor }}
+                        transform="translateX(-50%)"
+                      />
+                      {trackIndex === 0 ? (
+                        <Text
+                          position="absolute"
+                          insetInlineStart={0}
+                          top="-18px"
+                          transform="translateX(-50%)"
+                          fontSize="2xs"
+                          color={marker.color}
+                          _dark={{ color: marker.darkColor }}
+                          whiteSpace="nowrap"
+                        >
+                          {marker.label}
+                        </Text>
+                      ) : null}
+                    </Box>
+                  ))}
+                  {customBlocks
+                    .filter((block) => block.track === trackName)
+                    .map((block) =>
+                      block.geometry.valid &&
+                      block.geometry.widthPercent > 0 ? (
+                        <Box
+                          key={block.id}
+                          position="absolute"
+                          inset={0}
+                          pointerEvents="none"
+                        >
+                          <Box
+                            width="100%"
+                            height="100%"
+                            transform={`translateX(${block.geometry.leftPercent}%)`}
+                          >
+                            <Box
+                              width={`max(${block.geometry.widthPercent}%, 2px)`}
+                              height="100%"
+                              borderRadius="sm"
+                              bg={block.color}
+                              _dark={{ bg: block.darkColor }}
+                              px={2}
+                            >
+                              <Text
+                                fontSize="xs"
+                                lineClamp={1}
+                                color="white"
+                                _dark={{ color: 'gray.100' }}
+                              >
+                                {block.label}
+                              </Text>
+                            </Box>
+                          </Box>
+                        </Box>
+                      ) : null
+                    )}
+                </Box>
+              </HStack>
+            ))}
+          </VStack>
+        </Box>
+      </VStack>
+    </Provider>
+  );
+};
+
+export const HeadlessViewportBlockHook: Story = {
+  name: 'Headless Viewport Block Hook',
+  args: {
+    ...requiredStoryArgs,
+  },
+  render: () => <HeadlessViewportBlockGeometryDemo />,
+};
+
+const HeadlessClassTimetableDemo = () => {
+  const [viewport, setViewport] = useState({
+    start: dayjs().startOf('day').hour(8).minute(0).toDate(),
+    end: dayjs().startOf('day').hour(18).minute(0).toDate(),
+  });
+  const [lastInteraction, setLastInteraction] = useState('None');
+
+  const {
+    labels,
+    canZoomIn,
+    canZoomOut,
+    visibleRangeText,
+    durationText,
+    zoomIn,
+    zoomOut,
+    reset,
+  } = useTimeRangeZoom({
+    range: viewport,
+    onRangeChange: setViewport,
+    minDurationMs: 15 * 60 * 1000,
+    maxDurationMs: 3 * 24 * 60 * 60 * 1000,
+    zoomFactor: 1.4,
+    labels: {
+      zoomIn: 'Zoom In',
+      zoomOut: 'Zoom Out',
+      reset: 'Reset Day',
+      visibleRange: 'View Window',
+      duration: 'Duration',
+    },
+  });
+
+  const { getGeometry } = useTimeViewportBlockGeometry(
+    viewport.start,
+    viewport.end
+  );
+
+  const classSessions = [
+    {
+      id: 'math-101',
+      track: 'Room 101',
+      label: 'Mathematics',
+      teacher: 'Ms. Nora Lee',
+      students: ['Chris Wong', 'Ava Chen', 'Jay Patel', 'Ivy Lau'],
+      start: dayjs().startOf('day').hour(8).minute(30).toDate(),
+      end: dayjs().startOf('day').hour(10).minute(0).toDate(),
+      color: 'orange.500',
+      darkColor: 'orange.300',
+    },
+    {
+      id: 'physics-101',
+      track: 'Room 101',
+      label: 'Physics',
+      teacher: 'Mr. Noah Kim',
+      students: ['Ethan Ng', 'Mia Lau', 'Ryan Cheung'],
+      start: dayjs().startOf('day').hour(10).minute(30).toDate(),
+      end: dayjs().startOf('day').hour(12).minute(0).toDate(),
+      color: 'blue.500',
+      darkColor: 'blue.300',
+    },
+    {
+      id: 'history-204',
+      track: 'Room 204',
+      label: 'History',
+      teacher: 'Dr. Alex Lee',
+      students: ['Emma Yip', 'Olivia Wong'],
+      start: dayjs().startOf('day').hour(9).minute(0).toDate(),
+      end: dayjs().startOf('day').hour(10).minute(30).toDate(),
+      color: 'purple.500',
+      darkColor: 'purple.300',
+    },
+    {
+      id: 'chemistry-204',
+      track: 'Room 204',
+      label: 'Chemistry',
+      teacher: 'Ms. Samir Patel',
+      students: ['Lucas Ho', 'Zoe Lim', 'Morgan Chan', 'Ava Chen'],
+      start: dayjs().startOf('day').hour(13).minute(30).toDate(),
+      end: dayjs().startOf('day').hour(15).minute(0).toDate(),
+      color: 'green.500',
+      darkColor: 'green.300',
+    },
+  ].map((item) => ({
+    ...item,
+    geometry: getGeometry(item.start, item.end),
+  }));
+
+  const tracks = Array.from(new Set(classSessions.map((item) => item.track)));
+  const nowMarker = getGeometry(
+    dayjs().subtract(30, 'second').toDate(),
+    dayjs().add(30, 'second').toDate()
+  );
+
+  return (
+    <Provider>
+      <HStack align="stretch" gap={4} p={4}>
+        <VStack
+          align="stretch"
+          gap={3}
+          minW="260px"
+          p={4}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+        >
+          <Text fontSize="lg" fontWeight="bold">
+            Class Timetable (Headless Hooks)
+          </Text>
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+            Classroom lanes and student clusters powered by `useTimeRangeZoom`
+            and `useTimeViewportBlockGeometry`.
+          </Text>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={zoomOut}
+            disabled={!canZoomOut}
+          >
+            {labels.zoomOut}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={zoomIn}
+            disabled={!canZoomIn}
+          >
+            {labels.zoomIn}
+          </Button>
+          <Button size="sm" variant="ghost" colorPalette="blue" onClick={reset}>
+            {labels.reset}
+          </Button>
+          <Box
+            p={3}
+            borderWidth="1px"
+            borderRadius="md"
+            bg="white"
+            _dark={{ bg: 'gray.900' }}
+          >
+            <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
+              {labels.visibleRange}
+            </Text>
+            <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+              {visibleRangeText}
+            </Text>
+            <Text
+              mt={2}
+              fontSize="xs"
+              color="gray.500"
+              _dark={{ color: 'gray.400' }}
+            >
+              {labels.duration}
+            </Text>
+            <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+              {durationText}
+            </Text>
+            <Text
+              mt={2}
+              fontSize="xs"
+              color="gray.500"
+              _dark={{ color: 'gray.400' }}
+            >
+              Last interaction
+            </Text>
+            <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+              {lastInteraction}
+            </Text>
+          </Box>
+        </VStack>
+
+        <VStack
+          align="stretch"
+          gap={3}
+          flex="1"
+          p={4}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+        >
+          <TimeViewportHeader
+            viewportStart={viewport.start}
+            viewportEnd={viewport.end}
+            tickCount={9}
+            height="24px"
+          />
+          {tracks.map((track) => (
+            <HStack key={track} align="stretch" gap={2}>
+              <Text
+                minW="84px"
+                fontSize="xs"
+                fontWeight="semibold"
+                color="gray.700"
+                _dark={{ color: 'gray.200' }}
+              >
+                {track}
+              </Text>
+              <Box
+                position="relative"
+                flex="1"
+                h="100px"
+                borderWidth="1px"
+                borderRadius="sm"
+                bg="white"
+                _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+              >
+                {nowMarker.valid ? (
+                  <Box
+                    position="absolute"
+                    inset={0}
+                    transform={`translateX(${nowMarker.leftPercent}%)`}
+                    pointerEvents="none"
+                  >
+                    <Box
+                      position="absolute"
+                      insetInlineStart={0}
+                      top={0}
+                      bottom={0}
+                      width="2px"
+                      bg="red.500"
+                      _dark={{ bg: 'red.300' }}
+                      transform="translateX(-50%)"
+                    />
+                  </Box>
+                ) : null}
+                {classSessions
+                  .filter((item) => item.track === track)
+                  .map((item) =>
+                    item.geometry.valid && item.geometry.widthPercent > 0 ? (
+                      <Box
+                        key={item.id}
+                        position="absolute"
+                        inset={0}
+                        pointerEvents="none"
+                      >
+                        <Box
+                          width="100%"
+                          height="100%"
+                          transform={`translateX(${item.geometry.leftPercent}%)`}
+                        >
+                          <Box
+                            width={`max(${item.geometry.widthPercent}%, 2px)`}
+                            h="100%"
+                            borderRadius="sm"
+                            bg={item.color}
+                            _dark={{ bg: item.darkColor }}
+                            px={2}
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            pointerEvents="auto"
+                          >
+                            <VStack align="start" gap={0} maxW="75%">
+                              <Text
+                                fontSize="xs"
+                                lineClamp={1}
+                                color="white"
+                                _dark={{ color: 'gray.100' }}
+                              >
+                                {item.label}
+                              </Text>
+                              <HStack gap={1}>
+                                <AvatarGroup>
+                                  {item.students.slice(0, 2).map((student) => (
+                                    <Avatar
+                                      key={`${item.id}-${student}`}
+                                      name={student}
+                                      size="xs"
+                                      border="1px solid"
+                                      borderColor="whiteAlpha.700"
+                                      cursor="pointer"
+                                      onClick={() =>
+                                        setLastInteraction(
+                                          `${item.label}: clicked ${student}`
+                                        )
+                                      }
+                                    />
+                                  ))}
+                                </AvatarGroup>
+                                {item.students.length > 2 ? (
+                                  <Button
+                                    size="xs"
+                                    variant="outline"
+                                    borderColor="whiteAlpha.700"
+                                    color="white"
+                                    _hover={{ bg: 'whiteAlpha.200' }}
+                                    _dark={{ color: 'gray.100' }}
+                                    onClick={() =>
+                                      setLastInteraction(
+                                        `${item.label}: +${item.students.length - 2} more students`
+                                      )
+                                    }
+                                  >
+                                    + {item.students.length - 2} more
+                                  </Button>
+                                ) : null}
+                              </HStack>
+                            </VStack>
+                            <Text fontSize="2xs" color="whiteAlpha.900">
+                              {item.teacher}
+                            </Text>
+                          </Box>
+                        </Box>
+                      </Box>
+                    ) : null
+                  )}
+              </Box>
+            </HStack>
+          ))}
+        </VStack>
+      </HStack>
+    </Provider>
+  );
+};
+
+export const HeadlessHookClassTimetableLayout: Story = {
+  name: 'Headless Hook Class Timetable Layout',
+  args: {
+    ...requiredStoryArgs,
+  },
+  render: () => <HeadlessClassTimetableDemo />,
 };
 
 export const WithI18nLabels: Story = {
@@ -301,6 +1013,7 @@ const TimeViewportBlockDemo = () => {
     start: dayjs().subtract(6, 'hour').toDate(),
     end: dayjs().toDate(),
   });
+  const [lastClickedBlock, setLastClickedBlock] = useState<string>('None');
 
   const block = {
     start: dayjs().subtract(4, 'hour').toDate(),
@@ -342,6 +1055,7 @@ const TimeViewportBlockDemo = () => {
             label="Deploy Window"
             colorPalette="teal"
             height="32px"
+            onClick={() => setLastClickedBlock('Deploy Window')}
           />
           <TimeViewportMarkerLine
             timestamp={dayjs().subtract(2, 'hour').toDate()}
@@ -366,6 +1080,14 @@ const TimeViewportBlockDemo = () => {
           <Text fontSize="sm" fontFamily="mono">
             {dayjs(viewport.start).format('YYYY-MM-DD HH:mm:ss')} -{' '}
             {dayjs(viewport.end).format('YYYY-MM-DD HH:mm:ss')}
+          </Text>
+          <Text
+            mt={2}
+            fontSize="sm"
+            color="gray.700"
+            _dark={{ color: 'gray.200' }}
+          >
+            Last clicked block: {lastClickedBlock}
           </Text>
         </Box>
 
@@ -413,6 +1135,7 @@ const MultiViewportBlocksDemo = () => {
     start: dayjs().subtract(8, 'hour').toDate(),
     end: dayjs().toDate(),
   });
+  const [lastClickedBlock, setLastClickedBlock] = useState<string>('None');
 
   const blocks = [
     {
@@ -471,6 +1194,9 @@ const MultiViewportBlocksDemo = () => {
             viewportEnd={viewport.end}
             height="28px"
             allowOverlap={true}
+            onBlockClick={(block) =>
+              setLastClickedBlock(block.label ?? block.id)
+            }
           />
           <TimeViewportMarkerLine
             timestamp={dayjs().subtract(100, 'minute').toDate()}
@@ -480,6 +1206,9 @@ const MultiViewportBlocksDemo = () => {
             colorPalette="red"
           />
         </Box>
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          Last clicked block: {lastClickedBlock}
+        </Text>
       </VStack>
     </Provider>
   );
@@ -499,6 +1228,7 @@ const ShiftManagementViewportDemo = () => {
     start: weekStart.toDate(),
     end: weekStart.add(7, 'day').toDate(),
   }));
+  const [lastClickedBlock, setLastClickedBlock] = useState<string>('None');
   const shiftBlocks = buildWeeklyShiftBlocks(weekStart);
   const groupedShiftBlocks = [
     {
@@ -607,17 +1337,20 @@ const ShiftManagementViewportDemo = () => {
             viewportStart={viewport.start}
             viewportEnd={viewport.end}
             onViewportChange={setViewport}
-            enableDragPan={true}
-            enableCtrlWheelZoom={true}
+            enableDragPan={false}
+            enableCtrlWheelZoom={false}
           >
-            <TimeViewportHeader tickCount={8} />
+            <TimeViewportHeader tickCount={10} />
             <Box position="relative">
-              <TimeViewportGrid tickCount={8} minorDivisions={2} />
+              <TimeViewportGrid tickCount={10} minorDivisions={2} />
               <TimeViewportBlocks
                 blocks={groupedShiftBlocks}
                 height="30px"
                 allowOverlap={true}
                 gap={2}
+                onBlockClick={(block) =>
+                  setLastClickedBlock(block.label ?? block.id)
+                }
                 renderTrackPrefix={({ trackBlocks }) => (
                   <Text
                     fontSize="xs"
@@ -641,6 +1374,9 @@ const ShiftManagementViewportDemo = () => {
             </Box>
           </TimeViewportRoot>
         </Box>
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          Last clicked block: {lastClickedBlock}
+        </Text>
       </VStack>
     </Provider>
   );
@@ -660,6 +1396,7 @@ const ShiftManagementByPersonViewportDemo = () => {
     start: weekStart.toDate(),
     end: weekStart.add(7, 'day').toDate(),
   }));
+  const [lastClickedBlock, setLastClickedBlock] = useState<string>('None');
   const shiftsByPerson = buildWeeklyShiftBlocksByPerson(weekStart);
 
   return (
@@ -737,8 +1474,8 @@ const ShiftManagementByPersonViewportDemo = () => {
                   viewportStart={viewport.start}
                   viewportEnd={viewport.end}
                   onViewportChange={setViewport}
-                  enableDragPan={true}
-                  enableCtrlWheelZoom={true}
+                  enableDragPan={false}
+                  enableCtrlWheelZoom={false}
                 >
                   <TimeViewportHeader tickCount={8} />
                   <Box position="relative">
@@ -748,6 +1485,11 @@ const ShiftManagementByPersonViewportDemo = () => {
                       height="26px"
                       allowOverlap={true}
                       gap={1}
+                      onBlockClick={(block) =>
+                        setLastClickedBlock(
+                          `${entry.person}: ${block.label ?? block.id}`
+                        )
+                      }
                       renderTrackPrefix={({ trackIndex }) => (
                         <Text
                           fontSize="xs"
@@ -778,6 +1520,9 @@ const ShiftManagementByPersonViewportDemo = () => {
             </Box>
           ))}
         </VStack>
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          Last clicked block: {lastClickedBlock}
+        </Text>
       </VStack>
     </Provider>
   );
@@ -798,6 +1543,7 @@ const RoomBookingViewportDemo = () => {
     end: dayStart.hour(20).toDate(),
   }));
   const [hideEmptyTracks, setHideEmptyTracks] = useState(true);
+  const [lastClickedBlock, setLastClickedBlock] = useState<string>('None');
 
   const ROOM_COUNT = 120;
   const palettes = [
@@ -931,8 +1677,8 @@ const RoomBookingViewportDemo = () => {
             viewportStart={viewport.start}
             viewportEnd={viewport.end}
             onViewportChange={setViewport}
-            enableDragPan={true}
-            enableCtrlWheelZoom={true}
+            enableDragPan={false}
+            enableCtrlWheelZoom={false}
           >
             <TimeViewportHeader tickCount={9} />
             <Box position="relative">
@@ -944,6 +1690,9 @@ const RoomBookingViewportDemo = () => {
                 hideEmptyTracks={hideEmptyTracks}
                 height="32px"
                 gap={2}
+                onBlockClick={(block) =>
+                  setLastClickedBlock(block.label ?? block.id)
+                }
                 renderTrackPrefix={({ trackBlocks, trackKey }) => (
                   <Text
                     minW="56px"
@@ -969,6 +1718,9 @@ const RoomBookingViewportDemo = () => {
             </Box>
           </TimeViewportRoot>
         </Box>
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          Last clicked block: {lastClickedBlock}
+        </Text>
       </VStack>
     </Provider>
   );

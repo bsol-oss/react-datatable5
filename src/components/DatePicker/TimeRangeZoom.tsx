@@ -21,6 +21,9 @@ import {
 import { LuZoomIn, LuZoomOut } from 'react-icons/lu';
 
 type TimeInput = Date | string | number;
+const VIEWPORT_TRANSITION_EASING = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+const VIEWPORT_TRANSITION_DURATION_MS = 220;
+const VIEWPORT_TRANSITION = `transform ${VIEWPORT_TRANSITION_DURATION_MS}ms ${VIEWPORT_TRANSITION_EASING}, opacity ${VIEWPORT_TRANSITION_DURATION_MS}ms ${VIEWPORT_TRANSITION_EASING}`;
 
 export interface ViewableTimeRange {
   start: TimeInput;
@@ -66,6 +69,7 @@ export interface TimeViewportBlockProps {
   label?: string;
   showLabel?: boolean;
   hideWhenOutOfView?: boolean;
+  onClick?: () => void;
 }
 
 export interface TimeViewportBlockItem {
@@ -77,6 +81,7 @@ export interface TimeViewportBlockItem {
   background?: string;
   track?: string | number;
   children?: TimeViewportBlockItem[];
+  onClick?: (block: TimeViewportBlockItem) => void;
 }
 
 export interface TimeViewportMarkerLineProps {
@@ -96,6 +101,9 @@ export interface TimeViewportHeaderProps {
   viewportStart?: TimeInput;
   viewportEnd?: TimeInput;
   tickCount?: number;
+  tickStrategy?: 'count' | 'timeUnit';
+  tickUnit?: 'minute' | 'hour' | 'day';
+  tickStep?: number;
   format?: string;
   height?: string | number;
   color?: string;
@@ -103,6 +111,27 @@ export interface TimeViewportHeaderProps {
   showBottomBorder?: boolean;
   animationDurationMs?: number;
   animationEasing?: string;
+}
+
+export interface TimeViewportHeaderTick {
+  index: number;
+  percent: number;
+  label: string;
+}
+
+export interface UseTimeViewportTicksResult {
+  isValidViewport: boolean;
+  getTicksByCount: (tickCount?: number) => TimeViewportHeaderTick[];
+  getTicksByTimeUnit: (
+    tickUnit?: TimeViewportHeaderProps['tickUnit'],
+    tickStep?: number
+  ) => TimeViewportHeaderTick[];
+  getTicks: (options?: {
+    tickStrategy?: TimeViewportHeaderProps['tickStrategy'];
+    tickCount?: number;
+    tickUnit?: TimeViewportHeaderProps['tickUnit'];
+    tickStep?: number;
+  }) => TimeViewportHeaderTick[];
 }
 
 export interface TimeViewportGridProps {
@@ -142,6 +171,7 @@ export interface TimeViewportBlocksProps {
     trackBlocks: TimeViewportBlockItem[];
     trackKey?: string | number;
   }) => ReactNode;
+  onBlockClick?: (block: TimeViewportBlockItem) => void;
 }
 
 export interface TimeViewportRootProps {
@@ -379,6 +409,21 @@ const DEFAULT_MIN_DURATION_MS = 60 * 1000;
 const DEFAULT_MAX_DURATION_MS = 365 * 24 * 60 * 60 * 1000;
 const DEFAULT_ZOOM_FACTOR = 2;
 
+export interface UseTimeRangeZoomResult {
+  labels: Required<TimeRangeZoomLabels>;
+  start: dayjs.Dayjs;
+  end: dayjs.Dayjs;
+  durationMs: number;
+  canZoomIn: boolean;
+  canZoomOut: boolean;
+  hasValidDisplayRange: boolean;
+  visibleRangeText: string;
+  durationText: string;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  reset: () => void;
+}
+
 const clampNumber = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
@@ -390,49 +435,6 @@ const toValidDayjs = (value: TimeInput, fallback: dayjs.Dayjs) => {
 const parseTimeInput = (value: TimeInput) => {
   const parsed = dayjs(value);
   return parsed.isValid() ? parsed : null;
-};
-
-const getBlockGeometry = ({
-  start,
-  end,
-  viewportStart,
-  viewportEnd,
-}: {
-  start: TimeInput;
-  end: TimeInput;
-  viewportStart: TimeInput;
-  viewportEnd: TimeInput;
-}) => {
-  const blockStart = parseTimeInput(start);
-  const blockEnd = parseTimeInput(end);
-  const vpStart = parseTimeInput(viewportStart);
-  const vpEnd = parseTimeInput(viewportEnd);
-
-  if (!blockStart || !blockEnd || !vpStart || !vpEnd) {
-    return { valid: false, leftPercent: 0, widthPercent: 0 };
-  }
-
-  if (!vpEnd.isAfter(vpStart) || !blockEnd.isAfter(blockStart)) {
-    return { valid: false, leftPercent: 0, widthPercent: 0 };
-  }
-
-  const viewportMs = vpEnd.diff(vpStart, 'millisecond');
-  const visibleStart =
-    blockStart.valueOf() > vpStart.valueOf() ? blockStart : vpStart;
-  const visibleEnd = blockEnd.valueOf() < vpEnd.valueOf() ? blockEnd : vpEnd;
-
-  if (!visibleEnd.isAfter(visibleStart)) {
-    return { valid: true, leftPercent: 0, widthPercent: 0 };
-  }
-
-  const leftMs = visibleStart.diff(vpStart, 'millisecond');
-  const widthMs = visibleEnd.diff(visibleStart, 'millisecond');
-
-  return {
-    valid: true,
-    leftPercent: clampNumber((leftMs / viewportMs) * 100, 0, 100),
-    widthPercent: clampNumber((widthMs / viewportMs) * 100, 0, 100),
-  };
 };
 
 const flattenTrackBlocks = (
@@ -459,34 +461,249 @@ const flattenTrackBlocks = (
   return flattened;
 };
 
-const getTimestampPercent = ({
-  timestamp,
-  viewportStart,
-  viewportEnd,
-}: {
-  timestamp: TimeInput;
-  viewportStart: TimeInput;
-  viewportEnd: TimeInput;
-}) => {
-  const time = parseTimeInput(timestamp);
-  const vpStart = parseTimeInput(viewportStart);
-  const vpEnd = parseTimeInput(viewportEnd);
+export interface UseTimeViewportBlockGeometryResult {
+  hasValidViewport: boolean;
+  getGeometry: (
+    start?: TimeInput,
+    end?: TimeInput
+  ) => {
+    valid: boolean;
+    leftPercent: number;
+    widthPercent: number;
+  };
+  toTimeMs: (value?: TimeInput) => number | null;
+}
 
-  if (!time || !vpStart || !vpEnd || !vpEnd.isAfter(vpStart)) {
-    return { valid: false, percent: 0, inView: false };
-  }
+export interface UseTimeViewportDerivedResult {
+  isValidViewport: boolean;
+  toTimeMs: (value?: TimeInput) => number | null;
+  getGeometry: (
+    start?: TimeInput,
+    end?: TimeInput
+  ) => {
+    valid: boolean;
+    leftPercent: number;
+    widthPercent: number;
+  };
+  getTimestampPercent: (timestamp?: TimeInput) => {
+    valid: boolean;
+    percent: number;
+    inView: boolean;
+  };
+  getTicksByCount: (tickCount?: number) => TimeViewportHeaderTick[];
+  getTicksByTimeUnit: (
+    tickUnit?: TimeViewportHeaderProps['tickUnit'],
+    tickStep?: number
+  ) => TimeViewportHeaderTick[];
+  getTicks: (options?: {
+    tickStrategy?: TimeViewportHeaderProps['tickStrategy'];
+    tickCount?: number;
+    tickUnit?: TimeViewportHeaderProps['tickUnit'];
+    tickStep?: number;
+  }) => TimeViewportHeaderTick[];
+}
 
-  const totalMs = vpEnd.diff(vpStart, 'millisecond');
-  const offsetMs = time.diff(vpStart, 'millisecond');
-  const rawPercent = (offsetMs / totalMs) * 100;
-  const inView = rawPercent >= 0 && rawPercent <= 100;
+export function useTimeViewport(
+  viewportStart?: TimeInput,
+  viewportEnd?: TimeInput,
+  format?: string
+): UseTimeViewportDerivedResult {
+  const viewport = useResolvedViewport(viewportStart, viewportEnd);
+  const parsedViewport = useMemo(() => {
+    if (!viewport) return null;
+
+    const start = parseTimeInput(viewport.viewportStart);
+    const end = parseTimeInput(viewport.viewportEnd);
+    if (!start || !end || !end.isAfter(start)) return null;
+
+    const viewportStartMs = start.valueOf();
+    const viewportEndMs = end.valueOf();
+
+    return {
+      start,
+      end,
+      formatString: format ?? getDefaultHeaderFormat(start, end),
+      viewportStartMs,
+      viewportEndMs,
+      viewportDurationMs: viewportEndMs - viewportStartMs,
+    };
+  }, [format, viewport]);
+
+  const toTimeMs = useCallback((value?: TimeInput) => {
+    if (value === undefined) return null;
+    const parsed = parseTimeInput(value);
+    return parsed ? parsed.valueOf() : null;
+  }, []);
+
+  const getGeometry = useCallback(
+    (start?: TimeInput, end?: TimeInput) => {
+      if (!parsedViewport || start === undefined || end === undefined) {
+        return { valid: false, leftPercent: 0, widthPercent: 0 };
+      }
+
+      const blockStartMs = toTimeMs(start);
+      const blockEndMs = toTimeMs(end);
+      if (
+        blockStartMs === null ||
+        blockEndMs === null ||
+        blockEndMs <= blockStartMs
+      ) {
+        return { valid: false, leftPercent: 0, widthPercent: 0 };
+      }
+
+      const visibleStartMs = Math.max(
+        blockStartMs,
+        parsedViewport.viewportStartMs
+      );
+      const visibleEndMs = Math.min(blockEndMs, parsedViewport.viewportEndMs);
+
+      if (visibleEndMs <= visibleStartMs) {
+        return { valid: true, leftPercent: 0, widthPercent: 0 };
+      }
+
+      const leftMs = visibleStartMs - parsedViewport.viewportStartMs;
+      const widthMs = visibleEndMs - visibleStartMs;
+
+      return {
+        valid: true,
+        leftPercent: clampNumber(
+          (leftMs / parsedViewport.viewportDurationMs) * 100,
+          0,
+          100
+        ),
+        widthPercent: clampNumber(
+          (widthMs / parsedViewport.viewportDurationMs) * 100,
+          0,
+          100
+        ),
+      };
+    },
+    [parsedViewport, toTimeMs]
+  );
+
+  const getTimestampPercent = useCallback(
+    (timestamp?: TimeInput) => {
+      if (!parsedViewport || timestamp === undefined) {
+        return { valid: false, percent: 0, inView: false };
+      }
+      const timestampMs = toTimeMs(timestamp);
+      if (timestampMs === null)
+        return { valid: false, percent: 0, inView: false };
+
+      const rawPercent =
+        ((timestampMs - parsedViewport.viewportStartMs) /
+          parsedViewport.viewportDurationMs) *
+        100;
+      return {
+        valid: true,
+        percent: clampNumber(rawPercent, 0, 100),
+        inView: rawPercent >= 0 && rawPercent <= 100,
+      };
+    },
+    [parsedViewport, toTimeMs]
+  );
+
+  const getTicksByCount = useCallback(
+    (tickCount = 7) => {
+      if (!parsedViewport) return [];
+      const safeTickCount = Math.max(2, tickCount);
+      return Array.from({ length: safeTickCount }, (_, index) => {
+        const ratio = index / (safeTickCount - 1);
+        const tickTime = parsedViewport.start.add(
+          parsedViewport.viewportDurationMs * ratio,
+          'millisecond'
+        );
+        return {
+          index,
+          percent: ratio * 100,
+          label: tickTime.format(parsedViewport.formatString),
+        };
+      });
+    },
+    [parsedViewport]
+  );
+
+  const getTicksByTimeUnit = useCallback(
+    (tickUnit: TimeViewportHeaderProps['tickUnit'] = 'hour', tickStep = 1) => {
+      if (!parsedViewport) return [];
+      const safeTickStep = Math.max(1, Math.floor(tickStep));
+      const candidateTimes: dayjs.Dayjs[] = [parsedViewport.start];
+      let cursor = parsedViewport.start.startOf(tickUnit);
+
+      while (cursor.isBefore(parsedViewport.start)) {
+        cursor = cursor.add(safeTickStep, tickUnit);
+      }
+
+      while (
+        cursor.isBefore(parsedViewport.end) ||
+        cursor.isSame(parsedViewport.end)
+      ) {
+        candidateTimes.push(cursor);
+        cursor = cursor.add(safeTickStep, tickUnit);
+      }
+
+      candidateTimes.push(parsedViewport.end);
+
+      const uniqueSortedTicks = Array.from(
+        new Map(candidateTimes.map((time) => [time.valueOf(), time])).values()
+      ).sort((a, b) => a.valueOf() - b.valueOf());
+
+      return uniqueSortedTicks.map((tickTime, index) => {
+        const ratio =
+          tickTime.diff(parsedViewport.start, 'millisecond') /
+          parsedViewport.viewportDurationMs;
+        return {
+          index,
+          percent: clampNumber(ratio * 100, 0, 100),
+          label: tickTime.format(parsedViewport.formatString),
+        };
+      });
+    },
+    [parsedViewport]
+  );
+
+  const getTicks = useCallback(
+    (options?: {
+      tickStrategy?: TimeViewportHeaderProps['tickStrategy'];
+      tickCount?: number;
+      tickUnit?: TimeViewportHeaderProps['tickUnit'];
+      tickStep?: number;
+    }) => {
+      const strategy = options?.tickStrategy ?? 'count';
+      if (strategy === 'timeUnit') {
+        return getTicksByTimeUnit(options?.tickUnit, options?.tickStep);
+      }
+      return getTicksByCount(options?.tickCount);
+    },
+    [getTicksByCount, getTicksByTimeUnit]
+  );
 
   return {
-    valid: true,
-    percent: clampNumber(rawPercent, 0, 100),
-    inView,
+    isValidViewport: Boolean(parsedViewport),
+    toTimeMs,
+    getGeometry,
+    getTimestampPercent,
+    getTicksByCount,
+    getTicksByTimeUnit,
+    getTicks,
   };
-};
+}
+
+export function useTimeViewportBlockGeometry(
+  viewportStart?: TimeInput,
+  viewportEnd?: TimeInput
+): UseTimeViewportBlockGeometryResult {
+  const { isValidViewport, getGeometry, toTimeMs } = useTimeViewport(
+    viewportStart,
+    viewportEnd
+  );
+
+  return {
+    hasValidViewport: isValidViewport,
+    getGeometry,
+    toTimeMs,
+  };
+}
 
 const getDefaultHeaderFormat = (start: dayjs.Dayjs, end: dayjs.Dayjs) => {
   const durationHours = end.diff(start, 'hour', true);
@@ -494,6 +711,27 @@ const getDefaultHeaderFormat = (start: dayjs.Dayjs, end: dayjs.Dayjs) => {
   if (durationHours <= 24 * 7) return 'ddd HH:mm';
   return 'MMM D';
 };
+
+export function useTimeViewportTicks({
+  viewportStart,
+  viewportEnd,
+  format,
+}: Pick<
+  TimeViewportHeaderProps,
+  'viewportStart' | 'viewportEnd' | 'format'
+>): UseTimeViewportTicksResult {
+  const { isValidViewport, getTicksByCount, getTicksByTimeUnit, getTicks } =
+    useTimeViewport(viewportStart, viewportEnd, format);
+
+  return {
+    isValidViewport,
+    getTicksByCount,
+    getTicksByTimeUnit,
+    getTicks,
+  };
+}
+
+export const useTimeViewportHeader = useTimeViewportTicks;
 
 const formatDuration = (
   durationMs: number,
@@ -518,7 +756,7 @@ const formatDuration = (
 
 /**
  * A resizable timeline block based on block time range and viewport time range.
- * Width and left position are automatically derived from datetime overlap.
+ * Width and offset are automatically derived from datetime overlap.
  */
 export function TimeViewportBlock({
   start,
@@ -533,49 +771,57 @@ export function TimeViewportBlock({
   label,
   showLabel = true,
   hideWhenOutOfView = true,
+  onClick,
 }: TimeViewportBlockProps) {
-  const viewport = useResolvedViewport(viewportStart, viewportEnd);
+  const { getGeometry } = useTimeViewportBlockGeometry(
+    viewportStart,
+    viewportEnd
+  );
   const geometry = useMemo(() => {
-    if (!viewport) return { valid: false, leftPercent: 0, widthPercent: 0 };
-    return getBlockGeometry({
-      start,
-      end,
-      viewportStart: viewport.viewportStart,
-      viewportEnd: viewport.viewportEnd,
-    });
-  }, [end, start, viewport]);
+    return getGeometry(start, end);
+  }, [end, getGeometry, start]);
 
   if (!geometry.valid) return null;
   if (hideWhenOutOfView && geometry.widthPercent <= 0) return null;
 
   return (
     <Box position="relative" width="100%" height={height}>
-      <Box
-        position="absolute"
-        left={`${geometry.leftPercent}%`}
-        width={`max(${geometry.widthPercent}%, ${minWidthPx}px)`}
-        height="100%"
-        borderRadius={borderRadius}
-        bg={background ?? `${colorPalette}.500`}
-        _dark={{
-          bg: background ?? `${colorPalette}.900`,
-        }}
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        px={2}
-        overflow="hidden"
-      >
-        {showLabel && label ? (
-          <Text
-            fontSize="xs"
-            lineClamp={1}
-            color="white"
-            _dark={{ color: 'gray.100' }}
+      <Box position="absolute" inset={0} pointerEvents="none">
+        <Box
+          width="100%"
+          height="100%"
+          transform={`translateX(${geometry.leftPercent}%)`}
+          transition={VIEWPORT_TRANSITION}
+        >
+          <Box
+            width={`max(${geometry.widthPercent}%, ${minWidthPx}px)`}
+            height="100%"
+            borderRadius={borderRadius}
+            bg={background ?? `${colorPalette}.500`}
+            _dark={{
+              bg: background ?? `${colorPalette}.900`,
+            }}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            px={2}
+            overflow="hidden"
+            pointerEvents="auto"
+            onClick={onClick}
+            cursor={onClick ? 'pointer' : 'default'}
           >
-            {label}
-          </Text>
-        ) : null}
+            {showLabel && label ? (
+              <Text
+                fontSize="xs"
+                lineClamp={1}
+                color="white"
+                _dark={{ color: 'gray.100' }}
+              >
+                {label}
+              </Text>
+            ) : null}
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
@@ -596,15 +842,10 @@ export function TimeViewportMarkerLine({
   showLabel = true,
   hideWhenOutOfView = true,
 }: TimeViewportMarkerLineProps) {
-  const viewport = useResolvedViewport(viewportStart, viewportEnd);
+  const { getTimestampPercent } = useTimeViewport(viewportStart, viewportEnd);
   const marker = useMemo(() => {
-    if (!viewport) return { valid: false, percent: 0, inView: false };
-    return getTimestampPercent({
-      timestamp,
-      viewportStart: viewport.viewportStart,
-      viewportEnd: viewport.viewportEnd,
-    });
-  }, [timestamp, viewport]);
+    return getTimestampPercent(timestamp);
+  }, [getTimestampPercent, timestamp]);
 
   if (!marker.valid) return null;
   if (hideWhenOutOfView && !marker.inView) return null;
@@ -612,32 +853,45 @@ export function TimeViewportMarkerLine({
   return (
     <Box
       position="absolute"
-      left={`${marker.percent}%`}
+      insetInlineStart={0}
+      insetInlineEnd={0}
       top={0}
       bottom={0}
-      transform="translateX(-50%)"
       pointerEvents="none"
       zIndex={100}
       height={height}
     >
       <Box
-        width={`${lineWidthPx}px`}
+        width="100%"
         height="100%"
-        bg={color ?? `${colorPalette}.500`}
-        _dark={{ bg: color ?? `${colorPalette}.300` }}
-      />
-      {showLabel && label ? (
-        <Text
-          mt={1}
-          fontSize="xs"
-          whiteSpace="nowrap"
-          color={color ?? `${colorPalette}.700`}
-          _dark={{ color: color ?? `${colorPalette}.200` }}
+        transform={`translateX(${marker.percent}%)`}
+        transition={VIEWPORT_TRANSITION}
+        transformOrigin="left center"
+      >
+        <Box
+          width={`${lineWidthPx}px`}
+          height="100%"
+          bg={color ?? `${colorPalette}.500`}
+          _dark={{ bg: color ?? `${colorPalette}.300` }}
           transform="translateX(-50%)"
-        >
-          {label}
-        </Text>
-      ) : null}
+        />
+        {showLabel && label ? (
+          <Text
+            position="absolute"
+            insetInlineStart={0}
+            top="100%"
+            mt={1}
+            display="inline-block"
+            fontSize="xs"
+            whiteSpace="nowrap"
+            color={color ?? `${colorPalette}.700`}
+            _dark={{ color: color ?? `${colorPalette}.200` }}
+            transform="translateX(-50%)"
+          >
+            {label}
+          </Text>
+        ) : null}
+      </Box>
     </Box>
   );
 }
@@ -649,36 +903,30 @@ export function TimeViewportHeader({
   viewportStart,
   viewportEnd,
   tickCount = 7,
+  tickStrategy = 'count',
+  tickUnit = 'hour',
+  tickStep = 1,
   format,
   height = '28px',
   color = 'gray.600',
   borderColor = 'gray.200',
   showBottomBorder = true,
-  animationDurationMs = 220,
-  animationEasing = 'ease-out',
+  animationDurationMs = VIEWPORT_TRANSITION_DURATION_MS,
+  animationEasing = VIEWPORT_TRANSITION_EASING,
 }: TimeViewportHeaderProps) {
-  const viewport = useResolvedViewport(viewportStart, viewportEnd);
-  const start = viewport ? parseTimeInput(viewport.viewportStart) : null;
-  const end = viewport ? parseTimeInput(viewport.viewportEnd) : null;
-
-  if (!start || !end || !end.isAfter(start)) return null;
-
-  const safeTickCount = Math.max(2, tickCount);
-  const formatString = format ?? getDefaultHeaderFormat(start, end);
-  const totalMs = end.diff(start, 'millisecond');
+  const { isValidViewport, getTicks } = useTimeViewport(
+    viewportStart,
+    viewportEnd,
+    format
+  );
+  const ticks = getTicks({ tickStrategy, tickCount, tickUnit, tickStep });
+  const safeTickCount = ticks.length;
   const transitionValue =
     animationDurationMs > 0
-      ? `left ${animationDurationMs}ms ${animationEasing}`
+      ? `transform ${animationDurationMs}ms ${animationEasing}, opacity ${animationDurationMs}ms ${animationEasing}`
       : undefined;
-  const ticks = Array.from({ length: safeTickCount }, (_, index) => {
-    const ratio = index / (safeTickCount - 1);
-    const tickTime = start.add(totalMs * ratio, 'millisecond');
-    return {
-      index,
-      percent: ratio * 100,
-      label: tickTime.format(formatString),
-    };
-  });
+
+  if (!isValidViewport || safeTickCount < 2) return null;
 
   return (
     <Box
@@ -691,27 +939,33 @@ export function TimeViewportHeader({
       mb={2}
     >
       {ticks.map((tick) => (
-        <Text
-          key={`tick-${tick.index}`}
+        <Box
+          key={`tick-wrap-${tick.index}`}
           position="absolute"
-          left={`${tick.percent}%`}
+          inset={0}
+          transform={`translateX(${tick.percent}%)`}
           transition={transitionValue}
-          transform={
-            tick.index === 0
-              ? 'translateX(0%)'
-              : tick.index === safeTickCount - 1
-                ? 'translateX(-100%)'
-                : 'translateX(-50%)'
-          }
-          top="50%"
-          translate="0 -50%"
-          fontSize="xs"
-          color={color}
-          _dark={{ color: 'gray.300' }}
-          whiteSpace="nowrap"
         >
-          {tick.label}
-        </Text>
+          <Text
+            position="absolute"
+            insetInlineStart={0}
+            top="50%"
+            translate="0 -50%"
+            transform={
+              tick.index === 0
+                ? 'translateX(0%)'
+                : tick.index === safeTickCount - 1
+                  ? 'translateX(-100%)'
+                  : 'translateX(-50%)'
+            }
+            fontSize="xs"
+            color={color}
+            _dark={{ color: 'gray.300' }}
+            whiteSpace="nowrap"
+          >
+            {tick.label}
+          </Text>
+        </Box>
       ))}
     </Box>
   );
@@ -730,8 +984,8 @@ export function TimeViewportGrid({
   minorLineColor = 'gray.200',
   showMinorLines = true,
   zIndex = 0,
-  animationDurationMs = 220,
-  animationEasing = 'ease-out',
+  animationDurationMs = VIEWPORT_TRANSITION_DURATION_MS,
+  animationEasing = VIEWPORT_TRANSITION_EASING,
 }: TimeViewportGridProps) {
   const viewport = useResolvedViewport(viewportStart, viewportEnd);
   const start = viewport ? parseTimeInput(viewport.viewportStart) : null;
@@ -747,7 +1001,7 @@ export function TimeViewportGrid({
   const safeMinorDivisions = Math.max(1, minorDivisions);
   const transitionValue =
     animationDurationMs > 0
-      ? `left ${animationDurationMs}ms ${animationEasing}`
+      ? `transform ${animationDurationMs}ms ${animationEasing}, opacity ${animationDurationMs}ms ${animationEasing}`
       : undefined;
   const minorTicks = showMinorLines
     ? Array.from({ length: safeTickCount - 1 }, (_, segmentIndex) => {
@@ -767,27 +1021,39 @@ export function TimeViewportGrid({
         <Box
           key={`minor-grid-${index}`}
           position="absolute"
-          left={`${percent}%`}
+          inset={0}
+          transform={`translateX(${percent}%)`}
           transition={transitionValue}
-          top={0}
-          bottom={0}
-          width="1px"
-          bg={minorLineColor}
-          _dark={{ bg: 'gray.700' }}
-        />
+        >
+          <Box
+            position="absolute"
+            insetInlineStart={0}
+            top={0}
+            bottom={0}
+            width="1px"
+            bg={minorLineColor}
+            _dark={{ bg: 'gray.700' }}
+          />
+        </Box>
       ))}
       {majorTicks.map((tick) => (
         <Box
           key={`major-grid-${tick.index}`}
           position="absolute"
-          left={`${tick.percent}%`}
+          inset={0}
+          transform={`translateX(${tick.percent}%)`}
           transition={transitionValue}
-          top={0}
-          bottom={0}
-          width="1px"
-          bg={majorLineColor}
-          _dark={{ bg: 'gray.600' }}
-        />
+        >
+          <Box
+            position="absolute"
+            insetInlineStart={0}
+            top={0}
+            bottom={0}
+            width="1px"
+            bg={majorLineColor}
+            _dark={{ bg: 'gray.600' }}
+          />
+        </Box>
       ))}
     </Box>
   );
@@ -809,21 +1075,16 @@ export function TimeViewportBlocks({
   overlapOpacity = 0.9,
   renderTrackPrefix,
   renderTrackSuffix,
+  onBlockClick,
 }: TimeViewportBlocksProps) {
-  const viewport = useResolvedViewport(viewportStart, viewportEnd);
+  const { getGeometry, toTimeMs } = useTimeViewportBlockGeometry(
+    viewportStart,
+    viewportEnd
+  );
   const resolvedHeight = typeof height === 'number' ? `${height}px` : height;
   const expandedBlocks = flattenTrackBlocks(blocks);
   const parsedBlocks: ParsedTimeViewportBlock[] = expandedBlocks
     .map((block, index) => {
-      if (!viewport) {
-        return {
-          block,
-          index,
-          geometry: { valid: false, leftPercent: 0, widthPercent: 0 },
-          startMs: Number.NaN,
-          endMs: Number.NaN,
-        };
-      }
       if (block.start === undefined || block.end === undefined) {
         return {
           block,
@@ -833,21 +1094,16 @@ export function TimeViewportBlocks({
           endMs: Number.NaN,
         };
       }
-      const geometry = getBlockGeometry({
-        start: block.start,
-        end: block.end,
-        viewportStart: viewport.viewportStart,
-        viewportEnd: viewport.viewportEnd,
-      });
-      const startParsed = parseTimeInput(block.start);
-      const endParsed = parseTimeInput(block.end);
+      const geometry = getGeometry(block.start, block.end);
+      const startMs = toTimeMs(block.start);
+      const endMs = toTimeMs(block.end);
 
       return {
         block,
         index,
         geometry,
-        startMs: startParsed?.valueOf() ?? Number.NaN,
-        endMs: endParsed?.valueOf() ?? Number.NaN,
+        startMs: startMs ?? Number.NaN,
+        endMs: endMs ?? Number.NaN,
       };
     })
     .filter(({ geometry }) => geometry.valid)
@@ -858,40 +1114,55 @@ export function TimeViewportBlocks({
     indexInLayer: number
   ) => {
     const { block, geometry } = blockItem;
+    const handleBlockClick = () => {
+      block.onClick?.(block);
+      onBlockClick?.(block);
+    };
+    const isBlockClickable = Boolean(block.onClick || onBlockClick);
     return (
-      <Box
-        key={block.id}
-        position="absolute"
-        left={`${geometry.leftPercent}%`}
-        width={`max(${geometry.widthPercent}%, ${minWidthPx}px)`}
-        height="100%"
-        borderRadius={borderRadius}
-        bg={
-          block.background ?? `${block.colorPalette ?? defaultColorPalette}.500`
-        }
-        _dark={{
-          bg:
-            block.background ??
-            `${block.colorPalette ?? defaultColorPalette}.900`,
-        }}
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        px={2}
-        overflow="hidden"
-        opacity={allowOverlap ? overlapOpacity : 1}
-        zIndex={indexInLayer + 1}
-      >
-        {showLabel && block.label ? (
-          <Text
-            fontSize="xs"
-            lineClamp={1}
-            color="white"
-            _dark={{ color: 'gray.100' }}
+      <Box key={block.id} position="absolute" inset={0} pointerEvents="none">
+        <Box
+          width="100%"
+          height="100%"
+          transform={`translateX(${geometry.leftPercent}%)`}
+          transition={VIEWPORT_TRANSITION}
+        >
+          <Box
+            width={`max(${geometry.widthPercent}%, ${minWidthPx}px)`}
+            height="100%"
+            borderRadius={borderRadius}
+            bg={
+              block.background ??
+              `${block.colorPalette ?? defaultColorPalette}.500`
+            }
+            _dark={{
+              bg:
+                block.background ??
+                `${block.colorPalette ?? defaultColorPalette}.900`,
+            }}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            px={2}
+            overflow="hidden"
+            opacity={allowOverlap ? overlapOpacity : 1}
+            zIndex={indexInLayer + 1}
+            pointerEvents="auto"
+            onClick={isBlockClickable ? handleBlockClick : undefined}
+            cursor={isBlockClickable ? 'pointer' : 'default'}
           >
-            {block.label}
-          </Text>
-        ) : null}
+            {showLabel && block.label ? (
+              <Text
+                fontSize="xs"
+                lineClamp={1}
+                color="white"
+                _dark={{ color: 'gray.100' }}
+              >
+                {block.label}
+              </Text>
+            ) : null}
+          </Box>
+        </Box>
       </Box>
     );
   };
@@ -1015,10 +1286,90 @@ export function TimeRangeZoom({
   disabled = false,
   labels,
 }: TimeRangeZoomProps) {
-  const mergedLabels = {
-    ...defaultLabels,
-    ...(labels ?? {}),
-  };
+  const {
+    labels: mergedLabels,
+    canZoomIn,
+    canZoomOut,
+    visibleRangeText,
+    durationText,
+    zoomIn,
+    zoomOut,
+    reset,
+  } = useTimeRangeZoom({
+    range,
+    onRangeChange,
+    minDurationMs,
+    maxDurationMs,
+    zoomFactor,
+    resetDurationMs,
+    disabled,
+    labels,
+  });
+
+  return (
+    <VStack align="stretch" gap={2} p={3}>
+      <HStack justify="space-between" gap={2}>
+        <HStack gap={2}>
+          <IconButton
+            aria-label={mergedLabels.zoomOut}
+            onClick={zoomOut}
+            disabled={!canZoomOut}
+            size="sm"
+            variant="outline"
+          >
+            <LuZoomOut />
+          </IconButton>
+          <IconButton
+            aria-label={mergedLabels.zoomIn}
+            onClick={zoomIn}
+            disabled={!canZoomIn}
+            size="sm"
+            variant="outline"
+          >
+            <LuZoomIn />
+          </IconButton>
+        </HStack>
+        {showResetButton ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={reset}
+            disabled={disabled}
+            colorPalette="blue"
+          >
+            {mergedLabels.reset}
+          </Button>
+        ) : null}
+      </HStack>
+
+      <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+        {mergedLabels.visibleRange}: {visibleRangeText}
+      </Text>
+
+      <Text fontSize="xs" color="gray.600" _dark={{ color: 'gray.400' }}>
+        {mergedLabels.duration}: {durationText}
+      </Text>
+    </VStack>
+  );
+}
+
+export function useTimeRangeZoom({
+  range,
+  onRangeChange,
+  minDurationMs = DEFAULT_MIN_DURATION_MS,
+  maxDurationMs = DEFAULT_MAX_DURATION_MS,
+  zoomFactor = DEFAULT_ZOOM_FACTOR,
+  resetDurationMs,
+  disabled = false,
+  labels,
+}: TimeRangeZoomProps): UseTimeRangeZoomResult {
+  const mergedLabels = useMemo(
+    () => ({
+      ...defaultLabels,
+      ...(labels ?? {}),
+    }),
+    [labels]
+  );
 
   const now = dayjs();
   const start = toValidDayjs(range.start, now.subtract(1, 'hour'));
@@ -1045,86 +1396,72 @@ export function TimeRangeZoom({
     )
   );
 
-  const applyDurationAroundCenter = (nextDurationMs: number) => {
-    const centerMs = start.valueOf() + durationMs / 2;
-    const half = nextDurationMs / 2;
-    const nextStart = dayjs(centerMs - half).toDate();
-    const nextEnd = dayjs(centerMs + half).toDate();
-    onRangeChange({ start: nextStart, end: nextEnd });
-  };
+  const hasValidDisplayRange = end.isAfter(start);
 
-  const handleZoomIn = () => {
+  const applyDurationAroundCenter = useCallback(
+    (nextDurationMs: number) => {
+      const centerMs = start.valueOf() + durationMs / 2;
+      const half = nextDurationMs / 2;
+      const nextStart = dayjs(centerMs - half).toDate();
+      const nextEnd = dayjs(centerMs + half).toDate();
+      onRangeChange({ start: nextStart, end: nextEnd });
+    },
+    [durationMs, onRangeChange, start]
+  );
+
+  const zoomIn = useCallback(() => {
     const nextDuration = clampNumber(
       durationMs / safeZoomFactor,
       safeMinDurationMs,
       safeMaxDurationMs
     );
     applyDurationAroundCenter(nextDuration);
-  };
+  }, [
+    applyDurationAroundCenter,
+    durationMs,
+    safeMaxDurationMs,
+    safeMinDurationMs,
+    safeZoomFactor,
+  ]);
 
-  const handleZoomOut = () => {
+  const zoomOut = useCallback(() => {
     const nextDuration = clampNumber(
       durationMs * safeZoomFactor,
       safeMinDurationMs,
       safeMaxDurationMs
     );
     applyDurationAroundCenter(nextDuration);
-  };
+  }, [
+    applyDurationAroundCenter,
+    durationMs,
+    safeMaxDurationMs,
+    safeMinDurationMs,
+    safeZoomFactor,
+  ]);
 
-  const handleReset = () => {
+  const reset = useCallback(() => {
     applyDurationAroundCenter(initialDurationRef.current);
-  };
+  }, [applyDurationAroundCenter]);
 
   const canZoomIn = !disabled && durationMs > safeMinDurationMs;
   const canZoomOut = !disabled && durationMs < safeMaxDurationMs;
-  const hasValidDisplayRange = end.isAfter(start);
+  const visibleRangeText = hasValidDisplayRange
+    ? `${start.format(mergedLabels.dateTimeFormat)} - ${end.format(mergedLabels.dateTimeFormat)}`
+    : mergedLabels.invalidRange;
+  const durationText = formatDuration(durationMs, mergedLabels);
 
-  return (
-    <VStack align="stretch" gap={2} p={3}>
-      <HStack justify="space-between" gap={2}>
-        <HStack gap={2}>
-          <IconButton
-            aria-label={mergedLabels.zoomOut}
-            onClick={handleZoomOut}
-            disabled={!canZoomOut}
-            size="sm"
-            variant="outline"
-          >
-            <LuZoomOut />
-          </IconButton>
-          <IconButton
-            aria-label={mergedLabels.zoomIn}
-            onClick={handleZoomIn}
-            disabled={!canZoomIn}
-            size="sm"
-            variant="outline"
-          >
-            <LuZoomIn />
-          </IconButton>
-        </HStack>
-        {showResetButton ? (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleReset}
-            disabled={disabled}
-            colorPalette="blue"
-          >
-            {mergedLabels.reset}
-          </Button>
-        ) : null}
-      </HStack>
-
-      <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
-        {mergedLabels.visibleRange}:{' '}
-        {hasValidDisplayRange
-          ? `${start.format(mergedLabels.dateTimeFormat)} - ${end.format(mergedLabels.dateTimeFormat)}`
-          : mergedLabels.invalidRange}
-      </Text>
-
-      <Text fontSize="xs" color="gray.600" _dark={{ color: 'gray.400' }}>
-        {mergedLabels.duration}: {formatDuration(durationMs, mergedLabels)}
-      </Text>
-    </VStack>
-  );
+  return {
+    labels: mergedLabels,
+    start,
+    end,
+    durationMs,
+    canZoomIn,
+    canZoomOut,
+    hasValidDisplayRange,
+    visibleRangeText,
+    durationText,
+    zoomIn,
+    zoomOut,
+    reset,
+  };
 }
