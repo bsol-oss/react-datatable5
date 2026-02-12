@@ -1205,6 +1205,33 @@ const MultiViewportBlocksDemo = () => {
             colorPalette="red"
           />
         </Box>
+
+        <Box
+          p={3}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+          position="relative"
+        >
+          <TimeViewportBlocks
+            blocks={blocks}
+            viewportStart={viewport.start}
+            viewportEnd={viewport.end}
+            height="28px"
+            allowOverlap={false}
+            onBlockClick={(block) =>
+              setLastClickedBlock(block.label ?? block.id)
+            }
+          />
+          <TimeViewportMarkerLine
+            timestamp={dayjs().subtract(100, 'minute').toDate()}
+            viewportStart={viewport.start}
+            viewportEnd={viewport.end}
+            label="Cutoff"
+            colorPalette="red"
+          />
+        </Box>
         <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
           Last clicked block: {lastClickedBlock}
         </Text>
@@ -2756,4 +2783,815 @@ export const WeekView: Story = {
     ...requiredStoryArgs,
   },
   render: () => <WeekViewDemo />,
+};
+
+// ---------------------------------------------------------------------------
+// Community Centre Activity Story
+// ---------------------------------------------------------------------------
+
+type CentreActivity = {
+  id: string;
+  label: string;
+  room: string;
+  dayOfWeek: number;
+  startHour: number;
+  startMinute: number;
+  endHour: number;
+  endMinute: number;
+  colorPalette: string;
+  instructor?: string;
+  capacity?: number;
+};
+
+const CENTRE_ACTIVITIES: CentreActivity[] = [
+  // Main Hall
+  {
+    id: 'yoga-mon',
+    label: 'Morning Yoga',
+    room: 'Main Hall',
+    dayOfWeek: 1,
+    startHour: 7,
+    startMinute: 0,
+    endHour: 8,
+    endMinute: 30,
+    colorPalette: 'teal',
+    instructor: 'Sarah Lin',
+    capacity: 30,
+  },
+  {
+    id: 'tai-chi-mon',
+    label: 'Tai Chi',
+    room: 'Main Hall',
+    dayOfWeek: 1,
+    startHour: 9,
+    startMinute: 0,
+    endHour: 10,
+    endMinute: 0,
+    colorPalette: 'green',
+    instructor: 'Mr. Wong',
+    capacity: 25,
+  },
+  {
+    id: 'dance-mon',
+    label: 'Line Dancing',
+    room: 'Main Hall',
+    dayOfWeek: 1,
+    startHour: 14,
+    startMinute: 0,
+    endHour: 15,
+    endMinute: 30,
+    colorPalette: 'pink',
+    instructor: 'Amy Cheung',
+    capacity: 40,
+  },
+  {
+    id: 'yoga-wed',
+    label: 'Morning Yoga',
+    room: 'Main Hall',
+    dayOfWeek: 3,
+    startHour: 7,
+    startMinute: 0,
+    endHour: 8,
+    endMinute: 30,
+    colorPalette: 'teal',
+    instructor: 'Sarah Lin',
+    capacity: 30,
+  },
+  {
+    id: 'zumba-wed',
+    label: 'Zumba',
+    room: 'Main Hall',
+    dayOfWeek: 3,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 11,
+    endMinute: 0,
+    colorPalette: 'orange',
+    instructor: 'Maria Santos',
+    capacity: 35,
+  },
+  {
+    id: 'badminton-wed',
+    label: 'Badminton',
+    room: 'Main Hall',
+    dayOfWeek: 3,
+    startHour: 14,
+    startMinute: 0,
+    endHour: 16,
+    endMinute: 0,
+    colorPalette: 'blue',
+    capacity: 16,
+  },
+  {
+    id: 'yoga-fri',
+    label: 'Morning Yoga',
+    room: 'Main Hall',
+    dayOfWeek: 5,
+    startHour: 7,
+    startMinute: 0,
+    endHour: 8,
+    endMinute: 30,
+    colorPalette: 'teal',
+    instructor: 'Sarah Lin',
+    capacity: 30,
+  },
+  {
+    id: 'dance-fri',
+    label: 'Social Dance',
+    room: 'Main Hall',
+    dayOfWeek: 5,
+    startHour: 19,
+    startMinute: 0,
+    endHour: 21,
+    endMinute: 30,
+    colorPalette: 'purple',
+    capacity: 50,
+  },
+  {
+    id: 'tai-chi-sat',
+    label: 'Tai Chi',
+    room: 'Main Hall',
+    dayOfWeek: 6,
+    startHour: 8,
+    startMinute: 0,
+    endHour: 9,
+    endMinute: 30,
+    colorPalette: 'green',
+    instructor: 'Mr. Wong',
+    capacity: 25,
+  },
+  // Room A
+  {
+    id: 'painting-mon',
+    label: 'Watercolour Painting',
+    room: 'Room A',
+    dayOfWeek: 1,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'purple',
+    instructor: 'David Lau',
+    capacity: 15,
+  },
+  {
+    id: 'calligraphy-tue',
+    label: 'Calligraphy',
+    room: 'Room A',
+    dayOfWeek: 2,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'gray',
+    instructor: 'Prof. Chan',
+    capacity: 12,
+  },
+  {
+    id: 'pottery-tue',
+    label: 'Pottery Workshop',
+    room: 'Room A',
+    dayOfWeek: 2,
+    startHour: 14,
+    startMinute: 0,
+    endHour: 16,
+    endMinute: 30,
+    colorPalette: 'orange',
+    instructor: 'Kelly Ho',
+    capacity: 10,
+  },
+  {
+    id: 'painting-thu',
+    label: 'Oil Painting',
+    room: 'Room A',
+    dayOfWeek: 4,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 30,
+    colorPalette: 'purple',
+    instructor: 'David Lau',
+    capacity: 12,
+  },
+  {
+    id: 'craft-sat',
+    label: 'Kids Craft',
+    room: 'Room A',
+    dayOfWeek: 6,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'yellow',
+    capacity: 20,
+  },
+  // Room B
+  {
+    id: 'piano-mon',
+    label: 'Piano Class',
+    room: 'Room B',
+    dayOfWeek: 1,
+    startHour: 15,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 0,
+    colorPalette: 'blue',
+    instructor: 'Ms. Tam',
+    capacity: 8,
+  },
+  {
+    id: 'guitar-tue',
+    label: 'Guitar Class',
+    room: 'Room B',
+    dayOfWeek: 2,
+    startHour: 18,
+    startMinute: 0,
+    endHour: 19,
+    endMinute: 30,
+    colorPalette: 'red',
+    instructor: 'Jake Ng',
+    capacity: 10,
+  },
+  {
+    id: 'choir-wed',
+    label: 'Community Choir',
+    room: 'Room B',
+    dayOfWeek: 3,
+    startHour: 19,
+    startMinute: 0,
+    endHour: 21,
+    endMinute: 0,
+    colorPalette: 'cyan',
+    instructor: 'Ms. Lee',
+    capacity: 30,
+  },
+  {
+    id: 'piano-thu',
+    label: 'Piano Class',
+    room: 'Room B',
+    dayOfWeek: 4,
+    startHour: 15,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 0,
+    colorPalette: 'blue',
+    instructor: 'Ms. Tam',
+    capacity: 8,
+  },
+  {
+    id: 'band-sat',
+    label: 'Youth Band',
+    room: 'Room B',
+    dayOfWeek: 6,
+    startHour: 14,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 0,
+    colorPalette: 'red',
+    capacity: 15,
+  },
+  // Kitchen
+  {
+    id: 'cooking-tue',
+    label: 'Cooking Class',
+    room: 'Kitchen',
+    dayOfWeek: 2,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 30,
+    colorPalette: 'orange',
+    instructor: 'Chef Ho',
+    capacity: 12,
+  },
+  {
+    id: 'baking-thu',
+    label: 'Baking Workshop',
+    room: 'Kitchen',
+    dayOfWeek: 4,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 13,
+    endMinute: 0,
+    colorPalette: 'yellow',
+    instructor: 'Chef Ho',
+    capacity: 10,
+  },
+  {
+    id: 'cooking-sat',
+    label: 'Kids Cooking',
+    room: 'Kitchen',
+    dayOfWeek: 6,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'orange',
+    capacity: 8,
+  },
+  // Computer Room
+  {
+    id: 'computer-mon',
+    label: 'Computer Basics',
+    room: 'Computer Room',
+    dayOfWeek: 1,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'blue',
+    instructor: 'Tom Yip',
+    capacity: 20,
+  },
+  {
+    id: 'smartphone-wed',
+    label: 'Smartphone Workshop',
+    room: 'Computer Room',
+    dayOfWeek: 3,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 11,
+    endMinute: 30,
+    colorPalette: 'teal',
+    instructor: 'Tom Yip',
+    capacity: 15,
+  },
+  {
+    id: 'coding-fri',
+    label: 'Kids Coding',
+    room: 'Computer Room',
+    dayOfWeek: 5,
+    startHour: 16,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 30,
+    colorPalette: 'green',
+    capacity: 15,
+  },
+  // Outdoor Area
+  {
+    id: 'gardening-tue',
+    label: 'Community Garden',
+    room: 'Outdoor Area',
+    dayOfWeek: 2,
+    startHour: 8,
+    startMinute: 0,
+    endHour: 10,
+    endMinute: 0,
+    colorPalette: 'green',
+    capacity: 20,
+  },
+  {
+    id: 'fitness-wed',
+    label: 'Outdoor Fitness',
+    room: 'Outdoor Area',
+    dayOfWeek: 3,
+    startHour: 7,
+    startMinute: 0,
+    endHour: 8,
+    endMinute: 0,
+    colorPalette: 'red',
+    instructor: 'Coach Lee',
+    capacity: 25,
+  },
+  {
+    id: 'fitness-fri',
+    label: 'Outdoor Fitness',
+    room: 'Outdoor Area',
+    dayOfWeek: 5,
+    startHour: 7,
+    startMinute: 0,
+    endHour: 8,
+    endMinute: 0,
+    colorPalette: 'red',
+    instructor: 'Coach Lee',
+    capacity: 25,
+  },
+  {
+    id: 'market-sat',
+    label: 'Weekend Market',
+    room: 'Outdoor Area',
+    dayOfWeek: 6,
+    startHour: 9,
+    startMinute: 0,
+    endHour: 14,
+    endMinute: 0,
+    colorPalette: 'yellow',
+    capacity: 100,
+  },
+];
+
+const CommunityActivityDemo = () => {
+  const weekStart = dayjs().startOf('week');
+  const weekEnd = weekStart.add(7, 'day');
+  const [viewport, setViewport] = useState(() => ({
+    start: weekStart.add(1, 'day').toDate(),
+    end: weekStart.add(6, 'day').toDate(),
+  }));
+  const [selectedActivity, setSelectedActivity] =
+    useState<string>('Select an activity');
+
+  const blocks = CENTRE_ACTIVITIES.map((activity) => ({
+    id: activity.id,
+    start: weekStart
+      .add(activity.dayOfWeek, 'day')
+      .hour(activity.startHour)
+      .minute(activity.startMinute)
+      .toDate(),
+    end: weekStart
+      .add(activity.dayOfWeek, 'day')
+      .hour(activity.endHour)
+      .minute(activity.endMinute)
+      .toDate(),
+    label: activity.label,
+    colorPalette: activity.colorPalette,
+    track: activity.room,
+  }));
+
+  const activityMap = new Map(CENTRE_ACTIVITIES.map((a) => [a.id, a]));
+
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  return (
+    <Provider>
+      <VStack align="stretch" gap={4} p={4}>
+        <Heading size="md">Community Centre - Weekly Activities</Heading>
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+          Weekly timetable for a community centre showing activities across
+          rooms. Click an activity to see details, zoom into a single day, or
+          pan through the week.
+        </Text>
+
+        <TimeRangeZoom
+          range={viewport}
+          onRangeChange={setViewport}
+          minDurationMs={4 * 60 * 60 * 1000}
+          maxDurationMs={14 * 24 * 60 * 60 * 1000}
+          zoomFactor={2}
+          labels={{
+            dateTimeFormat: 'ddd MMM D HH:mm',
+          }}
+        />
+
+        <HStack flexWrap="wrap">
+          {dayNames.map((name, index) => (
+            <Button
+              key={name}
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                setViewport({
+                  start: weekStart.add(index + 1, 'day').toDate(),
+                  end: weekStart.add(index + 2, 'day').toDate(),
+                })
+              }
+            >
+              {name}
+            </Button>
+          ))}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: weekStart.add(1, 'day').toDate(),
+                end: weekStart.add(6, 'day').toDate(),
+              })
+            }
+          >
+            Weekdays
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: weekStart.toDate(),
+                end: weekEnd.toDate(),
+              })
+            }
+          >
+            Full Week
+          </Button>
+        </HStack>
+
+        <Box
+          p={3}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+        >
+          <TimeViewportRoot
+            viewportStart={viewport.start}
+            viewportEnd={viewport.end}
+            onViewportChange={setViewport}
+            enableDragPan
+            enableCtrlWheelZoom
+            minDurationMs={4 * 60 * 60 * 1000}
+            maxDurationMs={14 * 24 * 60 * 60 * 1000}
+          >
+            <TimeViewportHeader
+              tickStrategy="timeUnit"
+              tickUnit="day"
+              tickStep={1}
+              format="ddd D"
+            />
+            <Box position="relative">
+              <TimeViewportGrid
+                tickStrategy="timeUnit"
+                tickUnit="day"
+                tickStep={1}
+                minorDivisions={4}
+              />
+              <TimeViewportBlocks
+                blocks={blocks}
+                height="36px"
+                gap={3}
+                onBlockClick={(block) => {
+                  const activity = activityMap.get(block.id);
+                  if (activity) {
+                    const day = dayNames[activity.dayOfWeek - 1] ?? '';
+                    const time = `${String(activity.startHour).padStart(2, '0')}:${String(activity.startMinute).padStart(2, '0')} - ${String(activity.endHour).padStart(2, '0')}:${String(activity.endMinute).padStart(2, '0')}`;
+                    setSelectedActivity(
+                      `${activity.label} (${day} ${time}, ${activity.room}${activity.instructor ? `, ${activity.instructor}` : ''}, cap: ${activity.capacity ?? '—'})`
+                    );
+                  }
+                }}
+                renderTrackPrefix={({ trackKey }) => (
+                  <Badge
+                    variant="outline"
+                    alignSelf="center"
+                    minW="110px"
+                    textAlign="center"
+                  >
+                    {String(trackKey ?? '')}
+                  </Badge>
+                )}
+              />
+              <TimeViewportMarkerLine
+                timestamp={dayjs().toDate()}
+                label="Now"
+                colorPalette="red"
+              />
+            </Box>
+          </TimeViewportRoot>
+        </Box>
+
+        <Box
+          p={3}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="white"
+          _dark={{ bg: 'gray.900' }}
+        >
+          <Text
+            fontSize="xs"
+            fontWeight="semibold"
+            color="gray.500"
+            _dark={{ color: 'gray.400' }}
+            mb={1}
+          >
+            Selected Activity
+          </Text>
+          <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+            {selectedActivity}
+          </Text>
+        </Box>
+
+        <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
+          Drag to pan, Ctrl+scroll to zoom. Week of{' '}
+          {weekStart.format('MMMM D, YYYY')}
+        </Text>
+      </VStack>
+    </Provider>
+  );
+};
+
+export const CommunityActivity: Story = {
+  name: 'Community Centre Activity',
+  args: {
+    ...requiredStoryArgs,
+  },
+  render: () => <CommunityActivityDemo />,
+};
+
+// ---------------------------------------------------------------------------
+// Community Centre Activity – People-Based Tracks
+// ---------------------------------------------------------------------------
+
+const CommunityActivityByPersonDemo = () => {
+  const weekStart = dayjs().startOf('week');
+  const weekEnd = weekStart.add(7, 'day');
+  const [viewport, setViewport] = useState(() => ({
+    start: weekStart.add(1, 'day').toDate(),
+    end: weekStart.add(6, 'day').toDate(),
+  }));
+  const [selectedActivity, setSelectedActivity] =
+    useState<string>('Select an activity');
+
+  // Group activities by instructor / "Open" for those without one
+  const instructorMap = new Map<string, CentreActivity[]>();
+  CENTRE_ACTIVITIES.forEach((activity) => {
+    const person = activity.instructor ?? 'Open Session';
+    const list = instructorMap.get(person) ?? [];
+    list.push(activity);
+    instructorMap.set(person, list);
+  });
+
+  const blocks = CENTRE_ACTIVITIES.map((activity) => ({
+    id: activity.id,
+    start: weekStart
+      .add(activity.dayOfWeek, 'day')
+      .hour(activity.startHour)
+      .minute(activity.startMinute)
+      .toDate(),
+    end: weekStart
+      .add(activity.dayOfWeek, 'day')
+      .hour(activity.endHour)
+      .minute(activity.endMinute)
+      .toDate(),
+    label: `${activity.label} (${activity.room})`,
+    colorPalette: activity.colorPalette,
+    track: activity.instructor ?? 'Open Session',
+  }));
+
+  const activityMap = new Map(CENTRE_ACTIVITIES.map((a) => [a.id, a]));
+
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  return (
+    <Provider>
+      <VStack align="stretch" gap={4} p={4}>
+        <Heading size="md">Community Centre - By Instructor</Heading>
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+          Same activities as the room-based view, but tracks are grouped by
+          instructor. Activities without an instructor appear under "Open
+          Session".
+        </Text>
+
+        <TimeRangeZoom
+          range={viewport}
+          onRangeChange={setViewport}
+          minDurationMs={4 * 60 * 60 * 1000}
+          maxDurationMs={14 * 24 * 60 * 60 * 1000}
+          zoomFactor={2}
+          labels={{
+            dateTimeFormat: 'ddd MMM D HH:mm',
+          }}
+        />
+
+        <HStack flexWrap="wrap">
+          {dayNames.map((name, index) => (
+            <Button
+              key={name}
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                setViewport({
+                  start: weekStart.add(index + 1, 'day').toDate(),
+                  end: weekStart.add(index + 2, 'day').toDate(),
+                })
+              }
+            >
+              {name}
+            </Button>
+          ))}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: weekStart.add(1, 'day').toDate(),
+                end: weekStart.add(6, 'day').toDate(),
+              })
+            }
+          >
+            Weekdays
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: weekStart.toDate(),
+                end: weekEnd.toDate(),
+              })
+            }
+          >
+            Full Week
+          </Button>
+        </HStack>
+
+        <Box
+          p={3}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+        >
+          <TimeViewportRoot
+            viewportStart={viewport.start}
+            viewportEnd={viewport.end}
+            onViewportChange={setViewport}
+            enableDragPan
+            enableCtrlWheelZoom
+            minDurationMs={4 * 60 * 60 * 1000}
+            maxDurationMs={14 * 24 * 60 * 60 * 1000}
+          >
+            <TimeViewportHeader
+              tickStrategy="timeUnit"
+              tickUnit="day"
+              tickStep={1}
+              format="ddd D"
+            />
+            <Box position="relative">
+              <TimeViewportGrid
+                tickStrategy="timeUnit"
+                tickUnit="day"
+                tickStep={1}
+                minorDivisions={4}
+              />
+              <TimeViewportBlocks
+                blocks={blocks}
+                height="36px"
+                gap={3}
+                onBlockClick={(block) => {
+                  const activity = activityMap.get(block.id);
+                  if (activity) {
+                    const day = dayNames[activity.dayOfWeek - 1] ?? '';
+                    const time = `${String(activity.startHour).padStart(2, '0')}:${String(activity.startMinute).padStart(2, '0')} - ${String(activity.endHour).padStart(2, '0')}:${String(activity.endMinute).padStart(2, '0')}`;
+                    setSelectedActivity(
+                      `${activity.label} (${day} ${time}, ${activity.room}${activity.instructor ? `, ${activity.instructor}` : ''}, cap: ${activity.capacity ?? '—'})`
+                    );
+                  }
+                }}
+                renderTrackPrefix={({ trackKey }) => (
+                  <Badge
+                    variant="outline"
+                    alignSelf="center"
+                    minW="110px"
+                    textAlign="center"
+                  >
+                    {String(trackKey ?? '')}
+                  </Badge>
+                )}
+                renderTrackSuffix={({ trackBlocks }) => (
+                  <Text
+                    fontSize="xs"
+                    color="gray.500"
+                    _dark={{ color: 'gray.400' }}
+                    minW="60px"
+                    textAlign="end"
+                  >
+                    {trackBlocks.length} class
+                    {trackBlocks.length !== 1 ? 'es' : ''}
+                  </Text>
+                )}
+              />
+              <TimeViewportMarkerLine
+                timestamp={dayjs().toDate()}
+                label="Now"
+                colorPalette="red"
+              />
+            </Box>
+          </TimeViewportRoot>
+        </Box>
+
+        <Box
+          p={3}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="white"
+          _dark={{ bg: 'gray.900' }}
+        >
+          <Text
+            fontSize="xs"
+            fontWeight="semibold"
+            color="gray.500"
+            _dark={{ color: 'gray.400' }}
+            mb={1}
+          >
+            Selected Activity
+          </Text>
+          <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+            {selectedActivity}
+          </Text>
+        </Box>
+
+        <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
+          Drag to pan, Ctrl+scroll to zoom. Week of{' '}
+          {weekStart.format('MMMM D, YYYY')}
+        </Text>
+      </VStack>
+    </Provider>
+  );
+};
+
+export const CommunityActivityByPerson: Story = {
+  name: 'Community Centre Activity By Person',
+  args: {
+    ...requiredStoryArgs,
+  },
+  render: () => <CommunityActivityByPersonDemo />,
 };
