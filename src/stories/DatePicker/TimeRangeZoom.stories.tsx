@@ -17,6 +17,7 @@ import {
   Box,
   Button,
   Card,
+  ChakraProvider,
   Flex,
   HStack,
   Heading,
@@ -24,9 +25,10 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { system } from '../theme';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 const meta = {
   title: 'react-datatable5/DatePicker/time-range-zoom',
@@ -3594,4 +3596,1277 @@ export const CommunityActivityByPerson: Story = {
     ...requiredStoryArgs,
   },
   render: () => <CommunityActivityByPersonDemo />,
+};
+
+// ---------------------------------------------------------------------------
+// Amusement Park Story
+// ---------------------------------------------------------------------------
+
+type ParkShow = {
+  id: string;
+  label: string;
+  zone: string;
+  startHour: number;
+  startMinute: number;
+  endHour: number;
+  endMinute: number;
+  colorPalette: string;
+  type: 'show' | 'parade' | 'fireworks' | 'meet' | 'ride-maintenance';
+  description?: string;
+};
+
+const PARK_SHOWS: ParkShow[] = [
+  // Adventure Land
+  {
+    id: 'jungle-show-1',
+    label: 'Jungle Explorer Show',
+    zone: 'Adventure Land',
+    startHour: 10,
+    startMinute: 0,
+    endHour: 10,
+    endMinute: 45,
+    colorPalette: 'green',
+    type: 'show',
+    description: 'Interactive jungle adventure for all ages',
+  },
+  {
+    id: 'jungle-show-2',
+    label: 'Jungle Explorer Show',
+    zone: 'Adventure Land',
+    startHour: 14,
+    startMinute: 0,
+    endHour: 14,
+    endMinute: 45,
+    colorPalette: 'green',
+    type: 'show',
+    description: 'Interactive jungle adventure for all ages',
+  },
+  {
+    id: 'pirate-meet-1',
+    label: 'Meet Captain Jack',
+    zone: 'Adventure Land',
+    startHour: 11,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'orange',
+    type: 'meet',
+    description: 'Photo opportunity with Captain Jack',
+  },
+  {
+    id: 'pirate-meet-2',
+    label: 'Meet Captain Jack',
+    zone: 'Adventure Land',
+    startHour: 15,
+    startMinute: 0,
+    endHour: 16,
+    endMinute: 0,
+    colorPalette: 'orange',
+    type: 'meet',
+    description: 'Photo opportunity with Captain Jack',
+  },
+  {
+    id: 'rapids-maint',
+    label: 'River Rapids Maintenance',
+    zone: 'Adventure Land',
+    startHour: 8,
+    startMinute: 0,
+    endHour: 9,
+    endMinute: 30,
+    colorPalette: 'gray',
+    type: 'ride-maintenance',
+    description: 'Daily safety inspection',
+  },
+  // Fantasy Kingdom
+  {
+    id: 'princess-show-1',
+    label: 'Royal Princess Ball',
+    zone: 'Fantasy Kingdom',
+    startHour: 11,
+    startMinute: 0,
+    endHour: 11,
+    endMinute: 45,
+    colorPalette: 'pink',
+    type: 'show',
+    description: 'Magical dance show with princesses',
+  },
+  {
+    id: 'princess-show-2',
+    label: 'Royal Princess Ball',
+    zone: 'Fantasy Kingdom',
+    startHour: 15,
+    startMinute: 30,
+    endHour: 16,
+    endMinute: 15,
+    colorPalette: 'pink',
+    type: 'show',
+    description: 'Magical dance show with princesses',
+  },
+  {
+    id: 'fairy-meet',
+    label: 'Meet the Fairy Queen',
+    zone: 'Fantasy Kingdom',
+    startHour: 12,
+    startMinute: 0,
+    endHour: 13,
+    endMinute: 0,
+    colorPalette: 'purple',
+    type: 'meet',
+    description: 'Enchanted photo spot',
+  },
+  {
+    id: 'castle-light',
+    label: 'Castle Light-Up',
+    zone: 'Fantasy Kingdom',
+    startHour: 19,
+    startMinute: 0,
+    endHour: 19,
+    endMinute: 20,
+    colorPalette: 'yellow',
+    type: 'show',
+    description: 'Projection mapping on the castle',
+  },
+  {
+    id: 'carousel-maint',
+    label: 'Carousel Maintenance',
+    zone: 'Fantasy Kingdom',
+    startHour: 8,
+    startMinute: 30,
+    endHour: 9,
+    endMinute: 30,
+    colorPalette: 'gray',
+    type: 'ride-maintenance',
+    description: 'Daily mechanical check',
+  },
+  // Sci-Fi Zone
+  {
+    id: 'robot-show-1',
+    label: 'Robot Revolution',
+    zone: 'Sci-Fi Zone',
+    startHour: 10,
+    startMinute: 30,
+    endHour: 11,
+    endMinute: 15,
+    colorPalette: 'cyan',
+    type: 'show',
+    description: 'High-tech animatronic show',
+  },
+  {
+    id: 'robot-show-2',
+    label: 'Robot Revolution',
+    zone: 'Sci-Fi Zone',
+    startHour: 14,
+    startMinute: 30,
+    endHour: 15,
+    endMinute: 15,
+    colorPalette: 'cyan',
+    type: 'show',
+    description: 'High-tech animatronic show',
+  },
+  {
+    id: 'space-meet',
+    label: 'Meet the Astronaut',
+    zone: 'Sci-Fi Zone',
+    startHour: 13,
+    startMinute: 0,
+    endHour: 14,
+    endMinute: 0,
+    colorPalette: 'blue',
+    type: 'meet',
+    description: 'Interactive space Q&A',
+  },
+  {
+    id: 'laser-show',
+    label: 'Laser Light Spectacular',
+    zone: 'Sci-Fi Zone',
+    startHour: 20,
+    startMinute: 0,
+    endHour: 20,
+    endMinute: 30,
+    colorPalette: 'teal',
+    type: 'show',
+    description: 'Outdoor laser and music show',
+  },
+  {
+    id: 'coaster-maint',
+    label: 'Hypercoaster Maintenance',
+    zone: 'Sci-Fi Zone',
+    startHour: 7,
+    startMinute: 30,
+    endHour: 9,
+    endMinute: 0,
+    colorPalette: 'gray',
+    type: 'ride-maintenance',
+    description: 'Morning track inspection',
+  },
+  // Water World
+  {
+    id: 'dolphin-show-1',
+    label: 'Dolphin Splash Show',
+    zone: 'Water World',
+    startHour: 11,
+    startMinute: 0,
+    endHour: 11,
+    endMinute: 40,
+    colorPalette: 'blue',
+    type: 'show',
+    description: 'Dolphin acrobatics and splashes',
+  },
+  {
+    id: 'dolphin-show-2',
+    label: 'Dolphin Splash Show',
+    zone: 'Water World',
+    startHour: 15,
+    startMinute: 0,
+    endHour: 15,
+    endMinute: 40,
+    colorPalette: 'blue',
+    type: 'show',
+    description: 'Dolphin acrobatics and splashes',
+  },
+  {
+    id: 'mermaid-meet',
+    label: 'Meet the Mermaids',
+    zone: 'Water World',
+    startHour: 12,
+    startMinute: 30,
+    endHour: 13,
+    endMinute: 30,
+    colorPalette: 'teal',
+    type: 'meet',
+    description: 'Poolside photo with performers',
+  },
+  {
+    id: 'wave-pool-maint',
+    label: 'Wave Pool Maintenance',
+    zone: 'Water World',
+    startHour: 7,
+    startMinute: 0,
+    endHour: 9,
+    endMinute: 0,
+    colorPalette: 'gray',
+    type: 'ride-maintenance',
+    description: 'Water quality and equipment check',
+  },
+  // Main Street
+  {
+    id: 'morning-parade',
+    label: 'Morning Character Parade',
+    zone: 'Main Street',
+    startHour: 10,
+    startMinute: 0,
+    endHour: 10,
+    endMinute: 30,
+    colorPalette: 'orange',
+    type: 'parade',
+    description: 'All your favourite characters march down Main Street',
+  },
+  {
+    id: 'afternoon-parade',
+    label: 'Grand Afternoon Parade',
+    zone: 'Main Street',
+    startHour: 15,
+    startMinute: 0,
+    endHour: 15,
+    endMinute: 45,
+    colorPalette: 'red',
+    type: 'parade',
+    description: 'Floats, dancers, and music spectacular',
+  },
+  {
+    id: 'evening-parade',
+    label: 'Light-Up Night Parade',
+    zone: 'Main Street',
+    startHour: 19,
+    startMinute: 30,
+    endHour: 20,
+    endMinute: 15,
+    colorPalette: 'purple',
+    type: 'parade',
+    description: 'Illuminated floats after dark',
+  },
+  {
+    id: 'fireworks',
+    label: 'Grand Fireworks Finale',
+    zone: 'Main Street',
+    startHour: 20,
+    startMinute: 30,
+    endHour: 21,
+    endMinute: 0,
+    colorPalette: 'red',
+    type: 'fireworks',
+    description: 'Spectacular fireworks display to end the day',
+  },
+  {
+    id: 'street-band-1',
+    label: 'Street Band',
+    zone: 'Main Street',
+    startHour: 12,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 45,
+    colorPalette: 'yellow',
+    type: 'show',
+    description: 'Live marching band performance',
+  },
+  {
+    id: 'street-band-2',
+    label: 'Street Band',
+    zone: 'Main Street',
+    startHour: 17,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 45,
+    colorPalette: 'yellow',
+    type: 'show',
+    description: 'Live marching band performance',
+  },
+];
+
+const PARK_TYPE_ICONS: Record<ParkShow['type'], string> = {
+  show: '🎭',
+  parade: '🎪',
+  fireworks: '🎆',
+  meet: '📸',
+  'ride-maintenance': '🔧',
+};
+
+const PARK_ZONE_THEMES: Record<
+  string,
+  { gradient: string; icon: string; accent: string; accentDark: string }
+> = {
+  'Adventure Land': {
+    gradient: 'linear-gradient(135deg, #2d6a4f, #40916c)',
+    icon: '🌴',
+    accent: 'green.600',
+    accentDark: 'green.300',
+  },
+  'Fantasy Kingdom': {
+    gradient: 'linear-gradient(135deg, #7b2d8e, #c77dff)',
+    icon: '🏰',
+    accent: 'purple.600',
+    accentDark: 'purple.300',
+  },
+  'Sci-Fi Zone': {
+    gradient: 'linear-gradient(135deg, #0077b6, #00b4d8)',
+    icon: '🚀',
+    accent: 'cyan.600',
+    accentDark: 'cyan.300',
+  },
+  'Water World': {
+    gradient: 'linear-gradient(135deg, #0096c7, #48cae4)',
+    icon: '🌊',
+    accent: 'blue.600',
+    accentDark: 'blue.300',
+  },
+  'Main Street': {
+    gradient: 'linear-gradient(135deg, #e85d04, #f48c06)',
+    icon: '🎠',
+    accent: 'orange.600',
+    accentDark: 'orange.300',
+  },
+};
+
+const AmusementParkDemo = () => {
+  const today = dayjs().startOf('day');
+  const [viewport, setViewport] = useState(() => ({
+    start: today.hour(8).toDate(),
+    end: today.hour(22).toDate(),
+  }));
+  const [selectedShow, setSelectedShow] = useState<{
+    show: ParkShow;
+    zone: (typeof PARK_ZONE_THEMES)[string];
+  } | null>(null);
+
+  const showMap = new Map(PARK_SHOWS.map((s) => [s.id, s]));
+
+  const blocks = PARK_SHOWS.map((show) => ({
+    id: show.id,
+    start: today.hour(show.startHour).minute(show.startMinute).toDate(),
+    end: today.hour(show.endHour).minute(show.endMinute).toDate(),
+    label: `${PARK_TYPE_ICONS[show.type]} ${show.label}`,
+    colorPalette: show.colorPalette,
+    track: show.zone,
+  }));
+
+  return (
+    <ChakraProvider value={system}>
+      <VStack align="stretch" gap={0}>
+        {/* Park header banner */}
+        <Box px={6} py={5}>
+          <Heading size="lg" letterSpacing="wide">
+            🎢 Wonderland Park — Today's Schedule
+          </Heading>
+          <Text fontSize="sm" color="parkBannerSub" mt={1}>
+            {today.format('dddd, MMMM D, YYYY')} · Park hours 08:00 – 21:30
+          </Text>
+        </Box>
+
+        <VStack align="stretch" gap={4} p={5} bg="parkSurface">
+          <TimeRangeZoom
+            range={viewport}
+            onRangeChange={setViewport}
+            minDurationMs={60 * 60 * 1000}
+            maxDurationMs={18 * 60 * 60 * 1000}
+            zoomFactor={1.5}
+            labels={{
+              dateTimeFormat: 'HH:mm',
+            }}
+          />
+
+          <HStack flexWrap="wrap">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                setViewport({
+                  start: today.hour(8).toDate(),
+                  end: today.hour(12).toDate(),
+                })
+              }
+            >
+              Morning (8-12)
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                setViewport({
+                  start: today.hour(12).toDate(),
+                  end: today.hour(17).toDate(),
+                })
+              }
+            >
+              Afternoon (12-17)
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="parkGold"
+              onClick={() =>
+                setViewport({
+                  start: today.hour(17).toDate(),
+                  end: today.hour(22).toDate(),
+                })
+              }
+            >
+              Evening (17-22)
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="parkGold"
+              onClick={() =>
+                setViewport({
+                  start: today.hour(8).toDate(),
+                  end: today.hour(22).toDate(),
+                })
+              }
+            >
+              Full Day
+            </Button>
+          </HStack>
+
+          <Box
+            borderWidth="1px"
+            borderRadius="lg"
+            overflow="hidden"
+            bg="parkCard"
+            borderColor="parkCardBorder"
+          >
+            <Box p={3}>
+              <TimeViewportRoot
+                viewportStart={viewport.start}
+                viewportEnd={viewport.end}
+                onViewportChange={setViewport}
+                minDurationMs={60 * 60 * 1000}
+                maxDurationMs={18 * 60 * 60 * 1000}
+              >
+                <TimeViewportHeader
+                  tickStrategy="timeUnit"
+                  tickUnit="hour"
+                  tickStep={1}
+                  format="HH:mm"
+                />
+                <Box position="relative">
+                  <TimeViewportGrid
+                    tickStrategy="timeUnit"
+                    tickUnit="hour"
+                    tickStep={1}
+                    minorDivisions={2}
+                    zIndex={-1}
+                  />
+                  <TimeViewportBlocks
+                    blocks={blocks}
+                    height="100px"
+                    gap={3}
+                    onBlockClick={(block) => {
+                      const show = showMap.get(block.id);
+                      if (show) {
+                        setSelectedShow({
+                          show,
+                          zone:
+                            PARK_ZONE_THEMES[show.zone] ??
+                            PARK_ZONE_THEMES['Main Street'],
+                        });
+                      }
+                    }}
+                    renderTrackPrefix={({ trackKey }) => {
+                      const theme =
+                        PARK_ZONE_THEMES[String(trackKey ?? '')] ??
+                        PARK_ZONE_THEMES['Main Street'];
+                      return (
+                        <Box
+                          minW="140px"
+                          px={3}
+                          py={1}
+                          borderRadius="md"
+                          bg={theme.gradient}
+                          display="flex"
+                          alignItems="center"
+                          gap={2}
+                        >
+                          <Text fontSize="md">{theme.icon}</Text>
+                          <Text
+                            fontSize="xs"
+                            fontWeight="bold"
+                            color="white"
+                            lineClamp={1}
+                          >
+                            {String(trackKey ?? '')}
+                          </Text>
+                        </Box>
+                      );
+                    }}
+                  />
+                  <TimeViewportMarkerLine
+                    timestamp={dayjs().toDate()}
+                    label="Now"
+                    colorPalette="red"
+                  />
+                </Box>
+              </TimeViewportRoot>
+            </Box>
+          </Box>
+
+          {/* Selected show detail card */}
+          {selectedShow ? (
+            <Card.Root
+              variant="outline"
+              overflow="hidden"
+              bg="parkCard"
+              borderColor="parkCardBorder"
+            >
+              <Box h="4px" bg={selectedShow.zone.gradient} />
+              <Card.Body p={4}>
+                <HStack gap={3} align="start">
+                  <Text fontSize="2xl">
+                    {PARK_TYPE_ICONS[selectedShow.show.type]}
+                  </Text>
+                  <VStack align="start" gap={1} flex="1">
+                    <Heading size="sm">{selectedShow.show.label}</Heading>
+                    <HStack gap={2} flexWrap="wrap">
+                      <Badge
+                        colorPalette={selectedShow.show.colorPalette}
+                        variant="solid"
+                      >
+                        {selectedShow.show.zone}
+                      </Badge>
+                      <Badge variant="outline">
+                        {selectedShow.show.type.replace('-', ' ')}
+                      </Badge>
+                      <Text fontSize="sm" color="parkMuted">
+                        {String(selectedShow.show.startHour).padStart(2, '0')}:
+                        {String(selectedShow.show.startMinute).padStart(2, '0')}
+                        {' – '}
+                        {String(selectedShow.show.endHour).padStart(2, '0')}:
+                        {String(selectedShow.show.endMinute).padStart(2, '0')}
+                      </Text>
+                    </HStack>
+                    {selectedShow.show.description ? (
+                      <Text fontSize="sm" color="parkMuted">
+                        {selectedShow.show.description}
+                      </Text>
+                    ) : null}
+                  </VStack>
+                </HStack>
+              </Card.Body>
+            </Card.Root>
+          ) : (
+            <Box
+              p={3}
+              borderWidth="1px"
+              borderRadius="md"
+              bg="parkCard"
+              borderColor="parkCardBorder"
+            >
+              <Text fontSize="sm" color="parkMuted">
+                Click on a show or activity to see details
+              </Text>
+            </Box>
+          )}
+
+          {/* Legend */}
+          <HStack flexWrap="wrap" gap={3}>
+            {Object.entries(PARK_TYPE_ICONS).map(([type, icon]) => (
+              <HStack key={type} gap={1}>
+                <Text fontSize="sm">{icon}</Text>
+                <Text
+                  fontSize="xs"
+                  color="parkMuted"
+                  textTransform="capitalize"
+                >
+                  {type.replace('-', ' ')}
+                </Text>
+              </HStack>
+            ))}
+          </HStack>
+
+          <Text fontSize="xs" color="parkMuted">
+            Drag to pan, Ctrl+scroll to zoom
+          </Text>
+        </VStack>
+      </VStack>
+    </ChakraProvider>
+  );
+};
+
+export const AmusementPark: Story = {
+  name: 'Amusement Park',
+  args: {
+    ...requiredStoryArgs,
+  },
+  render: () => <AmusementParkDemo />,
+};
+
+// ---------------------------------------------------------------------------
+// Tracker Heatmap Story
+// ---------------------------------------------------------------------------
+
+type TrackerEventType =
+  | 'geofence_enter'
+  | 'geofence_exit'
+  | 'speeding'
+  | 'hard_brake'
+  | 'idle_start'
+  | 'idle_end'
+  | 'ignition_on'
+  | 'ignition_off'
+  | 'sos'
+  | 'low_battery';
+
+interface TrackerEvent {
+  id: string;
+  trackerId: string;
+  type: TrackerEventType;
+  timestamp: Date;
+  label: string;
+}
+
+interface TrackerActivitySegment {
+  id: string;
+  trackerId: string;
+  start: Date;
+  end: Date;
+  /** 0–1 intensity for heatmap coloring */
+  intensity: number;
+  label: string;
+}
+
+interface TrackerDevice {
+  id: string;
+  name: string;
+  icon: string;
+  colorPalette: string;
+}
+
+const TRACKER_DEVICES: TrackerDevice[] = [
+  {
+    id: 'truck-01',
+    name: 'Truck A-01',
+    icon: '\uD83D\uDE9A',
+    colorPalette: 'blue',
+  },
+  {
+    id: 'truck-02',
+    name: 'Truck A-02',
+    icon: '\uD83D\uDE9B',
+    colorPalette: 'teal',
+  },
+  {
+    id: 'van-01',
+    name: 'Van B-01',
+    icon: '\uD83D\uDE90',
+    colorPalette: 'orange',
+  },
+  {
+    id: 'car-01',
+    name: 'Car C-01',
+    icon: '\uD83D\uDE97',
+    colorPalette: 'purple',
+  },
+  {
+    id: 'bike-01',
+    name: 'Bike D-01',
+    icon: '\uD83C\uDFCD\uFE0F',
+    colorPalette: 'green',
+  },
+  {
+    id: 'drone-01',
+    name: 'Drone E-01',
+    icon: '\uD83D\uDEE9\uFE0F',
+    colorPalette: 'cyan',
+  },
+];
+
+const TRACKER_EVENT_CONFIG: Record<
+  TrackerEventType,
+  { label: string; colorPalette: string; icon: string }
+> = {
+  geofence_enter: {
+    label: 'Geofence Enter',
+    colorPalette: 'green',
+    icon: '\uD83D\uDFE2',
+  },
+  geofence_exit: {
+    label: 'Geofence Exit',
+    colorPalette: 'orange',
+    icon: '\uD83D\uDFE0',
+  },
+  speeding: { label: 'Speeding', colorPalette: 'red', icon: '\u26A0\uFE0F' },
+  hard_brake: {
+    label: 'Hard Brake',
+    colorPalette: 'red',
+    icon: '\uD83D\uDED1',
+  },
+  idle_start: {
+    label: 'Idle Start',
+    colorPalette: 'yellow',
+    icon: '\u23F8\uFE0F',
+  },
+  idle_end: { label: 'Idle End', colorPalette: 'blue', icon: '\u25B6\uFE0F' },
+  ignition_on: {
+    label: 'Ignition On',
+    colorPalette: 'green',
+    icon: '\uD83D\uDD11',
+  },
+  ignition_off: {
+    label: 'Ignition Off',
+    colorPalette: 'gray',
+    icon: '\uD83D\uDD12',
+  },
+  sos: { label: 'SOS Alert', colorPalette: 'red', icon: '\uD83C\uDD98' },
+  low_battery: {
+    label: 'Low Battery',
+    colorPalette: 'orange',
+    icon: '\uD83D\uDD0B',
+  },
+};
+
+const trackerStableHash = (input: string) =>
+  Array.from(input).reduce(
+    (acc, char, i) => acc + char.charCodeAt(0) * (i + 1),
+    0
+  );
+
+const trackerSeeded = (seed: string, min: number, max: number) => {
+  const value = trackerStableHash(seed) % (max - min + 1);
+  return min + value;
+};
+
+const buildTrackerActivity = (
+  baseDate: dayjs.Dayjs,
+  device: TrackerDevice
+): TrackerActivitySegment[] => {
+  const segments: TrackerActivitySegment[] = [];
+  // Generate activity segments across 24 hours
+  let cursor = baseDate.startOf('day').add(5, 'hour'); // start at 05:00
+  let segIndex = 0;
+
+  while (cursor.isBefore(baseDate.startOf('day').add(23, 'hour'))) {
+    const seed = `${device.id}-seg-${segIndex}`;
+    const isActive = trackerSeeded(seed, 0, 9) > 2; // 70% chance active
+
+    if (isActive) {
+      const durationMinutes = trackerSeeded(`${seed}-dur`, 15, 120);
+      const intensity = trackerSeeded(`${seed}-int`, 20, 100) / 100;
+      const segEnd = cursor.add(durationMinutes, 'minute');
+
+      segments.push({
+        id: `${device.id}-activity-${segIndex}`,
+        trackerId: device.id,
+        start: cursor.toDate(),
+        end: segEnd.toDate(),
+        intensity,
+        label: intensity > 0.7 ? 'High' : intensity > 0.4 ? 'Medium' : 'Low',
+      });
+
+      cursor = segEnd.add(trackerSeeded(`${seed}-gap`, 5, 45), 'minute');
+    } else {
+      cursor = cursor.add(trackerSeeded(`${seed}-idle`, 30, 90), 'minute');
+    }
+    segIndex++;
+  }
+  return segments;
+};
+
+const buildTrackerEvents = (
+  baseDate: dayjs.Dayjs,
+  device: TrackerDevice,
+  segments: TrackerActivitySegment[]
+): TrackerEvent[] => {
+  const events: TrackerEvent[] = [];
+  const eventTypes: TrackerEventType[] = Object.keys(
+    TRACKER_EVENT_CONFIG
+  ) as TrackerEventType[];
+
+  // Generate ignition events at start/end of activity
+  segments.forEach((seg, index) => {
+    events.push({
+      id: `${device.id}-ign-on-${index}`,
+      trackerId: device.id,
+      type: 'ignition_on',
+      timestamp: seg.start,
+      label: `${device.name} Ignition On`,
+    });
+    events.push({
+      id: `${device.id}-ign-off-${index}`,
+      trackerId: device.id,
+      type: 'ignition_off',
+      timestamp: seg.end,
+      label: `${device.name} Ignition Off`,
+    });
+
+    // Random mid-segment events
+    const segSeed = `${device.id}-evt-${index}`;
+    const numEvents = trackerSeeded(segSeed, 0, 3);
+    for (let i = 0; i < numEvents; i++) {
+      const eventSeed = `${segSeed}-${i}`;
+      const offsetMinutes = trackerSeeded(
+        `${eventSeed}-off`,
+        0,
+        dayjs(seg.end).diff(dayjs(seg.start), 'minute')
+      );
+      const eventTypeIndex = trackerSeeded(
+        `${eventSeed}-type`,
+        0,
+        eventTypes.length - 1
+      );
+      const eventType = eventTypes[eventTypeIndex];
+      const config = TRACKER_EVENT_CONFIG[eventType];
+
+      events.push({
+        id: `${device.id}-mid-${index}-${i}`,
+        trackerId: device.id,
+        type: eventType,
+        timestamp: dayjs(seg.start).add(offsetMinutes, 'minute').toDate(),
+        label: `${device.name} ${config.label}`,
+      });
+    }
+  });
+
+  // Add a few random geofence events through the day
+  const geofenceSeed = `${device.id}-geo`;
+  const numGeo = trackerSeeded(geofenceSeed, 1, 4);
+  for (let i = 0; i < numGeo; i++) {
+    const geoHour = trackerSeeded(`${geofenceSeed}-h-${i}`, 6, 21);
+    const geoMinute = trackerSeeded(`${geofenceSeed}-m-${i}`, 0, 59);
+    events.push({
+      id: `${device.id}-geo-enter-${i}`,
+      trackerId: device.id,
+      type: 'geofence_enter',
+      timestamp: baseDate
+        .startOf('day')
+        .add(geoHour, 'hour')
+        .add(geoMinute, 'minute')
+        .toDate(),
+      label: `${device.name} entered Zone ${i + 1}`,
+    });
+    events.push({
+      id: `${device.id}-geo-exit-${i}`,
+      trackerId: device.id,
+      type: 'geofence_exit',
+      timestamp: baseDate
+        .startOf('day')
+        .add(geoHour, 'hour')
+        .add(
+          geoMinute + trackerSeeded(`${geofenceSeed}-d-${i}`, 10, 60),
+          'minute'
+        )
+        .toDate(),
+      label: `${device.name} exited Zone ${i + 1}`,
+    });
+  }
+
+  return events.sort(
+    (a, b) => dayjs(a.timestamp).valueOf() - dayjs(b.timestamp).valueOf()
+  );
+};
+
+/** Map intensity (0-1) to a heatmap background color */
+const intensityToColor = (intensity: number, _dark: boolean) => {
+  if (intensity > 0.8)
+    return _dark ? 'rgba(239, 68, 68, 0.85)' : 'rgba(220, 38, 38, 0.8)';
+  if (intensity > 0.6)
+    return _dark ? 'rgba(249, 115, 22, 0.8)' : 'rgba(234, 88, 12, 0.75)';
+  if (intensity > 0.4)
+    return _dark ? 'rgba(234, 179, 8, 0.7)' : 'rgba(202, 138, 4, 0.65)';
+  if (intensity > 0.2)
+    return _dark ? 'rgba(34, 197, 94, 0.6)' : 'rgba(22, 163, 74, 0.55)';
+  return _dark ? 'rgba(59, 130, 246, 0.5)' : 'rgba(37, 99, 235, 0.45)';
+};
+
+const TrackerHeatmapDemo = () => {
+  const baseDate = dayjs();
+  const initialStart = baseDate.startOf('day').add(5, 'hour');
+  const initialEnd = baseDate.startOf('day').add(23, 'hour');
+
+  const [range, setRange] = useState({
+    start: initialStart.toDate(),
+    end: initialEnd.toDate(),
+  });
+
+  const [selectedEvent, setSelectedEvent] = useState<TrackerEvent | null>(null);
+  const [activeFilters, setActiveFilters] = useState<Set<TrackerEventType>>(
+    new Set()
+  );
+
+  // Build all tracker data
+  const trackerData = useMemo(() => {
+    return TRACKER_DEVICES.map((device) => {
+      const activity = buildTrackerActivity(baseDate, device);
+      const events = buildTrackerEvents(baseDate, device, activity);
+      return { device, activity, events };
+    });
+  }, []);
+
+  // Build heatmap blocks
+  const heatmapBlocks = useMemo(() => {
+    return trackerData.flatMap(({ device, activity }) =>
+      activity.map((seg) => ({
+        id: seg.id,
+        start: seg.start,
+        end: seg.end,
+        label: `${seg.label} activity`,
+        track: device.id,
+        colorPalette: device.colorPalette,
+        background: intensityToColor(seg.intensity, false),
+      }))
+    );
+  }, [trackerData]);
+
+  // Collect filtered events
+  const filteredEvents = useMemo(() => {
+    const allEvents = trackerData.flatMap(({ events }) => events);
+    if (activeFilters.size === 0) return allEvents;
+    return allEvents.filter((evt) => activeFilters.has(evt.type));
+  }, [trackerData, activeFilters]);
+
+  const toggleFilter = (type: TrackerEventType) => {
+    setActiveFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(type)) {
+        next.delete(type);
+      } else {
+        next.add(type);
+      }
+      return next;
+    });
+  };
+
+  // Count events by type
+  const eventCounts = useMemo(() => {
+    const counts: Partial<Record<TrackerEventType, number>> = {};
+    const allEvents = trackerData.flatMap(({ events }) => events);
+    allEvents.forEach((evt) => {
+      counts[evt.type] = (counts[evt.type] ?? 0) + 1;
+    });
+    return counts;
+  }, [trackerData]);
+
+  return (
+    <Provider>
+      <VStack align="stretch" gap={4} p={4}>
+        <VStack align="start" gap={1}>
+          <Heading size="lg">Tracker Heatmap</Heading>
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+            Fleet activity heatmap with tracker events displayed as markers.
+            Activity intensity is color-coded from cool (low) to hot (high).
+          </Text>
+        </VStack>
+
+        {/* Zoom controls */}
+        <TimeRangeZoom range={range} onRangeChange={setRange} />
+
+        {/* Event type filter */}
+        <VStack align="stretch" gap={2}>
+          <Text fontSize="sm" fontWeight="semibold">
+            Event Filters
+          </Text>
+          <Flex flexWrap="wrap" gap={2}>
+            {(
+              Object.entries(TRACKER_EVENT_CONFIG) as [
+                TrackerEventType,
+                (typeof TRACKER_EVENT_CONFIG)[TrackerEventType],
+              ][]
+            ).map(([type, config]) => {
+              const isActive =
+                activeFilters.size === 0 || activeFilters.has(type);
+              return (
+                <Button
+                  key={type}
+                  size="xs"
+                  variant={isActive ? 'solid' : 'outline'}
+                  colorPalette={config.colorPalette}
+                  onClick={() => toggleFilter(type)}
+                  opacity={isActive ? 1 : 0.5}
+                >
+                  {config.icon} {config.label}
+                  {eventCounts[type] != null ? ` (${eventCounts[type]})` : ''}
+                </Button>
+              );
+            })}
+          </Flex>
+        </VStack>
+
+        {/* Heatmap timeline */}
+        <Box
+          borderWidth="1px"
+          borderRadius="lg"
+          overflow="hidden"
+          bg="white"
+          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+        >
+          <TimeViewportRoot
+            viewportStart={range.start}
+            viewportEnd={range.end}
+            onViewportChange={setRange}
+            enableDragPan
+            enableCtrlWheelZoom
+          >
+            <Box px={4} pt={3}>
+              <TimeViewportHeader
+                tickStrategy="timeUnit"
+                tickUnit="hour"
+                tickStep={1}
+              />
+            </Box>
+            <Box position="relative" px={4} pb={3}>
+              <TimeViewportGrid
+                tickStrategy="timeUnit"
+                tickUnit="hour"
+                tickStep={1}
+                minorDivisions={4}
+                zIndex={-1}
+              />
+              <TimeViewportBlocks
+                blocks={heatmapBlocks}
+                height="36px"
+                gap={2}
+                showLabel={false}
+                renderTrackPrefix={({ trackKey }) => {
+                  const device = TRACKER_DEVICES.find(
+                    (d) => d.id === String(trackKey ?? '')
+                  );
+                  if (!device) return null;
+                  return (
+                    <Box
+                      minW="120px"
+                      px={2}
+                      py={1}
+                      borderRadius="md"
+                      bg={`${device.colorPalette}.100`}
+                      _dark={{ bg: `${device.colorPalette}.900` }}
+                      display="flex"
+                      alignItems="center"
+                      gap={2}
+                    >
+                      <Text fontSize="md">{device.icon}</Text>
+                      <Text
+                        fontSize="xs"
+                        fontWeight="bold"
+                        color={`${device.colorPalette}.800`}
+                        _dark={{ color: `${device.colorPalette}.100` }}
+                        lineClamp={1}
+                      >
+                        {device.name}
+                      </Text>
+                    </Box>
+                  );
+                }}
+                renderBlock={({ block, geometry }) => {
+                  const seg = trackerData
+                    .flatMap(({ activity }) => activity)
+                    .find((a) => a.id === block.id);
+                  const intensity = seg?.intensity ?? 0.5;
+                  return (
+                    <Box
+                      width={`max(${geometry.widthPercent}%, 2px)`}
+                      height="100%"
+                      borderRadius="sm"
+                      bg={intensityToColor(intensity, false)}
+                      _dark={{
+                        bg: intensityToColor(intensity, true),
+                      }}
+                      opacity={0.9}
+                    />
+                  );
+                }}
+              />
+
+              {/* Event markers */}
+              {filteredEvents.map((evt) => {
+                const config = TRACKER_EVENT_CONFIG[evt.type];
+                return (
+                  <TimeViewportMarkerLine
+                    key={evt.id}
+                    timestamp={evt.timestamp}
+                    colorPalette={config.colorPalette}
+                    lineWidthPx={evt.type === 'sos' ? 3 : 1}
+                    label={`${config.icon} ${dayjs(evt.timestamp).format('HH:mm')}`}
+                    showLabel={false}
+                    hideWhenOutOfView
+                  />
+                );
+              })}
+
+              {/* Now line */}
+              <TimeViewportMarkerLine
+                timestamp={dayjs().toDate()}
+                colorPalette="red"
+                label="Now"
+                lineWidthPx={2}
+              />
+            </Box>
+          </TimeViewportRoot>
+        </Box>
+
+        {/* Heatmap legend */}
+        <HStack gap={4} flexWrap="wrap">
+          <Text
+            fontSize="xs"
+            fontWeight="semibold"
+            color="gray.600"
+            _dark={{ color: 'gray.400' }}
+          >
+            Intensity:
+          </Text>
+          {[
+            { label: 'Low', color: 'rgba(37, 99, 235, 0.45)' },
+            { label: 'Light', color: 'rgba(22, 163, 74, 0.55)' },
+            { label: 'Medium', color: 'rgba(202, 138, 4, 0.65)' },
+            { label: 'High', color: 'rgba(234, 88, 12, 0.75)' },
+            { label: 'Critical', color: 'rgba(220, 38, 38, 0.8)' },
+          ].map((item) => (
+            <HStack key={item.label} gap={1}>
+              <Box w="16px" h="12px" borderRadius="sm" bg={item.color} />
+              <Text
+                fontSize="xs"
+                color="gray.600"
+                _dark={{ color: 'gray.400' }}
+              >
+                {item.label}
+              </Text>
+            </HStack>
+          ))}
+        </HStack>
+
+        {/* Event details on marker click area */}
+        <VStack align="stretch" gap={2}>
+          <Text fontSize="sm" fontWeight="semibold">
+            Recent Events ({filteredEvents.length})
+          </Text>
+          <Box
+            maxH="200px"
+            overflowY="auto"
+            borderWidth="1px"
+            borderRadius="md"
+            bg="gray.50"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          >
+            {filteredEvents.slice(0, 30).map((evt) => {
+              const config = TRACKER_EVENT_CONFIG[evt.type];
+              const device = TRACKER_DEVICES.find(
+                (d) => d.id === evt.trackerId
+              );
+              const isSelected = selectedEvent?.id === evt.id;
+              return (
+                <Box
+                  key={evt.id}
+                  px={3}
+                  py={2}
+                  cursor="pointer"
+                  bg={isSelected ? `${config.colorPalette}.50` : 'transparent'}
+                  _dark={{
+                    bg: isSelected
+                      ? `${config.colorPalette}.900`
+                      : 'transparent',
+                  }}
+                  _hover={{
+                    bg: `${config.colorPalette}.50`,
+                    _dark: { bg: `${config.colorPalette}.900` },
+                  }}
+                  borderBottomWidth="1px"
+                  borderColor="gray.100"
+                  _last={{ borderBottomWidth: 0 }}
+                  onClick={() => {
+                    setSelectedEvent(isSelected ? null : evt);
+                    // Pan to event time
+                    const evtTime = dayjs(evt.timestamp);
+                    const currentDuration = dayjs(range.end).diff(
+                      dayjs(range.start),
+                      'millisecond'
+                    );
+                    setRange({
+                      start: evtTime
+                        .subtract(currentDuration / 2, 'millisecond')
+                        .toDate(),
+                      end: evtTime
+                        .add(currentDuration / 2, 'millisecond')
+                        .toDate(),
+                    });
+                  }}
+                >
+                  <HStack gap={2}>
+                    <Text fontSize="sm">{config.icon}</Text>
+                    <Text fontSize="xs" fontWeight="semibold" flex="1">
+                      {device?.icon} {device?.name}
+                    </Text>
+                    <Badge
+                      size="sm"
+                      colorPalette={config.colorPalette}
+                      variant="subtle"
+                    >
+                      {config.label}
+                    </Badge>
+                    <Text
+                      fontSize="xs"
+                      color="gray.500"
+                      _dark={{ color: 'gray.400' }}
+                      fontFamily="mono"
+                    >
+                      {dayjs(evt.timestamp).format('HH:mm:ss')}
+                    </Text>
+                  </HStack>
+                </Box>
+              );
+            })}
+          </Box>
+        </VStack>
+
+        <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
+          Drag to pan, Ctrl+scroll to zoom. Click an event to center the
+          viewport.
+        </Text>
+      </VStack>
+    </Provider>
+  );
+};
+
+export const TrackerHeatmap: Story = {
+  name: 'Tracker Heatmap',
+  args: {
+    ...requiredStoryArgs,
+  },
+  render: () => <TrackerHeatmapDemo />,
 };

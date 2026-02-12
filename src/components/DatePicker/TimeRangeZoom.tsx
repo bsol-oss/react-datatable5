@@ -152,6 +152,12 @@ export interface TimeViewportGridProps {
   animationEasing?: string;
 }
 
+export interface TimeViewportBlockRenderArgs {
+  block: TimeViewportBlockItem;
+  geometry: { leftPercent: number; widthPercent: number };
+  index: number;
+}
+
 export interface TimeViewportBlocksProps {
   blocks: TimeViewportBlockItem[];
   viewportStart?: TimeInput;
@@ -176,6 +182,8 @@ export interface TimeViewportBlocksProps {
     trackBlocks: TimeViewportBlockItem[];
     trackKey?: string | number;
   }) => ReactNode;
+  /** Custom render function for block content. The returned node is placed inside a positioning wrapper that handles translateX and transitions. */
+  renderBlock?: (args: TimeViewportBlockRenderArgs) => ReactNode;
   onBlockClick?: (block: TimeViewportBlockItem) => void;
   /** Enable virtual scrolling for large track lists. */
   virtualize?: boolean;
@@ -384,27 +392,39 @@ function TimeViewportTrackRow({
   renderBlockNode,
 }: TimeViewportTrackRowProps) {
   return (
-    <HStack
+    <Box
       key={trackKey}
       width="100%"
       overflowX={'hidden'}
-      align="stretch"
-      gap={2}
+      position="relative"
+      height={resolvedHeight}
     >
+      <Box position="relative" width="100%" height="100%">
+        {blocks.map((item, index) => renderBlockNode(item, index))}
+      </Box>
       {prefix ? (
-        <Box minW="fit-content" display="flex" alignItems="center">
+        <Box
+          position="absolute"
+          top={0}
+          insetInlineStart={0}
+          zIndex={2}
+          pointerEvents="auto"
+        >
           {prefix}
         </Box>
       ) : null}
-      <Box position="relative" width="100%" height={resolvedHeight}>
-        {blocks.map((item, index) => renderBlockNode(item, index))}
-      </Box>
       {suffix ? (
-        <Box minW="fit-content" display="flex" alignItems="center">
+        <Box
+          position="absolute"
+          top={0}
+          insetInlineEnd={0}
+          zIndex={2}
+          pointerEvents="auto"
+        >
           {suffix}
         </Box>
       ) : null}
-    </HStack>
+    </Box>
   );
 }
 
@@ -889,7 +909,7 @@ export function TimeViewportMarkerLine({
           width={`${lineWidthPx}px`}
           height="100%"
           bg={color ?? `${colorPalette}.500`}
-          _dark={{ bg: color ?? `${colorPalette}.300` }}
+          _dark={{ bg: color ?? `${colorPalette}.500` }}
           transform="translateX(-50%)"
         />
         {showLabel && label ? (
@@ -902,7 +922,7 @@ export function TimeViewportMarkerLine({
             fontSize="xs"
             whiteSpace="nowrap"
             color={color ?? `${colorPalette}.700`}
-            _dark={{ color: color ?? `${colorPalette}.200` }}
+            _dark={{ color: color ?? `${colorPalette}.500` }}
             transform="translateX(-50%)"
           >
             {label}
@@ -1178,6 +1198,7 @@ export function TimeViewportBlocks({
   overlapOpacity = 0.9,
   renderTrackPrefix,
   renderTrackSuffix,
+  renderBlock,
   onBlockClick,
   virtualize = false,
   virtualHeight = 400,
@@ -1225,6 +1246,41 @@ export function TimeViewportBlocks({
       onBlockClick?.(block);
     };
     const isBlockClickable = Boolean(block.onClick || onBlockClick);
+
+    const content = renderBlock ? (
+      renderBlock({ block, geometry, index: indexInLayer })
+    ) : (
+      <Box
+        width={`max(${geometry.widthPercent}%, ${minWidthPx}px)`}
+        height="100%"
+        borderRadius={borderRadius}
+        bg={
+          block.background ?? `${block.colorPalette ?? defaultColorPalette}.500`
+        }
+        _dark={{
+          bg:
+            block.background ??
+            `${block.colorPalette ?? defaultColorPalette}.900`,
+        }}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        px={2}
+        overflow="hidden"
+        opacity={allowOverlap ? overlapOpacity : 1}
+        zIndex={indexInLayer + 1}
+        pointerEvents="auto"
+        onClick={isBlockClickable ? handleBlockClick : undefined}
+        cursor={isBlockClickable ? 'pointer' : 'default'}
+      >
+        {showLabel && block.label ? (
+          <Text fontSize="xs" lineClamp={1}>
+            {block.label}
+          </Text>
+        ) : null}
+      </Box>
+    );
+
     return (
       <Box
         height="100%"
@@ -1235,41 +1291,7 @@ export function TimeViewportBlocks({
         transform={`translateX(${geometry.leftPercent}%)`}
         transition={VIEWPORT_TRANSITION}
       >
-        <Box
-          width={`max(${geometry.widthPercent}%, ${minWidthPx}px)`}
-          height="100%"
-          borderRadius={borderRadius}
-          bg={
-            block.background ??
-            `${block.colorPalette ?? defaultColorPalette}.500`
-          }
-          _dark={{
-            bg:
-              block.background ??
-              `${block.colorPalette ?? defaultColorPalette}.900`,
-          }}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          px={2}
-          overflow="hidden"
-          opacity={allowOverlap ? overlapOpacity : 1}
-          zIndex={indexInLayer + 1}
-          pointerEvents="auto"
-          onClick={isBlockClickable ? handleBlockClick : undefined}
-          cursor={isBlockClickable ? 'pointer' : 'default'}
-        >
-          {showLabel && block.label ? (
-            <Text
-              fontSize="xs"
-              lineClamp={1}
-              color="white"
-              _dark={{ color: 'gray.100' }}
-            >
-              {block.label}
-            </Text>
-          ) : null}
-        </Box>
+        {content}
       </Box>
     );
   };
