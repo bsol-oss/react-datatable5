@@ -3288,8 +3288,6 @@ const CommunityActivityDemo = () => {
             viewportStart={viewport.start}
             viewportEnd={viewport.end}
             onViewportChange={setViewport}
-            enableDragPan
-            enableCtrlWheelZoom
             minDurationMs={4 * 60 * 60 * 1000}
             maxDurationMs={14 * 24 * 60 * 60 * 1000}
           >
@@ -3496,8 +3494,6 @@ const CommunityActivityByPersonDemo = () => {
             viewportStart={viewport.start}
             viewportEnd={viewport.end}
             onViewportChange={setViewport}
-            enableDragPan
-            enableCtrlWheelZoom
             minDurationMs={4 * 60 * 60 * 1000}
             maxDurationMs={14 * 24 * 60 * 60 * 1000}
           >
@@ -4135,6 +4131,23 @@ const AmusementParkDemo = () => {
                           >
                             {String(trackKey ?? '')}
                           </Text>
+                        </Box>
+                      );
+                    }}
+                    renderTrack={({ trackKey, defaultContent }) => {
+                      const theme =
+                        PARK_ZONE_THEMES[String(trackKey ?? '')] ??
+                        PARK_ZONE_THEMES['Main Street'];
+                      return (
+                        <Box
+                          borderRadius="md"
+                          bg={{
+                            base: `${theme.accent}/20`,
+                            _dark: `${theme.accentDark}/20`,
+                          }}
+                          p={1}
+                        >
+                          {defaultContent}
                         </Box>
                       );
                     }}

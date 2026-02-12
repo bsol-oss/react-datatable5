@@ -29,6 +29,8 @@ export type {
   TimeViewportBlockProps,
   TimeViewportBlockItem,
   TimeViewportBlocksProps,
+  TimeViewportBlockRenderArgs,
+  TimeViewportTrackRenderArgs,
   TimeViewportGridProps,
   TimeViewportHeaderProps,
   TimeViewportMarkerLineProps,

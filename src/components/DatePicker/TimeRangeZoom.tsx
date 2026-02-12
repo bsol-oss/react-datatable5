@@ -158,6 +158,13 @@ export interface TimeViewportBlockRenderArgs {
   index: number;
 }
 
+export interface TimeViewportTrackRenderArgs {
+  trackIndex: number;
+  trackKey?: string | number;
+  trackBlocks: TimeViewportBlockItem[];
+  defaultContent: ReactNode;
+}
+
 export interface TimeViewportBlocksProps {
   blocks: TimeViewportBlockItem[];
   viewportStart?: TimeInput;
@@ -184,6 +191,8 @@ export interface TimeViewportBlocksProps {
   }) => ReactNode;
   /** Custom render function for block content. The returned node is placed inside a positioning wrapper that handles translateX and transitions. */
   renderBlock?: (args: TimeViewportBlockRenderArgs) => ReactNode;
+  /** Custom render function for an entire track row. Receives the default rendered content so you can wrap or replace it. */
+  renderTrack?: (args: TimeViewportTrackRenderArgs) => ReactNode;
   onBlockClick?: (block: TimeViewportBlockItem) => void;
   /** Enable virtual scrolling for large track lists. */
   virtualize?: boolean;
@@ -1113,6 +1122,7 @@ interface VirtualizedTrackListProps {
   overscan: number;
   renderTrackPrefix?: TimeViewportBlocksProps['renderTrackPrefix'];
   renderTrackSuffix?: TimeViewportBlocksProps['renderTrackSuffix'];
+  renderTrack?: TimeViewportBlocksProps['renderTrack'];
   renderBlockNode: (
     blockItem: ParsedTimeViewportBlock,
     indexInLayer: number
@@ -1127,6 +1137,7 @@ function VirtualizedTrackList({
   overscan,
   renderTrackPrefix,
   renderTrackSuffix,
+  renderTrack,
   renderBlockNode,
 }: VirtualizedTrackListProps) {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -1157,6 +1168,26 @@ function VirtualizedTrackList({
             trackKey: track.trackKeyRaw,
           });
 
+          const defaultContent = (
+            <TimeViewportTrackRow
+              trackKey={track.trackKey}
+              blocks={track.blocks}
+              resolvedHeight={resolvedHeight}
+              prefix={prefix}
+              suffix={suffix}
+              renderBlockNode={renderBlockNode}
+            />
+          );
+
+          const trackContent = renderTrack
+            ? renderTrack({
+                trackIndex: virtualRow.index,
+                trackKey: track.trackKeyRaw,
+                trackBlocks,
+                defaultContent,
+              })
+            : defaultContent;
+
           return (
             <Box
               key={track.trackKey}
@@ -1166,14 +1197,7 @@ function VirtualizedTrackList({
               width="100%"
               transform={`translateY(${virtualRow.start}px)`}
             >
-              <TimeViewportTrackRow
-                trackKey={track.trackKey}
-                blocks={track.blocks}
-                resolvedHeight={resolvedHeight}
-                prefix={prefix}
-                suffix={suffix}
-                renderBlockNode={renderBlockNode}
-              />
+              {trackContent}
             </Box>
           );
         })}
@@ -1199,6 +1223,7 @@ export function TimeViewportBlocks({
   renderTrackPrefix,
   renderTrackSuffix,
   renderBlock,
+  renderTrack,
   onBlockClick,
   virtualize = false,
   virtualHeight = 400,
@@ -1367,6 +1392,7 @@ export function TimeViewportBlocks({
         overscan={overscan}
         renderTrackPrefix={renderTrackPrefix}
         renderTrackSuffix={renderTrackSuffix}
+        renderTrack={renderTrack}
         renderBlockNode={renderBlockNode}
       />
     );
@@ -1387,7 +1413,7 @@ export function TimeViewportBlocks({
           trackKey: track.trackKeyRaw,
         });
 
-        return (
+        const defaultContent = (
           <TimeViewportTrackRow
             trackKey={track.trackKey}
             blocks={track.blocks}
@@ -1397,6 +1423,15 @@ export function TimeViewportBlocks({
             renderBlockNode={renderBlockNode}
           />
         );
+
+        return renderTrack
+          ? renderTrack({
+              trackIndex,
+              trackKey: track.trackKeyRaw,
+              trackBlocks,
+              defaultContent,
+            })
+          : defaultContent;
       })}
     </VStack>
   );
