@@ -12,7 +12,18 @@ import {
 } from '@/components/DatePicker/TimeRangeZoom';
 import { Avatar, AvatarGroup } from '@/components/ui/avatar';
 import { Provider } from '@/components/ui/provider';
-import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  HStack,
+  Heading,
+  Separator,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import dayjs from 'dayjs';
 import { useState } from 'react';
@@ -410,8 +421,7 @@ const HeadlessViewportBlockGeometryDemo = () => {
       id: 'custom-ingest',
       track: 'Pipeline A',
       label: 'Ingest',
-      color: 'purple.500',
-      darkColor: 'purple.300',
+      colorPalette: 'purple',
       geometry: getGeometry(
         dayjs().subtract(5, 'hour').toDate(),
         dayjs().subtract(2, 'hour').toDate()
@@ -421,8 +431,7 @@ const HeadlessViewportBlockGeometryDemo = () => {
       id: 'custom-transform',
       track: 'Pipeline A',
       label: 'Transform',
-      color: 'orange.500',
-      darkColor: 'orange.300',
+      colorPalette: 'orange',
       geometry: getGeometry(
         dayjs().subtract(3, 'hour').toDate(),
         dayjs().subtract(30, 'minute').toDate()
@@ -432,8 +441,7 @@ const HeadlessViewportBlockGeometryDemo = () => {
       id: 'custom-publish',
       track: 'Pipeline B',
       label: 'Publish',
-      color: 'green.500',
-      darkColor: 'green.300',
+      colorPalette: 'green',
       geometry: getGeometry(
         dayjs().subtract(90, 'minute').toDate(),
         dayjs().add(30, 'minute').toDate()
@@ -443,8 +451,7 @@ const HeadlessViewportBlockGeometryDemo = () => {
       id: 'custom-validate',
       track: 'Pipeline B',
       label: 'Validate',
-      color: 'blue.500',
-      darkColor: 'blue.300',
+      colorPalette: 'blue',
       geometry: getGeometry(
         dayjs().subtract(4, 'hour').toDate(),
         dayjs().subtract(45, 'minute').toDate()
@@ -459,15 +466,13 @@ const HeadlessViewportBlockGeometryDemo = () => {
       id: 'marker-now',
       label: 'Now',
       timestamp: dayjs().toDate(),
-      color: 'red.500',
-      darkColor: 'red.300',
+      colorPalette: 'red',
     },
     {
       id: 'marker-cutoff',
       label: 'Cutoff',
       timestamp: dayjs().subtract(2, 'hour').toDate(),
-      color: 'blue.500',
-      darkColor: 'blue.300',
+      colorPalette: 'blue',
     },
   ];
   const viewportStartMs = toTimeMs(viewport.start);
@@ -501,12 +506,10 @@ const HeadlessViewportBlockGeometryDemo = () => {
   return (
     <Provider>
       <VStack align="stretch" gap={4} p={4}>
-        <Text fontSize="lg" fontWeight="bold">
-          Headless Viewport Block Geometry
-        </Text>
-        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-          This timeline is rendered with plain Box elements using
-          useTimeViewportBlockGeometry only.
+        <Heading size="md">Headless Viewport Block Geometry</Heading>
+        <Text color="fg.muted" fontSize="sm">
+          This timeline is rendered with plain Chakra components using
+          useTimeViewport only.
         </Text>
 
         <TimeRangeZoom
@@ -516,143 +519,139 @@ const HeadlessViewportBlockGeometryDemo = () => {
           maxDurationMs={7 * 24 * 60 * 60 * 1000}
           zoomFactor={1.6}
         />
-        <Box
-          p={3}
-          borderWidth="1px"
-          borderRadius="md"
-          bg="gray.50"
-          _dark={{ bg: 'gray.800' }}
-        >
-          {isValidViewport && safeHeaderTickCount >= 2 ? (
-            <Box
-              position="relative"
-              width="100%"
-              height="24px"
-              borderBottomWidth="1px"
-              borderColor="gray.200"
-              _dark={{ borderColor: 'gray.700' }}
-              mb={2}
-            >
-              {headerTicks.map((tick) => (
-                <Box
-                  key={`headless-header-tick-${tick.index}`}
-                  position="absolute"
-                  inset={0}
-                  transform={`translateX(${tick.percent}%)`}
-                >
-                  <Text
-                    position="absolute"
-                    insetInlineStart={0}
-                    top="50%"
-                    translate="0 -50%"
-                    transform={
-                      tick.index === 0
-                        ? 'translateX(0%)'
-                        : tick.index === safeHeaderTickCount - 1
-                          ? 'translateX(-100%)'
-                          : 'translateX(-50%)'
-                    }
-                    fontSize="xs"
-                    color="gray.600"
-                    _dark={{ color: 'gray.300' }}
-                    whiteSpace="nowrap"
-                  >
-                    {tick.label}
-                  </Text>
-                </Box>
-              ))}
-            </Box>
-          ) : null}
-          <VStack align="stretch" gap={2}>
-            {trackNames.map((trackName, trackIndex) => (
-              <HStack key={trackName} align="stretch" gap={2}>
-                <Text
-                  minW="88px"
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  color="gray.700"
-                  _dark={{ color: 'gray.200' }}
-                >
-                  {trackName}
-                </Text>
-                <Box position="relative" width="100%" height="34px">
-                  {markerPositions.map((marker) => (
+
+        <Card.Root variant="outline">
+          <Card.Body gap={0} p={3}>
+            {isValidViewport && safeHeaderTickCount >= 2 ? (
+              <>
+                <Box position="relative" width="100%" height="24px">
+                  {headerTicks.map((tick) => (
                     <Box
-                      key={`${trackName}-${marker.id}`}
+                      key={`headless-header-tick-${tick.index}`}
                       position="absolute"
                       inset={0}
-                      transform={`translateX(${marker.percent}%)`}
-                      pointerEvents="none"
-                      zIndex={5}
+                      transform={`translateX(${tick.percent}%)`}
                     >
-                      <Box
+                      <Text
                         position="absolute"
                         insetInlineStart={0}
-                        top={0}
-                        bottom={0}
-                        width="2px"
-                        bg={marker.color}
-                        _dark={{ bg: marker.darkColor }}
-                        transform="translateX(-50%)"
-                      />
-                      {trackIndex === 0 ? (
-                        <Text
-                          position="absolute"
-                          insetInlineStart={0}
-                          top="-18px"
-                          transform="translateX(-50%)"
-                          fontSize="2xs"
-                          color={marker.color}
-                          _dark={{ color: marker.darkColor }}
-                          whiteSpace="nowrap"
-                        >
-                          {marker.label}
-                        </Text>
-                      ) : null}
+                        top="50%"
+                        translate="0 -50%"
+                        transform={
+                          tick.index === 0
+                            ? 'translateX(0%)'
+                            : tick.index === safeHeaderTickCount - 1
+                              ? 'translateX(-100%)'
+                              : 'translateX(-50%)'
+                        }
+                        fontSize="xs"
+                        color="fg.muted"
+                        whiteSpace="nowrap"
+                      >
+                        {tick.label}
+                      </Text>
                     </Box>
                   ))}
-                  {customBlocks
-                    .filter((block) => block.track === trackName)
-                    .map((block) =>
-                      block.geometry.valid &&
-                      block.geometry.widthPercent > 0 ? (
+                </Box>
+                <Separator mb={2} />
+              </>
+            ) : null}
+
+            <VStack align="stretch" gap={2}>
+              {trackNames.map((trackName, trackIndex) => (
+                <Flex key={trackName} align="stretch" gap={2}>
+                  <Badge
+                    variant="outline"
+                    alignSelf="center"
+                    minW="88px"
+                    textAlign="center"
+                  >
+                    {trackName}
+                  </Badge>
+                  <Box position="relative" flex="1" height="34px">
+                    {markerPositions.map((marker) => (
+                      <Box
+                        key={`${trackName}-${marker.id}`}
+                        position="absolute"
+                        inset={0}
+                        transform={`translateX(${marker.percent}%)`}
+                        pointerEvents="none"
+                        zIndex={5}
+                        colorPalette={marker.colorPalette}
+                      >
                         <Box
-                          key={block.id}
                           position="absolute"
-                          inset={0}
-                          pointerEvents="none"
-                        >
+                          insetInlineStart={0}
+                          top={0}
+                          bottom={0}
+                          width="2px"
+                          bg="colorPalette.500"
+                          _dark={{ bg: 'colorPalette.300' }}
+                          transform="translateX(-50%)"
+                        />
+                        {trackIndex === 0 ? (
+                          <Text
+                            position="absolute"
+                            insetInlineStart={0}
+                            top="-18px"
+                            transform="translateX(-50%)"
+                            fontSize="2xs"
+                            color="colorPalette.600"
+                            _dark={{ color: 'colorPalette.300' }}
+                            whiteSpace="nowrap"
+                          >
+                            {marker.label}
+                          </Text>
+                        ) : null}
+                      </Box>
+                    ))}
+                    {customBlocks
+                      .filter((block) => block.track === trackName)
+                      .map((block) =>
+                        block.geometry.valid &&
+                        block.geometry.widthPercent > 0 ? (
                           <Box
-                            width="100%"
-                            height="100%"
-                            transform={`translateX(${block.geometry.leftPercent}%)`}
+                            key={block.id}
+                            position="absolute"
+                            inset={0}
+                            pointerEvents="none"
+                            colorPalette={block.colorPalette}
                           >
                             <Box
-                              width={`max(${block.geometry.widthPercent}%, 2px)`}
+                              width="100%"
                               height="100%"
-                              borderRadius="sm"
-                              bg={block.color}
-                              _dark={{ bg: block.darkColor }}
-                              px={2}
+                              transform={`translateX(${block.geometry.leftPercent}%)`}
                             >
-                              <Text
-                                fontSize="xs"
-                                lineClamp={1}
-                                color="white"
-                                _dark={{ color: 'gray.100' }}
+                              <Box
+                                width={`max(${block.geometry.widthPercent}%, 2px)`}
+                                height="100%"
+                                borderRadius="sm"
+                                bg="colorPalette.500"
+                                _dark={{ bg: 'colorPalette.300' }}
+                                display="flex"
+                                alignItems="center"
+                                px={2}
+                                overflow="hidden"
                               >
-                                {block.label}
-                              </Text>
+                                <Text
+                                  fontSize="xs"
+                                  lineClamp={1}
+                                  color="white"
+                                  _dark={{ color: 'gray.900' }}
+                                >
+                                  {block.label}
+                                </Text>
+                              </Box>
                             </Box>
                           </Box>
-                        </Box>
-                      ) : null
-                    )}
-                </Box>
-              </HStack>
-            ))}
-          </VStack>
-        </Box>
+                        ) : null
+                      )}
+                  </Box>
+                </Flex>
+              ))}
+            </VStack>
+          </Card.Body>
+        </Card.Root>
       </VStack>
     </Provider>
   );
