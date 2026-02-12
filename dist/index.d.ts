@@ -10,6 +10,7 @@ import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { JSONSchema7 } from 'json-schema';
 import * as react_hook_form from 'react-hook-form';
 import { UseFormReturn, FieldValues, SubmitHandler } from 'react-hook-form';
+import dayjs from 'dayjs';
 
 interface TableHeaderTexts {
     pinColumn?: string;
@@ -951,6 +952,231 @@ interface RangeDatePickerProps {
     render?: (calendarData: CalendarRenderProps) => React__default.ReactNode;
 }
 
+type TimeInput = Date | string | number;
+interface ViewableTimeRange {
+    start: TimeInput;
+    end: TimeInput;
+}
+interface TimeRangeZoomLabels {
+    zoomIn?: string;
+    zoomOut?: string;
+    reset?: string;
+    visibleRange?: string;
+    duration?: string;
+    daysShort?: string;
+    hoursShort?: string;
+    minutesShort?: string;
+    secondsShort?: string;
+    invalidRange?: string;
+    dateTimeFormat?: string;
+}
+interface TimeRangeZoomProps {
+    range: ViewableTimeRange;
+    onRangeChange: (range: {
+        start: Date;
+        end: Date;
+    }) => void;
+    minDurationMs?: number;
+    maxDurationMs?: number;
+    zoomFactor?: number;
+    resetDurationMs?: number;
+    showResetButton?: boolean;
+    disabled?: boolean;
+    labels?: TimeRangeZoomLabels;
+}
+interface TimeViewportBlockProps {
+    start: TimeInput;
+    end: TimeInput;
+    viewportStart?: TimeInput;
+    viewportEnd?: TimeInput;
+    height?: string | number;
+    minWidthPx?: number;
+    borderRadius?: string | number;
+    colorPalette?: string;
+    background?: string;
+    label?: string;
+    showLabel?: boolean;
+    hideWhenOutOfView?: boolean;
+    onClick?: () => void;
+}
+interface TimeViewportBlockItem {
+    id: string;
+    start?: TimeInput;
+    end?: TimeInput;
+    label?: string;
+    colorPalette?: string;
+    background?: string;
+    track?: string | number;
+    children?: TimeViewportBlockItem[];
+    onClick?: (block: TimeViewportBlockItem) => void;
+}
+interface TimeViewportMarkerLineProps {
+    timestamp: TimeInput;
+    viewportStart?: TimeInput;
+    viewportEnd?: TimeInput;
+    height?: string | number;
+    colorPalette?: string;
+    color?: string;
+    lineWidthPx?: number;
+    label?: string;
+    showLabel?: boolean;
+    hideWhenOutOfView?: boolean;
+}
+interface TimeViewportHeaderProps {
+    viewportStart?: TimeInput;
+    viewportEnd?: TimeInput;
+    tickCount?: number;
+    tickStrategy?: 'count' | 'timeUnit';
+    tickUnit?: 'minute' | 'hour' | 'day';
+    tickStep?: number;
+    format?: string;
+    height?: string | number;
+    color?: string;
+    borderColor?: string;
+    showBottomBorder?: boolean;
+    animationDurationMs?: number;
+    animationEasing?: string;
+}
+interface TimeViewportHeaderTick {
+    index: number;
+    percent: number;
+    label: string;
+}
+interface UseTimeViewportTicksResult {
+    isValidViewport: boolean;
+    getTicksByCount: (tickCount?: number) => TimeViewportHeaderTick[];
+    getTicksByTimeUnit: (tickUnit?: TimeViewportHeaderProps['tickUnit'], tickStep?: number) => TimeViewportHeaderTick[];
+    getTicks: (options?: {
+        tickStrategy?: TimeViewportHeaderProps['tickStrategy'];
+        tickCount?: number;
+        tickUnit?: TimeViewportHeaderProps['tickUnit'];
+        tickStep?: number;
+    }) => TimeViewportHeaderTick[];
+}
+interface TimeViewportGridProps {
+    viewportStart?: TimeInput;
+    viewportEnd?: TimeInput;
+    tickCount?: number;
+    minorDivisions?: number;
+    majorLineColor?: string;
+    minorLineColor?: string;
+    showMinorLines?: boolean;
+    zIndex?: number;
+    animationDurationMs?: number;
+    animationEasing?: string;
+}
+interface TimeViewportBlocksProps {
+    blocks: TimeViewportBlockItem[];
+    viewportStart?: TimeInput;
+    viewportEnd?: TimeInput;
+    height?: string | number;
+    minWidthPx?: number;
+    borderRadius?: string | number;
+    defaultColorPalette?: string;
+    showLabel?: boolean;
+    hideWhenOutOfView?: boolean;
+    hideEmptyTracks?: boolean;
+    gap?: number;
+    allowOverlap?: boolean;
+    overlapOpacity?: number;
+    renderTrackPrefix?: (args: {
+        trackIndex: number;
+        trackBlocks: TimeViewportBlockItem[];
+        trackKey?: string | number;
+    }) => ReactNode;
+    renderTrackSuffix?: (args: {
+        trackIndex: number;
+        trackBlocks: TimeViewportBlockItem[];
+        trackKey?: string | number;
+    }) => ReactNode;
+    onBlockClick?: (block: TimeViewportBlockItem) => void;
+}
+interface TimeViewportRootProps {
+    viewportStart: TimeInput;
+    viewportEnd: TimeInput;
+    children: ReactNode;
+    onViewportChange?: (range: {
+        start: Date;
+        end: Date;
+    }) => void;
+    enableDragPan?: boolean;
+    enableCtrlWheelZoom?: boolean;
+    wheelZoomFactor?: number;
+    minDurationMs?: number;
+    maxDurationMs?: number;
+}
+declare function TimeViewportRoot({ viewportStart, viewportEnd, children, onViewportChange, enableDragPan, enableCtrlWheelZoom, wheelZoomFactor, minDurationMs, maxDurationMs, }: TimeViewportRootProps): react_jsx_runtime.JSX.Element;
+interface UseTimeRangeZoomResult {
+    labels: Required<TimeRangeZoomLabels>;
+    start: dayjs.Dayjs;
+    end: dayjs.Dayjs;
+    durationMs: number;
+    canZoomIn: boolean;
+    canZoomOut: boolean;
+    hasValidDisplayRange: boolean;
+    visibleRangeText: string;
+    durationText: string;
+    zoomIn: () => void;
+    zoomOut: () => void;
+    reset: () => void;
+}
+interface UseTimeViewportBlockGeometryResult {
+    hasValidViewport: boolean;
+    getGeometry: (start?: TimeInput, end?: TimeInput) => {
+        valid: boolean;
+        leftPercent: number;
+        widthPercent: number;
+    };
+    toTimeMs: (value?: TimeInput) => number | null;
+}
+interface UseTimeViewportDerivedResult {
+    isValidViewport: boolean;
+    toTimeMs: (value?: TimeInput) => number | null;
+    getGeometry: (start?: TimeInput, end?: TimeInput) => {
+        valid: boolean;
+        leftPercent: number;
+        widthPercent: number;
+    };
+    getTimestampPercent: (timestamp?: TimeInput) => {
+        valid: boolean;
+        percent: number;
+        inView: boolean;
+    };
+    getTicksByCount: (tickCount?: number) => TimeViewportHeaderTick[];
+    getTicksByTimeUnit: (tickUnit?: TimeViewportHeaderProps['tickUnit'], tickStep?: number) => TimeViewportHeaderTick[];
+    getTicks: (options?: {
+        tickStrategy?: TimeViewportHeaderProps['tickStrategy'];
+        tickCount?: number;
+        tickUnit?: TimeViewportHeaderProps['tickUnit'];
+        tickStep?: number;
+    }) => TimeViewportHeaderTick[];
+}
+declare function useTimeViewport(viewportStart?: TimeInput, viewportEnd?: TimeInput, format?: string): UseTimeViewportDerivedResult;
+declare function useTimeViewportBlockGeometry(viewportStart?: TimeInput, viewportEnd?: TimeInput): UseTimeViewportBlockGeometryResult;
+declare function useTimeViewportTicks({ viewportStart, viewportEnd, format, }: Pick<TimeViewportHeaderProps, 'viewportStart' | 'viewportEnd' | 'format'>): UseTimeViewportTicksResult;
+declare const useTimeViewportHeader: typeof useTimeViewportTicks;
+/**
+ * A resizable timeline block based on block time range and viewport time range.
+ * Width and offset are automatically derived from datetime overlap.
+ */
+declare function TimeViewportBlock({ start, end, viewportStart, viewportEnd, height, minWidthPx, borderRadius, colorPalette, background, label, showLabel, hideWhenOutOfView, onClick, }: TimeViewportBlockProps): react_jsx_runtime.JSX.Element | null;
+/**
+ * Vertical marker line for a timestamp in the current viewport.
+ */
+declare function TimeViewportMarkerLine({ timestamp, viewportStart, viewportEnd, height, colorPalette, color, lineWidthPx, label, showLabel, hideWhenOutOfView, }: TimeViewportMarkerLineProps): react_jsx_runtime.JSX.Element | null;
+/**
+ * Header labels for timeline viewport time scale.
+ */
+declare function TimeViewportHeader({ viewportStart, viewportEnd, tickCount, tickStrategy, tickUnit, tickStep, format, height, color, borderColor, showBottomBorder, animationDurationMs, animationEasing, }: TimeViewportHeaderProps): react_jsx_runtime.JSX.Element | null;
+/**
+ * Vertical grid lines for measuring block positions in the viewport.
+ * Render inside a relative container that also contains blocks.
+ */
+declare function TimeViewportGrid({ viewportStart, viewportEnd, tickCount, minorDivisions, majorLineColor, minorLineColor, showMinorLines, zIndex, animationDurationMs, animationEasing, }: TimeViewportGridProps): react_jsx_runtime.JSX.Element | null;
+declare function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height, minWidthPx, borderRadius, defaultColorPalette, showLabel, hideWhenOutOfView, hideEmptyTracks, gap, allowOverlap, overlapOpacity, renderTrackPrefix, renderTrackSuffix, onBlockClick, }: TimeViewportBlocksProps): react_jsx_runtime.JSX.Element;
+declare function TimeRangeZoom({ range, onRangeChange, minDurationMs, maxDurationMs, zoomFactor, resetDurationMs, showResetButton, disabled, labels, }: TimeRangeZoomProps): react_jsx_runtime.JSX.Element;
+declare function useTimeRangeZoom({ range, onRangeChange, minDurationMs, maxDurationMs, zoomFactor, resetDurationMs, disabled, labels, }: TimeRangeZoomProps): UseTimeRangeZoomResult;
+
 interface RecordDisplayProps {
     object: object | null;
     boxProps?: BoxProps;
@@ -1224,4 +1450,4 @@ declare module '@tanstack/react-table' {
     }
 }
 
-export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, type CustomQueryFn, type CustomQueryFnParams, type CustomQueryFnResponse, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerContext, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, FormTitle, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, type TableFilterTagsProps, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type TimePickerLabels, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type ValidationErrorType, ViewDialog, defaultRenderDisplay, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm };
+export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, type CustomQueryFn, type CustomQueryFnParams, type CustomQueryFnResponse, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerContext, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, FormTitle, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, type TableFilterTagsProps, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type TimePickerLabels, TimeRangeZoom, type TimeRangeZoomLabels, type TimeRangeZoomProps, TimeViewportBlock, type TimeViewportBlockItem, type TimeViewportBlockProps, TimeViewportBlocks, type TimeViewportBlocksProps, TimeViewportGrid, type TimeViewportGridProps, TimeViewportHeader, type TimeViewportHeaderProps, type TimeViewportHeaderTick, TimeViewportMarkerLine, type TimeViewportMarkerLineProps, TimeViewportRoot, type TimeViewportRootProps, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type UseTimeRangeZoomResult, type UseTimeViewportBlockGeometryResult, type UseTimeViewportDerivedResult, type UseTimeViewportTicksResult, type ValidationErrorType, ViewDialog, type ViewableTimeRange, defaultRenderDisplay, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm, useTimeRangeZoom, useTimeViewport, useTimeViewportBlockGeometry, useTimeViewportHeader, useTimeViewportTicks };
