@@ -6,4 +6,4 @@ export { TimeRangeZoom, TimeViewportRoot, TimeViewportBlock, TimeViewportBlocks,
 export { UniversalPicker } from './UniversalPicker';
 export { DatePickerInput } from './DatePicker';
 export type { DatePickerProps, CalendarProps, GetDateColorProps, GetVariantProps, } from './DatePicker';
-export type { ViewableTimeRange, TimeRangeZoomLabels, TimeRangeZoomProps, TimeViewportRootProps, TimeViewportBlockProps, TimeViewportBlockItem, TimeViewportBlocksProps, TimeViewportGridProps, TimeViewportHeaderProps, TimeViewportMarkerLineProps, } from './TimeRangeZoom';
+export type { ViewableTimeRange, TimeRangeZoomLabels, TimeRangeZoomProps, TimeViewportRootProps, TimeViewportBlockProps, TimeViewportBlockItem, TimeViewportBlocksProps, TimeViewportBlockRenderArgs, TimeViewportTrackRenderArgs, TimeViewportGridProps, TimeViewportHeaderProps, TimeViewportMarkerLineProps, } from './TimeRangeZoom';

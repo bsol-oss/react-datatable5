@@ -8096,7 +8096,7 @@ function TimeViewportRoot({ viewportStart, viewportEnd, children, onViewportChan
     return (jsxRuntime.jsx(TimeViewportContext.Provider, { value: { viewportStart, viewportEnd }, children: jsxRuntime.jsx(react.Box, { ref: containerRef, position: "relative", width: "100%", cursor: enableDragPan ? (isDragging ? 'grabbing' : 'grab') : 'default', userSelect: enableDragPan ? 'none' : undefined, onPointerDown: handlePointerDown, onPointerMove: handlePointerMove, onPointerUp: stopDragging, onPointerCancel: stopDragging, onWheel: handleWheel, children: children }) }));
 }
 function TimeViewportTrackRow({ trackKey, blocks, resolvedHeight, prefix, suffix, renderBlockNode, }) {
-    return (jsxRuntime.jsxs(react.HStack, { width: "100%", overflowX: 'hidden', align: "stretch", gap: 2, children: [prefix ? (jsxRuntime.jsx(react.Box, { minW: "fit-content", display: "flex", alignItems: "center", children: prefix })) : null, jsxRuntime.jsx(react.Box, { position: "relative", width: "100%", height: resolvedHeight, children: blocks.map((item, index) => renderBlockNode(item, index)) }), suffix ? (jsxRuntime.jsx(react.Box, { minW: "fit-content", display: "flex", alignItems: "center", children: suffix })) : null] }, trackKey));
+    return (jsxRuntime.jsxs(react.Box, { width: "100%", overflowX: 'hidden', position: "relative", height: resolvedHeight, children: [jsxRuntime.jsx(react.Box, { position: "relative", width: "100%", height: "100%", children: blocks.map((item, index) => renderBlockNode(item, index)) }), prefix ? (jsxRuntime.jsx(react.Box, { position: "absolute", top: 0, insetInlineStart: 0, zIndex: 2, pointerEvents: "auto", children: prefix })) : null, suffix ? (jsxRuntime.jsx(react.Box, { position: "absolute", top: 0, insetInlineEnd: 0, zIndex: 2, pointerEvents: "auto", children: suffix })) : null] }, trackKey));
 }
 const defaultLabels = {
     zoomIn: 'Zoom in',
@@ -8334,7 +8334,7 @@ function TimeViewportMarkerLine({ timestamp, viewportStart, viewportEnd, height 
         return null;
     if (hideWhenOutOfView && !marker.inView)
         return null;
-    return (jsxRuntime.jsx(react.Box, { position: "absolute", insetInlineStart: 0, insetInlineEnd: 0, top: 0, bottom: 0, pointerEvents: "none", zIndex: 100, height: height, children: jsxRuntime.jsxs(react.Box, { width: "100%", height: "100%", transform: `translateX(${marker.percent}%)`, transition: VIEWPORT_TRANSITION, transformOrigin: "left center", children: [jsxRuntime.jsx(react.Box, { width: `${lineWidthPx}px`, height: "100%", bg: color ?? `${colorPalette}.500`, _dark: { bg: color ?? `${colorPalette}.300` }, transform: "translateX(-50%)" }), showLabel && label ? (jsxRuntime.jsx(react.Text, { position: "absolute", insetInlineStart: 0, top: "100%", mt: 1, display: "inline-block", fontSize: "xs", whiteSpace: "nowrap", color: color ?? `${colorPalette}.700`, _dark: { color: color ?? `${colorPalette}.200` }, transform: "translateX(-50%)", children: label })) : null] }) }));
+    return (jsxRuntime.jsx(react.Box, { position: "absolute", insetInlineStart: 0, insetInlineEnd: 0, top: 0, bottom: 0, pointerEvents: "none", zIndex: 100, height: height, children: jsxRuntime.jsxs(react.Box, { width: "100%", height: "100%", transform: `translateX(${marker.percent}%)`, transition: VIEWPORT_TRANSITION, transformOrigin: "left center", children: [jsxRuntime.jsx(react.Box, { width: `${lineWidthPx}px`, height: "100%", bg: color ?? `${colorPalette}.500`, _dark: { bg: color ?? `${colorPalette}.500` }, transform: "translateX(-50%)" }), showLabel && label ? (jsxRuntime.jsx(react.Text, { position: "absolute", insetInlineStart: 0, top: "100%", mt: 1, display: "inline-block", fontSize: "xs", whiteSpace: "nowrap", color: color ?? `${colorPalette}.700`, _dark: { color: color ?? `${colorPalette}.500` }, transform: "translateX(-50%)", children: label })) : null] }) }));
 }
 /**
  * Header labels for timeline viewport time scale.
@@ -8380,7 +8380,7 @@ function TimeViewportGrid({ viewportStart, viewportEnd, tickCount = 8, tickStrat
         : [];
     return (jsxRuntime.jsxs(react.Box, { position: "absolute", inset: 0, pointerEvents: "none", zIndex: zIndex, children: [minorTicks.map((percent, index) => (jsxRuntime.jsx(react.Box, { position: "absolute", inset: 0, transform: `translateX(${percent}%)`, transition: transitionValue, children: jsxRuntime.jsx(react.Box, { position: "absolute", insetInlineStart: 0, top: 0, bottom: 0, width: "1px", bg: minorLineColor, _dark: { bg: 'gray.700' } }) }, `minor-grid-${index}`))), majorTicks.map((tick) => (jsxRuntime.jsx(react.Box, { position: "absolute", inset: 0, transform: `translateX(${tick.percent}%)`, transition: transitionValue, children: jsxRuntime.jsx(react.Box, { position: "absolute", insetInlineStart: 0, top: 0, bottom: 0, width: "1px", bg: majorLineColor, _dark: { bg: 'gray.600' } }) }, `major-grid-${tick.index}`)))] }));
 }
-function VirtualizedTrackList({ tracks, resolvedHeight, gap, virtualHeight, overscan, renderTrackPrefix, renderTrackSuffix, renderBlockNode, }) {
+function VirtualizedTrackList({ tracks, resolvedHeight, gap, virtualHeight, overscan, renderTrackPrefix, renderTrackSuffix, renderTrack, renderBlockNode, }) {
     const parentRef = React.useRef(null);
     const rowHeightPx = parseInt(resolvedHeight, 10) || 28;
     const gapPx = gap * 4; // Chakra spacing token to px (1 unit = 4px)
@@ -8403,10 +8403,19 @@ function VirtualizedTrackList({ tracks, resolvedHeight, gap, virtualHeight, over
                     trackBlocks,
                     trackKey: track.trackKeyRaw,
                 });
-                return (jsxRuntime.jsx(react.Box, { position: "absolute", top: 0, left: 0, width: "100%", transform: `translateY(${virtualRow.start}px)`, children: jsxRuntime.jsx(TimeViewportTrackRow, { trackKey: track.trackKey, blocks: track.blocks, resolvedHeight: resolvedHeight, prefix: prefix, suffix: suffix, renderBlockNode: renderBlockNode }) }, track.trackKey));
+                const defaultContent = (jsxRuntime.jsx(TimeViewportTrackRow, { trackKey: track.trackKey, blocks: track.blocks, resolvedHeight: resolvedHeight, prefix: prefix, suffix: suffix, renderBlockNode: renderBlockNode }));
+                const trackContent = renderTrack
+                    ? renderTrack({
+                        trackIndex: virtualRow.index,
+                        trackKey: track.trackKeyRaw,
+                        trackBlocks,
+                        defaultContent,
+                    })
+                    : defaultContent;
+                return (jsxRuntime.jsx(react.Box, { position: "absolute", top: 0, left: 0, width: "100%", transform: `translateY(${virtualRow.start}px)`, children: trackContent }, track.trackKey));
             }) }) }));
 }
-function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height = '28px', minWidthPx = 2, borderRadius = 'sm', defaultColorPalette = 'blue', showLabel = true, hideWhenOutOfView = true, hideEmptyTracks = true, gap = 2, allowOverlap = false, overlapOpacity = 0.9, renderTrackPrefix, renderTrackSuffix, onBlockClick, virtualize = false, virtualHeight = 400, overscan = 5, }) {
+function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height = '28px', minWidthPx = 2, borderRadius = 'sm', defaultColorPalette = 'blue', showLabel = true, hideWhenOutOfView = true, hideEmptyTracks = true, gap = 2, allowOverlap = false, overlapOpacity = 0.9, renderTrackPrefix, renderTrackSuffix, renderBlock, renderTrack, onBlockClick, virtualize = false, virtualHeight = 400, overscan = 5, }) {
     const { getGeometry, toTimeMs } = useTimeViewportBlockGeometry(viewportStart, viewportEnd);
     const resolvedHeight = typeof height === 'number' ? `${height}px` : height;
     const expandedBlocks = flattenTrackBlocks(blocks);
@@ -8441,11 +8450,11 @@ function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height = '28px
             onBlockClick?.(block);
         };
         const isBlockClickable = Boolean(block.onClick || onBlockClick);
-        return (jsxRuntime.jsx(react.Box, { height: "100%", position: "absolute", inset: 0, pointerEvents: "none", transform: `translateX(${geometry.leftPercent}%)`, transition: VIEWPORT_TRANSITION, children: jsxRuntime.jsx(react.Box, { width: `max(${geometry.widthPercent}%, ${minWidthPx}px)`, height: "100%", borderRadius: borderRadius, bg: block.background ??
-                    `${block.colorPalette ?? defaultColorPalette}.500`, _dark: {
-                    bg: block.background ??
-                        `${block.colorPalette ?? defaultColorPalette}.900`,
-                }, display: "flex", alignItems: "center", justifyContent: "center", px: 2, overflow: "hidden", opacity: allowOverlap ? overlapOpacity : 1, zIndex: indexInLayer + 1, pointerEvents: "auto", onClick: isBlockClickable ? handleBlockClick : undefined, cursor: isBlockClickable ? 'pointer' : 'default', children: showLabel && block.label ? (jsxRuntime.jsx(react.Text, { fontSize: "xs", lineClamp: 1, color: "white", _dark: { color: 'gray.100' }, children: block.label })) : null }) }, block.id));
+        const content = renderBlock ? (renderBlock({ block, geometry, index: indexInLayer })) : (jsxRuntime.jsx(react.Box, { width: `max(${geometry.widthPercent}%, ${minWidthPx}px)`, height: "100%", borderRadius: borderRadius, bg: block.background ?? `${block.colorPalette ?? defaultColorPalette}.500`, _dark: {
+                bg: block.background ??
+                    `${block.colorPalette ?? defaultColorPalette}.900`,
+            }, display: "flex", alignItems: "center", justifyContent: "center", px: 2, overflow: "hidden", opacity: allowOverlap ? overlapOpacity : 1, zIndex: indexInLayer + 1, pointerEvents: "auto", onClick: isBlockClickable ? handleBlockClick : undefined, cursor: isBlockClickable ? 'pointer' : 'default', children: showLabel && block.label ? (jsxRuntime.jsx(react.Text, { fontSize: "xs", lineClamp: 1, children: block.label })) : null }));
+        return (jsxRuntime.jsx(react.Box, { height: "100%", position: "absolute", inset: 0, pointerEvents: "none", transform: `translateX(${geometry.leftPercent}%)`, transition: VIEWPORT_TRANSITION, children: content }, block.id));
     };
     // ---------- Resolve tracks ----------
     const explicitTrackKeys = Array.from(new Set(expandedBlocks
@@ -8493,7 +8502,7 @@ function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height = '28px
     }, [allowOverlap, explicitTrackKeys, hideEmptyTracks, parsedBlocks]);
     // ---------- Render ----------
     if (virtualize) {
-        return (jsxRuntime.jsx(VirtualizedTrackList, { tracks: resolvedTracks, resolvedHeight: resolvedHeight, gap: gap, virtualHeight: virtualHeight, overscan: overscan, renderTrackPrefix: renderTrackPrefix, renderTrackSuffix: renderTrackSuffix, renderBlockNode: renderBlockNode }));
+        return (jsxRuntime.jsx(VirtualizedTrackList, { tracks: resolvedTracks, resolvedHeight: resolvedHeight, gap: gap, virtualHeight: virtualHeight, overscan: overscan, renderTrackPrefix: renderTrackPrefix, renderTrackSuffix: renderTrackSuffix, renderTrack: renderTrack, renderBlockNode: renderBlockNode }));
     }
     return (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: gap, children: resolvedTracks.map((track, trackIndex) => {
             const trackBlocks = track.blocks.map((item) => item.block);
@@ -8507,7 +8516,15 @@ function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height = '28px
                 trackBlocks,
                 trackKey: track.trackKeyRaw,
             });
-            return (jsxRuntime.jsx(TimeViewportTrackRow, { trackKey: track.trackKey, blocks: track.blocks, resolvedHeight: resolvedHeight, prefix: prefix, suffix: suffix, renderBlockNode: renderBlockNode }));
+            const defaultContent = (jsxRuntime.jsx(TimeViewportTrackRow, { trackKey: track.trackKey, blocks: track.blocks, resolvedHeight: resolvedHeight, prefix: prefix, suffix: suffix, renderBlockNode: renderBlockNode }));
+            return renderTrack
+                ? renderTrack({
+                    trackIndex,
+                    trackKey: track.trackKeyRaw,
+                    trackBlocks,
+                    defaultContent,
+                })
+                : defaultContent;
         }) }));
 }
 function TimeRangeZoom({ range, onRangeChange, minDurationMs = DEFAULT_MIN_DURATION_MS, maxDurationMs = DEFAULT_MAX_DURATION_MS, zoomFactor = DEFAULT_ZOOM_FACTOR, resetDurationMs, showResetButton = true, disabled = false, labels, }) {

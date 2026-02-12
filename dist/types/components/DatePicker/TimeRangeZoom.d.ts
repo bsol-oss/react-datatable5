@@ -117,6 +117,20 @@ export interface TimeViewportGridProps {
     animationDurationMs?: number;
     animationEasing?: string;
 }
+export interface TimeViewportBlockRenderArgs {
+    block: TimeViewportBlockItem;
+    geometry: {
+        leftPercent: number;
+        widthPercent: number;
+    };
+    index: number;
+}
+export interface TimeViewportTrackRenderArgs {
+    trackIndex: number;
+    trackKey?: string | number;
+    trackBlocks: TimeViewportBlockItem[];
+    defaultContent: ReactNode;
+}
 export interface TimeViewportBlocksProps {
     blocks: TimeViewportBlockItem[];
     viewportStart?: TimeInput;
@@ -141,6 +155,10 @@ export interface TimeViewportBlocksProps {
         trackBlocks: TimeViewportBlockItem[];
         trackKey?: string | number;
     }) => ReactNode;
+    /** Custom render function for block content. The returned node is placed inside a positioning wrapper that handles translateX and transitions. */
+    renderBlock?: (args: TimeViewportBlockRenderArgs) => ReactNode;
+    /** Custom render function for an entire track row. Receives the default rendered content so you can wrap or replace it. */
+    renderTrack?: (args: TimeViewportTrackRenderArgs) => ReactNode;
     onBlockClick?: (block: TimeViewportBlockItem) => void;
     /** Enable virtual scrolling for large track lists. */
     virtualize?: boolean;
@@ -231,7 +249,7 @@ export declare function TimeViewportHeader({ viewportStart, viewportEnd, tickCou
  * Render inside a relative container that also contains blocks.
  */
 export declare function TimeViewportGrid({ viewportStart, viewportEnd, tickCount, tickStrategy, tickUnit, tickStep, format, minorDivisions, majorLineColor, minorLineColor, showMinorLines, zIndex, animationDurationMs, animationEasing, }: TimeViewportGridProps): import("react/jsx-runtime").JSX.Element | null;
-export declare function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height, minWidthPx, borderRadius, defaultColorPalette, showLabel, hideWhenOutOfView, hideEmptyTracks, gap, allowOverlap, overlapOpacity, renderTrackPrefix, renderTrackSuffix, onBlockClick, virtualize, virtualHeight, overscan, }: TimeViewportBlocksProps): import("react/jsx-runtime").JSX.Element;
+export declare function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height, minWidthPx, borderRadius, defaultColorPalette, showLabel, hideWhenOutOfView, hideEmptyTracks, gap, allowOverlap, overlapOpacity, renderTrackPrefix, renderTrackSuffix, renderBlock, renderTrack, onBlockClick, virtualize, virtualHeight, overscan, }: TimeViewportBlocksProps): import("react/jsx-runtime").JSX.Element;
 export declare function TimeRangeZoom({ range, onRangeChange, minDurationMs, maxDurationMs, zoomFactor, resetDurationMs, showResetButton, disabled, labels, }: TimeRangeZoomProps): import("react/jsx-runtime").JSX.Element;
 export declare function useTimeRangeZoom({ range, onRangeChange, minDurationMs, maxDurationMs, zoomFactor, resetDurationMs, disabled, labels, }: TimeRangeZoomProps): UseTimeRangeZoomResult;
 export {};
