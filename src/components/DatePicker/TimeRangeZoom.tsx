@@ -18,6 +18,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { LuZoomIn, LuZoomOut } from 'react-icons/lu';
 
 type TimeInput = Date | string | number;
@@ -138,6 +139,10 @@ export interface TimeViewportGridProps {
   viewportStart?: TimeInput;
   viewportEnd?: TimeInput;
   tickCount?: number;
+  tickStrategy?: 'count' | 'timeUnit';
+  tickUnit?: 'minute' | 'hour' | 'day';
+  tickStep?: number;
+  format?: string;
   minorDivisions?: number;
   majorLineColor?: string;
   minorLineColor?: string;
@@ -172,6 +177,12 @@ export interface TimeViewportBlocksProps {
     trackKey?: string | number;
   }) => ReactNode;
   onBlockClick?: (block: TimeViewportBlockItem) => void;
+  /** Enable virtual scrolling for large track lists. */
+  virtualize?: boolean;
+  /** Fixed pixel height of the scroll container when virtualize is true. Defaults to 400. */
+  virtualHeight?: number;
+  /** Number of off-screen rows to render above/below the visible area. Defaults to 5. */
+  overscan?: number;
 }
 
 export interface TimeViewportRootProps {
@@ -373,7 +384,13 @@ function TimeViewportTrackRow({
   renderBlockNode,
 }: TimeViewportTrackRowProps) {
   return (
-    <HStack key={trackKey} align="stretch" gap={2}>
+    <HStack
+      key={trackKey}
+      width="100%"
+      overflowX={'hidden'}
+      align="stretch"
+      gap={2}
+    >
       {prefix ? (
         <Box minW="fit-content" display="flex" alignItems="center">
           {prefix}
@@ -979,6 +996,10 @@ export function TimeViewportGrid({
   viewportStart,
   viewportEnd,
   tickCount = 8,
+  tickStrategy = 'count',
+  tickUnit = 'hour',
+  tickStep = 1,
+  format,
   minorDivisions = 2,
   majorLineColor = 'gray.300',
   minorLineColor = 'gray.200',
@@ -987,32 +1008,31 @@ export function TimeViewportGrid({
   animationDurationMs = VIEWPORT_TRANSITION_DURATION_MS,
   animationEasing = VIEWPORT_TRANSITION_EASING,
 }: TimeViewportGridProps) {
-  const viewport = useResolvedViewport(viewportStart, viewportEnd);
-  const start = viewport ? parseTimeInput(viewport.viewportStart) : null;
-  const end = viewport ? parseTimeInput(viewport.viewportEnd) : null;
-  if (!start || !end || !end.isAfter(start)) return null;
+  const { isValidViewport, getTicks } = useTimeViewport(
+    viewportStart,
+    viewportEnd,
+    format
+  );
+  const majorTicks = getTicks({ tickStrategy, tickCount, tickUnit, tickStep });
 
-  const safeTickCount = Math.max(2, tickCount);
-  const majorTicks = Array.from({ length: safeTickCount }, (_, index) => ({
-    index,
-    percent: (index / (safeTickCount - 1)) * 100,
-  }));
+  if (!isValidViewport || majorTicks.length < 2) return null;
 
   const safeMinorDivisions = Math.max(1, minorDivisions);
   const transitionValue =
     animationDurationMs > 0
       ? `transform ${animationDurationMs}ms ${animationEasing}, opacity ${animationDurationMs}ms ${animationEasing}`
       : undefined;
+
   const minorTicks = showMinorLines
-    ? Array.from({ length: safeTickCount - 1 }, (_, segmentIndex) => {
-        const base = (segmentIndex / (safeTickCount - 1)) * 100;
-        const next = ((segmentIndex + 1) / (safeTickCount - 1)) * 100;
+    ? majorTicks.slice(0, -1).flatMap((tick, segmentIndex) => {
+        const base = tick.percent;
+        const next = majorTicks[segmentIndex + 1].percent;
         const segment: number[] = [];
         for (let step = 1; step < safeMinorDivisions; step += 1) {
           segment.push(base + ((next - base) * step) / safeMinorDivisions);
         }
         return segment;
-      }).flat()
+      })
     : [];
 
   return (
@@ -1059,6 +1079,89 @@ export function TimeViewportGrid({
   );
 }
 
+interface ResolvedTrack {
+  trackKey: string;
+  trackKeyRaw?: string | number;
+  blocks: ParsedTimeViewportBlock[];
+}
+
+interface VirtualizedTrackListProps {
+  tracks: ResolvedTrack[];
+  resolvedHeight: string;
+  gap: number;
+  virtualHeight: number;
+  overscan: number;
+  renderTrackPrefix?: TimeViewportBlocksProps['renderTrackPrefix'];
+  renderTrackSuffix?: TimeViewportBlocksProps['renderTrackSuffix'];
+  renderBlockNode: (
+    blockItem: ParsedTimeViewportBlock,
+    indexInLayer: number
+  ) => ReactNode;
+}
+
+function VirtualizedTrackList({
+  tracks,
+  resolvedHeight,
+  gap,
+  virtualHeight,
+  overscan,
+  renderTrackPrefix,
+  renderTrackSuffix,
+  renderBlockNode,
+}: VirtualizedTrackListProps) {
+  const parentRef = useRef<HTMLDivElement>(null);
+  const rowHeightPx = parseInt(resolvedHeight, 10) || 28;
+  const gapPx = gap * 4; // Chakra spacing token to px (1 unit = 4px)
+
+  const virtualizer = useVirtualizer({
+    count: tracks.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => rowHeightPx + gapPx,
+    overscan,
+  });
+
+  return (
+    <Box ref={parentRef} overflowY="auto" height={`${virtualHeight}px`}>
+      <Box height={`${virtualizer.getTotalSize()}px`} position="relative">
+        {virtualizer.getVirtualItems().map((virtualRow) => {
+          const track = tracks[virtualRow.index];
+          const trackBlocks = track.blocks.map((item) => item.block);
+          const prefix = renderTrackPrefix?.({
+            trackIndex: virtualRow.index,
+            trackBlocks,
+            trackKey: track.trackKeyRaw,
+          });
+          const suffix = renderTrackSuffix?.({
+            trackIndex: virtualRow.index,
+            trackBlocks,
+            trackKey: track.trackKeyRaw,
+          });
+
+          return (
+            <Box
+              key={track.trackKey}
+              position="absolute"
+              top={0}
+              left={0}
+              width="100%"
+              transform={`translateY(${virtualRow.start}px)`}
+            >
+              <TimeViewportTrackRow
+                trackKey={track.trackKey}
+                blocks={track.blocks}
+                resolvedHeight={resolvedHeight}
+                prefix={prefix}
+                suffix={suffix}
+                renderBlockNode={renderBlockNode}
+              />
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+}
+
 export function TimeViewportBlocks({
   blocks,
   viewportStart,
@@ -1076,6 +1179,9 @@ export function TimeViewportBlocks({
   renderTrackPrefix,
   renderTrackSuffix,
   onBlockClick,
+  virtualize = false,
+  virtualHeight = 400,
+  overscan = 5,
 }: TimeViewportBlocksProps) {
   const { getGeometry, toTimeMs } = useTimeViewportBlockGeometry(
     viewportStart,
@@ -1120,52 +1226,55 @@ export function TimeViewportBlocks({
     };
     const isBlockClickable = Boolean(block.onClick || onBlockClick);
     return (
-      <Box key={block.id} position="absolute" inset={0} pointerEvents="none">
+      <Box
+        height="100%"
+        key={block.id}
+        position="absolute"
+        inset={0}
+        pointerEvents="none"
+        transform={`translateX(${geometry.leftPercent}%)`}
+        transition={VIEWPORT_TRANSITION}
+      >
         <Box
-          width="100%"
+          width={`max(${geometry.widthPercent}%, ${minWidthPx}px)`}
           height="100%"
-          transform={`translateX(${geometry.leftPercent}%)`}
-          transition={VIEWPORT_TRANSITION}
-        >
-          <Box
-            width={`max(${geometry.widthPercent}%, ${minWidthPx}px)`}
-            height="100%"
-            borderRadius={borderRadius}
-            bg={
+          borderRadius={borderRadius}
+          bg={
+            block.background ??
+            `${block.colorPalette ?? defaultColorPalette}.500`
+          }
+          _dark={{
+            bg:
               block.background ??
-              `${block.colorPalette ?? defaultColorPalette}.500`
-            }
-            _dark={{
-              bg:
-                block.background ??
-                `${block.colorPalette ?? defaultColorPalette}.900`,
-            }}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            px={2}
-            overflow="hidden"
-            opacity={allowOverlap ? overlapOpacity : 1}
-            zIndex={indexInLayer + 1}
-            pointerEvents="auto"
-            onClick={isBlockClickable ? handleBlockClick : undefined}
-            cursor={isBlockClickable ? 'pointer' : 'default'}
-          >
-            {showLabel && block.label ? (
-              <Text
-                fontSize="xs"
-                lineClamp={1}
-                color="white"
-                _dark={{ color: 'gray.100' }}
-              >
-                {block.label}
-              </Text>
-            ) : null}
-          </Box>
+              `${block.colorPalette ?? defaultColorPalette}.900`,
+          }}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          px={2}
+          overflow="hidden"
+          opacity={allowOverlap ? overlapOpacity : 1}
+          zIndex={indexInLayer + 1}
+          pointerEvents="auto"
+          onClick={isBlockClickable ? handleBlockClick : undefined}
+          cursor={isBlockClickable ? 'pointer' : 'default'}
+        >
+          {showLabel && block.label ? (
+            <Text
+              fontSize="xs"
+              lineClamp={1}
+              color="white"
+              _dark={{ color: 'gray.100' }}
+            >
+              {block.label}
+            </Text>
+          ) : null}
         </Box>
       </Box>
     );
   };
+
+  // ---------- Resolve tracks ----------
 
   const explicitTrackKeys = Array.from(
     new Set(
@@ -1175,95 +1284,91 @@ export function TimeViewportBlocks({
     )
   );
 
-  if (explicitTrackKeys.length > 0) {
-    const tracks = explicitTrackKeys
-      .map((trackKey) => ({
-        trackKey,
-        blocks: parsedBlocks.filter((item) => item.block.track === trackKey),
-      }))
-      .filter((track) => !hideEmptyTracks || track.blocks.length > 0);
+  const resolvedTracks: ResolvedTrack[] = useMemo(() => {
+    if (explicitTrackKeys.length > 0) {
+      return explicitTrackKeys
+        .map((trackKey) => ({
+          trackKey: `track-keyed-${String(trackKey)}`,
+          trackKeyRaw: trackKey,
+          blocks: parsedBlocks.filter((item) => item.block.track === trackKey),
+        }))
+        .filter((track) => !hideEmptyTracks || track.blocks.length > 0);
+    }
 
+    const autoPackedTracks = (() => {
+      const sortedBlocks = [...parsedBlocks]
+        .filter(
+          ({ startMs, endMs }) =>
+            Number.isFinite(startMs) && Number.isFinite(endMs)
+        )
+        .sort((a, b) => {
+          if (a.startMs === b.startMs) return a.endMs - b.endMs;
+          return a.startMs - b.startMs;
+        });
+
+      const trackLastEndTimes: number[] = [];
+      const tracks: Array<typeof sortedBlocks> = [];
+
+      sortedBlocks.forEach((item) => {
+        const trackIndex = trackLastEndTimes.findIndex(
+          (endMs) => item.startMs >= endMs
+        );
+        if (trackIndex === -1) {
+          trackLastEndTimes.push(item.endMs);
+          tracks.push([item]);
+        } else {
+          trackLastEndTimes[trackIndex] = item.endMs;
+          tracks[trackIndex].push(item);
+        }
+      });
+
+      return tracks;
+    })();
+
+    const packed = allowOverlap ? [parsedBlocks] : autoPackedTracks;
+    return packed.map((track, trackIndex) => ({
+      trackKey: `track-row-${trackIndex}`,
+      trackKeyRaw: undefined,
+      blocks: track,
+    }));
+  }, [allowOverlap, explicitTrackKeys, hideEmptyTracks, parsedBlocks]);
+
+  // ---------- Render ----------
+
+  if (virtualize) {
     return (
-      <VStack align="stretch" gap={gap}>
-        {tracks.map((track, trackIndex) => {
-          const trackBlocks = track.blocks.map((item) => item.block);
-          const prefix = renderTrackPrefix?.({
-            trackIndex,
-            trackBlocks,
-            trackKey: track.trackKey,
-          });
-          const suffix = renderTrackSuffix?.({
-            trackIndex,
-            trackBlocks,
-            trackKey: track.trackKey,
-          });
-
-          return (
-            <TimeViewportTrackRow
-              trackKey={`track-keyed-${String(track.trackKey)}`}
-              blocks={track.blocks}
-              resolvedHeight={resolvedHeight}
-              prefix={prefix}
-              suffix={suffix}
-              renderBlockNode={renderBlockNode}
-            />
-          );
-        })}
-      </VStack>
+      <VirtualizedTrackList
+        tracks={resolvedTracks}
+        resolvedHeight={resolvedHeight}
+        gap={gap}
+        virtualHeight={virtualHeight}
+        overscan={overscan}
+        renderTrackPrefix={renderTrackPrefix}
+        renderTrackSuffix={renderTrackSuffix}
+        renderBlockNode={renderBlockNode}
+      />
     );
   }
 
-  const autoPackedTracks = (() => {
-    const sortedBlocks = [...parsedBlocks]
-      .filter(
-        ({ startMs, endMs }) =>
-          Number.isFinite(startMs) && Number.isFinite(endMs)
-      )
-      .sort((a, b) => {
-        if (a.startMs === b.startMs) return a.endMs - b.endMs;
-        return a.startMs - b.startMs;
-      });
-
-    const trackLastEndTimes: number[] = [];
-    const tracks: Array<typeof sortedBlocks> = [];
-
-    sortedBlocks.forEach((item) => {
-      const trackIndex = trackLastEndTimes.findIndex(
-        (endMs) => item.startMs >= endMs
-      );
-      if (trackIndex === -1) {
-        trackLastEndTimes.push(item.endMs);
-        tracks.push([item]);
-      } else {
-        trackLastEndTimes[trackIndex] = item.endMs;
-        tracks[trackIndex].push(item);
-      }
-    });
-
-    return tracks;
-  })();
-
-  const tracks = allowOverlap ? [parsedBlocks] : autoPackedTracks;
-
   return (
     <VStack align="stretch" gap={gap}>
-      {tracks.map((track, trackIndex) => {
-        const trackBlocks = track.map((item) => item.block);
+      {resolvedTracks.map((track, trackIndex) => {
+        const trackBlocks = track.blocks.map((item) => item.block);
         const prefix = renderTrackPrefix?.({
           trackIndex,
           trackBlocks,
-          trackKey: undefined,
+          trackKey: track.trackKeyRaw,
         });
         const suffix = renderTrackSuffix?.({
           trackIndex,
           trackBlocks,
-          trackKey: undefined,
+          trackKey: track.trackKeyRaw,
         });
 
         return (
           <TimeViewportTrackRow
-            trackKey={`track-row-${trackIndex}`}
-            blocks={track}
+            trackKey={track.trackKey}
+            blocks={track.blocks}
             resolvedHeight={resolvedHeight}
             prefix={prefix}
             suffix={suffix}

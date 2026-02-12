@@ -1664,59 +1664,51 @@ const RoomBookingViewportDemo = () => {
           </Button>
         </HStack>
 
-        <Box
-          p={3}
-          borderWidth="1px"
-          borderRadius="md"
-          bg="gray.50"
-          _dark={{ bg: 'gray.800' }}
-          position="relative"
+        <TimeViewportRoot
+          viewportStart={viewport.start}
+          viewportEnd={viewport.end}
+          onViewportChange={setViewport}
+          enableDragPan={false}
+          enableCtrlWheelZoom={false}
         >
-          <TimeViewportRoot
-            viewportStart={viewport.start}
-            viewportEnd={viewport.end}
-            onViewportChange={setViewport}
-            enableDragPan={false}
-            enableCtrlWheelZoom={false}
-          >
-            <TimeViewportHeader tickCount={9} />
-            <Box position="relative">
-              <TimeViewportGrid tickCount={9} minorDivisions={2} />
-              <TimeViewportBlocks
-                blocks={roomTracks}
-                allowOverlap={true}
-                overlapOpacity={0.95}
-                hideEmptyTracks={hideEmptyTracks}
-                height="32px"
-                gap={2}
-                onBlockClick={(block) =>
-                  setLastClickedBlock(block.label ?? block.id)
-                }
-                renderTrackPrefix={({ trackBlocks, trackKey }) => (
-                  <Text
-                    minW="56px"
-                    fontSize="xs"
-                    fontWeight="semibold"
-                    color="gray.700"
-                    _dark={{ color: 'gray.200' }}
-                  >
-                    {String(trackKey ?? trackBlocks[0]?.track ?? '')}
-                  </Text>
-                )}
-              />
-              <TimeViewportMarkerLine
-                timestamp={dayStart.hour(12).toDate()}
-                label="Noon"
-                colorPalette="red"
-              />
-              <TimeViewportMarkerLine
-                timestamp={dayjs().toDate()}
-                label="Now"
-                colorPalette="green"
-              />
-            </Box>
-          </TimeViewportRoot>
-        </Box>
+          <TimeViewportHeader tickCount={9} />
+          <TimeViewportGrid tickCount={9} minorDivisions={2} />
+          <TimeViewportBlocks
+            blocks={roomTracks}
+            allowOverlap={true}
+            overlapOpacity={0.95}
+            hideEmptyTracks={hideEmptyTracks}
+            height="32px"
+            gap={2}
+            virtualize
+            virtualHeight={500}
+            overscan={5}
+            onBlockClick={(block) =>
+              setLastClickedBlock(block.label ?? block.id)
+            }
+            renderTrackPrefix={({ trackBlocks, trackKey }) => (
+              <Text
+                minW="56px"
+                fontSize="xs"
+                fontWeight="semibold"
+                color="gray.700"
+                _dark={{ color: 'gray.200' }}
+              >
+                {String(trackKey ?? trackBlocks[0]?.track ?? '')}
+              </Text>
+            )}
+          />
+          <TimeViewportMarkerLine
+            timestamp={dayStart.hour(12).toDate()}
+            label="Noon"
+            colorPalette="red"
+          />
+          <TimeViewportMarkerLine
+            timestamp={dayjs().toDate()}
+            label="Now"
+            colorPalette="green"
+          />
+        </TimeViewportRoot>
         <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
           Last clicked block: {lastClickedBlock}
         </Text>
@@ -1731,4 +1723,1037 @@ export const RoomBookingViewport: Story = {
     ...requiredStoryArgs,
   },
   render: () => <RoomBookingViewportDemo />,
+};
+
+// ---------------------------------------------------------------------------
+// Day View Story
+// ---------------------------------------------------------------------------
+
+type DailyEvent = {
+  id: string;
+  label: string;
+  startHour: number;
+  startMinute: number;
+  endHour: number;
+  endMinute: number;
+  colorPalette: string;
+  track: string;
+};
+
+const DAILY_EVENTS: DailyEvent[] = [
+  {
+    id: 'standup',
+    label: 'Daily Standup',
+    startHour: 9,
+    startMinute: 0,
+    endHour: 9,
+    endMinute: 30,
+    colorPalette: 'blue',
+    track: 'Meetings',
+  },
+  {
+    id: 'sprint-review',
+    label: 'Sprint Review',
+    startHour: 10,
+    startMinute: 0,
+    endHour: 11,
+    endMinute: 30,
+    colorPalette: 'purple',
+    track: 'Meetings',
+  },
+  {
+    id: 'lunch-sync',
+    label: 'Lunch Sync',
+    startHour: 12,
+    startMinute: 0,
+    endHour: 13,
+    endMinute: 0,
+    colorPalette: 'orange',
+    track: 'Meetings',
+  },
+  {
+    id: 'design-review',
+    label: 'Design Review',
+    startHour: 14,
+    startMinute: 0,
+    endHour: 15,
+    endMinute: 0,
+    colorPalette: 'pink',
+    track: 'Meetings',
+  },
+  {
+    id: 'retro',
+    label: 'Retrospective',
+    startHour: 16,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 0,
+    colorPalette: 'teal',
+    track: 'Meetings',
+  },
+  {
+    id: 'coding-morning',
+    label: 'Feature Development',
+    startHour: 9,
+    startMinute: 30,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'green',
+    track: 'Deep Work',
+  },
+  {
+    id: 'coding-afternoon',
+    label: 'Bug Fixes',
+    startHour: 13,
+    startMinute: 0,
+    endHour: 14,
+    endMinute: 0,
+    colorPalette: 'red',
+    track: 'Deep Work',
+  },
+  {
+    id: 'code-review',
+    label: 'Code Review',
+    startHour: 15,
+    startMinute: 0,
+    endHour: 16,
+    endMinute: 0,
+    colorPalette: 'cyan',
+    track: 'Deep Work',
+  },
+  {
+    id: 'deploy-window',
+    label: 'Deploy Window',
+    startHour: 17,
+    startMinute: 0,
+    endHour: 18,
+    endMinute: 0,
+    colorPalette: 'yellow',
+    track: 'Ops',
+  },
+  {
+    id: 'monitoring',
+    label: 'Post-Deploy Monitoring',
+    startHour: 18,
+    startMinute: 0,
+    endHour: 19,
+    endMinute: 30,
+    colorPalette: 'orange',
+    track: 'Ops',
+  },
+];
+
+const DayViewDemo = () => {
+  const today = dayjs().startOf('day');
+  const [viewport, setViewport] = useState(() => ({
+    start: today.hour(8).toDate(),
+    end: today.hour(20).toDate(),
+  }));
+
+  const blocks = DAILY_EVENTS.map((event) => ({
+    id: event.id,
+    start: today.hour(event.startHour).minute(event.startMinute).toDate(),
+    end: today.hour(event.endHour).minute(event.endMinute).toDate(),
+    label: event.label,
+    colorPalette: event.colorPalette,
+    track: event.track,
+  }));
+
+  return (
+    <Provider>
+      <VStack align="stretch" gap={4} p={4}>
+        <Heading size="md">Day View - Daily Schedule</Heading>
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+          24-hour daily view showing meetings, deep work, and ops blocks across
+          tracks. Zoom in to see hourly detail or zoom out to the full day.
+        </Text>
+
+        <TimeRangeZoom
+          range={viewport}
+          onRangeChange={setViewport}
+          minDurationMs={30 * 60 * 1000}
+          maxDurationMs={24 * 60 * 60 * 1000}
+          zoomFactor={1.5}
+          labels={{
+            dateTimeFormat: 'HH:mm',
+          }}
+        />
+
+        <HStack flexWrap="wrap">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: today.hour(8).toDate(),
+                end: today.hour(12).toDate(),
+              })
+            }
+          >
+            Morning (8-12)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: today.hour(12).toDate(),
+                end: today.hour(18).toDate(),
+              })
+            }
+          >
+            Afternoon (12-18)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: today.hour(8).toDate(),
+                end: today.hour(20).toDate(),
+              })
+            }
+          >
+            Business Hours (8-20)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: today.toDate(),
+                end: today.add(1, 'day').toDate(),
+              })
+            }
+          >
+            Full Day (0-24)
+          </Button>
+        </HStack>
+
+        <Box
+          p={3}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+        >
+          <TimeViewportRoot
+            viewportStart={viewport.start}
+            viewportEnd={viewport.end}
+            onViewportChange={setViewport}
+            enableDragPan
+            enableCtrlWheelZoom
+            minDurationMs={30 * 60 * 1000}
+            maxDurationMs={24 * 60 * 60 * 1000}
+          >
+            <TimeViewportHeader
+              tickStrategy="timeUnit"
+              tickUnit="hour"
+              tickStep={1}
+              format="HH:mm"
+            />
+            <Box position="relative">
+              <TimeViewportGrid tickCount={13} minorDivisions={2} />
+              <TimeViewportBlocks
+                blocks={blocks}
+                height="36px"
+                gap={3}
+                renderTrackPrefix={({ trackKey }) => (
+                  <Text
+                    minW="72px"
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    color="gray.700"
+                    _dark={{ color: 'gray.200' }}
+                  >
+                    {String(trackKey ?? '')}
+                  </Text>
+                )}
+              />
+              <TimeViewportMarkerLine
+                timestamp={today.hour(12).toDate()}
+                label="Noon"
+                colorPalette="orange"
+              />
+              <TimeViewportMarkerLine
+                timestamp={dayjs().toDate()}
+                label="Now"
+                colorPalette="red"
+              />
+            </Box>
+          </TimeViewportRoot>
+        </Box>
+
+        <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
+          Drag to pan, Ctrl+scroll to zoom. Date: {today.format('YYYY-MM-DD')}
+        </Text>
+      </VStack>
+    </Provider>
+  );
+};
+
+export const DayView: Story = {
+  name: 'Day View',
+  args: {
+    ...requiredStoryArgs,
+  },
+  render: () => <DayViewDemo />,
+};
+
+// ---------------------------------------------------------------------------
+// Month View Story
+// ---------------------------------------------------------------------------
+
+type MonthProject = {
+  id: string;
+  label: string;
+  startDayOffset: number;
+  endDayOffset: number;
+  colorPalette: string;
+  track: string;
+};
+
+const MONTH_PROJECTS: MonthProject[] = [
+  {
+    id: 'design-phase',
+    label: 'Design Phase',
+    startDayOffset: 0,
+    endDayOffset: 8,
+    colorPalette: 'purple',
+    track: 'Frontend',
+  },
+  {
+    id: 'ui-implementation',
+    label: 'UI Implementation',
+    startDayOffset: 6,
+    endDayOffset: 18,
+    colorPalette: 'blue',
+    track: 'Frontend',
+  },
+  {
+    id: 'integration-test',
+    label: 'Integration Test',
+    startDayOffset: 16,
+    endDayOffset: 22,
+    colorPalette: 'teal',
+    track: 'Frontend',
+  },
+  {
+    id: 'api-design',
+    label: 'API Design',
+    startDayOffset: 1,
+    endDayOffset: 5,
+    colorPalette: 'orange',
+    track: 'Backend',
+  },
+  {
+    id: 'api-build',
+    label: 'API Build',
+    startDayOffset: 5,
+    endDayOffset: 15,
+    colorPalette: 'green',
+    track: 'Backend',
+  },
+  {
+    id: 'perf-optimization',
+    label: 'Performance Optimization',
+    startDayOffset: 14,
+    endDayOffset: 20,
+    colorPalette: 'red',
+    track: 'Backend',
+  },
+  {
+    id: 'db-migration',
+    label: 'DB Migration',
+    startDayOffset: 3,
+    endDayOffset: 7,
+    colorPalette: 'cyan',
+    track: 'Infrastructure',
+  },
+  {
+    id: 'ci-cd',
+    label: 'CI/CD Pipeline',
+    startDayOffset: 8,
+    endDayOffset: 13,
+    colorPalette: 'pink',
+    track: 'Infrastructure',
+  },
+  {
+    id: 'staging-deploy',
+    label: 'Staging Deploy',
+    startDayOffset: 18,
+    endDayOffset: 21,
+    colorPalette: 'yellow',
+    track: 'Infrastructure',
+  },
+  {
+    id: 'prod-release',
+    label: 'Production Release',
+    startDayOffset: 24,
+    endDayOffset: 27,
+    colorPalette: 'red',
+    track: 'Infrastructure',
+  },
+  {
+    id: 'qa-round1',
+    label: 'QA Round 1',
+    startDayOffset: 10,
+    endDayOffset: 14,
+    colorPalette: 'orange',
+    track: 'QA',
+  },
+  {
+    id: 'qa-round2',
+    label: 'QA Round 2',
+    startDayOffset: 19,
+    endDayOffset: 24,
+    colorPalette: 'purple',
+    track: 'QA',
+  },
+  {
+    id: 'uat',
+    label: 'UAT',
+    startDayOffset: 25,
+    endDayOffset: 29,
+    colorPalette: 'teal',
+    track: 'QA',
+  },
+];
+
+const MonthViewDemo = () => {
+  const monthStart = dayjs().startOf('month');
+  const monthEnd = monthStart.endOf('month');
+  const [viewport, setViewport] = useState(() => ({
+    start: monthStart.toDate(),
+    end: monthEnd.toDate(),
+  }));
+  const [lastClicked, setLastClicked] = useState<string>('None');
+
+  const blocks = MONTH_PROJECTS.map((project) => ({
+    id: project.id,
+    start: monthStart.add(project.startDayOffset, 'day').toDate(),
+    end: monthStart.add(project.endDayOffset, 'day').toDate(),
+    label: project.label,
+    colorPalette: project.colorPalette,
+    track: project.track,
+  }));
+
+  const milestones = [
+    {
+      id: 'sprint-1-end',
+      label: 'Sprint 1 End',
+      timestamp: monthStart.add(14, 'day').toDate(),
+      colorPalette: 'blue',
+    },
+    {
+      id: 'sprint-2-end',
+      label: 'Sprint 2 End',
+      timestamp: monthStart.add(28, 'day').toDate(),
+      colorPalette: 'blue',
+    },
+    {
+      id: 'release-date',
+      label: 'Release Date',
+      timestamp: monthStart.add(26, 'day').toDate(),
+      colorPalette: 'red',
+    },
+  ];
+
+  return (
+    <Provider>
+      <VStack align="stretch" gap={4} p={4}>
+        <Heading size="md">
+          Month View - Project Timeline ({monthStart.format('MMMM YYYY')})
+        </Heading>
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+          Month-level Gantt chart showing project phases across teams. Zoom into
+          specific weeks, drag to pan, or use quick-select buttons.
+        </Text>
+
+        <TimeRangeZoom
+          range={viewport}
+          onRangeChange={setViewport}
+          minDurationMs={24 * 60 * 60 * 1000}
+          maxDurationMs={60 * 24 * 60 * 60 * 1000}
+          zoomFactor={2}
+          labels={{
+            dateTimeFormat: 'MMM D',
+          }}
+        />
+
+        <HStack flexWrap="wrap">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: monthStart.toDate(),
+                end: monthStart.add(7, 'day').toDate(),
+              })
+            }
+          >
+            Week 1
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: monthStart.add(7, 'day').toDate(),
+                end: monthStart.add(14, 'day').toDate(),
+              })
+            }
+          >
+            Week 2
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: monthStart.add(14, 'day').toDate(),
+                end: monthStart.add(21, 'day').toDate(),
+              })
+            }
+          >
+            Week 3
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: monthStart.add(21, 'day').toDate(),
+                end: monthEnd.toDate(),
+              })
+            }
+          >
+            Week 4+
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: monthStart.toDate(),
+                end: monthEnd.toDate(),
+              })
+            }
+          >
+            Full Month
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport((prev) => ({
+                start: dayjs(prev.start).subtract(7, 'day').toDate(),
+                end: dayjs(prev.end).subtract(7, 'day').toDate(),
+              }))
+            }
+          >
+            Shift Left 1w
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport((prev) => ({
+                start: dayjs(prev.start).add(7, 'day').toDate(),
+                end: dayjs(prev.end).add(7, 'day').toDate(),
+              }))
+            }
+          >
+            Shift Right 1w
+          </Button>
+        </HStack>
+
+        <Box
+          p={3}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+        >
+          <TimeViewportRoot
+            viewportStart={viewport.start}
+            viewportEnd={viewport.end}
+            onViewportChange={setViewport}
+            enableDragPan
+            enableCtrlWheelZoom
+            minDurationMs={24 * 60 * 60 * 1000}
+            maxDurationMs={60 * 24 * 60 * 60 * 1000}
+          >
+            <TimeViewportHeader
+              tickStrategy="timeUnit"
+              tickUnit="day"
+              tickStep={1}
+              format="MMM D"
+            />
+            <Box position="relative">
+              <TimeViewportGrid tickCount={10} minorDivisions={1} />
+              <TimeViewportBlocks
+                blocks={blocks}
+                height="32px"
+                gap={3}
+                onBlockClick={(block) =>
+                  setLastClicked(block.label ?? block.id)
+                }
+                renderTrackPrefix={({ trackKey }) => (
+                  <Text
+                    minW="100px"
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    color="gray.700"
+                    _dark={{ color: 'gray.200' }}
+                  >
+                    {String(trackKey ?? '')}
+                  </Text>
+                )}
+              />
+              {milestones.map((milestone) => (
+                <TimeViewportMarkerLine
+                  key={milestone.id}
+                  timestamp={milestone.timestamp}
+                  label={milestone.label}
+                  colorPalette={milestone.colorPalette}
+                />
+              ))}
+              <TimeViewportMarkerLine
+                timestamp={dayjs().toDate()}
+                label="Today"
+                colorPalette="green"
+              />
+            </Box>
+          </TimeViewportRoot>
+        </Box>
+
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          Last clicked: {lastClicked}
+        </Text>
+        <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
+          Drag to pan, Ctrl+scroll to zoom. Month:{' '}
+          {monthStart.format('MMMM YYYY')}
+        </Text>
+      </VStack>
+    </Provider>
+  );
+};
+
+export const MonthView: Story = {
+  name: 'Month View',
+  args: {
+    ...requiredStoryArgs,
+  },
+  render: () => <MonthViewDemo />,
+};
+
+// ---------------------------------------------------------------------------
+// Week View Story
+// ---------------------------------------------------------------------------
+
+type WeeklyTask = {
+  id: string;
+  label: string;
+  dayOfWeek: number; // 0 = Sun, 1 = Mon, ...
+  startHour: number;
+  startMinute: number;
+  endHour: number;
+  endMinute: number;
+  colorPalette: string;
+  track: string;
+};
+
+const WEEKLY_TASKS: WeeklyTask[] = [
+  // Marketing
+  {
+    id: 'content-plan',
+    label: 'Content Planning',
+    dayOfWeek: 1,
+    startHour: 9,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'purple',
+    track: 'Marketing',
+  },
+  {
+    id: 'social-media',
+    label: 'Social Media Campaign',
+    dayOfWeek: 2,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 16,
+    endMinute: 0,
+    colorPalette: 'pink',
+    track: 'Marketing',
+  },
+  {
+    id: 'newsletter',
+    label: 'Newsletter Draft',
+    dayOfWeek: 3,
+    startHour: 13,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 0,
+    colorPalette: 'orange',
+    track: 'Marketing',
+  },
+  {
+    id: 'analytics-review',
+    label: 'Analytics Review',
+    dayOfWeek: 5,
+    startHour: 9,
+    startMinute: 0,
+    endHour: 11,
+    endMinute: 30,
+    colorPalette: 'teal',
+    track: 'Marketing',
+  },
+  // Engineering
+  {
+    id: 'sprint-planning',
+    label: 'Sprint Planning',
+    dayOfWeek: 1,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'blue',
+    track: 'Engineering',
+  },
+  {
+    id: 'feature-dev-tue',
+    label: 'Feature Dev',
+    dayOfWeek: 2,
+    startHour: 9,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 0,
+    colorPalette: 'green',
+    track: 'Engineering',
+  },
+  {
+    id: 'feature-dev-wed',
+    label: 'Feature Dev',
+    dayOfWeek: 3,
+    startHour: 9,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 0,
+    colorPalette: 'green',
+    track: 'Engineering',
+  },
+  {
+    id: 'code-review-thu',
+    label: 'Code Review',
+    dayOfWeek: 4,
+    startHour: 9,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'cyan',
+    track: 'Engineering',
+  },
+  {
+    id: 'bugfix-thu',
+    label: 'Bug Fixes',
+    dayOfWeek: 4,
+    startHour: 13,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 0,
+    colorPalette: 'red',
+    track: 'Engineering',
+  },
+  {
+    id: 'deploy-fri',
+    label: 'Release & Deploy',
+    dayOfWeek: 5,
+    startHour: 14,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 0,
+    colorPalette: 'yellow',
+    track: 'Engineering',
+  },
+  // Design
+  {
+    id: 'wireframes',
+    label: 'Wireframes',
+    dayOfWeek: 1,
+    startHour: 13,
+    startMinute: 0,
+    endHour: 17,
+    endMinute: 0,
+    colorPalette: 'purple',
+    track: 'Design',
+  },
+  {
+    id: 'mockups',
+    label: 'Hi-Fi Mockups',
+    dayOfWeek: 2,
+    startHour: 9,
+    startMinute: 0,
+    endHour: 15,
+    endMinute: 0,
+    colorPalette: 'pink',
+    track: 'Design',
+  },
+  {
+    id: 'usability-test',
+    label: 'Usability Testing',
+    dayOfWeek: 3,
+    startHour: 10,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'orange',
+    track: 'Design',
+  },
+  {
+    id: 'design-handoff',
+    label: 'Design Handoff',
+    dayOfWeek: 4,
+    startHour: 14,
+    startMinute: 0,
+    endHour: 16,
+    endMinute: 0,
+    colorPalette: 'teal',
+    track: 'Design',
+  },
+  // Standup across the week (Mon-Fri)
+  ...[1, 2, 3, 4, 5].map((dow) => ({
+    id: `standup-${dow}`,
+    label: 'Standup',
+    dayOfWeek: dow,
+    startHour: 9,
+    startMinute: 0,
+    endHour: 9,
+    endMinute: 30,
+    colorPalette: 'blue' as const,
+    track: 'Team',
+  })),
+  {
+    id: 'weekly-sync',
+    label: 'Weekly Sync',
+    dayOfWeek: 3,
+    startHour: 15,
+    startMinute: 0,
+    endHour: 16,
+    endMinute: 0,
+    colorPalette: 'purple',
+    track: 'Team',
+  },
+  {
+    id: 'retro-fri',
+    label: 'Retrospective',
+    dayOfWeek: 5,
+    startHour: 11,
+    startMinute: 0,
+    endHour: 12,
+    endMinute: 0,
+    colorPalette: 'teal',
+    track: 'Team',
+  },
+];
+
+const WeekViewDemo = () => {
+  const weekStart = dayjs().startOf('week');
+  const weekEnd = weekStart.add(7, 'day');
+  const [viewport, setViewport] = useState(() => ({
+    start: weekStart.toDate(),
+    end: weekEnd.toDate(),
+  }));
+  const [lastClicked, setLastClicked] = useState<string>('None');
+
+  const blocks = WEEKLY_TASKS.map((task) => ({
+    id: task.id,
+    start: weekStart
+      .add(task.dayOfWeek, 'day')
+      .hour(task.startHour)
+      .minute(task.startMinute)
+      .toDate(),
+    end: weekStart
+      .add(task.dayOfWeek, 'day')
+      .hour(task.endHour)
+      .minute(task.endMinute)
+      .toDate(),
+    label: task.label,
+    colorPalette: task.colorPalette,
+    track: task.track,
+  }));
+
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  return (
+    <Provider>
+      <VStack align="stretch" gap={4} p={4}>
+        <Heading size="md">
+          Week View - Team Schedule ({weekStart.format('MMM D')} -{' '}
+          {weekEnd.subtract(1, 'day').format('MMM D, YYYY')})
+        </Heading>
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+          Weekly team schedule showing Marketing, Engineering, Design, and Team
+          tracks. Zoom into individual days or pan across the week.
+        </Text>
+
+        <TimeRangeZoom
+          range={viewport}
+          onRangeChange={setViewport}
+          minDurationMs={4 * 60 * 60 * 1000}
+          maxDurationMs={14 * 24 * 60 * 60 * 1000}
+          zoomFactor={2}
+          labels={{
+            dateTimeFormat: 'ddd MMM D HH:mm',
+          }}
+        />
+
+        <HStack flexWrap="wrap">
+          {dayNames.map((name, index) => (
+            <Button
+              key={name}
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                setViewport({
+                  start: weekStart.add(index, 'day').toDate(),
+                  end: weekStart.add(index + 1, 'day').toDate(),
+                })
+              }
+            >
+              {name}
+            </Button>
+          ))}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: weekStart.add(1, 'day').toDate(),
+                end: weekStart.add(6, 'day').toDate(),
+              })
+            }
+          >
+            Mon-Fri
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport({
+                start: weekStart.toDate(),
+                end: weekEnd.toDate(),
+              })
+            }
+          >
+            Full Week
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport((prev) => ({
+                start: dayjs(prev.start).subtract(1, 'day').toDate(),
+                end: dayjs(prev.end).subtract(1, 'day').toDate(),
+              }))
+            }
+          >
+            Shift Left 1d
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewport((prev) => ({
+                start: dayjs(prev.start).add(1, 'day').toDate(),
+                end: dayjs(prev.end).add(1, 'day').toDate(),
+              }))
+            }
+          >
+            Shift Right 1d
+          </Button>
+        </HStack>
+
+        <Box
+          p={3}
+          borderWidth="1px"
+          borderRadius="md"
+          bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
+        >
+          <TimeViewportRoot
+            viewportStart={viewport.start}
+            viewportEnd={viewport.end}
+            onViewportChange={setViewport}
+            enableDragPan
+            enableCtrlWheelZoom
+            minDurationMs={4 * 60 * 60 * 1000}
+            maxDurationMs={14 * 24 * 60 * 60 * 1000}
+          >
+            <TimeViewportHeader
+              tickStrategy="timeUnit"
+              tickUnit="day"
+              tickStep={1}
+              format="ddd D"
+            />
+            <Box position="relative">
+              <TimeViewportGrid tickCount={8} minorDivisions={4} />
+              <TimeViewportBlocks
+                blocks={blocks}
+                height="32px"
+                gap={3}
+                onBlockClick={(block) =>
+                  setLastClicked(block.label ?? block.id)
+                }
+                renderTrackPrefix={({ trackKey }) => (
+                  <Text
+                    minW="88px"
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    color="gray.700"
+                    _dark={{ color: 'gray.200' }}
+                  >
+                    {String(trackKey ?? '')}
+                  </Text>
+                )}
+              />
+              <TimeViewportMarkerLine
+                timestamp={dayjs().toDate()}
+                label="Now"
+                colorPalette="red"
+              />
+              {/* Weekend separator lines */}
+              <TimeViewportMarkerLine
+                timestamp={weekStart.add(6, 'day').toDate()}
+                label="Sat"
+                colorPalette="gray"
+              />
+              <TimeViewportMarkerLine
+                timestamp={weekStart.add(0, 'day').toDate()}
+                label="Sun"
+                colorPalette="gray"
+              />
+            </Box>
+          </TimeViewportRoot>
+        </Box>
+
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          Last clicked: {lastClicked}
+        </Text>
+        <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
+          Drag to pan, Ctrl+scroll to zoom. Week of{' '}
+          {weekStart.format('MMMM D, YYYY')}
+        </Text>
+      </VStack>
+    </Provider>
+  );
+};
+
+export const WeekView: Story = {
+  name: 'Week View',
+  args: {
+    ...requiredStoryArgs,
+  },
+  render: () => <WeekViewDemo />,
 };
