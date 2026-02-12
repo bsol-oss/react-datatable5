@@ -32,6 +32,7 @@ var timezone = require('dayjs/plugin/timezone');
 var utc = require('dayjs/plugin/utc');
 var ti = require('react-icons/ti');
 var ajv = require('@hookform/resolvers/ajv');
+var reactVirtual = require('@tanstack/react-virtual');
 var matchSorterUtils = require('@tanstack/match-sorter-utils');
 
 function _interopNamespaceDefault(e) {
@@ -8095,7 +8096,7 @@ function TimeViewportRoot({ viewportStart, viewportEnd, children, onViewportChan
     return (jsxRuntime.jsx(TimeViewportContext.Provider, { value: { viewportStart, viewportEnd }, children: jsxRuntime.jsx(react.Box, { ref: containerRef, position: "relative", width: "100%", cursor: enableDragPan ? (isDragging ? 'grabbing' : 'grab') : 'default', userSelect: enableDragPan ? 'none' : undefined, onPointerDown: handlePointerDown, onPointerMove: handlePointerMove, onPointerUp: stopDragging, onPointerCancel: stopDragging, onWheel: handleWheel, children: children }) }));
 }
 function TimeViewportTrackRow({ trackKey, blocks, resolvedHeight, prefix, suffix, renderBlockNode, }) {
-    return (jsxRuntime.jsxs(react.HStack, { align: "stretch", gap: 2, children: [prefix ? (jsxRuntime.jsx(react.Box, { minW: "fit-content", display: "flex", alignItems: "center", children: prefix })) : null, jsxRuntime.jsx(react.Box, { position: "relative", width: "100%", height: resolvedHeight, children: blocks.map((item, index) => renderBlockNode(item, index)) }), suffix ? (jsxRuntime.jsx(react.Box, { minW: "fit-content", display: "flex", alignItems: "center", children: suffix })) : null] }, trackKey));
+    return (jsxRuntime.jsxs(react.HStack, { width: "100%", overflowX: 'hidden', align: "stretch", gap: 2, children: [prefix ? (jsxRuntime.jsx(react.Box, { minW: "fit-content", display: "flex", alignItems: "center", children: prefix })) : null, jsxRuntime.jsx(react.Box, { position: "relative", width: "100%", height: resolvedHeight, children: blocks.map((item, index) => renderBlockNode(item, index)) }), suffix ? (jsxRuntime.jsx(react.Box, { minW: "fit-content", display: "flex", alignItems: "center", children: suffix })) : null] }, trackKey));
 }
 const defaultLabels = {
     zoomIn: 'Zoom in',
@@ -8357,35 +8358,55 @@ function TimeViewportHeader({ viewportStart, viewportEnd, tickCount = 7, tickStr
  * Vertical grid lines for measuring block positions in the viewport.
  * Render inside a relative container that also contains blocks.
  */
-function TimeViewportGrid({ viewportStart, viewportEnd, tickCount = 8, minorDivisions = 2, majorLineColor = 'gray.300', minorLineColor = 'gray.200', showMinorLines = true, zIndex = 0, animationDurationMs = VIEWPORT_TRANSITION_DURATION_MS, animationEasing = VIEWPORT_TRANSITION_EASING, }) {
-    const viewport = useResolvedViewport(viewportStart, viewportEnd);
-    const start = viewport ? parseTimeInput(viewport.viewportStart) : null;
-    const end = viewport ? parseTimeInput(viewport.viewportEnd) : null;
-    if (!start || !end || !end.isAfter(start))
+function TimeViewportGrid({ viewportStart, viewportEnd, tickCount = 8, tickStrategy = 'count', tickUnit = 'hour', tickStep = 1, format, minorDivisions = 2, majorLineColor = 'gray.300', minorLineColor = 'gray.200', showMinorLines = true, zIndex = 0, animationDurationMs = VIEWPORT_TRANSITION_DURATION_MS, animationEasing = VIEWPORT_TRANSITION_EASING, }) {
+    const { isValidViewport, getTicks } = useTimeViewport(viewportStart, viewportEnd, format);
+    const majorTicks = getTicks({ tickStrategy, tickCount, tickUnit, tickStep });
+    if (!isValidViewport || majorTicks.length < 2)
         return null;
-    const safeTickCount = Math.max(2, tickCount);
-    const majorTicks = Array.from({ length: safeTickCount }, (_, index) => ({
-        index,
-        percent: (index / (safeTickCount - 1)) * 100,
-    }));
     const safeMinorDivisions = Math.max(1, minorDivisions);
     const transitionValue = animationDurationMs > 0
         ? `transform ${animationDurationMs}ms ${animationEasing}, opacity ${animationDurationMs}ms ${animationEasing}`
         : undefined;
     const minorTicks = showMinorLines
-        ? Array.from({ length: safeTickCount - 1 }, (_, segmentIndex) => {
-            const base = (segmentIndex / (safeTickCount - 1)) * 100;
-            const next = ((segmentIndex + 1) / (safeTickCount - 1)) * 100;
+        ? majorTicks.slice(0, -1).flatMap((tick, segmentIndex) => {
+            const base = tick.percent;
+            const next = majorTicks[segmentIndex + 1].percent;
             const segment = [];
             for (let step = 1; step < safeMinorDivisions; step += 1) {
                 segment.push(base + ((next - base) * step) / safeMinorDivisions);
             }
             return segment;
-        }).flat()
+        })
         : [];
     return (jsxRuntime.jsxs(react.Box, { position: "absolute", inset: 0, pointerEvents: "none", zIndex: zIndex, children: [minorTicks.map((percent, index) => (jsxRuntime.jsx(react.Box, { position: "absolute", inset: 0, transform: `translateX(${percent}%)`, transition: transitionValue, children: jsxRuntime.jsx(react.Box, { position: "absolute", insetInlineStart: 0, top: 0, bottom: 0, width: "1px", bg: minorLineColor, _dark: { bg: 'gray.700' } }) }, `minor-grid-${index}`))), majorTicks.map((tick) => (jsxRuntime.jsx(react.Box, { position: "absolute", inset: 0, transform: `translateX(${tick.percent}%)`, transition: transitionValue, children: jsxRuntime.jsx(react.Box, { position: "absolute", insetInlineStart: 0, top: 0, bottom: 0, width: "1px", bg: majorLineColor, _dark: { bg: 'gray.600' } }) }, `major-grid-${tick.index}`)))] }));
 }
-function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height = '28px', minWidthPx = 2, borderRadius = 'sm', defaultColorPalette = 'blue', showLabel = true, hideWhenOutOfView = true, hideEmptyTracks = true, gap = 2, allowOverlap = false, overlapOpacity = 0.9, renderTrackPrefix, renderTrackSuffix, onBlockClick, }) {
+function VirtualizedTrackList({ tracks, resolvedHeight, gap, virtualHeight, overscan, renderTrackPrefix, renderTrackSuffix, renderBlockNode, }) {
+    const parentRef = React.useRef(null);
+    const rowHeightPx = parseInt(resolvedHeight, 10) || 28;
+    const gapPx = gap * 4; // Chakra spacing token to px (1 unit = 4px)
+    const virtualizer = reactVirtual.useVirtualizer({
+        count: tracks.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => rowHeightPx + gapPx,
+        overscan,
+    });
+    return (jsxRuntime.jsx(react.Box, { ref: parentRef, overflowY: "auto", height: `${virtualHeight}px`, children: jsxRuntime.jsx(react.Box, { height: `${virtualizer.getTotalSize()}px`, position: "relative", children: virtualizer.getVirtualItems().map((virtualRow) => {
+                const track = tracks[virtualRow.index];
+                const trackBlocks = track.blocks.map((item) => item.block);
+                const prefix = renderTrackPrefix?.({
+                    trackIndex: virtualRow.index,
+                    trackBlocks,
+                    trackKey: track.trackKeyRaw,
+                });
+                const suffix = renderTrackSuffix?.({
+                    trackIndex: virtualRow.index,
+                    trackBlocks,
+                    trackKey: track.trackKeyRaw,
+                });
+                return (jsxRuntime.jsx(react.Box, { position: "absolute", top: 0, left: 0, width: "100%", transform: `translateY(${virtualRow.start}px)`, children: jsxRuntime.jsx(TimeViewportTrackRow, { trackKey: track.trackKey, blocks: track.blocks, resolvedHeight: resolvedHeight, prefix: prefix, suffix: suffix, renderBlockNode: renderBlockNode }) }, track.trackKey));
+            }) }) }));
+}
+function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height = '28px', minWidthPx = 2, borderRadius = 'sm', defaultColorPalette = 'blue', showLabel = true, hideWhenOutOfView = true, hideEmptyTracks = true, gap = 2, allowOverlap = false, overlapOpacity = 0.9, renderTrackPrefix, renderTrackSuffix, onBlockClick, virtualize = false, virtualHeight = 400, overscan = 5, }) {
     const { getGeometry, toTimeMs } = useTimeViewportBlockGeometry(viewportStart, viewportEnd);
     const resolvedHeight = typeof height === 'number' ? `${height}px` : height;
     const expandedBlocks = flattenTrackBlocks(blocks);
@@ -8420,74 +8441,73 @@ function TimeViewportBlocks({ blocks, viewportStart, viewportEnd, height = '28px
             onBlockClick?.(block);
         };
         const isBlockClickable = Boolean(block.onClick || onBlockClick);
-        return (jsxRuntime.jsx(react.Box, { position: "absolute", inset: 0, pointerEvents: "none", children: jsxRuntime.jsx(react.Box, { width: "100%", height: "100%", transform: `translateX(${geometry.leftPercent}%)`, transition: VIEWPORT_TRANSITION, children: jsxRuntime.jsx(react.Box, { width: `max(${geometry.widthPercent}%, ${minWidthPx}px)`, height: "100%", borderRadius: borderRadius, bg: block.background ??
-                        `${block.colorPalette ?? defaultColorPalette}.500`, _dark: {
-                        bg: block.background ??
-                            `${block.colorPalette ?? defaultColorPalette}.900`,
-                    }, display: "flex", alignItems: "center", justifyContent: "center", px: 2, overflow: "hidden", opacity: allowOverlap ? overlapOpacity : 1, zIndex: indexInLayer + 1, pointerEvents: "auto", onClick: isBlockClickable ? handleBlockClick : undefined, cursor: isBlockClickable ? 'pointer' : 'default', children: showLabel && block.label ? (jsxRuntime.jsx(react.Text, { fontSize: "xs", lineClamp: 1, color: "white", _dark: { color: 'gray.100' }, children: block.label })) : null }) }) }, block.id));
+        return (jsxRuntime.jsx(react.Box, { height: "100%", position: "absolute", inset: 0, pointerEvents: "none", transform: `translateX(${geometry.leftPercent}%)`, transition: VIEWPORT_TRANSITION, children: jsxRuntime.jsx(react.Box, { width: `max(${geometry.widthPercent}%, ${minWidthPx}px)`, height: "100%", borderRadius: borderRadius, bg: block.background ??
+                    `${block.colorPalette ?? defaultColorPalette}.500`, _dark: {
+                    bg: block.background ??
+                        `${block.colorPalette ?? defaultColorPalette}.900`,
+                }, display: "flex", alignItems: "center", justifyContent: "center", px: 2, overflow: "hidden", opacity: allowOverlap ? overlapOpacity : 1, zIndex: indexInLayer + 1, pointerEvents: "auto", onClick: isBlockClickable ? handleBlockClick : undefined, cursor: isBlockClickable ? 'pointer' : 'default', children: showLabel && block.label ? (jsxRuntime.jsx(react.Text, { fontSize: "xs", lineClamp: 1, color: "white", _dark: { color: 'gray.100' }, children: block.label })) : null }) }, block.id));
     };
+    // ---------- Resolve tracks ----------
     const explicitTrackKeys = Array.from(new Set(expandedBlocks
         .map((item) => item.track)
         .filter((track) => track !== undefined)));
-    if (explicitTrackKeys.length > 0) {
-        const tracks = explicitTrackKeys
-            .map((trackKey) => ({
-            trackKey,
-            blocks: parsedBlocks.filter((item) => item.block.track === trackKey),
-        }))
-            .filter((track) => !hideEmptyTracks || track.blocks.length > 0);
-        return (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: gap, children: tracks.map((track, trackIndex) => {
-                const trackBlocks = track.blocks.map((item) => item.block);
-                const prefix = renderTrackPrefix?.({
-                    trackIndex,
-                    trackBlocks,
-                    trackKey: track.trackKey,
-                });
-                const suffix = renderTrackSuffix?.({
-                    trackIndex,
-                    trackBlocks,
-                    trackKey: track.trackKey,
-                });
-                return (jsxRuntime.jsx(TimeViewportTrackRow, { trackKey: `track-keyed-${String(track.trackKey)}`, blocks: track.blocks, resolvedHeight: resolvedHeight, prefix: prefix, suffix: suffix, renderBlockNode: renderBlockNode }));
-            }) }));
+    const resolvedTracks = React.useMemo(() => {
+        if (explicitTrackKeys.length > 0) {
+            return explicitTrackKeys
+                .map((trackKey) => ({
+                trackKey: `track-keyed-${String(trackKey)}`,
+                trackKeyRaw: trackKey,
+                blocks: parsedBlocks.filter((item) => item.block.track === trackKey),
+            }))
+                .filter((track) => !hideEmptyTracks || track.blocks.length > 0);
+        }
+        const autoPackedTracks = (() => {
+            const sortedBlocks = [...parsedBlocks]
+                .filter(({ startMs, endMs }) => Number.isFinite(startMs) && Number.isFinite(endMs))
+                .sort((a, b) => {
+                if (a.startMs === b.startMs)
+                    return a.endMs - b.endMs;
+                return a.startMs - b.startMs;
+            });
+            const trackLastEndTimes = [];
+            const tracks = [];
+            sortedBlocks.forEach((item) => {
+                const trackIndex = trackLastEndTimes.findIndex((endMs) => item.startMs >= endMs);
+                if (trackIndex === -1) {
+                    trackLastEndTimes.push(item.endMs);
+                    tracks.push([item]);
+                }
+                else {
+                    trackLastEndTimes[trackIndex] = item.endMs;
+                    tracks[trackIndex].push(item);
+                }
+            });
+            return tracks;
+        })();
+        const packed = allowOverlap ? [parsedBlocks] : autoPackedTracks;
+        return packed.map((track, trackIndex) => ({
+            trackKey: `track-row-${trackIndex}`,
+            trackKeyRaw: undefined,
+            blocks: track,
+        }));
+    }, [allowOverlap, explicitTrackKeys, hideEmptyTracks, parsedBlocks]);
+    // ---------- Render ----------
+    if (virtualize) {
+        return (jsxRuntime.jsx(VirtualizedTrackList, { tracks: resolvedTracks, resolvedHeight: resolvedHeight, gap: gap, virtualHeight: virtualHeight, overscan: overscan, renderTrackPrefix: renderTrackPrefix, renderTrackSuffix: renderTrackSuffix, renderBlockNode: renderBlockNode }));
     }
-    const autoPackedTracks = (() => {
-        const sortedBlocks = [...parsedBlocks]
-            .filter(({ startMs, endMs }) => Number.isFinite(startMs) && Number.isFinite(endMs))
-            .sort((a, b) => {
-            if (a.startMs === b.startMs)
-                return a.endMs - b.endMs;
-            return a.startMs - b.startMs;
-        });
-        const trackLastEndTimes = [];
-        const tracks = [];
-        sortedBlocks.forEach((item) => {
-            const trackIndex = trackLastEndTimes.findIndex((endMs) => item.startMs >= endMs);
-            if (trackIndex === -1) {
-                trackLastEndTimes.push(item.endMs);
-                tracks.push([item]);
-            }
-            else {
-                trackLastEndTimes[trackIndex] = item.endMs;
-                tracks[trackIndex].push(item);
-            }
-        });
-        return tracks;
-    })();
-    const tracks = allowOverlap ? [parsedBlocks] : autoPackedTracks;
-    return (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: gap, children: tracks.map((track, trackIndex) => {
-            const trackBlocks = track.map((item) => item.block);
+    return (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: gap, children: resolvedTracks.map((track, trackIndex) => {
+            const trackBlocks = track.blocks.map((item) => item.block);
             const prefix = renderTrackPrefix?.({
                 trackIndex,
                 trackBlocks,
-                trackKey: undefined,
+                trackKey: track.trackKeyRaw,
             });
             const suffix = renderTrackSuffix?.({
                 trackIndex,
                 trackBlocks,
-                trackKey: undefined,
+                trackKey: track.trackKeyRaw,
             });
-            return (jsxRuntime.jsx(TimeViewportTrackRow, { trackKey: `track-row-${trackIndex}`, blocks: track, resolvedHeight: resolvedHeight, prefix: prefix, suffix: suffix, renderBlockNode: renderBlockNode }));
+            return (jsxRuntime.jsx(TimeViewportTrackRow, { trackKey: track.trackKey, blocks: track.blocks, resolvedHeight: resolvedHeight, prefix: prefix, suffix: suffix, renderBlockNode: renderBlockNode }));
         }) }));
 }
 function TimeRangeZoom({ range, onRangeChange, minDurationMs = DEFAULT_MIN_DURATION_MS, maxDurationMs = DEFAULT_MAX_DURATION_MS, zoomFactor = DEFAULT_ZOOM_FACTOR, resetDurationMs, showResetButton = true, disabled = false, labels, }) {
