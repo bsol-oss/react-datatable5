@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Tag as Tag$1, Checkbox as Checkbox$1, Icon, VStack, Heading, EmptyState as EmptyState$2, List, Table as Table$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Clipboard, Badge, Link, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, Tabs, useCombobox, Show, Skeleton, NumberInput, Textarea as Textarea$1, InputGroup as InputGroup$1, Select, Stack } from '@chakra-ui/react';
+import { Button as Button$1, AbsoluteCenter, Spinner, Span, IconButton, Portal, Dialog, Flex, Text, useDisclosure, DialogBackdrop, RadioGroup as RadioGroup$1, Grid, Box, Slider as Slider$1, HStack, For, CheckboxCard as CheckboxCard$1, Input, Menu, createRecipeContext, createContext as createContext$1, Pagination as Pagination$1, usePaginationContext, Tooltip as Tooltip$1, Group, InputElement, Tag as Tag$1, Checkbox as Checkbox$1, Icon, VStack, Heading, EmptyState as EmptyState$2, List, Table as Table$1, Card, MenuRoot as MenuRoot$1, MenuTrigger as MenuTrigger$1, Clipboard, Badge, Link, Image, Alert, Field as Field$1, Popover, useFilter, useListCollection, Combobox, SimpleGrid, Tabs, useCombobox, Show, Skeleton, NumberInput, Textarea as Textarea$1, InputGroup as InputGroup$1, Select, Stack } from '@chakra-ui/react';
 import { AiOutlineColumnWidth } from 'react-icons/ai';
 import * as React from 'react';
 import { createContext, useContext, useState, useMemo, useCallback, useEffect, useRef } from 'react';
@@ -5361,108 +5361,81 @@ function formatBytes(bytes) {
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 }
 
+const IMAGE_EXT = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i;
+function filterImageFiles(files) {
+    return files.filter((f) => IMAGE_EXT.test(f.name));
+}
 const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, enabled = true, multiple = false, onFileSelect, selectedFile: controlledSelectedFile, onSelectedFileChange, }) => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [internalSelectedFile, setInternalSelectedFile] = useState(multiple ? [] : undefined);
-    const [failedImageIds, setFailedImageIds] = useState(new Set());
-    // Use controlled or internal state for selectedFile
-    const selectedFile = controlledSelectedFile ?? internalSelectedFile;
-    const setSelectedFile = onSelectedFileChange ?? setInternalSelectedFile;
-    const { data: filesData, isLoading, isError, } = useQuery({
-        queryKey: ['file-picker-library', searchTerm],
+    const [search, setSearch] = useState('');
+    const query = useQuery({
+        queryKey: ['media-library', search, filterImageOnly],
         queryFn: async () => {
             if (!onFetchFiles)
-                return { data: [] };
-            const files = await onFetchFiles(searchTerm.trim() || '');
-            return { data: files };
+                return [];
+            const list = await onFetchFiles(search);
+            return filterImageOnly ? filterImageFiles(list) : list;
         },
         enabled: enabled && !!onFetchFiles,
     });
-    const files = (filesData?.data || []);
-    const filteredFiles = filterImageOnly
-        ? files.filter((file) => /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name))
-        : files;
-    const handleFileClick = (file) => {
-        if (multiple) {
-            const currentSelection = Array.isArray(selectedFile) ? selectedFile : [];
-            const isAlreadySelected = currentSelection.some((f) => f.id === file.id);
-            const newSelection = isAlreadySelected
-                ? currentSelection.filter((f) => f.id !== file.id)
-                : [...currentSelection, file];
-            setSelectedFile(newSelection);
-            if (onFileSelect) {
-                onFileSelect(newSelection);
-            }
+    const files = useMemo(() => (query.data ?? []), [query.data]);
+    const selectedIds = useMemo(() => {
+        if (multiple && Array.isArray(controlledSelectedFile)) {
+            return new Set(controlledSelectedFile.map((f) => f.id));
         }
-        else {
-            const newFile = selectedFile === file ? undefined : file;
-            setSelectedFile(newFile);
-            if (onFileSelect && newFile) {
-                onFileSelect(newFile);
-            }
+        if (!multiple &&
+            controlledSelectedFile &&
+            !Array.isArray(controlledSelectedFile)) {
+            return new Set([controlledSelectedFile.id]);
+        }
+        return new Set();
+    }, [multiple, controlledSelectedFile]);
+    const handleSingleSelect = (file) => {
+        if (!multiple) {
+            onSelectedFileChange?.(file);
+            onFileSelect?.(file);
         }
     };
-    const handleImageError = (fileId) => {
-        setFailedImageIds((prev) => new Set(prev).add(fileId));
+    const handleMultipleToggle = (file, checked) => {
+        const current = multiple && Array.isArray(controlledSelectedFile)
+            ? [...controlledSelectedFile]
+            : [];
+        const next = checked
+            ? [...current, file]
+            : current.filter((f) => f.id !== file.id);
+        onSelectedFileChange?.(next);
+        onFileSelect?.(next);
     };
-    if (!onFetchFiles)
-        return null;
-    return (jsxs(VStack, { align: "stretch", gap: 4, children: [jsxs(Box, { position: "relative", children: [jsx(Input, { placeholder: labels?.searchPlaceholder ?? 'Search files...', value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), bg: "bg.panel", border: "1px solid", borderColor: "border.default", colorPalette: "blue", _focus: {
-                            borderColor: 'colorPalette.500',
-                            _dark: {
-                                borderColor: 'colorPalette.400',
-                            },
-                            boxShadow: {
-                                base: '0 0 0 1px var(--chakra-colors-blue-500)',
-                                _dark: '0 0 0 1px var(--chakra-colors-blue-400)',
-                            },
-                        }, pl: 10 }), jsx(Icon, { as: LuSearch, position: "absolute", left: 3, top: "50%", transform: "translateY(-50%)", color: "fg.muted", boxSize: 4 })] }), isLoading && (jsxs(Box, { textAlign: "center", py: 8, children: [jsx(Spinner, { size: "lg", colorPalette: "blue" }), jsx(Text, { mt: 4, color: "fg.muted", children: labels?.loading ?? 'Loading files...' })] })), isError && (jsx(Box, { bg: { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }, border: "1px solid", borderColor: {
-                    base: 'colorPalette.200',
-                    _dark: 'colorPalette.800',
-                }, colorPalette: "red", borderRadius: "md", p: 4, children: jsx(Text, { color: {
-                        base: 'colorPalette.600',
-                        _dark: 'colorPalette.300',
-                    }, children: labels?.loadingFailed ?? 'Failed to load files' }) })), !isLoading && !isError && (jsx(Box, { maxHeight: "400px", overflowY: "auto", children: filteredFiles.length === 0 ? (jsx(Box, { textAlign: "center", py: 8, children: jsx(Text, { color: "fg.muted", children: labels?.noFilesFound ?? 'No files found' }) })) : (jsx(VStack, { align: "stretch", gap: 2, children: filteredFiles.map((file) => {
-                        const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name);
-                        const isSelected = multiple
-                            ? Array.isArray(selectedFile) &&
-                                selectedFile.some((f) => f.id === file.id)
-                            : selectedFile?.id ===
-                                file.id;
-                        const imageFailed = failedImageIds.has(file.id);
-                        return (jsx(Box, { p: 3, border: "2px solid", borderColor: isSelected
-                                ? {
-                                    base: 'colorPalette.500',
-                                    _dark: 'colorPalette.400',
-                                }
-                                : 'border.default', borderRadius: "md", bg: isSelected
-                                ? {
-                                    base: 'colorPalette.50',
-                                    _dark: 'colorPalette.900/20',
-                                }
-                                : 'bg.panel', colorPalette: "blue", cursor: "pointer", onClick: () => handleFileClick(file), _hover: {
-                                borderColor: isSelected
-                                    ? {
-                                        base: 'colorPalette.600',
-                                        _dark: 'colorPalette.400',
-                                    }
-                                    : {
-                                        base: 'colorPalette.300',
-                                        _dark: 'colorPalette.400',
-                                    },
-                                bg: isSelected
-                                    ? {
-                                        base: 'colorPalette.100',
-                                        _dark: 'colorPalette.800/30',
-                                    }
-                                    : 'bg.muted',
-                            }, transition: "all 0.2s", children: jsxs(HStack, { gap: 3, children: [jsx(Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, children: isImage && file.url && !imageFailed ? (jsx(Image, { src: file.url, alt: file.name, boxSize: "60px", objectFit: "cover", borderRadius: "md", onError: () => handleImageError(file.id) })) : isImage && (imageFailed || !file.url) ? (jsx(Icon, { as: LuImage, boxSize: 6, color: "fg.muted" })) : (jsx(Icon, { as: LuFile, boxSize: 6, color: "fg.muted" })) }), jsxs(VStack, { align: "start", flex: 1, gap: 1, children: [jsx(Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.name }), jsxs(HStack, { gap: 2, children: [file.size && (jsx(Fragment, { children: jsx(Text, { fontSize: "xs", color: "fg.muted", children: typeof file.size === 'number'
-                                                                ? formatBytes(file.size)
-                                                                : file.size }) })), file.comment && (jsxs(Fragment, { children: [file.size && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: "\u2022" })), jsx(Text, { fontSize: "xs", color: "fg.muted", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: file.comment })] }))] })] }), isSelected && (jsx(Box, { width: "24px", height: "24px", borderRadius: "full", bg: {
-                                            base: 'colorPalette.500',
-                                            _dark: 'colorPalette.400',
-                                        }, colorPalette: "blue", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, children: jsx(Text, { color: "white", fontSize: "xs", fontWeight: "bold", children: "\u2713" }) }))] }) }, file.id));
-                    }) })) }))] }));
+    const isLoading = query.isPending;
+    const isError = query.isError;
+    const searchPlaceholder = labels?.searchPlaceholder ?? 'Search files...';
+    const loadingText = labels?.loading ?? 'Loading...';
+    const errorText = labels?.loadingFailed ?? 'Failed to load files';
+    const emptyText = labels?.noFilesFound ?? 'No files found';
+    return (jsxs(VStack, { align: "stretch", gap: 4, children: [jsx(InputGroup, { startElement: jsx(Icon, { as: LuSearch, color: "fg.muted" }), children: jsx(Input, { placeholder: searchPlaceholder, value: search, onChange: (e) => setSearch(e.target.value), bg: "bg.panel", borderColor: "border.default" }) }), isLoading && (jsxs(HStack, { gap: 2, py: 6, justify: "center", children: [jsx(Spinner, { size: "sm", colorPalette: "blue" }), jsx(Text, { fontSize: "sm", color: "fg.muted", children: loadingText })] })), isError && (jsx(Box, { py: 4, px: 3, borderRadius: "md", bg: { base: 'red.50', _dark: 'red.900/20' }, borderWidth: "1px", borderColor: { base: 'red.200', _dark: 'red.800' }, children: jsx(Text, { fontSize: "sm", color: { base: 'red.600', _dark: 'red.300' }, children: errorText }) })), !isLoading && !isError && files.length === 0 && (jsx(Box, { py: 6, textAlign: "center", children: jsx(Text, { fontSize: "sm", color: "fg.muted", children: emptyText }) })), !isLoading && !isError && files.length > 0 && (jsx(SimpleGrid, { columns: { base: 2, sm: 3, md: 4 }, gap: 3, children: files.map((file) => {
+                    const isImage = IMAGE_EXT.test(file.name);
+                    const isSelected = selectedIds.has(file.id);
+                    const fileSize = typeof file.size === 'number'
+                        ? formatBytes(file.size)
+                        : file.size ?? null;
+                    if (multiple) {
+                        return (jsxs(CheckboxCard, { checked: isSelected, onCheckedChange: (e) => handleMultipleToggle(file, e.checked === true), variant: "outline", borderColor: "border.default", _hover: { borderColor: 'border.emphasized', bg: 'bg.muted' }, cursor: "pointer", children: [jsx(Box, { width: "100%", aspectRatio: 1, bg: "bg.muted", borderRadius: "md", overflow: "hidden", mb: 2, display: "flex", alignItems: "center", justifyContent: "center", children: isImage && file.url ? (jsx(Image, { src: file.url, alt: file.name, width: "100%", height: "100%", objectFit: "cover" })) : isImage ? (jsx(Icon, { as: LuImage, boxSize: 8, color: "fg.muted" })) : (jsx(Icon, { as: LuFile, boxSize: 8, color: "fg.muted" })) }), jsx(Text, { fontSize: "xs", fontWeight: "medium", color: "fg.default", lineClamp: 2, children: file.name }), fileSize && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: fileSize }))] }, file.id));
+                    }
+                    return (jsxs(Box, { role: "button", tabIndex: 0, onClick: () => handleSingleSelect(file), onKeyDown: (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleSingleSelect(file);
+                            }
+                        }, padding: 3, borderRadius: "md", borderWidth: "2px", borderColor: isSelected ? 'colorPalette.500' : 'border.default', bg: isSelected
+                            ? { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }
+                            : 'bg.panel', _hover: {
+                            borderColor: isSelected
+                                ? 'colorPalette.500'
+                                : 'border.emphasized',
+                            bg: isSelected
+                                ? { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }
+                                : 'bg.muted',
+                        }, cursor: "pointer", transition: "all 0.2s", children: [jsx(Box, { width: "100%", aspectRatio: 1, bg: "bg.muted", borderRadius: "md", overflow: "hidden", mb: 2, display: "flex", alignItems: "center", justifyContent: "center", children: isImage && file.url ? (jsx(Image, { src: file.url, alt: file.name, width: "100%", height: "100%", objectFit: "cover" })) : isImage ? (jsx(Icon, { as: LuImage, boxSize: 8, color: "fg.muted" })) : (jsx(Icon, { as: LuFile, boxSize: 8, color: "fg.muted" })) }), jsx(Text, { fontSize: "xs", fontWeight: "medium", color: "fg.default", lineClamp: 2, children: file.name }), fileSize && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: fileSize }))] }, file.id));
+                }) }))] }));
 };
 
 function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, onUploadFile, enableUpload = false, labels, }) {
@@ -5630,7 +5603,8 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
     const { required, gridColumn = 'span 12', gridRow = 'span 1', filePicker, type, } = schema;
     const isRequired = required?.some((columnId) => columnId === column);
     const isSingleSelect = type === 'string';
-    const currentValue = watch(column) ?? (isSingleSelect ? '' : []);
+    const colLabel = formI18n.colLabel;
+    const currentValue = watch(colLabel) ?? (isSingleSelect ? '' : []);
     // Handle string IDs only
     const currentFileIds = isSingleSelect
         ? currentValue
@@ -5639,7 +5613,6 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
         : Array.isArray(currentValue)
             ? currentValue
             : [];
-    const colLabel = formI18n.colLabel;
     const fieldError = getNestedError(errors, colLabel);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [failedImageIds, setFailedImageIds] = useState(new Set());
@@ -5727,7 +5700,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
                         : /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(fileId);
                     const imageFailed = failedImageIds.has(fileId);
                     const displayName = file?.name ?? fileId;
-                    return (jsx(Card.Root, { variant: 'subtle', colorPalette: "blue", children: jsxs(Card.Body, { gap: "2", cursor: 'pointer', onClick: () => handleRemove(index), display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', border: "2px solid", borderColor: "border.default", borderRadius: "md", _hover: {
+                    return (jsx(Card.Root, { variant: 'subtle', children: jsxs(Card.Body, { gap: "2", cursor: 'pointer', onClick: () => handleRemove(index), display: 'flex', flexFlow: 'row', alignItems: 'center', padding: '2', border: "2px solid", borderColor: "border.default", borderRadius: "md", _hover: {
                                 borderColor: 'colorPalette.300',
                                 bg: 'bg.muted',
                             }, transition: "all 0.2s", children: [jsx(Box, { width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", bg: "bg.muted", borderRadius: "md", flexShrink: 0, marginRight: "2", overflow: "hidden", children: isImage && file?.url && !imageFailed ? (jsx(Image, { src: file.url, alt: displayName, boxSize: "60px", objectFit: "cover", onError: () => handleImageError(fileId) })) : isImage && !imageFailed ? (jsx(Icon, { as: LuImage, boxSize: 6, color: "fg.muted" })) : (jsx(Icon, { as: LuFile, boxSize: 6, color: "fg.muted" })) }), jsxs(VStack, { align: "start", flex: 1, gap: 1, children: [jsx(Text, { fontSize: "sm", fontWeight: "medium", color: "fg.default", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", children: displayName }), file?.size && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: typeof file.size === 'number'

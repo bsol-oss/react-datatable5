@@ -18,5 +18,5 @@ type MediaLibraryBrowserPropsMultiple = MediaLibraryBrowserPropsBase & {
     onSelectedFileChange?: (files: FilePickerMediaFile[]) => void;
 };
 export type MediaLibraryBrowserProps = MediaLibraryBrowserPropsSingle | MediaLibraryBrowserPropsMultiple;
-export declare const MediaLibraryBrowser: ({ onFetchFiles, filterImageOnly, labels, enabled, multiple, onFileSelect, selectedFile: controlledSelectedFile, onSelectedFileChange, }: MediaLibraryBrowserProps) => import("react/jsx-runtime").JSX.Element | null;
+export declare const MediaLibraryBrowser: ({ onFetchFiles, filterImageOnly, labels, enabled, multiple, onFileSelect, selectedFile: controlledSelectedFile, onSelectedFileChange, }: MediaLibraryBrowserProps) => import("react/jsx-runtime").JSX.Element;
 export {};
