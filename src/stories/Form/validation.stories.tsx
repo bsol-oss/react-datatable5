@@ -108,9 +108,6 @@ const SomeForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: (data) => {
-          console.log('nice', data, 'onSubmit-gkrp');
-        },
         ...form,
       }}
     />
@@ -176,9 +173,6 @@ const FormWithHelpers = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: (data) => {
-          console.log('User registration:', data);
-        },
         ...form,
       }}
     />
@@ -248,9 +242,6 @@ const FormWithI18n = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: (data) => {
-          console.log('Product data:', data);
-        },
         ...form,
       }}
     />

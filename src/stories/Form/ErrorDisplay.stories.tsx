@@ -469,9 +469,6 @@ const ComprehensiveForm = () => {
       formConfig={{
         ...form,
         schema,
-        onSubmit: (data) => {
-          console.log('Comprehensive form data:', data);
-        },
       }}
     />
   );
@@ -522,9 +519,6 @@ const RequiredFieldsForm = () => {
       formConfig={{
         ...form,
         schema,
-        onSubmit: (data) => {
-          console.log('Required fields form data:', data);
-        },
       }}
     />
   );
@@ -589,9 +583,6 @@ const ValidationErrorsForm = () => {
     <DefaultForm
       formConfig={{
         schema,
-        onSubmit: (data) => {
-          console.log('Validation form data:', data);
-        },
         ...form,
       }}
     />
@@ -683,9 +674,6 @@ const ComplexForm = () => {
     <DefaultForm
       formConfig={{
         schema,
-        onSubmit: (data) => {
-          console.log('Complex form data:', data);
-        },
         ...form,
       }}
     />
@@ -784,9 +772,6 @@ const TraditionalChineseForm = () => {
     <DefaultForm
       formConfig={{
         schema,
-        onSubmit: (data) => {
-          console.log('Traditional Chinese form data:', data);
-        },
         ...form,
       }}
     />

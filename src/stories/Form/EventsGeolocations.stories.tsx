@@ -768,9 +768,6 @@ const SomeForm = () => {
       <DefaultForm
         formConfig={{
           schema: eventsGeolocationsSchema,
-          onSubmit: (data) => {
-            console.log('nice', data, 'onSubmit-gkrp');
-          },
           ...form,
         }}
       />

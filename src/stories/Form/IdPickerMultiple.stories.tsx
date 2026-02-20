@@ -355,7 +355,7 @@ export const IdPickerMultipleSelection: Story = {
 };
 
 const IdPickerMultipleForm = () => {
-  const [submittedData, setSubmittedData] = useState<Record<
+  const [submittedData, _setSubmittedData] = useState<Record<
     string,
     unknown
   > | null>(null);
@@ -623,13 +623,6 @@ const IdPickerMultipleForm = () => {
           <DefaultForm
             formConfig={{
               schema,
-              onSubmit: async (data) => {
-                console.log('Form submitted with data:', data);
-                setSubmittedData(data);
-                alert(
-                  `Form submitted successfully!\n\nTeam Members: ${data.team_members?.length || 0}\nCC Recipients: ${data.cc_recipients?.length || 0}\nStakeholders: ${data.stakeholders?.length || 0}`
-                );
-              },
               ...form,
             }}
           />
@@ -922,12 +915,6 @@ const IdPickerMultipleForm = () => {
                     renderDisplay: renderRichDisplay, // Uses renderRichDisplay
                   },
                 },
-              },
-              onSubmit: async (data) => {
-                console.log('Custom display form submitted:', data);
-                alert(
-                  `Selected ${data.custom_team_members?.length || 0} team members with custom display!`
-                );
               },
               ...form,
             }}

@@ -67,10 +67,6 @@ const SomeForm = () => {
       formConfig={{
         schema: schema,
         ...form,
-        onSubmit: async (data) => {
-          console.log('Form submitted with data:', data);
-          // Perform your submit logic here
-        },
       }}
     />
   );

@@ -384,12 +384,6 @@ const PreloadedValuesForm = () => {
           <DefaultForm
             formConfig={{
               schema: schema,
-              onSubmit: async (data) => {
-                console.log('Form submitted with data:', data);
-                alert(
-                  `Form submitted successfully!\n\nCheck the console for the full data object.`
-                );
-              },
               dateTimePickerLabels: {
                 monthNamesShort: [
                   'Jan',
@@ -464,9 +458,6 @@ return (
   <DefaultForm
     formConfig={{
       schema: schema,
-      onSubmit: (data) => {
-        console.log('Submitted:', data);
-      },
       ...form,
     }}
   />

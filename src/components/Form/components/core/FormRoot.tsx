@@ -1,12 +1,7 @@
 import { SchemaFormContext } from '@/components/Form/SchemaFormContext';
 import { JSONSchema7 } from 'json-schema';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
-import {
-  FieldValues,
-  FormProvider,
-  SubmitHandler,
-  UseFormReturn,
-} from 'react-hook-form';
+import { FieldValues, FormProvider, UseFormReturn } from 'react-hook-form';
 import {
   CustomJSONSchema7,
   DateTimePickerLabels,
@@ -48,7 +43,6 @@ export interface FormRootProps<TData extends FieldValues> {
   setIdMap: Dispatch<SetStateAction<Record<string, unknown>>>;
   form: UseFormReturn<TData, any, TData>;
   children: ReactNode;
-  onSubmit?: SubmitHandler<TData>;
   displayConfig?: {
     showSubmitButton?: boolean;
     showResetButton?: boolean;
@@ -77,10 +71,9 @@ export const FormRoot = <TData extends FieldValues>({
   setIdMap,
   form,
   children,
-  onSubmit = undefined,
   displayConfig = {
-    showSubmitButton: true,
-    showResetButton: true,
+    showSubmitButton: false,
+    showResetButton: false,
     showTitle: true,
   },
   dateTimePickerLabels,
@@ -95,8 +88,6 @@ export const FormRoot = <TData extends FieldValues>({
     <SchemaFormContext.Provider
       value={{
         schema,
-        // @ts-expect-error TODO: find appropriate types
-        onSubmit,
         idMap,
         setIdMap,
         displayConfig,

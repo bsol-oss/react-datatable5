@@ -59,9 +59,6 @@ const SomeForm = () => {
       <DefaultForm<{ someTextArea: string; someNumber: number }>
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
-            console.log('nice', data, 'onSubmit-gkrp');
-          },
           displayConfig: {
             showSubmitButton: false,
             showResetButton: false,
@@ -75,9 +72,6 @@ const SomeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
-            console.log('nice', data, 'onSubmit-gkrp');
-          },
           displayConfig: {
             showSubmitButton: true,
             showResetButton: true,

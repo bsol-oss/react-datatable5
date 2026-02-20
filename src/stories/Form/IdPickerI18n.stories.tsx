@@ -350,12 +350,6 @@ const IdPickerForm = () => {
           <DefaultForm
             formConfig={{
               schema: schema,
-              onSubmit: async (data) => {
-                console.log('Form submitted with data:', data);
-                alert(
-                  `Form submitted!\nSingle user: ${data.single_user}\nMultiple users: ${JSON.stringify(data.multiple_users)}`
-                );
-              },
               idPickerLabels: labels.single_user,
               ...form,
             }}

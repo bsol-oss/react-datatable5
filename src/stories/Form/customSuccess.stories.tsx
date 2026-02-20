@@ -86,11 +86,6 @@ const DefaultSuccessForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: async (data) => {
-          console.log('Form submitted with data:', data);
-          // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        },
         ...form,
       }}
     />
@@ -137,11 +132,6 @@ const CustomSuccessForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: async (data) => {
-          console.log('Form submitted with data:', data);
-          // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        },
         ...form,
       }}
     />

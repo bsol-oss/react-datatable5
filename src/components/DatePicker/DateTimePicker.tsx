@@ -358,59 +358,7 @@ export function DateTimePicker({
     }
   };
 
-  // Check if a date is within min/max constraints
-  const isDateValid = (date: Date) => {
-    if (minDate) {
-      const minDateStart = dayjs(minDate).tz(tz).startOf('day').toDate();
-      const dateStart = dayjs(date).tz(tz).startOf('day').toDate();
-      if (dateStart < minDateStart) return false;
-    }
-    if (maxDate) {
-      const maxDateStart = dayjs(maxDate).tz(tz).startOf('day').toDate();
-      const dateStart = dayjs(date).tz(tz).startOf('day').toDate();
-      if (dateStart > maxDateStart) return false;
-    }
-    return true;
-  };
-
-  // Handle quick action button clicks
-  const handleQuickActionClick = (date: Date) => {
-    if (isDateValid(date)) {
-      setSelectedDate(date);
-      updateDateTime(date, hour, minute, second, meridiem);
-      // Close the calendar popover if open
-      setCalendarPopoverOpen(false);
-    }
-  };
-
   // Display text for buttons
-  const dateDisplayText = useMemo(() => {
-    if (!selectedDate) return labels?.selectDateLabel ?? 'Select date';
-    return dayjs(selectedDate).tz(tz).format('YYYY-MM-DD');
-  }, [selectedDate, tz, labels]);
-
-  const timeDisplayText = useMemo(() => {
-    const selectTimeLabel = timePickerLabels?.selectTimeLabel ?? 'Select time';
-    if (hour === null || minute === null) return selectTimeLabel;
-    if (is24Hour) {
-      // 24-hour format: never show meridiem, always use 24-hour format (0-23)
-      const hour24 = hour >= 0 && hour <= 23 ? hour : hour % 24;
-      const s = second ?? 0;
-      if (showSeconds) {
-        return `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-      }
-      return `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-    } else {
-      // 12-hour format: always show meridiem (AM/PM)
-      const hour12 = hour >= 1 && hour <= 12 ? hour : hour % 12;
-
-      if (meridiem === null) return selectTimeLabel;
-      const hourDisplay = hour12.toString();
-      const minuteDisplay = minute.toString().padStart(2, '0');
-      return `${hourDisplay}:${minuteDisplay} ${meridiem.toUpperCase()}`;
-    }
-  }, [hour, minute, second, meridiem, is24Hour, showSeconds, timePickerLabels]);
-
   const timezoneDisplayText = useMemo(() => {
     if (!showTimezoneSelector) return '';
     // Show offset as is (e.g., "+08:00")
@@ -855,7 +803,6 @@ export function DateTimePicker({
       if (hour === null || minute === null) {
         return '';
       }
-      const s = second ?? 0;
       return `${hour}:${minute}`;
     } else {
       if (hour === null || minute === null || meridiem === null) {

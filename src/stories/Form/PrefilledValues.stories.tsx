@@ -441,9 +441,6 @@ const ComprehensiveFormWithPrefilledValues = () => {
       formConfig={{
         ...form,
         schema,
-        onSubmit: (data) => {
-          console.log('Comprehensive form data:', data);
-        },
       }}
     />
   );

@@ -556,12 +556,6 @@ const result = await loadInitialValuesFn({
           <DefaultForm
             formConfig={{
               schema: schema,
-              onSubmit: async (data) => {
-                console.log('Form submitted with data:', data);
-                alert(
-                  `Form submitted!\\n\\nFeatured Product: ${data.featured_product}\\nRelated Products: ${JSON.stringify(data.related_products)}`
-                );
-              },
               ...form,
             }}
           />
@@ -881,12 +875,6 @@ const SchemaLevelLoadInitialValuesForm = () => {
           <DefaultForm
             formConfig={{
               schema: schema,
-              onSubmit: async (data) => {
-                console.log('Form submitted with data:', data);
-                alert(
-                  `Form submitted!\\n\\nFeatured Product: ${data.featured_product}\\nRelated Products: ${JSON.stringify(data.related_products)}`
-                );
-              },
               ...form,
             }}
           />

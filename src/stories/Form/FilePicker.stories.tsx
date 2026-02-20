@@ -124,9 +124,6 @@ const BasicFileUploadForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: async (data) => {
-          console.log('Form submitted:', data);
-        },
         form,
         idMap,
         setIdMap,
@@ -174,10 +171,6 @@ const WithMediaLibraryForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: async (data) => {
-          console.log('Form submitted:', data);
-          console.log('Files:', data.file_upload);
-        },
         form,
         idMap,
         setIdMap,
@@ -223,10 +216,6 @@ const ImageOnlyForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: async (data) => {
-          console.log('Form submitted:', data);
-          console.log('Images:', data.file_upload);
-        },
         form,
         idMap,
         setIdMap,
@@ -272,9 +261,6 @@ const RequiredFilesForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: async (data) => {
-          console.log('Form submitted:', data);
-        },
         form,
         idMap,
         setIdMap,
@@ -337,12 +323,6 @@ const MultipleFilePickersForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: async (data) => {
-          console.log('Form submitted:', data);
-          console.log('Basic files:', data.basic_files);
-          console.log('Files with library:', data.files_with_library);
-          console.log('Images only:', data.images_only);
-        },
         form,
         idMap,
         setIdMap,
@@ -416,9 +396,6 @@ const WithCustomLabelsForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: async (data) => {
-          console.log('Form submitted:', data);
-        },
         filePickerLabels: customFilePickerLabels,
         form,
         idMap,
@@ -466,10 +443,6 @@ const SingleSelectForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: async (data) => {
-          console.log('Form submitted:', data);
-          console.log('Single file (ID or File object):', data.single_file);
-        },
         form,
         idMap,
         setIdMap,
@@ -549,19 +522,6 @@ const FilePickerAndMediaLibraryForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: async (data) => {
-          console.log('Form submitted:', data);
-          console.log('File Picker (File objects):', data.file_picker);
-          console.log('Media Library (String IDs):', data.media_library);
-          console.log(
-            'Single File Picker (File object):',
-            data.single_file_picker
-          );
-          console.log(
-            'Single Media Library (String ID):',
-            data.single_media_library
-          );
-        },
         form,
         idMap,
         setIdMap,

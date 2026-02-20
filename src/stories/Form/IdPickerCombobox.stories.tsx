@@ -256,7 +256,7 @@ export const IdPickerComboboxDemo: Story = {
 };
 
 const IdPickerComboboxForm = () => {
-  const [submittedData, setSubmittedData] = useState<Record<
+  const [submittedData, _setSubmittedData] = useState<Record<
     string,
     unknown
   > | null>(null);
@@ -1041,13 +1041,6 @@ const data = { id: '3', x: 1, y: 2 };
           <DefaultForm
             formConfig={{
               schema: schema,
-              onSubmit: async (data) => {
-                console.log('Form submitted with data:', data);
-                setSubmittedData(data);
-                alert(
-                  `Form submitted successfully!\n\nSelected User (ID): ${data.selected_user}\nSelected by Username: ${data.selected_by_username}\nTeam Members: ${JSON.stringify(data.team_members)}`
-                );
-              },
               ...form,
             }}
           />

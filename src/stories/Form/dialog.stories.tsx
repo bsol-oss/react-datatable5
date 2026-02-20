@@ -195,9 +195,6 @@ const SomeForm = () => {
               <DefaultForm
                 formConfig={{
                   schema: schema,
-                  onSubmit: (data) => {
-                    console.log('nice', data, 'onSubmit-gkrp');
-                  },
                   insideDialog: true,
                   ...form,
                 }}

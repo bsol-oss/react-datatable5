@@ -295,9 +295,6 @@ const SomeForm = () => {
       <DefaultForm
         formConfig={{
           schema: localizedSchema,
-          onSubmit: async (data) => {
-            console.log('onSubmit', data);
-          },
           // Apply labels based on selected language
           ...labels,
           ...form,

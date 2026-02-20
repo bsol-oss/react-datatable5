@@ -327,12 +327,6 @@ const BasicDateTimeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data: any) => {
-            console.log('Form submitted with data:', data);
-            alert(
-              `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
-            );
-          },
           ...form,
         }}
       />
@@ -374,12 +368,6 @@ const PreFilledDateTimeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data: any) => {
-            console.log('Form submitted with data:', data);
-            alert(
-              `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
-            );
-          },
           ...form,
         }}
       />
@@ -424,12 +412,6 @@ const ValidationDateTimeForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data: any) => {
-            console.log('Form submitted with data:', data);
-            alert(
-              `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
-            );
-          },
           ...form,
         }}
       />
@@ -472,12 +454,6 @@ const CustomDateFormatForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data: any) => {
-            console.log('Form submitted with data:', data);
-            alert(
-              `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
-            );
-          },
           ...form,
         }}
       />
@@ -520,12 +496,6 @@ const CustomLabelsForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data: any) => {
-            console.log('Form submitted with data:', data);
-            alert(
-              `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
-            );
-          },
           dateTimePickerLabels: {
             monthNamesShort: [
               'Jan',
@@ -610,10 +580,6 @@ const MultipleDateTimeFieldsForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data) => {
-            console.log('Form submitted with data:', data);
-            alert(`Form data: ${JSON.stringify(data, null, 2)}`);
-          },
           ...form,
         }}
       />
@@ -693,12 +659,6 @@ const SchemaHelperButtonsForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data: any) => {
-            console.log('Form submitted with data:', data);
-            alert(
-              `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
-            );
-          },
           ...form,
         }}
       />
@@ -778,12 +738,6 @@ const SchemaHelperButtonsAndTimezoneForm = () => {
       <DefaultForm
         formConfig={{
           schema: schema,
-          onSubmit: (data: any) => {
-            console.log('Form submitted with data:', data);
-            alert(
-              `Date-time selected: ${JSON.stringify(data.eventDateTime, null, 2)}`
-            );
-          },
           ...form,
         }}
       />
@@ -855,11 +809,6 @@ const DateTimePickerInDialogForm = () => {
           <DefaultForm
             formConfig={{
               schema: schema,
-              onSubmit: (data) => {
-                console.log('Form submitted with data:', data);
-                alert(`Form submitted:\n${JSON.stringify(data, null, 2)}`);
-                setOpen(false);
-              },
               insideDialog: true,
               dateTimePickerLabels: {
                 quickActionLabels: {

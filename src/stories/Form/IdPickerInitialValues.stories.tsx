@@ -412,12 +412,6 @@ const queryDefault = useQuery({
           <DefaultForm
             formConfig={{
               schema: schema,
-              onSubmit: async (data) => {
-                console.log('Form submitted with data:', data);
-                alert(
-                  `Form submitted!\n\nManager: ${data.manager}\nTeam Members: ${JSON.stringify(data.team_members)}`
-                );
-              },
               ...form,
             }}
           />

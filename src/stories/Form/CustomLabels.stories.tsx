@@ -283,9 +283,6 @@ const DateTimePickerForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: (data) => {
-          console.log('DateTimePicker form submitted:', data);
-        },
         dateTimePickerLabels: {
           monthNamesShort: [
             '一月',
@@ -341,9 +338,6 @@ const IdPickerForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: (data) => {
-          console.log('IdPicker form submitted:', data);
-        },
         idPickerLabels: {
           undefined: '找不到項目',
           addMore: '新增標籤',
@@ -398,9 +392,6 @@ const CombinedForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: (data) => {
-          console.log('Combined form submitted:', data);
-        },
         dateTimePickerLabels: {
           monthNamesShort: [
             '一月',
@@ -467,9 +458,6 @@ const EnumPickerForm = () => {
     <DefaultForm
       formConfig={{
         schema: schema,
-        onSubmit: (data) => {
-          console.log('EnumPicker form submitted:', data);
-        },
         enumPickerLabels: {
           undefined: '找不到項目',
           addMore: '新增標籤',
