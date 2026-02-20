@@ -45,8 +45,9 @@ export const FormMediaLibraryBrowser = ({
   const isRequired = required?.some((columnId) => columnId === column);
 
   const isSingleSelect = type === 'string';
+  const colLabel = formI18n.colLabel;
 
-  const currentValue = watch(column) ?? (isSingleSelect ? '' : []);
+  const currentValue = watch(colLabel) ?? (isSingleSelect ? '' : []);
 
   // Handle string IDs only
   const currentFileIds: string[] = isSingleSelect
@@ -57,7 +58,6 @@ export const FormMediaLibraryBrowser = ({
       ? (currentValue as string[])
       : [];
 
-  const colLabel = formI18n.colLabel;
   const fieldError = getNestedError(errors, colLabel);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
@@ -216,11 +216,7 @@ export const FormMediaLibraryBrowser = ({
           const displayName = file?.name ?? fileId;
 
           return (
-            <Card.Root
-              variant={'subtle'}
-              colorPalette="blue"
-              key={`${fileId}-${index}`}
-            >
+            <Card.Root variant={'subtle'} key={`${fileId}-${index}`}>
               <Card.Body
                 gap="2"
                 cursor={'pointer'}

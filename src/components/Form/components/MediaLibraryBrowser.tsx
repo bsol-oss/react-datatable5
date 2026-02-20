@@ -4,12 +4,15 @@ import {
   Icon,
   Image,
   Input,
+  SimpleGrid,
   Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { InputGroup } from '@/components/ui/input-group';
+import { CheckboxCard } from '@/components/ui/checkbox-card';
 import { LuFile, LuImage, LuSearch } from 'react-icons/lu';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   FilePickerMediaFile,
@@ -42,6 +45,12 @@ export type MediaLibraryBrowserProps =
   | MediaLibraryBrowserPropsSingle
   | MediaLibraryBrowserPropsMultiple;
 
+const IMAGE_EXT = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i;
+
+function filterImageFiles(files: FilePickerMediaFile[]): FilePickerMediaFile[] {
+  return files.filter((f) => IMAGE_EXT.test(f.name));
+}
+
 export const MediaLibraryBrowser = ({
   onFetchFiles,
   filterImageOnly = false,
@@ -52,300 +61,251 @@ export const MediaLibraryBrowser = ({
   selectedFile: controlledSelectedFile,
   onSelectedFileChange,
 }: MediaLibraryBrowserProps) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [internalSelectedFile, setInternalSelectedFile] = useState<
-    FilePickerMediaFile | FilePickerMediaFile[] | undefined
-  >(multiple ? [] : undefined);
-  const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState('');
 
-  // Use controlled or internal state for selectedFile
-  const selectedFile = controlledSelectedFile ?? internalSelectedFile;
-  const setSelectedFile = onSelectedFileChange ?? setInternalSelectedFile;
-
-  const {
-    data: filesData,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ['file-picker-library', searchTerm],
+  const query = useQuery({
+    queryKey: ['media-library', search, filterImageOnly],
     queryFn: async () => {
-      if (!onFetchFiles) return { data: [] };
-      const files = await onFetchFiles(searchTerm.trim() || '');
-      return { data: files };
+      if (!onFetchFiles) return [];
+      const list = await onFetchFiles(search);
+      return filterImageOnly ? filterImageFiles(list) : list;
     },
     enabled: enabled && !!onFetchFiles,
   });
 
-  const files = (filesData?.data || []) as FilePickerMediaFile[];
+  const files = useMemo(
+    () => (query.data ?? []) as FilePickerMediaFile[],
+    [query.data]
+  );
 
-  const filteredFiles = filterImageOnly
-    ? files.filter((file) =>
-        /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.name)
-      )
-    : files;
+  const selectedIds = useMemo(() => {
+    if (multiple && Array.isArray(controlledSelectedFile)) {
+      return new Set(controlledSelectedFile.map((f) => f.id));
+    }
+    if (
+      !multiple &&
+      controlledSelectedFile &&
+      !Array.isArray(controlledSelectedFile)
+    ) {
+      return new Set([controlledSelectedFile.id]);
+    }
+    return new Set<string>();
+  }, [multiple, controlledSelectedFile]);
 
-  const handleFileClick = (file: FilePickerMediaFile) => {
-    if (multiple) {
-      const currentSelection = Array.isArray(selectedFile) ? selectedFile : [];
-      const isAlreadySelected = currentSelection.some((f) => f.id === file.id);
-      const newSelection = isAlreadySelected
-        ? currentSelection.filter((f) => f.id !== file.id)
-        : [...currentSelection, file];
-      (setSelectedFile as (files: FilePickerMediaFile[]) => void)(newSelection);
-      if (onFileSelect) {
-        (onFileSelect as (files: FilePickerMediaFile[]) => void)(newSelection);
-      }
-    } else {
-      const newFile = selectedFile === file ? undefined : file;
-      (setSelectedFile as (file: FilePickerMediaFile | undefined) => void)(
-        newFile
-      );
-      if (onFileSelect && newFile) {
-        (onFileSelect as (file: FilePickerMediaFile) => void)(newFile);
-      }
+  const handleSingleSelect = (file: FilePickerMediaFile) => {
+    if (!multiple) {
+      (
+        onSelectedFileChange as (file: FilePickerMediaFile | undefined) => void
+      )?.(file);
+      (onFileSelect as (file: FilePickerMediaFile) => void)?.(file);
     }
   };
 
-  const handleImageError = (fileId: string) => {
-    setFailedImageIds((prev) => new Set(prev).add(fileId));
+  const handleMultipleToggle = (
+    file: FilePickerMediaFile,
+    checked: boolean
+  ) => {
+    const current =
+      multiple && Array.isArray(controlledSelectedFile)
+        ? [...controlledSelectedFile]
+        : [];
+    const next = checked
+      ? [...current, file]
+      : current.filter((f) => f.id !== file.id);
+    (onSelectedFileChange as (files: FilePickerMediaFile[]) => void)?.(next);
+    (onFileSelect as (files: FilePickerMediaFile[]) => void)?.(next);
   };
 
-  if (!onFetchFiles) return null;
+  const isLoading = query.isPending;
+  const isError = query.isError;
+  const searchPlaceholder = labels?.searchPlaceholder ?? 'Search files...';
+  const loadingText = labels?.loading ?? 'Loading...';
+  const errorText = labels?.loadingFailed ?? 'Failed to load files';
+  const emptyText = labels?.noFilesFound ?? 'No files found';
 
   return (
     <VStack align="stretch" gap={4}>
-      {/* Search Input */}
-      <Box position="relative">
+      <InputGroup startElement={<Icon as={LuSearch} color="fg.muted" />}>
         <Input
-          placeholder={labels?.searchPlaceholder ?? 'Search files...'}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder={searchPlaceholder}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           bg="bg.panel"
-          border="1px solid"
           borderColor="border.default"
-          colorPalette="blue"
-          _focus={{
-            borderColor: 'colorPalette.500',
-            _dark: {
-              borderColor: 'colorPalette.400',
-            },
-            boxShadow: {
-              base: '0 0 0 1px var(--chakra-colors-blue-500)',
-              _dark: '0 0 0 1px var(--chakra-colors-blue-400)',
-            },
-          }}
-          pl={10}
         />
-        <Icon
-          as={LuSearch}
-          position="absolute"
-          left={3}
-          top="50%"
-          transform="translateY(-50%)"
-          color="fg.muted"
-          boxSize={4}
-        />
-      </Box>
+      </InputGroup>
 
-      {/* Loading State */}
       {isLoading && (
-        <Box textAlign="center" py={8}>
-          <Spinner size="lg" colorPalette="blue" />
-          <Text mt={4} color="fg.muted">
-            {labels?.loading ?? 'Loading files...'}
+        <HStack gap={2} py={6} justify="center">
+          <Spinner size="sm" colorPalette="blue" />
+          <Text fontSize="sm" color="fg.muted">
+            {loadingText}
           </Text>
-        </Box>
+        </HStack>
       )}
 
-      {/* Error State */}
       {isError && (
         <Box
-          bg={{ base: 'colorPalette.50', _dark: 'colorPalette.900/20' }}
-          border="1px solid"
-          borderColor={{
-            base: 'colorPalette.200',
-            _dark: 'colorPalette.800',
-          }}
-          colorPalette="red"
+          py={4}
+          px={3}
           borderRadius="md"
-          p={4}
+          bg={{ base: 'red.50', _dark: 'red.900/20' }}
+          borderWidth="1px"
+          borderColor={{ base: 'red.200', _dark: 'red.800' }}
         >
-          <Text
-            color={{
-              base: 'colorPalette.600',
-              _dark: 'colorPalette.300',
-            }}
-          >
-            {labels?.loadingFailed ?? 'Failed to load files'}
+          <Text fontSize="sm" color={{ base: 'red.600', _dark: 'red.300' }}>
+            {errorText}
           </Text>
         </Box>
       )}
 
-      {/* Files Grid */}
-      {!isLoading && !isError && (
-        <Box maxHeight="400px" overflowY="auto">
-          {filteredFiles.length === 0 ? (
-            <Box textAlign="center" py={8}>
-              <Text color="fg.muted">
-                {labels?.noFilesFound ?? 'No files found'}
-              </Text>
-            </Box>
-          ) : (
-            <VStack align="stretch" gap={2}>
-              {filteredFiles.map((file) => {
-                const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(
-                  file.name
-                );
-                const isSelected = multiple
-                  ? Array.isArray(selectedFile) &&
-                    selectedFile.some((f) => f.id === file.id)
-                  : (selectedFile as FilePickerMediaFile | undefined)?.id ===
-                    file.id;
-                const imageFailed = failedImageIds.has(file.id);
-
-                return (
-                  <Box
-                    key={file.id}
-                    p={3}
-                    border="2px solid"
-                    borderColor={
-                      isSelected
-                        ? {
-                            base: 'colorPalette.500',
-                            _dark: 'colorPalette.400',
-                          }
-                        : 'border.default'
-                    }
-                    borderRadius="md"
-                    bg={
-                      isSelected
-                        ? {
-                            base: 'colorPalette.50',
-                            _dark: 'colorPalette.900/20',
-                          }
-                        : 'bg.panel'
-                    }
-                    colorPalette="blue"
-                    cursor="pointer"
-                    onClick={() => handleFileClick(file)}
-                    _hover={{
-                      borderColor: isSelected
-                        ? {
-                            base: 'colorPalette.600',
-                            _dark: 'colorPalette.400',
-                          }
-                        : {
-                            base: 'colorPalette.300',
-                            _dark: 'colorPalette.400',
-                          },
-                      bg: isSelected
-                        ? {
-                            base: 'colorPalette.100',
-                            _dark: 'colorPalette.800/30',
-                          }
-                        : 'bg.muted',
-                    }}
-                    transition="all 0.2s"
-                  >
-                    <HStack gap={3}>
-                      {/* Preview */}
-                      <Box
-                        width="60px"
-                        height="60px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        bg="bg.muted"
-                        borderRadius="md"
-                        flexShrink={0}
-                      >
-                        {isImage && file.url && !imageFailed ? (
-                          <Image
-                            src={file.url}
-                            alt={file.name}
-                            boxSize="60px"
-                            objectFit="cover"
-                            borderRadius="md"
-                            onError={() => handleImageError(file.id)}
-                          />
-                        ) : isImage && (imageFailed || !file.url) ? (
-                          <Icon as={LuImage} boxSize={6} color="fg.muted" />
-                        ) : (
-                          <Icon as={LuFile} boxSize={6} color="fg.muted" />
-                        )}
-                      </Box>
-
-                      {/* File Info */}
-                      <VStack align="start" flex={1} gap={1}>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="medium"
-                          color="fg.default"
-                          overflow="hidden"
-                          textOverflow="ellipsis"
-                          whiteSpace="nowrap"
-                        >
-                          {file.name}
-                        </Text>
-                        <HStack gap={2}>
-                          {file.size && (
-                            <>
-                              <Text fontSize="xs" color="fg.muted">
-                                {typeof file.size === 'number'
-                                  ? formatBytes(file.size)
-                                  : file.size}
-                              </Text>
-                            </>
-                          )}
-                          {file.comment && (
-                            <>
-                              {file.size && (
-                                <Text fontSize="xs" color="fg.muted">
-                                  •
-                                </Text>
-                              )}
-                              <Text
-                                fontSize="xs"
-                                color="fg.muted"
-                                overflow="hidden"
-                                textOverflow="ellipsis"
-                                whiteSpace="nowrap"
-                              >
-                                {file.comment}
-                              </Text>
-                            </>
-                          )}
-                        </HStack>
-                      </VStack>
-
-                      {/* Selected Indicator */}
-                      {isSelected && (
-                        <Box
-                          width="24px"
-                          height="24px"
-                          borderRadius="full"
-                          bg={{
-                            base: 'colorPalette.500',
-                            _dark: 'colorPalette.400',
-                          }}
-                          colorPalette="blue"
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                          flexShrink={0}
-                        >
-                          <Text color="white" fontSize="xs" fontWeight="bold">
-                            ✓
-                          </Text>
-                        </Box>
-                      )}
-                    </HStack>
-                  </Box>
-                );
-              })}
-            </VStack>
-          )}
+      {!isLoading && !isError && files.length === 0 && (
+        <Box py={6} textAlign="center">
+          <Text fontSize="sm" color="fg.muted">
+            {emptyText}
+          </Text>
         </Box>
+      )}
+
+      {!isLoading && !isError && files.length > 0 && (
+        <SimpleGrid columns={{ base: 2, sm: 3, md: 4 }} gap={3}>
+          {files.map((file) => {
+            const isImage = IMAGE_EXT.test(file.name);
+            const isSelected = selectedIds.has(file.id);
+            const fileSize =
+              typeof file.size === 'number'
+                ? formatBytes(file.size)
+                : file.size ?? null;
+
+            if (multiple) {
+              return (
+                <CheckboxCard
+                  key={file.id}
+                  checked={isSelected}
+                  onCheckedChange={(e) =>
+                    handleMultipleToggle(file, e.checked === true)
+                  }
+                  variant="outline"
+                  borderColor="border.default"
+                  _hover={{ borderColor: 'border.emphasized', bg: 'bg.muted' }}
+                  cursor="pointer"
+                >
+                  <Box
+                    width="100%"
+                    aspectRatio={1}
+                    bg="bg.muted"
+                    borderRadius="md"
+                    overflow="hidden"
+                    mb={2}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    {isImage && file.url ? (
+                      <Image
+                        src={file.url}
+                        alt={file.name}
+                        width="100%"
+                        height="100%"
+                        objectFit="cover"
+                      />
+                    ) : isImage ? (
+                      <Icon as={LuImage} boxSize={8} color="fg.muted" />
+                    ) : (
+                      <Icon as={LuFile} boxSize={8} color="fg.muted" />
+                    )}
+                  </Box>
+                  <Text
+                    fontSize="xs"
+                    fontWeight="medium"
+                    color="fg.default"
+                    lineClamp={2}
+                  >
+                    {file.name}
+                  </Text>
+                  {fileSize && (
+                    <Text fontSize="xs" color="fg.muted">
+                      {fileSize}
+                    </Text>
+                  )}
+                </CheckboxCard>
+              );
+            }
+
+            return (
+              <Box
+                key={file.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => handleSingleSelect(file)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSingleSelect(file);
+                  }
+                }}
+                padding={3}
+                borderRadius="md"
+                borderWidth="2px"
+                borderColor={isSelected ? 'colorPalette.500' : 'border.default'}
+                bg={
+                  isSelected
+                    ? { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }
+                    : 'bg.panel'
+                }
+                _hover={{
+                  borderColor: isSelected
+                    ? 'colorPalette.500'
+                    : 'border.emphasized',
+                  bg: isSelected
+                    ? { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }
+                    : 'bg.muted',
+                }}
+                cursor="pointer"
+                transition="all 0.2s"
+              >
+                <Box
+                  width="100%"
+                  aspectRatio={1}
+                  bg="bg.muted"
+                  borderRadius="md"
+                  overflow="hidden"
+                  mb={2}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  {isImage && file.url ? (
+                    <Image
+                      src={file.url}
+                      alt={file.name}
+                      width="100%"
+                      height="100%"
+                      objectFit="cover"
+                    />
+                  ) : isImage ? (
+                    <Icon as={LuImage} boxSize={8} color="fg.muted" />
+                  ) : (
+                    <Icon as={LuFile} boxSize={8} color="fg.muted" />
+                  )}
+                </Box>
+                <Text
+                  fontSize="xs"
+                  fontWeight="medium"
+                  color="fg.default"
+                  lineClamp={2}
+                >
+                  {file.name}
+                </Text>
+                {fileSize && (
+                  <Text fontSize="xs" color="fg.muted">
+                    {fileSize}
+                  </Text>
+                )}
+              </Box>
+            );
+          })}
+        </SimpleGrid>
       )}
     </VStack>
   );
