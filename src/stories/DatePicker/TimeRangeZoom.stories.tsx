@@ -10,6 +10,7 @@ import {
   useTimeViewportBlockGeometry,
   useTimeRangeZoom,
 } from '@/components/DatePicker/TimeRangeZoom';
+import DatePicker from '@/components/DatePicker/DatePicker';
 import { Avatar, AvatarGroup } from '@/components/ui/avatar';
 import { Provider } from '@/components/ui/provider';
 import {
@@ -673,6 +674,7 @@ const HeadlessClassTimetableDemo = () => {
     end: dayjs().startOf('day').hour(18).minute(0).toDate(),
   });
   const [lastInteraction, setLastInteraction] = useState('None');
+  const [selectedDate, setSelectedDate] = useState<Date>(dayjs().toDate());
 
   const {
     labels,
@@ -779,25 +781,73 @@ const HeadlessClassTimetableDemo = () => {
             Classroom lanes and student clusters powered by `useTimeRangeZoom`
             and `useTimeViewportBlockGeometry`.
           </Text>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={zoomOut}
-            disabled={!canZoomOut}
+          <Box
+            p={3}
+            borderWidth="1px"
+            borderRadius="md"
+            bg="white"
+            _dark={{ bg: 'gray.900' }}
           >
-            {labels.zoomOut}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={zoomIn}
-            disabled={!canZoomIn}
-          >
-            {labels.zoomIn}
-          </Button>
-          <Button size="sm" variant="ghost" colorPalette="blue" onClick={reset}>
-            {labels.reset}
-          </Button>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              _dark={{ color: 'gray.400' }}
+              mb={2}
+            >
+              Navigate to Date
+            </Text>
+            <DatePicker
+              selected={selectedDate}
+              onDateSelected={({ date }) => {
+                if (date) {
+                  setSelectedDate(date);
+                  const duration = dayjs(viewport.end).diff(
+                    dayjs(viewport.start)
+                  );
+                  const newStart = dayjs(date)
+                    .startOf('day')
+                    .hour(8)
+                    .minute(0)
+                    .toDate();
+                  const newEnd = dayjs(newStart)
+                    .add(duration, 'millisecond')
+                    .toDate();
+                  setViewport({ start: newStart, end: newEnd });
+                  setLastInteraction(
+                    `Navigated to ${dayjs(date).format('MMM D, YYYY')}`
+                  );
+                }
+              }}
+              monthsToDisplay={1}
+              showOutsideDays={false}
+            />
+          </Box>
+          <HStack gap={2}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={zoomOut}
+              disabled={!canZoomOut}
+            >
+              {labels.zoomOut}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={zoomIn}
+              disabled={!canZoomIn}
+            >
+              {labels.zoomIn}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              colorPalette="blue"
+              onClick={reset}
+            >
+              {labels.reset}
+            </Button>
+          </HStack>
           <Box
             p={3}
             borderWidth="1px"

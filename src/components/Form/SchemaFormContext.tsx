@@ -36,8 +36,8 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   onSubmit: async () => {},
   timezone: 'Asia/Hong_Kong',
   displayConfig: {
-    showSubmitButton: true,
-    showResetButton: true,
+    showSubmitButton: false,
+    showResetButton: false,
     showTitle: true,
   },
 });

@@ -37,19 +37,21 @@ export const FormBody = () => {
           );
         })}
       </Grid>
-      <Flex justifyContent={'end'} gap="2">
-        {showResetButton && (
-          <Button
-            onClick={() => {
-              methods.reset();
-            }}
-            variant={'subtle'}
-          >
-            {formButtonLabels?.reset ?? 'Reset'}
-          </Button>
-        )}
-        {showSubmitButton && <SubmitButton />}
-      </Flex>
+      {(showResetButton || showSubmitButton) && (
+        <Flex justifyContent={'end'} gap="2">
+          {showResetButton && (
+            <Button
+              onClick={() => {
+                methods.reset();
+              }}
+              variant={'subtle'}
+            >
+              {formButtonLabels?.reset ?? 'Reset'}
+            </Button>
+          )}
+          {showSubmitButton && <SubmitButton />}
+        </Flex>
+      )}
     </Flex>
   );
 };
