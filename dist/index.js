@@ -4191,8 +4191,8 @@ const SchemaFormContext = React.createContext({
     onSubmit: async () => { },
     timezone: 'Asia/Hong_Kong',
     displayConfig: {
-        showSubmitButton: true,
-        showResetButton: true,
+        showSubmitButton: false,
+        showResetButton: false,
         showTitle: true,
     },
 });
@@ -7905,9 +7905,9 @@ const FormBody = () => {
                         return null;
                     }
                     return (jsxRuntime.jsx(ColumnRenderer, { properties: properties, prefix: ``, parentRequired: schema.required, column }, `form-input-${column}`));
-                }) }), jsxRuntime.jsxs(react.Flex, { justifyContent: 'end', gap: "2", children: [showResetButton && (jsxRuntime.jsx(react.Button, { onClick: () => {
+                }) }), (showResetButton || showSubmitButton) && (jsxRuntime.jsxs(react.Flex, { justifyContent: 'end', gap: "2", children: [showResetButton && (jsxRuntime.jsx(react.Button, { onClick: () => {
                             methods.reset();
-                        }, variant: 'subtle', children: formButtonLabels?.reset ?? 'Reset' })), showSubmitButton && jsxRuntime.jsx(SubmitButton, {})] })] }));
+                        }, variant: 'subtle', children: formButtonLabels?.reset ?? 'Reset' })), showSubmitButton && jsxRuntime.jsx(SubmitButton, {})] }))] }));
 };
 
 const FormTitle = () => {
