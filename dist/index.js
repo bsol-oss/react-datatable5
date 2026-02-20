@@ -7087,34 +7087,6 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
         }
     };
     // Display text for buttons
-    React.useMemo(() => {
-        if (!selectedDate)
-            return labels?.selectDateLabel ?? 'Select date';
-        return dayjs(selectedDate).tz(tz).format('YYYY-MM-DD');
-    }, [selectedDate, tz, labels]);
-    React.useMemo(() => {
-        const selectTimeLabel = timePickerLabels?.selectTimeLabel ?? 'Select time';
-        if (hour === null || minute === null)
-            return selectTimeLabel;
-        if (is24Hour) {
-            // 24-hour format: never show meridiem, always use 24-hour format (0-23)
-            const hour24 = hour >= 0 && hour <= 23 ? hour : hour % 24;
-            const s = second ?? 0;
-            if (showSeconds) {
-                return `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            }
-            return `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        }
-        else {
-            // 12-hour format: always show meridiem (AM/PM)
-            const hour12 = hour >= 1 && hour <= 12 ? hour : hour % 12;
-            if (meridiem === null)
-                return selectTimeLabel;
-            const hourDisplay = hour12.toString();
-            const minuteDisplay = minute.toString().padStart(2, '0');
-            return `${hourDisplay}:${minuteDisplay} ${meridiem.toUpperCase()}`;
-        }
-    }, [hour, minute, second, meridiem, is24Hour, showSeconds, timePickerLabels]);
     const timezoneDisplayText = React.useMemo(() => {
         if (!showTimezoneSelector)
             return '';
@@ -7926,15 +7898,13 @@ const FormTitle = () => {
     return jsxRuntime.jsx(react.Heading, { children: schema.title ?? 'Form' });
 };
 
-const FormRoot = ({ schema, idMap, setIdMap, form, children, onSubmit = undefined, displayConfig = {
-    showSubmitButton: true,
-    showResetButton: true,
+const FormRoot = ({ schema, idMap, setIdMap, form, children, displayConfig = {
+    showSubmitButton: false,
+    showResetButton: false,
     showTitle: true,
 }, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog = false, }) => {
     return (jsxRuntime.jsx(SchemaFormContext.Provider, { value: {
             schema,
-            // @ts-expect-error TODO: find appropriate types
-            onSubmit,
             idMap,
             setIdMap,
             displayConfig,

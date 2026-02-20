@@ -1,6 +1,6 @@
 import { JSONSchema7 } from 'json-schema';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
-import { FieldValues, SubmitHandler, UseFormReturn } from 'react-hook-form';
+import { FieldValues, UseFormReturn } from 'react-hook-form';
 import { CustomJSONSchema7, DateTimePickerLabels, EnumPickerLabels, FilePickerLabels, FormButtonLabels, IdPickerLabels, TimePickerLabels } from '../types/CustomJSONSchema7';
 export interface FormRootProps<TData extends FieldValues> {
     /**
@@ -33,7 +33,6 @@ export interface FormRootProps<TData extends FieldValues> {
     setIdMap: Dispatch<SetStateAction<Record<string, unknown>>>;
     form: UseFormReturn<TData, any, TData>;
     children: ReactNode;
-    onSubmit?: SubmitHandler<TData>;
     displayConfig?: {
         showSubmitButton?: boolean;
         showResetButton?: boolean;
@@ -54,4 +53,4 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
     customQueryFn: any;
     children: ReactNode;
 }
-export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, onSubmit, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;

@@ -9,7 +9,7 @@ import { UseQueryResult } from '@tanstack/react-query';
 import { RankingInfo } from '@tanstack/match-sorter-utils';
 import { JSONSchema7 } from 'json-schema';
 import * as react_hook_form from 'react-hook-form';
-import { UseFormReturn, FieldValues, SubmitHandler } from 'react-hook-form';
+import { UseFormReturn, FieldValues } from 'react-hook-form';
 import dayjs from 'dayjs';
 
 interface TableHeaderTexts {
@@ -700,7 +700,6 @@ interface FormRootProps<TData extends FieldValues> {
     setIdMap: Dispatch<SetStateAction<Record<string, unknown>>>;
     form: UseFormReturn<TData, any, TData>;
     children: ReactNode;
-    onSubmit?: SubmitHandler<TData>;
     displayConfig?: {
         showSubmitButton?: boolean;
         showResetButton?: boolean;
@@ -721,7 +720,7 @@ interface CustomJSONSchema7Definition extends JSONSchema7 {
     customQueryFn: any;
     children: ReactNode;
 }
-declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, onSubmit, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
+declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => react_jsx_runtime.JSX.Element;
 
 interface DefaultFormProps<TData extends FieldValues> {
     formConfig: Omit<FormRootProps<TData>, "children">;
