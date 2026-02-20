@@ -33,11 +33,6 @@ export interface FormRootProps<TData extends FieldValues> {
     setIdMap: Dispatch<SetStateAction<Record<string, unknown>>>;
     form: UseFormReturn<TData, any, TData>;
     children: ReactNode;
-    displayConfig?: {
-        showSubmitButton?: boolean;
-        showResetButton?: boolean;
-        showTitle?: boolean;
-    };
     dateTimePickerLabels?: DateTimePickerLabels;
     idPickerLabels?: IdPickerLabels;
     enumPickerLabels?: EnumPickerLabels;
@@ -53,4 +48,4 @@ export interface CustomJSONSchema7Definition extends JSONSchema7 {
     customQueryFn: any;
     children: ReactNode;
 }
-export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, displayConfig, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;
+export declare const FormRoot: <TData extends FieldValues>({ schema, idMap, setIdMap, form, children, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog, }: FormRootProps<TData>) => import("react/jsx-runtime").JSX.Element;

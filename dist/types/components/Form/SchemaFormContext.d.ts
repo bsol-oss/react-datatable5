@@ -7,11 +7,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
     idMap: Record<string, unknown>;
     setIdMap: Dispatch<SetStateAction<Record<string, unknown>>>;
     timezone?: string;
-    displayConfig: {
-        showSubmitButton?: boolean;
-        showResetButton?: boolean;
-        showTitle?: boolean;
-    };
     dateTimePickerLabels?: DateTimePickerLabels;
     idPickerLabels?: IdPickerLabels;
     enumPickerLabels?: EnumPickerLabels;

@@ -4170,11 +4170,6 @@ const SchemaFormContext = createContext({
     schema: {},
     onSubmit: async () => { },
     timezone: 'Asia/Hong_Kong',
-    displayConfig: {
-        showSubmitButton: false,
-        showResetButton: false,
-        showTitle: true,
-    },
 });
 
 const useSchemaContext = () => {
@@ -7828,66 +7823,24 @@ const ColumnRenderer = ({ column, properties, prefix, parentRequired, }) => {
     return jsx(SchemaRenderer, { schema: schemaWithRequired, prefix, column });
 };
 
-const SubmitButton = () => {
-    const { onSubmit, formButtonLabels } = useSchemaContext();
-    const methods = useFormContext();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onValid = async (data) => {
-        // Validation is handled by react-hook-form
-        // This function will only be called if validation passes
-        if (onSubmit) {
-            await onSubmit(data);
-        }
-    };
-    return (jsx(Button$1, { onClick: () => {
-            methods.handleSubmit(onValid)();
-        }, formNoValidate: true, children: formButtonLabels?.submit ?? 'Submit' }));
-};
-
 const FormBody = () => {
-    const { schema, displayConfig, formButtonLabels } = useSchemaContext();
-    const { showSubmitButton, showResetButton } = displayConfig;
-    const methods = useFormContext();
-    console.log('errors', methods.formState.errors);
+    const { schema } = useSchemaContext();
     const { properties } = schema;
     const ordered = Object.keys(properties);
-    return (jsxs(Flex, { flexFlow: 'column', gap: "2", children: [jsx(Grid, { gap: "4", gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: ordered.map((column) => {
-                    if (!properties) {
-                        console.error('properties is undefined when using FormBody', schema);
-                        return null;
-                    }
-                    return (jsx(ColumnRenderer, { properties: properties, prefix: ``, parentRequired: schema.required, column }, `form-input-${column}`));
-                }) }), (showResetButton || showSubmitButton) && (jsxs(Flex, { justifyContent: 'end', gap: "2", children: [showResetButton && (jsx(Button$1, { onClick: () => {
-                            methods.reset();
-                        }, variant: 'subtle', children: formButtonLabels?.reset ?? 'Reset' })), showSubmitButton && jsx(SubmitButton, {})] }))] }));
+    return (jsx(Flex, { flexFlow: 'column', gap: "2", children: jsx(Grid, { gap: "4", gridTemplateColumns: 'repeat(12, 1fr)', autoFlow: 'row', children: ordered.map((column) => {
+                if (!properties) {
+                    console.error('properties is undefined when using FormBody', schema);
+                    return null;
+                }
+                return (jsx(ColumnRenderer, { properties: properties, prefix: ``, parentRequired: schema.required, column }, `form-input-${column}`));
+            }) }) }));
 };
 
-const FormTitle = () => {
-    const { schema } = useSchemaContext();
-    // Debug log when form title is missing
-    if (!schema.title) {
-        console.debug('[Form Title] Missing title in root schema. Add title property to schema.', {
-            schema: {
-                type: schema.type,
-                properties: schema.properties
-                    ? Object.keys(schema.properties)
-                    : undefined,
-            },
-        });
-    }
-    return jsx(Heading, { children: schema.title ?? 'Form' });
-};
-
-const FormRoot = ({ schema, idMap, setIdMap, form, children, displayConfig = {
-    showSubmitButton: false,
-    showResetButton: false,
-    showTitle: true,
-}, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog = false, }) => {
+const FormRoot = ({ schema, idMap, setIdMap, form, children, dateTimePickerLabels, idPickerLabels, enumPickerLabels, filePickerLabels, formButtonLabels, timePickerLabels, insideDialog = false, }) => {
     return (jsx(SchemaFormContext.Provider, { value: {
             schema,
             idMap,
             setIdMap,
-            displayConfig,
             dateTimePickerLabels,
             idPickerLabels,
             enumPickerLabels,
@@ -7899,8 +7852,7 @@ const FormRoot = ({ schema, idMap, setIdMap, form, children, displayConfig = {
 };
 
 const DefaultForm = ({ formConfig, }) => {
-    const { showTitle } = formConfig.displayConfig ?? {};
-    return (jsx(FormRoot, { ...formConfig, children: jsxs(Grid, { gap: "2", children: [showTitle && jsx(FormTitle, {}), jsx(FormBody, {})] }) }));
+    return (jsx(FormRoot, { ...formConfig, children: jsx(Grid, { gap: "2", children: jsx(FormBody, {}) }) }));
 };
 
 function useForm({ preLoadedValues, schema, }) {
@@ -9462,4 +9414,4 @@ function DataTableServer({ columns, enableRowSelection = true, enableMultiRowSel
         }, children: jsx(DataTableServerContext.Provider, { value: { url: url ?? '', query }, children: children }) }));
 }
 
-export { CalendarDisplay, CardHeader, DataDisplay, DataTable, DataTableServer, DatePickerContext, DatePickerInput, DefaultCardTitle, DefaultForm, DefaultTable, DefaultTableServer, DensityToggleButton, EditSortingButton, EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, FormTitle, GlobalFilter, MediaLibraryBrowser, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, SelectAllRowsToggle, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, TimeRangeZoom, TimeViewportBlock, TimeViewportBlocks, TimeViewportGrid, TimeViewportHeader, TimeViewportMarkerLine, TimeViewportRoot, ViewDialog, defaultRenderDisplay, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm, useTimeRangeZoom, useTimeViewport, useTimeViewportBlockGeometry, useTimeViewportHeader, useTimeViewportTicks };
+export { CalendarDisplay, CardHeader, DataDisplay, DataTable, DataTableServer, DatePickerContext, DatePickerInput, DefaultCardTitle, DefaultForm, DefaultTable, DefaultTableServer, DensityToggleButton, EditSortingButton, EmptyState, ErrorAlert, FilterDialog, FormBody, FormRoot, GlobalFilter, MediaLibraryBrowser, PageSizeControl, Pagination, RecordDisplay, ReloadButton, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, RowCountText, SelectAllRowsToggle, Table, TableBody, TableCardContainer, TableCards, TableComponent, TableControls, TableDataDisplay, TableFilter, TableFilterTags, TableFooter, TableHeader, TableLoadingComponent, TableSelector, TableSorter, TableViewer, TextCell, TimeRangeZoom, TimeViewportBlock, TimeViewportBlocks, TimeViewportGrid, TimeViewportHeader, TimeViewportMarkerLine, TimeViewportRoot, ViewDialog, defaultRenderDisplay, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm, useTimeRangeZoom, useTimeViewport, useTimeViewportBlockGeometry, useTimeViewportHeader, useTimeViewportTicks };
