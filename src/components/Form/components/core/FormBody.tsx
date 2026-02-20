@@ -1,16 +1,9 @@
-import { Button, Flex, Grid } from '@chakra-ui/react';
-import { useFormContext } from 'react-hook-form';
+import { Flex, Grid } from '@chakra-ui/react';
 import { useSchemaContext } from '../../useSchemaContext';
 import { ColumnRenderer } from '../fields/ColumnRenderer';
-import { SubmitButton } from './SubmitButton';
 
 export const FormBody = () => {
-  const { schema, displayConfig, formButtonLabels } = useSchemaContext();
-  const { showSubmitButton, showResetButton } = displayConfig;
-  const methods = useFormContext();
-
-  console.log('errors', methods.formState.errors);
-
+  const { schema } = useSchemaContext();
   const { properties } = schema;
 
   const ordered = Object.keys(properties as object);
@@ -37,21 +30,6 @@ export const FormBody = () => {
           );
         })}
       </Grid>
-      {(showResetButton || showSubmitButton) && (
-        <Flex justifyContent={'end'} gap="2">
-          {showResetButton && (
-            <Button
-              onClick={() => {
-                methods.reset();
-              }}
-              variant={'subtle'}
-            >
-              {formButtonLabels?.reset ?? 'Reset'}
-            </Button>
-          )}
-          {showSubmitButton && <SubmitButton />}
-        </Flex>
-      )}
     </Flex>
   );
 };

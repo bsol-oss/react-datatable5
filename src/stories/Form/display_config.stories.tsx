@@ -55,33 +55,13 @@ const SomeForm = () => {
   });
 
   return (
-    <>
-      <DefaultForm<{ someTextArea: string; someNumber: number }>
-        formConfig={{
-          schema: schema,
-          displayConfig: {
-            showSubmitButton: false,
-            showResetButton: false,
-            showTitle: false,
-          },
-          form,
-          idMap,
-          setIdMap,
-        }}
-      />
-      <DefaultForm
-        formConfig={{
-          schema: schema,
-          displayConfig: {
-            showSubmitButton: true,
-            showResetButton: true,
-            showTitle: true,
-          },
-          form,
-          idMap,
-          setIdMap,
-        }}
-      />
-    </>
+    <DefaultForm<{ someTextArea: string; someNumber: number }>
+      formConfig={{
+        schema: schema,
+        form,
+        idMap,
+        setIdMap,
+      }}
+    />
   );
 };

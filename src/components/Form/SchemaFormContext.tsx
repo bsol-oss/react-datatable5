@@ -16,11 +16,6 @@ export interface SchemaFormContext<TData extends FieldValues> {
   idMap: Record<string, unknown>;
   setIdMap: Dispatch<SetStateAction<Record<string, unknown>>>;
   timezone?: string;
-  displayConfig: {
-    showSubmitButton?: boolean;
-    showResetButton?: boolean;
-    showTitle?: boolean;
-  };
   dateTimePickerLabels?: DateTimePickerLabels;
   idPickerLabels?: IdPickerLabels;
   enumPickerLabels?: EnumPickerLabels;
@@ -35,9 +30,4 @@ export const SchemaFormContext = createContext<SchemaFormContext<unknown>>({
   schema: {} as CustomJSONSchema7,
   onSubmit: async () => {},
   timezone: 'Asia/Hong_Kong',
-  displayConfig: {
-    showSubmitButton: false,
-    showResetButton: false,
-    showTitle: true,
-  },
 });

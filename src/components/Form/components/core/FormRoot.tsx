@@ -43,11 +43,6 @@ export interface FormRootProps<TData extends FieldValues> {
   setIdMap: Dispatch<SetStateAction<Record<string, unknown>>>;
   form: UseFormReturn<TData, any, TData>;
   children: ReactNode;
-  displayConfig?: {
-    showSubmitButton?: boolean;
-    showResetButton?: boolean;
-    showTitle?: boolean;
-  };
   dateTimePickerLabels?: DateTimePickerLabels;
   idPickerLabels?: IdPickerLabels;
   enumPickerLabels?: EnumPickerLabels;
@@ -71,11 +66,6 @@ export const FormRoot = <TData extends FieldValues>({
   setIdMap,
   form,
   children,
-  displayConfig = {
-    showSubmitButton: false,
-    showResetButton: false,
-    showTitle: true,
-  },
   dateTimePickerLabels,
   idPickerLabels,
   enumPickerLabels,
@@ -90,7 +80,6 @@ export const FormRoot = <TData extends FieldValues>({
         schema,
         idMap,
         setIdMap,
-        displayConfig,
         dateTimePickerLabels,
         idPickerLabels,
         enumPickerLabels,
