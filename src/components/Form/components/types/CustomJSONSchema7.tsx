@@ -270,20 +270,81 @@ export const defaultRenderDisplay = (item: unknown): ReactNode => {
   return JSON.stringify(item);
 };
 
+/**
+ * Expected shape of a media file returned by `onFetchFiles` and used by
+ * the Media Library Browser and File Picker components.
+ *
+ * @example
+ * ```ts
+ * {
+ *   id: 'file-1',
+ *   name: 'photo.jpg',
+ *   url: 'https://cdn.example.com/photo.jpg',
+ *   size: 102400,
+ *   comment: 'Profile photo',
+ *   type: 'image/jpeg',
+ * }
+ * ```
+ */
 export interface FilePickerMediaFile {
+  /** Unique identifier for the file (required) */
   id: string;
+  /** Display name of the file (required) */
   name: string;
+  /** URL for image preview; required for thumbnails in media library */
   url?: string;
+  /** File size in bytes (number) or human-readable string (e.g. "1.2 MB") */
   size?: string | number;
+  /** Optional description or metadata */
   comment?: string;
+  /** MIME type (e.g. "image/jpeg", "application/pdf") */
   type?: string;
 }
 
+/**
+ * JSON Schema definition for FilePickerMediaFile.
+ * Use this to document or validate the expected structure in your API/schema.
+ */
+export const FilePickerMediaFileSchema = {
+  type: 'object',
+  required: ['id', 'name'],
+  properties: {
+    id: { type: 'string', description: 'Unique identifier for the file' },
+    name: { type: 'string', description: 'Display name of the file' },
+    url: {
+      type: 'string',
+      format: 'uri',
+      description:
+        'URL for image preview; required for thumbnails in media library',
+    },
+    size: {
+      oneOf: [{ type: 'number' }, { type: 'string' }],
+      description: 'File size in bytes (number) or human-readable string',
+    },
+    comment: {
+      type: 'string',
+      description: 'Optional description or metadata',
+    },
+    type: {
+      type: 'string',
+      description: 'MIME type (e.g. "image/jpeg", "application/pdf")',
+    },
+  },
+} as const;
+
 export interface FilePickerProps {
+  /**
+   * Fetches files from your media library/API. Must return FilePickerMediaFile[].
+   * The search string can be used to filter results.
+   */
   onFetchFiles?: (search: string) => Promise<FilePickerMediaFile[]>;
+  /** When true, adds a "Browse Library" button to the file picker (file-picker variant only) */
   enableMediaLibrary?: boolean;
+  /** When true, only shows image files (jpg, jpeg, png, gif, bmp, webp, svg) */
   filterImageOnly?: boolean;
+  /** When true, shows an upload tab in the media library dialog */
   enableUpload?: boolean;
+  /** Upload handler; must return the new file's ID string */
   onUploadFile?: (file: File) => Promise<string>;
 }
 
