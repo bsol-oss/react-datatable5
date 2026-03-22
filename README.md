@@ -4,6 +4,12 @@ A React component library built on top of `@tanstack/react-table` and `@chakra-u
 
 ## Documentation
 
-- [Error Messages Guide](./docs/ERROR_MESSAGES_GUIDE.md) - Learn how to set custom validation error messages
-- [DataTable Server Usage](./docs/DATATABLE_SERVER_USAGE.md) - Guide for server-side data tables
-- [ID Picker Guide](./docs/IDPICKER_GUIDE.md) - Guide for ID picker components
+### Guides
+
+- [Error messages guide](./docs/ERROR_MESSAGES_GUIDE.md) — Custom validation error messages in JSON Schema
+- [DataTable server usage](./docs/DATATABLE_SERVER_USAGE.md) — Server-side data tables
+- [ID Picker guide](./docs/IDPICKER_GUIDE.md) — ID picker fields and labels
+
+### Public component reference
+
+- **[Component index](./docs/components/README.md)** — One markdown page per exported module from `src/index.tsx`
