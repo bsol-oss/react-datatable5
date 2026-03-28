@@ -22,7 +22,7 @@ export const DateTimePicker = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-  const { timezone, dateTimePickerLabels, timePickerLabels } =
+  const { timezone, dateTimePickerLabels, timePickerLabels, insideDialog } =
     useSchemaContext();
   const formI18n = useFormLabel(column, prefix, schema);
   const {
@@ -86,6 +86,7 @@ export const DateTimePicker = ({
       timezone={timezone}
       labels={dateTimePickerLabelsConfig}
       timePickerLabels={timePickerLabels}
+      portalled={!insideDialog}
       showQuickActions={dateTimePicker?.showQuickActions ?? false}
       quickActionLabels={
         dateTimePickerLabels?.quickActionLabels ??

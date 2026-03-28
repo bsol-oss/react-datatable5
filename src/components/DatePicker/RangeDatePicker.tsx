@@ -1,244 +1,24 @@
-import { Box, Button, Grid } from '@chakra-ui/react';
-import React, { createContext, useContext, useState } from 'react';
 import {
-  useCalendar,
-  CalendarRenderProps,
-  type Calendar as CalendarType,
-  CalendarDate,
-} from './useCalendar';
+  DatePicker as ChakraDatePicker,
+  Flex,
+  type DateValue,
+} from '@chakra-ui/react';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import React, { useMemo } from 'react';
+import { dateValueToFilterDate, toCalendarDate } from './dateValueUtils';
 
-export interface RangeCalendarProps extends CalendarRenderProps {
-  firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-  selected?: Date[];
-}
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
-export interface GetStyleProps {
-  today: boolean;
-  selected: boolean;
-  unavailable: boolean;
-  isInRange: boolean;
-}
+const DEFAULT_TZ = 'Asia/Hong_Kong';
 
 export interface RangeDatePickerLabels {
   monthNamesFull: string[];
   weekdayNamesShort: string[];
   backButtonLabel?: string;
   forwardButtonLabel?: string;
-}
-
-const RangeDatePickerContext = createContext<{
-  labels: RangeDatePickerLabels;
-}>({
-  labels: {
-    monthNamesFull: [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ],
-    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    backButtonLabel: 'Back',
-    forwardButtonLabel: 'Next',
-  },
-});
-
-function Calendar({
-  calendars,
-  getBackProps,
-  getForwardProps,
-  getDateProps,
-  selected = [],
-  firstDayOfWeek = 0,
-}: RangeCalendarProps) {
-  const { labels } = useContext(RangeDatePickerContext);
-  const {
-    monthNamesFull,
-    weekdayNamesShort,
-    backButtonLabel,
-    forwardButtonLabel,
-  } = labels;
-  const [hoveredDate, setHoveredDate] = useState<Date>();
-  const onMouseLeave = () => {
-    setHoveredDate(undefined);
-  };
-
-  const onMouseEnter = (date: Date) => {
-    setHoveredDate(date);
-  };
-  const isInRange = (date: Date): boolean => {
-    if (selected.length) {
-      const firstSelected = selected[0].getTime();
-      if (selected.length === 2) {
-        const secondSelected = selected[1].getTime();
-        return (
-          firstSelected < date.getTime() && secondSelected > date.getTime()
-        );
-      } else {
-        return !!(
-          hoveredDate &&
-          ((firstSelected < date.getTime() &&
-            hoveredDate.getTime() >= date.getTime()) ||
-            (date.getTime() < firstSelected &&
-              date.getTime() >= hoveredDate.getTime()))
-        );
-      }
-    }
-    return false;
-  };
-
-  if (calendars.length) {
-    return (
-      <Grid onMouseLeave={onMouseLeave}>
-        <Grid templateColumns={'repeat(4, auto)'} justifyContent={'center'}>
-          <Button
-            variant={'ghost'}
-            {...getBackProps({
-              calendars,
-              offset: 12,
-            })}
-          >
-            {'<<'}
-          </Button>
-          <Button variant={'ghost'} {...getBackProps({ calendars })}>
-            {backButtonLabel}
-          </Button>
-          <Button variant={'ghost'} {...getForwardProps({ calendars })}>
-            {forwardButtonLabel}
-          </Button>
-          <Button
-            variant={'ghost'}
-            {...getForwardProps({
-              calendars,
-              offset: 12,
-            })}
-          >
-            {'>>'}
-          </Button>
-        </Grid>
-        <Grid
-          templateColumns={'repeat(2, auto)'}
-          justifyContent={'center'}
-          gap={4}
-        >
-          {calendars.map((calendar: CalendarType) => (
-            // month and year
-            <Grid
-              key={`${calendar.month}${calendar.year}`}
-              gap={4}
-              alignContent="start"
-            >
-              <Grid justifyContent={'center'}>
-                {monthNamesFull[calendar.month]} {calendar.year}
-              </Grid>
-              <Grid
-                templateColumns={'repeat(7, auto)'}
-                justifyContent={'center'}
-              >
-                {[0, 1, 2, 3, 4, 5, 6].map((weekdayNum) => {
-                  const weekday = (weekdayNum + firstDayOfWeek) % 7;
-                  return (
-                    <Box
-                      key={`${calendar.month}${calendar.year}${weekday}`}
-                      minWidth={'48px'}
-                      textAlign={'center'}
-                    >
-                      {weekdayNamesShort[weekday]}
-                    </Box>
-                  );
-                })}
-              </Grid>
-              <Grid
-                templateColumns={'repeat(7, auto)'}
-                justifyContent={'center'}
-              >
-                {calendar.weeks.map(
-                  (week: Array<CalendarDate | null>, windex: number) =>
-                    week.map((dateObj: CalendarDate | null, index: number) => {
-                      const key = `${calendar.month}${calendar.year}${windex}${index}`;
-
-                      if (!dateObj) {
-                        return <Box key={key} />;
-                      }
-                      const {
-                        date,
-                        selected,
-                        selectable,
-                        today,
-                        isCurrentMonth,
-                      } = dateObj;
-                      const getStyle = ({
-                        selected,
-                        unavailable,
-                        today,
-                        isInRange,
-                      }: GetStyleProps): {
-                        colorPalette?: 'gray' | 'blue' | 'green' | 'cyan';
-                        variant: 'solid' | 'ghost' | 'subtle';
-                      } => {
-                        if (unavailable) {
-                          return {
-                            colorPalette: 'gray',
-                            variant: 'solid',
-                          };
-                        }
-                        if (selected) {
-                          return {
-                            colorPalette: 'blue',
-                            variant: 'solid',
-                          };
-                        }
-                        if (isInRange) {
-                          return {
-                            colorPalette: 'blue',
-                            variant: 'subtle',
-                          };
-                        }
-                        if (today) {
-                          return {
-                            colorPalette: 'green',
-                            variant: 'solid',
-                          };
-                        }
-                        return { variant: 'ghost' };
-                      };
-                      return (
-                        <Button
-                          key={key}
-                          {...getDateProps({
-                            dateObj,
-                            onMouseEnter: () => {
-                              onMouseEnter(date);
-                            },
-                          })}
-                          {...getStyle({
-                            selected,
-                            unavailable: !selectable,
-                            today,
-                            isInRange: isInRange(date),
-                          })}
-                          opacity={isCurrentMonth ? 1 : 0.4}
-                        >
-                          {selectable ? date.getDate() : 'X'}
-                        </Button>
-                      );
-                    })
-                )}
-              </Grid>
-            </Grid>
-          ))}
-        </Grid>
-      </Grid>
-    );
-  }
-  return null;
 }
 
 export interface RangeDatePickerProps {
@@ -249,143 +29,107 @@ export interface RangeDatePickerProps {
   }) => void;
   selected?: Date[];
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  /** @deprecated No-op; kept for story compatibility */
   showOutsideDays?: boolean;
+  /** @deprecated No-op; kept for story compatibility */
   date?: Date;
   minDate?: Date;
   maxDate?: Date;
   monthsToDisplay?: number;
   labels?: RangeDatePickerLabels;
-  /**
-   * Whether to render the calendar in a popover with a trigger button.
-   * @default true
-   */
   withPopover?: boolean;
-  /**
-   * Controlled open state for the popover.
-   */
   open?: boolean;
-  /**
-   * Callback when the popover open state changes.
-   */
   onOpenChange?: (details: { open: boolean }) => void;
-  /**
-   * The trigger button element. If not provided, a default button will be rendered.
-   */
   trigger?: React.ReactNode;
-  /**
-   * Format string for displaying the selected date range in the trigger button.
-   * @default "YYYY-MM-DD"
-   */
   displayFormat?: string;
-  /**
-   * Placeholder text for the trigger button when no dates are selected.
-   */
   placeholder?: string;
-  /**
-   * Whether to close the popover when clicking outside.
-   * @default true
-   */
   closeOnInteractOutside?: boolean;
-  /**
-   * Whether to portal the popover content.
-   * @default true
-   */
   portalled?: boolean;
-  render?: (calendarData: CalendarRenderProps) => React.ReactNode;
+  /** IANA timezone for wall dates */
+  timezone?: string;
 }
 
 const RangeDatePicker: React.FC<RangeDatePickerProps> = ({
-  labels = {
-    monthNamesFull: [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ],
-    weekdayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    backButtonLabel: 'Back',
-    forwardButtonLabel: 'Next',
-  },
   selected = [],
   onDateSelected,
-  firstDayOfWeek,
-  showOutsideDays,
-  date,
+  firstDayOfWeek = 0,
   minDate,
   maxDate,
-  monthsToDisplay,
-  render,
+  monthsToDisplay = 2,
+  timezone: tz = DEFAULT_TZ,
 }) => {
-  const handleDateSelected = (obj: { date: Date; selected: Date | Date[] }) => {
-    if (onDateSelected) {
-      const dateObj = obj.date;
-      const currentSelected = Array.isArray(obj.selected)
-        ? obj.selected
-        : [obj.selected];
-
-      // Range selection logic: if one date selected, add second; if two selected, replace with new date
-      let newSelected: Date[];
-      if (currentSelected.length === 0) {
-        newSelected = [dateObj];
-      } else if (currentSelected.length === 1) {
-        const firstDate = currentSelected[0];
-        if (dateObj < firstDate) {
-          newSelected = [dateObj, firstDate];
-        } else {
-          newSelected = [firstDate, dateObj];
-        }
-      } else {
-        newSelected = [dateObj];
-      }
-
-      // Check if date is selectable
-      const selectable = !minDate || dateObj >= minDate;
-      if (maxDate) {
-        const isSelectable = dateObj <= maxDate;
-        if (!isSelectable) return;
-      }
-
-      onDateSelected({
-        selected: newSelected,
-        selectable,
-        date: dateObj,
-      });
+  const value = useMemo<DateValue[]>(() => {
+    if (selected.length >= 2) {
+      return [toCalendarDate(selected[0], tz), toCalendarDate(selected[1], tz)];
     }
-  };
+    if (selected.length === 1) {
+      return [toCalendarDate(selected[0], tz)];
+    }
+    return [];
+  }, [selected, tz]);
 
-  const calendarData = useCalendar({
-    onDateSelected: handleDateSelected,
-    selected,
-    firstDayOfWeek,
-    showOutsideDays,
-    date,
-    minDate,
-    maxDate,
-    monthsToDisplay,
-  });
+  const minV = minDate ? toCalendarDate(minDate, tz) : undefined;
+  const maxV = maxDate ? toCalendarDate(maxDate, tz) : undefined;
+  const n = Math.min(12, Math.max(1, monthsToDisplay));
 
   return (
-    <RangeDatePickerContext.Provider value={{ labels }}>
-      {render ? (
-        render(calendarData)
-      ) : (
-        <Calendar
-          {...{
-            ...calendarData,
-            firstDayOfWeek,
-            selected: selected as Date[],
-          }}
-        />
-      )}
-    </RangeDatePickerContext.Provider>
+    <ChakraDatePicker.Root
+      inline
+      selectionMode="range"
+      value={value}
+      onValueChange={(e) => {
+        const vals = e.value;
+        if (vals.length >= 2) {
+          const d0 = dateValueToFilterDate(vals[0], tz);
+          const d1 = dateValueToFilterDate(vals[1], tz);
+          const sorted = d0 <= d1 ? [d0, d1] : [d1, d0];
+          onDateSelected?.({
+            selected: sorted,
+            selectable: true,
+            date: sorted[1],
+          });
+        } else if (vals.length === 1) {
+          const d0 = dateValueToFilterDate(vals[0], tz);
+          onDateSelected?.({
+            selected: [d0],
+            selectable: true,
+            date: d0,
+          });
+        }
+      }}
+      min={minV}
+      max={maxV}
+      timeZone={tz}
+      numOfMonths={n}
+      startOfWeek={firstDayOfWeek}
+      width="fit-content"
+      borderWidth="1px"
+      borderRadius="l3"
+      p="2"
+    >
+      <ChakraDatePicker.Content>
+        <ChakraDatePicker.View view="day">
+          <ChakraDatePicker.Header />
+          {n > 1 ? (
+            <Flex gap="4" flexWrap="wrap" justify="center">
+              {Array.from({ length: n }, (_, i) => (
+                <ChakraDatePicker.DayTable key={i} offset={i} />
+              ))}
+            </Flex>
+          ) : (
+            <ChakraDatePicker.DayTable />
+          )}
+        </ChakraDatePicker.View>
+        <ChakraDatePicker.View view="month">
+          <ChakraDatePicker.Header />
+          <ChakraDatePicker.MonthTable />
+        </ChakraDatePicker.View>
+        <ChakraDatePicker.View view="year">
+          <ChakraDatePicker.Header />
+          <ChakraDatePicker.YearTable />
+        </ChakraDatePicker.View>
+      </ChakraDatePicker.Content>
+    </ChakraDatePicker.Root>
   );
 };
 

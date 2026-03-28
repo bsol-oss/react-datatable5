@@ -1,5 +1,4 @@
 import RangeDatePicker from '@/components/DatePicker/RangeDatePicker';
-import { getRangeDates } from '@/components/DatePicker/getRangeDates';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Popover, Portal } from '@chakra-ui/react';
@@ -42,7 +41,6 @@ export const DateRangePicker = ({
   const [open, setOpen] = useState(false);
   const selectedDateRange = watch(colLabel) as string[] | undefined;
 
-  // Convert string[] to Date[] for the picker
   const selectedDates: Date[] = (selectedDateRange ?? [])
     .map((dateStr) => {
       if (!dateStr) return null;
@@ -51,7 +49,6 @@ export const DateRangePicker = ({
     })
     .filter((date): date is Date => date !== null);
 
-  // Format display string
   const getDisplayText = () => {
     if (!selectedDateRange || selectedDateRange.length === 0) {
       return '';
@@ -73,7 +70,6 @@ export const DateRangePicker = ({
   useEffect(() => {
     try {
       if (selectedDateRange && selectedDateRange.length > 0) {
-        // Format dates according to dateFormat from schema
         const formatted = selectedDateRange
           .map((dateStr) => {
             if (!dateStr) return null;
@@ -82,8 +78,6 @@ export const DateRangePicker = ({
           })
           .filter((date): date is string => date !== null);
 
-        // Update the form value only if different to avoid loops
-        // Compare arrays element by element
         const needsUpdate =
           formatted.length !== selectedDateRange.length ||
           formatted.some((val, idx) => val !== selectedDateRange[idx]);
@@ -136,25 +130,18 @@ export const DateRangePicker = ({
               <Popover.Body>
                 <RangeDatePicker
                   selected={selectedDates}
-                  onDateSelected={({ selectable, date }) => {
-                    const newDates =
-                      getRangeDates({
-                        selectable,
-                        date,
-                        selectedDates,
-                      }) ?? [];
-
-                    // Convert Date[] to string[]
-                    const formattedDates = newDates
+                  timezone={timezone}
+                  onDateSelected={({ selected }) => {
+                    const formattedDates = selected
                       .map((dateObj) =>
                         dayjs(dateObj).tz(timezone).format(dateFormat)
                       )
-                      .filter((dateStr) => dateStr);
-
+                      .filter(Boolean);
                     setValue(colLabel, formattedDates, {
                       shouldValidate: true,
                       shouldDirty: true,
                     });
+                    if (formattedDates.length >= 2) setOpen(false);
                   }}
                   monthsToDisplay={2}
                   withPopover={false}
@@ -169,25 +156,18 @@ export const DateRangePicker = ({
                 <Popover.Body>
                   <RangeDatePicker
                     selected={selectedDates}
-                    onDateSelected={({ selectable, date }) => {
-                      const newDates =
-                        getRangeDates({
-                          selectable,
-                          date,
-                          selectedDates,
-                        }) ?? [];
-
-                      // Convert Date[] to string[]
-                      const formattedDates = newDates
+                    timezone={timezone}
+                    onDateSelected={({ selected }) => {
+                      const formattedDates = selected
                         .map((dateObj) =>
                           dayjs(dateObj).tz(timezone).format(dateFormat)
                         )
-                        .filter((dateStr) => dateStr);
-
+                        .filter(Boolean);
                       setValue(colLabel, formattedDates, {
                         shouldValidate: true,
                         shouldDirty: true,
                       });
+                      if (formattedDates.length >= 2) setOpen(false);
                     }}
                     monthsToDisplay={2}
                     withPopover={false}

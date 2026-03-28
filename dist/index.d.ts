@@ -630,19 +630,88 @@ interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'additionalItems
     contains?: CustomJSONSchema7;
 }
 declare const defaultRenderDisplay: (item: unknown) => ReactNode;
+/**
+ * Expected shape of a media file returned by `onFetchFiles` and used by
+ * the Media Library Browser and File Picker components.
+ *
+ * @example
+ * ```ts
+ * {
+ *   id: 'file-1',
+ *   name: 'photo.jpg',
+ *   url: 'https://cdn.example.com/photo.jpg',
+ *   size: 102400,
+ *   comment: 'Profile photo',
+ *   type: 'image/jpeg',
+ * }
+ * ```
+ */
 interface FilePickerMediaFile {
+    /** Unique identifier for the file (required) */
     id: string;
+    /** Display name of the file (required) */
     name: string;
+    /** URL for image preview; required for thumbnails in media library */
     url?: string;
+    /** File size in bytes (number) or human-readable string (e.g. "1.2 MB") */
     size?: string | number;
+    /** Optional description or metadata */
     comment?: string;
+    /** MIME type (e.g. "image/jpeg", "application/pdf") */
     type?: string;
 }
+/**
+ * JSON Schema definition for FilePickerMediaFile.
+ * Use this to document or validate the expected structure in your API/schema.
+ */
+declare const FilePickerMediaFileSchema: {
+    readonly type: "object";
+    readonly required: readonly ["id", "name"];
+    readonly properties: {
+        readonly id: {
+            readonly type: "string";
+            readonly description: "Unique identifier for the file";
+        };
+        readonly name: {
+            readonly type: "string";
+            readonly description: "Display name of the file";
+        };
+        readonly url: {
+            readonly type: "string";
+            readonly format: "uri";
+            readonly description: "URL for image preview; required for thumbnails in media library";
+        };
+        readonly size: {
+            readonly oneOf: readonly [{
+                readonly type: "number";
+            }, {
+                readonly type: "string";
+            }];
+            readonly description: "File size in bytes (number) or human-readable string";
+        };
+        readonly comment: {
+            readonly type: "string";
+            readonly description: "Optional description or metadata";
+        };
+        readonly type: {
+            readonly type: "string";
+            readonly description: "MIME type (e.g. \"image/jpeg\", \"application/pdf\")";
+        };
+    };
+};
 interface FilePickerProps {
+    /**
+     * Fetches files from your media library/API. Must return FilePickerMediaFile[].
+     * The search string can be used to filter results.
+     */
     onFetchFiles?: (search: string) => Promise<FilePickerMediaFile[]>;
+    /** When true, adds a "Browse Library" button to the file picker (file-picker variant only) */
     enableMediaLibrary?: boolean;
+    /** When true, only shows image files (jpg, jpeg, png, gif, bmp, webp, svg) */
     filterImageOnly?: boolean;
+    /** When true, shows an upload tab in the media library dialog */
     enableUpload?: boolean;
+    /** Upload handler; must return the new file's ID string */
     onUploadFile?: (file: File) => Promise<string>;
 }
 interface CustomQueryFnResponse<TRecord = unknown> {
@@ -803,29 +872,6 @@ interface GetVariantProps {
     selected: boolean;
     selectable: boolean;
 }
-interface DatePickerProps {
-    onDateSelected?: (obj: {
-        date: Date;
-        selected: Date | Date[];
-    }) => void;
-    selected: Date | Date[];
-    firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-    showOutsideDays?: boolean;
-    date?: Date;
-    minDate?: Date;
-    maxDate?: Date;
-    monthsToDisplay?: number;
-    labels?: {
-        monthNamesShort: string[];
-        weekdayNamesShort: string[];
-        backButtonLabel?: string;
-        forwardButtonLabel?: string;
-        todayLabel?: string;
-        yesterdayLabel?: string;
-        tomorrowLabel?: string;
-    };
-    render?: (calendarData: CalendarRenderProps) => React__default.ReactNode;
-}
 interface DatePickerLabels {
     monthNamesShort: string[];
     weekdayNamesShort: string[];
@@ -835,9 +881,27 @@ interface DatePickerLabels {
     yesterdayLabel?: string;
     tomorrowLabel?: string;
 }
-declare const DatePickerContext: React__default.Context<{
+interface DatePickerProps {
+    onDateSelected?: (obj: {
+        date: Date;
+        selected: Date | Date[];
+    }) => void;
+    selected: Date | Date[];
+    firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    /** @deprecated No-op; kept for story compatibility */
+    showOutsideDays?: boolean;
+    /** @deprecated No-op; kept for story compatibility */
+    date?: Date;
+    minDate?: Date;
+    maxDate?: Date;
+    monthsToDisplay?: number;
+    labels?: DatePickerLabels;
+}
+
+declare const DatePickerContext: React$1.Context<{
     labels: DatePickerLabels;
 }>;
+
 interface DatePickerInputProps {
     value?: string | Date;
     onChange?: (date?: string) => void;
@@ -855,7 +919,7 @@ interface DatePickerInputProps {
     readOnly?: boolean;
     showHelperButtons?: boolean;
 }
-declare function DatePickerInput({ value, onChange, placeholder, dateFormat, displayFormat, labels, timezone, minDate, maxDate, firstDayOfWeek, showOutsideDays, monthsToDisplay, insideDialog, readOnly, showHelperButtons, }: DatePickerInputProps): react_jsx_runtime.JSX.Element;
+declare function DatePickerInput({ value, onChange, placeholder, dateFormat, displayFormat, timezone, minDate, maxDate, insideDialog, readOnly, }: DatePickerInputProps): react_jsx_runtime.JSX.Element;
 
 interface GetMultiDatesProps {
     selected: boolean;
@@ -872,16 +936,6 @@ interface GetRangeDatesProps {
 }
 declare const getRangeDates: ({ selectable, date, selectedDates, }: GetRangeDatesProps) => Date[] | undefined;
 
-interface RangeCalendarProps extends CalendarRenderProps {
-    firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-    selected?: Date[];
-}
-interface GetStyleProps {
-    today: boolean;
-    selected: boolean;
-    unavailable: boolean;
-    isInRange: boolean;
-}
 interface RangeDatePickerLabels {
     monthNamesFull: string[];
     weekdayNamesShort: string[];
@@ -896,51 +950,26 @@ interface RangeDatePickerProps {
     }) => void;
     selected?: Date[];
     firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    /** @deprecated No-op; kept for story compatibility */
     showOutsideDays?: boolean;
+    /** @deprecated No-op; kept for story compatibility */
     date?: Date;
     minDate?: Date;
     maxDate?: Date;
     monthsToDisplay?: number;
     labels?: RangeDatePickerLabels;
-    /**
-     * Whether to render the calendar in a popover with a trigger button.
-     * @default true
-     */
     withPopover?: boolean;
-    /**
-     * Controlled open state for the popover.
-     */
     open?: boolean;
-    /**
-     * Callback when the popover open state changes.
-     */
     onOpenChange?: (details: {
         open: boolean;
     }) => void;
-    /**
-     * The trigger button element. If not provided, a default button will be rendered.
-     */
     trigger?: React__default.ReactNode;
-    /**
-     * Format string for displaying the selected date range in the trigger button.
-     * @default "YYYY-MM-DD"
-     */
     displayFormat?: string;
-    /**
-     * Placeholder text for the trigger button when no dates are selected.
-     */
     placeholder?: string;
-    /**
-     * Whether to close the popover when clicking outside.
-     * @default true
-     */
     closeOnInteractOutside?: boolean;
-    /**
-     * Whether to portal the popover content.
-     * @default true
-     */
     portalled?: boolean;
-    render?: (calendarData: CalendarRenderProps) => React__default.ReactNode;
+    /** IANA timezone for wall dates */
+    timezone?: string;
 }
 
 type TimeInput = Date | string | number;
@@ -1469,4 +1498,4 @@ declare module '@tanstack/react-table' {
     }
 }
 
-export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, type CustomQueryFn, type CustomQueryFnParams, type CustomQueryFnResponse, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerContext, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type FilePickerLabels, type FilePickerMediaFile, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetStyleProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeCalendarProps, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, type TableFilterTagsProps, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type TimePickerLabels, TimeRangeZoom, type TimeRangeZoomLabels, type TimeRangeZoomProps, TimeViewportBlock, type TimeViewportBlockItem, type TimeViewportBlockProps, type TimeViewportBlockRenderArgs, TimeViewportBlocks, type TimeViewportBlocksProps, TimeViewportGrid, type TimeViewportGridProps, TimeViewportHeader, type TimeViewportHeaderProps, type TimeViewportHeaderTick, TimeViewportMarkerLine, type TimeViewportMarkerLineProps, TimeViewportRoot, type TimeViewportRootProps, type TimeViewportTrackRenderArgs, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type UseTimeRangeZoomResult, type UseTimeViewportBlockGeometryResult, type UseTimeViewportDerivedResult, type UseTimeViewportTicksResult, type ValidationErrorType, ViewDialog, type ViewableTimeRange, defaultRenderDisplay, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm, useTimeRangeZoom, useTimeViewport, useTimeViewportBlockGeometry, useTimeViewportHeader, useTimeViewportTicks };
+export { CalendarDisplay, type CalendarDisplayProps, type CalendarEvent, type CalendarProps, CardHeader, type CardHeaderProps, type CustomJSONSchema7, type CustomJSONSchema7Definition, type CustomQueryFn, type CustomQueryFnParams, type CustomQueryFnResponse, DataDisplay, type DataDisplayProps, type DataResponse, DataTable, type DataTableDefaultState, type DataTableProps, DataTableServer, type DataTableServerProps, DatePickerContext, DatePickerInput, type DatePickerInputProps, type DatePickerLabels, type DatePickerProps, type DateTimePickerLabels, DefaultCardTitle, DefaultForm, type DefaultFormProps, DefaultTable, type DefaultTableProps, DefaultTableServer, type DefaultTableServerProps, DensityToggleButton, type DensityToggleButtonProps, type EditFilterButtonProps, EditSortingButton, type EditSortingButtonProps, type EditViewButtonProps, EmptyState, type EmptyStateProps, type EnumPickerLabels, ErrorAlert, type ErrorAlertProps, type FilePickerLabels, type FilePickerMediaFile, FilePickerMediaFileSchema, type FilePickerProps, FilterDialog, FormBody, type FormButtonLabels, FormRoot, type FormRootProps, type GetDateColorProps, type GetMultiDatesProps, type GetRangeDatesProps, type GetVariantProps, GlobalFilter, type IdPickerLabels, type LoadInitialValuesParams, type LoadInitialValuesResult, MediaLibraryBrowser, type MediaLibraryBrowserProps, PageSizeControl, type PageSizeControlProps, Pagination, type QueryParams, type RangeDatePickerLabels, type RangeDatePickerProps, RecordDisplay, type RecordDisplayProps, ReloadButton, type ReloadButtonProps, ResetFilteringButton, ResetSelectionButton, ResetSortingButton, type Result, RowCountText, SelectAllRowsToggle, type SelectAllRowsToggleProps, Table, TableBody, type TableBodyProps, TableCardContainer, type TableCardContainerProps, TableCards, type TableCardsProps, TableComponent, TableControls, type TableControlsProps, TableDataDisplay, type TableDataDisplayProps, TableFilter, TableFilterTags, type TableFilterTagsProps, TableFooter, type TableFooterProps, TableHeader, type TableHeaderProps, type TableHeaderTexts, TableLoadingComponent, type TableLoadingComponentProps, type TableProps, type TableRendererProps, type TableRowSelectorProps, TableSelector, TableSorter, TableViewer, TextCell, type TextCellProps, type TimePickerLabels, TimeRangeZoom, type TimeRangeZoomLabels, type TimeRangeZoomProps, TimeViewportBlock, type TimeViewportBlockItem, type TimeViewportBlockProps, type TimeViewportBlockRenderArgs, TimeViewportBlocks, type TimeViewportBlocksProps, TimeViewportGrid, type TimeViewportGridProps, TimeViewportHeader, type TimeViewportHeaderProps, type TimeViewportHeaderTick, TimeViewportMarkerLine, type TimeViewportMarkerLineProps, TimeViewportRoot, type TimeViewportRootProps, type TimeViewportTrackRenderArgs, type UseDataTableProps, type UseDataTableReturn, type UseDataTableServerProps, type UseDataTableServerReturn, type UseFormProps, type UseTimeRangeZoomResult, type UseTimeViewportBlockGeometryResult, type UseTimeViewportDerivedResult, type UseTimeViewportTicksResult, type ValidationErrorType, ViewDialog, type ViewableTimeRange, defaultRenderDisplay, getMultiDates, getRangeDates, useDataTable, useDataTableContext, useDataTableServer, useForm, useTimeRangeZoom, useTimeViewport, useTimeViewportBlockGeometry, useTimeViewportHeader, useTimeViewportTicks };

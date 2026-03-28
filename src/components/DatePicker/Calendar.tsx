@@ -1,11 +1,11 @@
 import { Button, Grid, Text } from '@chakra-ui/react';
 import { useContext } from 'react';
-import {
+import { DatePickerContext } from './datePickerContext';
+import type {
   CalendarProps,
-  DatePickerContext,
   GetDateColorProps,
   GetVariantProps,
-} from './DatePicker';
+} from './datePickerTypes';
 
 export const Calendar = ({
   calendars,

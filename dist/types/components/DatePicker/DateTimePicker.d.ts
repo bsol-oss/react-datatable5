@@ -10,6 +10,7 @@ interface DateTimePickerProps {
     startTime?: string;
     minDate?: Date;
     maxDate?: Date;
+    /** When true, calendar portal attaches to document (recommended outside dialogs). */
     portalled?: boolean;
     defaultDate?: string;
     defaultTime?: {
@@ -29,5 +30,5 @@ interface DateTimePickerProps {
     timezoneOffset?: string;
     onTimezoneOffsetChange?: (offset: string) => void;
 }
-export declare function DateTimePicker({ value, onChange, format, showSeconds, labels, timePickerLabels, timezone: tz, startTime, minDate, maxDate, portalled, defaultDate, defaultTime, quickActionLabels, showTimezoneSelector, timezoneOffset: controlledTimezoneOffset, onTimezoneOffsetChange, }: DateTimePickerProps): import("react/jsx-runtime").JSX.Element;
+export declare function DateTimePicker({ value, onChange, format, showSeconds, timezone: tz, minDate, maxDate, portalled, }: DateTimePickerProps): import("react/jsx-runtime").JSX.Element;
 export {};

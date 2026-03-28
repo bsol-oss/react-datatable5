@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Popover, Portal } from '@chakra-ui/react';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { IoMdClock } from 'react-icons/io';
 import { useSchemaContext } from '../../useSchemaContext';
@@ -73,23 +73,26 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     : '';
 
   // Parse the initial time parts from the  time string (HH:mm:ssZ)
-  const parseTime = (time: string | undefined) => {
-    if (!time) return { hour: 12, minute: 0, meridiem: 'am' as 'am' | 'pm' };
+  const parseTime = useCallback(
+    (time: string | undefined) => {
+      if (!time) return { hour: 12, minute: 0, meridiem: 'am' as 'am' | 'pm' };
 
-    const parsed = dayjs(`1970-01-01T${time}`).tz(timezone);
-    if (!parsed.isValid()) {
-      return { hour: 12, minute: 0, meridiem: 'am' as 'am' | 'pm' };
-    }
+      const parsed = dayjs(`1970-01-01T${time}`).tz(timezone);
+      if (!parsed.isValid()) {
+        return { hour: 12, minute: 0, meridiem: 'am' as 'am' | 'pm' };
+      }
 
-    let hour = parsed.hour();
-    const minute = parsed.minute();
-    const meridiem = hour >= 12 ? 'pm' : 'am';
+      let hour = parsed.hour();
+      const minute = parsed.minute();
+      const meridiem = hour >= 12 ? 'pm' : 'am';
 
-    if (hour === 0) hour = 12;
-    else if (hour > 12) hour -= 12;
+      if (hour === 0) hour = 12;
+      else if (hour > 12) hour -= 12;
 
-    return { hour, minute, meridiem };
-  };
+      return { hour, minute, meridiem };
+    },
+    [timezone]
+  );
 
   const initialTime = parseTime(value);
 
@@ -104,7 +107,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
     setHour(hour);
     setMinute(minute);
     setMeridiem(meridiem as 'am' | 'pm');
-  }, [value]);
+  }, [value, parseTime]);
 
   const getTimeString = (
     hour: number | null,
@@ -168,7 +171,7 @@ export const TimePicker = ({ column, schema, prefix }: DatePickerProps) => {
             justifyContent={'start'}
           >
             <IoMdClock />
-            {!!value ? `${displayedTime}` : ''}
+            {value ? displayedTime : ''}
           </Button>
         </Popover.Trigger>
         {insideDialog ? (

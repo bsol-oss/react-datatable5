@@ -144,19 +144,88 @@ export interface CustomJSONSchema7 extends Omit<JSONSchema7, 'items' | 'addition
     contains?: CustomJSONSchema7;
 }
 export declare const defaultRenderDisplay: (item: unknown) => ReactNode;
+/**
+ * Expected shape of a media file returned by `onFetchFiles` and used by
+ * the Media Library Browser and File Picker components.
+ *
+ * @example
+ * ```ts
+ * {
+ *   id: 'file-1',
+ *   name: 'photo.jpg',
+ *   url: 'https://cdn.example.com/photo.jpg',
+ *   size: 102400,
+ *   comment: 'Profile photo',
+ *   type: 'image/jpeg',
+ * }
+ * ```
+ */
 export interface FilePickerMediaFile {
+    /** Unique identifier for the file (required) */
     id: string;
+    /** Display name of the file (required) */
     name: string;
+    /** URL for image preview; required for thumbnails in media library */
     url?: string;
+    /** File size in bytes (number) or human-readable string (e.g. "1.2 MB") */
     size?: string | number;
+    /** Optional description or metadata */
     comment?: string;
+    /** MIME type (e.g. "image/jpeg", "application/pdf") */
     type?: string;
 }
+/**
+ * JSON Schema definition for FilePickerMediaFile.
+ * Use this to document or validate the expected structure in your API/schema.
+ */
+export declare const FilePickerMediaFileSchema: {
+    readonly type: "object";
+    readonly required: readonly ["id", "name"];
+    readonly properties: {
+        readonly id: {
+            readonly type: "string";
+            readonly description: "Unique identifier for the file";
+        };
+        readonly name: {
+            readonly type: "string";
+            readonly description: "Display name of the file";
+        };
+        readonly url: {
+            readonly type: "string";
+            readonly format: "uri";
+            readonly description: "URL for image preview; required for thumbnails in media library";
+        };
+        readonly size: {
+            readonly oneOf: readonly [{
+                readonly type: "number";
+            }, {
+                readonly type: "string";
+            }];
+            readonly description: "File size in bytes (number) or human-readable string";
+        };
+        readonly comment: {
+            readonly type: "string";
+            readonly description: "Optional description or metadata";
+        };
+        readonly type: {
+            readonly type: "string";
+            readonly description: "MIME type (e.g. \"image/jpeg\", \"application/pdf\")";
+        };
+    };
+};
 export interface FilePickerProps {
+    /**
+     * Fetches files from your media library/API. Must return FilePickerMediaFile[].
+     * The search string can be used to filter results.
+     */
     onFetchFiles?: (search: string) => Promise<FilePickerMediaFile[]>;
+    /** When true, adds a "Browse Library" button to the file picker (file-picker variant only) */
     enableMediaLibrary?: boolean;
+    /** When true, only shows image files (jpg, jpeg, png, gif, bmp, webp, svg) */
     filterImageOnly?: boolean;
+    /** When true, shows an upload tab in the media library dialog */
     enableUpload?: boolean;
+    /** Upload handler; must return the new file's ID string */
     onUploadFile?: (file: File) => Promise<string>;
 }
 export interface CustomQueryFnResponse<TRecord = unknown> {

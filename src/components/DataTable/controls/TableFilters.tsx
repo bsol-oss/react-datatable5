@@ -2,7 +2,6 @@ import { Radio, RadioGroup } from '@/components/ui/radio';
 import { Flex, Grid, Input, Text } from '@chakra-ui/react';
 import { Column } from '@tanstack/react-table';
 import RangeDatePicker from '../../DatePicker/RangeDatePicker';
-import { getRangeDates } from '../../DatePicker/getRangeDates';
 import RangeFilter from '../../Filter/RangeFilter';
 import { TagFilter } from '../../Filter/TagFilter';
 import { useDataTableContext } from '../context/useDataTableContext';
@@ -133,16 +132,8 @@ const Filter = <TData,>({ column }: { column: Column<TData, unknown> }) => {
         <Text>{displayName}</Text>
         <RangeDatePicker
           selected={filterValue}
-          onDateSelected={({ selectable, date }) => {
-            const newDates =
-              getRangeDates({
-                selectable,
-                date,
-                selectedDates: filterValue,
-              }) ?? [];
-            column.setFilterValue(() => {
-              return newDates;
-            });
+          onDateSelected={({ selected }) => {
+            column.setFilterValue(() => selected);
           }}
         />
       </Flex>
