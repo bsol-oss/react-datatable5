@@ -186,7 +186,8 @@ function stringToCalendarDateValue(str, tz) {
 /** CalendarDate at midnight in tz as JS Date (for filters using Date[]) */
 function dateValueToFilterDate(v, tz) {
     const cal = v;
-    return dayjs.tz(`${cal.year}-${String(cal.month).padStart(2, '0')}-${String(cal.day).padStart(2, '0')}`, tz)
+    return dayjs
+        .tz(`${cal.year}-${String(cal.month).padStart(2, '0')}-${String(cal.day).padStart(2, '0')}`, tz)
         .startOf('day')
         .toDate();
 }
@@ -197,10 +198,7 @@ const DEFAULT_TZ$1 = 'Asia/Hong_Kong';
 const RangeDatePicker = ({ selected = [], onDateSelected, firstDayOfWeek = 0, minDate, maxDate, monthsToDisplay = 2, timezone: tz = DEFAULT_TZ$1, }) => {
     const value = useMemo(() => {
         if (selected.length >= 2) {
-            return [
-                toCalendarDate(selected[0], tz),
-                toCalendarDate(selected[1], tz),
-            ];
+            return [toCalendarDate(selected[0], tz), toCalendarDate(selected[1], tz)];
         }
         if (selected.length === 1) {
             return [toCalendarDate(selected[0], tz)];
@@ -4784,31 +4782,40 @@ const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, en
     const loadingText = labels?.loading ?? 'Loading...';
     const errorText = labels?.loadingFailed ?? 'Failed to load files';
     const emptyText = labels?.noFilesFound ?? 'No files found';
-    return (jsxs(VStack, { align: "stretch", gap: 4, children: [jsx(InputGroup, { startElement: jsx(Icon, { as: LuSearch, color: "fg.muted" }), children: jsx(Input, { placeholder: searchPlaceholder, value: search, onChange: (e) => setSearch(e.target.value), bg: "bg.panel", borderColor: "border.default" }) }), isLoading && (jsxs(HStack, { gap: 2, py: 6, justify: "center", children: [jsx(Spinner, { size: "sm", colorPalette: "blue" }), jsx(Text, { fontSize: "sm", color: "fg.muted", children: loadingText })] })), isError && (jsx(Box, { py: 4, px: 3, borderRadius: "md", bg: { base: 'red.50', _dark: 'red.900/20' }, borderWidth: "1px", borderColor: { base: 'red.200', _dark: 'red.800' }, children: jsx(Text, { fontSize: "sm", color: { base: 'red.600', _dark: 'red.300' }, children: errorText }) })), !isLoading && !isError && files.length === 0 && (jsx(Box, { py: 6, textAlign: "center", children: jsx(Text, { fontSize: "sm", color: "fg.muted", children: emptyText }) })), !isLoading && !isError && files.length > 0 && (jsx(SimpleGrid, { columns: { base: 2, sm: 3, md: 4 }, gap: 3, children: files.map((file) => {
-                    const isImage = IMAGE_EXT.test(file.name);
-                    const isSelected = selectedIds.has(file.id);
-                    const fileSize = typeof file.size === 'number'
-                        ? formatBytes(file.size)
-                        : file.size ?? null;
-                    if (multiple) {
-                        return (jsxs(CheckboxCard, { checked: isSelected, onCheckedChange: (e) => handleMultipleToggle(file, e.checked === true), variant: "outline", borderColor: "border.default", _hover: { borderColor: 'border.emphasized', bg: 'bg.muted' }, cursor: "pointer", children: [jsx(Box, { width: "100%", aspectRatio: 1, bg: "bg.muted", borderRadius: "md", overflow: "hidden", mb: 2, display: "flex", alignItems: "center", justifyContent: "center", children: isImage && file.url ? (jsx(Image, { src: file.url, alt: file.name, width: "100%", height: "100%", objectFit: "cover" })) : isImage ? (jsx(Icon, { as: LuImage, boxSize: 8, color: "fg.muted" })) : (jsx(Icon, { as: LuFile, boxSize: 8, color: "fg.muted" })) }), jsx(Text, { fontSize: "xs", fontWeight: "medium", color: "fg.default", lineClamp: 2, children: file.name }), fileSize && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: fileSize }))] }, file.id));
-                    }
-                    return (jsxs(Box, { role: "button", tabIndex: 0, onClick: () => handleSingleSelect(file), onKeyDown: (e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                handleSingleSelect(file);
+    return (jsxs(VStack, { align: "stretch", gap: 4, flex: "1", minH: "0", overflow: "hidden", children: [jsx(InputGroup, { flexShrink: 0, startElement: jsx(Icon, { as: LuSearch, color: "fg.muted" }), children: jsx(Input, { placeholder: searchPlaceholder, value: search, onChange: (e) => setSearch(e.target.value), bg: "bg.panel", borderColor: "border.default" }) }), jsxs(Box, { flex: "1", minH: "0", overflowY: "auto", children: [isLoading && (jsxs(HStack, { gap: 2, py: 6, justify: "center", children: [jsx(Spinner, { size: "sm", colorPalette: "blue" }), jsx(Text, { fontSize: "sm", color: "fg.muted", children: loadingText })] })), isError && (jsx(Box, { py: 4, px: 3, borderRadius: "md", bg: { base: 'red.50', _dark: 'red.900/20' }, borderWidth: "1px", borderColor: { base: 'red.200', _dark: 'red.800' }, children: jsx(Text, { fontSize: "sm", color: { base: 'red.600', _dark: 'red.300' }, children: errorText }) })), !isLoading && !isError && files.length === 0 && (jsx(Box, { py: 6, textAlign: "center", children: jsx(Text, { fontSize: "sm", color: "fg.muted", children: emptyText }) })), !isLoading && !isError && files.length > 0 && (jsx(SimpleGrid, { columns: { base: 2, sm: 3, md: 4 }, gap: 3, children: files.map((file) => {
+                            const isImage = IMAGE_EXT.test(file.name);
+                            const isSelected = selectedIds.has(file.id);
+                            const fileSize = typeof file.size === 'number'
+                                ? formatBytes(file.size)
+                                : file.size ?? null;
+                            if (multiple) {
+                                return (jsxs(CheckboxCard, { checked: isSelected, onCheckedChange: (e) => handleMultipleToggle(file, e.checked === true), variant: "outline", borderColor: "border.default", _hover: {
+                                        borderColor: 'border.emphasized',
+                                        bg: 'bg.muted',
+                                    }, cursor: "pointer", children: [jsx(Box, { width: "100%", aspectRatio: 1, bg: "bg.muted", borderRadius: "md", overflow: "hidden", mb: 2, display: "flex", alignItems: "center", justifyContent: "center", children: isImage && file.url ? (jsx(Image, { src: file.url, alt: file.name, width: "100%", height: "100%", objectFit: "cover" })) : isImage ? (jsx(Icon, { as: LuImage, boxSize: 8, color: "fg.muted" })) : (jsx(Icon, { as: LuFile, boxSize: 8, color: "fg.muted" })) }), jsx(Text, { fontSize: "xs", fontWeight: "medium", color: "fg.default", lineClamp: 2, children: file.name }), fileSize && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: fileSize }))] }, file.id));
                             }
-                        }, padding: 3, borderRadius: "md", borderWidth: "2px", borderColor: isSelected ? 'colorPalette.500' : 'border.default', bg: isSelected
-                            ? { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }
-                            : 'bg.panel', _hover: {
-                            borderColor: isSelected
-                                ? 'colorPalette.500'
-                                : 'border.emphasized',
-                            bg: isSelected
-                                ? { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }
-                                : 'bg.muted',
-                        }, cursor: "pointer", transition: "all 0.2s", children: [jsx(Box, { width: "100%", aspectRatio: 1, bg: "bg.muted", borderRadius: "md", overflow: "hidden", mb: 2, display: "flex", alignItems: "center", justifyContent: "center", children: isImage && file.url ? (jsx(Image, { src: file.url, alt: file.name, width: "100%", height: "100%", objectFit: "cover" })) : isImage ? (jsx(Icon, { as: LuImage, boxSize: 8, color: "fg.muted" })) : (jsx(Icon, { as: LuFile, boxSize: 8, color: "fg.muted" })) }), jsx(Text, { fontSize: "xs", fontWeight: "medium", color: "fg.default", lineClamp: 2, children: file.name }), fileSize && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: fileSize }))] }, file.id));
-                }) }))] }));
+                            return (jsxs(Box, { role: "button", tabIndex: 0, onClick: () => handleSingleSelect(file), onKeyDown: (e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        handleSingleSelect(file);
+                                    }
+                                }, padding: 3, borderRadius: "md", borderWidth: "2px", borderColor: isSelected ? 'colorPalette.500' : 'border.default', bg: isSelected
+                                    ? {
+                                        base: 'colorPalette.50',
+                                        _dark: 'colorPalette.900/20',
+                                    }
+                                    : 'bg.panel', _hover: {
+                                    borderColor: isSelected
+                                        ? 'colorPalette.500'
+                                        : 'border.emphasized',
+                                    bg: isSelected
+                                        ? {
+                                            base: 'colorPalette.50',
+                                            _dark: 'colorPalette.900/20',
+                                        }
+                                        : 'bg.muted',
+                                }, cursor: "pointer", transition: "all 0.2s", children: [jsx(Box, { width: "100%", aspectRatio: 1, bg: "bg.muted", borderRadius: "md", overflow: "hidden", mb: 2, display: "flex", alignItems: "center", justifyContent: "center", children: isImage && file.url ? (jsx(Image, { src: file.url, alt: file.name, width: "100%", height: "100%", objectFit: "cover" })) : isImage ? (jsx(Icon, { as: LuImage, boxSize: 8, color: "fg.muted" })) : (jsx(Icon, { as: LuFile, boxSize: 8, color: "fg.muted" })) }), jsx(Text, { fontSize: "xs", fontWeight: "medium", color: "fg.default", lineClamp: 2, children: file.name }), fileSize && (jsx(Text, { fontSize: "xs", color: "fg.muted", children: fileSize }))] }, file.id));
+                        }) }))] })] }));
 };
 
 function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, onUploadFile, enableUpload = false, labels, }) {
@@ -4880,7 +4887,7 @@ function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = 
     const showTabs = enableUpload && !!onUploadFile && !!onFetchFiles;
     if (!onFetchFiles && !onUploadFile)
         return null;
-    return (jsx(DialogRoot, { open: open, onOpenChange: (e) => !e.open && handleClose(), children: jsxs(DialogContent, { maxWidth: "800px", maxHeight: "90vh", children: [jsxs(DialogHeader, { children: [jsx(DialogTitle, { fontSize: "lg", fontWeight: "bold", children: title }), jsx(DialogCloseTrigger, {})] }), jsx(DialogBody, { children: showTabs ? (jsxs(Tabs.Root, { value: activeTab, onValueChange: (e) => setActiveTab(e.value ?? 'browse'), children: [jsxs(Tabs.List, { children: [jsx(Tabs.Trigger, { value: "browse", children: labels?.browseTab ?? 'Browse Library' }), jsx(Tabs.Trigger, { value: "upload", children: labels?.uploadTab ?? 'Upload Files' })] }), jsx(Tabs.Content, { value: "browse", children: onFetchFiles && (jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open && activeTab === 'browse', selectedFile: selectedFile, onFileSelect: setSelectedFile })) }), jsx(Tabs.Content, { value: "upload", children: jsxs(VStack, { align: "stretch", gap: 4, children: [jsx(FileDropzone, { onDrop: ({ files }) => handleFileUpload(files), placeholder: labels?.fileDropzone ??
+    return (jsx(DialogRoot, { open: open, onOpenChange: (e) => !e.open && handleClose(), children: jsxs(DialogContent, { maxW: "800px", w: { base: 'calc(100vw - 2rem)', md: undefined }, maxH: "90vh", display: "flex", flexDirection: "column", overflow: "hidden", children: [jsxs(DialogHeader, { flexShrink: 0, children: [jsx(DialogTitle, { fontSize: "lg", fontWeight: "bold", children: title }), jsx(DialogCloseTrigger, {})] }), jsx(DialogBody, { flex: "1", minH: "0", display: "flex", flexDirection: "column", overflow: "hidden", children: showTabs ? (jsxs(Tabs.Root, { value: activeTab, onValueChange: (e) => setActiveTab(e.value ?? 'browse'), flex: "1", minH: "0", display: "flex", flexDirection: "column", overflow: "hidden", children: [jsxs(Tabs.List, { flexShrink: 0, children: [jsx(Tabs.Trigger, { value: "browse", children: labels?.browseTab ?? 'Browse Library' }), jsx(Tabs.Trigger, { value: "upload", children: labels?.uploadTab ?? 'Upload Files' })] }), jsx(Tabs.Content, { value: "browse", flex: "1", minH: "0", display: "flex", flexDirection: "column", overflow: "hidden", children: onFetchFiles && (jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open && activeTab === 'browse', selectedFile: selectedFile, onFileSelect: setSelectedFile })) }), jsx(Tabs.Content, { value: "upload", flex: "1", minH: "0", display: "flex", flexDirection: "column", overflow: "auto", children: jsxs(VStack, { align: "stretch", gap: 4, children: [jsx(FileDropzone, { onDrop: ({ files }) => handleFileUpload(files), placeholder: labels?.fileDropzone ??
                                                 'Drop files here or click to upload' }), uploadingFiles.size > 0 && (jsx(Box, { children: Array.from(uploadingFiles).map((fileKey) => (jsx(Box, { py: 2, children: jsxs(HStack, { gap: 2, children: [jsx(Spinner, { size: "sm", colorPalette: "blue" }), jsxs(Text, { fontSize: "sm", color: "fg.muted", children: [labels?.uploading ?? 'Uploading...', ' ', fileKey.split('-')[0]] })] }) }, fileKey))) })), uploadErrors.size > 0 && (jsx(VStack, { align: "stretch", gap: 2, children: Array.from(uploadErrors.entries()).map(([fileKey, error]) => (jsx(Box, { bg: {
                                                     base: 'colorPalette.50',
                                                     _dark: 'colorPalette.900/20',
@@ -4890,7 +4897,7 @@ function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = 
                                                 }, colorPalette: "red", borderRadius: "md", p: 3, children: jsxs(Text, { fontSize: "sm", color: {
                                                         base: 'colorPalette.600',
                                                         _dark: 'colorPalette.300',
-                                                    }, children: [fileKey.split('-')[0], ":", ' ', labels?.uploadFailed ?? 'Upload failed', error && ` - ${error}`] }) }, fileKey))) }))] }) })] })) : onFetchFiles ? (jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open, selectedFile: selectedFile, onFileSelect: setSelectedFile })) : null }), jsx(DialogFooter, { children: jsxs(HStack, { gap: 3, justify: "end", children: [jsx(Button$1, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ?? 'Cancel' }), jsx(Button$1, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFile, children: labels?.select ?? 'Select' })] }) })] }) }));
+                                                    }, children: [fileKey.split('-')[0], ":", ' ', labels?.uploadFailed ?? 'Upload failed', error && ` - ${error}`] }) }, fileKey))) }))] }) })] })) : onFetchFiles ? (jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open, selectedFile: selectedFile, onFileSelect: setSelectedFile })) : null }), jsx(DialogFooter, { flexShrink: 0, children: jsxs(HStack, { gap: 3, justify: "end", children: [jsx(Button$1, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ?? 'Cancel' }), jsx(Button$1, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFile, children: labels?.select ?? 'Select' })] }) })] }) }));
 }
 const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = useFormContext();
@@ -5774,7 +5781,7 @@ const TimePicker = ({ column, schema, prefix }) => {
         ? dayjs(`1970-01-01T${value}`).tz(timezone).format(displayTimeFormat)
         : '';
     // Parse the initial time parts from the  time string (HH:mm:ssZ)
-    const parseTime = (time) => {
+    const parseTime = useCallback((time) => {
         if (!time)
             return { hour: 12, minute: 0, meridiem: 'am' };
         const parsed = dayjs(`1970-01-01T${time}`).tz(timezone);
@@ -5789,7 +5796,7 @@ const TimePicker = ({ column, schema, prefix }) => {
         else if (hour > 12)
             hour -= 12;
         return { hour, minute, meridiem };
-    };
+    }, [timezone]);
     const initialTime = parseTime(value);
     const [hour, setHour] = useState(initialTime.hour);
     const [minute, setMinute] = useState(initialTime.minute);
@@ -5799,7 +5806,7 @@ const TimePicker = ({ column, schema, prefix }) => {
         setHour(hour);
         setMinute(minute);
         setMeridiem(meridiem);
-    }, [value]);
+    }, [value, parseTime]);
     const getTimeString = (hour, minute, meridiem) => {
         if (hour === null || minute === null || meridiem === null)
             return null;
@@ -5825,7 +5832,7 @@ const TimePicker = ({ column, schema, prefix }) => {
     return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
-                        }, justifyContent: 'start', children: [jsx(IoMdClock, {}), !!value ? `${displayedTime}` : ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsx(Popover.Body, { overflow: "visible", children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { children: jsx(Popover.Body, { children: jsx(TimePicker$1, { format: "12h", hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) }) }))] }) }));
+                        }, justifyContent: 'start', children: [jsx(IoMdClock, {}), value ? displayedTime : ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsx(Popover.Body, { overflow: "visible", children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { children: jsx(Popover.Body, { children: jsx(TimePicker$1, { format: "12h", hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) }) }))] }) }));
 };
 
 dayjs.extend(utc);
@@ -5844,9 +5851,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     useEffect(() => {
         if (parsed?.isValid()) {
             setDateValues(stringToCalendarDateValue(parsed.format('YYYY-MM-DD'), tz));
-            setTimeStr(showSeconds
-                ? parsed.format('HH:mm:ss')
-                : parsed.format('HH:mm'));
+            setTimeStr(showSeconds ? parsed.format('HH:mm:ss') : parsed.format('HH:mm'));
         }
         else {
             setDateValues([]);
@@ -5896,7 +5901,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const DateTimePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = useFormContext();
-    const { timezone, dateTimePickerLabels, timePickerLabels, insideDialog, } = useSchemaContext();
+    const { timezone, dateTimePickerLabels, timePickerLabels, insideDialog } = useSchemaContext();
     const formI18n = useFormLabel(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', 
     // with timezone

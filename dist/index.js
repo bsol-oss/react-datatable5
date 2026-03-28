@@ -206,7 +206,8 @@ function stringToCalendarDateValue(str, tz) {
 /** CalendarDate at midnight in tz as JS Date (for filters using Date[]) */
 function dateValueToFilterDate(v, tz) {
     const cal = v;
-    return dayjs.tz(`${cal.year}-${String(cal.month).padStart(2, '0')}-${String(cal.day).padStart(2, '0')}`, tz)
+    return dayjs
+        .tz(`${cal.year}-${String(cal.month).padStart(2, '0')}-${String(cal.day).padStart(2, '0')}`, tz)
         .startOf('day')
         .toDate();
 }
@@ -217,10 +218,7 @@ const DEFAULT_TZ$1 = 'Asia/Hong_Kong';
 const RangeDatePicker = ({ selected = [], onDateSelected, firstDayOfWeek = 0, minDate, maxDate, monthsToDisplay = 2, timezone: tz = DEFAULT_TZ$1, }) => {
     const value = React.useMemo(() => {
         if (selected.length >= 2) {
-            return [
-                toCalendarDate(selected[0], tz),
-                toCalendarDate(selected[1], tz),
-            ];
+            return [toCalendarDate(selected[0], tz), toCalendarDate(selected[1], tz)];
         }
         if (selected.length === 1) {
             return [toCalendarDate(selected[0], tz)];
@@ -4804,31 +4802,40 @@ const MediaLibraryBrowser = ({ onFetchFiles, filterImageOnly = false, labels, en
     const loadingText = labels?.loading ?? 'Loading...';
     const errorText = labels?.loadingFailed ?? 'Failed to load files';
     const emptyText = labels?.noFilesFound ?? 'No files found';
-    return (jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 4, children: [jsxRuntime.jsx(InputGroup, { startElement: jsxRuntime.jsx(react.Icon, { as: lu.LuSearch, color: "fg.muted" }), children: jsxRuntime.jsx(react.Input, { placeholder: searchPlaceholder, value: search, onChange: (e) => setSearch(e.target.value), bg: "bg.panel", borderColor: "border.default" }) }), isLoading && (jsxRuntime.jsxs(react.HStack, { gap: 2, py: 6, justify: "center", children: [jsxRuntime.jsx(react.Spinner, { size: "sm", colorPalette: "blue" }), jsxRuntime.jsx(react.Text, { fontSize: "sm", color: "fg.muted", children: loadingText })] })), isError && (jsxRuntime.jsx(react.Box, { py: 4, px: 3, borderRadius: "md", bg: { base: 'red.50', _dark: 'red.900/20' }, borderWidth: "1px", borderColor: { base: 'red.200', _dark: 'red.800' }, children: jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'red.600', _dark: 'red.300' }, children: errorText }) })), !isLoading && !isError && files.length === 0 && (jsxRuntime.jsx(react.Box, { py: 6, textAlign: "center", children: jsxRuntime.jsx(react.Text, { fontSize: "sm", color: "fg.muted", children: emptyText }) })), !isLoading && !isError && files.length > 0 && (jsxRuntime.jsx(react.SimpleGrid, { columns: { base: 2, sm: 3, md: 4 }, gap: 3, children: files.map((file) => {
-                    const isImage = IMAGE_EXT.test(file.name);
-                    const isSelected = selectedIds.has(file.id);
-                    const fileSize = typeof file.size === 'number'
-                        ? formatBytes(file.size)
-                        : file.size ?? null;
-                    if (multiple) {
-                        return (jsxRuntime.jsxs(CheckboxCard, { checked: isSelected, onCheckedChange: (e) => handleMultipleToggle(file, e.checked === true), variant: "outline", borderColor: "border.default", _hover: { borderColor: 'border.emphasized', bg: 'bg.muted' }, cursor: "pointer", children: [jsxRuntime.jsx(react.Box, { width: "100%", aspectRatio: 1, bg: "bg.muted", borderRadius: "md", overflow: "hidden", mb: 2, display: "flex", alignItems: "center", justifyContent: "center", children: isImage && file.url ? (jsxRuntime.jsx(react.Image, { src: file.url, alt: file.name, width: "100%", height: "100%", objectFit: "cover" })) : isImage ? (jsxRuntime.jsx(react.Icon, { as: lu.LuImage, boxSize: 8, color: "fg.muted" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 8, color: "fg.muted" })) }), jsxRuntime.jsx(react.Text, { fontSize: "xs", fontWeight: "medium", color: "fg.default", lineClamp: 2, children: file.name }), fileSize && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: fileSize }))] }, file.id));
-                    }
-                    return (jsxRuntime.jsxs(react.Box, { role: "button", tabIndex: 0, onClick: () => handleSingleSelect(file), onKeyDown: (e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                handleSingleSelect(file);
+    return (jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 4, flex: "1", minH: "0", overflow: "hidden", children: [jsxRuntime.jsx(InputGroup, { flexShrink: 0, startElement: jsxRuntime.jsx(react.Icon, { as: lu.LuSearch, color: "fg.muted" }), children: jsxRuntime.jsx(react.Input, { placeholder: searchPlaceholder, value: search, onChange: (e) => setSearch(e.target.value), bg: "bg.panel", borderColor: "border.default" }) }), jsxRuntime.jsxs(react.Box, { flex: "1", minH: "0", overflowY: "auto", children: [isLoading && (jsxRuntime.jsxs(react.HStack, { gap: 2, py: 6, justify: "center", children: [jsxRuntime.jsx(react.Spinner, { size: "sm", colorPalette: "blue" }), jsxRuntime.jsx(react.Text, { fontSize: "sm", color: "fg.muted", children: loadingText })] })), isError && (jsxRuntime.jsx(react.Box, { py: 4, px: 3, borderRadius: "md", bg: { base: 'red.50', _dark: 'red.900/20' }, borderWidth: "1px", borderColor: { base: 'red.200', _dark: 'red.800' }, children: jsxRuntime.jsx(react.Text, { fontSize: "sm", color: { base: 'red.600', _dark: 'red.300' }, children: errorText }) })), !isLoading && !isError && files.length === 0 && (jsxRuntime.jsx(react.Box, { py: 6, textAlign: "center", children: jsxRuntime.jsx(react.Text, { fontSize: "sm", color: "fg.muted", children: emptyText }) })), !isLoading && !isError && files.length > 0 && (jsxRuntime.jsx(react.SimpleGrid, { columns: { base: 2, sm: 3, md: 4 }, gap: 3, children: files.map((file) => {
+                            const isImage = IMAGE_EXT.test(file.name);
+                            const isSelected = selectedIds.has(file.id);
+                            const fileSize = typeof file.size === 'number'
+                                ? formatBytes(file.size)
+                                : file.size ?? null;
+                            if (multiple) {
+                                return (jsxRuntime.jsxs(CheckboxCard, { checked: isSelected, onCheckedChange: (e) => handleMultipleToggle(file, e.checked === true), variant: "outline", borderColor: "border.default", _hover: {
+                                        borderColor: 'border.emphasized',
+                                        bg: 'bg.muted',
+                                    }, cursor: "pointer", children: [jsxRuntime.jsx(react.Box, { width: "100%", aspectRatio: 1, bg: "bg.muted", borderRadius: "md", overflow: "hidden", mb: 2, display: "flex", alignItems: "center", justifyContent: "center", children: isImage && file.url ? (jsxRuntime.jsx(react.Image, { src: file.url, alt: file.name, width: "100%", height: "100%", objectFit: "cover" })) : isImage ? (jsxRuntime.jsx(react.Icon, { as: lu.LuImage, boxSize: 8, color: "fg.muted" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 8, color: "fg.muted" })) }), jsxRuntime.jsx(react.Text, { fontSize: "xs", fontWeight: "medium", color: "fg.default", lineClamp: 2, children: file.name }), fileSize && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: fileSize }))] }, file.id));
                             }
-                        }, padding: 3, borderRadius: "md", borderWidth: "2px", borderColor: isSelected ? 'colorPalette.500' : 'border.default', bg: isSelected
-                            ? { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }
-                            : 'bg.panel', _hover: {
-                            borderColor: isSelected
-                                ? 'colorPalette.500'
-                                : 'border.emphasized',
-                            bg: isSelected
-                                ? { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }
-                                : 'bg.muted',
-                        }, cursor: "pointer", transition: "all 0.2s", children: [jsxRuntime.jsx(react.Box, { width: "100%", aspectRatio: 1, bg: "bg.muted", borderRadius: "md", overflow: "hidden", mb: 2, display: "flex", alignItems: "center", justifyContent: "center", children: isImage && file.url ? (jsxRuntime.jsx(react.Image, { src: file.url, alt: file.name, width: "100%", height: "100%", objectFit: "cover" })) : isImage ? (jsxRuntime.jsx(react.Icon, { as: lu.LuImage, boxSize: 8, color: "fg.muted" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 8, color: "fg.muted" })) }), jsxRuntime.jsx(react.Text, { fontSize: "xs", fontWeight: "medium", color: "fg.default", lineClamp: 2, children: file.name }), fileSize && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: fileSize }))] }, file.id));
-                }) }))] }));
+                            return (jsxRuntime.jsxs(react.Box, { role: "button", tabIndex: 0, onClick: () => handleSingleSelect(file), onKeyDown: (e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        handleSingleSelect(file);
+                                    }
+                                }, padding: 3, borderRadius: "md", borderWidth: "2px", borderColor: isSelected ? 'colorPalette.500' : 'border.default', bg: isSelected
+                                    ? {
+                                        base: 'colorPalette.50',
+                                        _dark: 'colorPalette.900/20',
+                                    }
+                                    : 'bg.panel', _hover: {
+                                    borderColor: isSelected
+                                        ? 'colorPalette.500'
+                                        : 'border.emphasized',
+                                    bg: isSelected
+                                        ? {
+                                            base: 'colorPalette.50',
+                                            _dark: 'colorPalette.900/20',
+                                        }
+                                        : 'bg.muted',
+                                }, cursor: "pointer", transition: "all 0.2s", children: [jsxRuntime.jsx(react.Box, { width: "100%", aspectRatio: 1, bg: "bg.muted", borderRadius: "md", overflow: "hidden", mb: 2, display: "flex", alignItems: "center", justifyContent: "center", children: isImage && file.url ? (jsxRuntime.jsx(react.Image, { src: file.url, alt: file.name, width: "100%", height: "100%", objectFit: "cover" })) : isImage ? (jsxRuntime.jsx(react.Icon, { as: lu.LuImage, boxSize: 8, color: "fg.muted" })) : (jsxRuntime.jsx(react.Icon, { as: lu.LuFile, boxSize: 8, color: "fg.muted" })) }), jsxRuntime.jsx(react.Text, { fontSize: "xs", fontWeight: "medium", color: "fg.default", lineClamp: 2, children: file.name }), fileSize && (jsxRuntime.jsx(react.Text, { fontSize: "xs", color: "fg.muted", children: fileSize }))] }, file.id));
+                        }) }))] })] }));
 };
 
 function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = false, onFetchFiles, onUploadFile, enableUpload = false, labels, }) {
@@ -4900,7 +4907,7 @@ function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = 
     const showTabs = enableUpload && !!onUploadFile && !!onFetchFiles;
     if (!onFetchFiles && !onUploadFile)
         return null;
-    return (jsxRuntime.jsx(DialogRoot, { open: open, onOpenChange: (e) => !e.open && handleClose(), children: jsxRuntime.jsxs(DialogContent, { maxWidth: "800px", maxHeight: "90vh", children: [jsxRuntime.jsxs(DialogHeader, { children: [jsxRuntime.jsx(DialogTitle, { fontSize: "lg", fontWeight: "bold", children: title }), jsxRuntime.jsx(DialogCloseTrigger, {})] }), jsxRuntime.jsx(DialogBody, { children: showTabs ? (jsxRuntime.jsxs(react.Tabs.Root, { value: activeTab, onValueChange: (e) => setActiveTab(e.value ?? 'browse'), children: [jsxRuntime.jsxs(react.Tabs.List, { children: [jsxRuntime.jsx(react.Tabs.Trigger, { value: "browse", children: labels?.browseTab ?? 'Browse Library' }), jsxRuntime.jsx(react.Tabs.Trigger, { value: "upload", children: labels?.uploadTab ?? 'Upload Files' })] }), jsxRuntime.jsx(react.Tabs.Content, { value: "browse", children: onFetchFiles && (jsxRuntime.jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open && activeTab === 'browse', selectedFile: selectedFile, onFileSelect: setSelectedFile })) }), jsxRuntime.jsx(react.Tabs.Content, { value: "upload", children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 4, children: [jsxRuntime.jsx(FileDropzone, { onDrop: ({ files }) => handleFileUpload(files), placeholder: labels?.fileDropzone ??
+    return (jsxRuntime.jsx(DialogRoot, { open: open, onOpenChange: (e) => !e.open && handleClose(), children: jsxRuntime.jsxs(DialogContent, { maxW: "800px", w: { base: 'calc(100vw - 2rem)', md: undefined }, maxH: "90vh", display: "flex", flexDirection: "column", overflow: "hidden", children: [jsxRuntime.jsxs(DialogHeader, { flexShrink: 0, children: [jsxRuntime.jsx(DialogTitle, { fontSize: "lg", fontWeight: "bold", children: title }), jsxRuntime.jsx(DialogCloseTrigger, {})] }), jsxRuntime.jsx(DialogBody, { flex: "1", minH: "0", display: "flex", flexDirection: "column", overflow: "hidden", children: showTabs ? (jsxRuntime.jsxs(react.Tabs.Root, { value: activeTab, onValueChange: (e) => setActiveTab(e.value ?? 'browse'), flex: "1", minH: "0", display: "flex", flexDirection: "column", overflow: "hidden", children: [jsxRuntime.jsxs(react.Tabs.List, { flexShrink: 0, children: [jsxRuntime.jsx(react.Tabs.Trigger, { value: "browse", children: labels?.browseTab ?? 'Browse Library' }), jsxRuntime.jsx(react.Tabs.Trigger, { value: "upload", children: labels?.uploadTab ?? 'Upload Files' })] }), jsxRuntime.jsx(react.Tabs.Content, { value: "browse", flex: "1", minH: "0", display: "flex", flexDirection: "column", overflow: "hidden", children: onFetchFiles && (jsxRuntime.jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open && activeTab === 'browse', selectedFile: selectedFile, onFileSelect: setSelectedFile })) }), jsxRuntime.jsx(react.Tabs.Content, { value: "upload", flex: "1", minH: "0", display: "flex", flexDirection: "column", overflow: "auto", children: jsxRuntime.jsxs(react.VStack, { align: "stretch", gap: 4, children: [jsxRuntime.jsx(FileDropzone, { onDrop: ({ files }) => handleFileUpload(files), placeholder: labels?.fileDropzone ??
                                                 'Drop files here or click to upload' }), uploadingFiles.size > 0 && (jsxRuntime.jsx(react.Box, { children: Array.from(uploadingFiles).map((fileKey) => (jsxRuntime.jsx(react.Box, { py: 2, children: jsxRuntime.jsxs(react.HStack, { gap: 2, children: [jsxRuntime.jsx(react.Spinner, { size: "sm", colorPalette: "blue" }), jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: "fg.muted", children: [labels?.uploading ?? 'Uploading...', ' ', fileKey.split('-')[0]] })] }) }, fileKey))) })), uploadErrors.size > 0 && (jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: Array.from(uploadErrors.entries()).map(([fileKey, error]) => (jsxRuntime.jsx(react.Box, { bg: {
                                                     base: 'colorPalette.50',
                                                     _dark: 'colorPalette.900/20',
@@ -4910,7 +4917,7 @@ function MediaBrowserDialog({ open, onClose, onSelect, title, filterImageOnly = 
                                                 }, colorPalette: "red", borderRadius: "md", p: 3, children: jsxRuntime.jsxs(react.Text, { fontSize: "sm", color: {
                                                         base: 'colorPalette.600',
                                                         _dark: 'colorPalette.300',
-                                                    }, children: [fileKey.split('-')[0], ":", ' ', labels?.uploadFailed ?? 'Upload failed', error && ` - ${error}`] }) }, fileKey))) }))] }) })] })) : onFetchFiles ? (jsxRuntime.jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open, selectedFile: selectedFile, onFileSelect: setSelectedFile })) : null }), jsxRuntime.jsx(DialogFooter, { children: jsxRuntime.jsxs(react.HStack, { gap: 3, justify: "end", children: [jsxRuntime.jsx(react.Button, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ?? 'Cancel' }), jsxRuntime.jsx(react.Button, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFile, children: labels?.select ?? 'Select' })] }) })] }) }));
+                                                    }, children: [fileKey.split('-')[0], ":", ' ', labels?.uploadFailed ?? 'Upload failed', error && ` - ${error}`] }) }, fileKey))) }))] }) })] })) : onFetchFiles ? (jsxRuntime.jsx(MediaLibraryBrowser, { onFetchFiles: onFetchFiles, filterImageOnly: filterImageOnly, labels: labels, enabled: open, selectedFile: selectedFile, onFileSelect: setSelectedFile })) : null }), jsxRuntime.jsx(DialogFooter, { flexShrink: 0, children: jsxRuntime.jsxs(react.HStack, { gap: 3, justify: "end", children: [jsxRuntime.jsx(react.Button, { variant: "outline", onClick: handleClose, borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: labels?.cancel ?? 'Cancel' }), jsxRuntime.jsx(react.Button, { colorPalette: "blue", onClick: handleSelect, disabled: !selectedFile, children: labels?.select ?? 'Select' })] }) })] }) }));
 }
 const FilePicker = ({ column, schema, prefix }) => {
     const { setValue, formState: { errors }, watch, } = reactHookForm.useFormContext();
@@ -5794,7 +5801,7 @@ const TimePicker = ({ column, schema, prefix }) => {
         ? dayjs(`1970-01-01T${value}`).tz(timezone).format(displayTimeFormat)
         : '';
     // Parse the initial time parts from the  time string (HH:mm:ssZ)
-    const parseTime = (time) => {
+    const parseTime = React.useCallback((time) => {
         if (!time)
             return { hour: 12, minute: 0, meridiem: 'am' };
         const parsed = dayjs(`1970-01-01T${time}`).tz(timezone);
@@ -5809,7 +5816,7 @@ const TimePicker = ({ column, schema, prefix }) => {
         else if (hour > 12)
             hour -= 12;
         return { hour, minute, meridiem };
-    };
+    }, [timezone]);
     const initialTime = parseTime(value);
     const [hour, setHour] = React.useState(initialTime.hour);
     const [minute, setMinute] = React.useState(initialTime.minute);
@@ -5819,7 +5826,7 @@ const TimePicker = ({ column, schema, prefix }) => {
         setHour(hour);
         setMinute(minute);
         setMeridiem(meridiem);
-    }, [value]);
+    }, [value, parseTime]);
     const getTimeString = (hour, minute, meridiem) => {
         if (hour === null || minute === null || meridiem === null)
             return null;
@@ -5845,7 +5852,7 @@ const TimePicker = ({ column, schema, prefix }) => {
     return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
-                        }, justifyContent: 'start', children: [jsxRuntime.jsx(io.IoMdClock, {}), !!value ? `${displayedTime}` : ''] }) }), insideDialog ? (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsxRuntime.jsx(react.Popover.Body, { overflow: "visible", children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(TimePicker$1, { format: "12h", hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) }) }))] }) }));
+                        }, justifyContent: 'start', children: [jsxRuntime.jsx(io.IoMdClock, {}), value ? displayedTime : ''] }) }), insideDialog ? (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsxRuntime.jsx(react.Popover.Body, { overflow: "visible", children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(TimePicker$1, { format: "12h", hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) }) }))] }) }));
 };
 
 dayjs.extend(utc);
@@ -5864,9 +5871,7 @@ function DateTimePicker$1({ value, onChange, format = 'date-time', showSeconds =
     React.useEffect(() => {
         if (parsed?.isValid()) {
             setDateValues(stringToCalendarDateValue(parsed.format('YYYY-MM-DD'), tz));
-            setTimeStr(showSeconds
-                ? parsed.format('HH:mm:ss')
-                : parsed.format('HH:mm'));
+            setTimeStr(showSeconds ? parsed.format('HH:mm:ss') : parsed.format('HH:mm'));
         }
         else {
             setDateValues([]);
@@ -5916,7 +5921,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const DateTimePicker = ({ column, schema, prefix, }) => {
     const { watch, formState: { errors }, setValue, } = reactHookForm.useFormContext();
-    const { timezone, dateTimePickerLabels, timePickerLabels, insideDialog, } = useSchemaContext();
+    const { timezone, dateTimePickerLabels, timePickerLabels, insideDialog } = useSchemaContext();
     const formI18n = useFormLabel(column, prefix, schema);
     const { required, gridColumn = 'span 12', gridRow = 'span 1', 
     // with timezone
