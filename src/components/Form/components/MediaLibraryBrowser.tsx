@@ -124,8 +124,11 @@ export const MediaLibraryBrowser = ({
   const emptyText = labels?.noFilesFound ?? 'No files found';
 
   return (
-    <VStack align="stretch" gap={4}>
-      <InputGroup startElement={<Icon as={LuSearch} color="fg.muted" />}>
+    <VStack align="stretch" gap={4} flex="1" minH="0" overflow="hidden">
+      <InputGroup
+        flexShrink={0}
+        startElement={<Icon as={LuSearch} color="fg.muted" />}
+      >
         <Input
           placeholder={searchPlaceholder}
           value={search}
@@ -135,60 +138,146 @@ export const MediaLibraryBrowser = ({
         />
       </InputGroup>
 
-      {isLoading && (
-        <HStack gap={2} py={6} justify="center">
-          <Spinner size="sm" colorPalette="blue" />
-          <Text fontSize="sm" color="fg.muted">
-            {loadingText}
-          </Text>
-        </HStack>
-      )}
+      <Box flex="1" minH="0" overflowY="auto">
+        {isLoading && (
+          <HStack gap={2} py={6} justify="center">
+            <Spinner size="sm" colorPalette="blue" />
+            <Text fontSize="sm" color="fg.muted">
+              {loadingText}
+            </Text>
+          </HStack>
+        )}
 
-      {isError && (
-        <Box
-          py={4}
-          px={3}
-          borderRadius="md"
-          bg={{ base: 'red.50', _dark: 'red.900/20' }}
-          borderWidth="1px"
-          borderColor={{ base: 'red.200', _dark: 'red.800' }}
-        >
-          <Text fontSize="sm" color={{ base: 'red.600', _dark: 'red.300' }}>
-            {errorText}
-          </Text>
-        </Box>
-      )}
+        {isError && (
+          <Box
+            py={4}
+            px={3}
+            borderRadius="md"
+            bg={{ base: 'red.50', _dark: 'red.900/20' }}
+            borderWidth="1px"
+            borderColor={{ base: 'red.200', _dark: 'red.800' }}
+          >
+            <Text fontSize="sm" color={{ base: 'red.600', _dark: 'red.300' }}>
+              {errorText}
+            </Text>
+          </Box>
+        )}
 
-      {!isLoading && !isError && files.length === 0 && (
-        <Box py={6} textAlign="center">
-          <Text fontSize="sm" color="fg.muted">
-            {emptyText}
-          </Text>
-        </Box>
-      )}
+        {!isLoading && !isError && files.length === 0 && (
+          <Box py={6} textAlign="center">
+            <Text fontSize="sm" color="fg.muted">
+              {emptyText}
+            </Text>
+          </Box>
+        )}
 
-      {!isLoading && !isError && files.length > 0 && (
-        <SimpleGrid columns={{ base: 2, sm: 3, md: 4 }} gap={3}>
-          {files.map((file) => {
-            const isImage = IMAGE_EXT.test(file.name);
-            const isSelected = selectedIds.has(file.id);
-            const fileSize =
-              typeof file.size === 'number'
-                ? formatBytes(file.size)
-                : file.size ?? null;
+        {!isLoading && !isError && files.length > 0 && (
+          <SimpleGrid columns={{ base: 2, sm: 3, md: 4 }} gap={3}>
+            {files.map((file) => {
+              const isImage = IMAGE_EXT.test(file.name);
+              const isSelected = selectedIds.has(file.id);
+              const fileSize =
+                typeof file.size === 'number'
+                  ? formatBytes(file.size)
+                  : file.size ?? null;
 
-            if (multiple) {
+              if (multiple) {
+                return (
+                  <CheckboxCard
+                    key={file.id}
+                    checked={isSelected}
+                    onCheckedChange={(e) =>
+                      handleMultipleToggle(file, e.checked === true)
+                    }
+                    variant="outline"
+                    borderColor="border.default"
+                    _hover={{
+                      borderColor: 'border.emphasized',
+                      bg: 'bg.muted',
+                    }}
+                    cursor="pointer"
+                  >
+                    <Box
+                      width="100%"
+                      aspectRatio={1}
+                      bg="bg.muted"
+                      borderRadius="md"
+                      overflow="hidden"
+                      mb={2}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      {isImage && file.url ? (
+                        <Image
+                          src={file.url}
+                          alt={file.name}
+                          width="100%"
+                          height="100%"
+                          objectFit="cover"
+                        />
+                      ) : isImage ? (
+                        <Icon as={LuImage} boxSize={8} color="fg.muted" />
+                      ) : (
+                        <Icon as={LuFile} boxSize={8} color="fg.muted" />
+                      )}
+                    </Box>
+                    <Text
+                      fontSize="xs"
+                      fontWeight="medium"
+                      color="fg.default"
+                      lineClamp={2}
+                    >
+                      {file.name}
+                    </Text>
+                    {fileSize && (
+                      <Text fontSize="xs" color="fg.muted">
+                        {fileSize}
+                      </Text>
+                    )}
+                  </CheckboxCard>
+                );
+              }
+
               return (
-                <CheckboxCard
+                <Box
                   key={file.id}
-                  checked={isSelected}
-                  onCheckedChange={(e) =>
-                    handleMultipleToggle(file, e.checked === true)
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleSingleSelect(file)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSingleSelect(file);
+                    }
+                  }}
+                  padding={3}
+                  borderRadius="md"
+                  borderWidth="2px"
+                  borderColor={
+                    isSelected ? 'colorPalette.500' : 'border.default'
                   }
-                  variant="outline"
-                  borderColor="border.default"
-                  _hover={{ borderColor: 'border.emphasized', bg: 'bg.muted' }}
+                  bg={
+                    isSelected
+                      ? {
+                          base: 'colorPalette.50',
+                          _dark: 'colorPalette.900/20',
+                        }
+                      : 'bg.panel'
+                  }
+                  _hover={{
+                    borderColor: isSelected
+                      ? 'colorPalette.500'
+                      : 'border.emphasized',
+                    bg: isSelected
+                      ? {
+                          base: 'colorPalette.50',
+                          _dark: 'colorPalette.900/20',
+                        }
+                      : 'bg.muted',
+                  }}
                   cursor="pointer"
+                  transition="all 0.2s"
                 >
                   <Box
                     width="100%"
@@ -228,85 +317,12 @@ export const MediaLibraryBrowser = ({
                       {fileSize}
                     </Text>
                   )}
-                </CheckboxCard>
-              );
-            }
-
-            return (
-              <Box
-                key={file.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => handleSingleSelect(file)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleSingleSelect(file);
-                  }
-                }}
-                padding={3}
-                borderRadius="md"
-                borderWidth="2px"
-                borderColor={isSelected ? 'colorPalette.500' : 'border.default'}
-                bg={
-                  isSelected
-                    ? { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }
-                    : 'bg.panel'
-                }
-                _hover={{
-                  borderColor: isSelected
-                    ? 'colorPalette.500'
-                    : 'border.emphasized',
-                  bg: isSelected
-                    ? { base: 'colorPalette.50', _dark: 'colorPalette.900/20' }
-                    : 'bg.muted',
-                }}
-                cursor="pointer"
-                transition="all 0.2s"
-              >
-                <Box
-                  width="100%"
-                  aspectRatio={1}
-                  bg="bg.muted"
-                  borderRadius="md"
-                  overflow="hidden"
-                  mb={2}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  {isImage && file.url ? (
-                    <Image
-                      src={file.url}
-                      alt={file.name}
-                      width="100%"
-                      height="100%"
-                      objectFit="cover"
-                    />
-                  ) : isImage ? (
-                    <Icon as={LuImage} boxSize={8} color="fg.muted" />
-                  ) : (
-                    <Icon as={LuFile} boxSize={8} color="fg.muted" />
-                  )}
                 </Box>
-                <Text
-                  fontSize="xs"
-                  fontWeight="medium"
-                  color="fg.default"
-                  lineClamp={2}
-                >
-                  {file.name}
-                </Text>
-                {fileSize && (
-                  <Text fontSize="xs" color="fg.muted">
-                    {fileSize}
-                  </Text>
-                )}
-              </Box>
-            );
-          })}
-        </SimpleGrid>
-      )}
+              );
+            })}
+          </SimpleGrid>
+        )}
+      </Box>
     </VStack>
   );
 };

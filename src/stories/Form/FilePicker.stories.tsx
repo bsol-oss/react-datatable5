@@ -78,9 +78,22 @@ const mockFetchFiles = async (
     },
   ];
 
+  // Extra rows so the media library dialog scrolls inside the viewport (overflow fix QA)
+  const extendedMockFiles: FilePickerMediaFile[] = [
+    ...mockFiles,
+    ...Array.from({ length: 48 }, (_, i) => ({
+      id: `file-extra-${i + 1}`,
+      name: `gallery-image-${i + 1}.jpg`,
+      url: 'https://via.placeholder.com/150',
+      size: 51200 + i * 1000,
+      comment: `Gallery image ${i + 1}`,
+      type: 'image/jpeg' as const,
+    })),
+  ];
+
   // Filter by search term if provided
   if (search.trim()) {
-    return mockFiles.filter(
+    return extendedMockFiles.filter(
       (file) =>
         file.name.toLowerCase().includes(search.toLowerCase()) ||
         (file.comment &&
@@ -88,7 +101,7 @@ const mockFetchFiles = async (
     );
   }
 
-  return mockFiles;
+  return extendedMockFiles;
 };
 
 export const BasicFileUpload: Story = {

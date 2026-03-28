@@ -147,20 +147,38 @@ export function MediaBrowserDialog({
 
   return (
     <DialogRoot open={open} onOpenChange={(e) => !e.open && handleClose()}>
-      <DialogContent maxWidth="800px" maxHeight="90vh">
-        <DialogHeader>
+      <DialogContent
+        maxW="800px"
+        w={{ base: 'calc(100vw - 2rem)', md: undefined }}
+        maxH="90vh"
+        display="flex"
+        flexDirection="column"
+        overflow="hidden"
+      >
+        <DialogHeader flexShrink={0}>
           <DialogTitle fontSize="lg" fontWeight="bold">
             {title}
           </DialogTitle>
           <DialogCloseTrigger />
         </DialogHeader>
-        <DialogBody>
+        <DialogBody
+          flex="1"
+          minH="0"
+          display="flex"
+          flexDirection="column"
+          overflow="hidden"
+        >
           {showTabs ? (
             <Tabs.Root
               value={activeTab}
               onValueChange={(e) => setActiveTab(e.value ?? 'browse')}
+              flex="1"
+              minH="0"
+              display="flex"
+              flexDirection="column"
+              overflow="hidden"
             >
-              <Tabs.List>
+              <Tabs.List flexShrink={0}>
                 <Tabs.Trigger value="browse">
                   {labels?.browseTab ?? 'Browse Library'}
                 </Tabs.Trigger>
@@ -168,7 +186,14 @@ export function MediaBrowserDialog({
                   {labels?.uploadTab ?? 'Upload Files'}
                 </Tabs.Trigger>
               </Tabs.List>
-              <Tabs.Content value="browse">
+              <Tabs.Content
+                value="browse"
+                flex="1"
+                minH="0"
+                display="flex"
+                flexDirection="column"
+                overflow="hidden"
+              >
                 {onFetchFiles && (
                   <MediaLibraryBrowser
                     onFetchFiles={onFetchFiles}
@@ -180,7 +205,14 @@ export function MediaBrowserDialog({
                   />
                 )}
               </Tabs.Content>
-              <Tabs.Content value="upload">
+              <Tabs.Content
+                value="upload"
+                flex="1"
+                minH="0"
+                display="flex"
+                flexDirection="column"
+                overflow="auto"
+              >
                 <VStack align="stretch" gap={4}>
                   <FileDropzone
                     onDrop={({ files }) => handleFileUpload(files)}
@@ -253,7 +285,7 @@ export function MediaBrowserDialog({
             />
           ) : null}
         </DialogBody>
-        <DialogFooter>
+        <DialogFooter flexShrink={0}>
           <HStack gap={3} justify="end">
             <Button
               variant="outline"
