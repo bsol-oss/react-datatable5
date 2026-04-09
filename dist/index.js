@@ -3917,6 +3917,10 @@ const useFormLabel = (column, prefix = '', schema) => {
             // Return column name as fallback
             return column;
         },
+        /**
+         * Helper text from JSON Schema `description` (shown below the control).
+         */
+        helperText: schema.description,
     };
 };
 
@@ -3997,7 +4001,7 @@ const BooleanPicker = ({ schema, column, prefix }) => {
     const value = watch(colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
     const fieldError = getNestedError(errors, colLabel);
-    return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxRuntime.jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxRuntime.jsx(CheckboxCard, { checked: value, variant: 'surface', onChange: () => {
                 setValue(colLabel, !value);
             } }) }));
@@ -4118,7 +4122,7 @@ const DatePicker = ({ column, schema, prefix }) => {
             console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue, timezone]);
-    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsxRuntime.jsx("input", { type: "hidden", name: colLabel, value: selectedDate ?? '', readOnly: true, "aria-hidden": true }), jsxRuntime.jsx(DatePickerInput, { value: selectedDate, onChange: (d) => {
                     setValue(colLabel, d, {
                         shouldValidate: true,
@@ -4215,7 +4219,7 @@ const DateRangePicker = ({ column, schema, prefix, }) => {
             console.error(e);
         }
     }, [selectedDateRange, dateFormat, colLabel, setValue, timezone]);
-    return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxRuntime.jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
                         }, justifyContent: 'start', children: [jsxRuntime.jsx(md.MdDateRange, {}), getDisplayText()] }) }), insideDialog ? (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { width: "fit-content", minW: "50rem", minH: "25rem", children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(RangeDatePicker, { selected: selectedDates, timezone: timezone, onDateSelected: ({ selected }) => {
@@ -4346,7 +4350,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
         }
     };
     if (variant === 'radio') {
-        return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        return (jsxRuntime.jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
             gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxRuntime.jsx(react.RadioGroup.Root, { value: !isMultiple ? watchEnum : undefined, onValueChange: (details) => {
                     if (!isMultiple) {
                         setValue(colLabel, details.value);
@@ -4355,7 +4359,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                         return (jsxRuntime.jsxs(react.RadioGroup.Item, { value: item, children: [jsxRuntime.jsx(react.RadioGroup.ItemHiddenInput, {}), jsxRuntime.jsx(react.RadioGroup.ItemIndicator, {}), jsxRuntime.jsx(react.RadioGroup.ItemText, { children: renderEnumValue(item) })] }, `${colLabel}-${item}`));
                     }) }) }) }));
     }
-    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: [isMultiple && currentValue.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((enumValue) => {
                     if (!enumValue) {
                         return null;
@@ -4967,7 +4971,7 @@ const FilePicker = ({ column, schema, prefix }) => {
     const getImageUrl = (file) => {
         return URL.createObjectURL(file);
     };
-    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: jsxRuntime.jsx(FileDropzone, { onDrop: ({ files }) => {
                         // file-picker variant: Store File objects directly (no ID conversion)
                         if (isSingleSelect) {
@@ -5066,7 +5070,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentFileIds.join(',')]);
     if (!onFetchFiles) {
-        return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        return (jsxRuntime.jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
             gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxRuntime.jsx(react.Text, { color: "fg.muted", children: "Media library browser requires onFetchFiles" }) }));
     }
     const handleImageError = (fileIdentifier) => {
@@ -5092,7 +5096,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
             setValue(colLabel, newFileIds);
         }
     };
-    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsxRuntime.jsx(react.VStack, { align: "stretch", gap: 2, children: jsxRuntime.jsx(react.Button, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ?? 'Browse from Library' }) }), jsxRuntime.jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ?? formI18n.label() ?? 'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsxRuntime.jsx(react.Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
                     const file = fileMap.get(fileId);
                     const isImage = file
@@ -5505,7 +5509,7 @@ const IdPickerSingle = ({ column, schema, prefix, }) => {
         ? renderDisplayFunction(selectedItem)
         : null;
     const fieldError = getNestedError(errors, colLabel);
-    return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxRuntime.jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxRuntime.jsxs(react.Combobox.RootProvider, { value: combobox, width: "100%", children: [jsxRuntime.jsx(react.Show, { when: selectedId && selectedRendered, children: jsxRuntime.jsxs(react.HStack, { justifyContent: 'space-between', children: [jsxRuntime.jsx(react.Box, { children: selectedRendered }), currentValue.length > 0 && (jsxRuntime.jsx(react.Button, { variant: "ghost", size: "sm", onClick: () => {
                                     setValue(colLabel, '');
                                 }, children: jsxRuntime.jsx(react.Icon, { children: jsxRuntime.jsx(bi.BiX, {}) }) }))] }) }), jsxRuntime.jsx(react.Show, { when: !selectedId || !selectedRendered, children: jsxRuntime.jsxs(react.Combobox.Control, { position: "relative", children: [jsxRuntime.jsx(react.Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? 'Type to search' }), jsxRuntime.jsxs(react.Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsxRuntime.jsx(react.Spinner, { size: "xs" }), isError && (jsxRuntime.jsx(react.Icon, { color: "fg.error", children: jsxRuntime.jsx(bi.BiError, {}) })), jsxRuntime.jsx(react.Combobox.Trigger, {})] })] }) }), insideDialog ? (jsxRuntime.jsx(react.Combobox.Positioner, { children: jsxRuntime.jsx(react.Combobox.Content, { children: isError ? (jsxRuntime.jsx(react.Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
@@ -5540,7 +5544,7 @@ const IdPickerMultiple = ({ column, schema, prefix, }) => {
     // Use renderDisplay from hook (which comes from schema) or fallback to default
     const renderDisplayFunction = renderDisplayFn || defaultRenderDisplay;
     const fieldError = getNestedError(errors, colLabel);
-    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: [currentValue.length > 0 && (jsxRuntime.jsx(react.Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((id) => {
                     const item = idMap[id];
                     // Show loading skeleton while fetching initial values
@@ -5586,7 +5590,7 @@ const NumberInputField = ({ schema, column, prefix, }) => {
     const stringValue = value !== undefined && value !== null && value !== ''
         ? String(value)
         : undefined;
-    return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn, gridRow, errorText: fieldError, invalid: !!fieldError, children: jsxRuntime.jsxs(react.NumberInput.Root, { value: stringValue, onValueChange: (details) => {
+    return (jsxRuntime.jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, gridColumn, gridRow, errorText: fieldError, invalid: !!fieldError, children: jsxRuntime.jsxs(react.NumberInput.Root, { value: stringValue, onValueChange: (details) => {
                 // Store as string or number based on configuration, default to number
                 // Handle empty values properly - if value is empty string, store undefined
                 if (details.value === '' || details.value === undefined) {
@@ -5631,7 +5635,7 @@ const RecordInput = ({ column, schema, prefix }) => {
     const [newValue, setNewValue] = React.useState();
     const formI18n = useFormLabel(column, prefix, schema);
     const fieldError = errors[column]?.message;
-    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn, gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: [entries.map(([key, value]) => {
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn, gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: [entries.map(([key, value]) => {
                 return (jsxRuntime.jsxs(react.Grid, { templateColumns: '1fr 1fr auto', gap: 1, children: [jsxRuntime.jsx(react.Input, { value: key, onChange: (e) => {
                                 const filtered = entries.filter(([target]) => {
                                     return target !== key;
@@ -5681,7 +5685,7 @@ const StringInputField = ({ column, schema, prefix, }) => {
     const colLabel = `${prefix}${column}`;
     const fieldError = getNestedError(errors, colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxRuntime.jsx(react.Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxRuntime.jsx(react.Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
 };
 
 const Textarea = React__namespace.forwardRef(function Textarea({ value, onChange, ...props }, ref) {
@@ -5701,7 +5705,7 @@ const TextAreaInput = ({ column, schema, prefix, }) => {
     const fieldError = getNestedError(errors, colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
     const watchValue = watch(colLabel);
-    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: "grid", errorText: fieldError, invalid: !!fieldError, children: jsxRuntime.jsx(Textarea, { value: watchValue, onChange: (value) => setValue(colLabel, value) }) }) }));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: "grid", errorText: fieldError, invalid: !!fieldError, children: jsxRuntime.jsx(Textarea, { value: watchValue, onChange: (value) => setValue(colLabel, value) }) }) }));
 };
 
 dayjs.extend(utc);
@@ -5849,7 +5853,7 @@ const TimePicker = ({ column, schema, prefix }) => {
         const timeString = getTimeString(newHour, newMinute, newMeridiem);
         setValue(colLabel, timeString, { shouldValidate: true, shouldDirty: true });
     };
-    return (jsxRuntime.jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxRuntime.jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxRuntime.jsxs(react.Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsxRuntime.jsx(react.Popover.Trigger, { asChild: true, children: jsxRuntime.jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
                         }, justifyContent: 'start', children: [jsxRuntime.jsx(io.IoMdClock, {}), value ? displayedTime : ''] }) }), insideDialog ? (jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsxRuntime.jsx(react.Popover.Body, { overflow: "visible", children: jsxRuntime.jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) })) : (jsxRuntime.jsx(react.Portal, { children: jsxRuntime.jsx(react.Popover.Positioner, { children: jsxRuntime.jsx(react.Popover.Content, { children: jsxRuntime.jsx(react.Popover.Body, { children: jsxRuntime.jsx(TimePicker$1, { format: "12h", hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) }) }))] }) }));
@@ -5972,7 +5976,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             }
         }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels, portalled: !insideDialog, showQuickActions: dateTimePicker?.showQuickActions ?? false, quickActionLabels: dateTimePickerLabels?.quickActionLabels ??
             dateTimePicker?.quickActionLabels, showTimezoneSelector: dateTimePicker?.showTimezoneSelector ?? false }));
-    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxRuntime.jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsxRuntime.jsx(jsxRuntime.Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsxRuntime.jsx("input", { type: "hidden", name: colLabel, value: selectedDate ?? '', readOnly: true, "aria-hidden": true }), dateTimePickerContent] }));
 };
 

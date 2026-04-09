@@ -9,4 +9,8 @@ export declare const useFormLabel: (column: string, prefix: string | undefined, 
      * Logs a debug message if title is missing.
      */
     label: () => string;
+    /**
+     * Helper text from JSON Schema `description` (shown below the control).
+     */
+    helperText: string | undefined;
 };

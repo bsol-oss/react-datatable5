@@ -3897,6 +3897,10 @@ const useFormLabel = (column, prefix = '', schema) => {
             // Return column name as fallback
             return column;
         },
+        /**
+         * Helper text from JSON Schema `description` (shown below the control).
+         */
+        helperText: schema.description,
     };
 };
 
@@ -3977,7 +3981,7 @@ const BooleanPicker = ({ schema, column, prefix }) => {
     const value = watch(colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
     const fieldError = getNestedError(errors, colLabel);
-    return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(CheckboxCard, { checked: value, variant: 'surface', onChange: () => {
                 setValue(colLabel, !value);
             } }) }));
@@ -4098,7 +4102,7 @@ const DatePicker = ({ column, schema, prefix }) => {
             console.error(e);
         }
     }, [selectedDate, dateFormat, colLabel, setValue, timezone]);
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsx("input", { type: "hidden", name: colLabel, value: selectedDate ?? '', readOnly: true, "aria-hidden": true }), jsx(DatePickerInput, { value: selectedDate, onChange: (d) => {
                     setValue(colLabel, d, {
                         shouldValidate: true,
@@ -4195,7 +4199,7 @@ const DateRangePicker = ({ column, schema, prefix, }) => {
             console.error(e);
         }
     }, [selectedDateRange, dateFormat, colLabel, setValue, timezone]);
-    return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
                         }, justifyContent: 'start', children: [jsx(MdDateRange, {}), getDisplayText()] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { width: "fit-content", minW: "50rem", minH: "25rem", children: jsx(Popover.Body, { children: jsx(RangeDatePicker, { selected: selectedDates, timezone: timezone, onDateSelected: ({ selected }) => {
@@ -4326,7 +4330,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
         }
     };
     if (variant === 'radio') {
-        return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        return (jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
             gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(RadioGroup$1.Root, { value: !isMultiple ? watchEnum : undefined, onValueChange: (details) => {
                     if (!isMultiple) {
                         setValue(colLabel, details.value);
@@ -4335,7 +4339,7 @@ const EnumPicker = ({ column, isMultiple = false, schema, prefix, showTotalAndLi
                         return (jsxs(RadioGroup$1.Item, { value: item, children: [jsx(RadioGroup$1.ItemHiddenInput, {}), jsx(RadioGroup$1.ItemIndicator, {}), jsx(RadioGroup$1.ItemText, { children: renderEnumValue(item) })] }, `${colLabel}-${item}`));
                     }) }) }) }));
     }
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [isMultiple && currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((enumValue) => {
                     if (!enumValue) {
                         return null;
@@ -4947,7 +4951,7 @@ const FilePicker = ({ column, schema, prefix }) => {
     const getImageUrl = (file) => {
         return URL.createObjectURL(file);
     };
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(FileDropzone, { onDrop: ({ files }) => {
                         // file-picker variant: Store File objects directly (no ID conversion)
                         if (isSingleSelect) {
@@ -5046,7 +5050,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentFileIds.join(',')]);
     if (!onFetchFiles) {
-        return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+        return (jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
             gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(Text, { color: "fg.muted", children: "Media library browser requires onFetchFiles" }) }));
     }
     const handleImageError = (fileIdentifier) => {
@@ -5072,7 +5076,7 @@ const FormMediaLibraryBrowser = ({ column, schema, prefix, }) => {
             setValue(colLabel, newFileIds);
         }
     };
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsx(VStack, { align: "stretch", gap: 2, children: jsx(Button$1, { variant: "outline", onClick: () => setDialogOpen(true), borderColor: "border.default", bg: "bg.panel", _hover: { bg: 'bg.muted' }, children: filePickerLabels?.browseLibrary ?? 'Browse from Library' }) }), jsx(MediaBrowserDialog, { open: dialogOpen, onClose: () => setDialogOpen(false), onSelect: handleMediaLibrarySelect, title: filePickerLabels?.dialogTitle ?? formI18n.label() ?? 'Select File', filterImageOnly: filterImageOnly, onFetchFiles: onFetchFiles, onUploadFile: onUploadFile, enableUpload: enableUpload, labels: filePickerLabels, colLabel: colLabel }), jsx(Flex, { flexFlow: 'column', gap: 1, children: currentFileIds.map((fileId, index) => {
                     const file = fileMap.get(fileId);
                     const isImage = file
@@ -5485,7 +5489,7 @@ const IdPickerSingle = ({ column, schema, prefix, }) => {
         ? renderDisplayFunction(selectedItem)
         : null;
     const fieldError = getNestedError(errors, colLabel);
-    return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxs(Combobox.RootProvider, { value: combobox, width: "100%", children: [jsx(Show, { when: selectedId && selectedRendered, children: jsxs(HStack, { justifyContent: 'space-between', children: [jsx(Box, { children: selectedRendered }), currentValue.length > 0 && (jsx(Button$1, { variant: "ghost", size: "sm", onClick: () => {
                                     setValue(colLabel, '');
                                 }, children: jsx(Icon, { children: jsx(BiX, {}) }) }))] }) }), jsx(Show, { when: !selectedId || !selectedRendered, children: jsxs(Combobox.Control, { position: "relative", children: [jsx(Combobox.Input, { placeholder: idPickerLabels?.typeToSearch ?? 'Type to search' }), jsxs(Combobox.IndicatorGroup, { children: [(isFetching || isLoading || isPending) && jsx(Spinner, { size: "xs" }), isError && (jsx(Icon, { color: "fg.error", children: jsx(BiError, {}) })), jsx(Combobox.Trigger, {})] })] }) }), insideDialog ? (jsx(Combobox.Positioner, { children: jsx(Combobox.Content, { children: isError ? (jsx(Text, { p: 2, color: "fg.error", fontSize: "sm", children: idPickerLabels?.emptySearchResult ?? 'Loading failed' })) : isFetching || isLoading || isPending || isSearching ? (
@@ -5520,7 +5524,7 @@ const IdPickerMultiple = ({ column, schema, prefix, }) => {
     // Use renderDisplay from hook (which comes from schema) or fallback to default
     const renderDisplayFunction = renderDisplayFn || defaultRenderDisplay;
     const fieldError = getNestedError(errors, colLabel);
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [currentValue.length > 0 && (jsx(Flex, { flexFlow: 'wrap', gap: 1, mb: 2, children: currentValue.map((id) => {
                     const item = idMap[id];
                     // Show loading skeleton while fetching initial values
@@ -5566,7 +5570,7 @@ const NumberInputField = ({ schema, column, prefix, }) => {
     const stringValue = value !== undefined && value !== null && value !== ''
         ? String(value)
         : undefined;
-    return (jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn, gridRow, errorText: fieldError, invalid: !!fieldError, children: jsxs(NumberInput.Root, { value: stringValue, onValueChange: (details) => {
+    return (jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, gridColumn, gridRow, errorText: fieldError, invalid: !!fieldError, children: jsxs(NumberInput.Root, { value: stringValue, onValueChange: (details) => {
                 // Store as string or number based on configuration, default to number
                 // Handle empty values properly - if value is empty string, store undefined
                 if (details.value === '' || details.value === undefined) {
@@ -5611,7 +5615,7 @@ const RecordInput = ({ column, schema, prefix }) => {
     const [newValue, setNewValue] = useState();
     const formI18n = useFormLabel(column, prefix, schema);
     const fieldError = errors[column]?.message;
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn, gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [entries.map(([key, value]) => {
+    return (jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn, gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [entries.map(([key, value]) => {
                 return (jsxs(Grid, { templateColumns: '1fr 1fr auto', gap: 1, children: [jsx(Input, { value: key, onChange: (e) => {
                                 const filtered = entries.filter(([target]) => {
                                     return target !== key;
@@ -5661,7 +5665,7 @@ const StringInputField = ({ column, schema, prefix, }) => {
     const colLabel = `${prefix}${column}`;
     const fieldError = getNestedError(errors, colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
-    return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
+    return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, gridColumn: gridColumn, gridRow: gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsx(Input, { ...register(`${colLabel}`, { required: isRequired }), autoComplete: "off" }) }) }));
 };
 
 const Textarea = React.forwardRef(function Textarea({ value, onChange, ...props }, ref) {
@@ -5681,7 +5685,7 @@ const TextAreaInput = ({ column, schema, prefix, }) => {
     const fieldError = getNestedError(errors, colLabel);
     const formI18n = useFormLabel(column, prefix, schema);
     const watchValue = watch(colLabel);
-    return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: "grid", errorText: fieldError, invalid: !!fieldError, children: jsx(Textarea, { value: watchValue, onChange: (value) => setValue(colLabel, value) }) }) }));
+    return (jsx(Fragment, { children: jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, gridColumn: gridColumn ?? 'span 4', gridRow: gridRow ?? 'span 1', display: "grid", errorText: fieldError, invalid: !!fieldError, children: jsx(Textarea, { value: watchValue, onChange: (value) => setValue(colLabel, value) }) }) }));
 };
 
 dayjs.extend(utc);
@@ -5829,7 +5833,7 @@ const TimePicker = ({ column, schema, prefix }) => {
         const timeString = getTimeString(newHour, newMinute, newMeridiem);
         setValue(colLabel, timeString, { shouldValidate: true, shouldDirty: true });
     };
-    return (jsx(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsx(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: jsxs(Popover.Root, { open: open, onOpenChange: (e) => setOpen(e.open), closeOnInteractOutside: true, children: [jsx(Popover.Trigger, { asChild: true, children: jsxs(Button, { size: "sm", variant: "outline", onClick: () => {
                             setOpen(true);
                         }, justifyContent: 'start', children: [jsx(IoMdClock, {}), value ? displayedTime : ''] }) }), insideDialog ? (jsx(Popover.Positioner, { children: jsx(Popover.Content, { maxH: "70vh", overflowY: "auto", children: jsx(Popover.Body, { overflow: "visible", children: jsx(TimePicker$1, { hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) })) : (jsx(Portal, { children: jsx(Popover.Positioner, { children: jsx(Popover.Content, { children: jsx(Popover.Body, { children: jsx(TimePicker$1, { format: "12h", hour: hour, setHour: setHour, minute: minute, setMinute: setMinute, meridiem: meridiem, setMeridiem: setMeridiem, onChange: handleTimeChange, startTime: startTime, selectedDate: selectedDate, timezone: timezone, portalled: false, labels: timePickerLabels }) }) }) }) }))] }) }));
@@ -5952,7 +5956,7 @@ const DateTimePicker = ({ column, schema, prefix, }) => {
             }
         }, timezone: timezone, labels: dateTimePickerLabelsConfig, timePickerLabels: timePickerLabels, portalled: !insideDialog, showQuickActions: dateTimePicker?.showQuickActions ?? false, quickActionLabels: dateTimePickerLabels?.quickActionLabels ??
             dateTimePicker?.quickActionLabels, showTimezoneSelector: dateTimePicker?.showTimezoneSelector ?? false }));
-    return (jsxs(Field, { label: formI18n.label(), required: isRequired, alignItems: 'stretch', gridColumn,
+    return (jsxs(Field, { label: formI18n.label(), helperText: formI18n.helperText, required: isRequired, alignItems: 'stretch', gridColumn,
         gridRow, errorText: jsx(Fragment, { children: fieldError }), invalid: !!fieldError, children: [jsx("input", { type: "hidden", name: colLabel, value: selectedDate ?? '', readOnly: true, "aria-hidden": true }), dateTimePickerContent] }));
 };
 
