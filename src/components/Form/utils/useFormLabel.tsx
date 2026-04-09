@@ -37,5 +37,9 @@ export const useFormLabel = (
       // Return column name as fallback
       return column;
     },
+    /**
+     * Helper text from JSON Schema `description` (shown below the control).
+     */
+    helperText: schema.description,
   };
 };

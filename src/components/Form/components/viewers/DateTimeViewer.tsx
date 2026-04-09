@@ -32,6 +32,7 @@ export const DateTimeViewer = ({ column, schema, prefix }: DateViewerProps) => {
   return (
     <Field
       label={formI18n.label()}
+      helperText={formI18n.helperText}
       required={isRequired}
       alignItems={'stretch'}
       {...{

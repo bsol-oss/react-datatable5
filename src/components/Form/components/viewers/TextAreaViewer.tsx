@@ -25,6 +25,7 @@ export const TextAreaViewer = ({
     <>
       <Field
         label={formI18n.label()}
+        helperText={formI18n.helperText}
         required={isRequired}
         gridColumn={gridColumn}
         gridRow={gridRow}

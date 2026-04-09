@@ -25,6 +25,7 @@ export const StringViewer = ({
     <>
       <Field
         label={formI18n.label()}
+        helperText={formI18n.helperText}
         required={isRequired}
         gridColumn={gridColumn ?? 'span 4'}
         gridRow={gridRow ?? 'span 1'}

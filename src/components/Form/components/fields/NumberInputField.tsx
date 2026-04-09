@@ -44,6 +44,7 @@ export const NumberInputField = ({
   return (
     <Field
       label={formI18n.label()}
+      helperText={formI18n.helperText}
       required={isRequired}
       {...{ gridColumn, gridRow }}
       errorText={fieldError}

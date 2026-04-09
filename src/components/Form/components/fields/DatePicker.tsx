@@ -59,6 +59,7 @@ export const DatePicker = ({ column, schema, prefix }: InputDefaultProps) => {
   return (
     <Field
       label={formI18n.label()}
+      helperText={formI18n.helperText}
       required={isRequired}
       alignItems={'stretch'}
       {...{
